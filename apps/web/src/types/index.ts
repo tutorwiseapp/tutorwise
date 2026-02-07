@@ -572,6 +572,10 @@ export interface Booking {
   cancelled_at?: string | null;                // ISO timestamp when booking was cancelled
   caas_impact?: number | null;                 // CaaS score impact for tutor (e.g., -10, -50)
 
+  // v7.0 Recurring Booking fields (migration 237 - 2026-02-07)
+  recurring_series_id?: string | null;         // UUID of recurring booking series
+  series_instance_number?: number | null;      // Instance number in series (1, 2, 3...)
+
   // Stripe payment fields
   stripe_payment_intent_id?: string | null;    // Stripe Payment Intent ID
   stripe_checkout_id?: string | null;          // Stripe Checkout Session ID
@@ -601,6 +605,31 @@ export interface Booking {
     id: string;
     title: string;
   };
+  // v7.0 Joined data for advanced scheduling features
+  recurring_series?: {
+    id: string;
+    recurrence_pattern: any;
+    status: 'active' | 'paused' | 'cancelled';
+  };
+  reminders?: Array<{
+    id: string;
+    reminder_type: '24h' | '1h' | '15min';
+    sent_at: string | null;
+    status: 'pending' | 'sent' | 'failed';
+  }>;
+  no_show_report?: {
+    id: string;
+    no_show_party: 'client' | 'tutor';
+    reported_at: string;
+    status: 'pending_review' | 'confirmed' | 'disputed';
+    reported_by: string;
+  } | null;
+  quick_rating?: {
+    id: string;
+    rating: number;
+    captured_at: string;
+    rater_id: string;
+  } | null;
 }
 
 // Transaction interface (SDD v4.9, Section 3.2 - Updated for clearing period & payout tracking)

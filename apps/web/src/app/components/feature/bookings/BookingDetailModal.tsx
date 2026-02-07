@@ -200,6 +200,71 @@ export default function BookingDetailModal({
         }] : []),
       ].filter(Boolean),
     }] : []),
+    // v7.0 Advanced Scheduling section (only show if any v7.0 features are present)
+    ...((booking.recurring_series_id || booking.reminders?.length || booking.no_show_report || booking.quick_rating) ? [{
+      title: 'Advanced Scheduling (v7.0)',
+      fields: [
+        // Recurring booking info
+        ...(booking.recurring_series_id ? [
+          {
+            label: 'Recurring Series',
+            value: `Part of recurring series (Instance #${booking.series_instance_number || 'N/A'})`
+          },
+          ...(booking.recurring_series ? [
+            {
+              label: 'Series Status',
+              value: booking.recurring_series.status === 'active' ? '✅ Active' :
+                     booking.recurring_series.status === 'paused' ? '⏸️ Paused' :
+                     booking.recurring_series.status === 'cancelled' ? '❌ Cancelled' :
+                     booking.recurring_series.status
+            },
+          ] : []),
+        ] : []),
+        // Reminder status
+        ...(booking.reminders && booking.reminders.length > 0 ? [
+          {
+            label: 'Reminders',
+            value: `${booking.reminders.filter(r => r.status === 'sent').length} of ${booking.reminders.length} sent`
+          },
+          {
+            label: 'Reminder Details',
+            value: booking.reminders.map(r =>
+              `${r.reminder_type.toUpperCase()}: ${r.status === 'sent' ? '✅ Sent' : r.status === 'failed' ? '❌ Failed' : '⏳ Pending'}`
+            ).join(', ')
+          },
+        ] : [
+          { label: 'Reminders', value: 'No reminders scheduled' }
+        ]),
+        // Quick rating
+        ...(booking.quick_rating ? [
+          {
+            label: 'Quick Rating',
+            value: `${'⭐'.repeat(booking.quick_rating.rating)} (${booking.quick_rating.rating}/5 stars)`
+          },
+          {
+            label: 'Rating Captured',
+            value: formatDateTime(booking.quick_rating.captured_at)
+          },
+        ] : []),
+        // No-show report
+        ...(booking.no_show_report ? [
+          {
+            label: 'No-Show Report',
+            value: `${booking.no_show_report.no_show_party === 'client' ? 'Client' : 'Tutor'} reported as no-show`
+          },
+          {
+            label: 'Report Status',
+            value: booking.no_show_report.status === 'confirmed' ? '✅ Confirmed' :
+                   booking.no_show_report.status === 'disputed' ? '⚠️ Disputed' :
+                   '⏳ Pending Review'
+          },
+          {
+            label: 'Reported At',
+            value: formatDateTime(booking.no_show_report.reported_at)
+          },
+        ] : []),
+      ].filter(Boolean),
+    }] : []),
     {
       title: 'Listing & References',
       fields: [

@@ -26,6 +26,7 @@ import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { DEFAULT_SCHEDULING_RULES, getPlatformTimezoneDisplay } from '@/lib/scheduling/rules';
+import { PLATFORM_TIMEZONE, detectUserTimezone } from '@/lib/utils/timezone-converter';
 import { AlertCircle, Calendar, Clock, Info } from 'lucide-react';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { useLocalStorageDraft, formatDraftAge } from '@/hooks/useLocalStorageDraft';
@@ -112,6 +113,10 @@ export default function SchedulingModal({
   onSchedulingComplete,
 }: SchedulingModalProps) {
   const { profile } = useUserProfile();
+
+  // Determine user's timezone (v7.0 timezone support)
+  const userTimezone = profile?.timezone || detectUserTimezone();
+  const showDualTimezone = userTimezone !== PLATFORM_TIMEZONE;
 
   // Early return if profile is not available
   if (!profile?.id) {
@@ -528,7 +533,9 @@ export default function SchedulingModal({
           <p className={styles.currentTimeValue}>{proposedDateDisplay}</p>
           <p className={styles.currentTimeFooter}>
             {isRescheduling
-              ? `All times shown in ${getPlatformTimezoneDisplay()}`
+              ? showDualTimezone
+                ? `Your timezone: ${userTimezone} (Platform: ${PLATFORM_TIMEZONE})`
+                : `All times shown in ${getPlatformTimezoneDisplay()}`
               : `Proposed by ${isProposer ? 'you' : 'the other party'}`}
           </p>
           {canConfirm && (

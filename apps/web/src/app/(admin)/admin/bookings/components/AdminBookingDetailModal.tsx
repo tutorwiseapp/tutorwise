@@ -217,6 +217,108 @@ export default function AdminBookingDetailModal({
         }] : []),
       ].filter(Boolean),
     }] : []),
+    // v7.0 Advanced Scheduling & Automation section
+    ...((booking.recurring_series_id || booking.reminders?.length || booking.no_show_report || booking.quick_rating) ? [{
+      title: 'Advanced Scheduling & Automation (v7.0)',
+      fields: [
+        // Recurring booking details
+        {
+          label: 'Recurring Series ID',
+          value: booking.recurring_series_id || 'Not part of recurring series'
+        },
+        ...(booking.recurring_series_id ? [
+          {
+            label: 'Series Instance Number',
+            value: `Instance ${booking.series_instance_number || 'N/A'} of recurring series`
+          },
+        ] : []),
+        ...(booking.recurring_series ? [
+          {
+            label: 'Series Status',
+            value: booking.recurring_series.status === 'active' ? '✅ Active' :
+                   booking.recurring_series.status === 'paused' ? '⏸️ Paused' :
+                   booking.recurring_series.status === 'cancelled' ? '❌ Cancelled' :
+                   booking.recurring_series.status
+          },
+          {
+            label: 'Recurrence Pattern',
+            value: JSON.stringify(booking.recurring_series.recurrence_pattern)
+          },
+        ] : []),
+
+        // Reminder tracking (more detailed for admin)
+        {
+          label: 'Reminders Scheduled',
+          value: booking.reminders
+            ? `${booking.reminders.length} reminders (24h, 1h, 15min)`
+            : 'No reminders scheduled'
+        },
+        ...(booking.reminders && booking.reminders.length > 0 ? [
+          {
+            label: 'Reminders Sent',
+            value: `${booking.reminders.filter(r => r.status === 'sent').length} of ${booking.reminders.length}`
+          },
+          {
+            label: 'Reminder Breakdown',
+            value: booking.reminders.map(r =>
+              `${r.reminder_type.toUpperCase()}: ${
+                r.status === 'sent' ? `✅ Sent at ${formatDateTime(r.sent_at || '')}` :
+                r.status === 'failed' ? '❌ Failed' :
+                '⏳ Pending'
+              }`
+            ).join(' | ')
+          },
+        ] : []),
+
+        // No-show report (detailed for admin oversight)
+        ...(booking.no_show_report ? [
+          {
+            label: 'No-Show Report ID',
+            value: booking.no_show_report.id
+          },
+          {
+            label: 'No-Show Party',
+            value: booking.no_show_report.no_show_party === 'client'
+              ? `Client (${booking.client?.full_name})`
+              : `Tutor (${booking.tutor?.full_name})`
+          },
+          {
+            label: 'Report Status',
+            value: booking.no_show_report.status === 'confirmed' ? '✅ Confirmed' :
+                   booking.no_show_report.status === 'disputed' ? '⚠️ Disputed - Requires Admin Review' :
+                   '⏳ Pending Review'
+          },
+          {
+            label: 'Reported By',
+            value: booking.no_show_report.reported_by
+          },
+          {
+            label: 'Reported At',
+            value: formatDateTime(booking.no_show_report.reported_at)
+          },
+        ] : [
+          { label: 'No-Show Report', value: 'None' }
+        ]),
+
+        // Quick rating (for admin visibility)
+        ...(booking.quick_rating ? [
+          {
+            label: 'Quick Rating',
+            value: `${'⭐'.repeat(booking.quick_rating.rating)} (${booking.quick_rating.rating}/5 stars)`
+          },
+          {
+            label: 'Rating Captured At',
+            value: formatDateTime(booking.quick_rating.captured_at)
+          },
+          {
+            label: 'Rated By',
+            value: booking.quick_rating.rater_id
+          },
+        ] : [
+          { label: 'Quick Rating', value: 'Not captured' }
+        ]),
+      ].filter(Boolean),
+    }] : []),
     {
       title: 'Status & Timeline',
       fields: [
