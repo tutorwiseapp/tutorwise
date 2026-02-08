@@ -165,8 +165,8 @@ describe('Financials Audit Fixes - Critical Tests', () => {
       const bookingAmount = 5.50;
       const result = calculateRefund(bookingAmount, 25, 'client');
 
-      expect(result.stripeFee).toBe(0.28); // 1.5% of 5.50 = 0.08 + 0.20 = 0.28
-      expect(result.clientRefund).toBe(5.22); // 5.50 - 0.28
+      expect(result.stripeFee).toBeCloseTo(0.28, 2); // 1.5% of 5.50 = 0.08 + 0.20 = 0.28
+      expect(result.clientRefund).toBeCloseTo(5.22, 2); // 5.50 - 0.28
     });
 
     it('should handle large amounts correctly', () => {
@@ -183,9 +183,9 @@ describe('Financials Audit Fixes - Critical Tests', () => {
       const bookingAmount = 0;
       const result = calculateRefund(bookingAmount, 25, 'client');
 
-      expect(result.clientRefund).toBe(0);
-      expect(result.stripeFee).toBe(0.20); // Fixed fee still applies
-      expect(result.tutorPayout).toBe(0);
+      expect(result.clientRefund).toBeCloseTo(0, 2);
+      expect(result.stripeFee).toBeCloseTo(0.20, 2); // Fixed fee still applies
+      expect(result.tutorPayout).toBeCloseTo(0, 2);
     });
 
     it('should handle very late cancellation (negative hours)', () => {

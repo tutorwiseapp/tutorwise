@@ -14,7 +14,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-12-15.clover',
 });
 
 // Skip these tests in pre-commit hook (require full environment setup)
@@ -115,9 +115,11 @@ describe.skip('Webhook DLQ Error Handling', () => {
 
       // First, temporarily disable the failed_webhooks table by revoking permissions
       // (This simulates DLQ being unavailable)
-      await supabase.rpc('revoke_failed_webhooks_access').catch(() => {
+      try {
+        await supabase.rpc('revoke_failed_webhooks_access');
+      } catch {
         // RPC might not exist, we'll handle this in another way
-      });
+      }
 
       const response = await fetch('http://localhost:3000/api/webhooks/stripe', {
         method: 'POST',

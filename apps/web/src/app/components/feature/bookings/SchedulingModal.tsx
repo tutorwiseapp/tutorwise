@@ -115,7 +115,7 @@ export default function SchedulingModal({
   const { profile } = useUserProfile();
 
   // Determine user's timezone (v7.0 timezone support)
-  const userTimezone = profile?.timezone || detectUserTimezone();
+  const userTimezone = (profile as any)?.timezone || detectUserTimezone();
   const showDualTimezone = userTimezone !== PLATFORM_TIMEZONE;
 
   // Early return if profile is not available
