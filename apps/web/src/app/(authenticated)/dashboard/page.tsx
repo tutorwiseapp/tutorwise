@@ -31,6 +31,7 @@ import FirstLoginModal from '@/app/components/feature/dashboard/content/FirstLog
 import TipsCard from '@/app/components/feature/dashboard/performance/TipsCard';
 import DashboardHelpWidget from '@/app/components/feature/dashboard/sidebar/DashboardHelpWidget';
 import DashboardVideoWidget from '@/app/components/feature/dashboard/sidebar/DashboardVideoWidget';
+import NetworkMetricsWidget from '@/app/components/feature/dashboard/sidebar/NetworkMetricsWidget';
 import { TooltipProvider } from '@/app/components/ui/Tooltip';
 import MessagesWidget from '@/app/components/feature/dashboard/performance/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/performance/PayoutWidget';
@@ -341,6 +342,9 @@ const DashboardPage = () => {
             userId={profile.id}
             role={activeRole === 'client' ? 'client' : activeRole === 'agent' ? 'agent' : 'tutor'}
           />
+
+          {/* Network Metrics Widget - Connection stats and growth */}
+          <NetworkMetricsWidget userId={profile.id} />
 
           {/* Tips Card - Role-specific actionable tips */}
           <TipsCard

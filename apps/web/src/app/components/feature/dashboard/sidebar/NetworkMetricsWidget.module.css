@@ -1,0 +1,183 @@
+/**
+ * Network Metrics Widget Styles
+ * Follows Hub widget design patterns
+ */
+
+.widget {
+  background: var(--card-background, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: var(--border-radius-md, 12px);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #1f2937);
+  margin: 0;
+}
+
+.viewAll {
+  font-size: 0.875rem;
+  color: var(--primary-color, #2563eb);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.viewAll:hover {
+  color: var(--primary-hover, #1d4ed8);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 0.875rem;
+}
+
+/* Main Metric */
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary, #1f2937);
+  line-height: 1;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.growth {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.growthIndicator {
+  color: var(--success-color, #10b981);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.growthText {
+  font-size: 0.8125rem;
+  color: var(--success-color, #10b981);
+  font-weight: 500;
+}
+
+/* Pending Section */
+.pendingSection {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.pendingLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.pendingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.pendingItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--background-secondary, #f9fafb);
+  border-radius: var(--border-radius-sm, 8px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.pendingItem:hover {
+  background: var(--background-hover, #f3f4f6);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pendingCount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--warning-color, #f59e0b);
+  line-height: 1;
+}
+
+.pendingText {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+}
+
+.emptyText {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.exploreLink {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: var(--primary-color, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.exploreLink:hover {
+  color: var(--primary-hover, #1d4ed8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .widget {
+    padding: 1.25rem;
+  }
+
+  .metricValue {
+    font-size: 1.75rem;
+  }
+
+  .pendingCount {
+    font-size: 1.25rem;
+  }
+}
