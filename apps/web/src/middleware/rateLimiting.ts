@@ -34,6 +34,21 @@ const LIMITS: Record<string, RateLimitConfig> = {
     window: 3600, // 1 hour
     message: 'Connection removal limit exceeded. Try again in an hour.'
   },
+  'payment:booking_create': {
+    requests: 20,
+    window: 3600, // 1 hour
+    message: 'Booking creation limit exceeded. Try again in an hour.'
+  },
+  'payment:checkout_create': {
+    requests: 30,
+    window: 3600, // 1 hour
+    message: 'Checkout creation limit exceeded. Try again in an hour.'
+  },
+  'payment:refund': {
+    requests: 10,
+    window: 3600, // 1 hour
+    message: 'Refund request limit exceeded. Try again in an hour.'
+  },
 };
 
 export interface RateLimitResult {

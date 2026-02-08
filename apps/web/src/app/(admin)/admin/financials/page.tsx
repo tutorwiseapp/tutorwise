@@ -14,11 +14,13 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, Clock, AlertCircle, PiggyBank } from 'lucide-react';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import TransactionsTable from './components/TransactionsTable';
+import ReconciliationDashboard from './components/ReconciliationDashboard';
+import DisputesManagement from './components/DisputesManagement';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
@@ -29,7 +31,7 @@ export const dynamicParams = true;
 
 export default function AdminFinancialsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'all-transactions'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'reconciliation' | 'disputes' | 'all-transactions'>('overview');
 
   // Fetch transaction metrics with trend data from statistics table
   const totalTransactionsMetric = useAdminMetric({ metric: 'transactions_total', compareWith: 'last_month' });
@@ -38,6 +40,7 @@ export default function AdminFinancialsPage() {
   const paidOutMetric = useAdminMetric({ metric: 'transactions_paid_out', compareWith: 'last_month' });
   const disputedMetric = useAdminMetric({ metric: 'transactions_disputed', compareWith: 'last_month' });
   const refundedMetric = useAdminMetric({ metric: 'transactions_refunded', compareWith: 'last_month' });
+  const platformRevenueMetric = useAdminMetric({ metric: 'platform_revenue', compareWith: 'last_month' });
 
   // Header actions
   const getHeaderActions = () => {
@@ -85,9 +88,11 @@ export default function AdminFinancialsPage() {
         <HubTabs
           tabs={[
             { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'reconciliation', label: 'Reconciliation', active: activeTab === 'reconciliation' },
+            { id: 'disputes', label: 'Disputes', count: disputedMetric.value, active: activeTab === 'disputes' },
             { id: 'all-transactions', label: 'All Transactions', count: totalTransactionsMetric.value, active: activeTab === 'all-transactions' }
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-transactions')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'reconciliation' | 'disputes' | 'all-transactions')}
           className={styles.transactionsTabs}
         />
       }
@@ -126,7 +131,7 @@ export default function AdminFinancialsPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards Grid - All 6 cards in single grid */}
+          {/* KPI Cards Grid - All 7 cards in single grid */}
           <HubKPIGrid>
             <HubKPICard
               label="Total Transactions"
@@ -138,6 +143,17 @@ export default function AdminFinancialsPage() {
               )}
               icon={DollarSign}
               trend={totalTransactionsMetric.trend}
+            />
+            <HubKPICard
+              label="Platform Revenue"
+              value={`£${(platformRevenueMetric.value / 100).toFixed(0)}`}
+              sublabel={formatMetricChange(
+                platformRevenueMetric.change,
+                platformRevenueMetric.changePercent,
+                'last_month'
+              )}
+              icon={PiggyBank}
+              trend={platformRevenueMetric.trend}
             />
             <HubKPICard
               label="Clearing"
@@ -227,6 +243,16 @@ export default function AdminFinancialsPage() {
             </ErrorBoundary>
           </div>
         </>
+      )}
+
+      {/* Reconciliation Tab */}
+      {activeTab === 'reconciliation' && (
+        <ReconciliationDashboard />
+      )}
+
+      {/* Disputes Tab */}
+      {activeTab === 'disputes' && (
+        <DisputesManagement />
       )}
 
       {/* All Transactions Tab */}

@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { calculateRefund, updateTutorCaaSScore, reverseBookingCommissions } from '@/lib/booking-policies/cancellation';
 import { stripe } from '@/lib/stripe';
 import { sendBookingCancellationEmails } from '@/lib/email-templates/booking';
+import { checkRateLimit, rateLimitError, rateLimitHeaders } from '@/middleware/rateLimiting';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,18 @@ export async function POST(
     } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // 1a. Rate limit check (security: prevent refund spam)
+    const rateLimitResult = await checkRateLimit(user.id, 'payment:refund');
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimitResult),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimitResult.remaining, rateLimitResult.resetAt)
+        }
+      );
     }
 
     // 2. Parse request body

@@ -21,6 +21,8 @@ import WalletBalanceWidget from '@/app/components/feature/financials/WalletBalan
 import TransactionHelpWidget from '@/app/components/feature/financials/TransactionHelpWidget';
 import TransactionTipWidget from '@/app/components/feature/financials/TransactionTipWidget';
 import TransactionVideoWidget from '@/app/components/feature/financials/TransactionVideoWidget';
+import WithdrawalConfirmationModal from '@/app/components/feature/financials/WithdrawalConfirmationModal';
+import WithdrawalHistorySection from '@/app/components/feature/financials/WithdrawalHistorySection';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -52,6 +54,7 @@ export default function TransactionsPage() {
   const [transactionType, setTransactionType] = useState<TransactionType>('all');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
 
   // React Query: Fetch financials data
   // isLoading is true only on first fetch; isFetching is true on all fetches
@@ -60,6 +63,7 @@ export default function TransactionsPage() {
     isLoading,
     isFetching,
     error,
+    refetch,
   } = useQuery({
     queryKey: ['financials', profile?.id],
     queryFn: getFinancials,
@@ -188,8 +192,13 @@ export default function TransactionsPage() {
 
   // Action handlers
   const handleRequestWithdrawal = () => {
-    toast('Withdrawal request functionality coming soon!', { icon: '💰' });
+    setShowWithdrawalModal(true);
     setShowActionsMenu(false);
+  };
+
+  const handleWithdrawalComplete = () => {
+    // Refetch financials data to show updated balance
+    refetch();
   };
 
   const handleViewStripeDashboard = () => {
@@ -388,6 +397,7 @@ export default function TransactionsPage() {
             available={balances.available}
             pending={balances.pending}
             total={balances.total}
+            transactions={transactions}
           />
           <TransactionHelpWidget />
           <TransactionTipWidget />
@@ -433,7 +443,18 @@ export default function TransactionsPage() {
             )}
           </>
         )}
+
+        {/* Withdrawal History Section */}
+        <WithdrawalHistorySection transactions={transactions} />
       </div>
+
+      {/* Withdrawal Confirmation Modal */}
+      <WithdrawalConfirmationModal
+        isOpen={showWithdrawalModal}
+        onClose={() => setShowWithdrawalModal(false)}
+        availableBalance={balances.available}
+        onWithdrawalComplete={handleWithdrawalComplete}
+      />
     </HubPageLayout>
   );
 }

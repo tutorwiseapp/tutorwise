@@ -683,14 +683,22 @@ export async function POST(req: NextRequest) {
       });
 
       console.log(`Logged failed webhook ${event.id} to DLQ`);
-    } catch (dlqError) {
-      console.error('Failed to log to DLQ:', dlqError);
-    }
 
-    // Return 200 to prevent Stripe retries (already in DLQ)
-    return NextResponse.json({
-      received: true,
-      error: 'Event processing failed, logged to DLQ for manual review'
-    }, { status: 200 });
+      // Return 200 to prevent Stripe retries (already in DLQ)
+      return NextResponse.json({
+        received: true,
+        error: 'Event processing failed, logged to DLQ for manual review'
+      }, { status: 200 });
+
+    } catch (dlqError) {
+      console.error('CRITICAL: Failed to log to DLQ:', dlqError);
+
+      // SECURITY FIX: Return 500 so Stripe retries the webhook
+      // If we can't log to DLQ, we need Stripe to retry so we don't lose the event
+      return NextResponse.json({
+        received: false,
+        error: 'Failed to process event and log to DLQ. Stripe should retry.'
+      }, { status: 500 });
+    }
   }
 }

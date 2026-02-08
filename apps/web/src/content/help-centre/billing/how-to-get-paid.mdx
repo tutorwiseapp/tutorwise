@@ -6,7 +6,7 @@ audience: "tutor"
 description: "Complete guide to payment processing, payouts, fees, and earnings on Tutorwise"
 keywords: ["payments", "earnings", "payouts", "fees", "commission", "bank transfer"]
 author: "Tutorwise Team"
-lastUpdated: "2025-01-19"
+lastUpdated: "2026-02-07"
 readTime: "6 min"
 relatedArticles:
   - "stripe-setup"
@@ -29,16 +29,16 @@ Getting paid on Tutorwise is simple and automated. This guide explains the entir
 1. **Student Books Session**: Payment method authorized, not charged
 2. **Session Completes**: Both parties confirm completion
 3. **Payment Processes**: Student charged within 24 hours
-4. **Platform Fee Deducted**: 15% commission
-5. **Added to Payout**: Included in next weekly batch
-6. **Bank Transfer**: Sent to your account every Friday
+4. **Platform Fee Deducted**: 10% commission
+5. **Added to Payout**: Included in next weekly batch or manual withdrawal
+6. **Bank Transfer**: Automated Friday payouts or on-demand
 7. **Money in Bank**: Arrives 2-5 business days later
 
 ## Understanding Platform Fees
 
 ### Standard Commission Structure
 
-**Platform Fee: 15%**
+**Platform Fee: 10%** (Updated Feb 2026)
 
 **What This Covers:**
 - Payment processing (Stripe fees)
@@ -51,8 +51,17 @@ Getting paid on Tutorwise is simple and automated. This guide explains the entir
 **Example Calculation:**
 ```
 Session Price:        £100.00
-Platform Fee (15%):   -£15.00
-Your Earnings:         £85.00
+Platform Fee (10%):   -£10.00
+Your Earnings:         £90.00
+```
+
+**With Referral Attribution:**
+If client was referred by an agent:
+```
+Session Price:        £100.00
+Platform Fee (10%):   -£10.00
+Referral Commission:  -£10.00 (paid to referring agent)
+Your Earnings:         £80.00
 ```
 
 ### Enterprise Pricing
@@ -113,17 +122,50 @@ Contact sales@tutorwise.com for enterprise pricing.
 
 ## Payout Schedule
 
-### Weekly Automatic Transfers
+### Two Withdrawal Options (New!)
 
-**Payout Day**: Every Friday
+You now have flexibility in how you receive payments:
+
+#### Option 1: Weekly Automatic Payouts
+**Payout Day**: Every Friday at 10:00 AM UTC
 **Cutoff Time**: Thursday 11:59 PM
-**Minimum Amount**: £10
+**Minimum Amount**: £20 for teaching earnings, £25 for referral commissions
 
 **How It Works:**
-- All completed sessions from previous week
-- Automatically batched and transferred
-- No manual withdrawal needed
+- All cleared transactions automatically batched
+- Transferred to Stripe Connect account
+- Arrives in bank 2-5 business days later
+- No action needed from you
 - Track in Financials dashboard
+
+#### Option 2: Manual Withdrawals (New!)
+**Anytime**: Request withdrawal on-demand
+**Processing**: 2-3 business days to your bank
+**Requirements**: Available balance only (not clearing funds)
+
+**How to Request:**
+1. Go to [Financials](/financials)
+2. Click "Request Withdrawal" button
+3. Review available balance and terms
+4. Confirm withdrawal
+5. Email confirmation sent
+6. Funds transferred to Stripe Connect account
+
+**Limitations:**
+- One active withdrawal at a time
+- 15-minute cooldown between requests
+- Cannot withdraw clearing funds (must wait 7 days)
+- Must have connected Stripe account
+
+**Withdrawal History:**
+- New "Withdrawal History" section on Financials page
+- Track all past withdrawals
+- See status: Processing, Completed, Failed
+- Link to Stripe Dashboard for each payout
+
+<CalloutBox type="success">
+**Best Practice:** Use automatic payouts for consistent cash flow, or manual withdrawals when you need money immediately. Both options are free with no additional fees!
+</CalloutBox>
 
 ### Minimum Payout Threshold
 
@@ -142,25 +184,33 @@ Contact sales@tutorwise.com for enterprise pricing.
 
 ### Financials Dashboard
 
-Go to Financials to view:
+Go to [Financials](/financials) to view:
 
-**Overview Tab:**
-- Current balance
-- This week's earnings
-- This month's earnings
-- All-time earnings
-
-**Payouts Tab:**
-- Upcoming payout amount
-- Payout history
-- Individual payout details
-- Download statements
+**Wallet Balance Widget (Enhanced!):**
+- Available balance (ready to withdraw)
+- Clearing balance (pending 7-day period)
+- Total earned all-time
+- **NEW: Upcoming Earnings Projections**
+  - Expandable view showing when clearing funds become available
+  - Grouped by date with amounts
+  - See exactly when each payment clears
+  - Plan your cash flow effectively
 
 **Transactions Tab:**
 - Session-by-session breakdown
-- Student name and date
-- Gross amount and platform fee
-- Net earnings per session
+- Real-time status updates
+- Dispute alerts (if any)
+- Refund notifications
+- Filter by date, type, status
+- Search by client name or service
+- Export to CSV for accounting
+
+**Withdrawal History (New!):**
+- All past withdrawal requests
+- Current status tracking
+- Estimated arrival dates
+- Link to Stripe for each payout
+- Failed withdrawal troubleshooting
 
 ### Earnings Breakdown
 
@@ -278,16 +328,37 @@ Status: Paid (Jan 19)
 ### Disputed Payments
 
 **Student Disputes Charge:**
-- Stripe handles dispute process
-- Provide session evidence (messages, materials)
-- Stripe makes final determination
-- Funds held until resolved
+You'll see a prominent **red "Payment Disputed" banner** on the transaction:
+- Stripe handles dispute process automatically
+- Funds held until investigation completes
+- You have 7 days to respond with evidence
+- Click "View in Stripe Dashboard" to upload proof
+
+**What to Upload:**
+- Session recordings or screenshots
+- Message history with student
+- Attendance records
+- Work completed/materials provided
+- Any other proof of service delivery
 
 **Your Protection:**
-- Keep detailed session notes
+- Keep detailed session notes in WiseSpace
 - Save all student communications
-- Document attendance
-- Respond quickly to dispute requests
+- Document attendance in real-time
+- Respond within 7 days for best results
+- Contact support@tutorwise.com if you need help
+
+**Dispute Banner:**
+The new dispute alert shows:
+- Clear red warning at top of transaction
+- Dispute reason and status
+- Direct link to Stripe Dashboard
+- Instructions for evidence submission
+- Timeline for response
+
+<CalloutBox type="warning">
+**Act Fast:** If you see a red dispute banner, respond within 7 days. Late responses significantly reduce your chances of winning the dispute.
+</CalloutBox>
 
 ## Maximizing Your Earnings
 

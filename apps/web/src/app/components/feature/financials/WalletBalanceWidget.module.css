@@ -2,8 +2,17 @@
  * Filename: src/app/components/financials/WalletBalanceWidget.module.css
  * Purpose: Styles for WalletBalanceWidget component
  * Created: 2025-11-11
+ * Updated: 2026-02-07 - Added projections section styles
  */
 
+/* Container for widget + projections */
+.widgetContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Legacy styles (still used internally) */
 .balanceCard {
   display: flex;
   flex-direction: column;
@@ -63,6 +72,87 @@
   color: var(--color-gray-700, #4B4B4B);
 }
 
+/* Earnings Projections Section */
+.projectionsSection {
+  background: var(--color-gray-50, #f9fafb);
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  margin-top: -1px;
+}
+
+.projectionsToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #374151);
+  transition: background-color 0.2s;
+}
+
+.projectionsToggle:hover {
+  background-color: var(--color-gray-100, #f3f4f6);
+}
+
+.projectionsToggle svg {
+  color: var(--color-primary-default, #006c67);
+  flex-shrink: 0;
+}
+
+.projectionsToggle span:nth-child(2) {
+  flex: 1;
+  text-align: left;
+}
+
+.toggleIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.projectionsList {
+  padding: 0 1rem 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.projectionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+}
+
+.projectionDate {
+  font-size: 0.8125rem;
+  color: var(--color-gray-600, #6b7280);
+  font-weight: 500;
+}
+
+.projectionAmount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-success-default, #059669);
+}
+
+.projectionFooter {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-gray-200, #e5e7eb);
+  font-size: 0.75rem;
+  color: var(--color-gray-500, #6b7280);
+  text-align: center;
+  line-height: 1.4;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .balanceAvailable,
@@ -72,5 +162,22 @@
 
   .balanceAmountTotal {
     font-size: 1.25rem;
+  }
+
+  .projectionsToggle {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .projectionItem {
+    padding: 0.375rem 0.625rem;
+  }
+
+  .projectionDate {
+    font-size: 0.75rem;
+  }
+
+  .projectionAmount {
+    font-size: 0.8125rem;
   }
 }

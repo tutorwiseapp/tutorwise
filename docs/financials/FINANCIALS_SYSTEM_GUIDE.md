@@ -16,10 +16,11 @@
 6. [Refund & Cancellation Policy](#refund--cancellation-policy)
 7. [Security & RLS Policies](#security--rls-policies)
 8. [Recent Audit Fixes (2026-02-07)](#recent-audit-fixes-2026-02-07)
-9. [API Endpoints](#api-endpoints)
-10. [Database Schema](#database-schema)
-11. [Testing](#testing)
-12. [Troubleshooting](#troubleshooting)
+9. [UI Enhancements (2026-02-07)](#ui-enhancements-2026-02-07)
+10. [API Endpoints](#api-endpoints)
+11. [Database Schema](#database-schema)
+12. [Testing](#testing)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -378,6 +379,138 @@ A comprehensive security audit identified and fixed 7 critical issues:
 
 ---
 
+## UI Enhancements (2026-02-07)
+
+Following the security audit, comprehensive UI enhancements were added to both user and admin financials pages:
+
+### User-Facing Enhancements
+
+#### 1. Enhanced Wallet Balance Widget
+**Component**: `WalletBalanceWidget.tsx`
+- **Earnings Projections**: Expandable "Upcoming Earnings" section
+- **Date Grouping**: Shows when clearing funds become available (up to 5 future dates)
+- **Amount Breakdown**: Total clearing amount per date
+- **Transaction Count**: Number of transactions clearing on each date
+- **7-Day Timeline**: Automatically calculates based on session completion + 7 days
+
+**Usage**: Pass `transactions` prop to enable projections feature.
+
+#### 2. Functional Withdrawal System
+**Component**: `WithdrawalConfirmationModal.tsx`
+- **On-Demand Withdrawals**: Users can request withdrawals anytime
+- **Confirmation Modal**: Shows available balance, processing time (2-3 days), limitations
+- **API Integration**: Calls `/api/financials/withdraw` with full error handling
+- **Conflict Prevention**: Shows error if another withdrawal is processing
+- **Auto-Refresh**: Refetches balance data after successful withdrawal
+
+**Flow**:
+1. User clicks "Request Withdrawal" button on `/financials`
+2. Modal displays available balance and terms
+3. User confirms
+4. POST request to `/api/financials/withdraw`
+5. Success: Balance refreshes, modal closes
+6. Error: Toast message with specific reason (409 Conflict, 400 Bad Request, etc.)
+
+#### 3. Withdrawal History Section
+**Component**: `WithdrawalHistorySection.tsx`
+- **Collapsible Section**: Appears below transaction list (if withdrawals exist)
+- **Last 10 Withdrawals**: Sorted by most recent first
+- **Status Tracking**: Processing, Completed, Failed, Disputed
+- **Stripe Integration**: Direct links to Stripe Dashboard for each payout
+- **Estimated Arrival**: Shows ETA for processing withdrawals (if available_at set)
+
+**Statuses**:
+- `clearing` → "Processing" (yellow badge)
+- `paid_out` → "Completed" (green badge)
+- `failed` → "Failed" (red badge)
+- `disputed` → "Disputed" (red badge)
+
+#### 4. Enhanced Transaction Cards with Dispute Alerts
+**Component**: `TransactionCard.tsx`
+- **Dispute Banner**: Prominent red gradient alert for disputed transactions
+- **Refund Notice**: Yellow banner for refunded transactions
+- **Stripe Links**: Direct links to Stripe Dashboard for disputes
+- **Contextual Info**: Explains dispute status and recommends immediate action
+
+**Visual Indicators**:
+- Disputed: Red border, AlertTriangle icon, "View in Stripe Dashboard" link
+- Refunded: Yellow background, softer alert styling
+
+### Admin-Facing Enhancements
+
+#### 5. Reconciliation Dashboard (New Tab)
+**Component**: `ReconciliationDashboard.tsx`
+**Route**: `/admin/financials` → "Reconciliation" tab
+**API**: `/api/admin/financials/reconciliation`
+
+**Features**:
+- **Balance Comparison**: Stripe vs Supabase side-by-side
+- **Discrepancy Detection**: Highlights mismatches (> £0.01 tolerance)
+- **Visual Indicators**:
+  - Green checkmark badge if balanced
+  - Red alert badge if discrepancy exists
+- **Refresh Button**: Manual sync trigger
+- **Help Section**: Explains causes (webhook failures, manual Stripe ops, rounding) and resolution steps
+
+**Calculation**:
+```javascript
+// Supabase balance = sum of Platform Fee transactions with status 'paid_out'
+supabaseBalance = SUM(amount) WHERE type='Platform Fee' AND status='paid_out'
+
+// Stripe balance from API (converted from pence to pounds)
+stripeBalance = stripe.balance.available[0].amount / 100
+
+// Discrepancy
+discrepancy = supabaseBalance - stripeBalance
+```
+
+#### 6. Disputes Management (New Tab)
+**Component**: `DisputesManagement.tsx`
+**Route**: `/admin/financials` → "Disputes" tab
+**API**: `/api/admin/financials/disputes`
+
+**Features**:
+- **Dispute Queue**: All transactions with `status='disputed'`
+- **Status Filtering**: All, Pending, Under Review, Won, Lost
+- **Booking Context**: Client name, tutor name, amount, reason, booking reference
+- **Quick Actions**:
+  - "View Booking" → `/admin/bookings/[id]`
+  - "View in Stripe" → `https://dashboard.stripe.com/disputes/[id]`
+- **Empty States**: Clear messaging when no disputes exist
+
+**Dispute Card Info**:
+- Booking reference (first 8 chars of ID)
+- Amount (absolute value)
+- Status badge (color-coded)
+- Reason (from chargeback)
+- Client/tutor names
+- Filed date
+
+#### 7. Platform Revenue KPI Card (Overview Tab)
+**Component**: `HubKPICard` in admin financials page
+**Location**: First row of KPI grid, second position
+
+**Display**:
+- Label: "Platform Revenue"
+- Value: £X (formatted, from `platform_revenue` metric)
+- Sublabel: Month-over-month trend (±X%, ↑↓ arrow)
+- Icon: PiggyBank
+
+**Data Source**: `useAdminMetric({ metric: 'platform_revenue', compareWith: 'last_month' })`
+
+#### 8. Updated Admin Tabs
+**Route**: `/admin/financials`
+
+**4 Tabs**:
+1. **Overview**: Existing KPIs + charts (now includes Platform Revenue)
+2. **Reconciliation** (NEW): Balance comparison dashboard
+3. **Disputes** (NEW): Dispute management queue (with count badge)
+4. **All Transactions**: Existing transactions table
+
+**Implementation**: Updated `activeTab` state, `HubTabs` configuration, conditional rendering
+
+---
+
 ## API Endpoints
 
 ### Financials Management
@@ -385,9 +518,16 @@ A comprehensive security audit identified and fixed 7 critical issues:
 | Endpoint | Method | Purpose | Auth |
 |----------|--------|---------|------|
 | `/api/financials` | GET | Fetch user transactions & balances | Required |
-| `/api/financials/withdraw` | POST | Request withdrawal | Required |
+| `/api/financials/withdraw` | POST | Request withdrawal (manual, on-demand) | Required |
 | `/api/bookings/[id]/cancel` | POST | Cancel booking & process refund | Required |
 | `/api/webhooks/stripe` | POST | Stripe webhook handler | Webhook signature |
+
+### Admin Financials (New!)
+
+| Endpoint | Method | Purpose | Auth |
+|----------|--------|---------|------|
+| `/api/admin/financials/reconciliation` | GET | Compare Stripe vs Supabase balances | Admin only |
+| `/api/admin/financials/disputes` | GET | Fetch all disputed transactions | Admin only |
 
 ### Cron Jobs (Automated)
 

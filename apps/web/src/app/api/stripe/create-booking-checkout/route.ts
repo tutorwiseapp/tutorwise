@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
+import { checkRateLimit, rateLimitError, rateLimitHeaders } from '@/middleware/rateLimiting';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,18 @@ export async function POST(req: NextRequest) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
+    // 1a. Rate limit check (security: prevent checkout spam)
+    const rateLimitResult = await checkRateLimit(user.id, 'payment:checkout_create');
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimitResult),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimitResult.remaining, rateLimitResult.resetAt)
+        }
+      );
+    }
+
     // 2. Parse request body
     const body = await req.json();
     const { booking_id } = body;
@@ -37,10 +50,18 @@ export async function POST(req: NextRequest) {
       return new NextResponse(JSON.stringify({ error: "booking_id is required" }), { status: 400 });
     }
 
-    // 3. Get booking details (migrations 049 & 051)
+    // 3. Get booking details with tutor's Stripe account (for transfer_data)
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select('id, client_id, amount, service_name, payment_status')
+      .select(`
+        id,
+        client_id,
+        tutor_id,
+        amount,
+        service_name,
+        payment_status,
+        tutor:profiles!bookings_tutor_id_fkey(stripe_account_id)
+      `)
       .eq('id', booking_id)
       .eq('client_id', user.id) // Ensure user owns this booking (migration 049)
       .single();
@@ -92,6 +113,8 @@ export async function POST(req: NextRequest) {
     const sessionMetadata: Record<string, string> = {
       booking_id: booking_id, // CRITICAL: This is used by the webhook to find the booking
       supabase_user_id: user.id,
+      tutor_id: booking.tutor_id,
+      client_id: booking.client_id,
     };
 
     // v5.7: Add wiselist referrer for attribution tracking
@@ -119,6 +142,15 @@ export async function POST(req: NextRequest) {
       metadata: sessionMetadata,
       success_url: `${origin}/bookings?payment=success`,
       cancel_url: `${origin}/bookings?payment=cancel`,
+      // NEW: Unified commission handling via transfer_data (matches schedule/confirm flow)
+      payment_intent_data: booking.tutor?.stripe_account_id
+        ? {
+            application_fee_amount: Math.round(booking.amount * 10), // 10% platform fee
+            transfer_data: {
+              destination: booking.tutor.stripe_account_id,
+            },
+          }
+        : undefined,
     });
 
     return NextResponse.json({

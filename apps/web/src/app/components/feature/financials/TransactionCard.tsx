@@ -15,6 +15,8 @@ import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
 import { getInitials } from '@/lib/utils/initials';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import { AlertTriangle, ExternalLink } from 'lucide-react';
+import styles from './TransactionCard.module.css';
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -189,8 +191,49 @@ export default function TransactionCard({ transaction, currentUserId }: Transact
     </>
   );
 
+  const isDisputed = transaction.status === 'disputed';
+  const isRefunded = transaction.status === 'refunded';
+
   return (
     <>
+      {/* Dispute Alert Banner */}
+      {isDisputed && (
+        <div className={styles.disputeAlert}>
+          <div className={styles.disputeHeader}>
+            <AlertTriangle size={20} className={styles.disputeIcon} />
+            <div className={styles.disputeContent}>
+              <h4 className={styles.disputeTitle}>Payment Disputed</h4>
+              <p className={styles.disputeText}>
+                This payment has been disputed by the payer. The funds have been held pending investigation.
+              </p>
+            </div>
+          </div>
+          <div className={styles.disputeActions}>
+            <a
+              href="https://dashboard.stripe.com/disputes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.disputeLink}
+            >
+              View in Stripe Dashboard
+              <ExternalLink size={14} />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Refund Notice Banner */}
+      {isRefunded && (
+        <div className={styles.refundNotice}>
+          <div className={styles.refundContent}>
+            <AlertTriangle size={18} className={styles.refundIcon} />
+            <p className={styles.refundText}>
+              This transaction has been refunded. The original payment was reversed.
+            </p>
+          </div>
+        </div>
+      )}
+
       <HubDetailCard
         image={getImage()}
         title={title}

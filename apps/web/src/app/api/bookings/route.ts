@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server';
 import { incrementListingBookings } from '@/lib/api/listings';
 import { sendBookingRequestEmail, type BookingEmailData } from '@/lib/email-templates/booking';
 import { checkAllConflicts } from '@/lib/scheduling/conflict-detection';
+import { checkRateLimit, rateLimitError, rateLimitHeaders } from '@/middleware/rateLimiting';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -131,6 +132,18 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    // 1a. Rate limit check (security: prevent booking spam)
+    const rateLimitResult = await checkRateLimit(user.id, 'payment:booking_create');
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimitResult),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimitResult.remaining, rateLimitResult.resetAt)
+        }
+      );
+    }
+
     // 2. Get user's profile to check referred_by_profile_id for lifetime attribution (migration 028)
     // Also get referrer's active_role for referrer_role field (migration 132)
     const { data: profile, error: profileError } = await supabase
@@ -157,6 +170,24 @@ export async function POST(req: Request) {
     // 4. Validate required fields (listing_id is optional for direct profile bookings)
     if (!tutor_id || !service_name || !session_start_time || !session_duration || !amount) {
       return new NextResponse("Missing required fields", { status: 400 });
+    }
+
+    // 4a. Validate amount field (security: prevent negative/zero/invalid amounts)
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0) {
+      return new NextResponse("Invalid amount: must be a positive number", { status: 400 });
+    }
+    if (parsedAmount > 10000) {
+      return new NextResponse("Invalid amount: exceeds maximum allowed (£10,000)", { status: 400 });
+    }
+
+    // 4b. Validate session_duration (security: prevent invalid durations)
+    const parsedDuration = Number(session_duration);
+    if (isNaN(parsedDuration) || !isFinite(parsedDuration) || parsedDuration <= 0) {
+      return new NextResponse("Invalid session duration: must be a positive number of minutes", { status: 400 });
+    }
+    if (parsedDuration > 1440) {
+      return new NextResponse("Invalid session duration: exceeds maximum (24 hours)", { status: 400 });
     }
 
     // 4.5. Fetch listing to validate availability and get snapshot fields (migrations 104, 108)
