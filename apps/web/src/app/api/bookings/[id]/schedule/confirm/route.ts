@@ -235,6 +235,12 @@ export async function POST(
         })
         .eq('id', bookingId);
 
+      /**
+       * NOTE: Wiselist attribution tracking has been REMOVED.
+       * Do NOT implement wiselist_referrer_id cookie tracking.
+       * Wiselists are organizational tools only - no referral credits.
+       */
+
       // Create Stripe checkout session
       const checkoutSession = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],

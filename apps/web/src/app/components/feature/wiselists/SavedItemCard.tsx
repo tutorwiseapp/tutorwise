@@ -15,6 +15,12 @@ import { slugify } from '@/lib/utils/slugify';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 
+/**
+ * NOTE: Wiselist attribution/referral tracking has been REMOVED.
+ * Do NOT implement wiselist_referrer_id cookie tracking or attribution logic.
+ * Wiselists are organizational tools only - no referral credits or attribution.
+ */
+
 interface SavedItemCardProps {
   item: WiselistItem;
   onAddToList: (itemId: string) => void;
