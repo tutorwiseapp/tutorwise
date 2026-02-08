@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -22,6 +23,18 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limiting (100 actions per day to prevent spam)
+    const rateLimit = await checkRateLimit(user.id, 'student:action');
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimit),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit.remaining, rateLimit.resetAt)
+        }
+      );
     }
 
     const linkId = params.id;
@@ -47,7 +60,40 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       );
     }
 
-    // Delete the Guardian Link
+    // Check for active bookings before allowing unlink (Fix #2: Prevent orphaned data)
+    const { data: activeBookings, error: bookingsError } = await supabase
+      .from('bookings')
+      .select('id, status, start_time')
+      .eq('client_id', user.id)
+      .eq('student_id', link.target_profile_id)
+      .in('status', ['pending', 'confirmed', 'in_progress'])
+      .order('start_time', { ascending: true });
+
+    if (bookingsError) {
+      console.error('[client-student/delete] Error checking bookings:', bookingsError);
+      throw bookingsError;
+    }
+
+    if (activeBookings && activeBookings.length > 0) {
+      const upcomingCount = activeBookings.filter(b =>
+        new Date(b.start_time) > new Date()
+      ).length;
+
+      return NextResponse.json(
+        {
+          error: `Cannot unlink student with ${activeBookings.length} active booking(s)`,
+          details: {
+            active_bookings: activeBookings.length,
+            upcoming_bookings: upcomingCount,
+            message: 'Please cancel or complete all bookings before unlinking student',
+            booking_ids: activeBookings.map(b => b.id)
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    // Safe to delete - no active bookings
     const { error: deleteError } = await supabase
       .from('profile_graph')
       .delete()
@@ -66,10 +112,15 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
     //   metadata: { link_id: linkId, student_id: link.target_profile_id },
     // });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Student unlinked successfully',
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Student unlinked successfully',
+      },
+      {
+        headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
+      }
+    );
 
   } catch (error) {
     console.error('[client-student/delete] Error:', error);

@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { BookingService } from '@/lib/services/BookingService';
+import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting (100 actions per day)
+    const rateLimit = await checkRateLimit(user.id, 'student:action');
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimit),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit.remaining, rateLimit.resetAt)
+        }
       );
     }
 
@@ -64,12 +77,17 @@ export async function POST(request: NextRequest) {
     //   metadata: { student_id }
     // });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Student assigned to booking successfully',
-      booking_id,
-      student_id,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Student assigned to booking successfully',
+        booking_id,
+        student_id,
+      },
+      {
+        headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
+      }
+    );
 
   } catch (error) {
     console.error('Error in POST /api/bookings/assign:', error);

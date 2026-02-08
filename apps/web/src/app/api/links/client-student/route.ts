@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 import { z } from 'zod';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
@@ -29,6 +30,18 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limiting (50 invitations per day to prevent spam)
+    const rateLimit = await checkRateLimit(user.id, 'student:invite');
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimit),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit.remaining, rateLimit.resetAt)
+        }
+      );
     }
 
     // Validate request body
@@ -74,6 +87,17 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (existingStudent) {
+      // Prevent self-linking (Fix #3: Guardian cannot add themselves as student)
+      if (existingStudent.id === user.id) {
+        return NextResponse.json(
+          {
+            error: 'You cannot add yourself as a student',
+            details: 'Please use a different email address for the student'
+          },
+          { status: 400 }
+        );
+      }
+
       // Check if guardian link already exists
       const { data: existingLink } = await supabase
         .from('profile_graph')
@@ -111,12 +135,17 @@ export async function POST(request: NextRequest) {
         throw linkError;
       }
 
-      return NextResponse.json({
-        success: true,
-        message: 'Student linked successfully',
-        link_id: newLink.id,
-        student_existed: true,
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Student linked successfully',
+          link_id: newLink.id,
+          student_existed: true,
+        },
+        {
+          headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
+        }
+      );
     }
 
     // Student doesn't exist - send invitation email
@@ -139,12 +168,17 @@ export async function POST(request: NextRequest) {
     //   invitationUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/signup/invite?token=${invitationToken}`,
     // });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Invitation sent successfully',
-      invitation_sent: true,
-      student_email,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Invitation sent successfully',
+        invitation_sent: true,
+        student_email,
+      },
+      {
+        headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
+      }
+    );
 
   } catch (error) {
     console.error('[client-student] Error:', error);
