@@ -236,7 +236,7 @@ id uuid PRIMARY KEY
 client_id uuid → profiles(id)
 tutor_id uuid → profiles(id)
 agent_profile_id uuid → profiles(id)  -- Lifetime referrer attribution
-booking_referrer_id uuid → profiles(id)  -- Wiselist attribution (v5.7)
+booking_referrer_id uuid → profiles(id)  -- ❌ REMOVED (v5.7 wiselist attribution - deprecated 2026-02-08)
 amount DECIMAL(10,2)
 status booking_status_enum  -- Pending, Confirmed, Completed, Cancelled
 payment_status transaction_status_enum  -- Pending, Paid, Failed
@@ -427,52 +427,46 @@ AND v_referring_agent_id NOT IN (v_booking.agent_profile_id, v_booking.tutor_id)
 
 ---
 
-### 5. WISELIST/NETWORK INTEGRATION (In-Network Sales)
+### 5. ~~WISELIST/NETWORK INTEGRATION~~ ❌ REMOVED (2026-02-08)
 
-**How It Works**:
+> **⚠️ DEPRECATION NOTICE**
+>
+> Wiselist attribution tracking has been PERMANENTLY REMOVED.
+> The referral system (v4.3) was removed from the platform.
+> Wiselists are now organizational tools only - no attribution or commission tracking.
 
-**Wiselist Sharing with Attribution**:
+**~~How It Works~~**: (No longer applicable)
+
+**~~Wiselist Sharing with Attribution~~**: REMOVED
 ```typescript
+// ❌ THIS CODE HAS BEEN REMOVED FROM ALL ENDPOINTS
+
 // 1. User shares Wiselist via /w/[slug] with their profile_id in cookie
-// Middleware sets cookie: wiselist_referrer_id
+// Middleware sets cookie: wiselist_referrer_id [REMOVED]
 
-// 2. Cookie passed to Stripe checkout
-// apps/web/src/app/api/stripe/create-booking-checkout/route.ts (lines 88-100)
-const wiselistReferrerId = cookies.get('wiselist_referrer_id')?.value;
+// 2. Cookie passed to Stripe checkout [REMOVED]
+// apps/web/src/app/api/stripe/create-booking-checkout/route.ts
+// wiselist_referrer_id tracking has been removed
 
-const session = await stripe.checkout.sessions.create({
-  metadata: {
-    booking_id: booking.id,
-    wiselist_referrer_id: wiselistReferrerId || null,
-    ...
-  },
-});
-
-// 3. Webhook saves attribution
-// apps/web/src/app/api/webhooks/stripe/route.ts (lines 84-100)
-const wiselistReferrerId = session.metadata?.wiselist_referrer_id;
-
-if (wiselistReferrerId) {
-  await supabase
-    .from('bookings')
-    .update({ booking_referrer_id: wiselistReferrerId })
-    .eq('id', bookingId);
-}
+// 3. Webhook saves attribution [REMOVED]
+// apps/web/src/app/api/webhooks/stripe/route.ts
+// wiselist attribution validation has been removed
 ```
 
 **Database Schema**:
 ```sql
--- Migration 084: Add booking_referrer_id
+-- Migration 084: Add booking_referrer_id [DEPRECATED - field unused]
 ALTER TABLE bookings
 ADD COLUMN booking_referrer_id uuid REFERENCES profiles(id);
+-- ⚠️ Column remains in database but is no longer populated or used
 ```
 
-**Integration Points**:
-- **File**: `/apps/web/src/app/api/stripe/create-booking-checkout/route.ts` (lines 88-100)
-- **File**: `/apps/web/src/app/api/webhooks/stripe/route.ts` (lines 84-100)
-- **Migration**: `084_add_booking_referrer_id.sql`
+**~~Integration Points~~**: ALL REMOVED
+- ~~**File**: `/apps/web/src/app/api/stripe/create-booking-checkout/route.ts`~~ (code removed)
+- ~~**File**: `/apps/web/src/app/api/webhooks/stripe/route.ts`~~ (code removed)
+- **Migration**: `084_add_booking_referrer_id.sql` (field deprecated but not dropped)
 
-**Current Status**: Attribution tracking for analytics purposes only (no commission structure)
+**Current Status**: ❌ Feature removed entirely - no attribution tracking or commission structure
 
 ---
 
@@ -1164,12 +1158,12 @@ CREATE INDEX idx_transactions_created_at ON transactions(created_at DESC);
 4. **Agents** - Agent-led bookings with 20% commission
 5. **Stripe** - Complete Stripe Connect integration (checkout, webhooks, payouts)
 6. **Dashboard** - Earnings tracking, trends, agency analytics
-7. **Wiselist/Network** - In-network sales attribution tracking (future commission)
+7. ~~**Wiselist/Network**~~ - ❌ REMOVED (2026-02-08) - Attribution tracking removed, no commission
 8. **Transactions** - Context snapshotting for self-contained audit trails
 
 ### ⚠️ Partial Integrations
 
-1. **Wiselist** - Tracking only (booking_referrer_id), no commission calculation yet
+~~1. **Wiselist**~~ - ❌ REMOVED (2026-02-08) - Attribution tracking permanently removed
 
 ### ❌ No Integration Found
 

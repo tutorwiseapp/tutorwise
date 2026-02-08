@@ -11,10 +11,11 @@
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-02-08 | v6.1 | **⚠️ Deprecation**: Removed wiselist attribution tracking - referral system (v4.3) removed from platform |
 | 2026-02-05 | v6.0 | **5-Stage Scheduling Workflow**: Discover > Book > Schedule > Pay > Review. New scheduling_status enum, propose/confirm/reschedule APIs, 15-min slot reservation, pg_cron cleanup |
 | 2025-12-12 | v5.9 | **Free Help Support**: Added free_help booking type, instant confirmation flow, 30-minute session format |
 | 2025-12-08 | v5.8 | **Listing Snapshots**: Preserved 7 critical listing fields in bookings for historical accuracy |
-| 2025-11-20 | v5.7 | **Wiselist Attribution**: Cookie-based referral tracking for in-network conversions |
+| 2025-11-20 | v5.7 | **~~Wiselist Attribution~~**: ❌ REMOVED (2026-02-08) - Cookie-based referral tracking for in-network conversions |
 | 2025-11-01 | v5.0 | **3-Party Bookings**: Guardian/student/tutor support via student_id field |
 | 2025-10-15 | v4.9 | **Payment Webhook v4**: Commission split logic (90/10, 80/10/10 referral, or 70/20/10 agent-led) |
 | 2025-09-20 | v4.0 | **Initial Release**: Direct bookings, Stripe integration, WiseSpace completion |
