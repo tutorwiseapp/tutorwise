@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { ProfileGraphService } from '@/lib/services/ProfileGraphService';
+import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 import { z } from 'zod';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
@@ -26,6 +27,18 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Rate limiting (200 actions per day to prevent spam remove actions)
+    const rateLimit = await checkRateLimit(user.id, 'network:action');
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(rateLimit),
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit.remaining, rateLimit.resetAt)
+        }
+      );
+    }
+
     // Validate request body
     const body = await request.json();
     const validation = RemoveSchema.safeParse(body);
@@ -42,10 +55,15 @@ export async function DELETE(request: NextRequest) {
     // Remove connection using ProfileGraphService
     await ProfileGraphService.removeConnection(connection_id, user.id);
 
-    return NextResponse.json({
-      success: true,
-      message: 'Connection removed',
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Connection removed',
+      },
+      {
+        headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
+      }
+    );
 
   } catch (error) {
     console.error('[network/remove] Error:', error);

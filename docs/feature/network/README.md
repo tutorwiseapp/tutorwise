@@ -144,7 +144,7 @@ supabase
 **Input**: Target user ID, optional message
 **Process**:
 1. User clicks "Connect" on another user's profile or in ConnectionRequestModal
-2. Frontend calls `/api/network/send` (POST)
+2. Frontend calls `/api/network/request` (POST)
 3. Backend (ProfileGraphService):
    - Validates user authentication
    - Checks for existing connection (prevent duplicates)
@@ -202,7 +202,7 @@ supabase
 
 ## API Routes
 
-### POST `/api/network/send`
+### POST `/api/network/request`
 **Purpose**: Create connection request
 
 **Body**:
@@ -259,7 +259,7 @@ supabase
 ```typescript
 describe('Network API', () => {
   it('should send connection request', async () => {
-    const response = await fetch('/api/network/send', {
+    const response = await fetch('/api/network/request', {
       method: 'POST',
       body: JSON.stringify({ target_profile_id: 'uuid' }),
     });

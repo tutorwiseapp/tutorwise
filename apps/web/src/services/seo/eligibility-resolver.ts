@@ -254,6 +254,7 @@ export class SEOEligibilityResolver {
   /**
    * Get network trust metrics
    * Returns trust density (0-1) and count
+   * Updated 2026-02-08: Migrated from legacy 'connections' to 'profile_graph' table
    */
   private async getNetworkMetrics(
     entityId: string,
@@ -264,13 +265,14 @@ export class SEOEligibilityResolver {
     }
 
     try {
-      // For now, use connection count as proxy
-      // Will be replaced with actual network_trust_metrics in Phase 3
+      // Query profile_graph for SOCIAL relationships (v4.6 network architecture)
+      // Counts ACTIVE connections where user is either source or target
       const { count, error } = await this.supabase
-        .from('connections')
+        .from('profile_graph')
         .select('*', { count: 'exact', head: true })
-        .or(`from_user_id.eq.${entityId},to_user_id.eq.${entityId}`)
-        .eq('status', 'accepted');
+        .eq('relationship_type', 'SOCIAL')
+        .eq('status', 'ACTIVE')
+        .or(`source_profile_id.eq.${entityId},target_profile_id.eq.${entityId}`);
 
       if (error) {
         console.error('Error fetching network metrics:', error);

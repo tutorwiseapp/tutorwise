@@ -260,7 +260,7 @@ export default function NetworkPage() {
 ### Task 2: Send Connection Request
 
 ```typescript
-// POST /api/network/send
+// POST /api/network/request
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -374,7 +374,7 @@ if (connectionStatus === 'ACTIVE') {
 
 ## Testing Checklist
 
-- [ ] **Send Request**: POST /api/network/send creates PENDING profile_graph record
+- [ ] **Send Request**: POST /api/network/request creates PENDING profile_graph record
 - [ ] **Email Sent**: Resend API delivers connection request email
 - [ ] **Accept Request**: POST /api/network/accept updates status to ACTIVE
 - [ ] **Real-time**: Toast notification appears instantly on recipient's dashboard

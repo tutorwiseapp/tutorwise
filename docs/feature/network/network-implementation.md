@@ -398,7 +398,7 @@ export default function NetworkPage() {
 
 ## API Reference
 
-### POST /api/network/send
+### POST /api/network/request
 **Purpose**: Send connection request
 
 **Request**:

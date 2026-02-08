@@ -438,7 +438,7 @@ export function useConnectionsRealtime({
 
 1. **Send Request**:
    ```
-   User A → "Connect" button → POST /api/network/send
+   User A → "Connect" button → POST /api/network/request
    → ProfileGraphService.createLink(source=A, target=B, type=SOCIAL, status=PENDING)
    → profile_graph INSERT
    → Resend API (email to User B)
@@ -502,7 +502,7 @@ const channel = supabase
 
 1. **RLS Policies**: Enforce that users can only view/modify their own connections
 2. **UUID Validation**: All connection IDs validated before processing
-3. **Rate Limiting**: POST /api/network/send limited to 10 requests/minute per user
+3. **Rate Limiting**: POST /api/network/request limited to 10 requests/minute per user
 4. **Duplicate Prevention**: UNIQUE constraint on (source_profile_id, target_profile_id, relationship_type)
 
 ---
@@ -525,7 +525,7 @@ const channel = supabase
 ```typescript
 describe('Network API', () => {
   it('should send connection request', async () => {
-    const response = await POST('/api/network/send', {
+    const response = await POST('/api/network/request', {
       body: { target_profile_id: 'uuid' },
     });
     expect(response.status).toBe(200);
@@ -533,10 +533,10 @@ describe('Network API', () => {
 
   it('should prevent duplicate requests', async () => {
     // Send first request
-    await POST('/api/network/send', { body: { target_profile_id: 'uuid' } });
+    await POST('/api/network/request', { body: { target_profile_id: 'uuid' } });
 
     // Attempt duplicate
-    const response = await POST('/api/network/send', { body: { target_profile_id: 'uuid' } });
+    const response = await POST('/api/network/request', { body: { target_profile_id: 'uuid' } });
     expect(response.status).toBe(409); // Conflict
   });
 });

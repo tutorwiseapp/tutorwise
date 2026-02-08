@@ -112,6 +112,7 @@ export class ProfileGraphService {
 
   /**
    * Create connection request(s) to one or more users
+   * Updated 2026-02-08: Added bidirectional duplicate check (Network Audit Fix #4)
    */
   static async createConnectionRequests({
     requesterId,
@@ -124,7 +125,7 @@ export class ProfileGraphService {
   }): Promise<ConnectionData[]> {
     const supabase = await createClient();
 
-    // Check for existing connections
+    // Check for existing connections (requester → receiver)
     const { data: existingConnections } = await supabase
       .from('profile_graph')
       .select('target_profile_id, status')
@@ -136,10 +137,32 @@ export class ProfileGraphService {
       existingConnections?.map(c => [c.target_profile_id, c.status]) || []
     );
 
-    // Filter out users who are already connected or have pending requests
-    const newReceiverIds = receiverIds.filter(id => !existingMap.has(id));
+    // NEW: Check for reverse connections (receiver → requester)
+    // Prevents duplicate: User A sends to B while B has already sent to A
+    const { data: reverseConnections } = await supabase
+      .from('profile_graph')
+      .select('source_profile_id, status')
+      .eq('target_profile_id', requesterId)
+      .eq('relationship_type', 'SOCIAL')
+      .in('source_profile_id', receiverIds);
+
+    const reverseMap = new Map(
+      reverseConnections?.map(c => [c.source_profile_id, c.status]) || []
+    );
+
+    // Filter out users who are already connected or have pending requests (either direction)
+    const newReceiverIds = receiverIds.filter(id => {
+      if (existingMap.has(id)) return false; // Already sent request to them
+      if (reverseMap.has(id)) return false;  // They already sent request to us
+      return true;
+    });
 
     if (newReceiverIds.length === 0) {
+      // Provide helpful error message based on what was found
+      const hasReverse = reverseConnections && reverseConnections.length > 0;
+      if (hasReverse) {
+        throw new Error('One or more users have already sent you a connection request. Please accept or reject their request first.');
+      }
       throw new Error('All users are already connected or have pending requests');
     }
 
