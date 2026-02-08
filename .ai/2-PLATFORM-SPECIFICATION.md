@@ -852,14 +852,12 @@ Client Payment:           £100.00
 └─ Tutor Net Earnings:    £81.00  (81%)
 ```
 
-**Wiselist Booking (Attribution Tracking)**:
+**~~Wiselist Booking (Attribution Tracking)~~** ❌ **REMOVED**:
 ```
-Client Payment:           £100.00
-├─ Platform Fee:         -£10.00  (10%)
-├─ Agent (if referred):  -£9.00   (10% of tutor net)
-└─ Tutor Net:             £81.00
+⚠️ DEPRECATED: Wiselist attribution tracking has been removed (2026-02-08).
+Wiselists are organizational tools only - no referral credits or attribution.
 ```
-*Note: Wiselist attribution is tracked for analytics but does not affect commission structure.*
+*Note: Original design tracked wiselist attribution for analytics, but referral system (v4.3) has been removed.*
 
 **Multi-Tier Referral (Planned - 3 Tiers)**:
 ```
@@ -2818,7 +2816,7 @@ const tutors = await client.tutors.search({
 **Agent Dashboard**:
 - Commission earnings
 - Referred tutor performance
-- Wiselist booking attribution
+- ~~Wiselist booking attribution~~ ❌ REMOVED (2026-02-08)
 - Recruitment funnel (clicks → signups → conversions)
 
 **Organisation Dashboard**:

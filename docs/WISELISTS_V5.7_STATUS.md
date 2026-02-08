@@ -1,14 +1,33 @@
 # Wiselists v5.7 - Implementation Status
 
-**Status**: ✅ **100% COMPLETE**
-**Date Completed**: 2025-11-16
-**Integration**: v4.3 Referral System, v4.6 Profile Graph, v4.9 Payments
+> **⚠️ DEPRECATION NOTICE (2026-02-08)**
+>
+> **Wiselist attribution/referral tracking has been REMOVED.**
+>
+> The referral system (v4.3) was previously removed from the platform. Wiselists are now organizational tools only - there is NO referral credit system or attribution tracking for booking conversions.
+>
+> This document describes the original v5.7 specification which included attribution. Current implementation does NOT include:
+> - ❌ wiselist_referrer_id cookie tracking
+> - ❌ booking attribution via wiselists
+> - ❌ referral credits from wiselist bookings
+> - ❌ In-network sales attribution
+>
+> For current wiselist functionality, refer to the codebase implementation.
+
+---
+
+**Status**: ⚠️ **PARTIALLY DEPRECATED** (Attribution removed)
+**Date Completed**: 2025-11-16 (Original implementation)
+**Date Deprecated**: 2026-02-08 (Attribution removed)
+**Integration**: v4.6 Profile Graph, v4.9 Payments (v4.3 Referral System REMOVED)
 
 ---
 
 ## Overview
 
-Wiselists v5.7 is a "Save & Share" feature that enables users to create curated collections of tutors and services, share them publicly, collaborate with others, and drive viral growth through in-network sales attribution.
+Wiselists v5.7 is a "Save & Share" feature that enables users to create curated collections of tutors and services, share them publicly, and collaborate with others.
+
+**Note**: Original design included viral growth through in-network sales attribution, but this has been removed.
 
 ---
 

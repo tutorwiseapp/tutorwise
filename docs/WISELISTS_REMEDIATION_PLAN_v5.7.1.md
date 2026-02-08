@@ -1,14 +1,32 @@
 # Wiselists Remediation Plan v5.7.1
 
+> **⚠️ DEPRECATION NOTICE (2026-02-08)**
+>
+> **This remediation plan is OBSOLETE.**
+>
+> The referral system (v4.3) and wiselist attribution tracking have been REMOVED from the platform. This document describes implementation plans for features that are NO LONGER PART OF THE PRODUCT.
+>
+> Do NOT implement:
+> - ❌ Wiselist attribution tracking (Section 3)
+> - ❌ Referral credits from wiselists
+> - ❌ In-network sales attribution
+> - ❌ wiselist_referrer_id cookie middleware
+>
+> Wiselists are organizational tools only - no referral or attribution system.
+
+---
+
 **Document Name**: WISELISTS_REMEDIATION_PLAN_v5.7.1.md
 **Date**: 17 November 2025
-**Status**: IMPLEMENTATION READY
+**Status**: ⚠️ **OBSOLETE** (Attribution features removed 2026-02-08)
 **Owner**: Development Team
 **Based On**: Change Request Document v5.7.1
 
 ---
 
 ## Executive Summary
+
+**⚠️ THIS PLAN IS NO LONGER VALID - Attribution features have been removed.**
 
 This document provides a detailed implementation plan to transform Wiselists from an isolated feature into a fully integrated growth engine. The plan addresses 4 critical integration gaps and UI improvements needed to achieve the business goals of Viral Growth and Sales Attribution.
 

@@ -105,8 +105,11 @@ export async function POST(req: NextRequest) {
     // 6. Get origin for redirect URLs
     const origin = new URL(req.url).origin;
 
-    // 6a. v5.7: Check for wiselist referrer cookie
-    const wiselistReferrerId = req.cookies.get('wiselist_referrer_id')?.value;
+    /**
+     * NOTE: Wiselist attribution tracking has been REMOVED.
+     * Do NOT implement wiselist_referrer_id cookie tracking.
+     * Wiselists are organizational tools only - no referral credits.
+     */
 
     // 7. Create Stripe Checkout Session (PAYMENT MODE)
     // (SDD v3.6, Section 8.6 - booking_id passed in metadata for webhook)
@@ -116,11 +119,6 @@ export async function POST(req: NextRequest) {
       tutor_id: booking.tutor_id,
       client_id: booking.client_id,
     };
-
-    // v5.7: Add wiselist referrer for attribution tracking
-    if (wiselistReferrerId) {
-      sessionMetadata.wiselist_referrer_id = wiselistReferrerId;
-    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

@@ -2808,20 +2808,26 @@
 
 ---
 
-### TC-REFERRAL-010: Wiselist Referrer Attribution (v5.7)
-**Priority:** P2
-**Type:** Integration
+### ~~TC-REFERRAL-010: Wiselist Referrer Attribution (v5.7)~~ ❌ DEPRECATED
+**Priority:** ~~P2~~ N/A
+**Type:** ~~Integration~~ REMOVED
+**Status:** ⚠️ **DEPRECATED (2026-02-08)** - Wiselist attribution tracking has been removed
 
-**Test Steps:**
+**Original Test Steps:**
 1. User A creates wiselist with Tutor X
 2. User A shares wiselist link with User B
 3. User B books Tutor X via wiselist
 
-**Expected Result:**
-- Booking metadata includes `wiselist_referrer_id: <User A>`
-- User A receives small bonus (e.g., £2) for wiselist referral
-- Separate from agent commission
-- Tracked in `wiselist_referrals` analytics
+**~~Expected Result~~:**
+- ~~Booking metadata includes `wiselist_referrer_id: <User A>`~~
+- ~~User A receives small bonus (e.g., £2) for wiselist referral~~
+- ~~Separate from agent commission~~
+- ~~Tracked in `wiselist_referrals` analytics~~
+
+**ACTUAL RESULT (Current):**
+- No wiselist attribution tracking
+- No referral bonuses from wiselist bookings
+- Wiselists are organizational tools only
 
 ---
 
