@@ -70,6 +70,7 @@ export type MetricName =
   | 'transactions_paid_out'
   | 'transactions_disputed'
   | 'transactions_refunded'
+  | 'platform_revenue'
   // Payouts metrics
   | 'payouts_total'
   | 'payouts_pending'
