@@ -158,31 +158,101 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Student doesn't exist - send invitation email
-    // TODO: Implement secure invitation email with token
-    // For now, we'll create a placeholder invitation record
+    // Student doesn't exist - create secure invitation token
+    // Check if pending invitation already exists
+    const { data: existingInvitation } = await supabase
+      .from('guardian_invitations')
+      .select('id, token, expires_at, status')
+      .eq('guardian_id', user.id)
+      .eq('student_email', student_email)
+      .eq('status', 'pending')
+      .maybeSingle();
 
-    // Generate a secure invitation token (this should be replaced with proper token generation)
-    const invitationToken = `inv_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    let invitationToken: string;
+    let invitationId: string;
 
-    // Store invitation in metadata (in production, this should be a separate invitations table)
+    if (existingInvitation) {
+      // Check if invitation is still valid (not expired)
+      const expiresAt = new Date(existingInvitation.expires_at);
+      const now = new Date();
+
+      if (expiresAt > now) {
+        // Reuse existing valid invitation
+        invitationToken = existingInvitation.token;
+        invitationId = existingInvitation.id;
+        console.log('[client-student] Reusing existing invitation:', invitationId);
+      } else {
+        // Expired - mark as expired and create new one
+        await supabase
+          .from('guardian_invitations')
+          .update({ status: 'expired' })
+          .eq('id', existingInvitation.id);
+
+        // Create new invitation
+        const { data: newInvitation, error: inviteError } = await supabase
+          .from('guardian_invitations')
+          .insert({
+            guardian_id: user.id,
+            student_email,
+            token: crypto.randomUUID(), // Cryptographically secure UUID
+            status: 'pending',
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+          })
+          .select('id, token')
+          .single();
+
+        if (inviteError || !newInvitation) {
+          console.error('[client-student] Error creating invitation:', inviteError);
+          throw inviteError || new Error('Failed to create invitation');
+        }
+
+        invitationToken = newInvitation.token;
+        invitationId = newInvitation.id;
+      }
+    } else {
+      // No existing invitation - create new one
+      const { data: newInvitation, error: inviteError } = await supabase
+        .from('guardian_invitations')
+        .insert({
+          guardian_id: user.id,
+          student_email,
+          token: crypto.randomUUID(), // Cryptographically secure UUID
+          status: 'pending',
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        })
+        .select('id, token')
+        .single();
+
+      if (inviteError || !newInvitation) {
+        console.error('[client-student] Error creating invitation:', inviteError);
+        throw inviteError || new Error('Failed to create invitation');
+      }
+
+      invitationToken = newInvitation.token;
+      invitationId = newInvitation.id;
+    }
+
+    // Build invitation URL
+    const invitationUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/signup/invite?token=${invitationToken}`;
+
     console.log('[client-student] Sending invitation email to:', student_email);
     console.log('[client-student] Guardian:', guardianProfile.full_name);
-    console.log('[client-student] Invitation URL:', `${process.env.NEXT_PUBLIC_SITE_URL}/signup/invite?token=${invitationToken}`);
+    console.log('[client-student] Invitation URL:', invitationUrl);
+    console.log('[client-student] Expires in: 7 days');
 
     // TODO: Send actual email using sendStudentInvitationEmail()
     // await sendStudentInvitationEmail({
     //   to: student_email,
     //   guardianName: guardianProfile.full_name,
     //   guardianEmail: guardianProfile.email,
-    //   invitationUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/signup/invite?token=${invitationToken}`,
+    //   invitationUrl,
     // });
 
     // Log student invitation sent
     await logStudentInvitationSent(
       user.id,
       student_email,
-      invitationToken,
+      invitationId,
       request
     );
 
@@ -192,6 +262,7 @@ export async function POST(request: NextRequest) {
         message: 'Invitation sent successfully',
         invitation_sent: true,
         student_email,
+        expires_in_days: 7,
       },
       {
         headers: rateLimitHeaders(rateLimit.remaining - 1, rateLimit.resetAt)
