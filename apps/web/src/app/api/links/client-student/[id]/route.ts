@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
+import { logGuardianLinkRemoved } from '@/lib/audit/logger';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
@@ -105,12 +106,14 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
       throw deleteError;
     }
 
-    // TODO: Add audit log entry
-    // await logToAudit({
-    //   action: 'guardian_link_removed',
-    //   user_id: user.id,
-    //   metadata: { link_id: linkId, student_id: link.target_profile_id },
-    // });
+    // Log guardian link removal
+    await logGuardianLinkRemoved(
+      user.id,
+      link.target_profile_id,
+      linkId,
+      true, // activeBookingsChecked - we checked above
+      request
+    );
 
     return NextResponse.json(
       {

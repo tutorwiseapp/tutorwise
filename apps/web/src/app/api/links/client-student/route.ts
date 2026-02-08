@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
+import { logGuardianLinkCreated, logStudentInvitationSent } from '@/lib/audit/logger';
 import { z } from 'zod';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
@@ -135,6 +136,15 @@ export async function POST(request: NextRequest) {
         throw linkError;
       }
 
+      // Log guardian link creation
+      await logGuardianLinkCreated(
+        user.id,
+        existingStudent.id,
+        newLink.id,
+        'direct_link',
+        request
+      );
+
       return NextResponse.json(
         {
           success: true,
@@ -167,6 +177,14 @@ export async function POST(request: NextRequest) {
     //   guardianEmail: guardianProfile.email,
     //   invitationUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/signup/invite?token=${invitationToken}`,
     // });
+
+    // Log student invitation sent
+    await logStudentInvitationSent(
+      user.id,
+      student_email,
+      invitationToken,
+      request
+    );
 
     return NextResponse.json(
       {

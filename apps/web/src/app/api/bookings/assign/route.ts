@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { BookingService } from '@/lib/services/BookingService';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
+import { logStudentAssigned } from '@/lib/audit/logger';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -68,14 +69,13 @@ export async function POST(request: NextRequest) {
       studentId: student_id,
     });
 
-    // 4. TODO: Log to audit_log
-    // await logAuditEvent({
-    //   action: 'BOOKING_STUDENT_ASSIGNED',
-    //   user_id: user.id,
-    //   resource_type: 'booking',
-    //   resource_id: booking_id,
-    //   metadata: { student_id }
-    // });
+    // 4. Log student assignment to audit log
+    await logStudentAssigned(
+      user.id,
+      booking_id,
+      student_id,
+      request
+    );
 
     return NextResponse.json(
       {
