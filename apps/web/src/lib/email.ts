@@ -190,3 +190,50 @@ export async function sendOrganisationInvitation({
 
   return sendEmail({ to, subject, html });
 }
+
+/**
+ * Send student invitation email (Guardian Link)
+ * Guardian invites a student to create an account and link with them
+ */
+export async function sendStudentInvitation({
+  to,
+  guardianName,
+  guardianEmail,
+  invitationUrl,
+}: {
+  to: string;
+  guardianName: string;
+  guardianEmail: string;
+  invitationUrl: string;
+}) {
+  const subject = `${guardianName} invited you to join Tutorwise`;
+
+  const body = `
+    ${paragraph(`${bold(guardianName)} has invited you to create a student account on Tutorwise.`)}
+
+    ${paragraph(`Once you accept this invitation, ${guardianName} will be able to book and manage tutoring sessions on your behalf.`)}
+
+    ${paragraph(`${bold("What you'll get:")}`)}
+
+    <div style="margin: 24px 0;">
+      ${featureItem('📚', 'Personalized Learning', 'Access one-to-one tutoring tailored to your needs')}
+      ${featureItem('🎯', 'Track Your Progress', 'Your guardian can help you stay on top of your sessions')}
+      ${featureItem('⭐', 'Quality Tutors', 'Connect with verified, credible tutors in your subjects')}
+    </div>
+
+    ${paragraph(`<span style="color: ${tokens.colors.textMuted}; font-size: 14px;">This invitation will expire in 7 days. If you have any questions, please contact ${guardianEmail}.</span>`)}
+  `;
+
+  const html = generateEmailTemplate({
+    headline: "You're invited to Tutorwise",
+    variant: 'default',
+    body,
+    cta: {
+      text: 'Accept Invitation',
+      url: invitationUrl,
+    },
+    footerNote: `Questions? Contact ${guardianEmail}`,
+  });
+
+  return sendEmail({ to, subject, html });
+}

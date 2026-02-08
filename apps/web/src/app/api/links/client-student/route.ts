@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 import { logGuardianLinkCreated, logStudentInvitationSent } from '@/lib/audit/logger';
+import { sendStudentInvitation } from '@/lib/email';
 import { z } from 'zod';
 
 // Mark route as dynamic (required for cookies() in Next.js 15)
@@ -77,6 +78,51 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Only clients and tutors can invite students' },
         { status: 403 }
+      );
+    }
+
+    // Check maximum student limit (50 per guardian)
+    // Count active guardian links
+    const { count: activeLinksCount, error: linksCountError } = await supabase
+      .from('profile_graph')
+      .select('id', { count: 'exact', head: true })
+      .eq('source_profile_id', user.id)
+      .eq('relationship_type', 'GUARDIAN')
+      .eq('status', 'ACTIVE');
+
+    if (linksCountError) {
+      console.error('[client-student] Error counting active links:', linksCountError);
+      throw linksCountError;
+    }
+
+    // Count pending invitations
+    const { count: pendingInvitationsCount, error: invitationsCountError } = await supabase
+      .from('guardian_invitations')
+      .select('id', { count: 'exact', head: true })
+      .eq('guardian_id', user.id)
+      .eq('status', 'pending');
+
+    if (invitationsCountError) {
+      console.error('[client-student] Error counting pending invitations:', invitationsCountError);
+      throw invitationsCountError;
+    }
+
+    const totalStudents = (activeLinksCount || 0) + (pendingInvitationsCount || 0);
+    const maxStudents = 50;
+
+    if (totalStudents >= maxStudents) {
+      return NextResponse.json(
+        {
+          error: 'Maximum student limit reached',
+          details: {
+            current_students: activeLinksCount || 0,
+            pending_invitations: pendingInvitationsCount || 0,
+            total: totalStudents,
+            limit: maxStudents,
+            message: `You can have a maximum of ${maxStudents} students. You currently have ${activeLinksCount || 0} linked students and ${pendingInvitationsCount || 0} pending invitations.`
+          }
+        },
+        { status: 400 }
       );
     }
 
@@ -240,13 +286,20 @@ export async function POST(request: NextRequest) {
     console.log('[client-student] Invitation URL:', invitationUrl);
     console.log('[client-student] Expires in: 7 days');
 
-    // TODO: Send actual email using sendStudentInvitationEmail()
-    // await sendStudentInvitationEmail({
-    //   to: student_email,
-    //   guardianName: guardianProfile.full_name,
-    //   guardianEmail: guardianProfile.email,
-    //   invitationUrl,
-    // });
+    // Send invitation email via Resend
+    try {
+      await sendStudentInvitation({
+        to: student_email,
+        guardianName: guardianProfile.full_name,
+        guardianEmail: guardianProfile.email,
+        invitationUrl,
+      });
+      console.log('[client-student] Invitation email sent successfully');
+    } catch (emailError) {
+      console.error('[client-student] Failed to send invitation email:', emailError);
+      // Don't fail the request if email fails - invitation is still created
+      // Guardian can resend or share the link manually
+    }
 
     // Log student invitation sent
     await logStudentInvitationSent(
