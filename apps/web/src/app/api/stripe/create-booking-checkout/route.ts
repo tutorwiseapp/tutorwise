@@ -143,11 +143,11 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/bookings?payment=success`,
       cancel_url: `${origin}/bookings?payment=cancel`,
       // NEW: Unified commission handling via transfer_data (matches schedule/confirm flow)
-      payment_intent_data: booking.tutor?.stripe_account_id
+      payment_intent_data: Array.isArray(booking.tutor) && booking.tutor[0]?.stripe_account_id
         ? {
             application_fee_amount: Math.round(booking.amount * 10), // 10% platform fee
             transfer_data: {
-              destination: booking.tutor.stripe_account_id,
+              destination: booking.tutor[0].stripe_account_id,
             },
           }
         : undefined,
