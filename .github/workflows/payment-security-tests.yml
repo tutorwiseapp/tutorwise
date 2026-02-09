@@ -186,30 +186,3 @@ jobs:
         with:
           args: --severity-threshold=high --file=package.json
         continue-on-error: true
-
-  notify-on-failure:
-    name: Notify on Test Failure
-    runs-on: ubuntu-latest
-    needs: [test-payment-security, security-scan]
-    if: failure()
-
-    steps:
-      - name: Send Slack notification
-        uses: slackapi/slack-github-action@v1
-        continue-on-error: true
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-          webhook-type: incoming-webhook
-          payload: |
-            {
-              "text": "❌ Payment Security Tests Failed",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Payment Security Tests Failed*\n\nBranch: `${{ github.ref }}`\nCommit: `${{ github.sha }}`\nAuthor: @${{ github.actor }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow Run>"
-                  }
-                }
-              ]
-            }
