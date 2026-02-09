@@ -2,29 +2,23 @@
  * Filename: MyStudentHelpWidget.tsx
  * Purpose: Guardian Links help information widget
  * Created: 2026-02-09
- *
- * Displays helpful information about the Guardian Link system
- * for managing students
  */
 
 'use client';
 
 import React from 'react';
+import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './MyStudentHelpWidget.module.css';
 
 export default function MyStudentHelpWidget() {
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>Guardian Links</h3>
-      </div>
-
+    <HubComplexCard>
+      <h3 className={styles.title}>Guardian Links</h3>
       <div className={styles.content}>
-        <p className={styles.description}>
+        <p className={styles.text}>
           Invite students to link with your account. You'll be able to book
           sessions on their behalf and manage their learning preferences.
         </p>
-
         <ul className={styles.featureList}>
           <li className={styles.featureItem}>
             Each student gets their own learning profile
@@ -37,6 +31,6 @@ export default function MyStudentHelpWidget() {
           </li>
         </ul>
       </div>
-    </div>
+    </HubComplexCard>
   );
 }

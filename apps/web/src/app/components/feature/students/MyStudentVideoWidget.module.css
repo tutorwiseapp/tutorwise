@@ -1,6 +1,6 @@
 /**
- * Filename: MyStudentHelpWidget.module.css
- * Purpose: Styles for Guardian Links help widget
+ * Filename: MyStudentVideoWidget.module.css
+ * Purpose: Styles for video tutorials placeholder widget
  * Pattern: Matches BookingHelpWidget - HubComplexCard child with teal title
  */
 
@@ -19,23 +19,28 @@
   padding: 16px;
 }
 
-.text {
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0 0 12px 0;
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.featureList {
+.placeholderText {
+  font-size: 13px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.topicList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.featureItem {
+.topicItem {
   font-size: 13px;
   color: #6b7280;
   padding-left: 16px;
@@ -43,7 +48,7 @@
   line-height: 1.4;
 }
 
-.featureItem::before {
+.topicItem::before {
   content: '-';
   position: absolute;
   left: 4px;

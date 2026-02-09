@@ -14,6 +14,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './StudentStatsWidget.module.css';
 
 interface StudentStat {
@@ -38,12 +39,10 @@ export default function StudentStatsWidget({ stats, isLoading }: StudentStatsWid
 
   if (isLoading) {
     return (
-      <div className={styles.card}>
-        <div className={styles.header}>
-          <h3 className={styles.title}>Student Portfolio</h3>
-        </div>
+      <HubComplexCard>
+        <h3 className={styles.title}>Student Portfolio</h3>
         <div className={styles.loading}>Loading stats...</div>
-      </div>
+      </HubComplexCard>
     );
   }
 
@@ -56,10 +55,8 @@ export default function StudentStatsWidget({ stats, isLoading }: StudentStatsWid
     : 0;
 
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>Student Portfolio</h3>
-      </div>
+    <HubComplexCard>
+      <h3 className={styles.title}>Student Portfolio</h3>
 
       <div className={styles.content}>
         {/* Active Students */}
@@ -169,6 +166,6 @@ export default function StudentStatsWidget({ stats, isLoading }: StudentStatsWid
           </div>
         )}
       </div>
-    </div>
+    </HubComplexCard>
   );
 }

@@ -9,6 +9,7 @@
 'use client';
 
 import React from 'react';
+import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './MyStudentTipWidget.module.css';
 
 interface Tip {
@@ -84,11 +85,8 @@ export default function MyStudentTipWidget({ context = 'my-students', studentCou
   const contextTips = tips[context] || tips['my-students'];
 
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>Quick Tips</h3>
-      </div>
-
+    <HubComplexCard>
+      <h3 className={styles.title}>Quick Tips</h3>
       <div className={styles.content}>
         <ul className={styles.tipsList}>
           {contextTips.map((tip, index) => (
@@ -99,6 +97,6 @@ export default function MyStudentTipWidget({ context = 'my-students', studentCou
           ))}
         </ul>
       </div>
-    </div>
+    </HubComplexCard>
   );
 }
