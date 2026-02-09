@@ -15,6 +15,7 @@ import AccountCard from '@/app/components/feature/account/AccountCard';
 import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
 import MyStudentHelpWidget from '@/app/components/feature/students/MyStudentHelpWidget';
 import MyStudentTipWidget from '@/app/components/feature/students/MyStudentTipWidget';
+import MyStudentVideoWidget from '@/app/components/feature/students/MyStudentVideoWidget';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
@@ -177,6 +178,7 @@ export default function MyStudentsPage() {
             <AccountCard />
             <MyStudentHelpWidget />
             <MyStudentTipWidget context="my-students" />
+            <MyStudentVideoWidget />
           </HubSidebar>
         }
       >
@@ -195,6 +197,7 @@ export default function MyStudentsPage() {
             <AccountCard />
             <MyStudentHelpWidget />
             <MyStudentTipWidget context="my-students" />
+            <MyStudentVideoWidget />
           </HubSidebar>
         }
       >
@@ -286,6 +289,7 @@ export default function MyStudentsPage() {
           )}
           <MyStudentHelpWidget />
           <MyStudentTipWidget context="my-students" studentCount={students.length} />
+          <MyStudentVideoWidget />
         </HubSidebar>
       }
     >
