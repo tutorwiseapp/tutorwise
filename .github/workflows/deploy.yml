@@ -129,56 +129,11 @@ jobs:
     if: always()
 
     steps:
-    - name: =Ê Deployment status
+    - name: âœ… Deployment complete
       run: |
-        if [[ "${{ needs.post-deployment-verification.result }}" == "success" ]]; then
-          echo "DEPLOYMENT_STATUS= Success" >> $GITHUB_ENV
-          echo "DEPLOYMENT_COLOR=good" >> $GITHUB_ENV
-        else
-          echo "DEPLOYMENT_STATUS=L Failed" >> $GITHUB_ENV
-          echo "DEPLOYMENT_COLOR=danger" >> $GITHUB_ENV
-        fi
+        echo "Deployment workflow completed"
+        echo "Status: ${{ needs.post-deployment-verification.result }}"
 
-    - name: =¬ Slack notification
-      if: env.SLACK_WEBHOOK_URL
-      uses: 8398a7/action-slack@v3
-      with:
-        status: custom
-        custom_payload: |
-          {
-            attachments: [{
-              color: '${{ env.DEPLOYMENT_COLOR }}',
-              title: 'Tutorwise Deployment ${{ env.DEPLOYMENT_STATUS }}',
-              fields: [{
-                title: 'Environment',
-                value: 'Production',
-                short: true
-              }, {
-                title: 'Branch',
-                value: '${{ github.ref_name }}',
-                short: true
-              }, {
-                title: 'Commit',
-                value: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>',
-                short: true
-              }, {
-                title: 'Author',
-                value: '${{ github.actor }}',
-                short: true
-              }],
-              actions: [{
-                type: 'button',
-                text: 'View Deployment',
-                url: 'https://tutorwise.vercel.app'
-              }, {
-                type: 'button',
-                text: 'View Logs',
-                url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-              }]
-            }]
-          }
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # Rollback capability (manual trigger)
   rollback:

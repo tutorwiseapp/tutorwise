@@ -15,7 +15,6 @@ interface IntegrationsConfigResponse {
     googleAnalyticsId: string;
     sentryDsn: string;
     intercomWorkspaceId: string;
-    slackWebhookUrl: string;
   };
   externalServices: {
     redis: {
@@ -72,7 +71,6 @@ export async function GET() {
     // TODO: Store these in database instead of environment
     const googleAnalyticsId = ''; // Not in env yet
     const intercomWorkspaceId = ''; // Not in env yet
-    const slackWebhookUrl = ''; // Not in env yet
 
     // Fetch webhooks from database
     const { data: webhooksData, error: webhooksError } = await supabase
@@ -96,7 +94,6 @@ export async function GET() {
         googleAnalyticsId,
         sentryDsn,
         intercomWorkspaceId,
-        slackWebhookUrl,
       },
       externalServices: {
         redis: {

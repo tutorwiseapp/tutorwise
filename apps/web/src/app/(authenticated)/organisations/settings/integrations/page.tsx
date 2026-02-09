@@ -64,13 +64,6 @@ const integrations: Integration[] = [
     comingSoon: true,
   },
   {
-    id: 'slack',
-    name: 'Slack',
-    description: 'Get notifications and updates directly in your Slack workspace.',
-    category: 'Communication',
-    comingSoon: true,
-  },
-  {
     id: 'zapier',
     name: 'Zapier',
     description: 'Connect with 5000+ apps through powerful automation workflows.',

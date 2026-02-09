@@ -40,7 +40,6 @@ export default function IntegrationsSettingsPage() {
     googleAnalyticsId: '',
     sentryDsn: '',
     intercomWorkspaceId: '',
-    slackWebhookUrl: '',
 
     // External Services
     enableUpstashRedis: false,
@@ -71,7 +70,6 @@ export default function IntegrationsSettingsPage() {
           googleAnalyticsId: config.thirdPartyApis.googleAnalyticsId,
           sentryDsn: config.thirdPartyApis.sentryDsn,
           intercomWorkspaceId: config.thirdPartyApis.intercomWorkspaceId,
-          slackWebhookUrl: config.thirdPartyApis.slackWebhookUrl,
           enableUpstashRedis: config.externalServices.redis.enabled,
           upstashRedisUrl: config.externalServices.redis.url,
           enableAblyRealtime: config.externalServices.ably.enabled,
@@ -120,10 +118,6 @@ export default function IntegrationsSettingsPage() {
 
     if (formData.sentryDsn && !formData.sentryDsn.startsWith('https://')) {
       newErrors.sentryDsn = 'Must be a valid HTTPS URL';
-    }
-
-    if (formData.slackWebhookUrl && !formData.slackWebhookUrl.startsWith('https://hooks.slack.com/')) {
-      newErrors.slackWebhookUrl = 'Must be a valid Slack webhook URL';
     }
 
     setErrors(newErrors);
@@ -319,15 +313,6 @@ export default function IntegrationsSettingsPage() {
                 value={formData.intercomWorkspaceId}
                 onChange={(e) => handleChange('intercomWorkspaceId', e.target.value)}
                 placeholder="abcd1234"
-              />
-            </HubForm.Field>
-
-            <HubForm.Field label="Slack Webhook URL" error={errors.slackWebhookUrl}>
-              <input
-                type="text"
-                value={formData.slackWebhookUrl}
-                onChange={(e) => handleChange('slackWebhookUrl', e.target.value)}
-                placeholder="https://hooks.slack.com/services/..."
               />
             </HubForm.Field>
           </HubForm.Grid>
