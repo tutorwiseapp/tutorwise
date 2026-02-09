@@ -73,10 +73,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify guardian is client or tutor
-    if (!guardianProfile.roles.includes('client') && !guardianProfile.roles.includes('tutor')) {
+    // Verify guardian is client, tutor, or agent
+    if (!guardianProfile.roles.includes('client') && !guardianProfile.roles.includes('tutor') && !guardianProfile.roles.includes('agent')) {
       return NextResponse.json(
-        { error: 'Only clients and tutors can invite students' },
+        { error: 'Only clients, tutors, and agents can invite students' },
         { status: 403 }
       );
     }

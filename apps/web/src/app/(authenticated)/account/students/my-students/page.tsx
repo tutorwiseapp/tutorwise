@@ -12,13 +12,16 @@ import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-quer
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
-import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
+import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
+import MyStudentHelpWidget from '@/app/components/feature/students/MyStudentHelpWidget';
+import MyStudentTipWidget from '@/app/components/feature/students/MyStudentTipWidget';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import StudentInviteModal from '@/app/components/feature/students/StudentInviteModal';
 import toast from 'react-hot-toast';
+import { calculateAge } from '@/lib/utils/dateUtils';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -43,6 +46,13 @@ async function getMyStudents(): Promise<StudentLink[]> {
   if (!response.ok) throw new Error('Failed to fetch students');
   const data = await response.json();
   return data.students || [];
+}
+
+async function getStudentStats() {
+  const response = await fetch('/api/students/stats');
+  if (!response.ok) throw new Error('Failed to fetch student stats');
+  const data = await response.json();
+  return data.stats;
 }
 
 export default function MyStudentsPage() {
@@ -71,6 +81,15 @@ export default function MyStudentsPage() {
     refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  // React Query: Fetch student stats
+  const { data: studentStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['student-stats', profile?.id],
+    queryFn: getStudentStats,
+    enabled: !!profile?.id,
+    staleTime: 2 * 60 * 1000,
+    retry: 2,
   });
 
   // Filter students based on search
@@ -156,15 +175,8 @@ export default function MyStudentsPage() {
         sidebar={
           <HubSidebar>
             <AccountCard />
-            <AccountHelpWidget
-              title="Guardian Links"
-              description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
-              tips={[
-                'Each student gets their own learning profile',
-                'Tutors can see student preferences before sessions',
-                'You can manage up to 50 students',
-              ]}
-            />
+            <MyStudentHelpWidget />
+            <MyStudentTipWidget context="my-students" />
           </HubSidebar>
         }
       >
@@ -181,15 +193,8 @@ export default function MyStudentsPage() {
         sidebar={
           <HubSidebar>
             <AccountCard />
-            <AccountHelpWidget
-              title="Guardian Links"
-              description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
-              tips={[
-                'Each student gets their own learning profile',
-                'Tutors can see student preferences before sessions',
-                'You can manage up to 50 students',
-              ]}
-            />
+            <MyStudentHelpWidget />
+            <MyStudentTipWidget context="my-students" />
           </HubSidebar>
         }
       >
@@ -276,15 +281,11 @@ export default function MyStudentsPage() {
       sidebar={
         <HubSidebar>
           <AccountCard />
-          <AccountHelpWidget
-            title="Guardian Links"
-            description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
-            tips={[
-              'Each student gets their own learning profile',
-              'Tutors can see student preferences before sessions',
-              'You can manage up to 50 students',
-            ]}
-          />
+          {studentStats && (
+            <StudentStatsWidget stats={studentStats} isLoading={statsLoading} />
+          )}
+          <MyStudentHelpWidget />
+          <MyStudentTipWidget context="my-students" studentCount={students.length} />
         </HubSidebar>
       }
     >
@@ -348,17 +349,4 @@ export default function MyStudentsPage() {
       />
     </HubPageLayout>
   );
-}
-
-function calculateAge(dateOfBirth: string): number {
-  const today = new Date();
-  const birthDate = new Date(dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-
-  return age;
 }

@@ -11,6 +11,7 @@ import React from 'react';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
+import { calculateAge } from '@/lib/utils/dateUtils';
 import type { StudentCardData } from './StudentCard';
 
 interface StudentDetailModalProps {
@@ -55,20 +56,7 @@ export default function StudentDetailModal({
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
   };
 
-  // Calculate age from date_of_birth
-  const getAge = (dob?: string) => {
-    if (!dob) return null;
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  const age = getAge(profile.date_of_birth);
+  const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : null;
 
   // Build subtitle
   const subtitle = profile.email;

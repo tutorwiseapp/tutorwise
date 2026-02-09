@@ -343,15 +343,19 @@ gh workflow run deploy    # Manual deployment trigger
 
 ## 📊 Current Project Stack
 
-- **Frontend**: Next.js 15, React 18, TypeScript
+- **Frontend**: Next.js 16, React 19, TypeScript 5
+- **Backend API**: Python 3.x (FastAPI/Uvicorn)
 - **Database**: Supabase (PostgreSQL)
 - **Auth**: Supabase Auth
 - **Payments**: Stripe Connect
+- **Realtime**: Ably
 - **Hosting**: Vercel (web app)
-- **Testing**: Jest, Playwright, Percy
+- **Node**: 18.x (workflows), 20.x (payment tests)
+- **Testing**: Jest 30, Playwright 1.55, Percy
 - **CI/CD**: GitHub Actions (5 workflows)
 - **Coverage**: Codecov (multiple flags)
 - **Security**: npm audit + Snyk
+- **AI Integration**: Google Gemini, OpenAI, Anthropic Claude
 
 ---
 

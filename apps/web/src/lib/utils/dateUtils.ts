@@ -1,7 +1,27 @@
 /**
  * Date utility functions
  * Created: 2025-11-26
+ * Updated: 2026-02-09 - Added calculateAge utility
  */
+
+/**
+ * Calculate age from date of birth
+ * @param dateOfBirth - Date of birth as ISO string or Date object
+ * @returns Age in years
+ */
+export function calculateAge(dateOfBirth: string | Date): number {
+  const today = new Date();
+  const birthDate = typeof dateOfBirth === 'string' ? new Date(dateOfBirth) : dateOfBirth;
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  // Adjust if birthday hasn't occurred yet this year
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+}
 
 /**
  * Format a date as a relative time string (e.g. "2 hours ago", "3 days ago")

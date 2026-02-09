@@ -16,7 +16,6 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import StudentProfileCard from '@/app/components/feature/students/StudentProfileCard';
-import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
 import { HubPageLayout, HubTabs, HubHeader } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
@@ -96,10 +95,8 @@ export default function StudentOverviewPage() {
 
   const handleRemoveStudent = () => {
     setShowActionsMenu(false);
-    if (confirm(`Are you sure you want to remove this student link? The student's account will remain active.`)) {
-      // TODO: Implement remove student link API call
-      toast('Remove student functionality coming soon', { icon: 'ℹ️' });
-    }
+    // Redirect to settings page where remove functionality is implemented
+    router.push(`/account/students/${studentId}/settings`);
   };
 
   // Prepare tabs data

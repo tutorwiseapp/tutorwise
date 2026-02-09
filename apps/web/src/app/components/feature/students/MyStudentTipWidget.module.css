@@ -1,26 +1,67 @@
 /**
  * Filename: MyStudentTipWidget.module.css
- * Purpose: Styles for My Student Tip Widget
+ * Purpose: Styles for context-aware tips widget
+ * Created: 2026-02-09
  */
 
-.title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  padding: 12px 16px;
-  margin: 0;
-  line-height: 1.4;
-  background-color: #E6F0F0;
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  background: #e6f0f0;
+  padding: 16px 20px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.content {
-  padding: 16px;
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-.text {
-  font-size: 14px;
+.content {
+  padding: 20px;
+}
+
+.tipsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tipItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tipTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tipDescription {
+  font-size: 12px;
   color: #6b7280;
   line-height: 1.5;
-  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+
+  .tipsList {
+    gap: 14px;
+  }
 }

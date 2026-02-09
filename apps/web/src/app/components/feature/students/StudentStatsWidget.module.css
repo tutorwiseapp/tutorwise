@@ -1,61 +1,123 @@
-/*
- * Filename: apps/web/src/app/components/feature/students/StudentStatsWidget.module.css
- * Purpose: Student stats widget styles
- * Created: 2026-02-08
+/**
+ * Filename: StudentStatsWidget.module.css
+ * Purpose: Styles for adaptive student portfolio statistics widget
+ * Created: 2026-02-09
  */
 
-.widget {
+.card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  background: #e6f0f0; /* Teal header matching AccountCard */
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .title {
-  margin: 0 0 1rem 0;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: #1f2937;
+  margin: 0;
 }
 
-.stats {
+.content {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 20px;
 }
 
-.stat {
+.section {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.statIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  border-radius: 0.5rem;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.statInfo {
-  flex: 1;
+.sectionHeader {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .statValue {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1;
-  margin-bottom: 0.25rem;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.statLabel {
-  font-size: 0.875rem;
+.statDetail {
+  font-size: 13px;
   color: #6b7280;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #374151;
+}
+
+.statRow span:first-child {
+  color: #6b7280;
+}
+
+.statRow .statValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.alertRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fef3c7;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.alertLabel {
+  font-size: 13px;
+  color: #92400e;
+}
+
+.alertValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.helpText {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .section {
+    gap: 6px;
+  }
 }

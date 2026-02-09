@@ -13,6 +13,7 @@ import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailC
 import StudentDetailModal from './StudentDetailModal';
 import Button from '@/app/components/ui/actions/Button';
 import getProfileImageUrl from '@/lib/utils/image';
+import { calculateAge } from '@/lib/utils/dateUtils';
 
 export interface StudentCardData {
   id: string; // profile_graph.id
@@ -53,19 +54,7 @@ export default function StudentCard({
   const profile = student.student;
 
   // Calculate age from date_of_birth
-  const getAge = (dob?: string) => {
-    if (!dob) return null;
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  const age = getAge(profile.date_of_birth);
+  const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : null;
   const joinedYear = new Date(student.created_at).getFullYear();
 
   // Handle remove action

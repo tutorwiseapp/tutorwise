@@ -2,7 +2,8 @@
  * Filename: apps/web/src/app/(authenticated)/account/students/[studentId]/settings/page.tsx
  * Purpose: Student Settings tab - Manage guardian link settings (Guardian Link v5.0)
  * Created: 2026-02-08
- * TODO: Implement link management (remove link, notification preferences, etc.)
+ * Updated: 2026-02-09 - Implemented remove link functionality
+ * Features: Remove guardian link with validation (checks for active bookings)
  */
 'use client';
 

@@ -1,31 +1,72 @@
 /**
  * Filename: MyStudentHelpWidget.module.css
- * Purpose: Styles for My Student Help Widget
- * Design: Teal header + paragraph content (no bullets)
+ * Purpose: Styles for Guardian Links help widget
+ * Created: 2026-02-09
  */
 
-.title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  padding: 12px 16px;
-  margin: 0;
-  line-height: 1.4;
-  background-color: #E6F0F0;
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  background: #e6f0f0;
+  padding: 16px 20px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.content {
-  padding: 16px;
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-.text {
+.content {
+  padding: 20px;
+}
+
+.description {
   font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.featureItem {
+  font-size: 13px;
   color: #6b7280;
   line-height: 1.5;
-  margin: 0 0 12px 0;
+  padding-left: 20px;
+  position: relative;
 }
 
-.text:last-child {
-  margin-bottom: 0;
+.featureItem::before {
+  content: '•';
+  position: absolute;
+  left: 6px;
+  color: #0891b2;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+
+  .featureList {
+    gap: 10px;
+  }
 }
