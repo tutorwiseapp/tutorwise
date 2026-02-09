@@ -19,10 +19,12 @@ import MyStudentVideoWidget from '@/app/components/feature/students/MyStudentVid
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import Button from '@/app/components/ui/actions/Button';
 import StudentInviteModal from '@/app/components/feature/students/StudentInviteModal';
 import toast from 'react-hot-toast';
 import { calculateAge } from '@/lib/utils/dateUtils';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -311,37 +313,59 @@ export default function MyStudentsPage() {
       {/* Students List */}
       {filteredStudents.length > 0 && (
         <div className={styles.studentsList}>
-          {filteredStudents.map((link: StudentLink) => (
-            <div key={link.id} className={styles.studentCard}>
-              <div className={styles.studentAvatar}>
-                {link.student.avatar_url ? (
-                  <img src={link.student.avatar_url} alt={link.student.full_name} />
-                ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {link.student.full_name.charAt(0)}
-                  </div>
-                )}
-              </div>
-              <div className={styles.studentInfo}>
-                <h3 className={styles.studentName}>{link.student.full_name}</h3>
-                <p className={styles.studentEmail}>{link.student.email}</p>
-                {link.student.date_of_birth && (
-                  <p className={styles.studentAge}>
-                    Age: {calculateAge(link.student.date_of_birth)} years old
-                  </p>
-                )}
-              </div>
-              <div className={styles.studentActions}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleViewStudent(link.student_id)}
-                >
-                  Manage Profile
-                </Button>
-              </div>
-            </div>
-          ))}
+          {filteredStudents.map((link: StudentLink) => {
+            const avatarUrl = getProfileImageUrl(
+              {
+                id: link.student.id,
+                avatar_url: link.student.avatar_url,
+                full_name: link.student.full_name,
+              },
+              false
+            );
+            const fallbackChar =
+              link.student.full_name?.substring(0, 2).toUpperCase() || '??';
+
+            const details = [
+              { label: 'Email', value: link.student.email || 'Not provided' },
+              {
+                label: 'Age',
+                value: link.student.date_of_birth
+                  ? `${calculateAge(link.student.date_of_birth)} years old`
+                  : 'Not provided',
+              },
+              {
+                label: 'Linked Since',
+                value: new Date(link.created_at).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                }),
+              },
+              { label: 'Status', value: link.status || 'Active' },
+            ];
+
+            const actions = (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleViewStudent(link.student_id)}
+              >
+                Manage Profile
+              </Button>
+            );
+
+            return (
+              <HubDetailCard
+                key={link.id}
+                image={{ src: avatarUrl, alt: link.student.full_name, fallbackChar }}
+                title={link.student.full_name}
+                status={{ label: 'Active', variant: 'success' }}
+                details={details}
+                actions={actions}
+                titleHref={`/account/students/${link.student_id}/overview`}
+              />
+            );
+          })}
         </div>
       )}
 
