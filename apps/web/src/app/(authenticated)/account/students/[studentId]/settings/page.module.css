@@ -1,0 +1,97 @@
+/*
+ * Filename: apps/web/src/app/(authenticated)/account/students/[studentId]/settings/page.module.css
+ * Purpose: Student settings page styles
+ * Created: 2026-02-08
+ */
+
+.content {
+  padding: 0;
+}
+
+.section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.sectionDescription {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.dangerZone {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #fee2e2;
+}
+
+.dangerTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.dangerDescription {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.dangerWarning {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #b45309;
+  line-height: 1.5;
+  padding: 0.75rem;
+  background: #fef3c7;
+  border-radius: 0.375rem;
+}
+
+.linkInfo {
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.linkInfo p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.linkInfo strong {
+  color: #111827;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.error {
+  padding: 2rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  text-align: center;
+}
+
+.error p {
+  margin: 0 0 1rem 0;
+}

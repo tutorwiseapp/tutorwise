@@ -65,10 +65,25 @@ export default function AppSidebar() {
     },
     { href: '/messages', label: 'Messages' },
     { href: '/network', label: 'Network' },
-    { href: '/my-students', label: 'My Students', roles: ['client', 'tutor'] }, // v5.0: Guardian Links (client/tutor only)
     { href: '/reviews', label: 'Reviews' },
     { href: '/wiselists', label: 'Wiselists' }, // v5.7: Pinterest-style Collections
-    { href: '/account', label: 'Account' },
+    {
+      href: '/account/personal-info', // Matches first subitem for consistent highlighting
+      label: 'Account',
+      subItems: [
+        {
+          href: '/account/personal-info',
+          label: activeRole ? activeRole.charAt(0).toUpperCase() + activeRole.slice(1) : 'Personal Info',
+          indent: true
+        },
+        {
+          href: '/account/students/my-students',
+          label: 'My Students',
+          indent: true,
+          roles: ['client', 'tutor'] // v5.0: Guardian Links (client/tutor only)
+        },
+      ],
+    },
     { href: '/payments', label: 'Payments' },
     { href: '/help-centre', label: 'Help Centre' },
     { href: '/developer/api-keys', label: 'Developer' },
@@ -195,18 +210,19 @@ export default function AppSidebar() {
             <React.Fragment key={item.href}>
               <li>
                 {item.subItems ? (
-                  // Parent item with submenu - clickable to toggle
-                  <button
-                    onClick={() => toggleSection(item.href, !!item.subItems)}
-                    className={`${styles.navItem} ${styles.navItemButton} ${
-                      isParentActive(item.href) ? styles.navItemActive : ''
-                    }`}
-                  >
-                    <span className={styles.navItemLabel}>{item.label}</span>
-                    <span className={`${styles.chevron} ${isSectionExpanded(item.href) ? styles.chevronExpanded : ''}`}>
-                      ▼
-                    </span>
-                  </button>
+                  // Parent item with submenu - link that navigates and toggles (not highlighted, only children are)
+                  <div className={styles.navItemWithSubmenu}>
+                    <Link
+                      href={item.href}
+                      onClick={() => toggleSection(item.href, !!item.subItems)}
+                      className={styles.navItem}
+                    >
+                      <span className={styles.navItemLabel}>{item.label}</span>
+                      <span className={`${styles.chevron} ${isSectionExpanded(item.href) ? styles.chevronExpanded : ''}`}>
+                        ▼
+                      </span>
+                    </Link>
+                  </div>
                 ) : (
                   // Regular link item without submenu
                   <Link

@@ -94,7 +94,8 @@ export function calculateStripeFee(amount: number): number {
  */
 export function calculateNetRefund(grossAmount: number): number {
   const stripeFee = calculateStripeFee(grossAmount);
-  return grossAmount - stripeFee;
+  // Ensure refund is never negative (important for zero-amount/free bookings)
+  return Math.max(0, grossAmount - stripeFee);
 }
 
 /**

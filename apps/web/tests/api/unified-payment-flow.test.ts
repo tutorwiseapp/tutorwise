@@ -4,15 +4,20 @@
  * Created: 2026-02-07
  */
 
+// Polyfill fetch for Stripe SDK in Node.js test environment
+if (!global.fetch) {
+  global.fetch = async () => ({ ok: true, json: async () => ({}) } as Response);
+}
+
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://test.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'test-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_tests', {
   apiVersion: '2025-12-15.clover',
 });
 

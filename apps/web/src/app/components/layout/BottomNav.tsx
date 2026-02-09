@@ -178,7 +178,8 @@ export default function BottomNav() {
   };
 
   const isMenuActive = () => {
-    // Menu is active for account, messages, wiselists, network, financials, payments, listings, marketplace, reviews, organisation, my-students
+    // Menu is active for account, messages, wiselists, network, financials, payments, listings, marketplace, reviews, organisation
+    // Note: my-students is now under /account/students/my-students, so covered by /account check
     return pathname?.startsWith('/account') ||
            pathname?.startsWith('/messages') ||
            pathname?.startsWith('/wiselists') ||
@@ -188,8 +189,7 @@ export default function BottomNav() {
            pathname?.startsWith('/listings') ||
            pathname?.startsWith('/marketplace') ||
            pathname?.startsWith('/reviews') ||
-           pathname?.startsWith('/organisations') ||
-           pathname?.startsWith('/my-students');
+           pathname?.startsWith('/organisations');
   };
 
   const handleNavClick = (e: React.MouseEvent, item: NavItem) => {

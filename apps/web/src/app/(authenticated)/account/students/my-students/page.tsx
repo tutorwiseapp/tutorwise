@@ -1,0 +1,364 @@
+/**
+ * Filename: apps/web/src/app/(authenticated)/account/students/my-students/page.tsx
+ * Purpose: My Students hub page - List all linked students (Guardian Link v5.0)
+ * Created: 2026-02-08
+ * Pattern: Uses HubPageLayout with HubHeader, React Query (aligned with Hub Architecture)
+ */
+'use client';
+
+import React, { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import type { HubTab } from '@/app/components/hub/layout';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import Button from '@/app/components/ui/actions/Button';
+import StudentInviteModal from '@/app/components/feature/students/StudentInviteModal';
+import toast from 'react-hot-toast';
+import styles from './page.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+
+interface StudentLink {
+  id: string;
+  student_id: string;
+  guardian_id: string;
+  status: string;
+  created_at: string;
+  student: {
+    id: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string;
+    date_of_birth?: string;
+  };
+}
+
+async function getMyStudents(): Promise<StudentLink[]> {
+  const response = await fetch('/api/links/client-student');
+  if (!response.ok) throw new Error('Failed to fetch students');
+  const data = await response.json();
+  return data.students || [];
+}
+
+export default function MyStudentsPage() {
+  const { profile, isLoading: profileLoading } = useUserProfile();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+
+  // React Query: Fetch students with automatic retry, caching, and background refetch
+  const {
+    data: students = [],
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['students', profile?.id],
+    queryFn: getMyStudents,
+    enabled: !!profile?.id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: keepPreviousData,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  // Filter students based on search
+  const filteredStudents = useMemo(() => {
+    if (!searchQuery.trim()) return students;
+
+    const query = searchQuery.toLowerCase();
+    return students.filter((link: StudentLink) => {
+      const fullName = link.student.full_name?.toLowerCase() || '';
+      const email = link.student.email?.toLowerCase() || '';
+      return fullName.includes(query) || email.includes(query);
+    });
+  }, [students, searchQuery]);
+
+  // Action handlers
+  const handleInviteStudent = () => {
+    setShowInviteModal(true);
+    setShowActionsMenu(false);
+  };
+
+  const handleInviteSuccess = () => {
+    // Invalidate and refetch students query to show the new student
+    queryClient.invalidateQueries({ queryKey: ['students', profile?.id] });
+    refetch();
+  };
+
+  const handleViewStudent = (studentId: string) => {
+    router.push(`/account/students/${studentId}/overview`);
+  };
+
+  const handleManageInvitations = () => {
+    router.push('/account/students/invitations');
+    setShowActionsMenu(false);
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredStudents.length) {
+      toast.error('No students to export');
+      return;
+    }
+
+    const headers = ['Name', 'Email', 'Age', 'Linked Since'];
+    const rows = filteredStudents.map((link: StudentLink) => [
+      link.student.full_name || '',
+      link.student.email || '',
+      link.student.date_of_birth ? calculateAge(link.student.date_of_birth).toString() : '',
+      new Date(link.created_at).toLocaleDateString('en-GB'),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `my-students-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success('Students exported successfully');
+    setShowActionsMenu(false);
+  };
+
+  // Tabs
+  const tabs: HubTab[] = [
+    { id: 'my-students', label: 'My Students', count: students.length, active: true },
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    // Future: Add more tabs if needed
+  };
+
+  // Show loading state
+  if (profileLoading || isLoading) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="My Students" />}
+        sidebar={
+          <HubSidebar>
+            <AccountCard />
+            <AccountHelpWidget
+              title="Guardian Links"
+              description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
+              tips={[
+                'Each student gets their own learning profile',
+                'Tutors can see student preferences before sessions',
+                'You can manage up to 50 students',
+              ]}
+            />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.loading}>Loading students...</div>
+      </HubPageLayout>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="My Students" />}
+        sidebar={
+          <HubSidebar>
+            <AccountCard />
+            <AccountHelpWidget
+              title="Guardian Links"
+              description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
+              tips={[
+                'Each student gets their own learning profile',
+                'Tutors can see student preferences before sessions',
+                'You can manage up to 50 students',
+              ]}
+            />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.error}>
+          <p>Failed to load students</p>
+          <Button variant="secondary" onClick={() => refetch()}>
+            Try Again
+          </Button>
+        </div>
+      </HubPageLayout>
+    );
+  }
+
+  return (
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="My Students"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              {/* Search Input */}
+              <input
+                type="search"
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+            </div>
+          }
+          actions={
+            <>
+              {/* Primary Action Button */}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleInviteStudent}
+              >
+                + Invite Student
+              </Button>
+
+              {/* Secondary Actions: Dropdown Menu */}
+              <div className={actionStyles.dropdownContainer}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  square
+                  onClick={() => setShowActionsMenu(!showActionsMenu)}
+                >
+                  ⋮
+                </Button>
+
+                {showActionsMenu && (
+                  <>
+                    {/* Backdrop to close menu */}
+                    <div
+                      className={actionStyles.backdrop}
+                      onClick={() => setShowActionsMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className={actionStyles.dropdownMenu}>
+                      <button
+                        onClick={handleManageInvitations}
+                        className={actionStyles.menuButton}
+                      >
+                        Manage Invitations
+                      </button>
+                      <button
+                        onClick={handleExportCSV}
+                        className={actionStyles.menuButton}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      }
+      tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+      sidebar={
+        <HubSidebar>
+          <AccountCard />
+          <AccountHelpWidget
+            title="Guardian Links"
+            description="Invite students to link with your account. You'll be able to book sessions on their behalf and manage their learning preferences."
+            tips={[
+              'Each student gets their own learning profile',
+              'Tutors can see student preferences before sessions',
+              'You can manage up to 50 students',
+            ]}
+          />
+        </HubSidebar>
+      }
+    >
+      {/* Empty State */}
+      {filteredStudents.length === 0 && (
+        <HubEmptyState
+          icon="📚"
+          title={searchQuery ? 'No students found' : 'No Students Yet'}
+          description={
+            searchQuery
+              ? 'Try adjusting your search query.'
+              : 'Invite students to get started. They\'ll receive an email invitation to create their account.'
+          }
+          actionLabel={searchQuery ? undefined : 'Invite Your First Student'}
+          onAction={searchQuery ? undefined : handleInviteStudent}
+        />
+      )}
+
+      {/* Students List */}
+      {filteredStudents.length > 0 && (
+        <div className={styles.studentsList}>
+          {filteredStudents.map((link: StudentLink) => (
+            <div key={link.id} className={styles.studentCard}>
+              <div className={styles.studentAvatar}>
+                {link.student.avatar_url ? (
+                  <img src={link.student.avatar_url} alt={link.student.full_name} />
+                ) : (
+                  <div className={styles.avatarPlaceholder}>
+                    {link.student.full_name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <div className={styles.studentInfo}>
+                <h3 className={styles.studentName}>{link.student.full_name}</h3>
+                <p className={styles.studentEmail}>{link.student.email}</p>
+                {link.student.date_of_birth && (
+                  <p className={styles.studentAge}>
+                    Age: {calculateAge(link.student.date_of_birth)} years old
+                  </p>
+                )}
+              </div>
+              <div className={styles.studentActions}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleViewStudent(link.student_id)}
+                >
+                  Manage Profile
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Invite Student Modal */}
+      <StudentInviteModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={handleInviteSuccess}
+      />
+    </HubPageLayout>
+  );
+}
+
+function calculateAge(dateOfBirth: string): number {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+}

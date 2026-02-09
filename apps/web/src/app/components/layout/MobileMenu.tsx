@@ -146,7 +146,7 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
                 </Link>
               )}
               {(activeRole === 'client' || activeRole === 'tutor') && (
-                <Link href="/my-students" className={styles.menuItem} onClick={handleLinkClick}>
+                <Link href="/account/students/my-students" className={styles.menuItem} onClick={handleLinkClick}>
                   My Students
                 </Link>
               )}

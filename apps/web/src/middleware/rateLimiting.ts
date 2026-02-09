@@ -34,6 +34,11 @@ const LIMITS: Record<string, RateLimitConfig> = {
     window: 3600, // 1 hour
     message: 'Connection removal limit exceeded. Try again in an hour.'
   },
+  'student:invite': {
+    requests: 50,
+    window: 86400, // 24 hours
+    message: 'Student invitation limit exceeded. Try again tomorrow.'
+  },
   'payment:booking_create': {
     requests: 20,
     window: 3600, // 1 hour

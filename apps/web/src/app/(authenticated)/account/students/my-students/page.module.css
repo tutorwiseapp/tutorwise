@@ -1,0 +1,110 @@
+/*
+ * Filename: apps/web/src/app/(authenticated)/account/students/my-students/page.module.css
+ * Purpose: Student-specific card styles for My Students page
+ * Created: 2026-02-08
+ * Pattern: Minimal CSS - Layout, Header, Tabs, EmptyState handled by Hub components
+ */
+
+/* Students List Wrapper */
+.studentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Student Card */
+.studentCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.studentCard:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Student Avatar */
+.studentAvatar {
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.studentAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Student Info */
+.studentInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.studentName {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.studentEmail {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studentAge {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Student Actions */
+.studentActions {
+  flex-shrink: 0;
+}
+
+/* Loading State */
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Error State */
+.error {
+  padding: 2rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  text-align: center;
+}
+
+.error p {
+  margin: 0 0 1rem 0;
+}
