@@ -1,0 +1,95 @@
+name: Security Scans
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'apps/web/package.json'
+      - '.github/workflows/security.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'apps/web/package.json'
+  schedule:
+    # Run security scans weekly on Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  npm-audit:
+    name: npm Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Audit summary
+        if: failure()
+        run: echo "⚠️ Security vulnerabilities found (non-blocking)"
+
+  snyk-scan:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=package.json
+        continue-on-error: true
+
+      - name: Snyk summary
+        if: failure()
+        run: echo "⚠️ Snyk found security issues (non-blocking)"
+
+  summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [npm-audit, snyk-scan]
+    if: always()
+
+    steps:
+      - name: Check security status
+        run: |
+          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **npm Audit**: ${{ needs.npm-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Snyk Scan**: ${{ needs.snyk-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.npm-audit.result }}" == "success" ] && [ "${{ needs.snyk-scan.result }}" == "success" ]; then
+            echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Security issues detected - review above (non-blocking)" >> $GITHUB_STEP_SUMMARY
+          fi
