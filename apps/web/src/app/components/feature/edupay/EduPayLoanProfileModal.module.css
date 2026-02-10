@@ -6,7 +6,7 @@
 
 /* ── Body (content area) ─────────────────────────────────────────────────── */
 .body {
-  padding: 24px 32px 8px;
+  padding: 24px 32px 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -110,6 +110,17 @@
   border-color: #006c67;
 }
 
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ── Error ───────────────────────────────────────────────────────────────── */
 .errorMsg {
   font-size: 0.8125rem;
@@ -128,7 +139,7 @@
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
   .body {
-    padding: 20px 16px 8px;
+    padding: 20px 16px 32px;
     gap: 20px;
   }
 

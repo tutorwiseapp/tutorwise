@@ -138,11 +138,19 @@
   color: #1f2937;
   background: #fff;
   transition: border-color 0.15s;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .input:focus {
   outline: none;
   border-color: #006c67;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .maxBtn {
@@ -162,11 +170,22 @@
   background: #e5e7eb;
 }
 
-.gbpPreview {
-  font-size: 1.25rem;
-  font-weight: 700;
+.gbpReadonly {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #9ca3af;
+  background: #f9fafb;
+  cursor: default;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.gbpReadonlyActive {
   color: #006c67;
-  line-height: 1.2;
+  font-weight: 700;
 }
 
 /* ── Destination cards ───────────────────────────────────────────────────── */
@@ -174,6 +193,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 32px;
 }
 
 .destCard {

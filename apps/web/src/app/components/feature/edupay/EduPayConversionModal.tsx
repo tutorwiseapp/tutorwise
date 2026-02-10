@@ -219,9 +219,9 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
               </div>
               <div className={styles.field}>
                 <span className={styles.fieldLabel}>GBP Value</span>
-                <span className={styles.gbpPreview}>
-                  {epNum > 0 ? `£${gbpPreview}` : '—'}
-                </span>
+                <div className={`${styles.gbpReadonly} ${epNum > 0 ? styles.gbpReadonlyActive : ''}`}>
+                  {epNum > 0 ? `£${gbpPreview}` : '£0.00'}
+                </div>
               </div>
             </div>
           </div>
