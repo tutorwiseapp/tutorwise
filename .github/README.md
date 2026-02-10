@@ -253,17 +253,16 @@ Provides links to:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
 - `STRIPE_SECRET_KEY` - Stripe secret key
-- `UPSTASH_REDIS_REST_URL` - Upstash Redis URL
-- `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis token
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret (from Stripe Dashboard → Developers → Webhooks)
+- `REDIS_URL` - Redis Cloud connection URL (used for presence tracking and rate limiting)
+- `RESEND_API_KEY` - Resend email API key
+- `RESEND_FROM_EMAIL` - Sender email address
+
+### Deployment (Backend - On Hold)
+- `RAILWAY_TOKEN` - Railway deployment token (uncomment deploy-backend job in deploy.yml when ready)
 
 ### Security Scanning
-- `SNYK_TOKEN` - Snyk security scanning token (optional)
-
-### Testing
-- `SUPABASE_TEST_URL` - Test database URL (optional)
-- `SUPABASE_TEST_ANON_KEY` - Test database anon key (optional)
-- `SUPABASE_TEST_SERVICE_KEY` - Test database service key (optional)
-- `STRIPE_TEST_SECRET_KEY` - Stripe test mode key (optional)
+- `SNYK_TOKEN` - Snyk security scanning token (optional, non-blocking)
 
 ### Monitoring
 - `SENTRY_DSN` - Error tracking (optional)
