@@ -123,6 +123,12 @@
   color: #4b4b4b;
 }
 
+.fieldValueMuted {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
 /* ── Amount input row ────────────────────────────────────────────────────── */
 .amountRow {
   display: flex;

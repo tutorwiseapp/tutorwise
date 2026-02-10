@@ -365,6 +365,7 @@ export default function EduPayPage() {
         isOpen={showConversionModal}
         onClose={() => setShowConversionModal(false)}
         wallet={wallet ?? null}
+        loanProfile={loanProfile ?? null}
         onSuccess={() => {
           void queryClient.invalidateQueries({ queryKey: ['edupay-wallet'] });
           void queryClient.invalidateQueries({ queryKey: ['edupay-ledger'] });

@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@/app/components/ui/actions/Button';
 import { HubComplexModal } from '@/app/components/hub/modal';
-import { EduPayWallet, requestConversion } from '@/lib/api/edupay';
+import { EduPayWallet, EduPayLoanProfile, requestConversion } from '@/lib/api/edupay';
 import styles from './EduPayConversionModal.module.css';
 
 type Destination = 'student_loan' | 'isa' | 'savings';
@@ -24,6 +24,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   wallet: EduPayWallet | null;
+  loanProfile: EduPayLoanProfile | null;
   onSuccess: () => void;
 }
 
@@ -49,7 +50,7 @@ const DESTINATION_OPTIONS: { value: Destination; label: string; description: str
 
 const STEP_LABELS = ['Amount', 'Review', 'Done'];
 
-export default function EduPayConversionModal({ isOpen, onClose, wallet, onSuccess }: Props) {
+export default function EduPayConversionModal({ isOpen, onClose, wallet, loanProfile, onSuccess }: Props) {
   const searchParams = useSearchParams();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -271,6 +272,12 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
               <div className={styles.field}>
                 <span className={styles.fieldLabel}>Rate</span>
                 <span className={styles.fieldValue}>100 EP = £1.00</span>
+              </div>
+              <div className={styles.field}>
+                <span className={styles.fieldLabel}>Payment Reference</span>
+                <span className={styles.fieldValue}>
+                  {loanProfile?.slc_reference ?? <span className={styles.fieldValueMuted}>Not set — add in Loan Profile</span>}
+                </span>
               </div>
             </div>
           </div>

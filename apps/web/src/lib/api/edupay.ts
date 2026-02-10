@@ -38,6 +38,7 @@ export interface EduPayLoanProfile {
   estimated_balance: number;
   annual_salary: number;
   graduation_year: number;
+  slc_reference?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -47,6 +48,7 @@ export interface LoanProfileInput {
   estimated_balance: number;
   annual_salary: number;
   graduation_year: number;
+  slc_reference?: string | null;
 }
 
 export interface ConversionInput {

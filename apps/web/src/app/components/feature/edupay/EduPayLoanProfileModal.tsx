@@ -37,6 +37,7 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
   const [estimatedBalance, setEstimatedBalance] = useState('');
   const [annualSalary, setAnnualSalary] = useState('');
   const [graduationYear, setGraduationYear] = useState('');
+  const [slcReference, setSlcReference] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,11 +48,13 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
       setEstimatedBalance(String(loanProfile.estimated_balance));
       setAnnualSalary(String(loanProfile.annual_salary));
       setGraduationYear(String(loanProfile.graduation_year));
+      setSlcReference(loanProfile.slc_reference ?? '');
     } else {
       setLoanPlan('plan2');
       setEstimatedBalance('');
       setAnnualSalary('');
       setGraduationYear(String(new Date().getFullYear()));
+      setSlcReference('');
     }
     setError(null);
   }, [loanProfile, isOpen]);
@@ -89,6 +92,7 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
         estimated_balance: balance,
         annual_salary: salary,
         graduation_year: year,
+        slc_reference: slcReference.trim() || null,
       });
       onSave();
       handleClose();
@@ -196,6 +200,21 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
                 onChange={e => setGraduationYear(e.target.value)}
                 className={styles.input}
                 placeholder={String(new Date().getFullYear())}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="lp-slc-ref">
+                SLC Customer Reference (optional)
+              </label>
+              <input
+                id="lp-slc-ref"
+                type="text"
+                value={slcReference}
+                onChange={e => setSlcReference(e.target.value)}
+                className={styles.input}
+                placeholder="e.g. 5710044563"
+                maxLength={20}
               />
             </div>
           </div>
