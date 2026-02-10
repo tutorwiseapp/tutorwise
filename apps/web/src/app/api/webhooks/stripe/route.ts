@@ -109,6 +109,18 @@ export async function POST(req: NextRequest) {
 
         console.log(`Successfully processed payment for booking ${booking_id}`);
 
+        // Award EduPay Points for tutoring income (async - don't block webhook)
+        // v9.0: Fire-and-forget EP award after handle_successful_payment succeeds
+        // Idempotent via stripe_checkout_id — safe to retry
+        Promise.resolve(supabase.rpc('award_ep_for_payment', {
+          p_booking_id: booking_id,
+          p_stripe_checkout_id: session.id,
+        })).then(() => {
+          console.log('[Webhook] EP awarded for booking:', booking_id);
+        }).catch((err) => {
+          console.error('[Webhook] EP award failed (non-critical):', err);
+        });
+
         /**
          * NOTE: Wiselist attribution tracking has been REMOVED.
          * Do NOT implement wiselist_referrer_id metadata processing.

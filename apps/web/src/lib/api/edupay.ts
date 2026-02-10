@@ -57,25 +57,29 @@ export interface ConversionInput {
 export async function getEduPayWallet(): Promise<EduPayWallet | null> {
   const res = await fetch('/api/edupay/wallet');
   if (!res.ok) return null;
-  return res.json();
+  const data = await res.json();
+  return data.wallet ?? null;
 }
 
 export async function getEduPayLedger(): Promise<EduPayLedgerEntry[]> {
   const res = await fetch('/api/edupay/ledger');
   if (!res.ok) return [];
-  return res.json();
+  const data = await res.json();
+  return data.ledger ?? [];
 }
 
 export async function getEduPayProjection(): Promise<EduPayProjection | null> {
   const res = await fetch('/api/edupay/projection');
   if (!res.ok) return null;
-  return res.json();
+  const data = await res.json();
+  return data.projection ?? null;
 }
 
 export async function getLoanProfile(): Promise<EduPayLoanProfile | null> {
   const res = await fetch('/api/edupay/loan-profile');
   if (!res.ok) return null;
-  return res.json();
+  const data = await res.json();
+  return data.loanProfile ?? null;
 }
 
 export async function saveLoanProfile(data: LoanProfileInput): Promise<EduPayLoanProfile> {
@@ -85,7 +89,8 @@ export async function saveLoanProfile(data: LoanProfileInput): Promise<EduPayLoa
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Failed to save loan profile');
-  return res.json();
+  const json = await res.json();
+  return json.loanProfile;
 }
 
 export async function requestConversion(data: ConversionInput): Promise<void> {
