@@ -132,8 +132,8 @@ export default function AdminUsersOverviewPage() {
 
         if (error) throw error;
 
-        const tutors = data?.filter(p => p.active_role === 'provider').length || 0;
-        const clients = data?.filter(p => p.active_role === 'seeker').length || 0;
+        const tutors = data?.filter(p => p.active_role === 'tutor').length || 0;
+        const clients = data?.filter(p => p.active_role === 'client').length || 0;
         const agents = data?.filter(p => p.active_role === 'agent').length || 0;
         const unset = data?.filter(p => !p.active_role).length || 0;
 

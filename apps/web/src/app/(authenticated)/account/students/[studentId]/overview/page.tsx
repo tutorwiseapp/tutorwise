@@ -30,6 +30,14 @@ async function getStudentProfile(studentId: string): Promise<Profile> {
   return data.profile;
 }
 
+async function getGuardianLink(studentId: string): Promise<string | null> {
+  const response = await fetch('/api/links/client-student');
+  if (!response.ok) return null;
+  const data = await response.json();
+  const link = data.students?.find((s: any) => s.student_id === studentId);
+  return link?.created_at ?? null;
+}
+
 export default function StudentOverviewPage() {
   const params = useParams();
   const router = useRouter();
@@ -50,6 +58,14 @@ export default function StudentOverviewPage() {
     enabled: !!studentId,
     staleTime: 2 * 60 * 1000,
     retry: 2,
+  });
+
+  // Fetch guardian link to get accurate linkedSince (profile_graph.created_at)
+  const { data: linkedSince } = useQuery({
+    queryKey: ['student-link-date', studentId],
+    queryFn: () => getGuardianLink(studentId),
+    enabled: !!studentId,
+    staleTime: 10 * 60 * 1000,
   });
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
@@ -241,7 +257,7 @@ export default function StudentOverviewPage() {
             studentEmail={studentProfile.email || ''}
             avatarUrl={studentProfile.avatar_url}
             dateOfBirth={studentProfile.date_of_birth}
-            linkedSince={studentProfile.created_at || new Date().toISOString()}
+            linkedSince={linkedSince || studentProfile.created_at}
           />
           <AccountHelpWidget
             title="Student Profile"

@@ -61,6 +61,9 @@ export default function StudentDetailModal({
   // Build subtitle
   const subtitle = profile.email;
 
+  // Learning preferences come from role_details (role_type='client'), exposed via professional_details.client
+  const clientDetails = (profile as any).professional_details?.client;
+
   // Build sections
   const sections: DetailSection[] = [
     {
@@ -70,7 +73,6 @@ export default function StudentDetailModal({
         { label: 'Email', value: profile.email },
         { label: 'Age', value: age ? `${age} years old` : 'Not specified' },
         { label: 'Date of Birth', value: profile.date_of_birth ? formatDate(profile.date_of_birth) : 'Not specified' },
-        { label: 'Gender', value: (profile as any).gender || 'Not specified' },
         { label: 'Status', value: 'Active' },
         { label: 'Student ID', value: profile.id },
       ],
@@ -78,21 +80,19 @@ export default function StudentDetailModal({
     {
       title: 'Education & Learning',
       fields: [
-        { label: 'Education Level', value: (profile as any).education_level || 'Not specified' },
-        { label: 'Subjects', value: (profile as any).subjects?.join(', ') || 'Not specified' },
-        { label: 'Key Stages', value: (profile as any).key_stages?.join(', ') || 'Not specified' },
-        { label: 'Learning Goals', value: (profile as any).learning_goals?.join(', ') || 'Not specified' },
-        { label: 'Learning Preferences', value: (profile as any).learning_preferences?.join(', ') || 'Not specified' },
-        ...((profile as any).special_needs?.length > 0 ? [{ label: 'Special Educational Needs', value: (profile as any).special_needs.join(', ') }] : []),
+        { label: 'Subjects', value: clientDetails?.subjects?.join(', ') || 'Not specified' },
+        { label: 'Learning Goals', value: clientDetails?.goals?.join(', ') || 'Not specified' },
+        { label: 'Learning Style', value: clientDetails?.learning_style || 'Not specified' },
+        { label: 'Budget Range', value: clientDetails?.budget_range ? `£${clientDetails.budget_range.min}–£${clientDetails.budget_range.max} / hr` : 'Not specified' },
       ],
     },
     {
       title: 'Contact & Location',
       fields: [
         { label: 'Phone', value: (profile as any).phone || 'Not provided' },
-        { label: 'City', value: (profile as any).location_city || 'Not specified' },
-        { label: 'Postcode', value: (profile as any).location_postcode || 'Not specified' },
-        { label: 'Country', value: (profile as any).location_country || 'Not specified' },
+        { label: 'City', value: (profile as any).city || 'Not specified' },
+        { label: 'Postcode', value: (profile as any).postal_code || 'Not specified' },
+        { label: 'Country', value: (profile as any).country || 'Not specified' },
         { label: 'Timezone', value: (profile as any).timezone || 'Not specified' },
       ],
     },
