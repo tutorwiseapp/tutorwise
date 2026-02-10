@@ -1506,28 +1506,39 @@ Gift voucher redeemed → Tillo API provides reward → Tutorwise keeps 10%
 - React Query gold standard (gcTime 10min, exponential retryDelay, placeholderData)
 - Help Centre guide: `apps/web/src/content/help-centre/features/edupay.mdx`
 
-**Phase 2 — API & Data** (pending):
-- 6 API routes: events, wallet, ledger, projection, loan-profile, conversion
-- 6 database tables (migrations 244–249): events, wallets, ledger, rules, loan_profiles, conversions
-- EP earning rule engine (configurable, versioned)
-- Stripe webhook integration for automatic EP award
+**Phase 1.5 — API & Data Layer Complete** ✅:
+- 7 API routes: `GET /api/edupay/wallet`, `ledger`, `projection`, `GET+POST /api/edupay/loan-profile`, `POST /api/edupay/events`, `POST /api/edupay/conversion/request` (placeholder)
+- 6 database tables (migrations 253–257): events, wallets, ledger, rules, loan_profiles, conversions
+- 4 RPC functions (migration 258): `award_ep_for_payment`, `award_ep_for_event`, `clear_pending_ep`, `get_edupay_projection`
+- Stripe webhook integration — fire-and-forget EP award after successful payment
+- pg_cron job (ID 46, migration 259) — daily 6am UTC clearing of pending → available EP
+- EP earning rules seeded: 100/150/90/90/1 EP per £1 for all 5 event types
 
-**Phase 3 — Conversion** (pending):
-- EduPayConversionModal (EP → loan payment flow)
-- TrueLayer integration (loan payment disbursement)
-- Tillo integration (gift card rewards)
+**Phase 2 — Affiliate & Gift Integration** ⏳ Blocked on partner onboarding:
+- Requires: Awin publisher account, CJ publisher account, Tillo API access
+- Webhook handlers for Awin/CJ commission events (`award_ep_for_event` already supports `affiliate_spend`)
+- Tillo gift card product catalogue + purchase flow
+- No DB changes needed — `edupay_rules` and `edupay_events` already support these event types
+
+**Phase 3 — Loan Payment Conversion** ⏳ Blocked on TrueLayer + legal:
+- Requires: TrueLayer PISP account, SLC payment acceptance confirmation, legal review
+- `EduPayConversionModal.tsx` + `EduPayLoanProfileModal.tsx`
+- TrueLayer OAuth + PISP payment initiation lib (`src/lib/truelayer/`)
+- Migration 260: add TrueLayer fields to `edupay_conversions`
+- See `docs/feature/edupay/edupay-solution-design.md` Phase 3 section for full spec
 
 **Design Document**: `docs/feature/edupay/edupay-solution-design.md`
 
 ### 6.5.6 Regulatory Position
 
-EduPay operates as a **loyalty points system** in Phases 1–2:
+EduPay operates as a **loyalty points system** in Phases 1–1.5:
 - Zero regulatory risk (same as Nectar, Tesco Clubcard)
 - No FCA authorisation required
 - EP is non-transferable, not a currency
-- No direct cash-out path in Phase 1–2
+- No direct cash-out path in Phases 1–2
 
-Phase 3 loan payment flow will require legal review of student loan regulations and FCA guidance.
+Phase 2 (affiliate cashback) — standard affiliate marketing, zero regulatory exposure.
+Phase 3 (loan payment via TrueLayer) — requires legal review before building. Register as TrueLayer downstream PISP user — no FCA licence required for this model.
 
 ---
 

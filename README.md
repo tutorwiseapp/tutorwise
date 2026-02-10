@@ -211,15 +211,18 @@ CAS will apply 8 agent perspectives:
 - **Production-Ready**: 7 new tables, 5 API routes, 2 cron jobs, 7 utility libraries
 - **Documentation**: [Booking Enhancements v7.0 Complete](docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md)
 
-### EduPay — Tutoring Rewards → Loan Payments (Phase 1 - Feb 2026)
+### EduPay — Tutoring Rewards → Loan Payments (Phases 1 & 1.5 Complete - Feb 2026)
 - **Points Model**: £1 earned = 100 EP → 100 EP = £1 financial impact on student loan
 - **EP Wallet**: Track available, pending, and converted EP in real time
 - **EP Ledger**: Full activity feed (tutoring income, referrals, affiliate spend, CaaS rewards)
-- **Loan Impact Projection**: See years earlier debt-free and projected interest saved
+- **Loan Impact Projection**: Years earlier debt-free and projected interest saved (via RPC)
 - **Loan Profile Setup**: Plan 1/2/5/Postgraduate + balance + salary + graduation year
 - **5 Sidebar Widgets**: Stats, Projection, Loan Profile, Help, Video
 - **React Query Gold Standard**: gcTime, retryDelay, placeholderData, retry across all 4 queries
-- **Phase 1 Live**: Full UI/UX — API routes and DB migrations in Phase 2
+- **API & Data Complete**: 7 API routes, 6 DB tables (migrations 253–257), 4 RPC functions (258), pg_cron (259)
+- **Stripe Integration**: Fire-and-forget EP award on every successful payment
+- **Phase 2 Next**: Affiliate (Awin/CJ) + gift card (Tillo) — blocked on partner onboarding
+- **Phase 3 Next**: TrueLayer PISP loan payment conversion — blocked on account + legal review
 - **Documentation**: [EduPay Solution Design](docs/feature/edupay/edupay-solution-design.md)
 
 ### Referral System (100% Core Complete - Feb 2026)

@@ -1,8 +1,8 @@
 # EduPay Solution Design
-**Version:** 1.1
+**Version:** 1.2
 **Created:** 2026-02-10
 **Updated:** 2026-02-10
-**Status:** Phase 1 — UI Implementation Complete
+**Status:** Phase 2 — API & Data Layer Complete
 **Author:** Tutorwise Product Team
 
 ---
@@ -299,15 +299,24 @@ CREATE TABLE edupay_conversions (
 ## 10. API Specification
 
 ```
-POST /api/edupay/events                — Ingest event (internal + 3rd party webhooks)
-POST /api/edupay/rewards/calculate     — Calculate EP for a given event
-GET  /api/edupay/wallet                — User EP balance + GBP equivalent
-GET  /api/edupay/ledger                — Immutable transaction history
-GET  /api/edupay/projection            — Loan impact projections
-POST /api/edupay/loan-profile          — Set loan plan + estimated balance
-GET  /api/edupay/loan-profile          — Get loan profile
-POST /api/edupay/conversion/request    — User initiates EP → loan payment (Phase 2)
-GET  /api/edupay/conversion/status     — Conversion status
+POST /api/edupay/events                — ✅ Ingest event (internal + 3rd party webhooks)
+GET  /api/edupay/wallet                — ✅ User EP balance + GBP equivalent
+GET  /api/edupay/ledger                — ✅ Immutable transaction history
+GET  /api/edupay/projection            — ✅ Loan impact projections (via RPC)
+POST /api/edupay/loan-profile          — ✅ Set loan plan + estimated balance
+GET  /api/edupay/loan-profile          — ✅ Get loan profile
+POST /api/edupay/conversion/request    — ⏳ Phase 3 placeholder (returns friendly message)
+GET  /api/edupay/conversion/status     — ⏳ Phase 3 (poll TrueLayer payment status)
+POST /api/webhooks/truelayer           — ⏳ Phase 3 (TrueLayer payment webhook)
+GET  /api/edupay/conversion/callback   — ⏳ Phase 3 (TrueLayer OAuth redirect handler)
+```
+
+**Phase 2 RPC Functions (migration 258):**
+```
+award_ep_for_payment(p_booking_id, p_stripe_checkout_id)  — ✅ Called from Stripe webhook
+award_ep_for_event(p_user_id, p_event_type, ...)          — ✅ Generic EP award
+clear_pending_ep()                                         — ✅ Daily cron (pg_cron job 46)
+get_edupay_projection(p_user_id)                          — ✅ Pure calculation RPC
 ```
 
 ---
@@ -334,14 +343,16 @@ Interest saved:          £3,200 (projected)
 
 ## 12. 3rd Party Integrations
 
-| Partner | Purpose | Flow | Phase |
-|---|---|---|---|
-| Awin | Affiliate network (1,000+ merchants) | Merchant → Awin → Tutorwise commission webhook → EP awarded | 2 |
-| Commission Junction (CJ) | Affiliate network (alternative/supplement) | Same as Awin | 2 |
-| Tillo | Gift card network (1,000+ UK retailers) | User buys gift card → retailer margin → 10/90 split → EP | 2 |
-| TrueLayer (PISP) | Loan payment initiation | User approves → TrueLayer debits bank → pays SLC | 3 |
+| Partner | Purpose | Flow | Phase | Status |
+|---|---|---|---|---|
+| Awin | Affiliate network (1,000+ merchants) | Merchant → Awin → Tutorwise commission webhook → EP awarded | 2 | ⏳ Not started — apply at awin.com/gb |
+| Commission Junction (CJ) | Affiliate network (alternative) | Same as Awin | 2 | ⏳ Not started — apply at cj.com |
+| Tillo | Gift card network (1,000+ UK retailers) | User buys gift card → retailer margin → 10/90 split → EP | 2 | ⏳ Not started — apply at tillorewards.com |
+| TrueLayer (PISP) | Loan payment initiation | User approves → TrueLayer debits bank → pays SLC | 3 | ⏳ Not started — apply at truelayer.com |
 
 Tutorwise never holds affiliate funds. Commission is received → split → EP awarded → user converts via TrueLayer.
+
+**Note:** Phase 2 in the solution design refers to Awin/CJ/Tillo affiliate integrations. The API & data layer (originally unnamed) has been completed first. Affiliate and gift integrations require external partner onboarding before building.
 
 ---
 
@@ -380,30 +391,102 @@ Every benefit is funded by a merchant or the user's own earnings. The platform b
 
 ## 15. Rollout Phases
 
-### Phase 1 — Foundation (Zero Regulatory Risk)
-- EP ledger and wallet (new tables, existing patterns)
-- Award EP from existing booking + referral events
-- CaaS score threshold rewards (tap existing triggers)
-- Loan profile form (user enters plan + balance)
-- Projection engine (pure calculation)
-- EduPay dashboard widget
+### Phase 1 — Foundation ✅ Complete (Feb 2026)
+- ✅ EduPay hub page (`/financials/edupay`) — hub layout, 4 tabs, pagination
+- ✅ 5 sidebar widgets: Stats, Projection, Loan Profile, Help, Video
+- ✅ EP ledger card with activity feed
+- ✅ Loan profile setup (Plan 1/2/5/Postgraduate + balance + salary + graduation year)
+- ✅ Loan impact projection (years earlier debt-free, interest saved)
+- ✅ React Query gold standard across all 4 queries
+- ✅ Help Centre guide (`edupay.mdx`)
 
-### Phase 2 — Affiliate & Gift Integration
-- Awin/CJ affiliate link tracking
-- Tillo gift card integration
-- 10/90 commission split processing
-- Automated EP award from affiliate webhooks
+### Phase 1.5 — API & Data Layer ✅ Complete (Feb 2026)
+- ✅ 6 database tables (migrations 253–257): events, wallets, ledger, rules, loan_profiles, conversions
+- ✅ 4 RPC functions (migration 258): award_ep_for_payment, award_ep_for_event, clear_pending_ep, get_edupay_projection
+- ✅ 7 API routes: wallet, ledger, projection, loan-profile, events, conversion/request (placeholder), conversion/status (placeholder)
+- ✅ Stripe webhook integration — fire-and-forget `award_ep_for_payment` after payment
+- ✅ pg_cron job (job ID 46) — daily clearing of pending → available EP at 6am UTC (migration 259)
+- ✅ EP earning rules seeded: tutoring_income (100 EP/£1), referral_income (150 EP/£1), affiliate_spend (90 EP/£1), gift_reward (90 EP/£1), caas_threshold (1 EP/£1)
 
-### Phase 3 — Loan Payment Conversion
-- TrueLayer PISP integration
-- User-directed loan overpayments
-- Conversion tracking + ledger updates
+### Phase 2 — Affiliate & Gift Integration ⏳ Blocked on partner onboarding
+**Pre-requisites (external — must complete before writing code):**
+- [ ] Apply to Awin publisher programme (awin.com/gb/advertiser) — account + API credentials
+- [ ] Apply to Commission Junction (cj.com) as publisher — account + API credentials
+- [ ] Apply to Tillo (tillorewards.com) — API access for gift card processing
+- [ ] Receive and store env vars: AWIN_API_KEY, CJ_API_KEY, TILLO_API_KEY
 
-### Phase 4 — Advanced Features
-- Personalised financial nudges
-- Automated EP conversion (opt-in)
+**Once partner accounts are active:**
+- Awin/CJ commission webhook handler (`POST /api/webhooks/awin`, `POST /api/webhooks/cj`)
+- Affiliate link generation and tracking (`GET /api/edupay/affiliate/link`)
+- Tillo gift card purchase flow (product catalogue + checkout)
+- `award_ep_for_event` RPC already supports `affiliate_spend` and `gift_reward` event types — no DB changes needed
+
+### Phase 3 — Loan Payment Conversion ⏳ Blocked on TrueLayer onboarding + legal review
+
+**Pre-requisites (external — must complete before writing code):**
+- [ ] Apply to TrueLayer sandbox (free at truelayer.com/docs) — get `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET`
+- [ ] Confirm SLC accepts third-party PISP payments — email SLC directly (slc.co.uk/contact)
+- [ ] Legal review — student loan overpayment rules and FCA guidance for directed payments
+- [ ] Add env vars: `TRUELAYER_CLIENT_ID`, `TRUELAYER_CLIENT_SECRET`, `TRUELAYER_ENVIRONMENT` (`sandbox`/`live`)
+
+**Database (migration 260 — when ready):**
+```sql
+ALTER TABLE edupay_conversions
+  ADD COLUMN truelayer_consent_id TEXT,
+  ADD COLUMN truelayer_payment_id TEXT,
+  ADD COLUMN slc_reference         TEXT;
+```
+
+**New API routes:**
+```
+POST /api/edupay/conversion/request    — Replace placeholder: validate EP, create conversion row, initiate TrueLayer OAuth
+GET  /api/edupay/conversion/callback   — TrueLayer OAuth redirect handler, initiate PISP payment
+GET  /api/edupay/conversion/status     — Poll conversion status (pending → processing → completed/failed)
+POST /api/webhooks/truelayer           — TrueLayer payment status webhook (signed)
+```
+
+**New lib files:**
+```
+src/lib/truelayer/client.ts    — Authenticated TrueLayer API client
+src/lib/truelayer/auth.ts      — OAuth 2.0 authorisation code flow (user consent)
+src/lib/truelayer/payment.ts   — Initiate PISP payment to SLC sort code/account
+```
+
+**New UI components (deferred from Phase 1):**
+```
+EduPayConversionModal.tsx      — Multi-step: amount picker → destination → TrueLayer OAuth redirect → confirmation
+EduPayLoanProfileModal.tsx     — Dedicated modal for editing loan profile (replaces HubEmptyState inline form)
+```
+
+**Update existing:**
+- `page.tsx` — Replace `alert()` on "Convert EP" with `setShowConversionModal(true)`
+- `page.tsx` — Import and render `EduPayConversionModal` and `EduPayLoanProfileModal`
+- `POST /api/edupay/conversion/request` — Replace Phase 3 placeholder with real TrueLayer flow
+
+**Conversion flow (end-to-end):**
+```
+1. User clicks "Convert EP" → EduPayConversionModal opens
+2. User selects EP amount + destination (student_loan / isa / savings)
+3. POST /api/edupay/conversion/request
+   → Validates available EP
+   → Creates edupay_conversions row (status: pending)
+   → Returns TrueLayer OAuth URL
+4. User redirected to TrueLayer consent screen (authorises bank debit)
+5. TrueLayer redirects to GET /api/edupay/conversion/callback
+   → Captures consent token
+   → Calls TrueLayer payments API to initiate transfer to SLC
+   → Updates conversion row (status: processing, truelayer_payment_id)
+   → Decrements edupay_wallets.available_ep
+   → Creates edupay_ledger entry (type: convert, status: processed)
+6. TrueLayer webhook confirms payment → status: completed
+7. User sees Converted tab updated in EP ledger
+```
+
+### Phase 4 — Advanced Features ⏳ Future
+- Personalised financial nudges (EP earning rate trends)
+- Automated EP conversion (opt-in recurring)
 - Institutional partnerships
-- FCA Appointed Representative status (if advice features required)
+- FCA Appointed Representative status (if financial advice features required)
 
 ---
 
