@@ -2,6 +2,7 @@
  * Filename: EduPayLoanProfileModal.tsx
  * Purpose: Modal form for creating or editing a student loan profile
  * Created: 2026-02-10
+ * Updated: 2026-02-10 — Migrated to HubComplexModal shell
  *
  * Props: { isOpen, onClose, loanProfile (null = create), onSave }
  * Saves via POST /api/edupay/loan-profile and calls onSave() for refetch.
@@ -11,6 +12,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Button from '@/app/components/ui/actions/Button';
+import { HubComplexModal } from '@/app/components/hub/modal';
 import { EduPayLoanProfile, saveLoanProfile } from '@/lib/api/edupay';
 import styles from './EduPayLoanProfileModal.module.css';
 
@@ -97,29 +99,39 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
     }
   }
 
-  if (!isOpen) return null;
-
   const isEditing = !!loanProfile;
 
+  const footer = (
+    <div className={styles.footerRow}>
+      <Button variant="secondary" size="sm" onClick={handleClose}>
+        Cancel
+      </Button>
+      <Button
+        variant="primary"
+        size="sm"
+        onClick={() => void handleSave()}
+        disabled={loading}
+      >
+        {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Save Profile'}
+      </Button>
+    </div>
+  );
+
   return (
-    <div className={styles.overlay} onClick={handleClose}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className={styles.header}>
-          <h2 className={styles.title}>{isEditing ? 'Edit Loan Profile' : 'Set Up Loan Profile'}</h2>
-          <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
-
-        <div className={styles.body}>
-          <p className={styles.intro}>
-            Your loan profile is used to calculate how much sooner you could clear your student debt
-            using EduPay points.
-          </p>
-
-          {/* Loan Plan */}
-          <label className={styles.label}>Loan Plan</label>
+    <HubComplexModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={isEditing ? 'Edit Loan Profile' : 'Set Up Loan Profile'}
+      subtitle="Used to calculate your projected debt-free date using EduPay points"
+      size="md"
+      footer={footer}
+      isLoading={loading}
+      loadingText="Saving profile..."
+    >
+      <div className={styles.body}>
+        {/* Loan Plan */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Loan Plan</h3>
           <div className={styles.planCards}>
             {LOAN_PLAN_OPTIONS.map(opt => (
               <button
@@ -133,60 +145,64 @@ export default function EduPayLoanProfileModal({ isOpen, onClose, loanProfile, o
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Estimated Balance */}
-          <label className={styles.label}>Estimated Balance (£)</label>
-          <input
-            type="number"
-            min={0}
-            step={100}
-            value={estimatedBalance}
-            onChange={e => setEstimatedBalance(e.target.value)}
-            className={styles.input}
-            placeholder="e.g. 45000"
-          />
+        {/* Numeric fields */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Financial Details</h3>
+          <div className={styles.fieldsGrid}>
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="lp-balance">
+                Estimated Balance (£)
+              </label>
+              <input
+                id="lp-balance"
+                type="number"
+                min={0}
+                step={100}
+                value={estimatedBalance}
+                onChange={e => setEstimatedBalance(e.target.value)}
+                className={styles.input}
+                placeholder="e.g. 45000"
+              />
+            </div>
 
-          {/* Annual Salary */}
-          <label className={styles.label}>Current Annual Salary (£)</label>
-          <input
-            type="number"
-            min={0}
-            step={1000}
-            value={annualSalary}
-            onChange={e => setAnnualSalary(e.target.value)}
-            className={styles.input}
-            placeholder="e.g. 28000"
-          />
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="lp-salary">
+                Current Annual Salary (£)
+              </label>
+              <input
+                id="lp-salary"
+                type="number"
+                min={0}
+                step={1000}
+                value={annualSalary}
+                onChange={e => setAnnualSalary(e.target.value)}
+                className={styles.input}
+                placeholder="e.g. 28000"
+              />
+            </div>
 
-          {/* Graduation Year */}
-          <label className={styles.label}>Graduation Year</label>
-          <input
-            type="number"
-            min={1990}
-            max={new Date().getFullYear() + 10}
-            value={graduationYear}
-            onChange={e => setGraduationYear(e.target.value)}
-            className={styles.input}
-            placeholder={String(new Date().getFullYear())}
-          />
-
-          {error && <p className={styles.error}>{error}</p>}
-
-          <div className={styles.footer}>
-            <Button variant="secondary" size="sm" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => void handleSave()}
-              disabled={loading}
-            >
-              {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Save Profile'}
-            </Button>
+            <div className={styles.field}>
+              <label className={styles.fieldLabel} htmlFor="lp-year">
+                Graduation Year
+              </label>
+              <input
+                id="lp-year"
+                type="number"
+                min={1990}
+                max={new Date().getFullYear() + 10}
+                value={graduationYear}
+                onChange={e => setGraduationYear(e.target.value)}
+                className={styles.input}
+                placeholder={String(new Date().getFullYear())}
+              />
+            </div>
           </div>
         </div>
+
+        {error && <p className={styles.errorMsg}>{error}</p>}
       </div>
-    </div>
+    </HubComplexModal>
   );
 }

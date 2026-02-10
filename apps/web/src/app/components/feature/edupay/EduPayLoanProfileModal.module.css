@@ -1,141 +1,147 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
+/**
+ * EduPayLoanProfileModal.module.css
+ * Content-only styles — shell (overlay, header, footer) provided by HubComplexModal
+ * Mirrors HubDetailModal design tokens exactly
+ */
 
-.modal {
-  background: var(--color-surface, #fff);
-  border-radius: 12px;
-  width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  position: sticky;
-  top: 0;
-  background: var(--color-surface, #fff);
-  z-index: 1;
-}
-
-.title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0;
-}
-
-.closeBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text-muted, #6b7280);
-  font-size: 1rem;
-  padding: 0.25rem;
-  line-height: 1;
-}
-
-.closeBtn:hover {
-  color: var(--color-text-primary, #111827);
-}
-
+/* ── Body (content area) ─────────────────────────────────────────────────── */
 .body {
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 24px 32px 8px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 24px;
 }
 
-.intro {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #374151);
+/* ── Section — mirrors HubDetailModal ───────────────────────────────────── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4b4b4b;
   margin: 0;
-  line-height: 1.5;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-primary, #111827);
-}
-
+/* ── Plan selection cards ────────────────────────────────────────────────── */
 .planCards {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .planCard {
-  border: 1.5px solid var(--color-border, #e5e7eb);
+  border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   cursor: pointer;
-  background: var(--color-surface, #fff);
+  background: #fff;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  transition: border-color 0.15s;
+  gap: 2px;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .planCard:hover {
-  border-color: var(--color-primary, #4f46e5);
+  border-color: #006c67;
 }
 
 .planCardActive {
-  border-color: var(--color-primary, #4f46e5);
-  background: var(--color-primary-light, #eef2ff);
+  border-color: #006c67;
+  background: #E6F0F0;
 }
 
 .planLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: #1f2937;
 }
 
 .planDesc {
   font-size: 0.8125rem;
-  color: var(--color-text-muted, #6b7280);
+  color: #6b7280;
+  line-height: 1.4;
 }
 
+/* ── Fields grid — mirrors HubDetailModal ───────────────────────────────── */
+.fieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Labels use <label> tag here but match HubDetailModal fieldLabel exactly */
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8e8e8e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
 .input {
-  border: 1px solid var(--color-border, #e5e7eb);
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  padding: 8px 12px;
   font-size: 0.875rem;
-  color: var(--color-text-primary, #111827);
-  background: var(--color-surface, #fff);
+  color: #1f2937;
+  background: #fff;
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.15s;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-primary, #4f46e5);
+  border-color: #006c67;
 }
 
-.error {
+/* ── Error ───────────────────────────────────────────────────────────────── */
+.errorMsg {
   font-size: 0.8125rem;
-  color: var(--color-error, #ef4444);
+  color: #ef4444;
   margin: 0;
 }
 
-.footer {
+/* ── Footer row (passed to HubComplexModal footer prop) ─────────────────── */
+.footerRow {
   display: flex;
   justify-content: flex-end;
-  gap: 0.625rem;
-  padding-top: 0.5rem;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .body {
+    padding: 20px 16px 8px;
+    gap: 20px;
+  }
+
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .footerRow {
+    flex-direction: column;
+  }
+
+  .footerRow > * {
+    width: 100%;
+  }
 }
