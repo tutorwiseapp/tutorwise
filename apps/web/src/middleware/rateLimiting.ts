@@ -2,14 +2,10 @@
  * Filename: apps/web/src/middleware/rateLimiting.ts
  * Purpose: Redis-based rate limiting for network features (SDD v4.5)
  * Created: 2025-11-07
+ * Updated: 2026-02-10 - Migrated from @upstash/redis to ioredis (Redis Cloud via REDIS_URL)
  */
 
-import { Redis } from '@upstash/redis';
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+import { redis } from '@/lib/redis';
 
 interface RateLimitConfig {
   requests: number;
@@ -79,6 +75,15 @@ export async function checkRateLimit(
   }
 
   const key = `rate_limit:${action}:${userId}`;
+
+  if (!redis) {
+    // Fail open - Redis not configured
+    return {
+      allowed: true,
+      remaining: config.requests,
+      resetAt: Date.now() + (config.window * 1000),
+    };
+  }
 
   try {
     // Increment counter
