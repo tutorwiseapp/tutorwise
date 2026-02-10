@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/account/AccountCard.tsx
+ * Filename: apps/web/src/app/components/feature/account/AccountCompletenessWidget.tsx
  * Purpose: Unified account card for sidebar (v2 design system)
  * Created: 2025-11-19
  * Updated: 2025-11-19 - Luxury spacing optimization
@@ -23,7 +23,7 @@ import getProfileImageUrl from '@/lib/utils/image';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
-import styles from './AccountCard.module.css';
+import styles from './AccountCompletenessWidget.module.css';
 
 interface Section {
   id: string;
@@ -123,7 +123,7 @@ function calculateCompleteness(profile: Profile): { score: number; sections: Sec
   return { score, sections };
 }
 
-export default function AccountCard() {
+export default function AccountCompletenessWidget() {
   const { profile, refreshProfile } = useUserProfile();
   const _router = useRouter();
 

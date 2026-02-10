@@ -13,7 +13,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyBookings } from '@/lib/api/bookings';
 import BookingCard from '@/app/components/feature/bookings/BookingCard';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import { HubPageLayout, HubTabs, HubHeader } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -158,7 +158,7 @@ export default function StudentBookingsPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <AccountHelpWidget
               title="Student Bookings"
               description="View and manage all bookings for this student."
@@ -184,7 +184,7 @@ export default function StudentBookingsPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <AccountHelpWidget
               title="Student Bookings"
               description="View and manage all bookings for this student."
@@ -227,7 +227,7 @@ export default function StudentBookingsPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AccountCard />
+          <AccountCompletenessWidget />
           <AccountHelpWidget
             title="Student Bookings"
             description="View and manage all bookings for this student."

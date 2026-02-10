@@ -4,7 +4,7 @@
  * Pattern: Matches HubStatsCard/HubComplexCard - teal title header, 16px content padding
  */
 
-/* Title: matches HubStatsCard .title pattern exactly */
+/* Title: teal header applied directly to h3 — matches MyStudentHelpWidget pattern */
 .title {
   font-size: 14px;
   font-weight: 600;
@@ -85,6 +85,12 @@
 
 .helpText {
   font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.emptyState {
+  font-size: 13px;
   color: #9ca3af;
   font-style: italic;
 }

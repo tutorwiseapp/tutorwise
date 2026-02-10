@@ -14,7 +14,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { updateProfile } from '@/lib/api/profiles';
 import PersonalInfoForm from '@/app/components/feature/account/PersonalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
 import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
@@ -139,7 +139,7 @@ export default function PersonalInfoPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <AccountHelpWidget />
             <AccountTipWidget />
             <AccountVideoWidget />
@@ -210,7 +210,7 @@ export default function PersonalInfoPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AccountCard />
+          <AccountCompletenessWidget />
           <AccountHelpWidget />
           <AccountTipWidget />
           <AccountVideoWidget />

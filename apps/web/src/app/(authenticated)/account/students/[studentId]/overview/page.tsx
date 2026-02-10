@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import PersonalInfoForm from '@/app/components/feature/account/PersonalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import StudentProfileCard from '@/app/components/feature/students/StudentProfileCard';
 import { HubPageLayout, HubTabs, HubHeader } from '@/app/components/hub/layout';
@@ -134,7 +134,7 @@ export default function StudentOverviewPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <AccountHelpWidget
               title="Student Profile"
               description="Manage your student's personal information and learning preferences."
@@ -160,7 +160,7 @@ export default function StudentOverviewPage() {
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <AccountHelpWidget
               title="Student Profile"
               description="Manage your student's personal information and learning preferences."

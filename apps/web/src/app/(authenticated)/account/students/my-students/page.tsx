@@ -11,8 +11,8 @@ import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
-import StudentStatsWidget from '@/app/components/feature/students/StudentStatsWidget';
+import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
+import MyStudentStatsWidget from '@/app/components/feature/students/MyStudentStatsWidget';
 import MyStudentHelpWidget from '@/app/components/feature/students/MyStudentHelpWidget';
 import MyStudentTipWidget from '@/app/components/feature/students/MyStudentTipWidget';
 import MyStudentVideoWidget from '@/app/components/feature/students/MyStudentVideoWidget';
@@ -177,7 +177,7 @@ export default function MyStudentsPage() {
         header={<HubHeader title="My Students" />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <MyStudentHelpWidget />
             <MyStudentTipWidget context="my-students" />
             <MyStudentVideoWidget />
@@ -196,7 +196,7 @@ export default function MyStudentsPage() {
         header={<HubHeader title="My Students" />}
         sidebar={
           <HubSidebar>
-            <AccountCard />
+            <AccountCompletenessWidget />
             <MyStudentHelpWidget />
             <MyStudentTipWidget context="my-students" />
             <MyStudentVideoWidget />
@@ -238,7 +238,7 @@ export default function MyStudentsPage() {
                 size="sm"
                 onClick={handleInviteStudent}
               >
-                + Invite Student
+                Invite Student
               </Button>
 
               {/* Secondary Actions: Dropdown Menu */}
@@ -285,9 +285,9 @@ export default function MyStudentsPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AccountCard />
+          <AccountCompletenessWidget />
           {studentStats && (
-            <StudentStatsWidget stats={studentStats} isLoading={statsLoading} />
+            <MyStudentStatsWidget stats={studentStats} isLoading={statsLoading} />
           )}
           <MyStudentHelpWidget />
           <MyStudentTipWidget context="my-students" studentCount={students.length} />

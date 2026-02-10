@@ -12,7 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCard from '@/app/components/feature/account/AccountCard';
+import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
 import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
 import { HubPageLayout, HubTabs, HubHeader } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
@@ -123,7 +123,7 @@ export default function StudentSettingsPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AccountCard />
+          <AccountCompletenessWidget />
           <AccountHelpWidget
             title="Link Settings"
             description="Manage your guardian link with this student."
