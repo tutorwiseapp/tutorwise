@@ -116,7 +116,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
         size="sm"
         onClick={() => {
           if (!epNum || epNum <= 0) { setError('Enter a valid EP amount.'); return; }
-          if (epNum > availableEp) { setError(`Max ${availableEp} EP available.`); return; }
+          if (epNum > availableEp) { setError(`Insufficient balance — you have ${availableEp.toLocaleString()} EP available.`); return; }
           setError(null);
           setStep(2);
         }}
