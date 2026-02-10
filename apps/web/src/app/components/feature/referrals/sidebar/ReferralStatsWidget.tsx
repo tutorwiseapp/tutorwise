@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Settings } from 'lucide-react';
-import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+import HubStatsCard from '@/app/components/hub/sidebar/cards/HubStatsCard';
 import styles from './ReferralStatsWidget.module.css';
 
 interface CommissionBreakdown {
