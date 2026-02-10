@@ -13,7 +13,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -26,6 +26,8 @@ import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanP
 import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
 import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
 import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
+import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
+import EduPayLoanProfileModal from '@/app/components/feature/edupay/EduPayLoanProfileModal';
 import {
   getEduPayWallet,
   getEduPayLedger,
@@ -55,7 +57,9 @@ export default function EduPayPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showLoanProfileModal, setShowLoanProfileModal] = useState(false);
+  const [showConversionModal, setShowConversionModal] = useState(false);
 
+  const queryClient = useQueryClient();
 
   // Queries — gold standard pattern (matches listings/bookings/referrals)
   const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery({
@@ -255,7 +259,7 @@ export default function EduPayPage() {
           }
           actions={
             <>
-              <Button variant="primary" size="sm" onClick={() => alert('EP conversion launches in Phase 3. Your EP is accumulating — keep earning!')}>
+              <Button variant="primary" size="sm" onClick={() => setShowConversionModal(true)}>
                 Convert EP
               </Button>
               <div className={actionStyles.dropdownContainer}>
@@ -356,6 +360,26 @@ export default function EduPayPage() {
           </>
         )}
       </div>
+
+      <EduPayConversionModal
+        isOpen={showConversionModal}
+        onClose={() => setShowConversionModal(false)}
+        wallet={wallet ?? null}
+        onSuccess={() => {
+          void queryClient.invalidateQueries({ queryKey: ['edupay-wallet'] });
+          void queryClient.invalidateQueries({ queryKey: ['edupay-ledger'] });
+        }}
+      />
+
+      <EduPayLoanProfileModal
+        isOpen={showLoanProfileModal}
+        onClose={() => setShowLoanProfileModal(false)}
+        loanProfile={loanProfile ?? null}
+        onSave={() => {
+          void queryClient.invalidateQueries({ queryKey: ['edupay-loan-profile'] });
+          void queryClient.invalidateQueries({ queryKey: ['edupay-projection'] });
+        }}
+      />
     </HubPageLayout>
   );
 }

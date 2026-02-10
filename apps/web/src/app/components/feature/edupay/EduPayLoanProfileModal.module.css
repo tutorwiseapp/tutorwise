@@ -1,0 +1,141 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--color-surface, #fff);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  position: sticky;
+  top: 0;
+  background: var(--color-surface, #fff);
+  z-index: 1;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted, #6b7280);
+  font-size: 1rem;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  color: var(--color-text-primary, #111827);
+}
+
+.body {
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.intro {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #374151);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.planCards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.planCard {
+  border: 1.5px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background: var(--color-surface, #fff);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: border-color 0.15s;
+}
+
+.planCard:hover {
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.planCardActive {
+  border-color: var(--color-primary, #4f46e5);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.planLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.planDesc {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.input {
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #111827);
+  background: var(--color-surface, #fff);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.error {
+  font-size: 0.8125rem;
+  color: var(--color-error, #ef4444);
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding-top: 0.5rem;
+}

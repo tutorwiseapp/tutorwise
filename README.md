@@ -211,7 +211,7 @@ CAS will apply 8 agent perspectives:
 - **Production-Ready**: 7 new tables, 5 API routes, 2 cron jobs, 7 utility libraries
 - **Documentation**: [Booking Enhancements v7.0 Complete](docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md)
 
-### EduPay — Tutoring Rewards → Loan Payments (Phases 1 & 1.5 Complete - Feb 2026)
+### EduPay — Tutoring Rewards → Loan Payments (Phases 1, 1.5 & 3 Complete - Feb 2026)
 - **Points Model**: £1 earned = 100 EP → 100 EP = £1 financial impact on student loan
 - **EP Wallet**: Track available, pending, and converted EP in real time
 - **EP Ledger**: Full activity feed (tutoring income, referrals, affiliate spend, CaaS rewards)
@@ -221,8 +221,8 @@ CAS will apply 8 agent perspectives:
 - **React Query Gold Standard**: gcTime, retryDelay, placeholderData, retry across all 4 queries
 - **API & Data Complete**: 7 API routes, 6 DB tables (migrations 253–257), 4 RPC functions (258), pg_cron (259)
 - **Stripe Integration**: Fire-and-forget EP award on every successful payment
+- **Phase 3 (PISP Conversion)**: Implemented in stub mode — goes live on TrueLayer partnership (real credentials + SLC sort code)
 - **Phase 2 Next**: Affiliate (Awin/CJ) + gift card (Tillo) — blocked on partner onboarding
-- **Phase 3 Next**: TrueLayer PISP loan payment conversion — blocked on account + legal review
 - **Documentation**: [EduPay Solution Design](docs/feature/edupay/edupay-solution-design.md)
 
 ### Referral System (100% Core Complete - Feb 2026)
@@ -285,7 +285,7 @@ CAS will apply 8 agent perspectives:
 - **CaaS**: Credibility scoring (Tutor complete, Agent/Org designed)
 - **Referrals**: Multi-tier attribution system with QR codes and gamification
 - **Financials**: Earnings tracking, transaction history, payout management
-- **EduPay**: Points-based rewards converting tutoring activity into student loan payments (Phase 1 live)
+- **EduPay**: Points-based rewards converting tutoring activity into student loan payments (Phases 1, 1.5 & 3 complete — PISP conversion in stub mode)
 - **Organisations**: Team management, subscriptions, tasks, recruitment
 - **Developer Tools**: API key management, webhooks, integrations
 - **Help Centre**: In-app bug reporting with Jira Service Desk integration

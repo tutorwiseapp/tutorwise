@@ -1520,12 +1520,20 @@ Gift voucher redeemed → Tillo API provides reward → Tutorwise keeps 10%
 - Tillo gift card product catalogue + purchase flow
 - No DB changes needed — `edupay_rules` and `edupay_events` already support these event types
 
-**Phase 3 — Loan Payment Conversion** ⏳ Blocked on TrueLayer + legal:
-- Requires: TrueLayer PISP account, SLC payment acceptance confirmation, legal review
-- `EduPayConversionModal.tsx` + `EduPayLoanProfileModal.tsx`
-- TrueLayer OAuth + PISP payment initiation lib (`src/lib/truelayer/`)
-- Migration 260: add TrueLayer fields to `edupay_conversions`
+**Phase 3 — Loan Payment Conversion** ✅ Complete (stub mode, Feb 2026):
+- Migration 260 executed: `truelayer_payment_id`, `truelayer_resource_token`, `slc_reference`, `initiated_at` added to `edupay_conversions`
+- `EduPayConversionModal.tsx` + `EduPayLoanProfileModal.tsx` built and wired up
+- TrueLayer client/payment/webhook lib (`src/lib/truelayer/`) implemented
+- All 4 API routes complete: `conversion/request`, `conversion/callback`, `conversion/status`, `webhooks/truelayer`
+- Stub mode active: returns `{ stub: true }` when `TRUELAYER_CLIENT_ID` is placeholder — no crash
 - See `docs/feature/edupay/edupay-solution-design.md` Phase 3 section for full spec
+
+**To Go Live**:
+1. Register at [console.truelayer.com](https://console.truelayer.com) and obtain production credentials
+2. Fill `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET` in `.env.local` (and Vercel environment variables)
+3. Update SLC sort code + account number in `src/lib/truelayer/payment.ts`
+4. Implement ES512 JWS verification in `src/lib/truelayer/webhook.ts` (replace sandbox passthrough)
+5. Set `TRUELAYER_ENVIRONMENT=live`
 
 **Design Document**: `docs/feature/edupay/edupay-solution-design.md`
 

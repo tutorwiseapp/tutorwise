@@ -93,11 +93,22 @@ export async function saveLoanProfile(data: LoanProfileInput): Promise<EduPayLoa
   return json.loanProfile;
 }
 
-export async function requestConversion(data: ConversionInput): Promise<void> {
+export interface ConversionResponse {
+  conversion_id: string;
+  auth_url: string | null;
+  stub: boolean;
+  message?: string;
+}
+
+export async function requestConversion(data: ConversionInput): Promise<ConversionResponse> {
   const res = await fetch('/api/edupay/conversion/request', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Failed to request conversion');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Failed to request conversion');
+  }
+  return res.json() as Promise<ConversionResponse>;
 }

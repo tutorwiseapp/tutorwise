@@ -1,8 +1,8 @@
 # EduPay Solution Design
-**Version:** 1.2
+**Version:** 1.3
 **Created:** 2026-02-10
 **Updated:** 2026-02-10
-**Status:** Phase 2 — API & Data Layer Complete
+**Status:** Phase 3 — PISP Loan Payment Conversion: **COMPLETE (stub mode)**
 **Author:** Tutorwise Product Team
 
 ---
@@ -305,10 +305,10 @@ GET  /api/edupay/ledger                — ✅ Immutable transaction history
 GET  /api/edupay/projection            — ✅ Loan impact projections (via RPC)
 POST /api/edupay/loan-profile          — ✅ Set loan plan + estimated balance
 GET  /api/edupay/loan-profile          — ✅ Get loan profile
-POST /api/edupay/conversion/request    — ⏳ Phase 3 placeholder (returns friendly message)
-GET  /api/edupay/conversion/status     — ⏳ Phase 3 (poll TrueLayer payment status)
-POST /api/webhooks/truelayer           — ⏳ Phase 3 (TrueLayer payment webhook)
-GET  /api/edupay/conversion/callback   — ⏳ Phase 3 (TrueLayer OAuth redirect handler)
+POST /api/edupay/conversion/request    — ✅ Phase 3 complete (stub mode when unconfigured)
+GET  /api/edupay/conversion/status     — ✅ Phase 3 complete (poll TrueLayer payment status)
+POST /api/webhooks/truelayer           — ✅ Phase 3 complete (TrueLayer payment webhook)
+GET  /api/edupay/conversion/callback   — ✅ Phase 3 complete (TrueLayer redirect callback)
 ```
 
 **Phase 2 RPC Functions (migration 258):**
@@ -348,7 +348,7 @@ Interest saved:          £3,200 (projected)
 | Awin | Affiliate network (1,000+ merchants) | Merchant → Awin → Tutorwise commission webhook → EP awarded | 2 | ⏳ Not started — apply at awin.com/gb |
 | Commission Junction (CJ) | Affiliate network (alternative) | Same as Awin | 2 | ⏳ Not started — apply at cj.com |
 | Tillo | Gift card network (1,000+ UK retailers) | User buys gift card → retailer margin → 10/90 split → EP | 2 | ⏳ Not started — apply at tillorewards.com |
-| TrueLayer (PISP) | Loan payment initiation | User approves → TrueLayer debits bank → pays SLC | 3 | ⏳ Not started — apply at truelayer.com |
+| TrueLayer (PISP) | Loan payment initiation | User approves → TrueLayer debits bank → pays SLC | 3 | ✅ Implemented (stub mode) — goes live on real credentials |
 
 Tutorwise never holds affiliate funds. Commission is received → split → EP awarded → user converts via TrueLayer.
 
@@ -421,47 +421,25 @@ Every benefit is funded by a merchant or the user's own earnings. The platform b
 - Tillo gift card purchase flow (product catalogue + checkout)
 - `award_ep_for_event` RPC already supports `affiliate_spend` and `gift_reward` event types — no DB changes needed
 
-### Phase 3 — Loan Payment Conversion ⏳ Blocked on TrueLayer onboarding + legal review
+### Phase 3 — Loan Payment Conversion ✅ Complete (stub mode, Feb 2026)
 
-**Pre-requisites (external — must complete before writing code):**
-- [ ] Apply to TrueLayer sandbox (free at truelayer.com/docs) — get `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET`
-- [ ] Confirm SLC accepts third-party PISP payments — email SLC directly (slc.co.uk/contact)
-- [ ] Legal review — student loan overpayment rules and FCA guidance for directed payments
-- [ ] Add env vars: `TRUELAYER_CLIENT_ID`, `TRUELAYER_CLIENT_SECRET`, `TRUELAYER_ENVIRONMENT` (`sandbox`/`live`)
+**Implemented:**
+- ✅ `apps/web/.env.local` — TrueLayer placeholder vars added
+- ✅ Migration 260 — adds `truelayer_payment_id`, `truelayer_resource_token`, `slc_reference`, `initiated_at` to `edupay_conversions` (EXECUTED)
+- ✅ `src/lib/truelayer/client.ts` — `isConfigured()`, `getTruelayerAccessToken()`, `truelayerFetch()`
+- ✅ `src/lib/truelayer/payment.ts` — `createPayment()`, `getPaymentStatus()`, `buildConsentUrl()`
+- ✅ `src/lib/truelayer/webhook.ts` — `verifyTruelayerWebhook()` (sandbox passthrough, live TODO)
+- ✅ `POST /api/edupay/conversion/request` — full implementation; stub mode when unconfigured
+- ✅ `GET /api/edupay/conversion/callback` — TrueLayer redirect callback
+- ✅ `GET /api/edupay/conversion/status` — polling endpoint
+- ✅ `POST /api/webhooks/truelayer` — `payment_executed` / `payment_failed` handling
+- ✅ `EduPayConversionModal.tsx` — 3-step conversion modal
+- ✅ `EduPayLoanProfileModal.tsx` — loan profile form modal
+- ✅ `page.tsx` — modals wired up, `alert()` replaced
 
-**Database (migration 260 — when ready):**
-```sql
-ALTER TABLE edupay_conversions
-  ADD COLUMN truelayer_consent_id TEXT,
-  ADD COLUMN truelayer_payment_id TEXT,
-  ADD COLUMN slc_reference         TEXT;
-```
+**Stub mode:** `isConfigured()` returns `false` when `TRUELAYER_CLIENT_ID` is placeholder. `POST /api/edupay/conversion/request` returns `{ stub: true }`. Modal shows stub callout instead of crashing. Goes live once real TrueLayer credentials are filled in.
 
-**New API routes:**
-```
-POST /api/edupay/conversion/request    — Replace placeholder: validate EP, create conversion row, initiate TrueLayer OAuth
-GET  /api/edupay/conversion/callback   — TrueLayer OAuth redirect handler, initiate PISP payment
-GET  /api/edupay/conversion/status     — Poll conversion status (pending → processing → completed/failed)
-POST /api/webhooks/truelayer           — TrueLayer payment status webhook (signed)
-```
-
-**New lib files:**
-```
-src/lib/truelayer/client.ts    — Authenticated TrueLayer API client
-src/lib/truelayer/auth.ts      — OAuth 2.0 authorisation code flow (user consent)
-src/lib/truelayer/payment.ts   — Initiate PISP payment to SLC sort code/account
-```
-
-**New UI components (deferred from Phase 1):**
-```
-EduPayConversionModal.tsx      — Multi-step: amount picker → destination → TrueLayer OAuth redirect → confirmation
-EduPayLoanProfileModal.tsx     — Dedicated modal for editing loan profile (replaces HubEmptyState inline form)
-```
-
-**Update existing:**
-- `page.tsx` — Replace `alert()` on "Convert EP" with `setShowConversionModal(true)`
-- `page.tsx` — Import and render `EduPayConversionModal` and `EduPayLoanProfileModal`
-- `POST /api/edupay/conversion/request` — Replace Phase 3 placeholder with real TrueLayer flow
+**SLC bank details:** Placeholder sort code/account in `payment.ts` — update when SLC partnership confirmed.
 
 **Conversion flow (end-to-end):**
 ```
@@ -470,10 +448,10 @@ EduPayLoanProfileModal.tsx     — Dedicated modal for editing loan profile (rep
 3. POST /api/edupay/conversion/request
    → Validates available EP
    → Creates edupay_conversions row (status: pending)
-   → Returns TrueLayer OAuth URL
+   → Returns TrueLayer OAuth URL (or stub response)
 4. User redirected to TrueLayer consent screen (authorises bank debit)
 5. TrueLayer redirects to GET /api/edupay/conversion/callback
-   → Captures consent token
+   → Captures resource token
    → Calls TrueLayer payments API to initiate transfer to SLC
    → Updates conversion row (status: processing, truelayer_payment_id)
    → Decrements edupay_wallets.available_ep
@@ -481,6 +459,14 @@ EduPayLoanProfileModal.tsx     — Dedicated modal for editing loan profile (rep
 6. TrueLayer webhook confirms payment → status: completed
 7. User sees Converted tab updated in EP ledger
 ```
+
+### To Go Live
+
+1. Register at [console.truelayer.com](https://console.truelayer.com) and obtain production credentials
+2. Fill `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET` in `.env.local` (and Vercel environment variables)
+3. Update SLC sort code + account number in `src/lib/truelayer/payment.ts`
+4. Implement ES512 JWS verification in `src/lib/truelayer/webhook.ts` (replace sandbox passthrough)
+5. Set `TRUELAYER_ENVIRONMENT=live`
 
 ### Phase 4 — Advanced Features ⏳ Future
 - Personalised financial nudges (EP earning rate trends)
