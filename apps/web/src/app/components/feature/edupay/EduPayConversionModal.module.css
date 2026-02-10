@@ -75,7 +75,7 @@
 
 /* ── Body (content area) ─────────────────────────────────────────────────── */
 .body {
-  padding: 24px 32px 8px;
+  padding: 24px 32px 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -352,7 +352,7 @@
   }
 
   .body {
-    padding: 20px 16px 8px;
+    padding: 20px 16px 40px;
     gap: 20px;
   }
 

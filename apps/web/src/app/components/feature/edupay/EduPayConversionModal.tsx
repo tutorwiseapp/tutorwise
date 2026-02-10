@@ -128,7 +128,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
   const step2Footer = (
     <div className={styles.footerRow}>
       <Button variant="secondary" size="sm" onClick={() => { setStubMessage(null); setStep(1); }}>
-        ← Back
+        Back
       </Button>
       {!stubMessage ? (
         <Button
