@@ -209,8 +209,22 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.destCard:hover {
+.destCard:not(:disabled):hover {
   border-color: #006c67;
+}
+
+.destCardDisabled {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.destCardDisabled .destLabel {
+  color: #9ca3af;
+}
+
+.destCardDisabled .destDesc {
+  color: #9ca3af;
 }
 
 .destCardActive {

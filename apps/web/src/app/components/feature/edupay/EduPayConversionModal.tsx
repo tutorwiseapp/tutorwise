@@ -27,7 +27,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const DESTINATION_OPTIONS: { value: Destination; label: string; description: string }[] = [
+const DESTINATION_OPTIONS: { value: Destination; label: string; description: string; disabled?: boolean }[] = [
   {
     value: 'student_loan',
     label: 'Student Loan',
@@ -35,13 +35,15 @@ const DESTINATION_OPTIONS: { value: Destination; label: string; description: str
   },
   {
     value: 'isa',
-    label: 'ISA',
-    description: 'Save into an Individual Savings Account',
+    label: 'Individual Savings Account',
+    description: 'Coming soon',
+    disabled: true,
   },
   {
     value: 'savings',
-    label: 'Savings Account',
-    description: 'Transfer to your personal savings account',
+    label: 'Personal Savings Account',
+    description: 'Coming soon',
+    disabled: true,
   },
 ];
 
@@ -231,8 +233,9 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
                 <button
                   key={opt.value}
                   type="button"
-                  className={`${styles.destCard} ${destination === opt.value ? styles.destCardActive : ''}`}
-                  onClick={() => setDestination(opt.value)}
+                  className={`${styles.destCard} ${opt.disabled ? styles.destCardDisabled : destination === opt.value ? styles.destCardActive : ''}`}
+                  onClick={() => !opt.disabled && setDestination(opt.value)}
+                  disabled={opt.disabled}
                 >
                   <span className={styles.destLabel}>{opt.label}</span>
                   <span className={styles.destDesc}>{opt.description}</span>
