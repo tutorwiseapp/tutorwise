@@ -1,0 +1,104 @@
+/**
+ * Filename: EduPayProjectionWidget.module.css
+ * Purpose: Styles for EduPay Projection Widget
+ * Design tokens from 6-DESIGN-SYSTEM.md
+ *
+ * Shell: HubComplexCard (provides border, shadow, border-radius: 8px)
+ * Header: #E6F0F0 teal light background (--color-primary-light)
+ * Content padding: 16px (space-sm)
+ */
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.content {
+  padding: 16px;
+}
+
+/* Impact headline (years earlier) */
+.impactRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.impactNumber {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary-default, #006c67);
+  line-height: 1;
+}
+
+.impactLabel {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Interest saved row */
+.savedRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.savedAmount {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-success-default, #059669);
+}
+
+.savedLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 12px 0;
+}
+
+/* Summary key/value rows */
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.summaryLabel {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.summaryValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Note text */
+.noteText {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 8px 0 0 0;
+  font-style: italic;
+}

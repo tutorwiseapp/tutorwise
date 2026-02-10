@@ -1,0 +1,52 @@
+/**
+ * Filename: src/app/(authenticated)/financials/edupay/page.module.css
+ * Purpose: Styles for EduPay hub page
+ * Created: 2026-02-10
+ * Design: Mirrors financials/page.module.css structure
+ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Ledger list — same gap as financials transactionsList */
+.ledgerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Error state */
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
+}
+
+/* Loading state — same as financials */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Loading skeleton — shimmer animation matching financials */
+.skeletonWidget {
+  height: 150px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

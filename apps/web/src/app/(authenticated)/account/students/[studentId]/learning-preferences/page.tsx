@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import ProfessionalInfoForm from '@/app/components/feature/account/ProfessionalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -47,8 +47,13 @@ export default function StudentLearningPreferencesPage() {
     queryKey: ['student-profile', studentId],
     queryFn: () => getStudentProfile(studentId),
     enabled: !!studentId,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {

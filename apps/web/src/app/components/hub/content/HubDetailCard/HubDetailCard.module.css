@@ -183,7 +183,7 @@
 
 .detailValue {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: #1f2937;
   flex: 1;
   min-width: 0; /* Allow text truncation in flex context */

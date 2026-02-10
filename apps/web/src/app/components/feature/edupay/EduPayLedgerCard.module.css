@@ -1,0 +1,174 @@
+/**
+ * Filename: EduPayLedgerCard.module.css
+ * Purpose: Styles for EduPay Ledger Card
+ * Design tokens from 6-DESIGN-SYSTEM.md
+ *
+ * Mirrors TransactionCard visual language:
+ * - Border: 1px solid #e5e7eb (--color-border-default)
+ * - Border radius: 8px (--border-radius-md)
+ * - Background: #ffffff (--color-base-white)
+ * - Hover: subtle shadow lift
+ */
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  row-gap: 0.375rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--color-primary-default, #006c67);
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.08);
+}
+
+/* Left column: badge + description */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+/* Right column: EP amount + GBP */
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* Bottom row: date + status — spans full width */
+.meta {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Type badge — pill shape, matches financials status badge pattern */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge_earn {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.badge_bonus {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.badge_convert {
+  background-color: #E6F0F0;
+  color: var(--color-primary-default, #006c67);
+}
+
+.badge_expire {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Description text */
+.description {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* EP amount */
+.epAmount {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.epCredit {
+  color: var(--color-success-default, #059669);
+}
+
+.epDebit {
+  color: var(--color-error-default, #dc2626);
+}
+
+/* GBP equivalent */
+.gbpValue {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+/* Meta row items */
+.date {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* Status dot */
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot_pending {
+  background-color: #d97706;
+}
+
+.dot_available {
+  background-color: #059669;
+}
+
+.dot_processed {
+  background-color: #9ca3af;
+}
+
+.statusLabel {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.availableDate {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+}
+
+/* Responsive — stack on mobile */
+@media (max-width: 480px) {
+  .card {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .right {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .meta {
+    grid-column: 1;
+  }
+}

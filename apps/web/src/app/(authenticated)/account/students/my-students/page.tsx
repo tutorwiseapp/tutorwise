@@ -91,8 +91,13 @@ export default function MyStudentsPage() {
     queryKey: ['student-stats', profile?.id],
     queryFn: getStudentStats,
     enabled: !!profile?.id,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Filter students based on search
@@ -298,7 +303,6 @@ export default function MyStudentsPage() {
       {/* Empty State */}
       {filteredStudents.length === 0 && (
         <HubEmptyState
-          icon="📚"
           title={searchQuery ? 'No students found' : 'No Students Yet'}
           description={
             searchQuery

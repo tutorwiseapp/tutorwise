@@ -15,7 +15,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import Link from 'next/link';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import { InfoTooltip } from '@/app/components/ui/Tooltip';
@@ -91,8 +91,13 @@ export default function ProfileGrowthWidget({ userId, role }: ProfileGrowthWidge
       return response.json();
     },
     enabled: !!userId,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   const score = scoreData?.data?.total_score || 0;

@@ -1,0 +1,59 @@
+/**
+ * Filename: EduPayHelpWidget.module.css
+ * Purpose: Styles for EduPay Help Widget
+ * Design: Matches TransactionHelpWidget.module.css pattern
+ *
+ * Design tokens from 6-DESIGN-SYSTEM.md:
+ * - Header: #E6F0F0 (--color-primary-light) teal background
+ * - Body text: #6b7280 (--color-gray-600)
+ * - Border: #e5e7eb (--color-border-default)
+ * - Border radius: 8px (--border-radius-md)
+ * - Padding: 16px (space-sm)
+ */
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.content {
+  padding: 16px;
+}
+
+.text {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listItem {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+  padding-left: 16px;
+  position: relative;
+}
+
+.listItem::before {
+  content: '-';
+  position: absolute;
+  left: 4px;
+  color: #9ca3af;
+  font-size: 13px;
+}

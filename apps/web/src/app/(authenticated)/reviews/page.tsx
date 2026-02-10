@@ -65,11 +65,12 @@ export default function ReviewsPage() {
     queryFn: getPendingReviewTasks,
     enabled: !!profile?.id, // Wait for profile to load before fetching
     staleTime: 2 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // React Query: Fetch received reviews
@@ -90,6 +91,7 @@ export default function ReviewsPage() {
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // React Query: Fetch given reviews
@@ -110,6 +112,7 @@ export default function ReviewsPage() {
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Submit review mutation

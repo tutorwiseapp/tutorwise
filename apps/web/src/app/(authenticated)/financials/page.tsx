@@ -73,6 +73,7 @@ export default function TransactionsPage() {
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
     refetchInterval: 60 * 1000, // Auto-refresh every minute
   });
 

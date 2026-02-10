@@ -1,0 +1,52 @@
+/**
+ * Filename: EduPayLoanProfileWidget.module.css
+ * Purpose: Styles for EduPay Loan Profile Widget
+ * Design tokens from 6-DESIGN-SYSTEM.md
+ *
+ * Shell: HubComplexCard (provides border, shadow, border-radius: 8px)
+ */
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 12px 16px;
+  margin: 0;
+  line-height: 1.4;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.content {
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.row:last-of-type {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}

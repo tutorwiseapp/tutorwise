@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import PersonalInfoForm from '@/app/components/feature/account/PersonalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -56,8 +56,13 @@ export default function StudentOverviewPage() {
     queryKey: ['student-profile', studentId],
     queryFn: () => getStudentProfile(studentId),
     enabled: !!studentId,
+    placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   // Fetch guardian link to get accurate linkedSince (profile_graph.created_at)
@@ -66,6 +71,11 @@ export default function StudentOverviewPage() {
     queryFn: () => getGuardianLink(studentId),
     enabled: !!studentId,
     staleTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
   const handleSave = async (updatedProfile: Partial<Profile>) => {
