@@ -54,6 +54,7 @@ const CATEGORIES: Category[] = [
       { title: 'Wiselists', slug: 'wiselists' },
       { title: 'Dashboard Overview', slug: 'dashboard' },
       { title: 'Financials Dashboard', slug: 'financials' },
+      { title: 'EduPay', slug: 'edupay' },
       { title: 'Messages', slug: 'messages' },
       { title: 'Free Help Now', slug: 'free-help-now' },
       { title: 'Wisespace', slug: 'wisespace' },
