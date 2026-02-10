@@ -55,11 +55,7 @@ export async function GET(_request: NextRequest) {
           full_name,
           email,
           date_of_birth,
-          subjects,
-          key_stages,
-          learning_goals,
-          learning_style,
-          special_needs
+          preferences
         )
       `)
       .eq('source_profile_id', user.id)
@@ -86,14 +82,11 @@ export async function GET(_request: NextRequest) {
       return requiredFields.every((field) => s.profile[field]);
     }).length;
 
-    // Calculate learning preferences set
-    const preferencesFields = ['subjects', 'learning_goals', 'learning_style'];
+    // Calculate learning preferences set (stored in role_details, use preferences JSONB as proxy)
     const preferencesSet = students.filter((s) => {
       if (!s.profile) return false;
-      return preferencesFields.some((field) => {
-        const value = s.profile[field];
-        return value && (Array.isArray(value) ? value.length > 0 : value);
-      });
+      const prefs = s.profile.preferences;
+      return prefs && typeof prefs === 'object' && Object.keys(prefs).length > 0;
     }).length;
 
     // Calculate students added this month
