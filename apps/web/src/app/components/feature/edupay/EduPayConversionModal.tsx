@@ -115,13 +115,11 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
         variant="primary"
         size="sm"
         onClick={() => {
-          if (!epNum || epNum <= 0) { setError('Enter a valid EP amount.'); return; }
-          if (epNum > availableEp) { setError(`Insufficient balance — you have ${availableEp.toLocaleString()} EP available.`); return; }
           setError(null);
           setStep(2);
         }}
       >
-        Review →
+        Review
       </Button>
     </div>
   );
@@ -137,7 +135,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
           variant="primary"
           size="sm"
           onClick={() => void handleAuthorise()}
-          disabled={loading}
+          disabled={loading || epNum <= 0 || epNum > availableEp}
         >
           {loading ? 'Processing...' : 'Authorise with your bank'}
         </Button>
@@ -280,6 +278,15 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, onSucce
               <p className={styles.stubText}>{stubMessage}</p>
               <p className={styles.stubText}>
                 Open Banking via TrueLayer will be enabled once partner onboarding is complete.
+              </p>
+            </div>
+          ) : (epNum <= 0 || epNum > availableEp) ? (
+            <div className={styles.earnCallout}>
+              <p className={styles.earnTitle}>No EP to convert</p>
+              <p className={styles.earnText}>
+                {availableEp === 0
+                  ? 'You have no EP yet. Earn EP by completing tutoring sessions on Tutorwise.'
+                  : `You have ${availableEp.toLocaleString()} EP available. Go back and enter a valid amount.`}
               </p>
             </div>
           ) : (

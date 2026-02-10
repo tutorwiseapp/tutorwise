@@ -254,6 +254,30 @@
   line-height: 1.5;
 }
 
+.earnCallout {
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.earnTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b4b4b;
+  margin: 0;
+}
+
+.earnText {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
 .infoCallout {
   border: 1.5px solid #e5e7eb;
   background: #f9fafb;
