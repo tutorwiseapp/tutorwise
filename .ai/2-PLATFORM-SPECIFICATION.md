@@ -1446,6 +1446,91 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 
 ---
 
+## 6.5 EduPay — Financial Rewards Engine
+
+### 6.5.1 What Is EduPay
+
+EduPay is a financial orchestration layer built on top of the existing Tutorwise platform. It converts user activity — tutoring, referrals, affiliate spend, and gift rewards — into measurable financial progress against a student's loan or savings goal.
+
+EduPay is **not** a bank, wallet, or payment processor. It is a points-based rewards and projection system.
+
+**Core Principle**: 10% platform fee applied uniformly across all money flows. EduPay never pays from Tutorwise's own pocket.
+
+### 6.5.2 Points Model
+
+```
+£1 of value received = 100 EduPay Points (EP)
+100 EP = £1 of financial impact on student loan
+```
+
+EP represents value already earned. Conversion directs money that is already the user's — no new money from Tutorwise.
+
+### 6.5.3 EP Earning Sources
+
+| Source | Event Type | EP Rate |
+|--------|------------|---------|
+| Session earnings (tutor) | `tutoring_income` | 100 EP per £1 earned (9,000 EP from £90 net) |
+| Referral commission | `referral_income` | 150 EP per £1 (referral rate) |
+| Affiliate purchase | `affiliate_spend` | 90 EP per £1 (90% of commission) |
+| Gift reward | `gift_reward` | Per Tillo API reward value |
+| CaaS threshold bonus | `caas_threshold` | Configurable bonus EP |
+
+### 6.5.4 Money Flows
+
+**Flow 1 — Tutoring Income (Existing Infrastructure)**:
+```
+Student pays £100 → Stripe processes → Tutorwise keeps £10 (10%)
+→ Tutor receives £90 → 9,000 EP awarded to tutor
+```
+
+**Flow 2 — Affiliate Spend (Phase 2 — Awin/CJ)**:
+```
+User shops via affiliate link → Merchant pays 6% commission = £6
+→ Tutorwise keeps £0.60 (10%) → User receives 540 EP (£5.40 value)
+```
+
+**Flow 3 — Gift Rewards (Phase 3 — Tillo)**:
+```
+Gift voucher redeemed → Tillo API provides reward → Tutorwise keeps 10%
+→ User receives 90% as EP
+```
+
+### 6.5.5 Implementation Status (Feb 2026)
+
+**Phase 1 — UI Complete** ✅:
+- Route: `/financials/edupay` (sub-link under Financials in app sidebar)
+- 5 sidebar widgets: Stats, Projection, Loan Profile, Help, Video
+- EP ledger with 4-tab filtering (All / Pending / Available / Converted)
+- Loan profile setup (Plan 1/2/5/Postgraduate + balance + salary + graduation year)
+- Loan impact projection (years earlier debt-free, interest saved)
+- React Query gold standard (gcTime 10min, exponential retryDelay, placeholderData)
+- Help Centre guide: `apps/web/src/content/help-centre/features/edupay.mdx`
+
+**Phase 2 — API & Data** (pending):
+- 6 API routes: events, wallet, ledger, projection, loan-profile, conversion
+- 6 database tables (migrations 244–249): events, wallets, ledger, rules, loan_profiles, conversions
+- EP earning rule engine (configurable, versioned)
+- Stripe webhook integration for automatic EP award
+
+**Phase 3 — Conversion** (pending):
+- EduPayConversionModal (EP → loan payment flow)
+- TrueLayer integration (loan payment disbursement)
+- Tillo integration (gift card rewards)
+
+**Design Document**: `docs/feature/edupay/edupay-solution-design.md`
+
+### 6.5.6 Regulatory Position
+
+EduPay operates as a **loyalty points system** in Phases 1–2:
+- Zero regulatory risk (same as Nectar, Tesco Clubcard)
+- No FCA authorisation required
+- EP is non-transferable, not a currency
+- No direct cash-out path in Phase 1–2
+
+Phase 3 loan payment flow will require legal review of student loan regulations and FCA guidance.
+
+---
+
 ## 7. Booking & Session Workflow
 
 ### 7.0 5-Stage Booking Workflow (v6.0)
@@ -3052,9 +3137,10 @@ Effective rate varies: 2% for high-earners (£1k+/month), 10-20% for casual tuto
 1. **Career Path in Platform**: Start free → grow to full-time → scale to agency (all in one platform)
 2. **Integrated Business Tools**: Marketplace + CRM + Financials + Student Management (no TutorCruncher subscription needed)
 3. **Dual Income Streams**: Tutoring earnings + referral commissions (10% passive income)
-4. **Transparent Growth**: CaaS score shows exactly how to grow bookings (gamified improvement)
-5. **Professional Branding**: Public profile, reviews, credentials build personal brand
-6. **Pay As You Grow**: 10% when starting (£50 at £500 revenue) → stays 10% at scale (£500 at £5k revenue) - predictable, fair
+4. **EduPay Rewards**: Every session teaches you closer to being debt-free — EP converts to student loan payments
+5. **Transparent Growth**: CaaS score shows exactly how to grow bookings (gamified improvement)
+6. **Professional Branding**: Public profile, reviews, credentials build personal brand
+7. **Pay As You Grow**: 10% when starting (£50 at £500 revenue) → stays 10% at scale (£500 at £5k revenue) - predictable, fair
 
 **For Clients**:
 7. **Quality Signal**: CaaS score filters for professional tutors (not hobbyists)

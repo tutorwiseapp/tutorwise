@@ -1,7 +1,8 @@
 # EduPay Solution Design
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-02-10
-**Status:** Design Phase
+**Updated:** 2026-02-10
+**Status:** Phase 1 — UI Implementation Complete
 **Author:** Tutorwise Product Team
 
 ---
@@ -434,12 +435,21 @@ apps/web/src/app/(authenticated)/financials/edupay/
 
 apps/web/src/app/components/feature/edupay/
 ├── EduPayStatsWidget.tsx             ← HubStatsCard: EP balance + GBP value
+├── EduPayStatsWidget.module.css
 ├── EduPayProjectionWidget.tsx        ← HubComplexCard: loan impact projection
+├── EduPayProjectionWidget.module.css
+├── EduPayLoanProfileWidget.tsx       ← HubComplexCard: loan plan info (read-only)
+├── EduPayLoanProfileWidget.module.css
 ├── EduPayHelpWidget.tsx              ← HubComplexCard: what is EduPay help text
-├── EduPayLoanProfileWidget.tsx       ← HubComplexCard: loan plan setup form
+├── EduPayHelpWidget.module.css
+├── EduPayVideoWidget.tsx             ← HubComplexCard: educational video embed (Phase 1)
+├── EduPayVideoWidget.module.css
 ├── EduPayLedgerCard.tsx              ← Individual EP transaction row card
-├── EduPayConversionModal.tsx         ← Modal: EP → loan conversion request
-└── EduPayLoanProfileModal.tsx        ← Modal: set/edit loan plan + balance
+└── EduPayLedgerCard.module.css
+
+NOTE (Phase 3): EduPayConversionModal and EduPayLoanProfileModal are deferred to Phase 3.
+The "Convert EP" button currently shows an alert placeholder. Loan Profile setup uses
+showLoanProfileModal state (inline form, no dedicated modal component yet).
 
 apps/web/src/app/api/edupay/
 ├── events/route.ts                   ← POST ingest EP event
@@ -474,13 +484,18 @@ HubPageLayout
 ├── sidebar={
 │     <HubSidebar>
 │       <EduPayStatsWidget wallet={wallet} />
-│       <EduPayProjectionWidget loanProfile={loanProfile} wallet={wallet} />
-│       <EduPayLoanProfileWidget loanProfile={loanProfile} onEdit={...} />
+│       <EduPayProjectionWidget loanProfile={loanProfile} wallet={wallet} projection={projection} />
+│       <EduPayLoanProfileWidget loanProfile={loanProfile} />
 │       <EduPayHelpWidget />
+│       <EduPayVideoWidget />
 │     </HubSidebar>
 │   }
 └── children → EP ledger list + pagination
 ```
+
+Note: `EduPayProjectionWidget` and `EduPayLoanProfileWidget` no longer accept callback props
+(`onSetupLoanProfile`, `onEdit`). Both widgets are purely informational. The "Set Up Loan Profile"
+action is surfaced via `HubEmptyState` in the main content area when no loan profile exists.
 
 **Required imports (top of `page.tsx`):**
 ```typescript
@@ -538,37 +553,43 @@ const tabs = [
     onChange={(e) => setSearchQuery(e.target.value)}
     className={filterStyles.searchInput}
   />
-  <UnifiedSelect
-    value={dateRange}
-    onChange={(v) => setDateRange(v as DateRangeType)}
-    options={[
-      { value: 'all', label: 'All Time' },
-      { value: '30days', label: 'Last 30 Days' },
-      { value: '3months', label: 'Last 3 Months' },
-      { value: '1year', label: 'Last Year' },
-    ]}
-    placeholder="Date range"
-  />
-  <UnifiedSelect
-    value={eventType}
-    onChange={(v) => setEventType(v as EventType)}
-    options={[
-      { value: 'all', label: 'All Types' },
-      { value: 'tutoring_income', label: 'Tutoring' },
-      { value: 'referral_income', label: 'Referral' },
-      { value: 'affiliate_spend', label: 'Affiliate' },
-      { value: 'gift_reward', label: 'Gift Reward' },
-      { value: 'caas_threshold', label: 'CaaS Reward' },
-    ]}
-    placeholder="Activity type"
-  />
+  {/* UnifiedSelect wrapped in minWidth div to prevent text wrapping in flex container */}
+  <div style={{ minWidth: '150px' }}>
+    <UnifiedSelect
+      value={dateRange}
+      onChange={(v) => setDateRange(v as DateRangeType)}
+      options={[
+        { value: 'all', label: 'All Time' },
+        { value: '30days', label: 'Last 30 Days' },
+        { value: '3months', label: 'Last 3 Months' },
+        { value: '1year', label: 'Last Year' },
+      ]}
+      placeholder="Date range"
+    />
+  </div>
+  <div style={{ minWidth: '150px' }}>
+    <UnifiedSelect
+      value={eventType}
+      onChange={(v) => setEventType(v as EventType)}
+      options={[
+        { value: 'all', label: 'All Types' },
+        { value: 'tutoring_income', label: 'Tutoring' },
+        { value: 'referral_income', label: 'Referral' },
+        { value: 'affiliate_spend', label: 'Affiliate' },
+        { value: 'gift_reward', label: 'Gift Reward' },
+        { value: 'caas_threshold', label: 'CaaS Reward' },
+      ]}
+      placeholder="Activity type"
+    />
+  </div>
 </div>
 ```
 
 **Actions row** (inside `HubHeader actions` prop):
 ```tsx
 <>
-  <Button variant="primary" size="sm" onClick={() => setShowConversionModal(true)}>
+  {/* Phase 3 placeholder — conversion modal deferred */}
+  <Button variant="primary" size="sm" onClick={() => alert('EP conversion launches in Phase 3. Your EP is accumulating — keep earning!')}>
     Convert EP
   </Button>
   <div className={actionStyles.dropdownContainer}>
@@ -579,10 +600,16 @@ const tabs = [
       <>
         <div className={actionStyles.backdrop} onClick={() => setShowActionsMenu(false)} />
         <div className={actionStyles.dropdownMenu}>
-          <button onClick={handleSetupLoanProfile} className={actionStyles.menuButton}>
-            Set Up Loan Profile
-          </button>
-          <button onClick={handleExportCSV} className={actionStyles.menuButton}>
+          {/* Only shown when loan profile exists — first-time setup via HubEmptyState CTA */}
+          {loanProfile && (
+            <button
+              onClick={() => { setShowLoanProfileModal(true); setShowActionsMenu(false); }}
+              className={actionStyles.menuButton}
+            >
+              Edit Loan Profile
+            </button>
+          )}
+          <button onClick={() => setShowActionsMenu(false)} className={actionStyles.menuButton}>
             Export EP History
           </button>
         </div>
@@ -656,10 +683,10 @@ return <HubStatsCard title="EduPay Wallet" stats={rows} />;
 
 ```typescript
 interface EduPayProjectionWidgetProps {
-  loanProfile: LoanProfile | null;
-  wallet: Wallet | null;
-  projection: Projection | null; // from GET /api/edupay/projection
-  onSetupLoanProfile: () => void;
+  loanProfile: EduPayLoanProfile | null;
+  wallet: EduPayWallet | null;
+  projection: EduPayProjection | null; // from GET /api/edupay/projection
+  // Note: no onSetupLoanProfile callback — setup CTA lives in HubEmptyState
 }
 
 // Projection type
@@ -678,13 +705,17 @@ interface Projection {
 **File:** `components/feature/edupay/EduPayLoanProfileWidget.tsx`
 **Shell:** `HubComplexCard` — same teal header pattern
 
-**Content:** Read-only summary of loan plan:
+**Content:** Read-only summary of loan plan (info-only, no action buttons):
 - Loan Plan: Plan 2
 - Est. Balance: £45,000
 - Graduation: 2024
-- "Edit Loan Profile" secondary button → opens modal
 
-If no profile set → "Add Loan Profile" primary button.
+If no profile set → plain text prompt: "Set up your loan profile to see how your EP reduces your student debt."
+
+**Implementation note:** Widget 3 is purely informational. No action buttons.
+The "Set Up Loan Profile" CTA lives in the `HubEmptyState` in the main content area
+(visible when the user has no ledger entries). "Edit Loan Profile" is available via
+the `⋮` actions dropdown in the page header (only shown once a profile exists).
 
 ---
 
@@ -694,13 +725,22 @@ If no profile set → "Add Loan Profile" primary button.
 **Shell:** `HubComplexCard`
 
 **Content:**
-- Teal header: "What is EduPay?"
-- Body text (14px, #4b5563): "EduPay converts your tutoring activity into real financial impact on your student loan."
-- Three bullet rows (small icon + text):
+- Teal header: "What is EduPay?" (14px, font-weight 600, `#E6F0F0` light teal background)
+- Body text (14px, #6b7280): "EduPay converts your tutoring activity into real financial impact on your student loan."
+- Three bullet list items (13px, using `-` dash markers — matching Guardian Links card pattern):
   - "Earn EP from sessions, referrals & rewards"
   - "See your projected loan reduction"
   - "Convert EP to loan payments (Phase 2)"
-- Link at bottom: "Learn more →"
+
+**CSS bullet pattern:** `display: flex; flex-direction: column; gap: 8px` on `.list`.
+`.listItem::before { content: '-'; color: #9ca3af; }` — matches my-students GuardianLinksCard style.
+
+#### Widget 5 — EduPayVideoWidget (HubComplexCard shell)
+
+**File:** `components/feature/edupay/EduPayVideoWidget.tsx`
+**Shell:** `HubComplexCard`
+
+**Content:** Educational explainer video embed (Phase 1 — placeholder/coming soon state).
 
 ---
 
@@ -749,17 +789,21 @@ interface EduPayLedgerCardProps {
 
 **Empty states:**
 ```typescript
-// No activity at all
-<HubEmptyState
-  title="No EduPay activity yet"
-  description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
-/>
-
-// Filter returns no results
-<HubEmptyState
-  title="No activity found"
-  description="No EP activity matches your current filters. Try adjusting your search or date range."
-/>
+// No activity at all — show "Set Up Loan Profile" CTA when user hasn't configured a loan profile
+{entries.length === 0 ? (
+  <HubEmptyState
+    title="No EduPay activity yet"
+    description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
+    actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
+    onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
+  />
+) : (
+  // Filter returns no results
+  <HubEmptyState
+    title="No activity found"
+    description="No EP activity matches your current filters. Try adjusting your search or date range."
+  />
+)}
 ```
 
 ---
@@ -767,41 +811,67 @@ interface EduPayLedgerCardProps {
 ### 17.7 CSS Module — page.module.css
 
 ```css
-/* EduPay page container */
+/* EduPay page container — centred, max-width matches financials */
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Ledger list */
+/* Ledger list — same gap as financials transactionsList */
 .ledgerList {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-/* Loading skeleton */
-.skeletonWidget {
-  height: 120px;
-  background: #f3f4f6;
-  border-radius: 8px;
-  animation: pulse 1.5s ease-in-out infinite;
+/* Error state */
+.error {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+.error p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Loading skeleton — shimmer animation (matches financials pattern) */
+.skeletonWidget {
+  height: 150px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 ```
 
 ---
 
-### 17.8 Modals
+### 17.8 Modals (Phase 3)
 
-#### EduPayConversionModal
+> **Implementation status:** Dedicated modal components are deferred to Phase 3.
+> Phase 1 uses inline state (`showLoanProfileModal`, `showConversionModal`) and alert placeholders.
 
-**Trigger:** "Convert EP" primary button in header actions.
+#### EduPayConversionModal (Phase 3)
+
+**Current Phase 1 behaviour:** "Convert EP" button shows a browser `alert()`:
+> "EP conversion launches in Phase 3. Your EP is accumulating — keep earning!"
+
+**Phase 3 design — trigger:** "Convert EP" primary button in header actions.
 
 **Pattern:** Matches existing `WithdrawalConfirmationModal` structure.
 
@@ -810,23 +880,25 @@ interface EduPayLedgerCardProps {
 2. GBP equivalent (auto-calculated, read-only: `ep / 100`)
 3. Destination (select): Student Loan | ISA | Savings
 4. Confirmation message: "You are converting X EP (£Y) to your student loan."
-5. Warning if Phase 3 not yet live: "EP conversion to student loan payments launches in Phase 3. For now, your EP is accumulating."
 
 **Buttons:** "Cancel" (secondary) | "Confirm Conversion" (primary, disabled if ep_amount = 0)
 
 ---
 
-#### EduPayLoanProfileModal
+#### EduPayLoanProfileModal (Phase 1 state, Phase 3 component)
 
-**Trigger:** "Set Up Loan Profile" from actions menu, or "Edit" button in `EduPayLoanProfileWidget`.
+**Current Phase 1 behaviour:** `showLoanProfileModal` state toggles an inline form
+(no dedicated `EduPayLoanProfileModal.tsx` component exists yet).
+
+**Triggers:**
+- `HubEmptyState` "Set Up Loan Profile" button (when `!loanProfile`)
+- `⋮` dropdown "Edit Loan Profile" item (when `loanProfile` exists)
 
 **Fields:**
 1. Loan Plan (select): Plan 1 | Plan 2 | Plan 5 | Postgraduate
 2. Estimated Balance (£) — number input
 3. Annual Salary (£) — number input (used for projection engine)
 4. Graduation Year — number input (e.g. 2024)
-
-**Buttons:** "Cancel" (secondary) | "Save Profile" (primary)
 
 **POST** to `/api/edupay/loan-profile` on save.
 
@@ -875,31 +947,61 @@ EduPay is a **sub-link under Financials** in [AppSidebar.tsx](apps/web/src/app/c
 
 ### 17.11 React Query Pattern
 
-Follow the same `useQuery` pattern as `financials/page.tsx`:
+Follows the **platform gold standard** (`listings/bookings/referrals` pattern) — see `4-PATTERNS.md`.
+All 4 queries use full configuration: `gcTime`, exponential `retryDelay`, `placeholderData`, `retry: 2`.
 
 ```typescript
-const { data: walletData, isLoading: walletLoading } = useQuery({
+// Wallet + Ledger: expose error and refetch for error state handling
+const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery({
   queryKey: ['edupay-wallet', profile?.id],
   queryFn: getEduPayWallet,
   enabled: !!profile?.id,
-  staleTime: 30 * 1000,
+  placeholderData: keepPreviousData,
+  staleTime: 30_000,
+  gcTime: 10 * 60_000,
   refetchOnMount: 'always',
   refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
 });
 
-const { data: ledgerData, isLoading: ledgerLoading } = useQuery({
+const { data: ledger, isLoading: ledgerLoading, error: ledgerError, refetch: refetchLedger } = useQuery({
   queryKey: ['edupay-ledger', profile?.id],
   queryFn: getEduPayLedger,
   enabled: !!profile?.id,
-  staleTime: 30 * 1000,
   placeholderData: keepPreviousData,
+  staleTime: 30_000,
+  gcTime: 10 * 60_000,
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
 });
 
-const { data: projectionData } = useQuery({
+// Loan profile: longer staleTime (changes slowly)
+const { data: loanProfile } = useQuery({
+  queryKey: ['edupay-loan-profile', profile?.id],
+  queryFn: getLoanProfile,
+  enabled: !!profile?.id,
+  staleTime: 5 * 60_000,
+  gcTime: 10 * 60_000,
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+});
+
+// Projection: dependent query — only runs when loanProfile is loaded
+const { data: projection } = useQuery({
   queryKey: ['edupay-projection', profile?.id],
   queryFn: getEduPayProjection,
   enabled: !!profile?.id && !!loanProfile,
-  staleTime: 5 * 60 * 1000, // projection changes slowly
+  staleTime: 5 * 60_000,
+  gcTime: 10 * 60_000,
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
 });
 ```
 
@@ -915,10 +1017,33 @@ export async function requestConversion(data: ConversionInput) { /* POST /api/ed
 
 ---
 
-### 17.12 Page Skeleton (Loading State)
+### 17.12 Error & Loading States
 
+**Error state** (rendered before loading state check):
 ```typescript
-if (profileLoading || walletLoading) {
+const hasError = !!walletError || !!ledgerError;
+if (hasError) {
+  return (
+    <HubPageLayout
+      header={<HubHeader title="EduPay" />}
+      sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
+    >
+      <div className={styles.container}>
+        <div className={styles.error}>
+          <p>Failed to load EduPay data. Please try again.</p>
+          <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    </HubPageLayout>
+  );
+}
+```
+
+**Loading state** (shown while profile/wallet/ledger queries are pending):
+```typescript
+if (profileLoading || walletLoading || ledgerLoading) {
   return (
     <HubPageLayout
       header={<HubHeader title="EduPay" />}
@@ -939,7 +1064,10 @@ if (profileLoading || walletLoading) {
 
 ---
 
-### 17.13 Complete page.tsx Skeleton
+### 17.13 Complete page.tsx (Implemented — Phase 1)
+
+> See `apps/web/src/app/(authenticated)/financials/edupay/page.tsx` for the live source.
+> Pasted here as the canonical reference for Phase 1 implementation.
 
 ```typescript
 'use client';
@@ -957,11 +1085,13 @@ import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget
 import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
 import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
 import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
+import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
 import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
-import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
-import EduPayLoanProfileModal from '@/app/components/feature/edupay/EduPayLoanProfileModal';
 import {
-  getEduPayWallet, getEduPayLedger, getEduPayProjection, getLoanProfile
+  getEduPayWallet,
+  getEduPayLedger,
+  getEduPayProjection,
+  getLoanProfile,
 } from '@/lib/api/edupay';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -985,28 +1115,86 @@ export default function EduPayPage() {
   const [eventType, setEventType] = useState<EventType>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
-  const [showConversionModal, setShowConversionModal] = useState(false);
   const [showLoanProfileModal, setShowLoanProfileModal] = useState(false);
 
-  // Queries
-  const { data: wallet, isLoading: walletLoading } = useQuery({ queryKey: ['edupay-wallet', profile?.id], queryFn: getEduPayWallet, enabled: !!profile?.id, staleTime: 30_000, refetchOnMount: 'always' });
-  const { data: ledger, isLoading: ledgerLoading } = useQuery({ queryKey: ['edupay-ledger', profile?.id], queryFn: getEduPayLedger, enabled: !!profile?.id, placeholderData: keepPreviousData, staleTime: 30_000 });
-  const { data: loanProfile } = useQuery({ queryKey: ['edupay-loan-profile', profile?.id], queryFn: getLoanProfile, enabled: !!profile?.id });
-  const { data: projection } = useQuery({ queryKey: ['edupay-projection', profile?.id], queryFn: getEduPayProjection, enabled: !!profile?.id && !!loanProfile, staleTime: 5 * 60_000 });
+  // Queries — gold standard pattern (matches listings/bookings/referrals)
+  const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery({
+    queryKey: ['edupay-wallet', profile?.id],
+    queryFn: getEduPayWallet,
+    enabled: !!profile?.id,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  const { data: ledger, isLoading: ledgerLoading, error: ledgerError, refetch: refetchLedger } = useQuery({
+    queryKey: ['edupay-ledger', profile?.id],
+    queryFn: getEduPayLedger,
+    enabled: !!profile?.id,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  const { data: loanProfile } = useQuery({
+    queryKey: ['edupay-loan-profile', profile?.id],
+    queryFn: getLoanProfile,
+    enabled: !!profile?.id,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  const { data: projection } = useQuery({
+    queryKey: ['edupay-projection', profile?.id],
+    queryFn: getEduPayProjection,
+    enabled: !!profile?.id && !!loanProfile,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
 
   const entries = useMemo(() => ledger ?? [], [ledger]);
 
-  // Tab + filter logic
   const filteredEntries = useMemo(() => {
     let result = [...entries];
-    if (tabFilter !== 'all') result = result.filter(e => e.status === (tabFilter === 'converted' ? 'processed' : tabFilter));
-    if (searchQuery.trim()) result = result.filter(e => e.note?.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (tabFilter === 'pending') result = result.filter(e => e.status === 'pending');
+    if (tabFilter === 'available') result = result.filter(e => e.status === 'available');
+    if (tabFilter === 'converted') result = result.filter(e => e.status === 'processed');
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(e => e.note?.toLowerCase().includes(q) || e.event_type?.toLowerCase().includes(q));
+    }
     if (eventType !== 'all') result = result.filter(e => e.event_type === eventType);
+    if (dateRange !== 'all') {
+      const cutoff = new Date();
+      if (dateRange === '30days') cutoff.setDate(cutoff.getDate() - 30);
+      if (dateRange === '3months') cutoff.setMonth(cutoff.getMonth() - 3);
+      if (dateRange === '1year') cutoff.setFullYear(cutoff.getFullYear() - 1);
+      result = result.filter(e => new Date(e.created_at) >= cutoff);
+    }
     return result;
-  }, [entries, tabFilter, searchQuery, eventType]);
+  }, [entries, tabFilter, searchQuery, eventType, dateRange]);
 
   const totalItems = filteredEntries.length;
-  const paginatedEntries = useMemo(() => filteredEntries.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE), [filteredEntries, currentPage]);
+  const paginatedEntries = useMemo(
+    () => filteredEntries.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredEntries, currentPage],
+  );
 
   React.useEffect(() => { setCurrentPage(1); }, [tabFilter, searchQuery, dateRange, eventType]);
 
@@ -1023,10 +1211,40 @@ export default function EduPayPage() {
     router.push(`/financials/edupay${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
+  // Error state (checked before loading state)
+  const hasError = !!walletError || !!ledgerError;
+  if (hasError) {
+    return (
+      <HubPageLayout
+        header={<HubHeader title="EduPay" />}
+        sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
+      >
+        <div className={styles.container}>
+          <div className={styles.error}>
+            <p>Failed to load EduPay data. Please try again.</p>
+            <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </HubPageLayout>
+    );
+  }
+
   if (profileLoading || walletLoading || ledgerLoading) {
     return (
-      <HubPageLayout header={<HubHeader title="EduPay" />} sidebar={<HubSidebar><div className={styles.skeletonWidget} /><div className={styles.skeletonWidget} /></HubSidebar>}>
-        <div className={styles.container}><div>Loading EduPay...</div></div>
+      <HubPageLayout
+        header={<HubHeader title="EduPay" />}
+        sidebar={
+          <HubSidebar>
+            <div className={styles.skeletonWidget} />
+            <div className={styles.skeletonWidget} />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.container}>
+          <div className={styles.loading}>Loading EduPay...</div>
+        </div>
       </HubPageLayout>
     );
   }
@@ -1038,51 +1256,133 @@ export default function EduPayPage() {
           title="EduPay"
           filters={
             <div className={filterStyles.filtersContainer}>
-              <input type="search" placeholder="Search activity..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className={filterStyles.searchInput} />
-              <UnifiedSelect value={dateRange} onChange={v => setDateRange(v as DateRangeType)} options={[{ value: 'all', label: 'All Time' }, { value: '30days', label: 'Last 30 Days' }, { value: '3months', label: 'Last 3 Months' }, { value: '1year', label: 'Last Year' }]} placeholder="Date range" />
-              <UnifiedSelect value={eventType} onChange={v => setEventType(v as EventType)} options={[{ value: 'all', label: 'All Types' }, { value: 'tutoring_income', label: 'Tutoring' }, { value: 'referral_income', label: 'Referral' }, { value: 'affiliate_spend', label: 'Affiliate' }, { value: 'gift_reward', label: 'Gift Reward' }, { value: 'caas_threshold', label: 'CaaS Reward' }]} placeholder="Activity type" />
+              <input
+                type="search"
+                placeholder="Search activity..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+              <div style={{ minWidth: '150px' }}>
+                <UnifiedSelect
+                  value={dateRange}
+                  onChange={v => setDateRange(v as DateRangeType)}
+                  options={[
+                    { value: 'all', label: 'All Time' },
+                    { value: '30days', label: 'Last 30 Days' },
+                    { value: '3months', label: 'Last 3 Months' },
+                    { value: '1year', label: 'Last Year' },
+                  ]}
+                  placeholder="Date range"
+                />
+              </div>
+              <div style={{ minWidth: '150px' }}>
+                <UnifiedSelect
+                  value={eventType}
+                  onChange={v => setEventType(v as EventType)}
+                  options={[
+                    { value: 'all', label: 'All Types' },
+                    { value: 'tutoring_income', label: 'Tutoring' },
+                    { value: 'referral_income', label: 'Referral' },
+                    { value: 'affiliate_spend', label: 'Affiliate' },
+                    { value: 'gift_reward', label: 'Gift Reward' },
+                    { value: 'caas_threshold', label: 'CaaS Reward' },
+                  ]}
+                  placeholder="Activity type"
+                />
+              </div>
             </div>
           }
           actions={
             <>
-              <Button variant="primary" size="sm" onClick={() => setShowConversionModal(true)}>Convert EP</Button>
+              <Button variant="primary" size="sm" onClick={() => alert('EP conversion launches in Phase 3. Your EP is accumulating — keep earning!')}>
+                Convert EP
+              </Button>
               <div className={actionStyles.dropdownContainer}>
-                <Button variant="secondary" size="sm" square onClick={() => setShowActionsMenu(!showActionsMenu)}>⋮</Button>
-                {showActionsMenu && (<><div className={actionStyles.backdrop} onClick={() => setShowActionsMenu(false)} /><div className={actionStyles.dropdownMenu}><button onClick={() => { setShowLoanProfileModal(true); setShowActionsMenu(false); }} className={actionStyles.menuButton}>Set Up Loan Profile</button></div></>)}
+                <Button variant="secondary" size="sm" square onClick={() => setShowActionsMenu(!showActionsMenu)}>
+                  ⋮
+                </Button>
+                {showActionsMenu && (
+                  <>
+                    <div className={actionStyles.backdrop} onClick={() => setShowActionsMenu(false)} />
+                    <div className={actionStyles.dropdownMenu}>
+                      {loanProfile && (
+                        <button
+                          onClick={() => { setShowLoanProfileModal(true); setShowActionsMenu(false); }}
+                          className={actionStyles.menuButton}
+                        >
+                          Edit Loan Profile
+                        </button>
+                      )}
+                      <button onClick={() => setShowActionsMenu(false)} className={actionStyles.menuButton}>
+                        Export EP History
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </>
           }
         />
       }
-      tabs={<HubTabs tabs={[{ id: 'all', label: 'All Activity', count: stats.all, active: tabFilter === 'all' }, { id: 'pending', label: 'Pending', count: stats.pending, active: tabFilter === 'pending' }, { id: 'available', label: 'Available', count: stats.available, active: tabFilter === 'available' }, { id: 'converted', label: 'Converted', count: stats.converted, active: tabFilter === 'converted' }]} onTabChange={handleTabChange} />}
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'all', label: 'All Activity', count: stats.all, active: tabFilter === 'all' },
+            { id: 'pending', label: 'Pending', count: stats.pending, active: tabFilter === 'pending' },
+            { id: 'available', label: 'Available', count: stats.available, active: tabFilter === 'available' },
+            { id: 'converted', label: 'Converted', count: stats.converted, active: tabFilter === 'converted' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
       sidebar={
         <HubSidebar>
           <EduPayStatsWidget wallet={wallet ?? null} />
-          <EduPayProjectionWidget loanProfile={loanProfile ?? null} wallet={wallet ?? null} projection={projection ?? null} onSetupLoanProfile={() => setShowLoanProfileModal(true)} />
-          <EduPayLoanProfileWidget loanProfile={loanProfile ?? null} onEdit={() => setShowLoanProfileModal(true)} />
+          <EduPayProjectionWidget
+            loanProfile={loanProfile ?? null}
+            wallet={wallet ?? null}
+            projection={projection ?? null}
+          />
+          <EduPayLoanProfileWidget loanProfile={loanProfile ?? null} />
           <EduPayHelpWidget />
+          <EduPayVideoWidget />
         </HubSidebar>
       }
     >
       <div className={styles.container}>
         {paginatedEntries.length === 0 ? (
-          entries.length === 0
-            ? <HubEmptyState title="No EduPay activity yet" description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP." />
-            : <HubEmptyState title="No activity found" description="No EP activity matches your current filters." />
+          entries.length === 0 ? (
+            <HubEmptyState
+              title="No EduPay activity yet"
+              description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
+              actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
+              onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
+            />
+          ) : (
+            <HubEmptyState
+              title="No activity found"
+              description="No EP activity matches your current filters. Try adjusting your search or date range."
+            />
+          )
         ) : (
           <>
             <div className={styles.ledgerList}>
-              {paginatedEntries.map(entry => <EduPayLedgerCard key={entry.id} entry={entry} />)}
+              {paginatedEntries.map(entry => (
+                <EduPayLedgerCard key={entry.id} entry={entry} />
+              ))}
             </div>
             {filteredEntries.length > ITEMS_PER_PAGE && (
-              <HubPagination currentPage={currentPage} totalItems={totalItems} itemsPerPage={ITEMS_PER_PAGE} onPageChange={setCurrentPage} />
+              <HubPagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={setCurrentPage}
+              />
             )}
           </>
         )}
       </div>
-
-      <EduPayConversionModal isOpen={showConversionModal} onClose={() => setShowConversionModal(false)} wallet={wallet ?? null} />
-      <EduPayLoanProfileModal isOpen={showLoanProfileModal} onClose={() => setShowLoanProfileModal(false)} existing={loanProfile ?? null} />
     </HubPageLayout>
   );
 }

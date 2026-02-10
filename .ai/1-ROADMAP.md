@@ -19,8 +19,8 @@
 - **196 database migrations** (190 numbered + 6 supporting files)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
-- **32 major features** completed (23 core systems + 14 platform hubs - 5 overlap)
-- **84 feature enhancements** implemented (+2: React Query migration, skeleton UI)
+- **33 major features** completed (23 core systems + 14 platform hubs - 5 overlap + EduPay Phase 1)
+- **85 feature enhancements** implemented (+1: EduPay UI)
 - **151 bug fixes** implemented
 - **64 refactors** completed (+1: Help Centre & Resources alignment)
 
@@ -371,6 +371,43 @@
 - ✅ Agent Financials Hub (commissions)
 - ✅ Organisation Financials Hub (billing, invoices)
 - ✅ Admin Financials Hub (platform financial oversight)
+- ✅ EduPay Hub (EP wallet, ledger, loan projections — see #33)
+
+### 33. EduPay ✅ (Phase 1)
+**Status**: Phase 1 — UI Implementation Complete
+**Completion**: Phase 1 complete, Phase 2–3 pending
+**Last Updated**: 2026-02-10
+**Design**: `docs/feature/edupay/edupay-solution-design.md`
+
+EduPay converts tutoring activity into real financial progress against a student loan. Points-based rewards system — not a bank. £1 earned = 100 EP → 100 EP = £1 loan impact.
+
+**Phase 1 — UI Layer** ✅:
+- ✅ EduPay hub page (`/financials/edupay`) — tabs, filters, pagination, error/loading states
+- ✅ EP ledger feed (All / Pending / Available / Converted tabs)
+- ✅ Search, date range, event type filters (with minWidth wrapper for UnifiedSelect)
+- ✅ EduPayStatsWidget — EP wallet: balance, GBP value, pending EP, total converted
+- ✅ EduPayProjectionWidget — loan impact (years earlier, interest saved)
+- ✅ EduPayLoanProfileWidget — read-only loan plan summary
+- ✅ EduPayHelpWidget — explainer with dash-bullet style (matches GuardianLinksCard)
+- ✅ EduPayVideoWidget — educational video embed
+- ✅ EduPayLedgerCard — type badge, EP amount, GBP value, status dot, available date
+- ✅ HubEmptyState "Set Up Loan Profile" CTA (surfaced when no loan profile exists)
+- ✅ ⋮ dropdown: "Edit Loan Profile" (conditional on profile) + "Export EP History"
+- ✅ React Query gold standard (gcTime 10min, exponential retryDelay, placeholderData, retry: 2)
+- ✅ Error state with "Try Again" button
+- ✅ Shimmer skeleton loading (matches financials)
+- ✅ Help Centre guide (`apps/web/src/content/help-centre/features/edupay.mdx`)
+
+**Phase 2 — API & Data** (pending):
+- ⏳ API routes: wallet, ledger, projection, loan-profile, events
+- ⏳ Database migrations 244–249
+- ⏳ EP earning rule engine + Stripe webhook integration
+- ⏳ Affiliate integrations (Awin, CJ)
+
+**Phase 3 — Conversion** (pending):
+- ⏳ EduPayConversionModal + EduPayLoanProfileModal components
+- ⏳ TrueLayer integration (loan payment disbursement)
+- ⏳ Tillo integration (gift rewards)
 
 ### 18. Help Centre ✅
 **Status**: Production-ready

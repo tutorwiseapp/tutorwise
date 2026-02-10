@@ -211,6 +211,17 @@ CAS will apply 8 agent perspectives:
 - **Production-Ready**: 7 new tables, 5 API routes, 2 cron jobs, 7 utility libraries
 - **Documentation**: [Booking Enhancements v7.0 Complete](docs/feature/bookings/BOOKING_ENHANCEMENTS_V7_COMPLETE.md)
 
+### EduPay — Tutoring Rewards → Loan Payments (Phase 1 - Feb 2026)
+- **Points Model**: £1 earned = 100 EP → 100 EP = £1 financial impact on student loan
+- **EP Wallet**: Track available, pending, and converted EP in real time
+- **EP Ledger**: Full activity feed (tutoring income, referrals, affiliate spend, CaaS rewards)
+- **Loan Impact Projection**: See years earlier debt-free and projected interest saved
+- **Loan Profile Setup**: Plan 1/2/5/Postgraduate + balance + salary + graduation year
+- **5 Sidebar Widgets**: Stats, Projection, Loan Profile, Help, Video
+- **React Query Gold Standard**: gcTime, retryDelay, placeholderData, retry across all 4 queries
+- **Phase 1 Live**: Full UI/UX — API routes and DB migrations in Phase 2
+- **Documentation**: [EduPay Solution Design](docs/feature/edupay/edupay-solution-design.md)
+
 ### Referral System (100% Core Complete - Feb 2026)
 - **Simplified 4-Stage Pipeline**: Referred → Signed Up → Converted → Expired (automatic transitions)
 - **Lifetime 10% Commission**: Earned on ALL future bookings from converted referrals
@@ -254,7 +265,7 @@ CAS will apply 8 agent perspectives:
 - **Support Snapshots**: Database tracking with sync status
 - **Progressive Capture Levels**: Minimal/standard/diagnostic data collection
 
-### Core Features by Module (20 Features)
+### Core Features by Module (21 Features)
 - **Authentication**: Supabase Auth with OAuth and multi-role support
 - **Onboarding**: Page-based routing for all 3 roles (Tutor, Client, Agent) with zero data loss
 - **Profiles**: Dynamic profile management with public/private views
@@ -271,6 +282,7 @@ CAS will apply 8 agent perspectives:
 - **CaaS**: Credibility scoring (Tutor complete, Agent/Org designed)
 - **Referrals**: Multi-tier attribution system with QR codes and gamification
 - **Financials**: Earnings tracking, transaction history, payout management
+- **EduPay**: Points-based rewards converting tutoring activity into student loan payments (Phase 1 live)
 - **Organisations**: Team management, subscriptions, tasks, recruitment
 - **Developer Tools**: API key management, webhooks, integrations
 - **Help Centre**: In-app bug reporting with Jira Service Desk integration
@@ -313,6 +325,8 @@ CAS will apply 8 agent perspectives:
   - [Agent CaaS Model](docs/features/caas/agent-caas-subscription-incentive-model.md)
   - [Organisation CaaS](docs/features/caas/agent-org-caas-implementation-summary.md)
   - [Dual-Path Architecture](docs/feature/caas/caas-dual-path-architecture.md)
+- **[EduPay System](docs/feature/edupay/)** - Tutoring rewards → student loan payments
+  - [Solution Design](docs/feature/edupay/edupay-solution-design.md)
 - **[Referrals System](docs/feature/referrals/)** - Multi-tier referral system (Phases 1-3)
   - [Solution Design](docs/feature/referrals/referrals-solution-design-v2.md)
   - [Deployment Guide](docs/feature/referrals/DEPLOYMENT-GUIDE.md)
