@@ -18,8 +18,7 @@ import type {
   CaaSRole,
   CaaSProfile,
   IEntityCaaSStrategy,
-  IProfileCaaSStrategy,
-} from './types';
+  } from './types';
 import { CaaSVersions } from './types';
 
 /**

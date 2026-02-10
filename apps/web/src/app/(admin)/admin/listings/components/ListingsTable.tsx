@@ -34,9 +34,8 @@ import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
 import { Listing } from '@/types';
 import AdminListingDetailModal from './AdminListingDetailModal';
-import { Star, Eye, Calendar, CheckCircle, XCircle, Trash2, Filter as FilterIcon } from 'lucide-react';
+import { Star, Eye, Calendar, Filter as FilterIcon } from 'lucide-react';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
-import Button from '@/app/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './ListingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
@@ -621,7 +620,7 @@ export default function ListingsTable() {
     if (typeof value === 'number') return value > 0;
     return false;
   });
-  const activeFilterCount = Object.entries(advancedFilters).filter(([key, value]) => {
+  const activeFilterCount = Object.entries(advancedFilters).filter(([_key, value]) => {
     if (typeof value === 'boolean') return value === true;
     if (typeof value === 'string') return value !== '';
     if (typeof value === 'number') return value > 0;

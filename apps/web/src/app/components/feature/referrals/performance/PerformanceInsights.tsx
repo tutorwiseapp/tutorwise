@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { BarChart3, Award, Lightbulb } from 'lucide-react';
+import { BarChart3, Lightbulb } from 'lucide-react';
 import styles from './PerformanceInsights.module.css';
 
 interface PerformanceInsightsProps {

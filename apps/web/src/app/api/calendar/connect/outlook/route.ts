@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/calendar/connect/outlook
  * Generate Outlook OAuth authorization URL
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const supabase = await createClient();
 
   try {

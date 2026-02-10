@@ -64,7 +64,7 @@ export async function createServiceDeskRequestFromSnapshot(
   const auth = Buffer.from(`${JIRA_EMAIL}:${JIRA_API_TOKEN}`).toString('base64');
 
   // Map impact to Jira priority
-  const priorityMap: Record<string, string> = {
+  const _priorityMap: Record<string, string> = {
     blocking: '1',    // Highest
     degraded: '2',    // High
     minor: '3',       // Medium

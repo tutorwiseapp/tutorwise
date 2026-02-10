@@ -121,6 +121,7 @@ export default function HubComplexModal({
 
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, closeOnEscape, onBeforeClose]);
 
   // Body scroll lock

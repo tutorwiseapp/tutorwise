@@ -16,9 +16,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import getProfileImageUrl from '@/lib/utils/image';
@@ -127,9 +125,9 @@ function calculateCompleteness(profile: Profile): { score: number; sections: Sec
 
 export default function AccountCard() {
   const { profile, refreshProfile } = useUserProfile();
-  const router = useRouter();
+  const _router = useRouter();
 
-  const { handleFileSelect: uploadImage, isUploading } = useImageUpload({
+  const { handleFileSelect: uploadImage, isUploading: _isUploading } = useImageUpload({
     onUploadSuccess: async () => {
       if (refreshProfile) {
         await refreshProfile();
@@ -137,7 +135,7 @@ export default function AccountCard() {
     },
   });
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const _handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && profile?.id) {
       await uploadImage(file, profile.id);
@@ -149,7 +147,7 @@ export default function AccountCard() {
     return calculateCompleteness(profile);
   }, [profile]);
 
-  const handleShareProfile = async () => {
+  const _handleShareProfile = async () => {
     if (!profile) return;
 
     const profileUrl = `${window.location.origin}/public-profile/${profile.id}`;
@@ -161,7 +159,7 @@ export default function AccountCard() {
           text: `Check out my profile on Tutorwise!`,
           url: profileUrl,
         });
-      } catch (error) {
+      } catch (_error) {
         // User cancelled share, do nothing
       }
     } else {
@@ -169,7 +167,7 @@ export default function AccountCard() {
       try {
         await navigator.clipboard.writeText(profileUrl);
         toast.success('Profile link copied to clipboard!');
-      } catch (error) {
+      } catch (_error) {
         toast.error('Failed to copy link');
       }
     }
@@ -179,10 +177,10 @@ export default function AccountCard() {
     return null;
   }
 
-  const avatarUrl = getProfileImageUrl(profile);
-  const fullName = profile.full_name || 'User';
-  const role = profile.active_role || 'member';
-  const location = profile.country || 'Location not set';
+  const _avatarUrl = getProfileImageUrl(profile);
+  const _fullName = profile.full_name || 'User';
+  const _role = profile.active_role || 'member';
+  const _location = profile.country || 'Location not set';
 
   return (
     <HubComplexCard>

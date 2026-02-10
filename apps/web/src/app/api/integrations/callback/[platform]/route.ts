@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ platf
     let stateData: { user_id: string; platform: string; timestamp: number };
     try {
       stateData = JSON.parse(Buffer.from(state, 'base64url').toString());
-    } catch (e) {
+    } catch (_e) {
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/account/settings?integration=error&message=Invalid+state+parameter`
       );

@@ -25,7 +25,7 @@ type PayoutStatus = 'all' | 'pending' | 'paid';
 export function PayoutExportCard({
   organisationId,
   memberId,
-  isOwner = false
+  isOwner: _isOwner = false
 }: PayoutExportCardProps) {
   const supabase = createClient();
 

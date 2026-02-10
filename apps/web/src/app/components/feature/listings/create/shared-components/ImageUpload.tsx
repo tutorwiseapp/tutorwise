@@ -20,7 +20,7 @@ export interface ImageUploadRef {
 const ImageUpload = ({ onUploadComplete, existingImages = [], ref }: ImageUploadProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>(existingImages);
-  const [isUploading, setIsUploading] = useState(false);
+  const [_isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = [...files, ...acceptedFiles];

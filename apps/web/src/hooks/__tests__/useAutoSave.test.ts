@@ -63,7 +63,7 @@ describe('useAutoSave', () => {
 
   it('should reset debounce timer on rapid changes', async () => {
     const mockSave = jest.fn().mockResolvedValue(undefined);
-    const { result, rerender } = renderHook(
+    const { result: _result, rerender } = renderHook(
       ({ data }) => useAutoSave({ data, onSave: mockSave, debounceMs: 5000 }),
       { initialProps: { data: { test: 'initial' } } }
     );

@@ -6,7 +6,7 @@
  */
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -129,7 +129,7 @@ export default function StudentBookingsPage() {
     router.push('/marketplace');
   };
 
-  const handleReschedule = (bookingId: string) => {
+  const handleReschedule = (_bookingId: string) => {
     toast('Reschedule functionality coming soon', { icon: 'ℹ️' });
   };
 
@@ -145,7 +145,7 @@ export default function StudentBookingsPage() {
 
       toast.success('Booking cancelled successfully');
       refetch();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to cancel booking');
     }
   };

@@ -15,7 +15,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Booking, BookingStatus, SchedulingStatus } from '@/types';
+import { Booking, BookingStatus } from '@/types';
 import Button from '@/app/components/ui/actions/Button';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import BookingDetailModal from './BookingDetailModal';
@@ -37,7 +37,7 @@ export default function BookingCard({
   booking,
   viewMode,
   isOnline = true, // Default to true for online sessions
-  onPayNow,
+  onPayNow: _onPayNow,
   onReschedule,
   onCancel,
 }: BookingCardProps) {
@@ -128,7 +128,7 @@ export default function BookingCard({
   const description = otherParty ? `${rolePrefix}: ${otherParty.full_name}` : undefined;
 
   // Get agent name if available
-  const agentName = booking.agent?.full_name || 'No Agent';
+  const _agentName = booking.agent?.full_name || 'No Agent';
 
   // Build details grid - 3x3 grid matching design
   const details = [

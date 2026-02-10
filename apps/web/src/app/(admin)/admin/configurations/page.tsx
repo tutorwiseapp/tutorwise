@@ -31,7 +31,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, Plus, X, Check } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, X, Check } from 'lucide-react';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar, { SidebarWidget } from '@/app/components/hub/sidebar/HubSidebar';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
@@ -196,7 +196,7 @@ export default function SharedFieldsPage() {
   });
 
   // Fetch context-specific fields when context is selected
-  const { data: contextFields = [], isLoading: isLoadingContext } = useQuery({
+  const { data: contextFields = [], isLoading: _isLoadingContext } = useQuery({
     queryKey: ['context-fields', selectedContext],
     queryFn: () => fetchFieldsForContext(selectedContext),
     enabled: selectedContext !== 'all',
@@ -367,6 +367,7 @@ export default function SharedFieldsPage() {
     }
 
     return filtered;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields, filterType, searchQuery, selectedContext]);
 
   // Calculate stats

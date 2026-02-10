@@ -74,9 +74,9 @@ export default function AdminDisputeDetailModal({
   dispute,
   isOpen,
   onClose,
-  onUpdate,
+  onUpdate: _onUpdate,
 }: AdminDisputeDetailModalProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [_isProcessing, _setIsProcessing] = useState(false);
 
   // Format date helper
   const formatDate = (dateString?: string | null) => {

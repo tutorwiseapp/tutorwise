@@ -46,7 +46,7 @@ export default function BetaBanner() {
 
   const typeNextCharacter = useCallback(() => {
     if (displayedText.length < currentPhrase.length) {
-      const nextChar = currentPhrase[displayedText.length];
+      const _nextChar = currentPhrase[displayedText.length];
       // Add slight extra pause after ellipsis for natural feel
       const isAfterEllipsis = displayedText.endsWith('...');
       const delay = isAfterEllipsis ? TYPING_SPEED * 3 : TYPING_SPEED;

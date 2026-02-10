@@ -119,6 +119,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
   });
 
   // Combine form data and uploaded files for saving
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const combinedData = { ...formData, ...uploadedFiles };
 
   // Offline sync - auto-sync when connection restored

@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const { booking_id, student_id } = validation.data;
 
     // 3. Assign student using BookingService
-    const booking = await BookingService.assignStudent({
+    const _booking = await BookingService.assignStudent({
       bookingId: booking_id,
       clientId: user.id,
       studentId: student_id,

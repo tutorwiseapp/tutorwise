@@ -9,7 +9,7 @@ import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const _supabase = await createClient();
     const body = await request.json();
 
     const { article_id, event_type, metadata } = body;

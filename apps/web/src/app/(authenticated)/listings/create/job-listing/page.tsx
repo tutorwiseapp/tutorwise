@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
-import { createListing, getListing, updateListing } from '@/lib/api/listings';
+import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
@@ -33,7 +33,7 @@ export default function CreateJobListingPage() {
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['agent']);
   const [isSaving, setIsSaving] = useState(false);
   const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
-  const [isLoadingListing, setIsLoadingListing] = useState(isEditMode);
+  const [isLoadingListing, _setIsLoadingListing] = useState(isEditMode);
 
   // Pre-fill form from professional_details and organisation
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function CreateJobListingPage() {
   const handleSubmit = async (data: CreateListingInput) => {
     setIsSaving(true);
     try {
-      const listing = await createListing(data);
+      const _listing = await createListing(data);
       toast.success('Job listing published successfully!');
       localStorage.removeItem('job_listing_draft');
       router.push('/listings');

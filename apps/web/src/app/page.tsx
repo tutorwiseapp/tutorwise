@@ -12,7 +12,6 @@
 
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import type { MarketplaceItem } from '@/types/marketplace';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import { getFeaturedItems, searchMarketplace, toMarketplaceItems } from '@/lib/api/marketplace';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';

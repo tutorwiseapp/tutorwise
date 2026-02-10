@@ -23,7 +23,6 @@ import BookingVideoWidget from '@/app/components/feature/bookings/BookingVideoWi
 import BookingsSkeleton from '@/app/components/feature/bookings/BookingsSkeleton';
 import BookingsError from '@/app/components/feature/bookings/BookingsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
@@ -54,7 +53,7 @@ export default function BookingsPage() {
   const {
     data: bookings = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({
@@ -214,13 +213,12 @@ export default function BookingsPage() {
     }
   };
 
-
   const handleCancel = (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this booking?')) return;
     cancelMutation.mutate(bookingId);
   };
 
-  const handleReschedule = (bookingId: string) => {
+  const handleReschedule = (_bookingId: string) => {
     // TODO: Implement reschedule modal/flow
     toast('Reschedule functionality coming soon. Please contact support for now.', {
       icon: 'ℹ️',

@@ -5,7 +5,7 @@
  */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget } from '@/app/components/admin/widgets';
@@ -20,7 +20,7 @@ type TabType = 'overview' | 'articles' | 'keywords' | 'backlinks';
 
 export default function BlogSEOPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [loading, setLoading] = useState(true);
+  const [_loading, _setLoading] = useState(true);
 
   return (
     <ErrorBoundary>

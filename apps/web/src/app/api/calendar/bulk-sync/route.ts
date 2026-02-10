@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
  * POST /api/calendar/bulk-sync
  * Trigger bulk sync for a user's existing bookings
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const supabase = await createClient();
 
   try {

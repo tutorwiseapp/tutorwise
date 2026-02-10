@@ -83,7 +83,7 @@ export default function DelegationSearchModal({
     try {
       await onConfirm(searchResult);
       handleClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to set delegation');
     } finally {
       setIsSaving(false);

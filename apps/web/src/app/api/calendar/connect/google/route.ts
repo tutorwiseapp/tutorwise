@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/calendar/connect/google
  * Generate OAuth URL and return it for frontend to redirect
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const authUrl = getGoogleAuthUrl();
 

@@ -15,7 +15,7 @@
  * @param sessionTitle - Optional title for the meeting
  * @returns Google Meet URL
  */
-export function generateGoogleMeetLink(bookingId: string, sessionTitle?: string): string {
+export function generateGoogleMeetLink(_bookingId: string, _sessionTitle?: string): string {
   // Phase 1: Use instant meeting creation
   // meet.new automatically creates a new meeting and redirects
   return 'https://meet.new';

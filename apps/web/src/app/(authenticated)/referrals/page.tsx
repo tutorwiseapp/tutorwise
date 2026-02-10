@@ -33,7 +33,7 @@ import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
-import { Referral, ReferralStatus } from '@/types';
+import { ReferralStatus } from '@/types';
 import styles from './page.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -64,7 +64,7 @@ export default function ReferralsPage() {
   const {
     data: referrals = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({

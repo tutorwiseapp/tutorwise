@@ -118,31 +118,14 @@ export default function SchedulingModal({
   const userTimezone = (profile as any)?.timezone || detectUserTimezone();
   const showDualTimezone = userTimezone !== PLATFORM_TIMEZONE;
 
-  // Early return if profile is not available
-  if (!profile?.id) {
-    return (
-      <HubComplexModal
-        isOpen={isOpen}
-        onClose={onClose}
-        title="Schedule Your Session"
-      >
-        <div className={styles.errorBanner}>
-          <AlertCircle size={20} />
-          <span>Unable to load user profile. Please refresh and try again.</span>
-        </div>
-        <div className={styles.footer}>
-          <Button onClick={onClose}>Close</Button>
-        </div>
-      </HubComplexModal>
-    );
-  }
+  // All hooks declared before any early returns (Rules of Hooks)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCounterPropose, setShowCounterPropose] = useState(false);
 
-  // Calendar navigation state (must be declared before draftData uses them)
+  // Calendar navigation state
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -167,9 +150,9 @@ export default function SchedulingModal({
   };
 
   const { hasDraft, draftAge, loadDraft, clearDraft } = useLocalStorageDraft({
-    key: `scheduling-modal-${booking.id}-${profile.id}`,
+    key: `scheduling-modal-${booking.id}-${profile?.id || ''}`,
     data: draftData,
-    enabled: isOpen,
+    enabled: isOpen && !!profile?.id,
   });
 
   // Load draft on mount
@@ -193,11 +176,12 @@ export default function SchedulingModal({
         console.log(`[SchedulingModal] Restored draft: ${formatDraftAge(draftAge)}`);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasDraft, isOpen]); // Only run on mount when modal opens
 
   // Availability API state
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+  const [_isLoadingAvailability, setIsLoadingAvailability] = useState(false);
 
   // Fetch tutor availability when month/year changes
   useEffect(() => {
@@ -218,8 +202,8 @@ export default function SchedulingModal({
 
         const data = await response.json();
         setAvailableDates(data.availableDates || []);
-      } catch (error) {
-        console.error('Error fetching availability:', error);
+      } catch (_error) {
+        console.error('Error fetching availability:', _error);
         setAvailableDates([]);
       } finally {
         setIsLoadingAvailability(false);
@@ -242,7 +226,27 @@ export default function SchedulingModal({
       years.push(today.getFullYear() + i);
     }
     return years;
-  }, [today]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Early return if profile is not available (after all hooks)
+  if (!profile?.id) {
+    return (
+      <HubComplexModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Schedule Your Session"
+      >
+        <div className={styles.errorBanner}>
+          <AlertCircle size={20} />
+          <span>Unable to load user profile. Please refresh and try again.</span>
+        </div>
+        <div className={styles.footer}>
+          <Button onClick={onClose}>Close</Button>
+        </div>
+      </HubComplexModal>
+    );
+  }
 
   // Check if a date is available based on API data
   const isDateAvailable = (date: Date | null): boolean => {

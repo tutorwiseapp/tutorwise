@@ -3,7 +3,7 @@
  * Extends the base Listing type with v4.1 dynamic details fields
  */
 
-import type { Listing as BaseListing, ServiceType, PackageType, AvailabilityPeriod } from '@tutorwise/shared-types';
+import type { Listing as BaseListing, ServiceType, PackageType } from '@tutorwise/shared-types';
 
 // Re-export UnavailabilityPeriod type
 export interface UnavailabilityPeriod {

@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 // GET /api/developer/api-keys - List user's API keys
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   const supabase = await createClient();
 
   // Get authenticated user

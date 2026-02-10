@@ -33,12 +33,9 @@ import {
   removeMember,
 } from '@/lib/api/organisation';
 import { isPremium } from '@/lib/stripe/subscription-utils';
-import type { OrganisationSubscription } from '@/lib/stripe/subscription-utils';
 import {
   getTrialStatus,
-  shouldShowPopup,
   dismissReminderForToday,
-  getReminderMessage,
 } from '@/lib/stripe/organisation-trial-status';
 import { FEATURES } from '@/config/organisation-features';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
@@ -57,7 +54,6 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import SubscriptionRequired from '@/app/components/feature/organisations/content/SubscriptionRequired';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
@@ -87,6 +83,7 @@ export default function OrganisationPage() {
     if (tabParam && tabParam !== activeTab) {
       setActiveTab(tabParam);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [managingMember, setManagingMember] = useState<OrganisationMember | null>(null);
@@ -95,14 +92,14 @@ export default function OrganisationPage() {
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(true);
+  const [_showSubscriptionModal, setShowSubscriptionModal] = useState(true);
 
   // Fetch organisation
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: organisation,
     isLoading: orgLoading,
-    isFetching: orgFetching,
+    isFetching: _orgFetching,
     error: orgError,
     refetch: refetchOrg,
   } = useQuery({
@@ -122,7 +119,7 @@ export default function OrganisationPage() {
   const {
     data: subscription,
     isLoading: subscriptionLoading,
-    isFetching: subscriptionFetching,
+    isFetching: _subscriptionFetching,
   } = useQuery({
     queryKey: ['organisation-subscription', organisation?.id],
     queryFn: () => getOrganisationSubscription(organisation!.id),
@@ -137,7 +134,7 @@ export default function OrganisationPage() {
   const {
     data: members = [],
     isLoading: membersLoading,
-    isFetching: membersFetching,
+    isFetching: _membersFetching,
     refetch: refetchMembers,
   } = useQuery({
     queryKey: ['organisation-members', organisation?.id],
@@ -152,8 +149,8 @@ export default function OrganisationPage() {
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: stats,
-    isLoading: statsLoading,
-    isFetching: statsFetching,
+    isLoading: _statsLoading,
+    isFetching: _statsFetching,
   } = useQuery({
     queryKey: ['organisation-stats', organisation?.id],
     queryFn: () => getOrganisationStats(organisation!.id),
@@ -168,7 +165,7 @@ export default function OrganisationPage() {
   const {
     data: clients = [],
     isLoading: clientsLoading,
-    isFetching: clientsFetching,
+    isFetching: _clientsFetching,
   } = useQuery({
     queryKey: ['organisation-clients', organisation?.id],
     queryFn: () => getOrganisationClients(organisation!.id),
@@ -183,7 +180,7 @@ export default function OrganisationPage() {
   const {
     data: recruitments = [],
     isLoading: recruitmentsLoading,
-    isFetching: recruitmentsFetching,
+    isFetching: _recruitmentsFetching,
   } = useQuery({
     queryKey: ['organisation-recruitments', organisation?.id],
     queryFn: () => getOrganisationRecruitments(organisation!.id),
@@ -511,7 +508,7 @@ export default function OrganisationPage() {
   };
 
   // Handle dismissing the trial reminder popup
-  const handleDismissReminder = () => {
+  const _handleDismissReminder = () => {
     if (!organisation || !subscription) return;
 
     const trialStatus = getTrialStatus(subscription);
@@ -566,7 +563,7 @@ export default function OrganisationPage() {
   };
 
   // Handle Update Payment Method - Opens Stripe Customer Portal (payment method page)
-  const handleUpdatePayment = async () => {
+  const _handleUpdatePayment = async () => {
     if (!organisation) {
       toast.error('Organisation not found');
       return;
@@ -595,7 +592,7 @@ export default function OrganisationPage() {
   };
 
   // Handle Cancel Subscription - Show confirmation dialog
-  const handleCancelSubscription = () => {
+  const _handleCancelSubscription = () => {
     if (!organisation || !subscription) {
       toast.error('No active subscription to cancel');
       return;
@@ -671,7 +668,7 @@ export default function OrganisationPage() {
   // v9.0: HARD PAYWALL - Block access if no active subscription
   // Always show subscription required screen when not premium (ignore dismissal)
   if (organisation && !subscriptionLoading && !isPremium(subscription || null)) {
-    const trialStatus = getTrialStatus(subscription || null);
+    const _trialStatus = getTrialStatus(subscription || null);
 
     // HARD PAYWALL: Always block access if feature flag enabled
     if (FEATURES.SUBSCRIPTION_PAYWALL.enabled) {

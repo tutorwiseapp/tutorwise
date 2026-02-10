@@ -4,8 +4,6 @@
  */
 
 import type {
-  PendingReviewTask,
-  ProfileReview,
   PendingTasksResponse,
   ReceivedReviewsResponse,
   GivenReviewsResponse,

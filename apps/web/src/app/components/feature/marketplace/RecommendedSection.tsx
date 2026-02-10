@@ -14,7 +14,7 @@
 'use client';
 
 import React from 'react';
-import { useRecommendations, type RecommendedItem } from '@/hooks/useRecommendations';
+import { useRecommendations } from '@/hooks/useRecommendations';
 import MarketplaceListingCard from './MarketplaceListingCard';
 import styles from './RecommendedSection.module.css';
 

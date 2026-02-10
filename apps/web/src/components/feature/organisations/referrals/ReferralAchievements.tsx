@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Award, TrendingUp, Trophy, Star, Flame } from 'lucide-react';
+import { Award, Trophy, Star, Flame } from 'lucide-react';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import styles from './ReferralAchievements.module.css';
 
@@ -52,6 +52,7 @@ export function ReferralAchievements({
   useEffect(() => {
     loadAchievements();
     loadStreak();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId, organisationId]);
 
   const loadAchievements = async () => {

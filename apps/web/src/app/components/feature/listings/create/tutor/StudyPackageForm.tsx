@@ -18,7 +18,6 @@ import Button from '@/app/components/ui/actions/Button';
 import { useFormConfigs } from '@/hooks/useFormConfig';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import toast from 'react-hot-toast';
-import styles from './StudyPackageForm.module.css';
 
 interface StudyPackageFormProps {
   onSubmit: (data: CreateListingInput) => void;
@@ -60,7 +59,7 @@ const levelsOptions = [
 ];
 
 export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: StudyPackageFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [localIsSaving, setLocalIsSaving] = useState(false);
 
@@ -121,7 +120,7 @@ export default function StudyPackageForm({ onSubmit, onCancel, isSaving = false,
     setEditingField(field);
   };
 
-  const handleBlur = (field: EditingField) => {
+  const handleBlur = (_field: EditingField) => {
     // For listings, we don't auto-save on blur, just close editing
     setEditingField(null);
   };

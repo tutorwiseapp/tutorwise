@@ -18,5 +18,5 @@ export async function searchArticles(query: string): Promise<ArticleSearchResult
   const articles = searchArticlesLib(query);
 
   // Remove content to reduce payload size
-  return articles.map(({ content, ...metadata }) => metadata);
+  return articles.map(({ content: _content, ...metadata }) => metadata);
 }

@@ -232,7 +232,7 @@ export default function AdminListingDetailModal({
       alert('Listing deleted successfully!');
       onListingUpdated?.();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to delete listing. Please try again.');
     } finally {
       setIsProcessing(false);

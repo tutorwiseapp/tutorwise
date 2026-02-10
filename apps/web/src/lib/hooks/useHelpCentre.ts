@@ -8,14 +8,12 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { searchArticles, type ArticleSearchResult } from '@/app/(public)/help-centre/actions';
+import { searchArticles } from '@/app/(public)/help-centre/actions';
 import {
   getPopularArticles,
   trackArticleView,
   submitArticleFeedback,
   trackSearchQuery,
-  type PopularArticle,
-  type ArticleHelpfulness,
   getArticleHelpfulness,
 } from '@/lib/api/help-centre';
 

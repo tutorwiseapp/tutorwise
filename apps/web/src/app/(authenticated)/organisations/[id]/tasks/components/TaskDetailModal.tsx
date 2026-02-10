@@ -118,6 +118,7 @@ export function TaskDetailModal({
       loadComments();
       loadAttachments();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, taskId]);
 
   // Update form data when task loads

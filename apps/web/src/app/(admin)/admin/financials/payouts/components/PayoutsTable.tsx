@@ -45,13 +45,13 @@ function getPayoutStatusVariant(status: string) {
 export default function PayoutsTable() {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(ADMIN_TABLE_DEFAULTS.PAGE_SIZE);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [_searchQuery, _setSearchQuery] = useState<string>('');
+  const [_statusFilter, setStatusFilter] = useState<string>('');
   // Detail modal state
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   // Advanced filters state
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+  const [advancedFilters, _setAdvancedFilters] = useState<AdvancedFilters>({
     dateFrom: '',
     dateTo: '',
     amountMin: '',

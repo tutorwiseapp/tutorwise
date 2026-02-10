@@ -16,7 +16,6 @@ import {
   getTutorExceptions,
   bulkCreateExceptions,
   getUKBankHolidays,
-  type CreateExceptionInput,
   type ExceptionType,
 } from '@/lib/availability/exceptions';
 

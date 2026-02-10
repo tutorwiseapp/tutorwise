@@ -15,8 +15,7 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { Link as LinkIcon, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import { Link as TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';

@@ -63,7 +63,7 @@ export function ServicesCard({ profile, listings = [], isOwnProfile = false, exc
 
   // Show only the latest 5 listings
   const displayedListings = filteredListings.slice(0, MAX_LISTINGS_SHOWN);
-  const hasMore = totalCount > MAX_LISTINGS_SHOWN;
+  const _hasMore = totalCount > MAX_LISTINGS_SHOWN;
 
   return (
     <Card className={styles.servicesCard}>

@@ -37,7 +37,7 @@ const CATEGORIES = [
 ];
 
 export default function BlogCategoriesPage() {
-  const router = useRouter();
+  const _router = useRouter();
 
   return (
     <ErrorBoundary>

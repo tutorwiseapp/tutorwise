@@ -10,14 +10,13 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
-import { FileText, Link as LinkIcon, ExternalLink, TrendingUp, Plus } from 'lucide-react';
+import { FileText, Link as LinkIcon, ExternalLink, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';

@@ -23,7 +23,7 @@ interface AhrefsBacklink {
   last_seen: string;
 }
 
-interface AhrefsResponse {
+interface _AhrefsResponse {
   backlinks: AhrefsBacklink[];
   stats: {
     backlinks: number;
@@ -145,7 +145,7 @@ export async function syncAhrefsBacklinks(): Promise<{ synced: number; errors: n
       .from('seo_backlinks')
       .select('source_url, status');
 
-    const existingUrls = new Set((existingBacklinks || []).map((bl) => bl.source_url));
+    const _existingUrls = new Set((existingBacklinks || []).map((bl) => bl.source_url));
     const currentUrls = new Set(ahrefsBacklinks.map((bl) => bl.url_from));
 
     let synced = 0;

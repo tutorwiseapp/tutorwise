@@ -57,7 +57,7 @@ function UserTypeBadge({ userType, isAdmin, adminRole }: { userType: string | nu
   );
 }
 
-function OnboardingBadge({ completed }: { completed: boolean | null }) {
+function _OnboardingBadge({ completed }: { completed: boolean | null }) {
   return (
     <span className={`${styles.badge} ${completed ? styles.badgeCompleted : styles.badgePending}`}>
       {completed ? 'Completed' : 'Pending'}
@@ -80,7 +80,7 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
 export default function UsersTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [_selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -122,7 +122,6 @@ export default function UsersTable() {
   });
 
   const users = usersData?.users || [];
-
 
   // Format date helper
   const formatDate = (dateString: string | null) => {

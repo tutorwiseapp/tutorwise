@@ -17,7 +17,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Users, Calendar, Star } from 'lucide-react';
-import { HubKPICard, HubKPIGrid, HubTeamPerformanceTable, type TeamMember } from '@/app/components/hub/charts';
+import { HubKPICard, HubKPIGrid, HubTeamPerformanceTable } from '@/app/components/hub/charts';
 import OrganisationEarningsTrendChart from '../performance/OrganisationEarningsTrendChart';
 import OrganisationStudentTypeBreakdown from '../performance/OrganisationStudentTypeBreakdown';
 import styles from './OrganisationPerformanceTab.module.css';
@@ -37,7 +37,6 @@ interface KPIData {
   sessions_change_pct: number;
 }
 
-
 interface TeamPerformanceData {
   data: {
     member_id: string;
@@ -54,7 +53,7 @@ interface TeamPerformanceData {
   totalMembers?: number; // Total member count
 }
 
-interface BookingHeatmapData {
+interface _BookingHeatmapData {
   data: {
     day_of_week: number;
     day_name: string;
@@ -84,7 +83,6 @@ export default function OrganisationPerformanceTab({
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
-
 
   // Fetch team performance
   const {

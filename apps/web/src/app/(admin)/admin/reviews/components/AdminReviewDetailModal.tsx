@@ -25,7 +25,6 @@ import {
   Trash2,
   ThumbsUp,
 } from 'lucide-react';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 // Local date formatting helper
 const formatDate = (dateString: string, format?: string): string => {
@@ -63,7 +62,7 @@ export function AdminReviewDetailModal({
   onUpdate,
 }: AdminReviewDetailModalProps) {
   const supabase = createClient();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
 
   // Helper to calculate sentiment
   const getSentiment = (rating: number): 'positive' | 'neutral' | 'negative' => {

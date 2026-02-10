@@ -32,7 +32,7 @@ export function OrganisationHeroSection({ organisation, isOwner }: OrganisationH
   const router = useRouter();
 
   // Get organisation initials for fallback avatar
-  const orgInitials = getInitials(organisation.name);
+  const _orgInitials = getInitials(organisation.name);
 
   // Check if organisation is saved in "My Saves" wiselist on mount
   useEffect(() => {

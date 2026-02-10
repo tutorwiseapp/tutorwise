@@ -252,9 +252,7 @@ export function TrustBadge({ label, color }: TrustBadgeProps) {
   );
 }
 
-interface FreeHelpBadgeProps {}
-
-export function FreeHelpBadge({}: FreeHelpBadgeProps) {
+export function FreeHelpBadge() {
   return (
     <div className={styles.freeHelpBadge}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -265,9 +263,7 @@ export function FreeHelpBadge({}: FreeHelpBadgeProps) {
   );
 }
 
-interface TrialBadgeProps {}
-
-export function TrialBadge({}: TrialBadgeProps) {
+export function TrialBadge() {
   return <div className={styles.trialBadge}>Free Trial</div>;
 }
 

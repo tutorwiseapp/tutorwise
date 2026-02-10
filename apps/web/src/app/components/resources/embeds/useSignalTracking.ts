@@ -18,7 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { getOrCreateSessionId } from '@/lib/utils/sessionTracking';
-import { getOrCreateSignalId, getCurrentSignalId } from '@/lib/utils/signalTracking';
+import { getOrCreateSignalId } from '@/lib/utils/signalTracking';
 import { generateEmbedInstanceId, type EmbedComponent } from '@/lib/utils/embedInstanceId';
 
 /**

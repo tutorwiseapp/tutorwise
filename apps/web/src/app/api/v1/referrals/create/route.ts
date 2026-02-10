@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       let body: CreateReferralRequest;
       try {
         body = await request.json();
-      } catch (err) {
+      } catch (_err) {
         return NextResponse.json(
           {
             error: 'invalid_json',

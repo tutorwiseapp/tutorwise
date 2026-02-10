@@ -747,7 +747,7 @@ apps/web/src/app/
 │   ├── login/page.tsx                    # Login page
 │   ├── signup/page.tsx                   # Signup page
 │   └── auth/callback/route.ts            # OAuth callback
-├── middleware.ts                         # Auth middleware (protects routes)
+├── proxy.ts                              # Next.js proxy - URL redirects/rewrites (Next.js 16)
 └── components/auth/
     ├── LoginForm.tsx
     ├── SignupForm.tsx
@@ -1762,7 +1762,7 @@ tutorwise/
 │       │   │   │   ├── wisespace/         # WiseSpace APIs (2)
 │       │   │   │   ├── financials/        # Financial APIs (5)
 │       │   │   │   └── [other APIs]       # Remaining endpoints
-│       │   │   ├── middleware.ts          # Auth middleware (route protection)
+│       │   │   ├── proxy.ts               # Next.js proxy - redirects/rewrites (Next.js 16)
 │       │   │   └── layout.tsx             # Root layout
 │       │   ├── components/                # 353 components (5.4K lines)
 │       │   │   └── feature/               # 22 feature component directories

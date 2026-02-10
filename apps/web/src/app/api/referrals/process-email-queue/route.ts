@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     // Process each email
     for (const email of pendingEmails as QueuedEmail[]) {
       try {
-        const { metadata, recipient_email, recipient_name } = email;
+        const { metadata, recipient_email, recipient_name: _recipient_name } = email;
         const baseParams = {
           to: recipient_email,
           referrerName: metadata.referrer_name,

@@ -35,7 +35,7 @@ import { TooltipProvider } from '@/app/components/ui/Tooltip';
 import MessagesWidget from '@/app/components/feature/dashboard/performance/MessagesWidget';
 import PayoutWidget from '@/app/components/feature/dashboard/performance/PayoutWidget';
 import { HubStudentTypeBreakdown, type StudentTypeData } from '@/app/components/hub/charts';
-import { KPISkeleton, ChartSkeleton, WidgetSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './page.module.css';
@@ -57,7 +57,7 @@ const DashboardPage = () => {
   const {
     data: earningsTrendData = [],
     isLoading: isLoadingEarnings,
-    isFetching: isFetchingEarnings,
+    isFetching: _isFetchingEarnings,
   } = useQuery<WeeklyEarnings[]>({
     queryKey: ['dashboard', 'earnings-trend', profile?.id],
     queryFn: async () => {
@@ -78,7 +78,7 @@ const DashboardPage = () => {
   const {
     data: bookingHeatmapData = [],
     isLoading: isLoadingHeatmap,
-    isFetching: isFetchingHeatmap,
+    isFetching: _isFetchingHeatmap,
   } = useQuery<DayData[]>({
     queryKey: ['dashboard', 'booking-heatmap', profile?.id],
     queryFn: async () => {
@@ -99,7 +99,7 @@ const DashboardPage = () => {
   const {
     data: studentBreakdownData = { new: 0, returning: 0 },
     isLoading: isLoadingStudentBreakdown,
-    isFetching: isFetchingStudentBreakdown,
+    isFetching: _isFetchingStudentBreakdown,
   } = useQuery<StudentTypeData>({
     queryKey: ['dashboard', 'student-breakdown', profile?.id],
     queryFn: async () => {

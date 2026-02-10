@@ -320,7 +320,7 @@ export async function clearDraft(
   key: string,
   options: SyncOptions = {}
 ): Promise<void> {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const _opts = { ...DEFAULT_OPTIONS, ...options };
 
   // 1. Clear from localStorage
   try {

@@ -41,7 +41,7 @@ export default function Autocomplete({
   onSelect,
   ...autocompleteOptions
 }: AutocompleteProps) {
-  const { query, suggestions, loading, error, search, clear, selectSuggestion } = useAutocomplete({
+  const { query, suggestions, loading, error, search, clear: _clear, selectSuggestion } = useAutocomplete({
     ...autocompleteOptions,
     onSelect: (suggestion) => {
       if (onSelect) {

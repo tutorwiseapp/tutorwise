@@ -18,7 +18,7 @@ interface ListingStatsWidgetProps {
   isLoading: boolean;
 }
 
-export default function ListingStatsWidget({ listings, isLoading }: ListingStatsWidgetProps) {
+export default function ListingStatsWidget({ listings, isLoading: _isLoading }: ListingStatsWidgetProps) {
   // Calculate stats from props - use useMemo to avoid recalculation on every render
   const stats = useMemo(() => {
     // Filter out templates and calculate stats

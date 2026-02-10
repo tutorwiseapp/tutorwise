@@ -38,7 +38,7 @@ export function PricingSection({
   onHourlyRateMaxChange,
   onPackagePriceChange,
   onPackageSessionsChange,
-  pricingType = 'hourly',
+  pricingType: _pricingType = 'hourly',
   showHourlyRate = true,
   showPackagePricing = false,
   hourlyRateLabel = 'Hourly Rate',

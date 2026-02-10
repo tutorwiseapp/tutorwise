@@ -49,7 +49,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
@@ -157,7 +156,7 @@ export default function HubDataTable<T extends Record<string, any>>({
   onRefresh,
   pagination,
   filters = [],
-  advancedFilters = [],
+  advancedFilters: _advancedFilters = [],
   bulkActions = [],
   autoRefreshInterval,
   enableSavedViews = false,
@@ -325,9 +324,9 @@ export default function HubDataTable<T extends Record<string, any>>({
   };
 
   // Calculate pagination info
-  const totalPages = pagination ? Math.ceil(pagination.total / pagination.limit) : 1;
-  const startItem = pagination ? (pagination.page - 1) * pagination.limit + 1 : 1;
-  const endItem = pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : data.length;
+  const _totalPages = pagination ? Math.ceil(pagination.total / pagination.limit) : 1;
+  const _startItem = pagination ? (pagination.page - 1) * pagination.limit + 1 : 1;
+  const _endItem = pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : data.length;
 
   return (
     <div className={`${styles.tableContainer} ${className}`}>

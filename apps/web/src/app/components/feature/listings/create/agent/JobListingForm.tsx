@@ -19,7 +19,6 @@ import Button from '@/app/components/ui/actions/Button';
 import { useFormConfigs } from '@/hooks/useFormConfig';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import toast from 'react-hot-toast';
-import styles from './JobListingForm.module.css';
 
 interface JobListingFormProps {
   onSubmit: (data: CreateListingInput) => void;
@@ -175,7 +174,7 @@ const organisationTypeOptions = [
 ];
 
 export default function JobListingForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: JobListingFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [localIsSaving, setLocalIsSaving] = useState(false);
 
@@ -266,7 +265,7 @@ export default function JobListingForm({ onSubmit, onCancel, isSaving = false, i
     setEditingField(field);
   };
 
-  const handleBlur = (field: EditingField) => {
+  const handleBlur = (_field: EditingField) => {
     // For listings, we don't auto-save on blur, just close editing
     setEditingField(null);
   };

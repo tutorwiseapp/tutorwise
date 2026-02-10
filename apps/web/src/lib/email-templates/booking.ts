@@ -269,7 +269,7 @@ export async function sendSessionReminderEmail(
   recipientType: 'client' | 'tutor'
 ) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const sessionDate = new Date(data.sessionDate);
+  const _sessionDate = new Date(data.sessionDate);
   const isClient = recipientType === 'client';
 
   const recipientName = isClient ? data.clientName : data.tutorName;
@@ -312,7 +312,7 @@ export async function sendBookingConfirmedToAgentEmail(data: BookingEmailData) {
   if (!data.agentEmail || !data.agentName) return;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const sessionDate = new Date(data.sessionDate);
+  const _sessionDate = new Date(data.sessionDate);
   const subject = `Referral Booking Confirmed - ${data.clientName} with ${data.tutorName}`;
 
   const body = `
@@ -480,7 +480,7 @@ function schedulingDetailsSection(data: SchedulingEmailData): string {
  */
 export async function sendTimeProposedEmail(data: SchedulingEmailData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const proposedTime = new Date(data.proposedTime);
+  const _proposedTime = new Date(data.proposedTime);
 
   // Determine recipient (the other party)
   const isProposedByTutor = data.proposedByRole === 'tutor';
@@ -568,7 +568,7 @@ export async function sendScheduleConfirmedEmail(
  */
 export async function sendRescheduleRequestedEmail(data: SchedulingEmailData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const newProposedTime = new Date(data.proposedTime);
+  const _newProposedTime = new Date(data.proposedTime);
 
   // Determine recipient (the other party)
   const isProposedByTutor = data.proposedByRole === 'tutor';

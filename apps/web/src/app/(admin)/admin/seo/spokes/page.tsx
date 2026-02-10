@@ -7,7 +7,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
@@ -20,9 +20,8 @@ import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBr
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, Edit2, Trash2, Eye, Link as LinkIcon, TrendingUp, FileText } from 'lucide-react';
+import { Edit2, Trash2, Eye, Link as LinkIcon, TrendingUp, FileText } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -199,7 +198,7 @@ export default function AdminSeoSpokesPage() {
     {
       key: 'actions',
       label: 'Actions',
-      render: (spoke: SeoSpoke) => (
+      render: (_spoke: SeoSpoke) => (
         <div className={styles.tableActions}>
           <Button variant="ghost" size="sm" title="View">
             <Eye className={styles.actionIcon} />
@@ -236,7 +235,7 @@ export default function AdminSeoSpokesPage() {
   ];
 
   // Data filter tabs (only shown in data view)
-  const dataFilterTabs = [
+  const _dataFilterTabs = [
     { id: 'all', label: 'All Spokes', count: stats.total, active: statusFilter === 'all' },
     { id: 'published', label: 'Published', count: stats.published, active: statusFilter === 'published' },
     { id: 'draft', label: 'Drafts', count: stats.draft, active: statusFilter === 'draft' },

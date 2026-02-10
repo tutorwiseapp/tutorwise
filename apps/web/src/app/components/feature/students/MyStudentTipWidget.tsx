@@ -81,7 +81,7 @@ const tips: Record<string, Tip[]> = {
   ],
 };
 
-export default function MyStudentTipWidget({ context = 'my-students', studentCount = 0 }: MyStudentTipWidgetProps) {
+export default function MyStudentTipWidget({ context = 'my-students', studentCount: _studentCount = 0 }: MyStudentTipWidgetProps) {
   const contextTips = tips[context] || tips['my-students'];
 
   return (

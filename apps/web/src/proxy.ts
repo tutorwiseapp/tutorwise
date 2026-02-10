@@ -11,7 +11,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function proxy(request: NextRequest) {
+export function proxy(_request: NextRequest) {
   // No redirects needed - feature just launched with /resources paths
   return NextResponse.next();
 }

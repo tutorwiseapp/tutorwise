@@ -15,7 +15,6 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { FileText } from 'lucide-react';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import AdminTemplateDetailModal from './components/AdminTemplateDetailModal';
 import styles from './page.module.css';

@@ -59,7 +59,7 @@ interface BlogAssistedListing {
   visibility_multiplier: number;
 }
 
-interface TimeDistribution {
+interface _TimeDistribution {
   hours_to_conversion: string;
   booking_count: number;
 }

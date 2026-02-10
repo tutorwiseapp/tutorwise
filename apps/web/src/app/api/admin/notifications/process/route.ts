@@ -108,7 +108,7 @@ async function sendEmail({
   to,
   subject,
   body,
-  metadata,
+  metadata: _metadata,
 }: {
   to: string;
   subject: string;

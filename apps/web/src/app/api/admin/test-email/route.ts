@@ -23,7 +23,6 @@ import {
   sendPaymentFailedEmail,
   sendRefundProcessedEmail,
   type PaymentEmailData,
-  type RefundEmailData,
 } from '@/lib/email-templates/payment';
 import {
   sendTutorWeeklyReport,

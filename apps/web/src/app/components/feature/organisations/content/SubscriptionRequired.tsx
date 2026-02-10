@@ -38,7 +38,7 @@ interface SubscriptionRequiredProps {
 }
 
 export default function SubscriptionRequired({
-  organisation,
+  organisation: _organisation,
   subscription,
   onStartTrial,
   onDismiss,

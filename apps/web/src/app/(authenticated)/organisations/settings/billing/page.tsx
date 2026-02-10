@@ -41,7 +41,7 @@ export default function BillingSettingsPage() {
   const {
     data: subscription,
     isLoading: subscriptionLoading,
-    isFetching: subscriptionFetching,
+    isFetching: _subscriptionFetching,
   } = useQuery({
     queryKey: ['organisation-subscription', organisation?.id],
     queryFn: () => getOrganisationSubscription(organisation!.id),

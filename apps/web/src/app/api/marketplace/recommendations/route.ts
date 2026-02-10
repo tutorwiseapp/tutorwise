@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { calculateEntityMatch } from '@/lib/services/matchScoring';
 import { fetchNetworkBoostFactors, calculateNetworkBoost } from '@/lib/services/networkBoost';
-import type { Listing } from '@tutorwise/shared-types';
 
 export const dynamic = 'force-dynamic';
 

@@ -25,7 +25,6 @@ import PayoutVideoWidget from '@/app/components/feature/financials/PayoutVideoWi
 import PayoutCard from '@/app/components/feature/financials/PayoutCard';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
 import styles from '../page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -36,7 +35,7 @@ type PayoutStatus = 'pending' | 'in_transit' | 'paid' | 'failed' | 'all';
 type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 export default function PayoutsPage() {
-  const { profile, isLoading: profileLoading } = useUserProfile();
+  const { profile, isLoading: _profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,7 +51,7 @@ export default function PayoutsPage() {
   const {
     data,
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
   } = useQuery({
     queryKey: ['payouts', profile?.id],
@@ -211,7 +210,7 @@ export default function PayoutsPage() {
   ];
 
   // Get status variant for badge
-  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+  const _getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     const lowerStatus = status?.toLowerCase();
     if (lowerStatus === 'paid' || lowerStatus === 'paid_out') return 'success';
     if (lowerStatus === 'clearing' || lowerStatus === 'pending') return 'warning';

@@ -441,7 +441,7 @@ export default function AdminBookingDetailModal({
       alert('Payment status updated to Refunded.\n\nNote: Please process the actual refund via Stripe dashboard.');
       onBookingUpdated?.();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to update refund status. Please try again.');
     } finally {
       setIsProcessing(false);

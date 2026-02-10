@@ -13,8 +13,8 @@ import { MousePointerClick, UserPlus, Award, DollarSign } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubKPICard, HubKPIGrid, HubCategoryBreakdownChart, HubTrendChart, HubEarningsTrendChart, type CategoryData, type TrendDataPoint, type WeeklyEarnings } from '@/app/components/hub/charts';
+import ReferralRecentList from '../performance/ReferralRecentList';
 import ReferralLinkSection from '../performance/ReferralLinkSection';
-import ReferralRecentList, { RecentReferral } from '../performance/ReferralRecentList';
 import GeographicDistribution from '../performance/GeographicDistribution';
 import PerformanceInsights from '../performance/PerformanceInsights';
 import styles from './ReferralPerformanceTab.module.css';
@@ -37,7 +37,7 @@ export default function ReferralPerformanceTab({ referrals }: ReferralPerformanc
   const { profile } = useUserProfile();
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [statsError, setStatsError] = useState<Error | null>(null);
+  const [_statsError, setStatsError] = useState<Error | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
 
   // Fetch agent data and stats using profile.id

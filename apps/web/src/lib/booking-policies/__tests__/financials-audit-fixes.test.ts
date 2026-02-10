@@ -217,7 +217,7 @@ describe('Financials Audit Fixes - Critical Tests', () => {
       // Here we verify the refund calculation accounts for it
 
       const bookingAmount = 100;
-      const result = calculateRefund(bookingAmount, 25, 'client');
+      const _result = calculateRefund(bookingAmount, 25, 'client');
 
       // Platform fee (10%) should be considered in the full booking amount
       const platformFee = bookingAmount * 0.10;

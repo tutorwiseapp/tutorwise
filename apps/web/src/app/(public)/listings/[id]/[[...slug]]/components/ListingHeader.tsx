@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
@@ -25,7 +25,7 @@ interface ListingHeaderProps {
   };
 }
 
-export default function ListingHeader({ listing, tutorProfile, tutorStats }: ListingHeaderProps) {
+export default function ListingHeader({ listing, tutorProfile: _tutorProfile, tutorStats }: ListingHeaderProps) {
   const [isSaved, setIsSaved] = useState(false);
   const { profile } = useUserProfile();
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function ListingHeader({ listing, tutorProfile, tutorStats }: Lis
           text: listing.description || '',
           url: window.location.href,
         });
-      } catch (err) {
+      } catch (_err) {
         // User cancelled or error
         console.log('Share cancelled');
       }

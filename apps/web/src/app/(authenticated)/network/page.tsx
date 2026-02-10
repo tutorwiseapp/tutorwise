@@ -23,7 +23,6 @@ import NetworkVideoWidget from '@/app/components/feature/network/NetworkVideoWid
 import NetworkSkeleton from '@/app/components/feature/network/NetworkSkeleton';
 import NetworkError from '@/app/components/feature/network/NetworkError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
@@ -53,7 +52,7 @@ export default function NetworkPage() {
   const {
     data: connections = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({

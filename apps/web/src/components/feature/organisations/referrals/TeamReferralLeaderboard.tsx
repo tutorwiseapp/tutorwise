@@ -49,6 +49,7 @@ export function TeamReferralLeaderboard({
 
   useEffect(() => {
     loadLeaderboard();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId, period]);
 
   const loadLeaderboard = async () => {

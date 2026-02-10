@@ -6,7 +6,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -54,7 +53,7 @@ async function verifyStripeConnection(secretKey: string | undefined): Promise<'C
 /**
  * Mask secret key for display (show only first 7 and last 4 characters)
  */
-function maskSecretKey(key: string | undefined): string {
+function _maskSecretKey(key: string | undefined): string {
   if (!key || key.length < 15) return '';
   return `${key.slice(0, 7)}...${key.slice(-4)}`;
 }

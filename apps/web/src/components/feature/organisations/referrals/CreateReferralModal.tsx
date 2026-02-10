@@ -44,6 +44,7 @@ export function CreateReferralModal({
     if (isOpen && organisationId) {
       fetchTeamMembers();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, organisationId]);
 
   useEffect(() => {
@@ -188,7 +189,7 @@ export function CreateReferralModal({
     try {
       const estimatedValue = formData.estimatedValue ? parseFloat(formData.estimatedValue) : 0;
 
-      const { data, error } = await supabase.rpc('create_manual_referral', {
+      const { data: _data, error } = await supabase.rpc('create_manual_referral', {
         p_organisation_id: organisationId,
         p_referrer_member_id: formData.referrerMemberId,
         p_referred_name: formData.referredName.trim(),

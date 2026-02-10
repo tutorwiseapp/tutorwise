@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create subscription record
-    let { data: subscription, error: subError } = await supabase
+    let { data: subscription, error: _subError } = await supabase
       .from('organisation_subscriptions')
       .select('stripe_customer_id')
       .eq('organisation_id', organisationId)

@@ -10,7 +10,6 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { updateProfile } from '@/lib/api/profiles';
 import PersonalInfoForm from '@/app/components/feature/account/PersonalInfoForm';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import AccountCard from '@/app/components/feature/account/AccountCard';
@@ -35,7 +34,7 @@ export default function StudentOverviewPage() {
   const params = useParams();
   const router = useRouter();
   const studentId = params?.studentId as string;
-  const { profile: guardianProfile } = useUserProfile();
+  const { profile: _guardianProfile } = useUserProfile();
   const queryClient = useQueryClient();
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 

@@ -5,7 +5,6 @@
  * Created: 2026-01-19
  */
 
-import { useState, useEffect } from 'react';
 import styles from './FormSections.module.css';
 
 interface DescriptionSectionProps {
@@ -33,8 +32,8 @@ export function DescriptionSection({
 }: DescriptionSectionProps) {
   const charCount = description.length;
   const isUnderMin = charCount < minLength;
-  const isNearMax = charCount > maxLength * 0.9;
-  const isOverMax = charCount > maxLength;
+  const _isNearMax = charCount > maxLength * 0.9;
+  const _isOverMax = charCount > maxLength;
 
   return (
     <div className={`${styles.formSection} ${styles.fullWidth}`}>

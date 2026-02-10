@@ -180,7 +180,7 @@ export async function withApiAuth(
 
   if ('error' in authResult) {
     // Authentication failed
-    const responseTimeMs = Date.now() - startTime;
+    const _responseTimeMs = Date.now() - startTime;
 
     return NextResponse.json(
       {

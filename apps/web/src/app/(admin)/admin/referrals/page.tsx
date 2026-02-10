@@ -16,7 +16,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ReferralsTable from './components/ReferralsTable';
@@ -30,7 +30,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminReferralsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const supabase = createClient();
   // TODO: Add 'referrals' to AdminResource type in lib/rbac/types.ts
   // const canViewReferrals = usePermission('referrals', 'view');

@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     // Send email notification to organisation owner (non-blocking)
     if (applicantProfile && organisation) {
-      const recruitmentUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/organisation?tab=recruitments`;
+      const _recruitmentUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/organisation?tab=recruitments`;
 
       Promise.resolve().then(async () => {
         try {

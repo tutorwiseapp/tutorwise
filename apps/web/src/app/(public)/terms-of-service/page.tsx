@@ -30,7 +30,7 @@ async function getTermsContent() {
 
   // Extract the title and last updated from the content
   const lines = content.split('\n');
-  const titleLine = lines.find(line => line.startsWith('Tutorwise Terms'));
+  const _titleLine = lines.find(line => line.startsWith('Tutorwise Terms'));
   const lastUpdatedLine = lines.find(line => line.startsWith('Last Updated:'));
 
   // Remove title and last updated from content (we'll render them in PageHeader)

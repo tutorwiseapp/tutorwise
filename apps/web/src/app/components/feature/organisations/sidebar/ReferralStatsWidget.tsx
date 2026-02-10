@@ -46,6 +46,7 @@ export default function ReferralStatsWidget({
 
   useEffect(() => {
     loadStats();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId, memberId]);
 
   const loadStats = async () => {

@@ -78,7 +78,7 @@ const levelsOptions = [
 ];
 
 export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: WorkshopFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [localIsSaving, setLocalIsSaving] = useState(false);
 
@@ -150,7 +150,7 @@ export default function WorkshopForm({ onSubmit, onCancel, isSaving = false, ini
     setEditingField(field);
   };
 
-  const handleBlur = (field: EditingField) => {
+  const handleBlur = (_field: EditingField) => {
     // For listings, we don't auto-save on blur, just close editing
     setEditingField(null);
   };

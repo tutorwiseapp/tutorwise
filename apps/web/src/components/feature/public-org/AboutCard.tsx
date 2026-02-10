@@ -7,7 +7,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp, Play } from 'lucide-react';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import styles from './AboutCard.module.css';
@@ -17,7 +16,7 @@ interface AboutCardProps {
   isOwner?: boolean;
 }
 
-export function AboutCard({ organisation, isOwner = false }: AboutCardProps) {
+export function AboutCard({ organisation, isOwner: _isOwner = false }: AboutCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
 

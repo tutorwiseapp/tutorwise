@@ -117,6 +117,7 @@ export default function AdminSidebar() {
         setExpandedSections((prev) => new Set(prev).add(item.href));
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Toggle section expansion

@@ -13,7 +13,6 @@ import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import { useFormConfigs } from '@/hooks/useFormConfig';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import toast from 'react-hot-toast';
-import hubFormStyles from '@/app/components/hub/form/HubForm.module.css';
 import styles from './ProfessionalInfoForm.module.css';
 
 interface ProfessionalInfoFormProps {
@@ -254,8 +253,8 @@ const timeOptions = [
 export default function ProfessionalInfoForm({ profile, onSave, activeRole }: ProfessionalInfoFormProps) {
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState<string>('');
-  const [fileError, setFileError] = useState<string>('');
+  const [_uploadedFileName, setUploadedFileName] = useState<string>('');
+  const [_fileError, setFileError] = useState<string>('');
 
   // Refs for auto-focus
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | HTMLButtonElement | null }>({});
@@ -505,7 +504,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     setFormData(prev => ({ ...prev, [field]: values }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const _handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
@@ -541,7 +540,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
     }
   };
 
-  const handleDeleteDocument = async () => {
+  const _handleDeleteDocument = async () => {
     setIsSaving(true);
     try {
       const updateData: Partial<Profile> = {
@@ -769,10 +768,7 @@ export default function ProfessionalInfoForm({ profile, onSave, activeRole }: Pr
 
         originalValue = tutorValue || clientValue || agentValue || '';
 
-        // Handle arrays
-        if (Array.isArray(originalValue)) {
-          originalValue = originalValue;
-        }
+        // Handle arrays (originalValue already has the correct array value)
       }
 
       // Compare values (handle both string and array comparisons)

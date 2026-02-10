@@ -13,7 +13,6 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import type { Profile } from '@/types';
 import Card from '@/app/components/ui/data-display/Card';
 import { MapPin, Star } from 'lucide-react';
 import styles from './SimilarProfilesCard.module.css';

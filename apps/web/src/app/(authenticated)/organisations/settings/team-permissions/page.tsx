@@ -22,7 +22,7 @@ import styles from './page.module.css';
 
 export default function TeamPermissionsSettingsPage() {
   const router = useRouter();
-  const { organisation, profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
+  const { organisation, profile: _profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
     currentTab: 'team-permissions',
   });
 

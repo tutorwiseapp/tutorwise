@@ -17,7 +17,7 @@
 import { stripe } from './client';
 import { createClient } from '@/utils/supabase/server';
 import type Stripe from 'stripe';
-import { FEATURES, getFormattedPrice } from '@/config/organisation-features';
+import { FEATURES } from '@/config/organisation-features';
 
 // Re-export types and utilities from subscription-utils (client-safe)
 export type { SubscriptionStatus, OrganisationSubscription } from './subscription-utils';

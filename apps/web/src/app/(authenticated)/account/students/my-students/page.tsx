@@ -70,7 +70,7 @@ export default function MyStudentsPage() {
   const {
     data: students = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({
@@ -166,7 +166,7 @@ export default function MyStudentsPage() {
     { id: 'my-students', label: 'My Students', count: students.length, active: true },
   ];
 
-  const handleTabChange = (tabId: string) => {
+  const handleTabChange = (_tabId: string) => {
     // Future: Add more tabs if needed
   };
 

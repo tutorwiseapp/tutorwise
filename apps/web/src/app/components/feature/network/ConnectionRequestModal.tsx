@@ -52,6 +52,7 @@ export default function ConnectionRequestModal({
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Prevent body scroll when modal is open
@@ -85,7 +86,7 @@ export default function ConnectionRequestModal({
       } else {
         toast.error('Search failed');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Search error');
     } finally {
       setIsLoading(false);
@@ -128,7 +129,7 @@ export default function ConnectionRequestModal({
         const error = await response.json();
         toast.error(error.error || 'Failed to send requests');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send requests');
     } finally {
       setIsLoading(false);
@@ -171,7 +172,7 @@ export default function ConnectionRequestModal({
         const error = await response.json();
         toast.error(error.error || 'Failed to send invitations');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send invitations');
     } finally {
       setIsLoading(false);

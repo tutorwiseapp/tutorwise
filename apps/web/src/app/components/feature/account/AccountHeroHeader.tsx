@@ -14,7 +14,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { Award } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';

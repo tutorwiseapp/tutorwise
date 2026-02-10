@@ -74,7 +74,7 @@ export default function UserDetailsModal({
   isOpen,
   onClose,
   user,
-  onUserUpdated,
+  onUserUpdated: _onUserUpdated,
   onDelete,
 }: UserDetailsModalProps) {
   const router = useRouter();
@@ -207,7 +207,7 @@ export default function UserDetailsModal({
     try {
       // TODO: Implement impersonation via API
       alert('Impersonation functionality coming soon.\n\nThis will allow you to view the platform as this user.');
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to impersonate user. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -225,7 +225,7 @@ export default function UserDetailsModal({
     try {
       // TODO: Implement password reset via API
       alert('Password reset functionality coming soon.\n\nThis will send a password reset email to the user.');
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to send password reset email. Please try again.');
     } finally {
       setIsProcessing(false);

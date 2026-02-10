@@ -406,6 +406,7 @@ export default function ArticleEditorForm({
         scheduled_for: '',
       }));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isScheduled, scheduledDate, scheduledTime]);
 
   // Handlers

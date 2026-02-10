@@ -20,9 +20,8 @@ import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBr
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, Edit2, Trash2, ExternalLink, CheckCircle2, XCircle, Clock, TrendingUp, FileText } from 'lucide-react';
+import { Edit2, Trash2, ExternalLink, CheckCircle2, XCircle, Clock, TrendingUp, FileText } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -74,7 +73,7 @@ export default function AdminSeoCitationsPage() {
           return [] as SeoCitation[];
         }
         return (data as SeoCitation[]) || [];
-      } catch (err) {
+      } catch (_err) {
         return [] as SeoCitation[];
       }
     },
@@ -316,7 +315,7 @@ export default function AdminSeoCitationsPage() {
     {
       key: 'actions',
       label: 'Actions',
-      render: (citation: SeoCitation) => (
+      render: (_citation: SeoCitation) => (
         <div className={styles.tableActions}>
           {canUpdate && (
             <Button variant="ghost" size="sm" title="Edit">
@@ -350,7 +349,7 @@ export default function AdminSeoCitationsPage() {
   ];
 
   // Data filter tabs (only shown in data view)
-  const dataFilterTabs = [
+  const _dataFilterTabs = [
     { id: 'all', label: 'All Citations', count: stats.total, active: statusFilter === 'all' },
     { id: 'active', label: 'Active', count: stats.active, active: statusFilter === 'active' },
     { id: 'broken', label: 'Broken', count: stats.broken, active: statusFilter === 'broken' },

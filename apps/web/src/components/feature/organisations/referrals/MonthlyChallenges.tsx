@@ -45,6 +45,7 @@ export function MonthlyChallenges({
 
   useEffect(() => {
     loadChallenges();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId, memberId]);
 
   const loadChallenges = async () => {

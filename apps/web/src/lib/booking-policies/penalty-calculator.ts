@@ -121,7 +121,7 @@ export async function calculateCancellationPenalty(
 
   // Build warning message
   let warningMessage = '';
-  let canProceed = true;
+  let _canProceed = true;
 
   if (cancelledBy === 'client') {
     if (hoursUntilSession >= CANCELLATION_POLICY.CLIENT_FULL_REFUND_THRESHOLD) {

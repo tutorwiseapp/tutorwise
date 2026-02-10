@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
       // Jira failed - fall back to email
       console.error('[Support Request] Jira error, using email fallback:', jiraError);
 
-      const fallbackResult = await sendFallbackEmail(body, userEmail);
+      const _fallbackResult = await sendFallbackEmail(body, userEmail);
 
       return NextResponse.json({
         success: true,

@@ -15,7 +15,7 @@ type CaptureLevel = 'minimal' | 'standard' | 'diagnostic';
 
 type ImpactLevel = 'blocking' | 'degraded' | 'minor';
 
-interface SnapshotData {
+interface _SnapshotData {
   action: string;
   issue: string;
   impact: ImpactLevel;

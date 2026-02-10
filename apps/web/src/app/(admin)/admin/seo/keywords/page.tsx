@@ -7,7 +7,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
@@ -16,9 +16,8 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubDataTable from '@/app/components/hub/data/HubDataTable';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
-import { Plus, TrendingUp, TrendingDown, Target, Search, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -117,7 +116,7 @@ export default function AdminSeoKeywordsPage() {
   }, [keywords]);
 
   // Get position badge color
-  const getPositionBadge = (position: number | null, target: number) => {
+  const getPositionBadge = (position: number | null, _target: number) => {
     if (!position) {
       return <span className={styles.badgeUnranked}>Not Ranked</span>;
     }

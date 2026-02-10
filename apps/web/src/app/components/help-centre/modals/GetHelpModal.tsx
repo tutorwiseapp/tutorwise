@@ -19,7 +19,7 @@ type SupportCategory =
   | 'features'
   | 'other';
 
-interface GetHelpData {
+interface _GetHelpData {
   firstName: string;
   lastName: string;
   category: SupportCategory;

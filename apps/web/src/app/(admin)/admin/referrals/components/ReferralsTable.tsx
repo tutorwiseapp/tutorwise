@@ -44,7 +44,7 @@ import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
 import { Referral } from '@/types';
 import AdminReferralDetailModal from './AdminReferralDetailModal';
-import { Filter as FilterIcon, Save } from 'lucide-react';
+import { Filter as FilterIcon } from 'lucide-react';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './ReferralsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
@@ -73,7 +73,7 @@ export default function ReferralsTable() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [agentFilter, setAgentFilter] = useState<string>('');
+  const [agentFilter, _setAgentFilter] = useState<string>('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   // Advanced filters state
@@ -205,7 +205,7 @@ export default function ReferralsTable() {
   };
 
   // Format date
-  const formatDate = (dateString?: string | null, format: string = 'dd MMM yyyy') => {
+  const formatDate = (dateString?: string | null, _format: string = 'dd MMM yyyy') => {
     if (!dateString) return '—';
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');

@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   // Fetch admin users data
-  const { data: adminsData, isLoading, refetch } = useQuery({
+  const { data: adminsData, isLoading: _isLoading, refetch } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
       const supabase = createClient();

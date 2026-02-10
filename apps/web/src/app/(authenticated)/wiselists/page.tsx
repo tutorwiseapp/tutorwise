@@ -27,7 +27,7 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { Wiselist } from '@/types';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { getMyWiselists, deleteWiselist, updateWiselist, getWiselist, quickSaveItem, addWiselistItem, removeWiselistItem } from '@/lib/api/wiselists';
+import { getMyWiselists, deleteWiselist, updateWiselist, getWiselist, removeWiselistItem } from '@/lib/api/wiselists';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -38,7 +38,7 @@ type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 const ITEMS_PER_PAGE = 4;
 
 export default function WiselistsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const queryClient = useQueryClient();
   const { profile } = useUserProfile();
   const [activeTab, setActiveTab] = useState<TabType>('my-saves');
@@ -55,7 +55,7 @@ export default function WiselistsPage() {
   const {
     data: wiselists = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({
@@ -81,7 +81,7 @@ export default function WiselistsPage() {
   const {
     data: mySavesData,
     isLoading: isLoadingMySaves,
-    isFetching: isFetchingMySaves,
+    isFetching: _isFetchingMySaves,
   } = useQuery({
     queryKey: ['wiselist', mySavesWiselist?.id],
     queryFn: () => getWiselist(mySavesWiselist!.id),
@@ -166,6 +166,7 @@ export default function WiselistsPage() {
   }, [filteredWiselists, currentPage]);
 
   // Pagination for My Saves tab
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const savedItems = mySavesData?.items || [];
   const paginatedSavedItems = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -261,7 +262,7 @@ export default function WiselistsPage() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast.success('Share link copied to clipboard!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy link');
     }
   };
@@ -281,7 +282,7 @@ export default function WiselistsPage() {
   };
 
   // Handle Unsave for a saved item
-  const handleItemUnsave = async (itemId: string, profileId?: string, listingId?: string) => {
+  const handleItemUnsave = async (itemId: string, _profileId?: string, _listingId?: string) => {
     try {
       // Remove the item from the wiselist
       await removeWiselistItem(itemId);

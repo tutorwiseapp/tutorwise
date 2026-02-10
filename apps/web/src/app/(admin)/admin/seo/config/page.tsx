@@ -18,7 +18,6 @@ import HubToggle from '@/app/components/hub/form/HubToggle';
 import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import { Save } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
 
@@ -27,7 +26,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminSeoConfigPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const canUpdate = usePermission('seo', 'update');
   const [activeTab, setActiveTab] = useState<'general' | 'advanced'>('general');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -126,7 +125,7 @@ export default function AdminSeoConfigPage() {
           autoGenerateMetaDescriptions: config.contentSettings.autoGenerateMetaDescriptions,
           autoInternalLinking: config.contentSettings.autoInternalLinking,
         });
-      } catch (error) {
+      } catch (_error) {
         alert('Failed to load SEO configuration. Please refresh the page.');
       } finally {
         setIsLoading(false);
@@ -244,7 +243,7 @@ export default function AdminSeoConfigPage() {
 
       setHasUnsavedChanges(false);
       alert('SEO configuration saved successfully!');
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to save SEO configuration. Please try again.');
     } finally {
       setIsSaving(false);

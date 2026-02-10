@@ -26,7 +26,6 @@ import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
-import type { Filter } from '@/app/components/hub/toolbar/types';
 import ReferralStatsWidget from '@/app/components/feature/organisations/sidebar/ReferralStatsWidget';
 import ReferralHelpWidget from '@/app/components/feature/organisations/sidebar/ReferralHelpWidget';
 import ReferralTipWidget from '@/app/components/feature/organisations/sidebar/ReferralTipWidget';
@@ -65,8 +64,8 @@ export default function OrganisationReferralsPage(props: OrganisationReferralsPa
   const {
     data: organisation,
     isLoading: orgLoading,
-    isFetching: orgFetching,
-    error: orgError,
+    isFetching: _orgFetching,
+    error: _orgError,
   } = useQuery({
     queryKey: ['organisation', params.id],
     queryFn: async () => {
@@ -93,7 +92,7 @@ export default function OrganisationReferralsPage(props: OrganisationReferralsPa
   const {
     data: membership,
     isLoading: membershipLoading,
-    isFetching: membershipFetching,
+    isFetching: _membershipFetching,
   } = useQuery({
     queryKey: ['membership', params.id, profile?.id],
     queryFn: async () => {
@@ -119,7 +118,7 @@ export default function OrganisationReferralsPage(props: OrganisationReferralsPa
   const {
     data: config,
     isLoading: configLoading,
-    isFetching: configFetching,
+    isFetching: _configFetching,
   } = useQuery({
     queryKey: ['referral-config', params.id],
     queryFn: async () => {
@@ -167,7 +166,7 @@ export default function OrganisationReferralsPage(props: OrganisationReferralsPa
     handleReferralUpdate();
   };
 
-  const handleEnableProgram = async () => {
+  const _handleEnableProgram = async () => {
     try {
       // Enable the referral program
       const { error } = await supabase

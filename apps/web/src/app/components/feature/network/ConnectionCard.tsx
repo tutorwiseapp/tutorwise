@@ -88,7 +88,7 @@ export default function ConnectionCard({
     try {
       await onAccept(connection.id);
       toast.success(`You are now connected with ${otherParty.full_name}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to accept connection request');
     } finally {
       setIsLoading(false);
@@ -101,7 +101,7 @@ export default function ConnectionCard({
     try {
       await onReject(connection.id);
       toast.success('Connection request rejected');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to reject connection request');
     } finally {
       setIsLoading(false);
@@ -119,7 +119,7 @@ export default function ConnectionCard({
     try {
       await onRemove(connection.id);
       toast.success('Connection removed');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to remove connection');
     } finally {
       setIsLoading(false);

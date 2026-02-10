@@ -126,7 +126,7 @@ export function formatFieldName(path: string): string {
 /**
  * Get suggestion text based on validation error
  */
-export function getValidationSuggestion(fieldName: string, errorCode: string): string | null {
+export function getValidationSuggestion(fieldName: string, _errorCode: string): string | null {
   const suggestions: Record<string, string> = {
     email: 'Make sure to include @ and a domain (e.g., gmail.com)',
     phone: 'Include country code and area code',

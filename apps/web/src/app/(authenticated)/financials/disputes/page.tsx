@@ -25,7 +25,6 @@ import DisputeVideoWidget from '@/app/components/feature/financials/DisputeVideo
 import DisputeCard from '@/app/components/feature/financials/DisputeCard';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import { Transaction } from '@/types';
 import toast from 'react-hot-toast';
 import styles from '../page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -36,7 +35,7 @@ type DisputeStatus = 'action_required' | 'under_review' | 'won' | 'lost' | 'all'
 type DateRangeType = 'all' | '7days' | '30days' | '3months' | '6months' | '1year';
 
 export default function DisputesPage() {
-  const { profile, isLoading: profileLoading } = useUserProfile();
+  const { profile, isLoading: _profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,7 +51,7 @@ export default function DisputesPage() {
   const {
     data,
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
   } = useQuery({
     queryKey: ['disputes', profile?.id],
@@ -208,7 +207,7 @@ export default function DisputesPage() {
   ];
 
   // Get status variant for badge
-  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
+  const _getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'neutral' | 'info' => {
     const lowerStatus = status?.toLowerCase();
     if (lowerStatus === 'won' || lowerStatus === 'resolved') return 'success';
     if (lowerStatus === 'disputed' || lowerStatus === 'action_required') return 'error';

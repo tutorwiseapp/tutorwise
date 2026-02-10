@@ -88,7 +88,7 @@ function DraggableCard({
       {...listeners}
       {...attributes}
       className={styles.card}
-      onClick={(e) => {
+      onClick={(_e) => {
         // Only trigger click if not dragging
         if (!isDragging && onCardClick) {
           onCardClick(referral.id);
@@ -137,6 +137,7 @@ export function ReferralPipeline({
 
   useEffect(() => {
     loadPipeline();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId]);
 
   // Apply date filter and search to referrals

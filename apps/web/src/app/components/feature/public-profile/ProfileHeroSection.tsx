@@ -32,7 +32,7 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
   const [isLoading, setIsLoading] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [isCreatingFreeHelpSession, setIsCreatingFreeHelpSession] = useState(false);
+  const [_isCreatingFreeHelpSession, setIsCreatingFreeHelpSession] = useState(false);
   const { profile: currentUser } = useUserProfile();
   const router = useRouter();
 
@@ -127,13 +127,13 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
       await navigator.clipboard.writeText(contextualReferralUrl);
       toast.success('Referral link copied to clipboard! Share it to earn rewards.');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy referral link');
     }
   };
 
   // v5.9: Handle Get Free Help Now button
-  const handleGetFreeHelp = async () => {
+  const _handleGetFreeHelp = async () => {
     if (!currentUser) {
       toast.error('Please login to start a free help session');
       router.push('/login');

@@ -8,7 +8,7 @@
  */
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
@@ -18,7 +18,6 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget, AdminVideoWidget, AdminActivityWidget } from '@/app/components/admin/widgets';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import styles from './page.module.css';
 
@@ -50,9 +49,9 @@ export default function AdminOverviewPage() {
   // Fetch real platform statistics
   const {
     data: stats,
-    isLoading: statsLoading,
-    isFetching: statsFetching,
-    error: statsError,
+    isLoading: _statsLoading,
+    isFetching: _statsFetching,
+    error: _statsError,
   } = useQuery({
     queryKey: ['admin', 'platform-stats'],
     queryFn: async () => {

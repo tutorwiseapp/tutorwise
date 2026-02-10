@@ -18,7 +18,6 @@ import {
   Award,
   Share2
 } from 'lucide-react';
-import Image from 'next/image';
 import styles from './MemberReferralDashboard.module.css';
 
 interface DashboardData {
@@ -63,6 +62,7 @@ export function MemberReferralDashboard({
   useEffect(() => {
     loadDashboard();
     loadReferralCode();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId, organisationId]);
 
   const loadDashboard = async () => {
@@ -159,7 +159,7 @@ export function MemberReferralDashboard({
           text: text,
           url: link
         });
-      } catch (error) {
+      } catch (_error) {
         // User cancelled or error occurred
       }
     } else {

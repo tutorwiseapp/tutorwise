@@ -13,7 +13,7 @@ import type { DetailSection } from '@/app/components/hub/modal/HubDetailModal/Hu
 import Button from '@/app/components/ui/actions/Button';
 import StatusBadge from '@/app/components/admin/badges/StatusBadge';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { ExternalLink, User, FileText, RefreshCw } from 'lucide-react';
+import { ExternalLink, User, FileText } from 'lucide-react';
 import styles from './AdminTransactionDetailModal.module.css';
 
 // Extended Transaction type for detail modal
@@ -78,9 +78,9 @@ export default function AdminTransactionDetailModal({
   transaction,
   isOpen,
   onClose,
-  onUpdate,
+  onUpdate: _onUpdate,
 }: AdminTransactionDetailModalProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [_isProcessing, _setIsProcessing] = useState(false);
 
   // Format date helper
   const formatDate = (dateString?: string | null) => {

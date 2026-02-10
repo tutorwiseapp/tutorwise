@@ -61,7 +61,7 @@ export default function MessagesPage() {
   const {
     data: conversations = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
   } = useQuery({
     queryKey: ['conversations', profile?.id],
@@ -172,10 +172,11 @@ export default function MessagesPage() {
         case 'unread':
           return b.unreadCount - a.unreadCount;
         case 'recent':
-        default:
+        default: {
           const aTime = a.lastMessage?.timestamp || 0;
           const bTime = b.lastMessage?.timestamp || 0;
           return bTime - aTime;
+        }
       }
     });
 

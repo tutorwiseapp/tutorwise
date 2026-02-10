@@ -29,7 +29,7 @@ const HubCategoryBreakdownChart = memo(function HubCategoryBreakdownChart({
   data,
   title,
   subtitle,
-  type = 'horizontal-bar',
+  type: _type = 'horizontal-bar',
   showPercentage = true,
   showValue = true,
 }: HubCategoryBreakdownChartProps) {

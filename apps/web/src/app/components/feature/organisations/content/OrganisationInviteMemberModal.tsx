@@ -56,7 +56,7 @@ export default function OrganisationInviteMemberModal({
       } else {
         toast.error('Search failed');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Search error');
     } finally {
       setIsLoading(false);
@@ -100,7 +100,7 @@ export default function OrganisationInviteMemberModal({
         const error = await response.json();
         toast.error(error.error || 'Failed to send invitation requests');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send invitation requests');
     } finally {
       setIsLoading(false);
@@ -146,7 +146,7 @@ export default function OrganisationInviteMemberModal({
         const error = await response.json();
         toast.error(error.error || 'Failed to send invitation requests');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send invitation requests');
     } finally {
       setIsLoading(false);

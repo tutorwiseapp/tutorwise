@@ -21,7 +21,7 @@ interface DashboardHelpWidgetProps {
 export default function DashboardHelpWidget({
   role = 'tutor',
   caasScore = 0,
-  profileComplete = false,
+  profileComplete: _profileComplete = false,
 }: DashboardHelpWidgetProps) {
   // Get role-specific content based on CaaS score and completion status
   const getContent = () => {

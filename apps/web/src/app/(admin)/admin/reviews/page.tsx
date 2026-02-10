@@ -14,9 +14,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
-import { Star, Users, Filter } from 'lucide-react';
-import Link from 'next/link';
+import { Star, Users } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
@@ -42,9 +40,9 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminReviewsOverviewPage() {
-  const router = useRouter();
-  const canViewReviews = usePermission('reviews', 'view');
-  const canManageReviews = usePermission('reviews', 'manage');
+  const _router = useRouter();
+  const _canViewReviews = usePermission('reviews', 'view');
+  const _canManageReviews = usePermission('reviews', 'manage');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-reviews'>('overview');
 
   // Fetch reviews metrics with trend data from statistics table
@@ -122,7 +120,7 @@ export default function AdminReviewsOverviewPage() {
             value: groupedByDate[dateStr] || 0,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         // On error, still return 7 days with zero values
         for (let i = 6; i >= 0; i--) {
           const date = new Date();
@@ -160,7 +158,7 @@ export default function AdminReviewsOverviewPage() {
           { label: 'Pending', value: pending, color: '#F59E0B' },
           { label: 'Rejected', value: rejected, color: '#EF4444' },
         ];
-      } catch (error) {
+      } catch (_error) {
         // On error, still return structure with zero values
         return [
           { label: 'Published', value: 0, color: '#10B981' },

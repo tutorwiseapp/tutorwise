@@ -61,7 +61,7 @@ function RoleBadge({ role }: { role: AdminRole }) {
 export default function AdminsTable({ currentUserId, onChangeRole, onRevokeAdmin }: AdminsTableProps) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
-  const [selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
+  const [_selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
 
   // Fetch admins data
   const { data: adminsData, isLoading, refetch, error } = useQuery<{ admins: AdminUser[]; total: number }>({

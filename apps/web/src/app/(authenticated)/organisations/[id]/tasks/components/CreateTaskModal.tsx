@@ -45,6 +45,7 @@ export function CreateTaskModal({
     if (isOpen && organisationId) {
       fetchTeamMembers();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, organisationId]);
 
   const fetchTeamMembers = async () => {

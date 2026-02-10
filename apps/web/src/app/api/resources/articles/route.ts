@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
-    const featured = searchParams.get('featured');
+    const _featured = searchParams.get('featured');
     const limit = searchParams.get('limit');
 
     let query = supabase

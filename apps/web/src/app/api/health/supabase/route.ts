@@ -19,7 +19,7 @@ export async function GET() {
 
     // Simple connectivity test - check if we can connect and run a basic query
     const startTime = Date.now();
-    const { data, error } = await supabase
+    const { data: _data, error } = await supabase
       .from('profiles')
       .select('count', { count: 'exact', head: true })
       .limit(1);

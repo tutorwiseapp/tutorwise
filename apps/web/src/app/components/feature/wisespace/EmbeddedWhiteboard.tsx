@@ -71,7 +71,7 @@ export function EmbeddedWhiteboard({ bookingId, onSnapshotRequest }: EmbeddedWhi
   // Expose snapshot function to parent
   useEffect(() => {
     if (onSnapshotRequest) {
-      const originalRequest = onSnapshotRequest;
+      const _originalRequest = onSnapshotRequest;
       (window as any).__wiseSpaceExportSnapshot = async () => {
         if (!storeRef.current) return '';
 

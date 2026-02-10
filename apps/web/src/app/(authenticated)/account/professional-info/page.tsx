@@ -61,7 +61,7 @@ export default function ProfessionalPage() {
         }
 
         // Remove professional_details from the update object since it's not a profiles table column
-        const { professional_details, ...profileUpdates } = updatedProfile;
+        const { professional_details: _professional_details, ...profileUpdates } = updatedProfile;
 
         // Update other profile fields if any
         if (Object.keys(profileUpdates).length > 0) {

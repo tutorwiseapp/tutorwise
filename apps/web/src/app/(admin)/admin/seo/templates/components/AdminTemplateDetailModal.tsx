@@ -160,7 +160,7 @@ export default function AdminTemplateDetailModal({
 
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase
+      const { data: _data, error } = await supabase
         .from('seo_content_templates')
         .insert({
           name: `${template.name} (Copy)`,
@@ -176,7 +176,7 @@ export default function AdminTemplateDetailModal({
       alert('Template duplicated successfully!');
       onTemplateUpdated?.();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to duplicate template. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -202,7 +202,7 @@ export default function AdminTemplateDetailModal({
       alert('Template deleted successfully!');
       onTemplateUpdated?.();
       onClose();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to delete template. Please try again.');
     } finally {
       setIsProcessing(false);

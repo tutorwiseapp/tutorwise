@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Share2, Users, Copy, Check, Mail } from 'lucide-react';
+import { Share2, Copy, Check, Mail } from 'lucide-react';
 import { SidebarWidget } from '@/app/components/hub/sidebar/HubSidebar';
 import Button from '@/app/components/ui/actions/Button';
 import { toast } from 'react-hot-toast';
@@ -44,7 +44,7 @@ export function ShareCollaborateWidget({
       setCopied(true);
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy link');
     }
   };
@@ -61,7 +61,7 @@ export function ShareCollaborateWidget({
 
       if (!response.ok) throw new Error('Failed to update visibility');
 
-      const { wiselist } = await response.json();
+      const { _wiselist } = await response.json();
       toast.success('Wiselist is now public!');
       onVisibilityChange?.('public');
     } catch (error) {

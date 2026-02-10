@@ -34,7 +34,7 @@ export default function AdminUsersOverviewPage() {
   const pendingOnboardingMetric = useAdminMetric({ metric: 'pending_onboarding_users', compareWith: 'last_month' });
 
   // Fetch real user data for charts
-  const { data: usersData, isLoading: isLoadingUsers } = useQuery({
+  const { data: usersData, isLoading: _isLoadingUsers } = useQuery({
     queryKey: ['admin-users-data'],
     queryFn: async () => {
       const supabase = createClient();
@@ -99,7 +99,7 @@ export default function AdminUsersOverviewPage() {
             value: groupedByDate[dateStr] || 0,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         // On error, still return 7 days with zero values
         for (let i = 6; i >= 0; i--) {
           const date = new Date();
@@ -143,7 +143,7 @@ export default function AdminUsersOverviewPage() {
           { label: 'Agents', value: agents, color: '#F59E0B' },
           { label: 'Not Set', value: unset, color: '#9CA3AF' },
         ];
-      } catch (error) {
+      } catch (_error) {
         // On error, still return structure with zero values
         return [
           { label: 'Tutors', value: 0, color: '#3B82F6' },
@@ -181,7 +181,7 @@ export default function AdminUsersOverviewPage() {
           { label: 'Verified', value: verified, color: '#3B82F6' },
           { label: 'Unverified', value: unverified, color: '#EF4444' },
         ];
-      } catch (error) {
+      } catch (_error) {
         // On error, still return structure with zero values
         return [
           { label: 'Completed', value: 0, color: '#10B981' },

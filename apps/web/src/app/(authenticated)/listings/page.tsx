@@ -16,7 +16,6 @@ import { getMyListings, deleteListing, publishListing, unpublishListing } from '
 import type { Listing } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './page.module.css';
@@ -55,7 +54,7 @@ export default function ListingsPage() {
   const {
     data: rawListings = [],
     isLoading,
-    isFetching,
+    isFetching: _isFetching,
     error,
     refetch,
   } = useQuery({

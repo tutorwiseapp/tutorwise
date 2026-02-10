@@ -32,7 +32,7 @@ export async function GET(request: Request, props: CaaSRouteParams) {
   const params = await props.params;
   return withApiAuth(
     request,
-    async (authContext) => {
+    async (_authContext) => {
       const supabase = await createClient();
       const { searchParams } = new URL(request.url);
 

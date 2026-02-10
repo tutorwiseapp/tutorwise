@@ -40,7 +40,7 @@ export default function StudentSettingsPage() {
   const params = useParams();
   const router = useRouter();
   const studentId = params?.studentId as string;
-  const { profile } = useUserProfile();
+  const { profile: _profile } = useUserProfile();
   const [isRemoving, setIsRemoving] = useState(false);
 
   // Fetch the link to get linkId

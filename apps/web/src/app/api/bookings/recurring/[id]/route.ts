@@ -141,7 +141,7 @@ export async function PATCH(
         result = { message: 'Series resumed successfully', status: 'active' };
         break;
 
-      case 'generate':
+      case 'generate': {
         const generateCount = count || 4;
         const generatedIds = await generateFutureInstances(seriesId, generateCount);
         result = {
@@ -150,6 +150,7 @@ export async function PATCH(
           count: generatedIds.length,
         };
         break;
+      }
 
       default:
         return NextResponse.json(

@@ -8,7 +8,6 @@ import {
   adminAccessGrantedEmail,
   adminRoleChangedEmail,
   adminAccessRevokedEmail,
-  type AdminEmailData,
 } from './email-templates/admin';
 
 /**

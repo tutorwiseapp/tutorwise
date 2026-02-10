@@ -89,7 +89,7 @@ const levelsOptions = [
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false, initialData = {} }: TutorRequestFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const [editingField, setEditingField] = useState<EditingField>(null);
   const [localIsSaving, setLocalIsSaving] = useState(false);
 
@@ -164,7 +164,7 @@ export default function TutorRequestForm({ onSubmit, onCancel, isSaving = false,
     setEditingField(field);
   };
 
-  const handleBlur = (field: EditingField) => {
+  const handleBlur = (_field: EditingField) => {
     // For listings, we don't auto-save on blur, just close editing
     setEditingField(null);
   };

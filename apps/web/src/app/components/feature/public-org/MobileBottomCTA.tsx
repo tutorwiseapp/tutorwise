@@ -24,7 +24,7 @@ interface MobileBottomCTAProps {
   isOwnProfile: boolean;
 }
 
-export function MobileBottomCTA({ profile, currentUser, isOwnProfile }: MobileBottomCTAProps) {
+export function MobileBottomCTA({ profile, currentUser, isOwnProfile: _isOwnProfile }: MobileBottomCTAProps) {
   const router = useRouter();
   const [isMessaging, setIsMessaging] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
@@ -39,7 +39,7 @@ export function MobileBottomCTA({ profile, currentUser, isOwnProfile }: MobileBo
     setIsMessaging(true);
     try {
       router.push(`/messages?userId=${profile.id}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to open messages');
     } finally {
       setIsMessaging(false);

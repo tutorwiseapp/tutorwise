@@ -33,7 +33,6 @@ import {
 import { createClient } from '@/utils/supabase/client';
 import { getInitials } from '@/lib/utils/initials';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
-import type { DetailField } from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubPagination from '@/app/components/hub/layout/HubPagination';
 import Button from '@/app/components/ui/actions/Button';
@@ -71,7 +70,7 @@ const ITEMS_PER_PAGE = 4;
 
 export default function DelegationSettingsPanel({
   tutorId,
-  className = '',
+  className: _className = '',
   onStatsUpdate,
 }: DelegationSettingsPanelProps) {
   const supabase = createClient();
@@ -176,7 +175,7 @@ export default function DelegationSettingsPanel({
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedListings = listings.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
+  const _totalPages = Math.ceil(listings.length / ITEMS_PER_PAGE);
 
   // Modal handlers
   const handleOpenProfileModal = () => {

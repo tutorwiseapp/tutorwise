@@ -14,8 +14,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminHelpWidget, AdminStatsWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
-import { Settings, CheckCircle, XCircle, AlertTriangle, Save, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
 
@@ -56,7 +55,7 @@ export default function AdminSeoSettingsPage() {
   const [activeTab, setActiveTab] = useState<'overview'>('overview');
 
   // Fetch settings
-  const { data: settings, isLoading: settingsLoading } = useQuery({
+  const { data: settings, isLoading: _settingsLoading } = useQuery({
     queryKey: ['admin', 'seo-settings'],
     queryFn: async () => {
       const { data, error } = await supabase.from('seo_settings').select('*').single();
@@ -66,7 +65,7 @@ export default function AdminSeoSettingsPage() {
   });
 
   // Fetch service health
-  const { data: serviceHealth, isLoading: healthLoading } = useQuery({
+  const { data: serviceHealth, isLoading: _healthLoading } = useQuery({
     queryKey: ['admin', 'seo-service-health'],
     queryFn: async () => {
       const { data, error } = await supabase.from('seo_service_health').select('*');
@@ -105,7 +104,7 @@ export default function AdminSeoSettingsPage() {
     setIsSaving(true);
     try {
       await updateSettingsMutation.mutateAsync({ [field]: value });
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to update settings. Please try again.');
     } finally {
       setIsSaving(false);
@@ -119,7 +118,7 @@ export default function AdminSeoSettingsPage() {
     setIsSaving(true);
     try {
       await updateSettingsMutation.mutateAsync({ fallback_tracking_method: method });
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to update fallback method. Please try again.');
     } finally {
       setIsSaving(false);

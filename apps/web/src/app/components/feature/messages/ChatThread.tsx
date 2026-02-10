@@ -54,7 +54,7 @@ export default function ChatThread({
   const roomRef = useRef<any>(null);
 
   // Track other user's presence status
-  const { isOnline: isOtherUserOnline } = useAblyPresence(otherUser.id, currentUserId);
+  const { isOnline: _isOtherUserOnline } = useAblyPresence(otherUser.id, currentUserId);
 
   // Track typing indicators
   const channelName = AblyChannels.privateChat(currentUserId, otherUser.id);

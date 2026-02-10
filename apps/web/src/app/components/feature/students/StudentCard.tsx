@@ -39,7 +39,7 @@ interface StudentCardProps {
 
 export default function StudentCard({
   student,
-  currentUserId,
+  currentUserId: _currentUserId,
   onRemove,
   onViewProgress,
 }: StudentCardProps) {
@@ -69,7 +69,7 @@ export default function StudentCard({
     try {
       await onRemove(student.id);
       toast.success('Student removed');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to remove student');
     } finally {
       setIsLoading(false);

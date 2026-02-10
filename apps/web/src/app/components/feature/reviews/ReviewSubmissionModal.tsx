@@ -99,7 +99,7 @@ export default function ReviewSubmissionModal({
         throw new Error(error);
       }
 
-      const data = await response.json();
+      const _data = await response.json();
 
       // Show junction view (viral growth CTAs)
       setViewState('junction');
@@ -157,7 +157,7 @@ export default function ReviewSubmissionModal({
   const getContextualPrompts = () => {
     const bookingType = session?.session.booking?.booking_type;
     const currentUserIsClient = session?.session.booking?.client?.id === currentUserId;
-    const currentUserIsTutor = session?.session.booking?.tutor?.id === currentUserId;
+    const _currentUserIsTutor = session?.session.booking?.tutor?.id === currentUserId;
 
     if (bookingType === 'agent_job') {
       // Agent hired tutor for a job

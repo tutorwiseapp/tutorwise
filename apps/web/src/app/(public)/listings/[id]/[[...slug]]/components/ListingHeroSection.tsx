@@ -118,7 +118,7 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats, 
 
       await navigator.clipboard.writeText(contextualReferralUrl);
       toast.success('Referral link copied to clipboard! Share it to earn rewards.');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy referral link');
     }
   };

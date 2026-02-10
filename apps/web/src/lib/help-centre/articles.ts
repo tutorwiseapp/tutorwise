@@ -119,7 +119,7 @@ export function getArticleMetadata(category: string, slug: string): ArticleMetad
   const article = getArticleBySlug(category, slug);
   if (!article) return null;
 
-  const { content, ...metadata } = article;
+  const { content: _content, ...metadata } = article;
   return metadata;
 }
 

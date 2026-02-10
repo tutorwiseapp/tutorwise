@@ -17,8 +17,7 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
-import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
-import { useAdminTrendData } from '@/hooks/useAdminTrendData';
+import { formatMetricChange } from '@/hooks/useAdminMetric';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import OrganisationsTable from './components/OrganisationsTable';
 import styles from './page.module.css';
@@ -28,7 +27,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminOrganisationsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const supabase = createClient();
   const [activeTab, setActiveTab] = useState<'overview' | 'all-organisations'>('overview');
 
@@ -134,8 +133,8 @@ export default function AdminOrganisationsPage() {
   };
 
   // Revenue metrics (set to 0 as organisations don't have direct revenue tracking)
-  const totalRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
-  const avgRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
+  const _totalRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
+  const _avgRevenueMetric = { value: 0, change: 0, changePercent: 0, trend: 'neutral' as const };
 
   // Fetch real chart data - Organisation Growth Trend
   const { data: trendData } = useQuery({

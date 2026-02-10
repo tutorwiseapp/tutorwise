@@ -16,7 +16,6 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import DeveloperStatsWidget from '@/app/components/feature/developer/DeveloperStatsWidget';
 import DeveloperHelpWidget from '@/app/components/feature/developer/DeveloperHelpWidget';
@@ -44,9 +43,9 @@ export default function ApiKeysPage() {
   const {
     data: apiKeys = [],
     isLoading,
-    isFetching,
-    error,
-    refetch,
+    isFetching: _isFetching,
+    error: _error,
+    refetch: _refetch,
   } = useQuery({
     queryKey: ['api-keys', profile?.id],
     queryFn: getMyApiKeys,

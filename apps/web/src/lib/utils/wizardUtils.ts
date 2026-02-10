@@ -135,7 +135,7 @@ export function useWizardStep<TStep extends string>(
   urlStep?: string | null
 ): [TStep, (step: TStep) => void] {
   const [currentStep, setCurrentStepInternal] = React.useState<TStep>(initialStep);
-  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [_isInitialized, setIsInitialized] = React.useState(false);
 
   // Load saved step on mount
   useEffect(() => {

@@ -20,7 +20,7 @@ interface WiselistStats {
 
 export function WiselistStatsWidget() {
   const [stats, setStats] = useState<WiselistStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();

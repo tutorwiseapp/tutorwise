@@ -6,7 +6,7 @@
  */
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
@@ -18,11 +18,8 @@ import {
   Save,
   Eye,
   AlertTriangle,
-  CheckCircle,
   Info,
-  FileText,
   Target,
-  TrendingUp,
 } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
@@ -86,7 +83,7 @@ export default function HubEditPage() {
   const [issues, setIssues] = useState<QualityIssue[]>([]);
 
   // Fetch hub data (if editing)
-  const { data: hub, isLoading: hubLoading } = useQuery({
+  const { data: hub, isLoading: _hubLoading } = useQuery({
     queryKey: ['admin', 'seo-hub', hubId],
     queryFn: async () => {
       if (isNew) return null;

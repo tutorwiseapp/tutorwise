@@ -98,7 +98,7 @@ export async function GET() {
         existing.total += 1;
         if (citation.status === 'active') existing.active += 1;
         domainCounts.set(domain, existing);
-      } catch (e) {
+      } catch (_e) {
         // Invalid URL, skip
       }
     });

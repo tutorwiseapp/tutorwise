@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Transaction, TransactionStatus } from '@/types';
+import { Transaction } from '@/types';
 import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
 import TransactionDetailModal from './TransactionDetailModal';
 import Button from '@/app/components/ui/actions/Button';

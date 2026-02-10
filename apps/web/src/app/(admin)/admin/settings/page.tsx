@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic';
 
 export default function PlatformSettingsPage() {
   const router = useRouter();
-  const { profile } = useAdminProfile();
+  const { profile: _profile } = useAdminProfile();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

@@ -115,7 +115,7 @@ export function GetInTouchCard({ profile, currentUser }: GetInTouchCardProps) {
     try {
       // Navigate to messages page with this user
       router.push(`/messages?userId=${profile.id}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to open messages');
     }
   };

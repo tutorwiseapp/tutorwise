@@ -13,7 +13,6 @@ import type { DetailSection } from '@/app/components/hub/modal';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import styles from './OrganisationReferralDetailModal.module.css';
 
 interface Referral {
@@ -75,7 +74,7 @@ export function OrganisationReferralDetailModal({
   isOpen,
   onClose,
   referralId,
-  organisationId,
+  organisationId: _organisationId,
   onUpdate,
 }: OrganisationReferralDetailModalProps) {
   const supabase = createClient();
@@ -91,6 +90,7 @@ export function OrganisationReferralDetailModal({
     if (isOpen && referralId) {
       loadReferralDetails();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, referralId]);
 
   const loadReferralDetails = async () => {

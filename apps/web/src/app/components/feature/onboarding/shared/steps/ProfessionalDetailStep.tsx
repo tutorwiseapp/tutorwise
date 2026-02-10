@@ -90,7 +90,7 @@ const ProfessionalDetailStep: React.FC<ProfessionalDetailStepProps> = ({
     },
   }));
 
-  const { configs, isLoading: isLoadingConfigs } = useFormConfigs(formConfigRequests);
+  const { configs, isLoading: _isLoadingConfigs } = useFormConfigs(formConfigRequests);
 
   // Restore saved onboarding progress on mount
   useEffect(() => {

@@ -167,7 +167,7 @@ export default async function ReferralLandingPage({ params }: Props) {
   }
 
   // Get CaaS score and eligibility
-  const caasScore = await getCaaSScore(referrer.id);
+  const _caasScore = await getCaaSScore(referrer.id);
   const eligibilityResolver = new SEOEligibilityResolver();
   const eligibility = await eligibilityResolver.evaluateEligibility({
     entityType: 'profile',
@@ -176,7 +176,7 @@ export default async function ReferralLandingPage({ params }: Props) {
 
   // Generate structured data for SEO
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const personSchema = generatePersonSchema({
+  const _personSchema = generatePersonSchema({
     name: referrer.full_name,
     caasScore: eligibility.eligibilityScore,
     reviewCount: referrer.total_referrals_sent || 1, // Use referral count as proxy

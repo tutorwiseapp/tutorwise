@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDetailModal } from '@/app/components/hub/modal';
 import type { DetailSection } from '@/app/components/hub/modal/HubDetailModal/HubDetailModal';
@@ -36,7 +36,7 @@ export default function AdminReferralDetailModal({
   onUpdate,
 }: AdminReferralDetailModalProps) {
   const supabase = createClient();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
   // Format date helper

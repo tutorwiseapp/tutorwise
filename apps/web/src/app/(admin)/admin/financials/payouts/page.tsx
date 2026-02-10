@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminPayoutsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'all-payouts'>('overview');
 
   // Fetch payout metrics with trend data from statistics table

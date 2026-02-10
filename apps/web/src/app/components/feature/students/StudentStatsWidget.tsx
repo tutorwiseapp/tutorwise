@@ -13,7 +13,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './StudentStatsWidget.module.css';
 
@@ -34,7 +33,6 @@ interface StudentStatsWidgetProps {
 }
 
 export default function StudentStatsWidget({ stats, isLoading }: StudentStatsWidgetProps) {
-  const router = useRouter();
   const isSmallPortfolio = stats.totalStudents <= 10;
 
   if (isLoading) {

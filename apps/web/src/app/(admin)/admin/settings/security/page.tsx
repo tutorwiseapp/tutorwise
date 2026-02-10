@@ -32,7 +32,7 @@ interface ApiKey {
 
 export default function SecuritySettingsPage() {
   const router = useRouter();
-  const { profile } = useAdminProfile();
+  const { profile: _profile } = useAdminProfile();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

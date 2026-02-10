@@ -39,7 +39,7 @@ interface GetInTouchCardProps {
   isOwner?: boolean;
 }
 
-export function GetInTouchCard({ organisation, currentUser, isOwner = false }: GetInTouchCardProps) {
+export function GetInTouchCard({ organisation, currentUser, isOwner: _isOwner = false }: GetInTouchCardProps) {
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
   const [showJoinTeamModal, setShowJoinTeamModal] = useState(false);
@@ -54,7 +54,7 @@ export function GetInTouchCard({ organisation, currentUser, isOwner = false }: G
     try {
       // Navigate to messages page with this organisation
       router.push(`/messages?organisationId=${organisation.id}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to open messages');
     }
   };

@@ -101,7 +101,7 @@ function paymentDetailsSection(data: PaymentEmailData): string {
  */
 export async function sendPaymentReceiptEmail(data: PaymentEmailData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.io';
-  const sessionDate = new Date(data.sessionDate);
+  const _sessionDate = new Date(data.sessionDate);
   const subject = `Payment Confirmed - £${data.amount.toFixed(2)}`;
 
   let body = `

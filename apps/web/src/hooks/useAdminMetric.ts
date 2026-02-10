@@ -116,26 +116,29 @@ export function useAdminMetric({
     queryFn: async () => {
       // Calculate date ranges based on comparison period
       const today = new Date();
-      const currentDate = today.toISOString().split('T')[0];
+      const _currentDate = today.toISOString().split('T')[0];
 
       let previousDate: string;
       switch (compareWith) {
-        case 'yesterday':
+        case 'yesterday': {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
           previousDate = yesterday.toISOString().split('T')[0];
           break;
-        case 'last_week':
+        }
+        case 'last_week': {
           const lastWeek = new Date(today);
           lastWeek.setDate(lastWeek.getDate() - 7);
           previousDate = lastWeek.toISOString().split('T')[0];
           break;
+        }
         case 'last_month':
-        default:
+        default: {
           const lastMonth = new Date(today);
           lastMonth.setMonth(lastMonth.getMonth() - 1);
           previousDate = lastMonth.toISOString().split('T')[0];
           break;
+        }
       }
 
       // Fetch current value (most recent date)
@@ -151,7 +154,7 @@ export function useAdminMetric({
       }
 
       // Fetch previous value for comparison
-      const { data: previousData, error: previousError } = await supabase
+      const { data: previousData, error: _previousError } = await supabase
         .from('platform_statistics_daily')
         .select(metric)
         .lte('date', previousDate)

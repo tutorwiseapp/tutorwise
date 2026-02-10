@@ -49,7 +49,7 @@ const PaymentsPageContent = () => {
     const {
         data: paymentData,
         isLoading,
-        isFetching,
+        isFetching: _isFetching,
         error,
         refetch,
     } = useQuery({

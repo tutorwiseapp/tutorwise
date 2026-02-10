@@ -226,7 +226,7 @@ export async function canReceivePayouts(
 
     // Check for any requirements that need attention
     if (account.requirements) {
-      const { currently_due, eventually_due, past_due } = account.requirements;
+      const { currently_due, eventually_due: _eventually_due, past_due } = account.requirements;
 
       if (past_due && past_due.length > 0) {
         console.warn('[PAYOUT_CHECK] Past due requirements:', past_due);

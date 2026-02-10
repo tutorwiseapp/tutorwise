@@ -25,7 +25,7 @@ import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportTo
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
 // Local date formatting helper
-const formatDate = (dateString: string, format?: string): string => {
+const formatDate = (dateString: string, _format?: string): string => {
   const date = new Date(dateString);
   const day = date.getDate().toString().padStart(2, '0');
   const month = date.toLocaleString('default', { month: 'short' });
@@ -478,7 +478,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
         label: 'Actions',
         width: '100px',
         sortable: false,
-        render: (review) => null, // Handled by HubDataTable row actions
+        render: (_review) => null, // Handled by HubDataTable row actions
       },
     ],
     []
@@ -686,7 +686,7 @@ export function ReviewsTable({ className }: ReviewsTableProps) {
     if (Array.isArray(value)) return value.length > 0;
     return false;
   });
-  const activeFilterCount = Object.entries(advancedFilters).filter(([key, value]) => {
+  const activeFilterCount = Object.entries(advancedFilters).filter(([_key, value]) => {
     if (typeof value === 'boolean') return value === true;
     if (typeof value === 'string') return value !== '';
     if (typeof value === 'number') return value > 0;

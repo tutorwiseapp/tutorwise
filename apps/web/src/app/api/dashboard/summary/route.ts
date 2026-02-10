@@ -16,7 +16,7 @@ import { createClient } from '@/utils/supabase/server';
 // Mark route as dynamic (required for cookies() in Next.js 15)
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     // Parallel fetch live data for urgent/time-sensitive items
-    const [pendingReviewsResult, upcomingBookingsResult, unreadMessagesResult] = await Promise.all([
+    const [pendingReviewsResult, upcomingBookingsResult, _unreadMessagesResult] = await Promise.all([
       // 1. Pending reviews (urgent)
       supabase
         .from('booking_review_sessions')

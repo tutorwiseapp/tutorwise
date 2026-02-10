@@ -70,8 +70,8 @@ const availabilityOptions = [
   { value: 'evenings-only', label: 'Evenings only' },
 ];
 
-export function JoinTeamModal({ isOpen, onClose, organisation, currentUser }: JoinTeamModalProps) {
-  const router = useRouter();
+export function JoinTeamModal({ isOpen, onClose, organisation, currentUser: _currentUser }: JoinTeamModalProps) {
+  const _router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state

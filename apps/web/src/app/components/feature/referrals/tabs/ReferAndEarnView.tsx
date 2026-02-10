@@ -19,7 +19,7 @@ interface ReferAndEarnViewProps {
 }
 
 export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps) {
-  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+  const [_copiedStates, _setCopiedStates] = useState<Record<string, boolean>>({});
   const [showCopiedOverlay, setShowCopiedOverlay] = useState<string | null>(null);
 
   // Generate referral URL

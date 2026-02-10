@@ -24,9 +24,9 @@ const CRITICAL_FILE_PATTERNS = {
     'apps/web/.env.local': 'Frontend environment - Supabase/Stripe keys',
     'apps/api/.env': 'Backend environment - Database credentials',
 
-    // Auth & Security
-    'middleware.ts': 'Authentication middleware - Controls all route access',
-    'apps/web/src/middleware.ts': 'Next.js middleware - Auth & onboarding enforcement',
+    // Auth & Security (Next.js 16: middleware.ts renamed to proxy.ts)
+    'proxy.ts': 'Next.js proxy - URL redirects and rewrites',
+    'apps/web/src/proxy.ts': 'Next.js proxy - URL redirects and rewrites',
     '.ai-restrictions': 'AI security policy - RBAC rules',
     'tools/change-management/ai-permission-system.js': 'Permission enforcement system',
     'tools/change-management/approval-workflow.js': 'Human approval workflow',

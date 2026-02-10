@@ -6,7 +6,7 @@
 
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import styles from './CodeBlock.module.css';
 
 interface CodeBlockProps {

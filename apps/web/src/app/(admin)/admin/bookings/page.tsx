@@ -13,9 +13,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
-import { Calendar, DollarSign, Clock, Filter } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar, DollarSign, Clock } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
@@ -30,9 +28,9 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminBookingsOverviewPage() {
-  const router = useRouter();
-  const canViewBookings = usePermission('bookings', 'view');
-  const canManageBookings = usePermission('bookings', 'manage');
+  const _router = useRouter();
+  const _canViewBookings = usePermission('bookings', 'view');
+  const _canManageBookings = usePermission('bookings', 'manage');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-bookings'>('overview');
 
   // Fetch bookings metrics with trend data from statistics table

@@ -17,7 +17,7 @@ interface AvailabilityCardProps {
 }
 
 export function AvailabilityCard({ profile }: AvailabilityCardProps) {
-  const role = profile.active_role || profile.roles?.[0];
+  const _role = profile.active_role || profile.roles?.[0];
 
   // Get professional details (supports legacy keys)
   const professionalDetails =

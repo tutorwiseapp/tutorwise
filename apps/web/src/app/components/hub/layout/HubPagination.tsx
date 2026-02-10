@@ -39,8 +39,8 @@ export default function HubPagination({
   onPageChange,
 }: HubPaginationProps) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  const _startItem = totalItems > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const _endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   // Generate page numbers to display
   const getPageNumbers = () => {

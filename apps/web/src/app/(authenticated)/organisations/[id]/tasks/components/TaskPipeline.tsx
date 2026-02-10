@@ -121,7 +121,7 @@ function DraggableCard({
       {...listeners}
       {...attributes}
       className={styles.card}
-      onClick={(e) => {
+      onClick={(_e) => {
         // Only trigger click if not dragging
         if (!isDragging && onCardClick) {
           onCardClick(task.id);

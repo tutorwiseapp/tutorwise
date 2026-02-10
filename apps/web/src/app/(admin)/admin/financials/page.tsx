@@ -15,7 +15,7 @@ import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import { DollarSign, TrendingUp, Clock, AlertCircle, PiggyBank } from 'lucide-react';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import TransactionsTable from './components/TransactionsTable';
@@ -30,7 +30,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminFinancialsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'reconciliation' | 'disputes' | 'all-transactions'>('overview');
 
   // Fetch transaction metrics with trend data from statistics table
@@ -48,7 +48,7 @@ export default function AdminFinancialsPage() {
   };
 
   // Format currency
-  const formatCurrency = (amount: number) => {
+  const _formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: 'GBP',

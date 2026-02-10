@@ -12,7 +12,6 @@
  * Query param 'type' can be: '24h', '1h', '15min' (defaults to '24h' for backward compatibility)
  */
 
-import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getUpcomingReminders,

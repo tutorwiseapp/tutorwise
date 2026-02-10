@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Star, Shield, ChevronDown } from 'lucide-react';
+import { Star, Shield } from 'lucide-react';
 import { getInitials } from '@/lib/utils/initials';
 import styles from './TeamMembersCard.module.css';
 
@@ -30,13 +30,13 @@ interface TeamMembersCardProps {
   organisation: any;
 }
 
-export function TeamMembersCard({ members, organisation }: TeamMembersCardProps) {
+export function TeamMembersCard({ members, organisation: _organisation }: TeamMembersCardProps) {
   const router = useRouter();
-  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedSubject, _setSelectedSubject] = useState<string>('all');
   const [showAll, setShowAll] = useState(false);
 
   // Get unique subjects from all members
-  const allSubjects = members.reduce((subjects: string[], member) => {
+  const _allSubjects = members.reduce((subjects: string[], member) => {
     const memberSubjects = member.professional_details?.tutor?.subjects ||
                           member.professional_details?.subjects ||
                           [];
@@ -70,7 +70,7 @@ export function TeamMembersCard({ members, organisation }: TeamMembersCardProps)
   };
 
   // Get rating for a member (placeholder - would come from aggregated reviews)
-  const getMemberRating = (member: TeamMember) => {
+  const getMemberRating = (_member: TeamMember) => {
     // TODO: Get actual rating from member's reviews
     return 4.8; // Placeholder
   };

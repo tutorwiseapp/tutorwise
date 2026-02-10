@@ -4,10 +4,10 @@ import fs from 'fs/promises';
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
-    const { testType, pages } = await request.json();
+    const { _testType, _pages } = await request.json();
 
     return new Promise<NextResponse>((resolve) => {
-      const results: any[] = [];
+      const _results: any[] = [];
       let testStatus = 'running';
 
       // Run the Playwright screenshot script using exec to avoid Turbopack static analysis

@@ -4,7 +4,6 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
-import type { ServiceType } from '@tutorwise/shared-types';
 
 export interface CreateBookingInput {
   listing_id: string;

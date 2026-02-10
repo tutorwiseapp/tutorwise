@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Save, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { SkeletonLine, SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralSettingsCard.module.css';
@@ -50,6 +50,7 @@ export function ReferralSettingsCard({ organisationId, isOwner }: ReferralSettin
   // Load existing config
   useEffect(() => {
     loadConfig();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId]);
 
   const loadConfig = async () => {

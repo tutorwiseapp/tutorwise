@@ -8,13 +8,13 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter } from '@/app/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { formatDate as formatDateUtil, formatDaysRemaining, calculateDaysRemaining } from '@/lib/utils/format-date';
+import { formatDate as formatDateUtil, calculateDaysRemaining } from '@/lib/utils/format-date';
 import { Filter as FilterIcon } from 'lucide-react';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
@@ -427,7 +427,7 @@ export default function OrganisationsTable() {
       label: 'Client',
       width: '100px',
       sortable: false,
-      render: (org) => (
+      render: (_org) => (
         <span className={styles.clientCount}>
           —
         </span>

@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
 import { TaskPipeline } from './components/TaskPipeline';
 import { TaskDetailModal } from './components/TaskDetailModal';
@@ -48,15 +47,15 @@ export default function OrganisationTasksPage(props: OrganisationTasksPageProps)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
+  const [_teamMembers, _setTeamMembers] = useState<Array<{ id: string; full_name: string }>>([]);
 
   // Fetch organisation details
   // isLoading is true only on first fetch; isFetching is true on all fetches
   const {
     data: organisation,
     isLoading: orgLoading,
-    isFetching: orgFetching,
-    error: orgError,
+    isFetching: _orgFetching,
+    error: _orgError,
   } = useQuery({
     queryKey: ['organisation', params.id],
     queryFn: async () => {
@@ -83,7 +82,7 @@ export default function OrganisationTasksPage(props: OrganisationTasksPageProps)
   const {
     data: userRole,
     isLoading: roleLoading,
-    isFetching: roleFetching,
+    isFetching: _roleFetching,
   } = useQuery({
     queryKey: ['user-role', params.id, profile?.id],
     queryFn: async () => {

@@ -12,7 +12,6 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { getArticleBySlug, getAllArticles } from '@/lib/help-centre/articles';
-import { trackArticleView } from '@/lib/api/help-centre';
 import CalloutBox from '@/app/components/help-centre/mdx/CalloutBox';
 import CodeBlock from '@/app/components/help-centre/mdx/CodeBlock';
 import VideoEmbed from '@/app/components/help-centre/mdx/VideoEmbed';

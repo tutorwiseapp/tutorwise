@@ -31,7 +31,7 @@ interface StudentStats {
  * GET /api/students/stats
  * Get aggregated statistics about the user's students
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient();
     const {

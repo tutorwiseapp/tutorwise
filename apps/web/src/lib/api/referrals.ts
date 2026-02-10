@@ -29,7 +29,7 @@ export interface Referral {
  * Note: The actual referrals table only tracks agent_id and referred_profile_id (migration 051)
  * For now, we create a minimal entry with just the agent (referrer)
  */
-export async function createReferral(input: CreateReferralInput): Promise<Referral> {
+export async function createReferral(_input: CreateReferralInput): Promise<Referral> {
   const supabase = createClient();
 
   // Get authenticated user

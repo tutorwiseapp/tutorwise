@@ -30,8 +30,7 @@ import MarketplaceCard, {
   CardLocation,
   CardDeliveryMode,
   CardPrice,
-  CardBookLink,
-  TrustBadge,
+    TrustBadge,
 } from './MarketplaceCard';
 
 interface OrganisationMarketplaceCardProps {

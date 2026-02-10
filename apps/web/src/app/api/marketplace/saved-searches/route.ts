@@ -17,9 +17,6 @@ import {
   createSavedSearch,
   updateSavedSearch,
   deleteSavedSearch,
-  executeSavedSearch,
-  checkForNewMatches,
-  type SearchFilters,
 } from '@/lib/services/savedSearches';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +24,7 @@ export const dynamic = 'force-dynamic';
 /**
  * GET - Fetch all saved searches for the current user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();

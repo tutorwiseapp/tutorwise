@@ -125,7 +125,7 @@ export default function AdminPayoutDetailModal({
       // TODO: Implement payout approval API
       alert('Payout approval functionality to be implemented');
       onUpdate?.();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to approve payout');
     } finally {
       setIsProcessing(false);
@@ -139,7 +139,7 @@ export default function AdminPayoutDetailModal({
       // TODO: Implement payout rejection API
       alert('Payout rejection functionality to be implemented');
       onUpdate?.();
-    } catch (error) {
+    } catch (_error) {
       alert('Failed to reject payout');
     } finally {
       setIsProcessing(false);

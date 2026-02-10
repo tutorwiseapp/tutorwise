@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { TrendingUp, TrendingDown, Users, Target, DollarSign, Calendar, ArrowRight } from 'lucide-react';
+import { TrendingUp, Users, Target, DollarSign, Calendar, ArrowRight } from 'lucide-react';
 import { SkeletonLine, SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralAnalyticsDashboard.module.css';
 
@@ -58,6 +58,7 @@ export function ReferralAnalyticsDashboard({
 
   useEffect(() => {
     loadAnalytics();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organisationId, memberId, timeRange]);
 
   const loadAnalytics = async () => {

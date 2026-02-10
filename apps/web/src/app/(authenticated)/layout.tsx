@@ -31,7 +31,7 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({
   children,
 }: AuthenticatedLayoutProps) {
-  const { profile, user, isLoading } = useUserProfile();
+  const { profile: _profile, user, isLoading } = useUserProfile();
   const router = useRouter();
 
   // Redirect unauthenticated users to login

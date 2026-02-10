@@ -58,6 +58,7 @@ export function useOfflineQueue<T>({
   // Load queue length on mount
   useEffect(() => {
     updateQueueLength();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queueKey]);
 
   // Process queue when coming back online
@@ -65,6 +66,7 @@ export function useOfflineQueue<T>({
     if (isOnline && queueLength > 0 && !isProcessing) {
       processQueue();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, queueLength]);
 
   const updateQueueLength = () => {

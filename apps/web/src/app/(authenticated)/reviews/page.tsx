@@ -24,11 +24,10 @@ import ReviewSubmissionModal from '@/app/components/feature/reviews/ReviewSubmis
 import ReviewsSkeleton from '@/app/components/feature/reviews/ReviewsSkeleton';
 import ReviewsError from '@/app/components/feature/reviews/ReviewsError';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
-import type { PendingReviewTask, ProfileReview } from '@/types/reviews';
+import type { ProfileReview } from '@/types/reviews';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -58,7 +57,7 @@ export default function ReviewsPage() {
   const {
     data: pendingData,
     isLoading: pendingLoading,
-    isFetching: pendingFetching,
+    isFetching: _pendingFetching,
     error: pendingError,
     refetch: refetchPending
   } = useQuery({
@@ -78,7 +77,7 @@ export default function ReviewsPage() {
   const {
     data: receivedData,
     isLoading: receivedLoading,
-    isFetching: receivedFetching,
+    isFetching: _receivedFetching,
     error: receivedError,
     refetch: refetchReceived
   } = useQuery({
@@ -98,7 +97,7 @@ export default function ReviewsPage() {
   const {
     data: givenData,
     isLoading: givenLoading,
-    isFetching: givenFetching,
+    isFetching: _givenFetching,
     error: givenError,
     refetch: refetchGiven
   } = useQuery({
@@ -114,7 +113,7 @@ export default function ReviewsPage() {
   });
 
   // Submit review mutation
-  const submitMutation = useMutation({
+  const _submitMutation = useMutation({
     mutationFn: submitReview,
     onSuccess: () => {
       toast.success('Review submitted successfully!');

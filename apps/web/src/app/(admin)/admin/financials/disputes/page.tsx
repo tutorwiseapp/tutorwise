@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminDisputesPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'all-disputes'>('overview');
 
   // Fetch dispute metrics with trend data from statistics table

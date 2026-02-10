@@ -80,7 +80,7 @@ const integrations: Integration[] = [
 ];
 
 export default function IntegrationsSettingsPage() {
-  const { organisation, profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
+  const { organisation, profile: _profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
     currentTab: 'integrations',
   });
 

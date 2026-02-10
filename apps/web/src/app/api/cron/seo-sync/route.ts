@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET endpoint for health check
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const supabase = await createClient();
 
   // Get last sync timestamp

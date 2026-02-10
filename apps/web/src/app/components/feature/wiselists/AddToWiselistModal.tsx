@@ -24,7 +24,7 @@ interface AddToWiselistModalProps {
 export default function AddToWiselistModal({
   isOpen,
   onClose,
-  itemId,
+  itemId: _itemId,
   profileId,
   listingId,
   onCreateWiselist,

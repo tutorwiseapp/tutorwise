@@ -15,11 +15,9 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
 import { FileText, Eye, Calendar, FileEdit, TrendingUp, Activity } from 'lucide-react';
-import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ListingsTable from './components/ListingsTable';
@@ -32,9 +30,9 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminListingsOverviewPage() {
-  const router = useRouter();
-  const canViewListings = usePermission('listings', 'view');
-  const canManageListings = usePermission('listings', 'manage');
+  const _router = useRouter();
+  const _canViewListings = usePermission('listings', 'view');
+  const _canManageListings = usePermission('listings', 'manage');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-listings'>('overview');
 
   // Fetch real-time listing counts from listings table

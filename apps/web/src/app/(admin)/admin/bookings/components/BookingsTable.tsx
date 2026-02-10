@@ -40,12 +40,10 @@ import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer'
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant, getSchedulingStatusVariant } from '@/app/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
-import { useTableState, buildTableQueryParams } from '@/hooks/useTableState';
 import {
   ADMIN_TABLE_DEFAULTS,
   BOOKING_STATUS_OPTIONS,
   SCHEDULING_STATUS_OPTIONS,
-  DATE_RANGE_OPTIONS,
 } from '@/constants/admin';
 
 export default function BookingsTable() {
@@ -556,7 +554,7 @@ export default function BookingsTable() {
   };
 
   // Advanced filter handlers
-  const handleClearFilters = () => {
+  const _handleClearFilters = () => {
     setAdvancedFilters({
       bookingType: '',
       client: '',

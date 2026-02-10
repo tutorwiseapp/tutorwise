@@ -298,7 +298,7 @@ export class UniversalCaaSStrategy implements IProfileCaaSStrategy {
    */
   private async calcTutorCredentials(
     profile: CaaSProfile,
-    supabase: SupabaseClient
+    _supabase: SupabaseClient
   ): Promise<number> {
     let score = 0;
 
@@ -413,7 +413,7 @@ export class UniversalCaaSStrategy implements IProfileCaaSStrategy {
   private async calcTrust(
     role: string,
     profile: CaaSProfile,
-    supabase: SupabaseClient
+    _supabase: SupabaseClient
   ): Promise<number> {
     let score = 0;
 

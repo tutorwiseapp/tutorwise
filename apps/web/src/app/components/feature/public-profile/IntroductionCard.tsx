@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Play, Video } from 'lucide-react';
+import { Play } from 'lucide-react';
 import type { Profile } from '@/types';
 import Card from '@/app/components/ui/data-display/Card';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';

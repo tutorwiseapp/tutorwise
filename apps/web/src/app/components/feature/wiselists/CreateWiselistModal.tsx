@@ -54,7 +54,7 @@ export default function CreateWiselistModal({
         throw new Error(error.error || 'Failed to create wiselist');
       }
 
-      const { wiselist } = await response.json();
+      const { _wiselist } = await response.json();
       toast.success('Wiselist created!');
 
       // Invalidate wiselists query to refresh the list

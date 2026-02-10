@@ -22,7 +22,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Search, ChevronDown, RefreshCw, Download, Save, X, MoreVertical, Trash2 } from 'lucide-react';
+import { Search, ChevronDown, RefreshCw, Download, Save, X, Trash2 } from 'lucide-react';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import type { HubToolbarProps } from './types';
 import styles from './HubToolbar.module.css';
@@ -35,7 +35,7 @@ export default function HubToolbar({
   filters = [],
   filterValues = {},
   onFilterChange,
-  advancedFilters = [],
+  advancedFilters: _advancedFilters = [],
   savedViews = [],
   onSaveView,
   onLoadView,

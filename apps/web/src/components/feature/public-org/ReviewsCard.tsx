@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Star, ChevronDown } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { getInitials } from '@/lib/utils/initials';
 import styles from './ReviewsCard.module.css';
 
@@ -29,9 +29,9 @@ interface ReviewsCardProps {
   organisation: any;
 }
 
-export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
+export function ReviewsCard({ reviews, organisation: _organisation }: ReviewsCardProps) {
   const [visibleCount, setVisibleCount] = useState(5);
-  const [filterRating, setFilterRating] = useState<number | 'all'>('all');
+  const [filterRating, _setFilterRating] = useState<number | 'all'>('all');
 
   // Filter reviews by rating
   const filteredReviews = filterRating === 'all'
@@ -43,7 +43,7 @@ export function ReviewsCard({ reviews, organisation }: ReviewsCardProps) {
   const hasMore = filteredReviews.length > visibleCount;
 
   // Calculate rating distribution
-  const ratingCounts = reviews.reduce((acc, review) => {
+  const _ratingCounts = reviews.reduce((acc, review) => {
     acc[review.rating] = (acc[review.rating] || 0) + 1;
     return acc;
   }, {} as Record<number, number>);

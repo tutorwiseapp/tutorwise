@@ -59,7 +59,7 @@ export function ShareModal({ isOpen, onClose, title, url, text }: ShareModalProp
       await navigator.clipboard.writeText(url);
       toast.success('Link copied to clipboard!');
       onClose();
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to copy link');
     }
   };
@@ -103,7 +103,7 @@ export function ShareModal({ isOpen, onClose, title, url, text }: ShareModalProp
           url: url,
         });
         onClose();
-      } catch (error) {
+      } catch (_error) {
         // User cancelled share
         console.log('Share cancelled');
       }

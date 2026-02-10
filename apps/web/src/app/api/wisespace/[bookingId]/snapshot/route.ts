@@ -49,7 +49,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ book
 
     // 5. Upload snapshot to Supabase Storage
     const fileName = `${bookingId}-${Date.now()}.json`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: uploadError } = await supabase.storage
       .from('booking-artifacts')
       .upload(fileName, snapshotData, {
         contentType: 'application/json',

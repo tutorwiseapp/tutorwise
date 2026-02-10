@@ -65,7 +65,7 @@ export function SimilarOrganisationsCard({
         <div className={styles.content}>
           <div className={styles.grid}>
             {filteredOrgs.map((org) => {
-              const initials = getInitials(org.name);
+              const _initials = getInitials(org.name);
               const trustBadge = getTrustBadge(org.caas_score);
               const logoUrl = org.logo_url || org.avatar_url;
 

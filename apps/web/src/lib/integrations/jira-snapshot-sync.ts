@@ -54,9 +54,9 @@ interface JiraTicketResponse {
  * return JIRA_SUPPORT_PROJECT_KEY;
  * ```
  */
-function getJiraProjectKey(snapshot: SnapshotData): string {
+function getJiraProjectKey(_snapshot: SnapshotData): string {
   const {
-    JIRA_PROJECT_KEY = 'TUTOR',
+    _JIRA_PROJECT_KEY = 'TUTOR',
     JIRA_SUPPORT_PROJECT_KEY = 'SUPPORT',
   } = process.env;
 

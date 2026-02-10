@@ -655,26 +655,20 @@ export default async function ProtectedPage() {
 }
 ```
 
-### Middleware for Route Protection
+### Proxy for URL Redirects (Next.js 16)
 ```typescript
-// middleware.ts
-import { createClient } from '@/utils/supabase/server';
+// proxy.ts (renamed from middleware.ts in Next.js 16 upgrade - 2026-01-28)
+// Route protection is handled at API/page level via Supabase auth checks
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
+export function proxy(request: NextRequest) {
+  // Add URL redirects/rewrites here as needed
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*'],
+  matcher: [],
 };
 ```
 

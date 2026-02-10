@@ -11,7 +11,7 @@ import { createClient } from '@/utils/supabase/server';
  * GET /api/admin/users
  * List all admin users
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createClient();
 
