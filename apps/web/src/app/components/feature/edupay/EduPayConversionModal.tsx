@@ -28,7 +28,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-const DESTINATION_OPTIONS: { value: Destination; label: string; description: string; disabled?: boolean }[] = [
+const DESTINATION_OPTIONS: { value: Destination; label: string; description: string; badge?: string }[] = [
   {
     value: 'student_loan',
     label: 'Student Loan',
@@ -36,15 +36,15 @@ const DESTINATION_OPTIONS: { value: Destination; label: string; description: str
   },
   {
     value: 'isa',
-    label: 'Individual Savings Account',
-    description: 'Coming soon',
-    disabled: true,
+    label: 'ISA',
+    description: 'Save into a tax-free ISA and earn interest before paying your loan',
+    badge: 'Earn interest',
   },
   {
     value: 'savings',
-    label: 'Personal Savings Account',
-    description: 'Coming soon',
-    disabled: true,
+    label: 'Savings Account',
+    description: 'Transfer to a savings account and grow your money first',
+    badge: 'Earn interest',
   },
 ];
 
@@ -234,11 +234,13 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
                 <button
                   key={opt.value}
                   type="button"
-                  className={`${styles.destCard} ${opt.disabled ? styles.destCardDisabled : destination === opt.value ? styles.destCardActive : ''}`}
-                  onClick={() => !opt.disabled && setDestination(opt.value)}
-                  disabled={opt.disabled}
+                  className={`${styles.destCard} ${destination === opt.value ? styles.destCardActive : ''}`}
+                  onClick={() => setDestination(opt.value)}
                 >
-                  <span className={styles.destLabel}>{opt.label}</span>
+                  <div className={styles.destHeader}>
+                    <span className={styles.destLabel}>{opt.label}</span>
+                    {opt.badge && <span className={styles.destBadge}>{opt.badge}</span>}
+                  </div>
                   <span className={styles.destDesc}>{opt.description}</span>
                 </button>
               ))}

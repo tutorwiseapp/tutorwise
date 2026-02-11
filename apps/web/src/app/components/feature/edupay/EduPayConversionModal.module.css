@@ -238,10 +238,31 @@
   background: #E6F0F0;
 }
 
+.destHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .destLabel {
   font-size: 0.875rem;
   font-weight: 600;
   color: #1f2937;
+}
+
+.destBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #006c67;
+  background: #E6F0F0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.destCardActive .destBadge {
+  background: #fff;
 }
 
 .destDesc {
