@@ -29,6 +29,7 @@ const inter = Inter({
 
 // Enhanced SEO Metadata (Critical for search engines and social media - Updated 2025-12-21)
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tutorwise.com'),
   title: 'Connect Clients with Credible Tutors & Educational Services | Tutorwise',
   description: 'Connect with verified, credible tutors for personalized learning. Browse workshops, study packages, and one-to-one tutoring from expert educators you can trust.',
   icons: {
