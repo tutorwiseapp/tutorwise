@@ -10,6 +10,7 @@ import matter from 'gray-matter';
 
 export interface ArticleMetadata {
   title: string;
+  subtitle?: string;
   slug: string;
   category: string;
   audience?: 'all' | 'tutor' | 'student' | 'agent';
@@ -64,6 +65,7 @@ export function parseArticle(filePath: string): Article {
 
   return {
     title: data.title,
+    subtitle: data.subtitle,
     slug: data.slug,
     category: data.category || category,
     audience: data.audience || 'all',

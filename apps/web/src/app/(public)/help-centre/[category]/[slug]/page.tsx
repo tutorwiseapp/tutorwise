@@ -11,6 +11,7 @@ export const revalidate = 600; // 10 minutes
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { getArticleBySlug, getAllArticles } from '@/lib/help-centre/articles';
 import CalloutBox from '@/app/components/help-centre/mdx/CalloutBox';
 import CodeBlock from '@/app/components/help-centre/mdx/CodeBlock';
@@ -25,6 +26,13 @@ interface ArticlePageProps {
   }>;
 }
 
+// Custom table components for MDX
+const TableWrapper = (props: React.HTMLAttributes<HTMLTableElement>) => (
+  <div className={styles.tableWrapper}>
+    <table className={styles.table} {...props} />
+  </div>
+);
+
 // MDX components mapping
 const mdxComponents = {
   CalloutBox,
@@ -32,6 +40,13 @@ const mdxComponents = {
   VideoEmbed,
   Tabs,
   Tab,
+  // Table components for GFM tables
+  table: TableWrapper,
+  thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => <thead className={styles.thead} {...props} />,
+  tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => <tbody className={styles.tbody} {...props} />,
+  tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => <tr className={styles.tr} {...props} />,
+  th: (props: React.HTMLAttributes<HTMLTableCellElement>) => <th className={styles.th} {...props} />,
+  td: (props: React.HTMLAttributes<HTMLTableCellElement>) => <td className={styles.td} {...props} />,
 };
 
 // Generate metadata for SEO
@@ -97,6 +112,9 @@ export default async function ArticlePage(props: ArticlePageProps) {
           {category.charAt(0).toUpperCase() + category.slice(1)}
         </div>
         <h1 className={styles.articleTitle}>{article.title}</h1>
+        {article.subtitle && (
+          <p className={styles.articleSubtitle}>{article.subtitle}</p>
+        )}
         <div className={styles.articleMeta}>
           {article.author && <span>By {article.author}</span>}
           {article.readTime && (
@@ -119,7 +137,15 @@ export default async function ArticlePage(props: ArticlePageProps) {
 
       {/* Article Content */}
       <div className={styles.articleContent}>
-        <MDXRemote source={article.content} components={mdxComponents} />
+        <MDXRemote
+          source={article.content}
+          components={mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+            },
+          }}
+        />
       </div>
 
       {/* Related Articles */}
