@@ -3,7 +3,8 @@
 **Document Purpose**: Strategic roadmap for EduPay feature development and market expansion.
 
 **Created**: 2026-02-10
-**Status**: Draft for Review
+**Updated**: 2026-02-11
+**Status**: Active
 
 ---
 
@@ -11,8 +12,8 @@
 
 EduPay transforms tutoring earnings into student loan repayments. This roadmap outlines the path from current MVP to full-featured platform, potential market expansion, and revenue opportunities.
 
-**Current State**: Phase 1-3 complete (EP earning, wallet, projections, TrueLayer PISP stub)
-**Next Priority**: Go live with TrueLayer, then expand features and market
+**Current State**: Phase 1-3 complete + ISA/Savings destinations (EP earning, wallet, projections, TrueLayer stub, provider linking)
+**Next Priority**: Go live with TrueLayer, then expand cashback and B2B features
 
 ### The Strategic 3-Step Framework
 
@@ -45,10 +46,13 @@ EduPay transforms tutoring earnings into student loan repayments. This roadmap o
 | EP Ledger | ✅ Complete | Full transaction history with filters |
 | Loan Profile | ✅ Complete | Plan type, balance, salary, graduation year, SLC reference |
 | Projection Widget | ✅ Complete | Years saved, interest saved, debt-free date |
-| Conversion Modal | ✅ Complete | 3-step flow: Amount → Review → Done |
+| Conversion Modal | ✅ Complete | 3-step flow with destination cards (Student Loan, ISA, Savings) |
 | TrueLayer Integration | ✅ Stub Ready | Code complete, awaiting credentials |
+| ISA/Savings Destinations | ✅ Complete | Link providers (Trading 212, Chase, Moneybox, Plum), interest projections |
+| Savings Widget | ✅ Complete | Track allocated funds and projected interest |
+| Provider Linking | ✅ Complete | Link ISA/Savings accounts with APY display |
 
-### Database Schema (6 Tables)
+### Database Schema (8 Tables)
 
 1. `edupay_wallets` - User EP balances
 2. `edupay_ledger` - Transaction history
@@ -56,8 +60,10 @@ EduPay transforms tutoring earnings into student loan repayments. This roadmap o
 4. `edupay_conversions` - Conversion requests
 5. `edupay_projections` - Cached calculations
 6. `edupay_settings` - User preferences
+7. `edupay_linked_accounts` - User's linked ISA/Savings providers
+8. `edupay_savings_allocations` - EP allocations to savings accounts
 
-### API Routes (11 Endpoints)
+### API Routes (14 Endpoints)
 
 - Wallet: GET/POST
 - Ledger: GET with filters
@@ -65,6 +71,8 @@ EduPay transforms tutoring earnings into student loan repayments. This roadmap o
 - Projection: GET (with recalculation)
 - Conversion: POST request, GET callback, GET status
 - Webhook: POST TrueLayer events
+- Linked Accounts: GET/POST
+- Savings Summary: GET (aggregated allocations)
 
 ---
 
@@ -496,4 +504,4 @@ Unlike Sprive (2-3 streams), Tutorwise + EduPay can monetise across 7+ channels:
 
 ---
 
-*Last Updated: 2026-02-10*
+*Last Updated: 2026-02-11*

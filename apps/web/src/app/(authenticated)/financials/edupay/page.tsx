@@ -23,6 +23,7 @@ import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
 import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
 import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
+import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
 import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
 import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
 import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
@@ -33,6 +34,7 @@ import {
   getEduPayLedger,
   getEduPayProjection,
   getLoanProfile,
+  getSavingsSummary,
 } from '@/lib/api/edupay';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
@@ -105,6 +107,18 @@ export default function EduPayPage() {
     queryFn: getEduPayProjection,
     enabled: !!profile?.id && !!loanProfile,
     staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  const { data: savingsSummary } = useQuery({
+    queryKey: ['edupay-savings-summary', profile?.id],
+    queryFn: getSavingsSummary,
+    enabled: !!profile?.id,
+    staleTime: 30_000,
     gcTime: 10 * 60_000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
@@ -314,6 +328,7 @@ export default function EduPayPage() {
       sidebar={
         <HubSidebar>
           <EduPayStatsWidget wallet={wallet ?? null} />
+          <EduPaySavingsWidget summary={savingsSummary ?? null} />
           <EduPayProjectionWidget
             loanProfile={loanProfile ?? null}
             wallet={wallet ?? null}
@@ -369,7 +384,9 @@ export default function EduPayPage() {
         onSuccess={() => {
           void queryClient.invalidateQueries({ queryKey: ['edupay-wallet'] });
           void queryClient.invalidateQueries({ queryKey: ['edupay-ledger'] });
+          void queryClient.invalidateQueries({ queryKey: ['edupay-savings-summary'] });
         }}
+        onOpenLoanProfile={() => setShowLoanProfileModal(true)}
       />
 
       <EduPayLoanProfileModal

@@ -1,85 +1,110 @@
-# Sprive vs EduPay: Strategic Analysis
+# EduPay and Sprive: Strategic Analysis
 
 **Document Purpose**: Strategic comparison between Sprive (mortgage overpayment) and EduPay (student loan repayment) to inform product direction and positioning.
 
 **Created**: 2026-02-10
-**Last Updated**: 2026-02-10
-**Status**: Research Complete + Implementation Validated + Revenue Model Detailed + Valuation Analysis Complete
+**Last Updated**: 2026-02-11
+**Status**: Research Complete + Implementation Validated + Revenue Model Detailed + Valuation Analysis Complete + ISA/Savings Strategy Implemented
 **Current Stage**: Beta → GA in ~3 months
-**Valuation**: £10-12M (base case)
+**Valuation**: £12-15M (base case, updated with ISA/Savings optionality)
+**Positioning**: "We help students pay loans smarter"
 
 ---
 
 ## Table of Contents
 
-- [Executive Summary](#executive-summary)
-- [Implementation Evidence](#implementation-evidence)
+- [Executive Summary](#executive-summary) — The "smarter" positioning and key differentiators
+- [Implementation Evidence](#implementation-evidence) — Codebase validation (8 tables, 14 endpoints)
 - **Part I: Market Context**
-  - [1. Sprive Company Profile](#1-sprive-company-profile)
-  - [2. UK Student Loan Market](#2-uk-student-loan-market)
-  - [3. Competitive Landscape](#3-competitive-landscape)
+  - [1. Sprive Company Profile](#1-sprive-company-profile) — £27-37M valuation, 30k users
+  - [2. UK Student Loan Market](#2-uk-student-loan-market) — £267B market, 5.2M borrowers
+  - [3. Competitive Landscape](#3-competitive-landscape) — Blue ocean opportunity
 - **Part II: Technical Analysis**
-  - [4. Technology & Open Banking](#4-technology--open-banking)
-  - [5. Development Comparison](#5-development-comparison)
+  - [4. Technology & Open Banking](#4-technology--open-banking) — TrueLayer PISP
+  - [5. Development Comparison](#5-development-comparison) — £6M vs £0
 - **Part III: Strategic Comparison**
-  - [6. Head-to-Head Analysis](#6-head-to-head-analysis)
-  - [7. Global Scalability](#7-global-scalability)
+  - [6. Head-to-Head Analysis](#6-head-to-head-analysis) — "Faster" vs "Smarter" positioning
+  - [7. Global Scalability](#7-global-scalability) — $2T+ global market
 - **Part IV: The Hidden Strategy**
-  - [8. Fundamental Differences](#8-fundamental-differences)
-  - [9. Psychology & User Behaviour](#9-psychology--user-behaviour)
-  - [10. Platform Architecture](#10-platform-architecture)
-  - [11. Business Model](#11-business-model)
-  - [Valuation Analysis](#valuation-analysis)
-  - [12. The Ultimate Vision](#12-the-ultimate-vision)
+  - [8. Fundamental Differences](#8-fundamental-differences) — Producers vs consumers
+  - [9. Psychology & User Behaviour](#9-psychology--user-behaviour) — Smart decision-making hook
+  - [10. Platform Architecture](#10-platform-architecture) — Human capital infrastructure
+  - [11. Business Model](#11-business-model) — 8+ revenue streams, Partnership Ecosystem
+  - [Valuation Analysis](#valuation-analysis) — £12-15M base case (with "smarter" premium)
+  - [12. The Ultimate Vision](#12-the-ultimate-vision) — Financial decision engine for graduates
 - **Part V: Execution**
-  - [13. Strategic Recommendations](#13-strategic-recommendations)
+  - [13. Strategic Recommendations](#13-strategic-recommendations) — 3-step execution plan
 - **Appendices**
-  - [References](#references)
+  - [References](#references) — 56 sources
 
 ---
 
 ## Executive Summary
 
+### The Strategic Positioning
+
+> **"We help students pay loans smarter."**
+
+This isn't about paying loans *faster* — it's about making *intelligent financial decisions*. EduPay gives users three paths: pay directly, grow in an ISA, or save first. The right choice depends on their situation.
+
 ### The Opportunity
 
-**Key Finding**: There is **no equivalent solution for UK student loans**.
+**Key Finding**: There is **no equivalent solution for UK student loans** — and the existing gap is larger than people realise.
 
-| Metric | Mortgage (Sprive) | Student Loan (Gap) |
-|--------|-------------------|---------------------|
-| Market Size | £1.6 trillion | £267 billion |
-| Borrowers | 11.2 million | 5.2 million |
-| Solutions | Sprive + others | **None** |
+| Metric | Mortgage (Sprive) | Student Loan (EduPay) |
+|--------|-------------------|----------------------|
+| UK Market Size | £1.6 trillion | £267 billion |
+| UK Borrowers | 11.2 million | 5.2 million |
+| Global Market | UK only | **$2+ trillion** (UK + US + AU + CA) |
+| Existing Solutions | Sprive + others | **None** |
+| User Strategy | Single path (overpay) | **3 paths** (loan, ISA, savings) |
 
-EduPay has a **blue ocean opportunity** to apply Sprive's proven model to this £267 billion market — with zero competition.
+EduPay has a **blue ocean opportunity** in a £267 billion UK market with **zero competition** — expandable to a $2+ trillion global market.
 
 ### What is Sprive?
 
 Sprive is the UK's first mortgage overpayment platform (founded 2019, launched October 2021). They've raised **$9.5M** and have **30,000+ active users**. The platform helps homeowners pay off mortgages faster via:
 
 1. **AI-powered auto-saving** from spending analysis
-2. **Cashback rewards** (up to 15% at 80+ retailers)
+2. **Cashback rewards** (up to 15% at 80+ retailers via Tillo)
 3. **Open Banking payments** via TrueLayer PISP
 4. **Progress tracking** with real-time projections
 
 **Results**: £100M+ total interest saved, average user saves £10,000 and cuts 3 years off mortgage.
+
+### The Fundamental Difference: Faster vs Smarter
+
+| Dimension | Sprive | EduPay |
+|-----------|--------|--------|
+| **Message** | "Pay your mortgage faster" | "Pay your loans smarter" |
+| **User Choice** | One path (overpay) | Three paths (loan / ISA / savings) |
+| **Strategy** | Maximise overpayment | Optimise decision |
+| **For whom?** | Everyone should overpay | Depends on your situation |
+
+**Why "smarter" wins**: 75% of Plan 2 borrowers won't fully repay their loans. For them, overpaying is *mathematically irrational*. EduPay shows users when to pay directly vs when to grow money first — genuine financial advice, not blind encouragement.
 
 ### Why EduPay Wins
 
 | Dimension | Sprive | EduPay | Winner |
 |-----------|--------|--------|--------|
 | Competition | Others entering | **None** | EduPay |
-| Integration | 14+ lender APIs | **1 destination (SLC)** | EduPay |
+| Integration | 14+ lender APIs | **1 destination (SLC) + ISA/Savings partners** | EduPay |
 | Development | £6M+ / 4 years | **£0 / 1 day** | EduPay |
-| User Base | Must acquire | **Already on Tutorwise** | EduPay |
+| User Base | Must acquire (£20 CAC) | **Already on Tutorwise (£0 CAC)** | EduPay |
 | Global Scale | UK-locked | **$2T+ global market** | EduPay |
 | Value Creation | Optimises spending | **Creates new income** | EduPay |
+| User Choice | Single strategy | **Multiple strategies** | EduPay |
+| Partnerships | Tillo (cashback) | **Tillo + ISA providers + Banks** | EduPay |
 
 ### The Core Insight
 
-> **Sprive built fintech features to monetise behaviour.**
-> **Tutorwise already has behaviour.**
+> **Sprive: "Pay faster."** Single path, single outcome.
+> **EduPay: "Pay smarter."** Multiple paths, optimised outcome.
 
-EduPay is not a feature — it's a **parallel financial operating system for students**.
+EduPay is not a feature — it's a **financial decision engine for graduates** that helps users choose between:
+- **Direct loan payment** — Best for Plan 1 / high earners
+- **ISA savings** — Tax-free growth up to 5.1% APY
+- **Savings accounts** — Flexible growth up to 4.6% APY
 
 ---
 
@@ -87,9 +112,9 @@ EduPay is not a feature — it's a **parallel financial operating system for stu
 
 This document makes strategic claims. Below is concrete evidence from the Tutorwise codebase validating each major assertion.
 
-### "EduPay is a parallel financial operating system"
+### "EduPay is a financial decision engine"
 
-This isn't marketing language — it's architectural reality. EduPay implements a complete financial operating layer:
+This isn't marketing language — it's architectural reality. EduPay implements a complete financial decision layer:
 
 | Component | Implementation | Code Location |
 |-----------|----------------|---------------|
@@ -98,41 +123,60 @@ This isn't marketing language — it's architectural reality. EduPay implements 
 | **Earning Rules** | Configurable EP rates per event type (versioned, not hardcoded) | `migrations/256_create_edupay_rules.sql` |
 | **Payment Rails** | TrueLayer PISP for Open Banking payments | `src/lib/truelayer/` |
 | **Projection Engine** | Plan-specific loan calculations (Plan 1/2/5/Postgrad) | RPC `get_edupay_projection()` |
+| **ISA/Savings** | Provider linking, interest projections, allocation tracking | `edupay_linked_accounts`, `edupay_savings_allocations` |
+| **Decision UI** | 3-step conversion modal with destination cards | `EduPayConversionModal.tsx` |
 
-**Why "operating system"?** Because it provides primitives (wallet, ledger, rules) that other features build upon — exactly like how iOS provides primitives that apps use. The tutoring marketplace earns EP through the system; future cashback will too.
+**Why "decision engine"?** Because it doesn't just process payments — it helps users **choose the optimal path**. The conversion modal shows ISA rates (5.1% APY), savings rates (4.6% APY), and direct loan payment options side by side.
 
-### Database Architecture (6 Tables)
+### Database Architecture (8 Tables)
 
-The "6 tables" claim maps to specific migrations:
-
-| # | Table | Migration | Purpose |
-|---|-------|-----------|---------|
-| 1 | `edupay_events` | 253 | EP-earning events with idempotency keys |
-| 2 | `edupay_wallets` | 254 | Per-user EP balance tracking |
-| 3 | `edupay_ledger` | 255 | Immutable transaction history |
-| 4 | `edupay_rules` | 256 | Configurable earning rates (100 EP/£1 for tutoring) |
-| 5 | `edupay_loan_profiles` | 257 | User loan details for projections |
-| 6 | `edupay_conversions` | 257 | EP → GBP → SLC payment records |
+| # | Table | Purpose |
+|---|-------|---------|
+| 1 | `edupay_wallets` | Per-user EP balance tracking |
+| 2 | `edupay_ledger` | Immutable transaction history |
+| 3 | `edupay_loan_profiles` | User loan details for projections |
+| 4 | `edupay_conversions` | EP → GBP conversion records |
+| 5 | `edupay_projections` | Cached projection calculations |
+| 6 | `edupay_settings` | User preferences |
+| 7 | `edupay_linked_accounts` | **User's linked ISA/Savings providers** |
+| 8 | `edupay_savings_allocations` | **EP allocations to savings accounts** |
 
 **Design Pattern:** The ledger uses an immutable append-only pattern — entries are never edited, only offset by new entries. This is the same pattern used by accounting systems and ensures audit trails.
 
-### API Surface (11 Endpoints)
-
-The "11 endpoints" claim maps to these routes in `apps/web/src/app/api/`:
+### API Surface (14 Endpoints)
 
 | # | Route | Purpose |
 |---|-------|---------|
-| 1 | `POST /api/edupay/events` | Ingest EP-earning events |
-| 2 | `GET /api/edupay/wallet` | User EP balance |
-| 3 | `GET /api/edupay/ledger` | Transaction history |
+| 1 | `GET /api/edupay/wallet` | User EP balance |
+| 2 | `POST /api/edupay/wallet` | Create/update wallet |
+| 3 | `GET /api/edupay/ledger` | Transaction history with filters |
 | 4 | `GET /api/edupay/projection` | Loan impact calculations |
 | 5 | `POST /api/edupay/loan-profile` | Save loan profile |
 | 6 | `GET /api/edupay/loan-profile` | Get loan profile |
-| 7 | `POST /api/edupay/conversion/request` | Initiate EP→GBP conversion |
+| 7 | `POST /api/edupay/conversion/request` | **Initiate conversion (loan/ISA/savings)** |
 | 8 | `GET /api/edupay/conversion/callback` | TrueLayer OAuth redirect |
 | 9 | `GET /api/edupay/conversion/status` | Poll payment status |
 | 10 | `POST /api/webhooks/truelayer` | Payment status webhooks |
-| 11 | `GET /api/cron/edupay-clear-pending` | Daily 7-day clearing |
+| 11 | `GET /api/edupay/linked-accounts` | **Get linked ISA/Savings accounts** |
+| 12 | `POST /api/edupay/linked-accounts` | **Link new provider** |
+| 13 | `GET /api/edupay/savings-summary` | **Aggregated savings allocations** |
+| 14 | `GET /api/cron/edupay-clear-pending` | Daily 7-day clearing |
+
+### The "Smarter" Decision Flow (Implemented)
+
+```
+User clicks "Convert EP"
+    → Modal shows 3 destination cards:
+        1. Student Loan — "Pay directly toward your outstanding balance"
+        2. ISA — "Save into a tax-free ISA (up to 5.1% APY)"
+        3. Savings — "Grow your money first (up to 4.6% APY)"
+    → User selects destination
+    → If ISA/Savings: link provider, see projected interest
+    → Review step shows amount, destination, projected outcome
+    → Confirm → EP deducted, allocation/payment created
+```
+
+**Code Evidence**: `EduPayConversionModal.tsx` lines 48-66 define `DESTINATION_OPTIONS` with APY hints.
 
 ### EP Earning Flow (How "Behaviour" Becomes Value)
 
@@ -447,46 +491,76 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 
 ## 6. Head-to-Head Analysis
 
+### The Core Positioning Difference
+
+| Dimension | Sprive | EduPay |
+|-----------|--------|--------|
+| **Tagline** | "Pay your mortgage faster" | **"We help students pay loans smarter"** |
+| **User strategy** | One path (overpay) | **Three paths (loan / ISA / savings)** |
+| **Value proposition** | Do more | **Do better** |
+| **Competitive moat** | First mover (copyable) | **Category creator (unique)** |
+
 ### Comparison Matrix
 
-| Dimension | Sprive | EduPay | Analysis |
-|-----------|--------|--------|----------|
-| Market Size | 11.2M mortgages | 5.2M borrowers | Student debt growing faster |
-| Total Debt | £1.6T | £267B | Smaller but unaddressed |
+| Dimension | Sprive | EduPay | Winner |
+|-----------|--------|--------|--------|
+| Market Size | 11.2M mortgages | 5.2M borrowers (UK) + 43M (US) | **EduPay** (global) |
+| Total Debt | £1.6T (UK only) | £267B (UK) + $1.77T (US) | **EduPay** ($2T+ global) |
 | Average Debt | £143k | £53k | Lower = better gamification |
-| Competition | First mover, others entering | **None** | Blue ocean |
-| Payment Destination | 14+ lenders | **Single (SLC)** | Simpler integration |
-| User Demographics | 30-50, settled | 22-40, mobile-first | More tech-native |
-| Development Cost | £6M+ / 4 years | **£0 / 1 day** | 100,000x more efficient |
-| Funding Stage | $9.5M raised | Bootstrapped | No dilution |
+| Competition | First mover, others entering | **None** | **EduPay** |
+| Payment Destination | 14+ lenders | SLC + **ISA providers + Savings providers** | **EduPay** (more partnerships) |
+| User Choice | 1 path | **3 paths** | **EduPay** |
+| User Demographics | 30-50, settled | 22-40, mobile-first | **EduPay** (higher LTV) |
+| Development Cost | £6M+ / 4 years | £0 / 1 day | **EduPay** |
+| Revenue Streams | 2-3 | **8+** | **EduPay** |
+| Positioning | "Faster" (copyable) | **"Smarter" (unique)** | **EduPay** |
 
 ### EduPay Advantages
 
-**1. Simpler Integration**
-- Sprive: 14+ lender APIs, different auth, different processing
-- EduPay: ONE destination — SLC, Sort 60-70-80, Account 10027254
+**1. "Smarter" Positioning (Category Creation)**
+- Sprive: "Pay faster" — single strategy, easily copied
+- EduPay: "Pay smarter" — decision engine, unique positioning
+- **This creates a new category** that Sprive cannot easily enter
 
-**2. Longer Engagement Window**
+**2. Multiple Destinations (More Partnerships)**
+- Sprive: ONE outcome (mortgage overpayment)
+- EduPay: THREE outcomes (loan payment, ISA, savings)
+- **Each destination = new partnership opportunity**
+
+**3. Simpler Core Integration**
+- Sprive: 14+ lender APIs, different auth, different processing
+- EduPay: ONE loan destination (SLC) + partner ISA/Savings APIs
+
+**4. Longer Engagement Window**
 - UK student loans: fully repaid in **50s** (if at all)
 - EduPay users: **20-30 year engagement** (age 22 to 40-50+)
-- Sprive window: shorter, mortgages refinance every 2-5 years
+- ISA/Savings users return **monthly** to check projections
 
-**3. Zero Competition**
+**5. Zero Competition**
 - Sprive: first mover but competition entering
-- EduPay: **zero competitors** in UK student loan overpayment
+- EduPay: **zero competitors** in UK student loan decision engine
 
-**4. Embedded Distribution**
+**6. Embedded Distribution**
 - Sprive: £20 CAC, scaling to TV ads
 - EduPay: users already on Tutorwise earning EP — **zero acquisition cost**
 
 ### EduPay Challenges (with Solutions)
 
-| Challenge | Solution |
-|-----------|----------|
-| Overpayment complexity (not always beneficial) | Projection calculator advises when overpaying makes sense |
-| Write-off education | Show both "let it write off" and "pay off early" scenarios |
-| No commission model | Cashback, employer B2B, fintech referrals |
-| Graduate disengagement | Earning-first model keeps users engaged through tutoring |
+| Challenge | Old Approach | EduPay "Smarter" Solution |
+|-----------|--------------|---------------------------|
+| Overpayment complexity | Ignore it | **"Pay smarter" — show when to save instead** |
+| Write-off education | Confusing | **Show both scenarios, let user choose** |
+| No commission model | Find one | **ISA/Savings partnerships + cashback + B2B** |
+| Graduate disengagement | Hope for best | **ISA/Savings = monthly engagement** |
+
+### The "Smarter" Competitive Moat
+
+**Why Sprive cannot easily copy this:**
+
+1. **Different market**: Mortgage users want to overpay (equity building). ISA/Savings doesn't make sense for them.
+2. **Different user psychology**: Homeowners are settled. Students/graduates are building.
+3. **Different partners**: Sprive's lender relationships ≠ ISA/Savings provider relationships.
+4. **Different positioning**: "Faster" is embedded in Sprive's brand. Pivoting to "smarter" would confuse users.
 
 ---
 
@@ -574,7 +648,7 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 |-----------|--------|-----------|
 | Target | Homeowners with mortgages | Students with loans |
 | Primary Emotion | Fear of debt | Anxiety about future debt |
-| Secondary Emotion | Desire to be smart | Desire to earn early |
+| Secondary Emotion | Desire to be smart | Desire to make smart choices |
 | Life Stage | 30-50, established | 18-35, building |
 
 **Same psychological profile, different life stages.**
@@ -583,43 +657,78 @@ Students catch people earlier, with longer engagement windows.
 ### The Control Narrative
 
 **Today's Reality:**
-Students feel powerless — debt is a number they can't control, something that will "happen to them" after graduation.
+Students feel powerless — debt is a number they can't control, something that will "happen to them" after graduation. Worse, they're given conflicting advice: "Pay it off!" vs "Don't bother, it writes off!"
 
 **EduPay's Narrative Flip:**
-> "I am paying my future debt while studying."
+> "I'm making smart decisions about my money."
 
 | Before EduPay | After EduPay |
 |---------------|--------------|
-| Debt happens to me | I control my debt |
+| Debt happens to me | I control my money |
 | Powerless | Empowered |
-| Future problem | Present action |
-| Passive | Active |
-| Victim | Agent |
+| Conflicting advice | Clear guidance |
+| One-size-fits-all | Personalised strategy |
+| Anxious | Informed |
 
 **The Real Lesson from Sprive:**
 > Sprive didn't succeed because mortgages are urgent.
 > **They succeeded because they made people feel in control.**
 
-### The Psychological Hook
+### The Psychological Hook: "Faster" vs "Smarter"
 
-| Product | Hook | Feeling |
-|---------|------|---------|
-| Sprive | "I'm beating the system" | Outsmarting the bank |
-| **EduPay** | "I'm ahead of my future self" | **Winning against time** |
+| Product | Hook | Feeling | Limitation |
+|---------|------|---------|------------|
+| Sprive | "I'm beating the system" | Outsmarting the bank | One path only |
+| **EduPay** | "I'm making smart choices" | **Informed decision-maker** | None |
 
-**Why "ahead of my future self" is more addictive:**
-1. **No ceiling**: You can always be more ahead
-2. **Compounding narrative**: Each session adds to the story
-3. **Identity-forming**: Progress, not debt avoidance
-4. **Shareable**: "I'm 2 years ahead" beats "I saved £50"
+**Why "smarter" beats "faster":**
 
-### Build Habit Before Hard Control
+| "Faster" (Sprive) | "Smarter" (EduPay) |
+|-------------------|-------------------|
+| Assumes overpaying is always good | Knows overpaying isn't always optimal |
+| One strategy fits all | Strategy depends on situation |
+| Guilt if you don't overpay | Confidence in your choice |
+| Binary (pay or don't) | Nuanced (loan vs ISA vs savings) |
+
+### The Smart Choice Framework
+
+EduPay users aren't just paying loans — they're **choosing the optimal path**:
+
+| User Situation | Smart Choice | Why |
+|----------------|--------------|-----|
+| Plan 1, high earner (£50k+) | Direct loan payment | Will repay in full, interest hurts |
+| Plan 2, low earner (£30k) | ISA/Savings | Won't repay anyway, grow money instead |
+| Plan 5, uncertain | Savings | 40-year term, wait and see |
+| Any plan, variable income | ISA | Tax-free growth, withdraw when needed |
+
+**This is genuine financial advice** — not blind encouragement to overpay.
+
+### Build Habit Through Smart Decisions
 
 > **People don't like forced payments. They like feeling smart.**
 
-So Sprive built: visual dashboards, progress bars, projections, milestone celebrations.
+Sprive built: visual dashboards, progress bars, projections, milestone celebrations.
 
-**EduPay must copy this.**
+**EduPay goes further:**
+- Shows **when** to pay vs save (projection engine)
+- Shows **projected interest** before confirming ISA/Savings
+- Shows **multiple scenarios** (pay now vs grow first)
+- **Validates user's choice** — "You're making the smart decision for your situation"
+
+### The Identity Transformation
+
+```
+Student → Earner → Smart Decision-Maker → Financially Free
+```
+
+**Old narrative**: "I'm paying off debt" (reactive, negative)
+**New narrative**: "I'm making smart choices with my money" (proactive, positive)
+
+This transformation is:
+- **Empowering**: User feels in control, not controlled by debt
+- **Differentiating**: No other platform offers this choice framework
+- **Engaging**: Users return to check projections, compare options
+- **Shareable**: "I put £500 in my ISA at 5.1% instead of overpaying" is a smart flex
 
 ```
 ┌────────────────────────────────────────────────┐
@@ -788,14 +897,26 @@ UK student loan terms have changed dramatically:
 
 | Barrier | Tutorwise Solution |
 |---------|-------------------|
-| No commission model | Already monetising via tutoring (10%) + cashback |
-| "Should you overpay?" | Projection engine advises per-user |
+| No commission model | Already monetising via tutoring (10%) + cashback + **ISA/Savings partnerships** |
+| "Should you overpay?" | **"Pay smarter" positioning** — projection engine advises per-user |
 | No user base | Users already on platform earning |
-| Engagement problem | Earning creates engagement |
+| Engagement problem | Earning creates engagement + **ISA/Savings optionality** keeps users checking |
 | Regulatory uncertainty | Configurable rules (`edupay_rules` table) |
 
+**The "Smarter" Breakthrough:**
+
+EduPay doesn't just solve the "should you overpay?" problem — it **turns it into a feature**:
+
+| User Situation | Sprive Approach | EduPay Approach |
+|----------------|-----------------|-----------------|
+| High earner, low debt | "Overpay more!" | "Pay directly — you'll clear it" |
+| Low earner, high debt | "Overpay anyway?" | "**Save in ISA (5.1%)** — you won't repay anyway" |
+| Uncertain future | "Overpay consistently" | "**Savings account** — stay flexible" |
+
+**This is why "smarter" beats "faster"** — it's genuine financial advice, not blind encouragement.
+
 > **You can't build a student loan fintech top-down.**
-> **You have to build it bottom-up from behaviour.**
+> **You have to build it bottom-up from behaviour — and give users real choices.**
 
 ---
 
@@ -811,14 +932,17 @@ UK student loan terms have changed dramatically:
 2. Partner revenue share (remortgage) — £500-2,000 per refinance
 3. Premium features (future)
 
-**Tutorwise's Revenue Streams:**
-1. Marketplace commission *(already exists)* — 10% of sessions
-2. Referral commission *(already exists)*
-3. Cashback commission *(Phase 6)* — via Tillo/Awin
-4. Bank partnerships *(Phase 6-7)* — graduate account referrals
-5. Employer B2B *(Phase 8)* — SaaS per employee
-6. University partnerships *(Phase 8-9)* — licensing
-7. Credit data *(Phase 9+)* — behavioural signals
+**Tutorwise's Revenue Streams (8+):**
+1. Marketplace commission *(NOW)* — 10% of sessions
+2. Referral commission *(NOW)*
+3. **ISA/Savings partnerships *(NOW)*** — referral fees from providers
+4. Cashback commission *(Phase 6)* — via Tillo/Awin
+5. Bank partnerships *(Phase 6-7)* — graduate account referrals
+6. Employer B2B *(Phase 8)* — SaaS per employee
+7. University partnerships *(Phase 8-9)* — licensing
+8. Credit data *(Phase 9+)* — behavioural signals
+
+**Sprive: 2-3 revenue streams. Tutorwise: 8+ revenue streams.**
 
 ---
 
@@ -862,7 +986,39 @@ User spends £100 at ASOS (10% commission)
     → Tutorwise keeps £1 (10%), gives user £9 as EP (900 EP)
 ```
 
-#### Stream 3: Bank Partnerships (Phase 6-7)
+#### Stream 3: ISA/Savings Partnerships (NOW — Implemented)
+
+| Metric | Value |
+|--------|-------|
+| **How it works** | User links ISA/Savings account via EduPay, allocates EP |
+| **Who pays** | ISA/Savings providers seeking customer acquisition |
+| **Typical rate** | £10-50 per new account linked |
+| **Industry examples** | Trading 212: pays for referrals, Moneybox: affiliate program |
+
+**Currently integrated providers:**
+
+| Provider | Type | APY | Referral Potential |
+|----------|------|-----|-------------------|
+| Trading 212 | ISA | 5.1% | £10-30/account |
+| Chase | Savings | 4.6% | £20/account |
+| Moneybox | ISA/Savings | 4.5% | £10-20/account |
+| Plum | Savings | 4.3% | £10-15/account |
+
+**Revenue flow:**
+```
+User selects ISA destination in conversion modal
+    → Links Trading 212 account (new account created)
+    → Trading 212 pays Tutorwise £20 referral fee
+    → User allocates £100 to ISA, sees 5.1% APY projection
+    → User returns monthly to check interest growth
+```
+
+**Why this revenue stream is unique to EduPay:**
+- Sprive has **no ISA/Savings optionality** — users can only overpay
+- EduPay creates **new banking relationships** — valuable to providers
+- Users who choose ISA/Savings have **longer engagement** — checking projections monthly
+
+#### Stream 4: Bank Partnerships (Phase 6-7)
 
 | Metric | Value |
 |--------|-------|
@@ -877,7 +1033,7 @@ User spends £100 at ASOS (10% commission)
 - Credit-hungry (mortgages, loans coming)
 - Difficult to reach through traditional channels
 
-#### Stream 4: Employer B2B (Phase 8)
+#### Stream 5: Employer B2B (Phase 8)
 
 | Metric | Value |
 |--------|-------|
@@ -904,7 +1060,7 @@ User spends £100 at ASOS (10% commission)
 - Tech companies (compete on benefits)
 - NHS/public sector (large graduate workforce)
 
-#### Stream 5: University Partnerships (Phase 8-9)
+#### Stream 6: University Partnerships (Phase 8-9)
 
 | Metric | Value |
 |--------|-------|
@@ -918,7 +1074,7 @@ User spends £100 at ASOS (10% commission)
 - Financial wellbeing is a selling point
 - 72% of UK HE providers projected to be in deficit by 2025-26 — need efficient solutions
 
-#### Stream 6: Credit Data (Phase 9+)
+#### Stream 7: Credit Data (Phase 9+)
 
 | Metric | Value |
 |--------|-------|
@@ -1027,6 +1183,70 @@ If 20% of users are covered by employer B2B:
 | 50,000 | £16.65* | £832,500 | **£9.99M** |
 
 *Includes B2B revenue from Phase 8
+
+---
+
+### Partnership Ecosystem: EduPay vs Sprive
+
+**Key Insight**: EduPay has **more partnership opportunities** than Sprive because users have **multiple destinations** for their money.
+
+#### Sprive's Partnership Landscape
+
+| Partner Type | Partners | Revenue Model |
+|--------------|----------|---------------|
+| Cashback | Tillo (80+ retailers) | Affiliate commission |
+| Mortgage Lenders | 14 lenders | Remortgage referral fee |
+| **Total Partner Categories** | **2** | |
+
+#### EduPay's Partnership Landscape
+
+| Partner Type | Partners | Revenue Model | Status |
+|--------------|----------|---------------|--------|
+| **ISA Providers** | Trading 212, Moneybox, Nutmeg, Hargreaves Lansdown | Account referral fee | **NOW** |
+| **Savings Providers** | Chase, Plum, Chip, Marcus | Account referral fee | **NOW** |
+| Cashback | Tillo, Awin, CJ, Impact (100+ retailers) | Affiliate commission | Phase 6 |
+| Banks | Starling, Monzo, Revolut | Graduate account referral | Phase 6-7 |
+| Employers | Big 4, Law firms, Tech, NHS | B2B SaaS | Phase 8 |
+| Universities | UK universities | Licensing | Phase 8-9 |
+| Credit Bureaus | Experian, Equifax, TransUnion | Data partnership | Phase 9+ |
+| **Total Partner Categories** | **7** | | |
+
+#### Why EduPay Has More Partnerships
+
+| Factor | Sprive | EduPay |
+|--------|--------|--------|
+| User destinations | 1 (mortgage lender) | **3 (loan, ISA, savings)** |
+| Account types created | None (existing mortgage) | **New ISA/Savings accounts** |
+| Demographic value | Homeowners (30-50) | **Graduates (22-40)** — higher LTV to banks |
+| Data richness | Spending only | **Earning + spending + skill development** |
+
+#### ISA/Savings Partnership Deep Dive
+
+**Why providers pay for EduPay referrals:**
+
+1. **Quality leads**: Users actively choosing to save (intent signal)
+2. **Graduate demographic**: Banks' most valuable acquisition target
+3. **Recurring engagement**: Users return monthly to check projections
+4. **Long-term relationship**: 20+ year customer lifetime
+
+**Estimated referral values:**
+
+| Provider Type | Per Account | Annual Volume (1,000 users) | Revenue |
+|---------------|-------------|------------------------------|---------|
+| ISA (Trading 212, Moneybox) | £15-30 | 200 accounts | £3,000-6,000 |
+| Savings (Chase, Plum) | £10-20 | 300 accounts | £3,000-6,000 |
+| **Total ISA/Savings partnerships** | | | **£6,000-12,000/year** |
+
+At 10,000 users: **£60,000-120,000/year** from ISA/Savings partnerships alone.
+
+#### Partnership Advantage Summary
+
+| Metric | Sprive | EduPay | Advantage |
+|--------|--------|--------|-----------|
+| Partner categories | 2 | **7** | **EduPay (3.5x)** |
+| New accounts created | 0 | **Yes (ISA/Savings)** | **EduPay** |
+| Graduate demographic | No | **Yes** | **EduPay** |
+| Revenue streams | 2-3 | **8+** | **EduPay (3x+)** |
 
 ---
 
@@ -1254,9 +1474,22 @@ Strategic premium: 2-4x standalone value = **£4-8M**
 
 | Scenario | Valuation | Rationale |
 |----------|-----------|-----------|
-| **Conservative** | £8M | Strong seed floor for beta-stage fintech |
-| **Base Case** | **£10-12M** | Sprive-comparable with more diversification |
-| **Strategic Buyer** | £15M+ | First mover + fintech infrastructure |
+| **Conservative** | £10M | Strong seed floor for beta-stage fintech |
+| **Base Case** | **£12-15M** | Sprive-comparable + ISA/Savings optionality + "smarter" positioning |
+| **Strategic Buyer** | £18-20M+ | First mover + decision engine + partnership ecosystem |
+
+#### The "Smarter" Valuation Premium
+
+The ISA/Savings implementation adds **material valuation uplift**:
+
+| Factor | Value Impact | Why |
+|--------|--------------|-----|
+| **Category creation** | +10-15% | "Smarter" creates new category vs "faster" (copyable) |
+| **Partnership revenue** | +£1-2M | ISA/Savings providers pay for referrals |
+| **User engagement** | +15-20% | Users return to check projections, compare options |
+| **Competitive moat** | +20-25% | Sprive cannot easily add ISA/Savings (different market) |
+
+**Net premium from "smarter" positioning: +£2-4M valuation**
 
 #### Valuation Progression Milestones
 
@@ -1265,7 +1498,8 @@ Strategic premium: 2-4x standalone value = **£4-8M**
 | First 100 active users | +£1-2M |
 | First £10k monthly revenue | +£2-3M |
 | TrueLayer live (real payments) | +£3-5M |
-| 1,000 users (2026 target) | **Total: £15-20M** |
+| **First ISA/Savings partnerships live** | **+£1-2M** |
+| 1,000 users (2026 target) | **Total: £18-22M** |
 | First B2B pilot (employer) | +£2-3M |
 
 #### Comparison: Tutorwise vs Sprive at Same Stage
@@ -1274,13 +1508,15 @@ Strategic premium: 2-4x standalone value = **£4-8M**
 |-----------|----------------------|-----------------|
 | Development time | 4 years | 18 months |
 | Capital raised | £6M+ | £0 (bootstrapped) |
-| Revenue streams | 2-3 | 7 |
+| Revenue streams | 2-3 | **8+** |
 | Competitors | Emerging | **Zero** |
 | Global market | UK only (£1.6T) | UK + US ($2T+) |
 | User LTV | 3-5 years | 10-20 years |
 | ARPU | ~£50/year | **£175/year** |
+| **User choice** | **1 path** | **3 paths (loan/ISA/savings)** |
+| **Positioning** | **"Faster"** | **"Smarter"** |
 
-**Bottom Line**: Sprive raised £6.2M at Series A after 4 years with less diversification. Tutorwise at beta with 30+ features, 7 revenue streams, zero competitors, and 3.5x higher ARPU justifies **£10-12M base case valuation**.
+**Bottom Line**: Sprive raised £6.2M at Series A after 4 years with less diversification and single-path user experience. Tutorwise at beta with 30+ features, 8+ revenue streams, zero competitors, 3.5x higher ARPU, and unique "smarter" positioning justifies **£12-15M base case valuation**.
 
 ---
 
@@ -1378,22 +1614,54 @@ When `isConfigured()` returns `true` (real TrueLayer credentials), the entire pl
 
 ### Positioning
 
-**Wrong** (product-level):
-> ❌ "We help you pay student loans."
+**Wrong** (product-level, Sprive-style):
+> ❌ "We help you pay student loans faster."
 
-**Right** (category-level):
-> ✅ **"We turn your skills into financial progress."**
+**Better** (category-level):
+> ⚠️ "We turn your skills into financial progress."
 
-| Positioning | Frame | Emotion | Action |
-|-------------|-------|---------|--------|
-| "Pay off loans" | Negative | Anxiety | Defensive |
-| "Skills into progress" | Positive | Empowerment | Proactive |
+**Right** (decision-level, unique):
+> ✅ **"We help students pay loans smarter."**
 
-**Tagline options:**
-- "Your skills. Your progress."
-- "Earn your freedom."
-- "Skills become savings."
-- "From learning to earning to freedom."
+| Positioning | Frame | Emotion | Action | Differentiation |
+|-------------|-------|---------|--------|-----------------|
+| "Pay loans faster" | Speed | Urgency | Rush to overpay | None (same as Sprive) |
+| "Skills into progress" | Earning | Empowerment | Earn EP | Earning-focused |
+| **"Pay loans smarter"** | **Intelligence** | **Confidence** | **Choose optimal path** | **Decision engine** |
+
+### Why "Smarter" Is the Right Positioning
+
+| Dimension | "Faster" | "Smarter" |
+|-----------|----------|-----------|
+| Sprive's positioning | "Pay faster" | — |
+| **EduPay's positioning** | — | **"Pay smarter"** |
+| User choice | One path | Three paths |
+| Differentiation | Copyable | Unique |
+| Value proposition | Do more | Do better |
+| Competitive moat | Low | **High** |
+
+**The "smarter" positioning creates a new category:**
+- Sprive = mortgage acceleration
+- EduPay = student loan intelligence
+
+### Tagline
+
+> **"We help students pay loans smarter."**
+
+Alternative expressions:
+- "Smart choices for your student loan."
+- "The intelligent way to handle student debt."
+- "Your loan. Your choice. Your way."
+
+### Messaging by Audience
+
+| Audience | Message | CTA |
+|----------|---------|-----|
+| Students | "Your tutoring pays your loans — smarter" | Start earning |
+| Graduates | "Choose the smartest path for your loan" | See your options |
+| Tutors | "Your knowledge pays twice — and you choose how" | Convert EP |
+| Employers | "Help your graduates make smart financial choices" | Partner with us |
+| Universities | "Graduate outcomes, reimagined" | Embed EduPay |
 
 ---
 

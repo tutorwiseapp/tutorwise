@@ -114,3 +114,124 @@ export async function requestConversion(data: ConversionInput): Promise<Conversi
   }
   return res.json() as Promise<ConversionResponse>;
 }
+
+// ============================================================================
+// Linked Accounts (ISA/Savings providers)
+// ============================================================================
+
+export interface LinkedAccount {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  provider_name: string;
+  provider_type: 'isa' | 'savings';
+  provider_logo_url: string | null;
+  account_name: string | null;
+  account_last4: string | null;
+  interest_rate: number;
+  status: 'active' | 'disconnected';
+  is_mock: boolean;
+  connected_at: string;
+}
+
+export interface LinkAccountInput {
+  provider_id: string;
+  account_name?: string;
+}
+
+export async function getLinkedAccounts(): Promise<LinkedAccount[]> {
+  const res = await fetch('/api/edupay/linked-accounts');
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.accounts ?? [];
+}
+
+export async function linkAccount(data: LinkAccountInput): Promise<LinkedAccount> {
+  const res = await fetch('/api/edupay/linked-accounts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Failed to link account');
+  }
+  const json = await res.json();
+  return json.account;
+}
+
+export async function unlinkAccount(accountId: string): Promise<void> {
+  const res = await fetch(`/api/edupay/linked-accounts/${accountId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Failed to unlink account');
+  }
+}
+
+// ============================================================================
+// Savings Allocations
+// ============================================================================
+
+export interface SavingsAllocation {
+  id: string;
+  user_id: string;
+  linked_account_id: string;
+  linked_account?: LinkedAccount;
+  ep_amount: number;
+  gbp_amount: number;
+  interest_rate_at_creation: number;
+  projected_interest_12mo: number | null;
+  status: 'allocated' | 'transferred' | 'withdrawn' | 'cancelled';
+  created_at: string;
+}
+
+export interface SavingsSummary {
+  total_gbp_allocated: number;
+  total_projected_interest: number;
+  total_with_interest: number;
+  allocation_count: number;
+}
+
+export async function getSavingsAllocations(): Promise<SavingsAllocation[]> {
+  const res = await fetch('/api/edupay/savings/allocations');
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.allocations ?? [];
+}
+
+export async function getSavingsSummary(): Promise<SavingsSummary | null> {
+  const res = await fetch('/api/edupay/savings/summary');
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.summary ?? null;
+}
+
+export interface ConversionToSavingsInput {
+  ep_amount: number;
+  destination: 'isa' | 'savings';
+  linked_account_id: string;
+}
+
+export interface ConversionToSavingsResponse {
+  conversion_id: string;
+  allocation_id: string;
+  stub: boolean;
+  message?: string;
+}
+
+export async function requestConversionToSavings(
+  data: ConversionToSavingsInput
+): Promise<ConversionToSavingsResponse> {
+  const res = await fetch('/api/edupay/conversion/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error ?? 'Failed to request conversion');
+  }
+  return res.json() as Promise<ConversionToSavingsResponse>;
+}

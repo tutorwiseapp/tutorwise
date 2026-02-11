@@ -1,21 +1,37 @@
 /**
  * Filename: EduPayConversionModal.tsx
- * Purpose: 3-step modal for converting EP to GBP via TrueLayer PISP
+ * Purpose: 3-step modal for converting EP to GBP via TrueLayer PISP or ISA/Savings
  * Created: 2026-02-10
- * Updated: 2026-02-10 — Migrated to HubComplexModal shell
+ * Updated: 2026-02-11 — Added ISA/Savings provider linking and interest projections
  *
- * Step 1: Amount + destination selection
- * Step 2: Review + bank authorisation (or stub callout)
- * Step 3: Post-callback success confirmation
+ * Step 1: Amount + destination selection (+ provider linking for ISA/Savings)
+ * Step 2: Review + bank authorisation (or allocation confirmation)
+ * Step 3: Success confirmation
  */
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@/app/components/ui/actions/Button';
 import { HubComplexModal } from '@/app/components/hub/modal';
-import { EduPayWallet, EduPayLoanProfile, requestConversion } from '@/lib/api/edupay';
+import {
+  EduPayWallet,
+  EduPayLoanProfile,
+  requestConversion,
+  LinkedAccount,
+  getLinkedAccounts,
+  linkAccount,
+} from '@/lib/api/edupay';
+import {
+  SAVINGS_PROVIDERS,
+  getProvidersByType,
+  calculateInterest,
+  projectSavingsGrowth,
+  formatGBP,
+  type SavingsProvider,
+  type ProviderType,
+} from '@/lib/edupay/savings-providers';
 import styles from './EduPayConversionModal.module.css';
 
 type Destination = 'student_loan' | 'isa' | 'savings';
@@ -26,9 +42,10 @@ interface Props {
   wallet: EduPayWallet | null;
   loanProfile: EduPayLoanProfile | null;
   onSuccess: () => void;
+  onOpenLoanProfile?: () => void;
 }
 
-const DESTINATION_OPTIONS: { value: Destination; label: string; description: string; badge?: string }[] = [
+const DESTINATION_OPTIONS: { value: Destination; label: string; description: string; apyHint?: string }[] = [
   {
     value: 'student_loan',
     label: 'Student Loan',
@@ -38,19 +55,19 @@ const DESTINATION_OPTIONS: { value: Destination; label: string; description: str
     value: 'isa',
     label: 'ISA',
     description: 'Save into a tax-free ISA and earn interest before paying your loan',
-    badge: 'Earn interest',
+    apyHint: 'Up to 5.1% APY',
   },
   {
     value: 'savings',
     label: 'Savings Account',
     description: 'Transfer to a savings account and grow your money first',
-    badge: 'Earn interest',
+    apyHint: 'Up to 4.6% APY',
   },
 ];
 
 const STEP_LABELS = ['Amount', 'Review', 'Done'];
 
-export default function EduPayConversionModal({ isOpen, onClose, wallet, loanProfile, onSuccess }: Props) {
+export default function EduPayConversionModal({ isOpen, onClose, wallet, loanProfile, onSuccess, onOpenLoanProfile }: Props) {
   const searchParams = useSearchParams();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -60,6 +77,12 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
   const [error, setError] = useState<string | null>(null);
   const [stubMessage, setStubMessage] = useState<string | null>(null);
 
+  // ISA/Savings state
+  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [showProviderSelector, setShowProviderSelector] = useState(false);
+  const [linkingProvider, setLinkingProvider] = useState(false);
+
   // Show step 3 if redirected back from TrueLayer with ?conversion=success
   useEffect(() => {
     if (isOpen && searchParams?.get('conversion') === 'success') {
@@ -67,9 +90,47 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
     }
   }, [isOpen, searchParams]);
 
+  // Load linked accounts when modal opens
+  const loadLinkedAccounts = useCallback(async () => {
+    try {
+      const accounts = await getLinkedAccounts();
+      setLinkedAccounts(accounts);
+      // Auto-select first matching account for destination
+      const matchingAccount = accounts.find(a => a.provider_type === destination);
+      if (matchingAccount) {
+        setSelectedAccountId(matchingAccount.id);
+      }
+    } catch {
+      console.error('Failed to load linked accounts');
+    }
+  }, [destination]);
+
+  useEffect(() => {
+    if (isOpen) {
+      void loadLinkedAccounts();
+    }
+  }, [isOpen, loadLinkedAccounts]);
+
+  // Update selected account when destination changes
+  useEffect(() => {
+    if (destination === 'isa' || destination === 'savings') {
+      const matchingAccount = linkedAccounts.find(a => a.provider_type === destination);
+      setSelectedAccountId(matchingAccount?.id ?? null);
+    } else {
+      setSelectedAccountId(null);
+    }
+  }, [destination, linkedAccounts]);
+
   const availableEp = wallet?.available_ep ?? 0;
   const epNum = parseInt(epAmount, 10) || 0;
   const gbpPreview = (epNum / 100).toFixed(2);
+  const gbpAmount = epNum / 100;
+
+  const isSavingsDestination = destination === 'isa' || destination === 'savings';
+  const selectedAccount = linkedAccounts.find(a => a.id === selectedAccountId);
+  const availableProviders = isSavingsDestination
+    ? getProvidersByType(destination as ProviderType)
+    : [];
 
   function handleClose() {
     setStep(1);
@@ -77,6 +138,8 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
     setDestination('student_loan');
     setError(null);
     setStubMessage(null);
+    setShowProviderSelector(false);
+    setSelectedAccountId(null);
     onClose();
   }
 
@@ -84,18 +147,49 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
     setEpAmount(String(availableEp));
   }
 
+  async function handleLinkProvider(provider: SavingsProvider) {
+    setLinkingProvider(true);
+    setError(null);
+    try {
+      const account = await linkAccount({ provider_id: provider.id });
+      setLinkedAccounts(prev => [...prev, account]);
+      setSelectedAccountId(account.id);
+      setShowProviderSelector(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to link account');
+    } finally {
+      setLinkingProvider(false);
+    }
+  }
+
   async function handleAuthorise() {
     setError(null);
     setLoading(true);
     try {
-      const result = await requestConversion({ ep_amount: epNum, destination });
+      const payload: { ep_amount: number; destination: Destination; linked_account_id?: string } = {
+        ep_amount: epNum,
+        destination,
+      };
+
+      if (isSavingsDestination && selectedAccountId) {
+        payload.linked_account_id = selectedAccountId;
+      }
+
+      const result = await requestConversion(payload);
 
       if (result.stub) {
         setStubMessage(
           result.message ??
-            'TrueLayer credentials are not yet configured. Your conversion has been recorded.'
+            (isSavingsDestination
+              ? 'Your allocation has been recorded.'
+              : 'TrueLayer credentials are not yet configured. Your conversion has been recorded.')
         );
-      } else if (result.auth_url) {
+        if (isSavingsDestination) {
+          // For savings, show success after stub message
+          setStep(3);
+          onSuccess();
+        }
+      } else if ('auth_url' in result && result.auth_url) {
         window.location.href = result.auth_url;
       } else {
         setStep(3);
@@ -107,6 +201,10 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
       setLoading(false);
     }
   }
+
+  // Check if can proceed to step 2 (balance validation shown on review step)
+  const canProceedToReview = epNum > 0 &&
+    (!isSavingsDestination || selectedAccountId);
 
   // ── Step 1 footer ──────────────────────────────────────────────────────────
   const step1Footer = (
@@ -121,6 +219,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
           setError(null);
           setStep(2);
         }}
+        disabled={!canProceedToReview}
       >
         Review
       </Button>
@@ -140,11 +239,11 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
           onClick={() => void handleAuthorise()}
           disabled={loading || epNum <= 0 || epNum > availableEp}
         >
-          {loading ? 'Processing...' : 'Authorise with your bank'}
+          {loading ? 'Processing...' : isSavingsDestination ? 'Confirm Allocation' : 'Authorise with your bank'}
         </Button>
       ) : (
         <Button variant="primary" size="sm" onClick={handleClose}>
-          Close
+          Done
         </Button>
       )}
     </div>
@@ -160,6 +259,11 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
   );
 
   const footerByStep = step === 1 ? step1Footer : step === 2 ? step2Footer : step3Footer;
+
+  // Interest projection for review step
+  const projections = selectedAccount && gbpAmount > 0
+    ? projectSavingsGrowth(gbpAmount, selectedAccount.interest_rate)
+    : null;
 
   return (
     <HubComplexModal
@@ -180,7 +284,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
                 <div
                   className={`${styles.stepCircle} ${step === s ? styles.stepCircleActive : ''} ${step > s ? styles.stepCircleDone : ''}`}
                 >
-                  {step > s ? '✓' : s}
+                  {s}
                 </div>
                 <span className={`${styles.stepLabel} ${step === s ? styles.stepLabelActive : ''}`}>
                   {label}
@@ -195,7 +299,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
       </div>
 
       {/* ── Step 1: Amount + destination ──────────────────────────────────── */}
-      {step === 1 && (
+      {step === 1 && !showProviderSelector && (
         <div className={styles.body}>
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Amount</h3>
@@ -239,7 +343,7 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
                 >
                   <div className={styles.destHeader}>
                     <span className={styles.destLabel}>{opt.label}</span>
-                    {opt.badge && <span className={styles.destBadge}>{opt.badge}</span>}
+                    {opt.apyHint && <span className={styles.destApy}>{opt.apyHint}</span>}
                   </div>
                   <span className={styles.destDesc}>{opt.description}</span>
                 </button>
@@ -247,6 +351,96 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
             </div>
           </div>
 
+          {/* Provider selector for ISA/Savings */}
+          {isSavingsDestination && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                {destination === 'isa' ? 'ISA Provider' : 'Savings Account'}
+              </h3>
+              {selectedAccount ? (
+                <div className={styles.linkedAccountCard}>
+                  <div className={styles.linkedAccountTop}>
+                    <div className={styles.linkedAccountInfo}>
+                      <span className={styles.linkedAccountName}>{selectedAccount.provider_name}</span>
+                      <span className={styles.linkedAccountRate}>
+                        {selectedAccount.interest_rate}% APY
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.changeBtn}
+                      onClick={() => setShowProviderSelector(true)}
+                    >
+                      Change
+                    </button>
+                  </div>
+                  {gbpAmount > 0 && (
+                    <>
+                      <div className={styles.linkedAccountDivider} />
+                      <div className={styles.linkedAccountInterest}>
+                        <span className={styles.interestPreviewLabel}>
+                          Projected interest (12 months):
+                        </span>
+                        <span className={styles.interestPreviewValue}>
+                          +{formatGBP(calculateInterest(gbpAmount, selectedAccount.interest_rate, 12))}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.linkProviderBtn}
+                  onClick={() => setShowProviderSelector(true)}
+                >
+                  Link {destination === 'isa' ? 'an ISA' : 'a Savings Account'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {error && <p className={styles.errorMsg}>{error}</p>}
+        </div>
+      )}
+
+      {/* ── Provider selector sub-view ───────────────────────────────────── */}
+      {step === 1 && showProviderSelector && (
+        <div className={styles.body}>
+          <div className={styles.section}>
+            <div className={styles.providerHeader}>
+              <h3 className={styles.sectionTitle}>
+                Choose {destination === 'isa' ? 'ISA' : 'Savings'} Provider
+              </h3>
+              <button
+                type="button"
+                className={styles.backLink}
+                onClick={() => setShowProviderSelector(false)}
+              >
+                Back
+              </button>
+            </div>
+            <div className={styles.providerList}>
+              {availableProviders.map(provider => (
+                <button
+                  key={provider.id}
+                  type="button"
+                  className={styles.providerCard}
+                  onClick={() => void handleLinkProvider(provider)}
+                  disabled={linkingProvider}
+                >
+                  <div className={styles.providerInfo}>
+                    <span className={styles.providerName}>{provider.name}</span>
+                    <span className={styles.providerRate}>{provider.interestRate}% APY</span>
+                  </div>
+                  <span className={styles.providerDesc}>{provider.description}</span>
+                </button>
+              ))}
+            </div>
+            {linkingProvider && (
+              <p className={styles.linkingText}>Connecting to provider...</p>
+            )}
+          </div>
           {error && <p className={styles.errorMsg}>{error}</p>}
         </div>
       )}
@@ -268,29 +462,66 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
               <div className={styles.field}>
                 <span className={styles.fieldLabel}>Destination</span>
                 <span className={styles.fieldValue}>
-                  {DESTINATION_OPTIONS.find(o => o.value === destination)?.label}
+                  {selectedAccount
+                    ? selectedAccount.provider_name
+                    : DESTINATION_OPTIONS.find(o => o.value === destination)?.label}
                 </span>
               </div>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Rate</span>
-                <span className={styles.fieldValue}>100 EP = £1.00</span>
-              </div>
-              <div className={styles.field}>
-                <span className={styles.fieldLabel}>Payment Reference</span>
-                <span className={styles.fieldValue}>
-                  {loanProfile?.slc_reference ?? <span className={styles.fieldValueMuted}>Not set — add in Loan Profile</span>}
-                </span>
-              </div>
+              {!isSavingsDestination && (
+                <div className={styles.field}>
+                  <span className={styles.fieldLabel}>Payment Reference</span>
+                  {loanProfile?.slc_reference ? (
+                    <span className={styles.fieldValue}>{loanProfile.slc_reference}</span>
+                  ) : (
+                    <span className={styles.fieldValueMuted}>
+                      Not set — click to set up{' '}
+                      <a
+                        href="#"
+                        className={styles.fieldValueLink}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onClose();
+                          onOpenLoanProfile?.();
+                        }}
+                      >
+                        Loan Profile
+                      </a>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Interest projection table for ISA/Savings */}
+          {isSavingsDestination && projections && selectedAccount && (
+            <div className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                Interest Projection at {selectedAccount.interest_rate}% APY
+              </h3>
+              <div className={styles.projectionTable}>
+                {projections.map(p => (
+                  <div key={p.months} className={styles.projectionRow}>
+                    <span className={styles.projectionPeriod}>{p.label}</span>
+                    <span className={styles.projectionInterest}>+{formatGBP(p.interest)}</span>
+                    <span className={styles.projectionTotal}>{formatGBP(p.total)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {stubMessage ? (
             <div className={styles.stubCallout}>
-              <p className={styles.stubTitle}>Integration Pending</p>
-              <p className={styles.stubText}>{stubMessage}</p>
-              <p className={styles.stubText}>
-                Open Banking via TrueLayer will be enabled once partner onboarding is complete.
+              <p className={styles.stubTitle}>
+                {isSavingsDestination ? 'Allocation Complete' : 'Integration Pending'}
               </p>
+              <p className={styles.stubText}>{stubMessage}</p>
+              {!isSavingsDestination && (
+                <p className={styles.stubText}>
+                  Open Banking via TrueLayer will be enabled once partner onboarding is complete.
+                </p>
+              )}
             </div>
           ) : (epNum <= 0 || epNum > availableEp) ? (
             <div className={styles.earnCallout}>
@@ -304,7 +535,9 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
           ) : (
             <div className={styles.infoCallout}>
               <p className={styles.infoText}>
-                You will be redirected to your bank to authorise this payment securely via Open Banking (TrueLayer).
+                {isSavingsDestination
+                  ? `Your ${formatGBP(gbpAmount)} will be allocated to ${selectedAccount?.provider_name}. You can withdraw to pay your loan anytime.`
+                  : 'You will be redirected to your bank to authorise this payment securely via Open Banking (TrueLayer).'}
               </p>
             </div>
           )}
@@ -317,11 +550,13 @@ export default function EduPayConversionModal({ isOpen, onClose, wallet, loanPro
       {step === 3 && (
         <div className={styles.body}>
           <div className={styles.successBlock}>
-            <div className={styles.successIcon}>✓</div>
-            <h3 className={styles.successTitle}>Payment Authorised</h3>
+            <h3 className={styles.successTitle}>
+              {isSavingsDestination ? 'Allocation Complete' : 'Payment Authorised'}
+            </h3>
             <p className={styles.successText}>
-              Your bank has authorised the payment. The transfer is now being processed and your EP
-              balance will update once it completes (typically 1–3 business days).
+              {isSavingsDestination
+                ? `Your ${formatGBP(gbpAmount)} has been allocated to ${selectedAccount?.provider_name ?? 'your savings account'}. Track your earnings in the EduPay dashboard.`
+                : 'Your bank has authorised the payment. The transfer is now being processed and your EP balance will update once it completes (typically 1–3 business days).'}
             </p>
           </div>
         </div>

@@ -930,46 +930,112 @@ interface EduPayLedgerCardProps {
 
 ---
 
-### 17.8 Modals (Phase 3)
+### 17.8 Modals
 
-> **Implementation status:** Dedicated modal components are deferred to Phase 3.
-> Phase 1 uses inline state (`showLoanProfileModal`, `showConversionModal`) and alert placeholders.
+> **Implementation status:** Both modals fully implemented in Phase 3.
 
-#### EduPayConversionModal (Phase 3)
+#### EduPayConversionModal
 
-**Current Phase 1 behaviour:** "Convert EP" button shows a browser `alert()`:
-> "EP conversion launches in Phase 3. Your EP is accumulating — keep earning!"
+**File:** `apps/web/src/app/components/feature/edupay/EduPayConversionModal.tsx`
 
-**Phase 3 design — trigger:** "Convert EP" primary button in header actions.
+**Trigger:** "Convert EP" primary button in header actions.
 
-**Pattern:** Matches existing `WithdrawalConfirmationModal` structure.
+**Pattern:** 3-step wizard using `HubComplexModal` shell.
 
-**Fields:**
-1. EP amount to convert (number input, max = `wallet.available_ep`)
-2. GBP equivalent (auto-calculated, read-only: `ep / 100`)
-3. Destination (select): Student Loan | ISA | Savings
-4. Confirmation message: "You are converting X EP (£Y) to your student loan."
+**Step 1 — Amount & Destination:**
 
-**Buttons:** "Cancel" (secondary) | "Confirm Conversion" (primary, disabled if ep_amount = 0)
+| Element | Description |
+|---------|-------------|
+| EP Amount | Number input with "Max" button (fills `wallet.available_ep`) |
+| GBP Value | Auto-calculated read-only display (`ep / 100`) |
+| Destination Cards | Radio-style cards: Student Loan, ISA (Up to 5.1% APY), Savings (Up to 4.6% APY) |
+| Provider Section | For ISA/Savings: shows linked account card or "Link an ISA/Savings" button |
+| Interest Preview | Combined into linked account card: "Projected interest (12 months): +£X.XX" |
+
+**Destination card structure:**
+```
+┌─────────────────────────────────────────────────────────┐
+│ ISA                                    Up to 5.1% APY  │
+│ Save into a tax-free ISA and earn interest...          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Linked account card (with interest):**
+```
+┌═════════════════════════════════════════════════════════┐
+│ Chase Saver                                   [Change]  │
+│ 3.5% APY                                                │
+│ ─────────────────────────────────────────────────────── │
+│ Projected interest (12 months):                +£0.04  │
+└═════════════════════════════════════════════════════════┘
+```
+
+**Step 2 — Review:**
+
+| Field | Value |
+|-------|-------|
+| EP Amount | User-entered value |
+| GBP Value | Calculated |
+| Destination | Provider name (ISA/Savings) or "Student Loan" |
+| Payment Reference | SLC reference (Student Loan only) — links to Loan Profile modal if not set |
+
+**ISA/Savings review** includes Interest Projection table (3mo, 6mo, 12mo, 24mo).
+
+**Callouts:**
+- Insufficient EP warning (yellow) — shown when `epAmount > availableEp`
+- Info callout (grey) — describes what happens on submit
+- Stub callout (yellow) — shown when TrueLayer not configured (Student Loan)
+
+**Step 3 — Success:**
+
+Centered confirmation with title and description text. No icons.
+
+**Footer buttons by step:**
+- Step 1: "Cancel" | "Review" (disabled until valid amount + provider selected)
+- Step 2: "Back" | "Confirm Allocation" (ISA/Savings) or "Authorise with your bank" (Student Loan)
+- Step 3: "Done"
+
+**Props:**
+```typescript
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  wallet: EduPayWallet | null;
+  loanProfile: EduPayLoanProfile | null;
+  onSuccess: () => void;
+  onOpenLoanProfile?: () => void;
+}
+```
 
 ---
 
-#### EduPayLoanProfileModal (Phase 1 state, Phase 3 component)
+#### EduPayLoanProfileModal
 
-**Current Phase 1 behaviour:** `showLoanProfileModal` state toggles an inline form
-(no dedicated `EduPayLoanProfileModal.tsx` component exists yet).
+**File:** `apps/web/src/app/components/feature/edupay/EduPayLoanProfileModal.tsx`
 
 **Triggers:**
 - `HubEmptyState` "Set Up Loan Profile" button (when `!loanProfile`)
 - `⋮` dropdown "Edit Loan Profile" item (when `loanProfile` exists)
+- "Loan Profile" hyperlink in conversion modal (when Payment Reference not set)
 
 **Fields:**
 1. Loan Plan (select): Plan 1 | Plan 2 | Plan 5 | Postgraduate
 2. Estimated Balance (£) — number input
 3. Annual Salary (£) — number input (used for projection engine)
 4. Graduation Year — number input (e.g. 2024)
+5. SLC Reference — text input (optional, used as Payment Reference)
 
 **POST** to `/api/edupay/loan-profile` on save.
+
+**Props:**
+```typescript
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  loanProfile: EduPayLoanProfile | null;
+  onSave: () => void;
+}
+```
 
 ---
 
