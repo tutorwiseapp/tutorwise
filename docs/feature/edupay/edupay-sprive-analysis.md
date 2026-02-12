@@ -3,8 +3,8 @@
 **Document Purpose**: Strategic comparison between Sprive (mortgage overpayment) and EduPay (student loan repayment) to inform product direction and positioning.
 
 **Created**: 2026-02-10
-**Last Updated**: 2026-02-11
-**Status**: Research Complete + Implementation Validated + Revenue Model Detailed + Valuation Analysis Complete + ISA/Savings Strategy Implemented
+**Last Updated**: 2026-02-12
+**Status**: Research Complete + Implementation Validated + Revenue Model Detailed + Valuation Analysis Complete + ISA/Savings Strategy Implemented + **SLC Integration Reality Corrected**
 **Current Stage**: Beta → GA in ~3 months
 **Valuation**: £12-15M (base case, updated with ISA/Savings optionality)
 **Positioning**: "We help students pay loans smarter"
@@ -24,7 +24,7 @@
   - [5. Development Comparison](#5-development-comparison) — £6M vs £0
 - **Part III: Strategic Comparison**
   - [6. Head-to-Head Analysis](#6-head-to-head-analysis) — "Faster" vs "Smarter" positioning
-  - [7. Global Scalability](#7-global-scalability) — $2T+ global market
+  - [7. Global Scalability](#7-global-scalability) — ⚠️ Corrected: ~€5-10B (no write-off markets)
 - **Part IV: The Hidden Strategy**
   - [8. Fundamental Differences](#8-fundamental-differences) — Producers vs consumers
   - [9. Psychology & User Behaviour](#9-psychology--user-behaviour) — Smart decision-making hook
@@ -55,11 +55,11 @@ This isn't about paying loans *faster* — it's about making *intelligent financ
 |--------|-------------------|----------------------|
 | UK Market Size | £1.6 trillion | £267 billion |
 | UK Borrowers | 11.2 million | 5.2 million |
-| Global Market | UK only | **$2+ trillion** (UK + US + AU + CA) |
+| Global Market | UK only | **€5-10B** (France, Spain, Italy — no write-off) |
 | Existing Solutions | Sprive + others | **None** |
 | User Strategy | Single path (overpay) | **3 paths** (loan, ISA, savings) |
 
-EduPay has a **blue ocean opportunity** in a £267 billion UK market with **zero competition** — expandable to a $2+ trillion global market.
+**⚠️ Market Size Correction**: The original "$2T+ global market" claim was wrong. US federal loans ($1.77T) have 20-25 year forgiveness under IDR — same "should you overpay?" issue as UK. Markets without write-off (France, Spain, Italy) are smaller (~€5-10B) but better suited to EduPay's "pay smarter" value proposition.
 
 ### What is Sprive?
 
@@ -81,20 +81,36 @@ Sprive is the UK's first mortgage overpayment platform (founded 2019, launched O
 | **Strategy** | Maximise overpayment | Optimise decision |
 | **For whom?** | Everyone should overpay | Depends on your situation |
 
-**Why "smarter" wins**: 75% of Plan 2 borrowers won't fully repay their loans. For them, overpaying is *mathematically irrational*. EduPay shows users when to pay directly vs when to grow money first — genuine financial advice, not blind encouragement.
+**Why "smarter" wins**: 75% of Plan 2 borrowers won't fully repay their loans. For them, overpaying is *mathematically irrational*. EduPay shows users when to pay directly vs when to grow money first — genuine financial information, not blind encouragement.
 
 ### Why EduPay Wins
 
 | Dimension | Sprive | EduPay | Winner |
 |-----------|--------|--------|--------|
 | Competition | Others entering | **None** | EduPay |
-| Integration | 14+ lender APIs | **1 destination (SLC) + ISA/Savings partners** | EduPay |
+| Integration | 14+ lender APIs | **ISA/Savings APIs** (SLC has no API) | Sprive (UK) |
 | Development | £6M+ / 4 years | **£0 / 1 day** | EduPay |
 | User Base | Must acquire (£20 CAC) | **Already on Tutorwise (£0 CAC)** | EduPay |
-| Global Scale | UK-locked | **$2T+ global market** | EduPay |
+| Global Scale | UK-locked | **€5-10B EU (no write-off markets)** | ⚠️ Sprive (size), EduPay (fit) |
 | Value Creation | Optimises spending | **Creates new income** | EduPay |
 | User Choice | Single strategy | **Multiple strategies** | EduPay |
 | Partnerships | Tillo (cashback) | **Tillo + ISA providers + Banks** | EduPay |
+
+**⚠️ Important Note**: UK's SLC has no API — EduPay can only automate bank transfers, not verify balances or confirm payments. ISA/Savings destinations have full integration. France's bank-based loans offer true Open Banking integration (see Section 7.1).
+
+---
+
+### ⚠️ Critical Correction (2026-02-12)
+
+This document previously overstated the TrueLayer/SLC integration capabilities. Key corrections:
+
+1. **SLC has NO API** — Only accepts bank transfers, card payments, and cheques
+2. **TrueLayer cannot verify** — No balance queries or payment confirmation possible for SLC
+3. **"Integration" is overstated** — EduPay provides convenience automation for UK loan payments, not true integration
+4. **France is better suited** — Bank-issued loans with full Open Banking support (see Section 7.1)
+5. **ISA/Savings remain strong** — These destinations DO have real integrations
+
+---
 
 ### The Core Insight
 
@@ -121,7 +137,7 @@ This isn't marketing language — it's architectural reality. EduPay implements 
 | **Wallet System** | 4-field balance tracking (total, available, pending, converted) | `migrations/254_create_edupay_wallets.sql` |
 | **Ledger** | Immutable transaction history following double-entry principles | `migrations/255_create_edupay_ledger.sql` |
 | **Earning Rules** | Configurable EP rates per event type (versioned, not hardcoded) | `migrations/256_create_edupay_rules.sql` |
-| **Payment Rails** | TrueLayer PISP for Open Banking payments | `src/lib/truelayer/` |
+| **Payment Rails** | TrueLayer PISP for bank transfers (SLC has no API — transfer only) | `src/lib/truelayer/` |
 | **Projection Engine** | Plan-specific loan calculations (Plan 1/2/5/Postgrad) | RPC `get_edupay_projection()` |
 | **ISA/Savings** | Provider linking, interest projections, allocation tracking | `edupay_linked_accounts`, `edupay_savings_allocations` |
 | **Decision UI** | 3-step conversion modal with destination cards | `EduPayConversionModal.tsx` |
@@ -236,6 +252,13 @@ When credentials are placeholders, `POST /api/edupay/conversion/request` returns
 
 **Implication:** The entire Phase 3 flow is code-complete. Adding real TrueLayer credentials makes it live — no code changes required.
 
+**⚠️ Important Limitation (UK):** TrueLayer can only initiate bank transfers TO SLC's bank account (sort code 60-70-80). It CANNOT:
+- Query the user's SLC loan balance
+- Verify the payment was applied to the loan
+- Receive confirmation from SLC
+
+This is because SLC has no Open Banking API — it's a government organisation, not a PSD2-compliant bank. For true integration, see France (Section 7.1) where bank-issued student loans have full Open Banking support.
+
 ### Projection Engine (UK 2025 Loan Parameters)
 
 The projection calculations use real UK student loan parameters:
@@ -252,6 +275,8 @@ The RPC `get_edupay_projection()` calculates:
 - `interest_saved_gbp`: GBP saved on interest
 - `projected_debt_free_date`: Target completion date
 - `monthly_ep_rate`: Average of last 3 months
+
+**Note**: These projections are based on **user-entered loan profile data** (balance, salary, plan type), not real-time SLC queries. SLC has no API to verify actual balances.
 
 ---
 
@@ -445,6 +470,51 @@ The RPC `get_edupay_projection()` calculates:
 | UK Market Share | 40% |
 | Key Clients | Ryanair, Just Eat, William Hill |
 
+### ⚠️ Critical: SLC Integration Reality
+
+**Important Correction**: The Student Loans Company (SLC) does **not** have any Open Banking integration or API. This fundamentally limits what EduPay can achieve for UK student loan payments.
+
+#### What SLC Actually Accepts
+
+| Method | Details |
+|--------|---------|
+| Bank Transfer | Sort code: 60-70-80, Account: 10027254 |
+| Card Payment | Via SLC online account only |
+| Standing Order | Same bank details as transfer |
+| Cheque | Posted to SLC |
+
+**Source**: [GOV.UK - Make Extra Repayments](https://www.gov.uk/repaying-your-student-loan/make-extra-repayments)
+
+#### What TrueLayer CAN Do (Limited)
+
+| Capability | Status |
+|------------|--------|
+| Initiate bank transfer to SLC's account | ✅ Yes |
+| Query user's SLC loan balance | ❌ No — SLC has no API |
+| Verify payment was applied to loan | ❌ No — no feedback from SLC |
+| Get SLC Customer Reference Number | ❌ No — user must provide manually |
+| Confirm successful repayment | ❌ No — no confirmation webhook |
+
+#### Sprive vs EduPay: Integration Reality
+
+| Dimension | Sprive (Mortgages) | EduPay (UK Student Loans) |
+|-----------|-------------------|---------------------------|
+| Lender APIs | ✅ 14+ lenders with direct integration | ❌ SLC has no API |
+| Balance queries | ✅ Real-time via Open Banking | ❌ User must self-report |
+| Payment verification | ✅ Lender confirms payment | ❌ No confirmation possible |
+| Interest calculation | ✅ From lender data | ⚠️ Based on user-entered balance |
+
+**Implication**: EduPay's UK loan payment feature is **convenience automation** (initiating bank transfers), not a true **integration**. The "decision engine" cannot verify actual loan balances or confirm payments were applied.
+
+#### Revised UK Student Loan Strategy
+
+Given SLC's limitations, EduPay should:
+
+1. **Position honestly** — "We help you automate transfers to SLC" not "direct SLC integration"
+2. **Focus on ISA/Savings** — These destinations DO have real integrations
+3. **Rely on projections** — Based on user-entered data, not SLC queries
+4. **Explore France** — Bank-based loans with real Open Banking support (see below)
+
 ---
 
 ## 5. Development Comparison
@@ -504,8 +574,8 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 
 | Dimension | Sprive | EduPay | Winner |
 |-----------|--------|--------|--------|
-| Market Size | 11.2M mortgages | 5.2M borrowers (UK) + 43M (US) | **EduPay** (global) |
-| Total Debt | £1.6T (UK only) | £267B (UK) + $1.77T (US) | **EduPay** ($2T+ global) |
+| Market Size | 11.2M mortgages | 5.2M UK + ~100k France (no write-off) | **Sprive** (UK) |
+| Total Debt | £1.6T (UK only) | £267B UK (with write-off issues) + ~€5B EU (no write-off) | **Sprive** (size) |
 | Average Debt | £143k | £53k | Lower = better gamification |
 | Competition | First mover, others entering | **None** | **EduPay** |
 | Payment Destination | 14+ lenders | SLC + **ISA providers + Savings providers** | **EduPay** (more partnerships) |
@@ -527,9 +597,10 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 - EduPay: THREE outcomes (loan payment, ISA, savings)
 - **Each destination = new partnership opportunity**
 
-**3. Simpler Core Integration**
+**3. ISA/Savings Integration Advantage**
 - Sprive: 14+ lender APIs, different auth, different processing
-- EduPay: ONE loan destination (SLC) + partner ISA/Savings APIs
+- EduPay: ISA/Savings providers have standard Open Banking APIs
+- **Note**: SLC has NO API — only bank transfers possible for UK loan payments
 
 **4. Longer Engagement Window**
 - UK student loans: fully repaid in **50s** (if at all)
@@ -578,26 +649,105 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 
 ### EduPay: Global Potential
 
-| Market | Debt | Borrowers |
-|--------|------|-----------|
-| **UK** | £267B | 5.2M |
-| **US** | **$1.77T** | **43M** |
-| Australia | AUD $81B | 2.9M |
-| Canada | CAD $22B | - |
-| Netherlands | €24B | - |
+| Market | Debt | Write-off? | "Should You Overpay?" Problem | Integration |
+|--------|------|------------|-------------------------------|-------------|
+| **UK** | £267B | ✅ 30-40 years | **Yes** — 75% won't repay | ⚠️ Bank transfer only |
+| **US Federal** | $1.77T | ✅ 20-25 years (IDR) | **Yes** — many won't repay | Varies by servicer |
+| **US Private** | ~$130B | ❌ None | **No** — must repay | ✅ Some have APIs |
+| **France** | €2-3B | ❌ None | **No** — must repay 100% | ✅ Full Open Banking |
+| **Spain** | Small | ❌ None | **No** — must repay | ✅ Bank-based |
+| **Italy** | Tiny (<1% take loans) | ❌ None | **No** — must repay | ✅ Bank-based |
+| Australia | AUD $81B | ✅ Write-off at death | **Yes** — income-contingent | ⚠️ Government (like UK) |
 
-**Total Global Market**: **$2+ trillion**
+**Sources**: [StudentAid.gov IDR Plans](https://studentaid.gov/manage-loans/repayment/plans/income-driven), [N26 Student Finance Guide](https://n26.com/en-eu/blog/student-financial-support)
+
+### Revised Market Opportunity
+
+**Markets where EduPay "pay smarter" works well (no write-off — overpaying always saves interest):**
+- 🇫🇷 France (~€2-3B, bank loans, full Open Banking)
+- 🇪🇸 Spain (small market, bank loans)
+- 🇮🇹 Italy (tiny market, bank loans)
+- 🇺🇸 US Private Loans (~$130B, no forgiveness)
+
+**Markets with the "should you overpay?" dilemma (write-off exists):**
+- 🇬🇧 UK (£267B) — ISA/Savings positioning more honest
+- 🇺🇸 US Federal ($1.77T) — Same issue as UK
+- 🇦🇺 Australia (AUD $81B) — Income-contingent
+
+**Key Insight**: The "$2T+ global market" claim was misleading. The **US federal loan market** ($1.77T) has 20-25 year forgiveness under IDR plans — same "should you overpay?" problem as the UK. Markets without write-off (France, Spain, Italy, US private) are smaller but **better suited** to EduPay's value proposition.
 
 ### Why EduPay Scales Better
 
 | Factor | Sprive | EduPay |
 |--------|--------|--------|
-| Payment Destination | 14+ per country | Usually 1 per country |
-| Integration | High (each lender different) | Low (government systems) |
+| Payment Destination | 14+ per country | ISA/Savings partners + loan transfers |
+| Integration | High (each lender different) | ⚠️ Varies: UK SLC (no API), France banks (full API) |
 | User Demographics | Country-specific 30-50 | Universal graduates 22-40 |
 | Regulatory Path | Full licensing | Simpler (no lending) |
 
+**Note**: EduPay's integration depth depends on market. France (bank loans) = full integration. UK (SLC) = bank transfers only.
+
 **The US market alone is 7x larger than UK student debt.**
+
+---
+
+## 7.1 France: A More Viable Market for True Integration
+
+### Why France Matters
+
+Unlike the UK, French student loans are issued by **private banks** with full **Open Banking (PSD2) compliance**. This enables true integration — not just bank transfers.
+
+| Aspect | UK (SLC) | France (Banks) |
+|--------|----------|----------------|
+| **Lender type** | Government (SLC) | Private banks (BNP, Société Générale, etc.) |
+| **API availability** | ❌ None | ✅ Full PSD2/Open Banking |
+| **TrueLayer support** | ❌ Can only transfer TO SLC | ✅ Balance queries, payment initiation |
+| **Balance verification** | ❌ User self-reports | ✅ Real-time via API |
+| **Payment confirmation** | ❌ No feedback | ✅ Bank confirms |
+| **Write-off** | 30-40 years | ❌ None — must repay 100% |
+
+**Source**: [TrueLayer France Launch](https://truelayer.com/blog/announcements/france-launch/), [BNP Paribas PSD2 APIs](https://group.bnpparibas/en/psd2-apis)
+
+### French Student Loan Structure
+
+| Metric | Value |
+|--------|-------|
+| **Loan type** | Prêt Étudiant Garanti par l'État |
+| **Max amount** | €20,000 |
+| **State guarantee** | 70% of principal |
+| **Repayment term** | 2-10 years (fixed) |
+| **Interest** | Set by each bank (market rate) |
+| **Write-off** | None — must repay in full |
+| **Students with loans** | ~2% |
+
+**Partner Banks**: Société Générale, BNP Paribas, Crédit Mutuel, CIC, Banques Populaires, Caisses d'Épargne, Crédit Agricole
+
+### Why EduPay Works Better in France
+
+| Dimension | UK | France |
+|-----------|-----|--------|
+| **"Should you overpay?"** | Complex — 75% won't repay anyway | Simple — must repay 100%, so overpaying always saves interest |
+| **Integration depth** | Shallow (bank transfer only) | Deep (balance queries, payment verification) |
+| **Bank motivation** | N/A (SLC is government) | Banks WANT overpayments (reduces their risk) |
+| **Partnership opportunity** | None with SLC | Banks may pay for customer retention tools |
+| **Projection accuracy** | Based on user-entered data | Based on real bank data |
+
+### France Market Challenges
+
+| Challenge | Impact |
+|-----------|--------|
+| **Small market** | Only ~2% of students take loans (low tuition fees) |
+| **Low amounts** | €20,000 max vs £53k UK average |
+| **Different culture** | French students less debt-burdened |
+| **Language** | Would need French localisation |
+
+### Strategic Recommendation
+
+**Phase 1 (Now)**: Focus on UK ISA/Savings destinations (real integrations exist)
+**Phase 2 (6-12 months)**: Pilot France with bank loan integration via TrueLayer
+**Phase 3 (12-24 months)**: Expand to other EU bank-based loan markets
+
+France offers a **proof-of-concept** for true Open Banking student loan integration that the UK's government-run SLC cannot provide.
 
 ---
 
@@ -701,7 +851,7 @@ EduPay users aren't just paying loans — they're **choosing the optimal path**:
 | Plan 5, uncertain | Savings | 40-year term, wait and see |
 | Any plan, variable income | ISA | Tax-free growth, withdraw when needed |
 
-**This is genuine financial advice** — not blind encouragement to overpay.
+**This provides genuine financial information** — not blind encouragement to overpay.
 
 ### Build Habit Through Smart Decisions
 
@@ -830,16 +980,24 @@ The key insight: **EduPay's earning rules connect all modules.** When TaaS gener
         ┌──────────────────┼──────────────────┐
         ▼                  ▼                  ▼
 ┌───────────────┐  ┌───────────────┐  ┌───────────────┐
-│ Payment Layer │  │ Cashback Layer│  │  Loan Layer   │
+│ Payment Layer │  │ Cashback Layer│  │ Savings Layer │
 ├───────────────┤  ├───────────────┤  ├───────────────┤
-│ • Stripe      │  │ • Awin        │  │ • SLC Direct  │
-│ • TrueLayer   │  │ • CJ          │  │ • Debt APIs   │
-│ • Yapily      │  │ • Impact      │  │               │
+│ • Stripe      │  │ • Awin        │  │ • ISA providers│
+│ • TrueLayer   │  │ • CJ          │  │ • Savings APIs │
+│ • Yapily      │  │ • Impact      │  │ • Bank partners│
 │ • GoCardless  │  │ • Tillo       │  │               │
 └───────────────┘  └───────────────┘  └───────────────┘
+                                              │
+                                    ┌─────────┴─────────┐
+                                    ▼                   ▼
+                            ┌─────────────┐     ┌─────────────┐
+                            │ UK (SLC)    │     │ France      │
+                            │ Bank xfer   │     │ Bank APIs   │
+                            │ (no API)    │     │ (TrueLayer) │
+                            └─────────────┘     └─────────────┘
 ```
 
-**Key Insight**: Tutorwise doesn't build payment infrastructure — it **orchestrates** existing infrastructure.
+**Key Insight**: Tutorwise doesn't build payment infrastructure — it **orchestrates** existing infrastructure. Note: UK SLC is bank-transfer only (no API), while France bank loans have full Open Banking support.
 
 ---
 
@@ -913,10 +1071,41 @@ EduPay doesn't just solve the "should you overpay?" problem — it **turns it in
 | Low earner, high debt | "Overpay anyway?" | "**Save in ISA (5.1%)** — you won't repay anyway" |
 | Uncertain future | "Overpay consistently" | "**Savings account** — stay flexible" |
 
-**This is why "smarter" beats "faster"** — it's genuine financial advice, not blind encouragement.
+**This is why "smarter" beats "faster"** — it's genuine financial information, not blind encouragement.
 
 > **You can't build a student loan fintech top-down.**
 > **You have to build it bottom-up from behaviour — and give users real choices.**
+
+---
+
+### ✅ Revised Business Model Focus (2026-02-12)
+
+Given SLC's lack of API integration and the write-off reality for most UK borrowers, EduPay's business model priorities are:
+
+**Primary Revenue Streams (NOW):**
+
+| Priority | Revenue Source | How It Works | Revenue Model |
+|----------|---------------|--------------|---------------|
+| **1** | **Cashback affiliate** | Users earn EP from shopping via Tillo, Awin, CJ | 10% of merchant commission |
+| **2** | **Financial provider referrals** | ISA providers, savings accounts, bank accounts, insurance | £10-175 per new account |
+| **3** | **Tutoring marketplace** | 10% commission on sessions | Already live |
+
+**Secondary Feature (IF feasible):**
+
+| Priority | Feature | Reality |
+|----------|---------|---------|
+| **4** | **Loan repayment convenience** | Automated bank transfers to SLC (no verification, user-directed) |
+
+**Why This Order?**
+
+1. **Cashback + referrals are proven models** — Sprive, Zilch, Penfold all do this successfully
+2. **Financial providers PAY for customers** — ISA providers pay £10-50/account, banks pay £20-175/account
+3. **SLC pays nothing** — No referral fees, no API, no verification
+4. **UK borrowers shouldn't overpay** — 75% of Plan 2 won't fully repay anyway
+
+**The "Smarter" Positioning Enables This:**
+
+By telling users "pay smarter, not faster", EduPay naturally guides many users toward ISA/Savings destinations — which generate referral revenue. The loan repayment option exists for those who genuinely benefit (Plan 1, high earners).
 
 ---
 
@@ -1608,7 +1797,7 @@ If Tutorwise generates £1M ARR:
 The code that enables this shift is already written:
 - `POST /api/edupay/conversion/request` initiates Open Banking payments
 - `edupay_conversions` table tracks payment state
-- TrueLayer PISP moves real money to SLC
+- TrueLayer PISP initiates bank transfers to SLC (no API integration — transfer only)
 
 When `isConfigured()` returns `true` (real TrueLayer credentials), the entire platform classification changes — from marketplace to infrastructure.
 
