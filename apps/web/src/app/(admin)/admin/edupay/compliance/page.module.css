@@ -4,6 +4,34 @@
  * Created: 2026-02-12
  */
 
+/* Header - matches organisations page pattern */
+.complianceHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .complianceHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs - matches organisations page pattern */
+.complianceTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .complianceTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
 .periodSelector {
   display: flex;
   align-items: center;

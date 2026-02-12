@@ -4,6 +4,34 @@
  * Created: 2026-02-12
  */
 
+/* Header - matches organisations page pattern */
+.providersHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .providersHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs - matches organisations page pattern */
+.providersTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .providersTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
 .providersGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -245,4 +273,39 @@
 .infoNotice svg {
   flex-shrink: 0;
   margin-top: 0.125rem;
+}
+
+/* Filter buttons for provider type filtering */
+.filterButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filterButton {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  border-color: #006c67;
+  color: #006c67;
+}
+
+.filterActive {
+  background: #006c67;
+  border-color: #006c67;
+  color: #ffffff;
+}
+
+.filterActive:hover {
+  background: #005550;
+  border-color: #005550;
+  color: #ffffff;
 }

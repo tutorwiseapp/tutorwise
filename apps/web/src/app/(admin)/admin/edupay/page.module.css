@@ -5,12 +5,32 @@
  * Pattern: Follows Admin Financials page.module.css styling conventions
  */
 
+/* Header - matches organisations page pattern */
 .edupayHeader {
-  margin-bottom: 0;
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
 }
 
+@media (max-width: 767px) {
+  .edupayHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs - matches organisations page pattern */
 .edupayTabs {
-  margin-bottom: 1.5rem;
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .edupayTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
 }
 
 .chartsSection {

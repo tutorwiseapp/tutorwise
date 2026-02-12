@@ -2,20 +2,29 @@
  * Filename: src/app/(admin)/admin/edupay/rules/page.tsx
  * Purpose: Admin page for managing EduPay earning rules and multipliers
  * Created: 2026-02-12
+ * Updated: 2026-02-12 - Refactored to use HubDataTable and VerticalDotsMenu
  * Phase: 2 - Platform Management (Priority 2)
  * Pattern: Follows Admin Dashboard Gold Standard
  */
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
+import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { Settings, Edit2, Check, X, AlertTriangle } from 'lucide-react';
+import { HubDataTable } from '@/app/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import { AlertTriangle } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
+import EditRuleModal from './components/EditRuleModal';
+import AddRuleModal from './components/AddRuleModal';
+import RuleHistoryModal from './components/RuleHistoryModal';
 import styles from './page.module.css';
 
 // Force dynamic rendering for admin pages
@@ -35,53 +44,60 @@ interface EduPayRule {
   updated_at: string;
 }
 
+// Status badge component
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  return (
+    <span className={`${styles.badge} ${isActive ? styles.badgeActive : styles.badgeInactive}`}>
+      {isActive ? 'Active' : 'Inactive'}
+    </span>
+  );
+}
+
 export default function AdminEduPayRulesPage() {
+  const router = useRouter();
   const supabase = createClient();
   const queryClient = useQueryClient();
-  const [editingRule, setEditingRule] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<Partial<EduPayRule>>({});
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+
+  // Modal states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [ruleToEdit, setRuleToEdit] = useState<EduPayRule | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [ruleForHistory, setRuleForHistory] = useState<EduPayRule | null>(null);
 
   // Fetch rules
-  const { data: rules, isLoading, error } = useQuery({
-    queryKey: ['admin-edupay-rules'],
+  const { data: rulesData, isLoading, refetch, error } = useQuery<{ rules: EduPayRule[]; total: number }>({
+    queryKey: ['admin-edupay-rules-table', page, limit],
     queryFn: async () => {
+      // Get total count
+      const { count } = await supabase
+        .from('edupay_rules')
+        .select('*', { count: 'exact', head: true });
+
+      // Get paginated data
       const { data, error } = await supabase
         .from('edupay_rules')
         .select('*')
-        .order('event_type', { ascending: true });
+        .order('event_type', { ascending: true })
+        .range((page - 1) * limit, page * limit - 1);
 
       if (error) {
         throw new Error(`Failed to fetch rules: ${error.message}`);
       }
 
-      return data as EduPayRule[];
+      return {
+        rules: data as EduPayRule[],
+        total: count || 0,
+      };
     },
-    placeholderData: keepPreviousData,
     staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
 
-  // Update rule mutation
-  const updateRuleMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<EduPayRule> }) => {
-      const { error } = await supabase
-        .from('edupay_rules')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id);
-
-      if (error) {
-        throw new Error(`Failed to update rule: ${error.message}`);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-edupay-rules'] });
-      setEditingRule(null);
-      setEditValues({});
-    },
-  });
+  const rules = rulesData?.rules || [];
 
   // Toggle rule active status
   const toggleRuleMutation = useMutation({
@@ -99,26 +115,9 @@ export default function AdminEduPayRulesPage() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-edupay-rules'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-edupay-rules-table'] });
     },
   });
-
-  const handleEdit = (rule: EduPayRule) => {
-    setEditingRule(rule.id);
-    setEditValues({
-      ep_per_unit: rule.ep_per_unit,
-      platform_fee_percent: rule.platform_fee_percent,
-    });
-  };
-
-  const handleSave = (ruleId: string) => {
-    updateRuleMutation.mutate({ id: ruleId, updates: editValues });
-  };
-
-  const handleCancel = () => {
-    setEditingRule(null);
-    setEditValues({});
-  };
 
   // Format event type for display
   const formatEventType = (eventType: string) => {
@@ -127,18 +126,193 @@ export default function AdminEduPayRulesPage() {
       .replace(/\b\w/g, c => c.toUpperCase());
   };
 
+  // Format date
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // Action handlers
+  const handleEditRule = (rule: EduPayRule) => {
+    setRuleToEdit(rule);
+    setIsEditModalOpen(true);
+  };
+
+  const handleToggleStatus = (rule: EduPayRule) => {
+    const action = rule.is_active ? 'deactivate' : 'activate';
+    if (confirm(`Are you sure you want to ${action} the "${formatEventType(rule.event_type)}" rule?`)) {
+      toggleRuleMutation.mutate({ id: rule.id, isActive: !rule.is_active });
+    }
+  };
+
+  const handleViewHistory = (rule: EduPayRule) => {
+    setRuleForHistory(rule);
+    setIsHistoryModalOpen(true);
+  };
+
+  // Define columns following universal column order
+  const columns: Column<EduPayRule>[] = [
+    {
+      key: 'event_type',
+      label: 'Event Type',
+      width: '160px',
+      sortable: true,
+      render: (rule) => (
+        <span className={styles.eventType}>{formatEventType(rule.event_type)}</span>
+      ),
+    },
+    {
+      key: 'description',
+      label: 'Description',
+      width: '220px',
+      hideOnMobile: true,
+      render: (rule) => (
+        <span className={styles.description}>{rule.description || '—'}</span>
+      ),
+    },
+    {
+      key: 'ep_per_unit',
+      label: 'EP per Unit',
+      width: '100px',
+      sortable: true,
+      render: (rule) => (
+        <span className={styles.epValue}>{rule.ep_per_unit} EP</span>
+      ),
+    },
+    {
+      key: 'unit_type',
+      label: 'Unit',
+      width: '100px',
+      hideOnMobile: true,
+      render: (rule) => (
+        <span className={styles.unitType}>{rule.unit_type}</span>
+      ),
+    },
+    {
+      key: 'platform_fee_percent',
+      label: 'Platform Fee',
+      width: '100px',
+      hideOnMobile: true,
+      render: (rule) => (
+        <span>{rule.platform_fee_percent}%</span>
+      ),
+    },
+    {
+      key: 'is_active',
+      label: 'Status',
+      width: '100px',
+      render: (rule) => <StatusBadge isActive={rule.is_active} />,
+    },
+    {
+      key: 'updated_at',
+      label: 'Updated',
+      width: '120px',
+      hideOnMobile: true,
+      hideOnTablet: true,
+      render: (rule) => (
+        <span className={styles.dateCell}>{formatDate(rule.updated_at)}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: '100px',
+      render: (rule) => (
+        <VerticalDotsMenu
+          actions={[
+            { label: 'Edit Rule', onClick: () => handleEditRule(rule) },
+            {
+              label: rule.is_active ? 'Deactivate' : 'Activate',
+              onClick: () => handleToggleStatus(rule),
+              variant: rule.is_active ? 'danger' : 'default',
+            },
+            { label: 'View History', onClick: () => handleViewHistory(rule) },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  // Define filters
+  const filters: Filter[] = [
+    {
+      key: 'status',
+      label: 'All Status',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' },
+      ],
+    },
+  ];
+
+  // Pagination config
+  const paginationConfig: PaginationConfig = {
+    page,
+    limit,
+    total: rulesData?.total || 0,
+    onPageChange: setPage,
+    onLimitChange: (newLimit) => {
+      setLimit(newLimit);
+      setPage(1);
+    },
+    pageSizeOptions: [10, 20, 50, 100],
+  };
+
+  // Handle export to CSV
+  const handleExport = () => {
+    if (!rules || rules.length === 0) return;
+
+    const headers = ['Event Type', 'Description', 'EP per Unit', 'Unit Type', 'Platform Fee %', 'Status', 'Updated'];
+    const rows = rules.map((rule) => [
+      formatEventType(rule.event_type),
+      rule.description || '',
+      rule.ep_per_unit,
+      rule.unit_type,
+      rule.platform_fee_percent,
+      rule.is_active ? 'Active' : 'Inactive',
+      formatDate(rule.updated_at),
+    ]);
+
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `edupay-rules-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <HubPageLayout
       header={
         <HubHeader
-          title="Earning Rules"
-          subtitle="Configure EP earning rates and platform fees"
+          title="EduPay Management"
+          subtitle="Earning rules configuration"
+          className={styles.rulesHeader}
           actions={
-            <Button variant="primary" size="sm" disabled>
-              <Settings size={16} style={{ marginRight: '0.5rem' }} />
+            <Button variant="primary" size="sm" onClick={() => setIsAddModalOpen(true)}>
               Add New Rule
             </Button>
           }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'overview', label: 'Overview', active: false },
+            { id: 'rules', label: 'Earning Rules', active: true },
+            { id: 'providers', label: 'Providers', active: false },
+            { id: 'compliance', label: 'Compliance', active: false },
+          ]}
+          onTabChange={(tabId) => {
+            if (tabId === 'overview') router.push('/admin/edupay');
+            else if (tabId === 'rules') router.push('/admin/edupay/rules');
+            else if (tabId === 'providers') router.push('/admin/edupay/providers');
+            else if (tabId === 'compliance') router.push('/admin/edupay/compliance');
+          }}
+          className={styles.rulesTabs}
         />
       }
       sidebar={
@@ -163,106 +337,48 @@ export default function AdminEduPayRulesPage() {
         </HubSidebar>
       }
     >
-      {/* Rules Table */}
-      <div className={styles.tableContainer}>
-        {isLoading ? (
-          <div className={styles.loading}>Loading rules...</div>
-        ) : error ? (
-          <div className={styles.error}>
-            <AlertTriangle size={24} />
-            <p>Error loading rules: {(error as Error).message}</p>
-          </div>
-        ) : (
-          <table className={styles.rulesTable}>
-            <thead>
-              <tr>
-                <th>Event Type</th>
-                <th>Description</th>
-                <th>EP per Unit</th>
-                <th>Unit</th>
-                <th>Platform Fee</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules?.map((rule) => (
-                <tr key={rule.id} className={!rule.is_active ? styles.inactiveRow : undefined}>
-                  <td className={styles.eventType}>
-                    {formatEventType(rule.event_type)}
-                  </td>
-                  <td className={styles.description}>{rule.description}</td>
-                  <td>
-                    {editingRule === rule.id ? (
-                      <input
-                        type="number"
-                        value={editValues.ep_per_unit ?? rule.ep_per_unit}
-                        onChange={(e) => setEditValues({ ...editValues, ep_per_unit: parseInt(e.target.value) || 0 })}
-                        className={styles.editInput}
-                        min={0}
-                      />
-                    ) : (
-                      <span className={styles.epValue}>{rule.ep_per_unit} EP</span>
-                    )}
-                  </td>
-                  <td className={styles.unitType}>{rule.unit_type}</td>
-                  <td>
-                    {editingRule === rule.id ? (
-                      <input
-                        type="number"
-                        value={editValues.platform_fee_percent ?? rule.platform_fee_percent}
-                        onChange={(e) => setEditValues({ ...editValues, platform_fee_percent: parseFloat(e.target.value) || 0 })}
-                        className={styles.editInput}
-                        min={0}
-                        max={100}
-                        step={0.1}
-                      />
-                    ) : (
-                      <span>{rule.platform_fee_percent}%</span>
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className={`${styles.statusToggle} ${rule.is_active ? styles.active : styles.inactive}`}
-                      onClick={() => toggleRuleMutation.mutate({ id: rule.id, isActive: !rule.is_active })}
-                      disabled={toggleRuleMutation.isPending}
-                    >
-                      {rule.is_active ? 'Active' : 'Inactive'}
-                    </button>
-                  </td>
-                  <td>
-                    {editingRule === rule.id ? (
-                      <div className={styles.editActions}>
-                        <button
-                          className={styles.saveButton}
-                          onClick={() => handleSave(rule.id)}
-                          disabled={updateRuleMutation.isPending}
-                        >
-                          <Check size={14} />
-                        </button>
-                        <button
-                          className={styles.cancelButton}
-                          onClick={handleCancel}
-                          disabled={updateRuleMutation.isPending}
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className={styles.editButton}
-                        onClick={() => handleEdit(rule)}
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* Edit Rule Modal */}
+      <EditRuleModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        rule={ruleToEdit}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-edupay-rules-table'] });
+        }}
+      />
+
+      {/* Add Rule Modal */}
+      <AddRuleModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-edupay-rules-table'] });
+        }}
+        existingEventTypes={rules.map(r => r.event_type)}
+      />
+
+      {/* Rule History Modal */}
+      <RuleHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        rule={ruleForHistory}
+      />
+
+      {/* Rules Table with HubDataTable */}
+      <HubDataTable
+        columns={columns}
+        data={rules}
+        loading={isLoading}
+        onRefresh={() => refetch()}
+        onExport={handleExport}
+        filters={filters}
+        pagination={paginationConfig}
+        emptyMessage={error ? `Error loading rules: ${(error as Error).message}` : 'No earning rules found.'}
+        searchPlaceholder="Search rules..."
+        autoRefreshInterval={60000}
+        enableSavedViews={true}
+        savedViewsKey="admin_edupay_rules_savedViews"
+      />
 
       {/* Warning Notice */}
       <div className={styles.warningNotice}>

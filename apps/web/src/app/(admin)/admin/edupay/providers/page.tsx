@@ -8,6 +8,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
@@ -34,74 +35,67 @@ interface Provider {
   updated_at: string;
 }
 
-// Mock providers data (in production, this would come from a providers table)
-const MOCK_PROVIDERS: Provider[] = [
-  {
-    id: 'moneybox',
-    name: 'Moneybox',
-    provider_type: 'isa',
-    description: 'Easy investing and ISA accounts with round-up savings',
-    interest_rate_percent: 5.14,
-    logo_url: null,
-    is_active: true,
-    linked_accounts_count: 12,
-    created_at: '2026-01-01',
-    updated_at: '2026-02-01',
-  },
-  {
-    id: 'chase',
-    name: 'Chase UK',
-    provider_type: 'savings',
-    description: 'Digital bank with competitive savings rates',
-    interest_rate_percent: 4.75,
-    logo_url: null,
-    is_active: true,
-    linked_accounts_count: 8,
-    created_at: '2026-01-01',
-    updated_at: '2026-02-01',
-  },
-  {
-    id: 'trading212',
-    name: 'Trading 212',
-    provider_type: 'isa',
-    description: 'Stocks and shares ISA with cash interest',
-    interest_rate_percent: 5.20,
-    logo_url: null,
-    is_active: true,
-    linked_accounts_count: 5,
-    created_at: '2026-01-01',
-    updated_at: '2026-02-01',
-  },
-  {
-    id: 'plum',
-    name: 'Plum',
-    provider_type: 'savings',
-    description: 'AI-powered savings and investment app',
-    interest_rate_percent: 5.00,
-    logo_url: null,
-    is_active: false,
-    linked_accounts_count: 0,
-    created_at: '2026-01-01',
-    updated_at: '2026-02-01',
-  },
-];
 
 export default function AdminEduPayProvidersPage() {
+  const router = useRouter();
   const supabase = createClient();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'all' | 'isa' | 'savings'>('all');
+  const [providerFilter, setProviderFilter] = useState<'all' | 'isa' | 'savings'>('all');
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [editInterestRate, setEditInterestRate] = useState<number>(0);
 
-  // In production, fetch from database. For now, use mock data.
+  // Fetch providers from database
   const { data: providers, isLoading } = useQuery({
     queryKey: ['admin-edupay-providers'],
     queryFn: async () => {
-      // TODO: Replace with actual database query when providers table exists
-      return MOCK_PROVIDERS;
+      const response = await fetch('/api/admin/edupay/providers');
+      if (!response.ok) {
+        throw new Error('Failed to fetch providers');
+      }
+      const data = await response.json();
+      return data.providers as Provider[];
     },
     placeholderData: keepPreviousData,
     staleTime: 60_000,
+  });
+
+  // Update interest rate mutation
+  const updateRateMutation = useMutation({
+    mutationFn: async ({ provider_id, interest_rate_percent }: { provider_id: string; interest_rate_percent: number }) => {
+      const response = await fetch('/api/admin/edupay/providers/update-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider_id, interest_rate_percent }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update rate');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-edupay-providers'] });
+      setEditingProvider(null);
+    },
+  });
+
+  // Toggle active status mutation
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ provider_id, is_active }: { provider_id: string; is_active: boolean }) => {
+      const response = await fetch('/api/admin/edupay/providers/toggle-active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider_id, is_active }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to toggle status');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-edupay-providers'] });
+    },
   });
 
   // Fetch linked accounts count per provider
@@ -129,8 +123,8 @@ export default function AdminEduPayProvidersPage() {
 
   // Filter providers by tab
   const filteredProviders = providers?.filter((p) => {
-    if (activeTab === 'all') return true;
-    return p.provider_type === activeTab;
+    if (providerFilter === 'all') return true;
+    return p.provider_type === providerFilter;
   }) || [];
 
   // Calculate stats
@@ -145,14 +139,19 @@ export default function AdminEduPayProvidersPage() {
   };
 
   const handleSaveRate = () => {
-    // TODO: Save to database
-    console.log('Saving rate:', editingProvider, editInterestRate);
-    setEditingProvider(null);
+    if (editingProvider) {
+      updateRateMutation.mutate({
+        provider_id: editingProvider,
+        interest_rate_percent: editInterestRate,
+      });
+    }
   };
 
   const handleToggleActive = (providerId: string, currentlyActive: boolean) => {
-    // TODO: Update in database
-    console.log('Toggle active:', providerId, !currentlyActive);
+    toggleActiveMutation.mutate({
+      provider_id: providerId,
+      is_active: !currentlyActive,
+    });
   };
 
   return (
@@ -161,16 +160,46 @@ export default function AdminEduPayProvidersPage() {
         <HubHeader
           title="Provider Management"
           subtitle="Manage ISA and Savings account providers for EduPay conversions"
+          className={styles.providersHeader}
+          actions={
+            <div className={styles.filterButtons}>
+              <button
+                className={`${styles.filterButton} ${providerFilter === 'all' ? styles.filterActive : ''}`}
+                onClick={() => setProviderFilter('all')}
+              >
+                All ({totalProviders})
+              </button>
+              <button
+                className={`${styles.filterButton} ${providerFilter === 'isa' ? styles.filterActive : ''}`}
+                onClick={() => setProviderFilter('isa')}
+              >
+                ISA ({isaProviders})
+              </button>
+              <button
+                className={`${styles.filterButton} ${providerFilter === 'savings' ? styles.filterActive : ''}`}
+                onClick={() => setProviderFilter('savings')}
+              >
+                Savings ({savingsProviders})
+              </button>
+            </div>
+          }
         />
       }
       tabs={
         <HubTabs
           tabs={[
-            { id: 'all', label: 'All Providers', count: totalProviders, active: activeTab === 'all' },
-            { id: 'isa', label: 'ISA Providers', count: isaProviders, active: activeTab === 'isa' },
-            { id: 'savings', label: 'Savings Providers', count: savingsProviders, active: activeTab === 'savings' },
+            { id: 'overview', label: 'Overview', active: false },
+            { id: 'rules', label: 'Earning Rules', active: false },
+            { id: 'providers', label: 'Providers', active: true },
+            { id: 'compliance', label: 'Compliance', active: false },
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as typeof activeTab)}
+          onTabChange={(tabId) => {
+            if (tabId === 'overview') router.push('/admin/edupay');
+            else if (tabId === 'rules') router.push('/admin/edupay/rules');
+            else if (tabId === 'providers') router.push('/admin/edupay/providers');
+            else if (tabId === 'compliance') router.push('/admin/edupay/compliance');
+          }}
+          className={styles.providersTabs}
         />
       }
       sidebar={
@@ -234,8 +263,9 @@ export default function AdminEduPayProvidersPage() {
                 <button
                   className={`${styles.statusToggle} ${provider.is_active ? styles.active : ''}`}
                   onClick={() => handleToggleActive(provider.id, provider.is_active)}
+                  disabled={toggleActiveMutation.isPending}
                 >
-                  {provider.is_active ? 'Active' : 'Inactive'}
+                  {toggleActiveMutation.isPending ? '...' : provider.is_active ? 'Active' : 'Inactive'}
                 </button>
               </div>
 
@@ -255,10 +285,18 @@ export default function AdminEduPayProvidersPage() {
                         max={20}
                         className={styles.rateInput}
                       />
-                      <button className={styles.saveBtn} onClick={handleSaveRate}>
+                      <button
+                        className={styles.saveBtn}
+                        onClick={handleSaveRate}
+                        disabled={updateRateMutation.isPending}
+                      >
                         <Check size={14} />
                       </button>
-                      <button className={styles.cancelBtn} onClick={() => setEditingProvider(null)}>
+                      <button
+                        className={styles.cancelBtn}
+                        onClick={() => setEditingProvider(null)}
+                        disabled={updateRateMutation.isPending}
+                      >
                         <X size={14} />
                       </button>
                     </div>

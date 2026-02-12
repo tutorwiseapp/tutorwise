@@ -1,0 +1,331 @@
+/**
+ * Filename: WalletLedgerModal.module.css
+ * Purpose: Styles for WalletLedgerModal component
+ * Created: 2026-02-12
+ * Pattern: Paginated list modal with filters
+ */
+
+/* Main Content Container */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filterButton:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.filterActive {
+  background-color: #006c67;
+  border-color: #006c67;
+  color: #ffffff;
+}
+
+.filterActive:hover {
+  background-color: #005a56;
+  border-color: #005a56;
+}
+
+/* Ledger Section */
+.ledgerSection {
+  min-height: 300px;
+}
+
+.loading,
+.error {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.emptyLedger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.emptyLedger svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.emptyLedger p {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.emptyLedger span {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+}
+
+/* Ledger List */
+.ledgerList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ledgerItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.ledgerItem:last-child {
+  border-bottom: none;
+}
+
+.ledgerItem:hover {
+  background-color: #f9fafb;
+}
+
+.ledgerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.ledgerContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.ledgerHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ledgerType {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.ledgerStatus {
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+}
+
+.statusCleared {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusPending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.statusReversed {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.ledgerDescription {
+  font-size: 0.8125rem;
+  color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ledgerMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ledgerId {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: #9ca3af;
+}
+
+.ledgerDate {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+}
+
+.ledgerReference {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.ledgerAmount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.amountPositive {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+}
+
+.amountNegative {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+.amountUnit {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.footer button {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem 1.25rem;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .ledgerItem {
+    flex-direction: column;
+  }
+
+  .ledgerIcon {
+    align-self: flex-start;
+  }
+
+  .ledgerAmount {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+  }
+
+  .footer button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -8,10 +8,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
 import HubHeader from '@/app/components/hub/layout/HubHeader';
+import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import { FileText, Download, Calendar, PoundSterling, Shield, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -41,6 +43,7 @@ interface AuditEntry {
 }
 
 export default function AdminEduPayCompliancePage() {
+  const router = useRouter();
   const supabase = createClient();
   const [selectedPeriod, setSelectedPeriod] = useState<'month' | 'quarter' | 'year'>('month');
   const [isExporting, setIsExporting] = useState(false);
@@ -210,8 +213,9 @@ export default function AdminEduPayCompliancePage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="Compliance & Reporting"
-          subtitle="Tax reports, platform fee tracking, and audit exports"
+          title="EduPay Management"
+          subtitle="Compliance reporting and tax exports"
+          className={styles.complianceHeader}
           actions={
             <div className={styles.periodSelector}>
               <select
@@ -225,6 +229,23 @@ export default function AdminEduPayCompliancePage() {
               </select>
             </div>
           }
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'overview', label: 'Overview', active: false },
+            { id: 'rules', label: 'Earning Rules', active: false },
+            { id: 'providers', label: 'Providers', active: false },
+            { id: 'compliance', label: 'Compliance', active: true },
+          ]}
+          onTabChange={(tabId) => {
+            if (tabId === 'overview') router.push('/admin/edupay');
+            else if (tabId === 'rules') router.push('/admin/edupay/rules');
+            else if (tabId === 'providers') router.push('/admin/edupay/providers');
+            else if (tabId === 'compliance') router.push('/admin/edupay/compliance');
+          }}
+          className={styles.complianceTabs}
         />
       }
       sidebar={

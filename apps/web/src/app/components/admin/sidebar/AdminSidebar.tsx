@@ -87,6 +87,16 @@ export default function AdminSidebar() {
         { href: '/admin/financials/disputes', label: 'Disputes', indent: true },
       ],
     },
+    {
+      href: '/admin/edupay',
+      label: 'EduPay',
+      subItems: [
+        { href: '/admin/edupay', label: 'Overview', indent: true },
+        { href: '/admin/edupay/rules', label: 'Earning Rules', indent: true },
+        { href: '/admin/edupay/providers', label: 'Providers', indent: true },
+        { href: '/admin/edupay/compliance', label: 'Compliance', indent: true },
+      ],
+    },
     { href: '/admin/reviews', label: 'Reviews' },
     { href: '/admin/reports', label: 'Reports' },
     { href: '/admin/configurations', label: 'Configurations' },

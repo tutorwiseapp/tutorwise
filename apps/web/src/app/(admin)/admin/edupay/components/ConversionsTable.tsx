@@ -2,17 +2,22 @@
  * Filename: src/app/(admin)/admin/edupay/components/ConversionsTable.tsx
  * Purpose: Admin table for viewing and managing EP conversions
  * Created: 2026-02-12
- * Pattern: Follows Admin Financials TransactionsTable pattern
+ * Updated: 2026-02-12 - Refactored to use HubDataTable and VerticalDotsMenu
+ * Pattern: Follows UsersTable pattern with HubDataTable
  */
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import { Search, RefreshCw, RotateCcw, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-import styles from '../page.module.css';
+import { HubDataTable } from '@/app/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import ConversionDetailsModal from './ConversionDetailsModal';
+import MarkCompletedModal from './MarkCompletedModal';
+import styles from './ConversionsTable.module.css';
 
 interface ConversionWithUser {
   id: string;
@@ -33,20 +38,85 @@ interface ConversionWithUser {
   } | null;
 }
 
-const ITEMS_PER_PAGE = 20;
+// Status badge component
+function StatusBadge({ status }: { status: string }) {
+  const getStatusClass = () => {
+    switch (status) {
+      case 'completed':
+        return styles.badgeCompleted;
+      case 'pending':
+      case 'processing':
+        return styles.badgePending;
+      case 'failed':
+        return styles.badgeFailed;
+      default:
+        return styles.badgeDefault;
+    }
+  };
+
+  return (
+    <span className={`${styles.badge} ${getStatusClass()}`}>
+      {status}
+    </span>
+  );
+}
+
+// Destination badge component
+function DestinationBadge({ destination }: { destination: string }) {
+  const getLabel = () => {
+    switch (destination) {
+      case 'student_loan':
+        return 'Student Loan';
+      case 'isa':
+        return 'ISA';
+      case 'savings':
+        return 'Savings';
+      default:
+        return destination;
+    }
+  };
+
+  const getClass = () => {
+    switch (destination) {
+      case 'student_loan':
+        return styles.destinationLoan;
+      case 'isa':
+        return styles.destinationIsa;
+      case 'savings':
+        return styles.destinationSavings;
+      default:
+        return '';
+    }
+  };
+
+  return (
+    <span className={`${styles.destinationBadge} ${getClass()}`}>
+      {getLabel()}
+    </span>
+  );
+}
 
 export default function ConversionsTable() {
   const supabase = createClient();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'completed' | 'failed'>('all');
-  const [filterDestination, setFilterDestination] = useState<'all' | 'student_loan' | 'isa' | 'savings'>('all');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+
+  // Modal states
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isMarkCompletedModalOpen, setIsMarkCompletedModalOpen] = useState(false);
+  const [selectedConversion, setSelectedConversion] = useState<ConversionWithUser | null>(null);
 
   // Fetch conversions with user profiles
-  const { data: conversions, isLoading, isFetching, error, refetch } = useQuery({
-    queryKey: ['admin-edupay-conversions'],
+  const { data: conversionsData, isLoading, refetch, error } = useQuery<{ conversions: ConversionWithUser[]; total: number }>({
+    queryKey: ['admin-edupay-conversions-table', page, limit],
     queryFn: async () => {
+      // Get total count
+      const { count } = await supabase
+        .from('edupay_conversions')
+        .select('*', { count: 'exact', head: true });
+
+      // Get paginated data
       const { data, error } = await supabase
         .from('edupay_conversions')
         .select(`
@@ -67,27 +137,28 @@ export default function ConversionsTable() {
             email
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range((page - 1) * limit, page * limit - 1);
 
       if (error) {
         throw new Error(`Failed to fetch conversions: ${error.message}`);
       }
 
-      return data as unknown as ConversionWithUser[];
+      return {
+        conversions: data as unknown as ConversionWithUser[],
+        total: count || 0,
+      };
     },
-    placeholderData: keepPreviousData,
     staleTime: 30_000,
-    gcTime: 5 * 60_000,
-    refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     retry: 2,
   });
 
+  const conversions = conversionsData?.conversions || [];
+
   // Retry failed conversion mutation
   const retryMutation = useMutation({
     mutationFn: async (conversionId: string) => {
-      // This would trigger a retry of the TrueLayer payment
-      // For now, just update the status back to pending
       const { error } = await supabase
         .from('edupay_conversions')
         .update({ status: 'pending', failure_reason: null })
@@ -98,51 +169,10 @@ export default function ConversionsTable() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-edupay-conversions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-edupay-conversions-table'] });
       queryClient.invalidateQueries({ queryKey: ['admin-edupay-metrics'] });
     },
   });
-
-  // Filter and search
-  const filteredConversions = useMemo(() => {
-    if (!conversions) return [];
-
-    let result = [...conversions];
-
-    // Filter by status
-    if (filterStatus !== 'all') {
-      if (filterStatus === 'pending') {
-        result = result.filter(c => c.status === 'pending' || c.status === 'processing');
-      } else {
-        result = result.filter(c => c.status === filterStatus);
-      }
-    }
-
-    // Filter by destination
-    if (filterDestination !== 'all') {
-      result = result.filter(c => c.destination === filterDestination);
-    }
-
-    // Search by name, email, or ID
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(c =>
-        c.profiles?.full_name?.toLowerCase().includes(query) ||
-        c.profiles?.email?.toLowerCase().includes(query) ||
-        c.id.toLowerCase().includes(query) ||
-        c.truelayer_payment_id?.toLowerCase().includes(query)
-      );
-    }
-
-    return result;
-  }, [conversions, filterStatus, filterDestination, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredConversions.length / ITEMS_PER_PAGE);
-  const paginatedConversions = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredConversions.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredConversions, currentPage]);
 
   // Format currency
   const formatCurrency = (pence: number) => {
@@ -158,244 +188,249 @@ export default function ConversionsTable() {
     return new Intl.NumberFormat('en-GB').format(value);
   };
 
-  // Get status badge class
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return styles.statusCompleted;
-      case 'pending':
-      case 'processing':
-        return styles.statusPending;
-      case 'failed':
-        return styles.statusFailed;
-      default:
-        return '';
+  // Format date
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '—';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // Action handlers
+  const handleViewDetails = (conversion: ConversionWithUser) => {
+    setSelectedConversion(conversion);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleRetryConversion = (conversion: ConversionWithUser) => {
+    if (confirm(`Retry conversion ${formatIdForDisplay(conversion.id)}?\n\nThis will reset the status to pending.`)) {
+      retryMutation.mutate(conversion.id);
     }
   };
 
-  // Get destination label
-  const getDestinationLabel = (destination: string) => {
-    switch (destination) {
-      case 'student_loan':
-        return 'Student Loan';
-      case 'isa':
-        return 'ISA';
-      case 'savings':
-        return 'Savings';
-      default:
-        return destination;
+  const handleContactUser = (conversion: ConversionWithUser) => {
+    if (conversion.profiles?.email) {
+      window.location.href = `mailto:${conversion.profiles.email}`;
     }
   };
 
-  if (error) {
-    return (
-      <div className={styles.emptyState}>
-        <p className={styles.emptyStateTitle}>Error loading conversions</p>
-        <p className={styles.emptyStateDescription}>{error.message}</p>
-        <button className={styles.actionButton} onClick={() => refetch()}>
-          Try Again
-        </button>
-      </div>
-    );
-  }
+  const handleMarkCompleted = (conversion: ConversionWithUser) => {
+    setSelectedConversion(conversion);
+    setIsMarkCompletedModalOpen(true);
+  };
 
-  return (
-    <div className={styles.tableContainer}>
-      {/* Table Header */}
-      <div className={styles.tableHeader}>
-        <h3 className={styles.tableTitle}>
-          EP Conversions
-          {isFetching && !isLoading && (
-            <span className={styles.refreshIndicator}>
-              <RefreshCw size={14} />
+  // Define columns following universal column order: ID → Created → User → Domain Fields → Actions
+  const columns: Column<ConversionWithUser>[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      width: '100px',
+      render: (conversion) => (
+        <span className={styles.idCell}>{formatIdForDisplay(conversion.id)}</span>
+      ),
+    },
+    {
+      key: 'created_at',
+      label: 'Created',
+      width: '120px',
+      sortable: true,
+      hideOnMobile: true,
+      render: (conversion) => (
+        <span className={styles.dateCell}>{formatDate(conversion.created_at)}</span>
+      ),
+    },
+    {
+      key: 'user',
+      label: 'User',
+      width: '180px',
+      render: (conversion) => (
+        <div className={styles.userInfo}>
+          <span className={styles.userName}>
+            {conversion.profiles?.full_name || 'Unknown User'}
+          </span>
+          <span className={styles.userEmail}>
+            {conversion.profiles?.email || formatIdForDisplay(conversion.user_id)}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'ep_amount',
+      label: 'EP Amount',
+      width: '100px',
+      sortable: true,
+      render: (conversion) => (
+        <span className={styles.epValue}>{formatEP(conversion.ep_amount)}</span>
+      ),
+    },
+    {
+      key: 'gbp_amount_pence',
+      label: 'GBP Value',
+      width: '100px',
+      hideOnMobile: true,
+      render: (conversion) => (
+        <span className={styles.gbpValue}>{formatCurrency(conversion.gbp_amount_pence)}</span>
+      ),
+    },
+    {
+      key: 'platform_fee_pence',
+      label: 'Fee',
+      width: '80px',
+      hideOnMobile: true,
+      hideOnTablet: true,
+      render: (conversion) => formatCurrency(conversion.platform_fee_pence),
+    },
+    {
+      key: 'destination',
+      label: 'Destination',
+      width: '120px',
+      hideOnMobile: true,
+      render: (conversion) => (
+        <DestinationBadge destination={conversion.destination} />
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '100px',
+      render: (conversion) => (
+        <div className={styles.statusCell}>
+          <StatusBadge status={conversion.status} />
+          {conversion.failure_reason && (
+            <span className={styles.failureReason} title={conversion.failure_reason}>
+              {conversion.failure_reason.substring(0, 20)}...
             </span>
           )}
-        </h3>
-        <div className={styles.searchContainer}>
-          <div style={{ position: 'relative' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-            <input
-              type="search"
-              placeholder="Search by name, email, or ID..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
-              className={styles.searchInput}
-              style={{ paddingLeft: '36px' }}
-            />
-          </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value as typeof filterStatus);
-              setCurrentPage(1);
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="failed">Failed</option>
-          </select>
-          <select
-            value={filterDestination}
-            onChange={(e) => {
-              setFilterDestination(e.target.value as typeof filterDestination);
-              setCurrentPage(1);
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="all">All Destinations</option>
-            <option value="student_loan">Student Loan</option>
-            <option value="isa">ISA</option>
-            <option value="savings">Savings</option>
-          </select>
         </div>
-      </div>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: '100px',
+      render: (conversion) => (
+        <VerticalDotsMenu
+          actions={[
+            { label: 'View Details', onClick: () => handleViewDetails(conversion) },
+            { label: 'Contact User', onClick: () => handleContactUser(conversion) },
+            ...(conversion.status === 'failed' ? [
+              { label: 'Retry Conversion', onClick: () => handleRetryConversion(conversion) },
+            ] : []),
+            ...(conversion.status === 'pending' || conversion.status === 'processing' ? [
+              { label: 'Mark Completed', onClick: () => handleMarkCompleted(conversion) },
+            ] : []),
+          ]}
+        />
+      ),
+    },
+  ];
 
-      {/* Table */}
-      {isLoading ? (
-        <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>User</th>
-              <th>EP Amount</th>
-              <th>GBP Value</th>
-              <th>Platform Fee</th>
-              <th>Destination</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i}>
-                {Array.from({ length: 9 }).map((_, j) => (
-                  <td key={j}><div className={styles.skeletonRow} style={{ width: j === 1 ? '150px' : '80px' }} /></td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : paginatedConversions.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p className={styles.emptyStateTitle}>No conversions found</p>
-          <p className={styles.emptyStateDescription}>
-            {searchQuery || filterStatus !== 'all' || filterDestination !== 'all'
-              ? 'Try adjusting your filters'
-              : 'No EP conversions have been made yet'}
-          </p>
-        </div>
-      ) : (
-        <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>User</th>
-              <th>EP Amount</th>
-              <th>GBP Value</th>
-              <th>Platform Fee</th>
-              <th>Destination</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedConversions.map((conversion) => (
-              <tr key={conversion.id}>
-                <td className={styles.cellMono}>
-                  {formatIdForDisplay(conversion.id)}
-                </td>
-                <td>
-                  <div className={styles.userInfo}>
-                    <span className={styles.userName}>
-                      {conversion.profiles?.full_name || 'Unknown User'}
-                    </span>
-                    <span className={styles.userEmail}>
-                      {conversion.profiles?.email || formatIdForDisplay(conversion.user_id)}
-                    </span>
-                  </div>
-                </td>
-                <td className={styles.cellBold}>{formatEP(conversion.ep_amount)}</td>
-                <td className={styles.cellSuccess}>{formatCurrency(conversion.gbp_amount_pence)}</td>
-                <td>{formatCurrency(conversion.platform_fee_pence)}</td>
-                <td>{getDestinationLabel(conversion.destination)}</td>
-                <td>
-                  <span className={`${styles.statusBadge} ${getStatusClass(conversion.status)}`}>
-                    {conversion.status}
-                  </span>
-                  {conversion.failure_reason && (
-                    <div style={{ fontSize: '0.7rem', color: '#dc2626', marginTop: '2px' }}>
-                      {conversion.failure_reason}
-                    </div>
-                  )}
-                </td>
-                <td className={styles.cellMono}>
-                  {new Date(conversion.created_at).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      className={styles.actionButton}
-                      onClick={() => {
-                        // TODO: Open conversion detail modal
-                        console.log('View conversion:', conversion.id);
-                      }}
-                      title="View details"
-                    >
-                      <Eye size={14} />
-                    </button>
-                    {conversion.status === 'failed' && (
-                      <button
-                        className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
-                        onClick={() => retryMutation.mutate(conversion.id)}
-                        disabled={retryMutation.isPending}
-                        title="Retry conversion"
-                      >
-                        <RotateCcw size={14} />
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+  // Define filters
+  const filters: Filter[] = [
+    {
+      key: 'status',
+      label: 'All Status',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Processing', value: 'processing' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Failed', value: 'failed' },
+      ],
+    },
+    {
+      key: 'destination',
+      label: 'All Destinations',
+      options: [
+        { label: 'Student Loan', value: 'student_loan' },
+        { label: 'ISA', value: 'isa' },
+        { label: 'Savings', value: 'savings' },
+      ],
+    },
+  ];
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className={styles.pagination}>
-          <span className={styles.paginationInfo}>
-            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredConversions.length)} of {filteredConversions.length} conversions
-          </span>
-          <div className={styles.paginationButtons}>
-            <button
-              className={styles.paginationButton}
-              onClick={() => setCurrentPage(p => p - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              className={styles.paginationButton}
-              onClick={() => setCurrentPage(p => p + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+  // Pagination config
+  const paginationConfig: PaginationConfig = {
+    page,
+    limit,
+    total: conversionsData?.total || 0,
+    onPageChange: setPage,
+    onLimitChange: (newLimit) => {
+      setLimit(newLimit);
+      setPage(1);
+    },
+    pageSizeOptions: [10, 20, 50, 100],
+  };
+
+  // Handle export to CSV
+  const handleExport = () => {
+    if (!conversions || conversions.length === 0) return;
+
+    const headers = ['ID', 'User', 'Email', 'EP Amount', 'GBP Value', 'Platform Fee', 'Net Amount', 'Destination', 'Status', 'Created', 'Completed'];
+    const rows = conversions.map((conversion) => [
+      conversion.id,
+      conversion.profiles?.full_name || 'Unknown',
+      conversion.profiles?.email || 'N/A',
+      conversion.ep_amount,
+      formatCurrency(conversion.gbp_amount_pence),
+      formatCurrency(conversion.platform_fee_pence),
+      formatCurrency(conversion.net_amount_pence),
+      conversion.destination,
+      conversion.status,
+      formatDate(conversion.created_at),
+      formatDate(conversion.completed_at),
+    ]);
+
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `edupay-conversions-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      {/* Conversion Details Modal */}
+      <ConversionDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        conversion={selectedConversion}
+        onMarkCompleted={(conv) => {
+          setIsDetailsModalOpen(false);
+          handleMarkCompleted(conv);
+        }}
+        onRetry={(conv) => {
+          setIsDetailsModalOpen(false);
+          handleRetryConversion(conv);
+        }}
+      />
+
+      {/* Mark Completed Modal */}
+      <MarkCompletedModal
+        isOpen={isMarkCompletedModalOpen}
+        onClose={() => setIsMarkCompletedModalOpen(false)}
+        conversion={selectedConversion}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-edupay-conversions-table'] });
+          queryClient.invalidateQueries({ queryKey: ['admin-edupay-metrics'] });
+        }}
+      />
+
+      <HubDataTable
+        columns={columns}
+        data={conversions}
+        loading={isLoading}
+        onRefresh={() => refetch()}
+        onExport={handleExport}
+        filters={filters}
+        pagination={paginationConfig}
+        emptyMessage={error ? `Error loading conversions: ${error.message}` : 'No EP conversions found.'}
+        searchPlaceholder="Search by name, email, or ID..."
+        autoRefreshInterval={30000}
+        enableSavedViews={true}
+        savedViewsKey="admin_edupay_conversions_savedViews"
+      />
+    </>
   );
 }

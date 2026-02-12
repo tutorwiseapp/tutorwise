@@ -1,0 +1,127 @@
+/**
+ * Filename: ConversionsTable.module.css
+ * Purpose: Styles for EduPay ConversionsTable component
+ * Created: 2026-02-12
+ * Pattern: Follows UsersTable.module.css styling conventions
+ */
+
+/* ID Cell */
+.idCell {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+/* Date Cell */
+.dateCell {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* User Info */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* EP Value Cells */
+.epValue {
+  font-weight: 600;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+.gbpValue {
+  font-weight: 500;
+  color: #059669;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status Cell */
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.failureReason {
+  font-size: 0.6875rem;
+  color: #dc2626;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.badgeCompleted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badgePending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badgeFailed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badgeDefault {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Destination Badges */
+.destinationBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.destinationLoan {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.destinationIsa {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.destinationSavings {
+  background: #fce7f3;
+  color: #9d174d;
+}
