@@ -61,7 +61,15 @@ export default function AppSidebar() {
         { href: '/financials', label: 'Transactions', indent: true },
         { href: '/financials/payouts', label: 'Payouts', indent: true },
         { href: '/financials/disputes', label: 'Disputes', indent: true },
-        { href: '/financials/edupay', label: 'EduPay', indent: true },
+      ],
+    },
+    {
+      href: '/financials/edupay',
+      label: 'EduPay',
+      subItems: [
+        { href: '/financials/edupay', label: 'Wallet', indent: true },
+        { href: '/financials/edupay/cashback', label: 'Cashback', indent: true },
+        { href: '/financials/edupay/savings', label: 'Savings', indent: true },
       ],
     },
     { href: '/messages', label: 'Messages' },
