@@ -1,6 +1,6 @@
 # TutorWise User Journey Map
 
-**Last Updated:** 2026-01-22
+**Last Updated:** 2026-02-12
 **Status:** Production
 
 ---
@@ -727,6 +727,6 @@ AUTOMATED EMAILS (Resend)
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** 2026-01-22
+**Document Version:** 2.1
+**Last Updated:** 2026-02-12
 **Status:** Production - Reflects Current Implementation

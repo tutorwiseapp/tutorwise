@@ -6,31 +6,32 @@
 
 ## Version History
 
-1.0 2026-01-14 - Initial creation - comprehensive system navigation 
+1.0 2026-01-14 - Initial creation - comprehensive system navigation
 1.1 2026-02-04 - Update - Last update
+1.2 2026-02-12 - Update - Refreshed codebase metrics (396 pages, 191K LOC, 270 migrations)
 
 ---
 
 ## Platform Metrics (Single Source of Truth)
 
 ### Codebase Scale
-- **267 pages** (111 UI pages + 144 API routes + 12 dynamic route patterns)
-- **148,000 lines of code** (TypeScript/TSX across app, components, lib)
-- **180,000 lines of documentation** (16K AI context + 164K feature/technical docs)
-- **29,000 lines of SQL** (196 migration files, 60+ tables)
-- **353 components** (22 feature component directories + UI library)
+- **396 pages** (131 UI pages + 222 API routes + 43 dynamic route patterns)
+- **191,000 lines of code** (TypeScript/TSX across app, components, lib)
+- **238,000 lines of documentation** (18K AI context + 220K feature/technical docs)
+- **42,000 lines of SQL** (270 migration files, 70+ tables)
+- **382 components** (feature components + UI library)
 - **31 major features** (22 core systems + 14 platform hubs - 5 overlap)
 
 ### Total User-Facing Views Including Modals
-- 155 total UI views that users can see and interact with:
+- 175 total UI views that users can see and interact with:
 
-#### 111 Route-based Pages (with URLs)
-- 44 Admin pages
+#### 131 Route-based Pages (with URLs)
+- 50 Admin pages
 - 4 Auth pages
-- 13 Public pages
-- 5 Public profile pages
+- 15 Public pages
+- 7 Public profile pages
 - 16 Onboarding pages
-- 30 Authenticated user pages
+- 39 Authenticated user pages
 
 #### 36 Interactive Modals (overlay views)
 - 7 Admin detail modals
@@ -49,16 +50,16 @@
 - 6 Advanced filter drawers (admin hubs)
 
 #### Summary:
-- Original documentation: 260 pages = 107 UI pages + 141 API routes + 12 dynamic patterns
-- Including all interactive views: 150 UI views = 107 pages + 36 modals + 7 dialogs/drawers
-- Pure user interaction surfaces: 143 views (if excluding filter drawers, which are utility overlays)
-- The 107 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
+- Total pages: 396 = 131 UI pages + 222 API routes + 43 dynamic patterns
+- Including all interactive views: 175 UI views = 131 pages + 36 modals + 8 dialogs/drawers
+- Pure user interaction surfaces: 167 views (if excluding filter drawers, which are utility overlays)
+- The 131 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
 
 ### API & Database
-- **144 API endpoints** (REST + webhooks + RPC functions)
-- **196 database migrations** (190 numbered: 000-182 + 6 supporting files)
+- **222 API endpoints** (REST + webhooks + RPC functions)
+- **270 database migrations** (numbered: 000-270)
 - **200+ Row-Level Security policies** with granular RBAC
-- **60+ database tables** with comprehensive relationships
+- **70+ database tables** with comprehensive relationships
 
 ### Advanced Technical Systems
 - **Neo4j graph database** with PageRank trust propagation for SEO
@@ -170,36 +171,37 @@
 
 ### Database (`tools/database/migrations/`)
 
-- **192 migrations** (191 numbered + 1 supporting)
+- **270 migrations** (numbered 000-270)
 - Naming: `NNN_descriptive_name.sql`
 - Key migrations:
   - `001-074`: Core platform (profiles, listings, bookings)
   - `075-098`: Features (referrals, payments, reviews)
   - `099-142`: Advanced features (organisations, CaaS, messages)
-  - `143-173`: Enhancements (metrics, soft delete, Agent/Org CaaS)
+  - `143-200`: Enhancements (metrics, soft delete, Agent/Org CaaS)
+  - `201-270`: EduPay, compliance, and additional features
 
 ---
 
 ## Visual Page Sitemap
 
-**All 260+ Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
+**All 396 Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
 
 ### Summary
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Public Pages** | 13 | Landing, marketplace, help, policies |
+| **Public Pages** | 15 | Landing, marketplace, help, policies |
 | **Auth & Redirects** | 4 | Login, OAuth callbacks, referral links |
-| **Public Profiles** | 5 | Listings, profiles, organisations (dynamic) |
+| **Public Profiles** | 7 | Listings, profiles, organisations (dynamic) |
 | **Marketplace Pages** | 5 | Directories (orgs, schools, agencies, companies, docs) |
 | **Resources Pages** | 3 | Resources index, article detail, category pages |
 | **Onboarding Flows** | 16 | 3 roles × 5 steps (Tutor, Client, Agent) + hub |
-| **Dashboard Pages** | 30 | Account, bookings, financials, network, org management |
-| **Admin Pages** | 35 | 13 admin hubs + SEO management + Signal Analytics + settings |
-| **Total UI Pages** | **111** | |
-| **API Endpoints** | **144** | REST APIs + webhooks |
-| **Dynamic Routes** | **~12** | [id], [slug], etc. (counted in category totals) |
-| **GRAND TOTAL** | **267+** | All pages including dynamic variations |
+| **Dashboard Pages** | 39 | Account, bookings, financials, network, org management |
+| **Admin Pages** | 50 | 13 admin hubs + SEO management + Signal Analytics + settings |
+| **Total UI Pages** | **131** | |
+| **API Endpoints** | **222** | REST APIs + webhooks |
+| **Dynamic Routes** | **~43** | [id], [slug], etc. (counted in category totals) |
+| **GRAND TOTAL** | **396** | All pages including dynamic variations |
 
 ---
 
@@ -397,7 +399,7 @@
 
 ---
 
-### API Endpoints (144 routes)
+### API Endpoints (222 routes)
 
 #### Resources Attribution (3 endpoints)
 ```
@@ -717,15 +719,15 @@ GET  /api/user/delete                    # Delete user account
 
 The platform uses Next.js route groups to organize pages:
 
-1. **(admin)** - Protected admin section (34 pages)
+1. **(admin)** - Protected admin section (50 pages)
 2. **(auth)** - Authentication pages (4 pages)
-3. **Root level** - Public pages (13 pages) + special routes
-4. **Public profiles** - Dynamic profile/listing pages (5 pages)
+3. **Root level** - Public pages (15 pages) + special routes
+4. **Public profiles** - Dynamic profile/listing pages (7 pages)
 5. **/onboarding** - Onboarding flows (16 pages)
-6. **Authenticated** - Protected user section (30 pages)
-7. **/api** - Backend API endpoints (141 routes)
+6. **Authenticated** - Protected user section (39 pages)
+7. **/api** - Backend API endpoints (222 routes)
 
-**Total: 248 distinct routes** (107 UI pages + 141 API endpoints). The 260 pages metric includes dynamic route variations (e.g., `/listings/[id]` counted per listing).
+**Total: 353 distinct routes** (131 UI pages + 222 API endpoints). The 396 pages metric includes dynamic route variations (e.g., `/listings/[id]` counted per listing).
 
 ---
 
@@ -1684,12 +1686,12 @@ Database:
 
 ```
 📊 Codebase Statistics:
-├── 148,000 lines of TypeScript/TSX code
-├── 180,000 lines of documentation (16K AI context + 164K features)
-├── 29,000 lines of SQL (196 migrations)
-├── 267 pages (111 UI + 144 API + dynamic routes)
-├── 353 components (22 feature components + UI library)
-├── 144 API endpoints
+├── 191,000 lines of TypeScript/TSX code
+├── 238,000 lines of documentation (18K AI context + 220K features)
+├── 42,000 lines of SQL (270 migrations)
+├── 396 pages (131 UI + 222 API + 43 dynamic routes)
+├── 382 components (feature components + UI library)
+├── 222 API endpoints
 └── 31 major features
 ```
 
@@ -1698,7 +1700,7 @@ Database:
 ```
 tutorwise/
 ├── .ai/                                   # AI context files (START HERE)
-│   │                                      # 16,310 lines of documentation
+│   │                                      # 18,000 lines of documentation
 │   ├── 1 - ROADMAP.md                     # 670 lines - 98% complete, 31 features
 │   ├── 2 - PLATFORM-SPECIFICATION.md      # 3,194 lines - Complete tech spec
 │   ├── 3 - SYSTEM-NAVIGATION.md           # This file - Complete navigation
@@ -1709,13 +1711,13 @@ tutorwise/
 │   ├── ADMIN-DASHBOARD.md                 # 11 admin hubs architecture
 │   ├── SHARED-FIELDS.md                   # 23 global fields, 106 mappings
 │   ├── ONBOARDING.md                      # Page-based onboarding (3 roles)
-│   └── RESOURCES-REVENUE-SIGNAL.md                        # Resources attribution system (Phases 1-3, Blog→Resources migration complete 2026-01-18)
+│   └── RESOURCES-REVENUE-SIGNAL.md        # Resources attribution system (Phases 1-3, Blog→Resources migration complete 2026-01-18)
 │
 ├── apps/
-│   └── web/                               # Next.js 14.x frontend (148K lines)
+│   └── web/                               # Next.js 14.x frontend (191K lines)
 │       ├── src/
-│       │   ├── app/                       # App Router (118K lines)
-│       │   │   │                          # 107 UI pages + 141 API endpoints
+│       │   ├── app/                       # App Router (160K lines)
+│       │   │   │                          # 131 UI pages + 222 API endpoints
 │       │   │   ├── (auth)/                # Authentication routes (4 pages)
 │       │   │   │   ├── login/
 │       │   │   │   ├── signup/
@@ -1747,7 +1749,7 @@ tutorwise/
 │       │   │   │   │   ├── financials/    # Financials hub (3 pages)
 │       │   │   │   │   ├── seo/           # SEO hub (11 pages)
 │       │   │   │   │   └── settings/      # Settings hub (6 pages)
-│       │   │   ├── api/                   # API routes (141 endpoints)
+│       │   │   ├── api/                   # API routes (222 endpoints)
 │       │   │   │   ├── admin/             # Admin APIs (23)
 │       │   │   │   ├── marketplace/       # Marketplace APIs (17)
 │       │   │   │   ├── bookings/          # Booking APIs (4)
@@ -1764,8 +1766,8 @@ tutorwise/
 │       │   │   │   └── [other APIs]       # Remaining endpoints
 │       │   │   ├── proxy.ts               # Next.js proxy - redirects/rewrites (Next.js 16)
 │       │   │   └── layout.tsx             # Root layout
-│       │   ├── components/                # 353 components (5.4K lines)
-│       │   │   └── feature/               # 22 feature component directories
+│       │   ├── components/                # 382 components (8K lines)
+│       │   │   └── feature/               # Feature component directories
 │       │   │       ├── onboarding/        # Onboarding components
 │       │   │       ├── listings/          # Listing components
 │       │   │       ├── marketplace/       # Marketplace components
@@ -1830,7 +1832,7 @@ tutorwise/
 │
 ├── tools/
 │   └── database/
-│       └── migrations/                    # 192 SQL migrations
+│       └── migrations/                    # 270 SQL migrations
 │           ├── 001_create_profiles_table.sql
 │           ├── 002_create_listings_table_simplified.sql
 │           ├── 074_create_caas_scores_table.sql

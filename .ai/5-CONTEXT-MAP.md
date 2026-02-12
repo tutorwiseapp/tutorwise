@@ -1,7 +1,7 @@
 # Tutorwise Context Map
 
-**Document Version**: 2.0
-**Last Updated**: 2026-01-14
+**Document Version**: 2.1
+**Last Updated**: 2026-02-12
 **Purpose**: Maps how all context files interconnect to enable autonomous AI development
 
 ---
@@ -78,7 +78,7 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - Finding where specific features are implemented
 - Understanding user flows through the platform
 - Locating components, services, API routes
-- Navigating the 260-page codebase
+- Navigating the 396-page codebase
 - Understanding how features interconnect
 
 **Connects To**:
@@ -558,9 +558,9 @@ tutorwise/
 │       │   │   ├── (admin)/    # Admin routes (12 sections)
 │       │   │   ├── (auth)/     # Auth routes (login, signup)
 │       │   │   ├── (dashboard)/# User dashboards (4 roles)
-│       │   │   ├── api/        # API routes (141 endpoints)
+│       │   │   ├── api/        # API routes (222 endpoints)
 │       │   │   └── components/ # Page-specific components
-│       │   ├── components/     # Shared components (353 total)
+│       │   ├── components/     # Shared components (382 total)
 │       │   │   ├── admin/      # Admin-specific (HubComplexModal)
 │       │   │   ├── auth/       # Auth components
 │       │   │   ├── feature/    # Feature-specific
@@ -574,7 +574,7 @@ tutorwise/
 │       └── public/             # Static assets
 ├── tools/
 │   └── database/
-│       └── migrations/         # 237 Supabase migrations
+│       └── migrations/         # 270 Supabase migrations
 ├── docs/                       # Documentation (non-AI)
 │   ├── feature/                # Feature implementation docs
 │   ├── help-centre/            # User documentation
@@ -762,6 +762,6 @@ Result: 1-2 messages, complete implementation, full consistency
 
 *This context map ensures consistent, autonomous, and high-quality AI-assisted development for Tutorwise*
 
-**Last Updated**: 2026-01-14
-**Next Review**: 2026-01-21
+**Last Updated**: 2026-02-12
+**Next Review**: 2026-02-19
 **Maintained By**: Platform Architecture Team

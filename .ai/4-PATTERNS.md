@@ -12,15 +12,15 @@
 ```
 apps/web/src/
 ├── app/
-│   ├── (admin)/admin/              # 12 admin sections with HubComplexModal pattern
+│   ├── (admin)/admin/              # 13 admin sections with HubComplexModal pattern
 │   │   ├── accounts/               # User management (soft/hard delete)
 │   │   ├── forms/                  # Shared fields admin (drag-and-drop)
 │   │   ├── organisations/          # Team management
-│   │   └── [other-sections]/      # 9 other admin sections
+│   │   └── [other-sections]/      # Additional admin sections
 │   ├── (auth)/                     # Authentication routes
 │   ├── (dashboard)/                # User dashboards (role-based)
-│   ├── api/                        # API routes (141 endpoints)
-│   ├── components/                 # Reusable components (353 total)
+│   ├── api/                        # API routes (222 endpoints)
+│   ├── components/                 # Reusable components (382 total)
 │   │   ├── ui/                     # Base design system
 │   │   ├── admin/                  # Admin-specific components
 │   │   ├── feature/                # Feature-specific components
@@ -35,7 +35,7 @@ apps/web/src/
 │   └── stripe.ts                   # Stripe Connect client
 └── utils/                          # Utility functions
 
-tools/database/migrations/          # 237 database migrations
+tools/database/migrations/          # 270 database migrations
 ```
 
 ### Naming Conventions
@@ -888,6 +888,6 @@ refactor: consolidate shared fields API logic
 
 ---
 
-*This document reflects production patterns as of January 14, 2026*
-*Platform at 95% completion, beta release February 1, 2026*
+*This document reflects production patterns as of February 12, 2026*
+*Platform at 98% completion, production-ready*
 *Update this document as new patterns emerge*
