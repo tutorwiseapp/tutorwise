@@ -10,8 +10,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { format, parse } from 'date-fns';
-import styles from '../../OnboardingWizard.module.css';
-import { WizardActionButtons } from '../WizardButton';
+import styles from '../OnboardingShared.module.css';
+import { OnboardingActionButtons } from '../OnboardingButton';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { HubForm } from '@/app/components/hub/form/HubForm';
@@ -384,7 +384,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         </HubForm.Section>
       </div>
 
-      <WizardActionButtons
+      <OnboardingActionButtons
         onNext={handleNext}
         onBack={onBack}
         backLabel="← Back"

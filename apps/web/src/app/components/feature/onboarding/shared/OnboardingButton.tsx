@@ -1,11 +1,11 @@
 /**
- * Filename: src/app/components/feature/onboarding/shared/WizardButton.tsx
- * Purpose: Reusable button components for wizard flows with consistent behavior and styling
+ * Filename: src/app/components/feature/onboarding/shared/OnboardingButton.tsx
+ * Purpose: Reusable button components for onboarding flows with consistent behavior and styling
  *
  * Features:
  * - Automatic event handling (preventDefault, stopPropagation)
  * - Built-in loading state support
- * - Consistent styling across all wizards
+ * - Consistent styling across all onboarding steps
  * - Debugging console logs (optional)
  * - Type-safe props
  */
@@ -13,9 +13,9 @@
 'use client';
 
 import React from 'react';
-import styles from '../OnboardingWizard.module.css';
+import styles from './OnboardingShared.module.css';
 
-export interface WizardButtonProps {
+export interface OnboardingButtonProps {
   /** Button label/text */
   children: React.ReactNode;
   /** Click handler - automatically gets event handling */
@@ -37,9 +37,9 @@ export interface WizardButtonProps {
 }
 
 /**
- * Primary wizard button - used for main actions (Continue, Submit, Next)
+ * Primary onboarding button - used for main actions (Continue, Submit, Next)
  */
-export const WizardPrimaryButton: React.FC<WizardButtonProps> = ({
+export const OnboardingPrimaryButton: React.FC<OnboardingButtonProps> = ({
   children,
   onClick,
   disabled = false,
@@ -54,7 +54,7 @@ export const WizardPrimaryButton: React.FC<WizardButtonProps> = ({
     e.stopPropagation();
 
     if (debug) {
-      console.log('[WizardPrimaryButton] Clicked:', { disabled, isLoading });
+      console.log('[OnboardingPrimaryButton] Clicked:', { disabled, isLoading });
     }
 
     if (!disabled && !isLoading) {
@@ -79,9 +79,9 @@ export const WizardPrimaryButton: React.FC<WizardButtonProps> = ({
 };
 
 /**
- * Secondary wizard button - used for secondary actions (Back, Cancel)
+ * Secondary onboarding button - used for secondary actions (Back, Cancel)
  */
-export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
+export const OnboardingSecondaryButton: React.FC<OnboardingButtonProps> = ({
   children,
   onClick,
   disabled = false,
@@ -96,7 +96,7 @@ export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
     e.stopPropagation();
 
     if (debug) {
-      console.log('[WizardSecondaryButton] Clicked:', { disabled, isLoading });
+      console.log('[OnboardingSecondaryButton] Clicked:', { disabled, isLoading });
     }
 
     if (!disabled && !isLoading) {
@@ -121,9 +121,9 @@ export const WizardSecondaryButton: React.FC<WizardButtonProps> = ({
 };
 
 /**
- * Wizard action button group - manages Back and Next buttons with consistent layout
+ * Onboarding action button group - manages Back and Next buttons with consistent layout
  */
-export interface WizardActionButtonsProps {
+export interface OnboardingActionButtonsProps {
   /** Continue button click handler */
   onNext: () => void;
   /** Continue button enabled state */
@@ -144,7 +144,7 @@ export interface WizardActionButtonsProps {
  * Complete action button group with Back and Next buttons
  * Handles layout and consistent styling
  */
-export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
+export const OnboardingActionButtons: React.FC<OnboardingActionButtonsProps> = ({
   onNext,
   nextEnabled,
   nextLabel = 'Next →',
@@ -157,19 +157,19 @@ export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
     <div className={styles.stepActions}>
       <div className={styles.actionLeft}>
         {onBack && (
-          <WizardSecondaryButton
+          <OnboardingSecondaryButton
             onClick={onBack}
             disabled={isLoading}
             debug={debug}
             ariaLabel="Go back to previous step"
           >
             {backLabel}
-          </WizardSecondaryButton>
+          </OnboardingSecondaryButton>
         )}
       </div>
 
       <div className={styles.actionRight}>
-        <WizardPrimaryButton
+        <OnboardingPrimaryButton
           onClick={onNext}
           disabled={!nextEnabled}
           isLoading={isLoading}
@@ -177,17 +177,17 @@ export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
           ariaLabel="Continue to next step"
         >
           {nextLabel}
-        </WizardPrimaryButton>
+        </OnboardingPrimaryButton>
       </div>
     </div>
   );
 };
 
 /**
- * Hook for managing wizard step validation and button state
+ * Hook for managing onboarding step validation and button state
  *
  * Usage:
- * const { isValid, validate } = useWizardValidation({
+ * const { isValid, validate } = useOnboardingValidation({
  *   fields: { name, email, phone },
  *   validators: {
  *     name: (v) => v.length > 0,
@@ -196,7 +196,7 @@ export const WizardActionButtons: React.FC<WizardActionButtonsProps> = ({
  *   }
  * });
  */
-export function useWizardValidation<T extends Record<string, any>>(config: {
+export function useOnboardingValidation<T extends Record<string, any>>(config: {
   fields: T;
   validators: { [K in keyof T]?: (value: T[K]) => boolean };
   debug?: boolean;
@@ -216,7 +216,7 @@ export function useWizardValidation<T extends Record<string, any>>(config: {
     const isValid = Object.values(results).every(Boolean);
 
     if (debug) {
-      console.log('[useWizardValidation]', {
+      console.log('[useOnboardingValidation]', {
         fields,
         results,
         isValid,
@@ -234,11 +234,21 @@ export function useWizardValidation<T extends Record<string, any>>(config: {
   };
 }
 
-const WizardButtonComponents = {
-  Primary: WizardPrimaryButton,
-  Secondary: WizardSecondaryButton,
-  ActionButtons: WizardActionButtons,
-  useValidation: useWizardValidation,
+// Legacy exports for backward compatibility (deprecated - use new names)
+/** @deprecated Use OnboardingPrimaryButton instead */
+export const WizardPrimaryButton = OnboardingPrimaryButton;
+/** @deprecated Use OnboardingSecondaryButton instead */
+export const WizardSecondaryButton = OnboardingSecondaryButton;
+/** @deprecated Use OnboardingActionButtons instead */
+export const WizardActionButtons = OnboardingActionButtons;
+/** @deprecated Use useOnboardingValidation instead */
+export const useWizardValidation = useOnboardingValidation;
+
+const OnboardingButtonComponents = {
+  Primary: OnboardingPrimaryButton,
+  Secondary: OnboardingSecondaryButton,
+  ActionButtons: OnboardingActionButtons,
+  useValidation: useOnboardingValidation,
 };
 
-export default WizardButtonComponents;
+export default OnboardingButtonComponents;

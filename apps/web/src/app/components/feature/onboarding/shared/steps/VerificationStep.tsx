@@ -8,8 +8,8 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import styles from '../../OnboardingWizard.module.css';
-import { WizardActionButtons } from '../WizardButton';
+import styles from '../OnboardingShared.module.css';
+import { OnboardingActionButtons } from '../OnboardingButton';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
@@ -460,7 +460,7 @@ const VerificationStep: React.FC<VerificationStepProps> = ({
         </HubForm.Root>
       </div>
 
-      <WizardActionButtons
+      <OnboardingActionButtons
         onNext={handleNext}
         nextEnabled={isValid}
         onBack={onBack}

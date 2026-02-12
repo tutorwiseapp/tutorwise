@@ -8,9 +8,9 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import styles from '../../OnboardingWizard.module.css';
+import styles from '../OnboardingShared.module.css';
 import professionalStyles from '../../../account/ProfessionalInfoForm.module.css';
-import { WizardActionButtons } from '../WizardButton';
+import { OnboardingActionButtons } from '../OnboardingButton';
 import { HubForm } from '@/app/components/hub/form/HubForm';
 import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
 import DatePicker from '@/app/components/ui/forms/DatePicker';
@@ -500,7 +500,7 @@ const AvailabilityStep: React.FC<AvailabilityStepProps> = ({
     console.log(`[AvailabilityStep:${role}] isValid:`, isValid);
     console.log(`[AvailabilityStep:${role}] Calling onNext...`);
 
-    // The WizardActionButtons component ensures this only runs when isValid is true
+    // The OnboardingActionButtons component ensures this only runs when isValid is true
     // Pass data to wizard - wizard handles all database operations in background
     onNext(availabilityData);
 
@@ -864,7 +864,7 @@ const AvailabilityStep: React.FC<AvailabilityStepProps> = ({
       </div>
 
       {/* Action Buttons using shared component */}
-      <WizardActionButtons
+      <OnboardingActionButtons
         onNext={handleNext}
         nextEnabled={isValid}
         onBack={onBack}

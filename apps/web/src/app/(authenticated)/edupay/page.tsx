@@ -196,13 +196,11 @@ export default function EduPayPage() {
         header={<HubHeader title="EduPay" />}
         sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
       >
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <p>Failed to load EduPay data. Please try again.</p>
-            <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
-              Try Again
-            </Button>
-          </div>
+        <div className={styles.error}>
+          <p>Failed to load EduPay data. Please try again.</p>
+          <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
+            Try Again
+          </Button>
         </div>
       </HubPageLayout>
     );
@@ -220,9 +218,7 @@ export default function EduPayPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.loading}>Loading EduPay...</div>
-        </div>
+        <div className={styles.loading}>Loading EduPay...</div>
       </HubPageLayout>
     );
   }
@@ -342,39 +338,37 @@ export default function EduPayPage() {
         </HubSidebar>
       }
     >
-      <div className={styles.container}>
-        {paginatedEntries.length === 0 ? (
-          entries.length === 0 ? (
-            <HubEmptyState
-              title="No EduPay activity yet"
-              description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
-              actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
-              onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
-            />
-          ) : (
-            <HubEmptyState
-              title="No activity found"
-              description="No EP activity matches your current filters. Try adjusting your search or date range."
-            />
-          )
+      {paginatedEntries.length === 0 ? (
+        entries.length === 0 ? (
+          <HubEmptyState
+            title="No EduPay activity yet"
+            description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
+            actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
+            onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
+          />
         ) : (
-          <>
-            <div className={styles.ledgerList}>
-              {paginatedEntries.map(entry => (
-                <EduPayLedgerCard key={entry.id} entry={entry} />
-              ))}
-            </div>
-            {filteredEntries.length > ITEMS_PER_PAGE && (
-              <HubPagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
-              />
-            )}
-          </>
-        )}
-      </div>
+          <HubEmptyState
+            title="No activity found"
+            description="No EP activity matches your current filters. Try adjusting your search or date range."
+          />
+        )
+      ) : (
+        <>
+          <div className={styles.ledgerList}>
+            {paginatedEntries.map(entry => (
+              <EduPayLedgerCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+          {filteredEntries.length > ITEMS_PER_PAGE && (
+            <HubPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
+      )}
 
       <EduPayConversionModal
         isOpen={showConversionModal}

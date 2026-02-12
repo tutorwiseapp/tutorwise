@@ -13,7 +13,7 @@
 'use client';
 
 import React from 'react';
-import styles from '../OnboardingWizard.module.css';
+import styles from './OnboardingShared.module.css';
 
 export interface SelectableCardOption {
   /** Unique value identifier */

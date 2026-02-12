@@ -1,6 +1,6 @@
 /*
- * Filename: src/app/components/onboarding/OnboardingWizard.module.css
- * Purpose: Provides styling for the onboarding wizard using Tutorwise design system
+ * Filename: src/app/components/feature/onboarding/shared/OnboardingShared.module.css
+ * Purpose: Shared styles for onboarding step components using Tutorwise design system
  */
 
 .wizardOverlay {

@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import styles from './OnboardingWizard.module.css';
+import styles from './shared/OnboardingShared.module.css';
 
 export interface OnboardingProgressBarProps {
   currentStepId: number;

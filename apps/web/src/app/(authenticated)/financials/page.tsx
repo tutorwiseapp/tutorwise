@@ -250,9 +250,7 @@ export default function TransactionsPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.loading}>Loading transactions...</div>
-        </div>
+        <div className={styles.loading}>Loading transactions...</div>
       </HubPageLayout>
     );
   }
@@ -272,10 +270,8 @@ export default function TransactionsPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <p>Failed to load financial data. Please try again.</p>
-          </div>
+        <div className={styles.error}>
+          <p>Failed to load financial data. Please try again.</p>
         </div>
       </HubPageLayout>
     );
@@ -405,48 +401,46 @@ export default function TransactionsPage() {
         </HubSidebar>
       }
     >
-      <div className={styles.container}>
-        {/* Empty State */}
-        {paginatedTransactions.length === 0 ? (
-          transactions.length === 0 ? (
-            <HubEmptyState
-              title="No transactions yet"
-              description="Your transaction history will appear here once you start earning or making payments."
-            />
-          ) : (
-            <HubEmptyState
-              title="No transactions found"
-              description="No transactions match your current filters. Try adjusting your search or filters."
-            />
-          )
+      {/* Empty State */}
+      {paginatedTransactions.length === 0 ? (
+        transactions.length === 0 ? (
+          <HubEmptyState
+            title="No transactions yet"
+            description="Your transaction history will appear here once you start earning or making payments."
+          />
         ) : (
-          <>
-            {/* Transactions List */}
-            <div className={styles.transactionsList}>
-              {paginatedTransactions.map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                  currentUserId={profile?.id || ''}
-                />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {filteredTransactions.length > ITEMS_PER_PAGE && (
-              <HubPagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                itemsPerPage={ITEMS_PER_PAGE}
-                onPageChange={setCurrentPage}
+          <HubEmptyState
+            title="No transactions found"
+            description="No transactions match your current filters. Try adjusting your search or filters."
+          />
+        )
+      ) : (
+        <>
+          {/* Transactions List */}
+          <div className={styles.transactionsList}>
+            {paginatedTransactions.map((transaction) => (
+              <TransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                currentUserId={profile?.id || ''}
               />
-            )}
-          </>
-        )}
+            ))}
+          </div>
 
-        {/* Withdrawal History Section */}
-        <WithdrawalHistorySection transactions={transactions} />
-      </div>
+          {/* Pagination */}
+          {filteredTransactions.length > ITEMS_PER_PAGE && (
+            <HubPagination
+              currentPage={currentPage}
+              totalItems={totalItems}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </>
+      )}
+
+      {/* Withdrawal History Section */}
+      <WithdrawalHistorySection transactions={transactions} />
 
       {/* Withdrawal Confirmation Modal */}
       <WithdrawalConfirmationModal
