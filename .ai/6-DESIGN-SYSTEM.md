@@ -896,7 +896,663 @@ All hub sidebar widgets share:
 
 ---
 
-## 7. Implementation Plan (High-Level)
+## 7. Gold Standard Page Patterns
+
+This section documents the canonical implementation patterns for the three primary page contexts in Tutorwise. All new pages MUST follow these patterns for consistency.
+
+### 7.1. User Dashboard Gold Standard
+
+**Reference Implementations:**
+- `apps/web/src/app/(authenticated)/bookings/page.tsx`
+- `apps/web/src/app/(authenticated)/financials/page.tsx`
+- `apps/web/src/app/(authenticated)/edupay/page.tsx`
+
+#### Architecture Overview
+```
+User Dashboard = HubPageLayout
+├── Header (HubHeader)
+│   ├── Title
+│   ├── Filters (search input + sort dropdowns)
+│   └── Actions (primary + dropdown menu)
+├── Tabs (HubTabs)
+│   └── Tab counts from useMemo
+├── Main Content
+│   ├── Empty State (HubEmptyState) OR
+│   ├── List Items (mapped from paginated data)
+│   └── Pagination (HubPagination)
+└── Sidebar (HubSidebar)
+    ├── Stats widgets
+    ├── Help widget
+    ├── Tip widget
+    └── Context-specific widgets
+```
+
+#### File Structure Pattern
+```
+feature/
+├── page.tsx                    # Main page component
+├── page.module.css             # Page-specific styles
+├── components/
+│   ├── FeatureSkeleton.tsx     # Loading skeleton
+│   ├── FeatureSkeleton.module.css
+│   ├── FeatureError.tsx        # Error state
+│   └── FeatureError.module.css
+```
+
+#### React Query Configuration (MANDATORY)
+```typescript
+const { data, isLoading, isFetching, error, refetch } = useQuery({
+  queryKey: ['resource', profile?.id, activeRole],
+  queryFn: fetchFunction,
+  enabled: !!profile?.id,                      // Wait for profile
+  placeholderData: keepPreviousData,           // Instant cached data
+  staleTime: 30_000,                           // 30 seconds
+  gcTime: 10 * 60_000,                         // 10 minutes
+  refetchOnMount: 'always',                    // Refetch when page clicked
+  refetchOnWindowFocus: true,                  // Refetch on tab return
+  retry: 2,
+  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  refetchInterval: 60_000,                     // Auto-refresh every minute
+});
+```
+
+#### State Management Pattern
+```typescript
+// Core states
+const [currentPage, setCurrentPage] = useState(1);
+const [searchQuery, setSearchQuery] = useState('');
+const [sortBy, setSortBy] = useState<SortType>('date-desc');
+const [showActionsMenu, setShowActionsMenu] = useState(false);
+
+// URL-driven filter (source of truth)
+const filter = (searchParams?.get('filter') as FilterType) || 'all';
+
+// Reset pagination when filters change
+useEffect(() => {
+  setCurrentPage(1);
+}, [filter, searchQuery, sortBy]);
+```
+
+#### Filtering & Pagination Pattern
+```typescript
+// useMemo for computed values (prevents re-renders)
+const filteredItems = useMemo(() => {
+  let result = [...items];
+
+  // Tab-based filtering
+  if (filter !== 'all') {
+    result = result.filter(item => item.status === filter);
+  }
+
+  // Search filtering
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    result = result.filter(item =>
+      item.name?.toLowerCase().includes(query)
+    );
+  }
+
+  // Sorting
+  result.sort((a, b) => {
+    if (sortBy === 'date-desc') {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    return 0;
+  });
+
+  return result;
+}, [items, filter, searchQuery, sortBy]);
+
+// Calculate tab counts
+const tabCounts = useMemo(() => ({
+  all: items.length,
+  status1: items.filter(i => i.status === 'status1').length,
+  status2: items.filter(i => i.status === 'status2').length,
+}), [items]);
+
+// Pagination
+const paginatedItems = useMemo(() => {
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  return filteredItems.slice(start, start + ITEMS_PER_PAGE);
+}, [filteredItems, currentPage]);
+```
+
+#### Loading/Error/Empty States (MANDATORY)
+```typescript
+// Loading State — Use dedicated Skeleton component
+if (profileLoading || isLoading) {
+  return <FeatureSkeleton variant="list" count={3} />;
+}
+
+// Error State — Use dedicated Error component
+if (error) {
+  return (
+    <FeatureError
+      error={error}
+      onRetry={() => refetch()}
+      title="Failed to load data"
+      backUrl="/dashboard"
+      backLabel="Back to Dashboard"
+    />
+  );
+}
+
+// Empty State — Use HubEmptyState
+{paginatedItems.length === 0 && (
+  <HubEmptyState
+    icon={<span className="material-symbols-outlined">inbox</span>}
+    title="No items found"
+    description="Your description here"
+    actionLabel="Create New"
+    onAction={() => router.push('/create')}
+  />
+)}
+```
+
+#### Header Configuration Pattern
+```typescript
+<HubHeader
+  title="Page Title"
+  filters={
+    <div className={filterStyles.filtersContainer}>
+      <input
+        type="search"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={filterStyles.searchInput}
+      />
+      <UnifiedSelect
+        value={sortBy}
+        onChange={(value) => setSortBy(value as SortType)}
+        options={[
+          { value: 'date-desc', label: 'Newest First' },
+          { value: 'date-asc', label: 'Oldest First' },
+        ]}
+      />
+      {/* Background refresh indicator */}
+      {isFetching && !isLoading && (
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: '18px', color: '#6b7280', animation: 'spin 1s linear infinite' }}
+          title="Refreshing..."
+        >
+          sync
+        </span>
+      )}
+    </div>
+  }
+  actions={
+    <>
+      <Button variant="primary" size="sm" onClick={handlePrimary}>
+        Primary Action
+      </Button>
+      <div className={actionStyles.dropdownContainer}>
+        <Button
+          variant="secondary"
+          size="sm"
+          square
+          onClick={() => setShowActionsMenu(!showActionsMenu)}
+        >
+          ⋮
+        </Button>
+        {showActionsMenu && (
+          <>
+            <div className={actionStyles.backdrop} onClick={() => setShowActionsMenu(false)} />
+            <div className={actionStyles.dropdownMenu}>
+              <button onClick={handleAction} className={actionStyles.menuButton}>
+                Action 1
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  }
+/>
+```
+
+#### Sidebar Pattern
+```typescript
+<HubSidebar>
+  {/* Context-specific stats widget */}
+  <StatsWidget data={statsData} />
+
+  {/* Optional: conditional widget */}
+  {contextData && <ContextWidget data={contextData} />}
+
+  {/* Standard widgets */}
+  <HelpWidget />
+  <TipWidget />
+  <VideoWidget />
+</HubSidebar>
+```
+
+#### Skeleton Component Pattern
+```typescript
+export default function FeatureSkeleton({ count = 3, variant = 'list' }) {
+  return (
+    <HubPageLayout
+      header={<HubHeader title="Loading..." />}
+      sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
+    >
+      <div className={styles.container}>
+        {Array.from({ length: count }).map((_, index) => (
+          <div key={index} className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.iconSkeleton} />
+              <div className={styles.titleSkeleton} />
+            </div>
+            <div className={styles.contentSkeleton} />
+          </div>
+        ))}
+      </div>
+    </HubPageLayout>
+  );
+}
+```
+
+#### Error Component Pattern
+```typescript
+export default function FeatureError({
+  error,
+  onRetry,
+  title = 'Something went wrong',
+  backUrl,
+  backLabel = 'Go back',
+}) {
+  return (
+    <HubPageLayout
+      header={<HubHeader title="Error" />}
+      sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
+    >
+      <div className={styles.errorContainer}>
+        <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#ef4444' }}>
+          error
+        </span>
+        <h2>{title}</h2>
+        <p>{error?.message || 'Please try again.'}</p>
+        <div className={styles.actions}>
+          <Button variant="primary" onClick={onRetry}>Try Again</Button>
+          {backUrl && (
+            <Button variant="secondary" onClick={() => router.push(backUrl)}>
+              {backLabel}
+            </Button>
+          )}
+        </div>
+      </div>
+    </HubPageLayout>
+  );
+}
+```
+
+---
+
+### 7.2. Admin Dashboard Gold Standard
+
+**Reference Implementations:**
+- `apps/web/src/app/(admin)/admin/financials/page.tsx`
+- `apps/web/src/app/(admin)/admin/financials/disputes/page.tsx`
+
+#### Architecture Overview
+```
+Admin Dashboard = HubPageLayout
+├── Header (HubHeader)
+│   ├── Title
+│   └── Subtitle
+├── Tabs (HubTabs)
+│   └── Multiple content sections per tab
+├── Main Content
+│   ├── Tab 1: Overview
+│   │   ├── HubKPIGrid (6-7 cards)
+│   │   ├── HubTrendChart (line chart)
+│   │   └── HubCategoryBreakdownChart (pie/donut)
+│   └── Tab 2: Data Table
+│       └── FilteredTable with pagination
+└── Sidebar (HubSidebar)
+    ├── AdminStatsWidget (metrics breakdown)
+    ├── AdminHelpWidget (Q&A)
+    └── AdminTipWidget (actionable tips)
+```
+
+#### Force Dynamic Rendering
+```typescript
+// Admin pages should never be cached
+export const dynamic = 'force-dynamic';
+```
+
+#### Admin Metrics Pattern
+```typescript
+// Use admin hooks for metrics with trend comparison
+const totalMetric = useAdminMetric({
+  metric: 'transactions_total',
+  compareWith: 'last_month'
+});
+
+// Metric object structure
+interface AdminMetric {
+  value: number;              // Current value
+  change: number;             // Absolute change vs comparison period
+  changePercent: number;      // Percentage change
+  trend: 'up' | 'down' | 'neutral';
+}
+
+// Use formatMetricChange for display
+formatMetricChange(metric.change, metric.changePercent, 'last_month')
+// Returns: "+5 (↑ 10%)" or "-2 (↓ 5%)"
+```
+
+#### KPI Grid Pattern
+```typescript
+<HubKPIGrid>
+  <HubKPICard
+    label="Total Transactions"
+    value={totalMetric.value}
+    sublabel={formatMetricChange(totalMetric.change, totalMetric.changePercent)}
+    icon={DollarSign}
+    trend={totalMetric.trend}
+  />
+  <HubKPICard
+    label="Revenue"
+    value={`£${(metric.value / 100).toFixed(0)}`}
+    sublabel={formatMetricChange(metric.change, metric.changePercent)}
+    icon={TrendingUp}
+    trend={metric.trend}
+  />
+</HubKPIGrid>
+```
+
+#### Charts Pattern
+```typescript
+const { data: trendData, isLoading: isLoadingTrends } = useAdminTrendData({
+  metric: 'transactions_total',
+  days: 7,
+});
+
+<ErrorBoundary fallback={<div>Unable to load chart</div>}>
+  {isLoadingTrends ? (
+    <ChartSkeleton height="320px" />
+  ) : (
+    <HubTrendChart
+      data={trendData}
+      title="Transaction Volume"
+      subtitle="Last 7 days"
+      valueName="Transactions"
+      lineColor="#3B82F6"
+    />
+  )}
+</ErrorBoundary>
+
+<HubCategoryBreakdownChart
+  data={[
+    { label: 'Clearing', value: clearingMetric.value, color: '#F59E0B' },
+    { label: 'Available', value: availableMetric.value, color: '#10B981' },
+    { label: 'Paid Out', value: paidOutMetric.value, color: '#3B82F6' },
+  ]}
+  title="Transaction Status Breakdown"
+/>
+```
+
+#### Tab Management
+```typescript
+const [activeTab, setActiveTab] = useState<'overview' | 'all-transactions'>('overview');
+
+<HubTabs
+  tabs={[
+    { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+    {
+      id: 'all-transactions',
+      label: 'All Transactions',
+      count: totalMetric.value,
+      active: activeTab === 'all-transactions'
+    }
+  ]}
+  onTabChange={(tabId) => setActiveTab(tabId as typeof activeTab)}
+/>
+
+{activeTab === 'overview' && <OverviewContent />}
+{activeTab === 'all-transactions' && <TransactionsTable />}
+```
+
+#### Admin Sidebar Widgets
+```typescript
+<HubSidebar>
+  <AdminStatsWidget
+    title="Transaction Breakdown"
+    stats={[
+      { label: 'Total', value: totalMetric.value },
+      { label: 'Clearing', value: clearingMetric.value },
+      { label: 'Available', value: availableMetric.value },
+    ]}
+  />
+
+  <AdminHelpWidget
+    title="Help"
+    items={[
+      { question: 'What are transactions?', answer: 'All platform transactions...' },
+    ]}
+  />
+
+  <AdminTipWidget
+    title="Tips"
+    tips={[
+      'Monitor disputed transactions daily',
+      'Review pending payouts weekly',
+    ]}
+  />
+</HubSidebar>
+```
+
+---
+
+### 7.3. Public Profile Gold Standard
+
+**Reference Implementations:**
+- `apps/web/src/app/(public)/public-profile/[id]/[[...slug]]/page.tsx`
+- `apps/web/src/app/(public)/listings/[id]/[[...slug]]/page.tsx`
+
+#### Architecture Overview
+```
+Public Page = Async Server Component + PublicPageShell
+├── SEO Metadata
+│   ├── generateMetadata() async function
+│   ├── robots (index/follow rules)
+│   └── Open Graph + Twitter cards
+├── Data Fetching (Server-Side)
+│   ├── Fetch profile/listing
+│   ├── Validate slug (301 redirect if wrong)
+│   ├── Fetch related content
+│   └── Calculate stats
+├── PublicPageShell Layout
+│   ├── Hero Section
+│   ├── Main Content (vertically stacked cards)
+│   ├── Sidebar (right column, sticky)
+│   ├── Related Section
+│   └── Mobile Bottom CTA
+└── Structured Data (JSON-LD)
+```
+
+#### Revalidation Strategy
+```typescript
+// ISR caching: 5 minutes for profiles, 3 minutes for listings
+export const revalidate = 300;  // profiles
+export const revalidate = 180;  // listings
+```
+
+#### Metadata Generation Pattern
+```typescript
+export async function generateMetadata(props: { params: Promise<{ id: string; slug?: string[] }> }) {
+  const params = await props.params;
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', params.id)
+    .single();
+
+  if (!profile) return { title: 'Not Found' };
+
+  // Trust-based SEO eligibility
+  const eligibility = await checkSEOEligibility('profile', params.id);
+
+  return {
+    title: `${profile.full_name} | Tutorwise`,
+    description: profile.bio?.substring(0, 160),
+    robots: {
+      index: eligibility.isEligible,
+      follow: eligibility.isEligible,
+    },
+    openGraph: {
+      title: profile.full_name,
+      description: profile.bio,
+      images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
+    },
+  };
+}
+```
+
+#### Server-Side Page Component
+```typescript
+export default async function PublicProfilePage(props: {
+  params: Promise<{ id: string; slug?: string[] }>
+}) {
+  const params = await props.params;
+  const supabase = await createClient();
+
+  // Fetch by ID (permanent lookup)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', params.id)
+    .single();
+
+  if (!profile) notFound();
+
+  // Validate and redirect if slug incorrect
+  const correctSlug = profile.slug || generateSlug(profile.full_name);
+  const urlSlug = params.slug?.[0] || '';
+
+  if (correctSlug !== urlSlug) {
+    redirect(`/public-profile/${profile.id}/${correctSlug}`);
+  }
+
+  // Parallel data fetching
+  const [listings, reviews, similarProfiles, stats] = await Promise.all([
+    fetchListings(profile.id),
+    fetchReviews(profile.id),
+    fetchSimilarProfiles(profile),
+    calculateStats(profile.id),
+  ]);
+
+  const enrichedProfile = { ...profile, ...stats };
+
+  return (
+    <PublicPageShell
+      metadata={{...}}
+      hero={<ProfileHeroSection profile={enrichedProfile} />}
+      mainContent={[
+        <AboutCard key="about" profile={enrichedProfile} />,
+        <ReviewsCard key="reviews" reviews={reviews} />,
+      ]}
+      sidebar={[
+        <VerificationCard key="verification" profile={enrichedProfile} />,
+        <GetInTouchCard key="contact" profile={enrichedProfile} />,
+      ]}
+      relatedSection={<SimilarProfilesCard profiles={similarProfiles} />}
+      mobileBottomCTA={<MobileBottomCTA profile={enrichedProfile} />}
+    />
+  );
+}
+```
+
+#### URL Pattern (Resilient URLs)
+```
+Route: /public-profile/[id]/[[...slug]]
+
+Supports:
+- /public-profile/abc123          (ID only)
+- /public-profile/abc123/john-doe (ID + slug)
+
+Logic:
+1. Always look up by ID (permanent, immutable)
+2. If slug wrong → 301 redirect to correct slug
+3. Slug is SEO-friendly but not required
+```
+
+#### Stats Calculation Pattern
+```typescript
+// All stats fetched server-side
+const reviewStats = await supabase
+  .from('profile_reviews')
+  .select('rating')
+  .eq('reviewee_id', profile.id);
+
+const averageRating = reviewStats.length > 0
+  ? reviewStats.reduce((sum, r) => sum + r.rating, 0) / reviewStats.length
+  : 0;
+
+// Use materialized views for O(1) lookups
+const { data: viewData } = await supabase
+  .from('profile_view_counts')
+  .select('total_views')
+  .eq('profile_id', profile.id)
+  .maybeSingle();
+
+const enrichedProfile = {
+  ...profile,
+  average_rating: Math.round(averageRating * 10) / 10,
+  total_reviews: reviewStats.length,
+  profile_views: viewData?.total_views || 0,
+};
+```
+
+#### Similar Profiles Logic (3-Tier Fallback)
+```typescript
+// Tier 1: Subject match (highest priority)
+const subjectMatches = profiles.filter(p =>
+  p.subjects?.includes(primarySubject)
+).slice(0, 6);
+
+// Tier 2: Location + Role match
+if (similarProfiles.length < 3) {
+  const locationMatches = await supabase
+    .from('profiles')
+    .select(...)
+    .eq('active_role', profile.active_role)
+    .eq('city', profile.city)
+    .limit(6 - similarProfiles.length);
+}
+
+// Tier 3: Same role fallback
+if (similarProfiles.length < 3) {
+  const roleMatches = await supabase
+    .from('profiles')
+    .select(...)
+    .eq('active_role', profile.active_role)
+    .limit(6 - similarProfiles.length);
+}
+```
+
+---
+
+### 7.4. Pattern Comparison Summary
+
+| Aspect | User Dashboard | Admin Dashboard | Public Profile |
+|--------|----------------|-----------------|----------------|
+| **Component Root** | HubPageLayout (client) | HubPageLayout (client) | PublicPageShell (async server) |
+| **Data Fetching** | useQuery (React Query) | useAdminMetric() hooks | Parallel server-side fetches |
+| **Caching** | keepPreviousData, staleTime 30s | force-dynamic (no cache) | ISR: 5min (profiles) |
+| **Filter Source** | URL params + useState | State-based tabs | N/A (server-rendered) |
+| **Loading State** | Dedicated Skeleton.tsx | ChartSkeleton | N/A (pre-rendered) |
+| **Error Handling** | Dedicated Error.tsx | ErrorBoundary | notFound() / redirect() |
+| **Empty State** | HubEmptyState | N/A | N/A |
+| **Sidebar** | Stats + Help + Tips | Stats + Help + Tips | Verification + Contact |
+| **SEO** | N/A | N/A | metadata + JSON-LD |
+
+---
+
+## 8. Implementation Plan (High-Level)
 
 Refactoring existing components to use the new Design System standards.
 

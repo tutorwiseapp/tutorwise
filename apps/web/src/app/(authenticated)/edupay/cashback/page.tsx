@@ -1,12 +1,11 @@
 /**
- * Filename: src/app/(authenticated)/financials/edupay/page.tsx
- * Purpose: EduPay hub page — EP wallet, ledger, and loan projections
- * Route: /financials/edupay
- * Created: 2026-02-10
- * Design: Section 17 of docs/feature/edupay/edupay-solution-design.md
+ * Filename: src/app/(authenticated)/edupay/cashback/page.tsx
+ * Purpose: EduPay Cashback page — earn EP from shopping via affiliate partners
+ * Route: /edupay/cashback
+ * Created: 2026-02-12
  *
- * Architecture: Hub Layout pattern — mirrors financials/page.tsx
- * Shell: HubPageLayout + HubHeader + HubTabs + HubSidebar + HubPagination + HubEmptyState
+ * Architecture: Hub Layout pattern — Gold Standard (matches bookings/financials)
+ * Status: Placeholder — Awin/Tillo integration pending
  */
 
 'use client';
@@ -21,73 +20,81 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
+import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
 import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
 import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
-import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
 import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
 import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
-import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
 import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
 import EduPayLoanProfileModal from '@/app/components/feature/edupay/EduPayLoanProfileModal';
+import EduPaySkeleton from '@/app/components/feature/edupay/EduPaySkeleton';
+import EduPayError from '@/app/components/feature/edupay/EduPayError';
 import {
   getEduPayWallet,
-  getEduPayLedger,
   getEduPayProjection,
   getLoanProfile,
   getSavingsSummary,
 } from '@/lib/api/edupay';
-import styles from './page.module.css';
+import styles from '../page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
-type TabFilter = 'all' | 'pending' | 'available' | 'converted';
+type TabFilter = 'all' | 'pending' | 'confirmed';
 type DateRangeType = 'all' | '30days' | '3months' | '1year';
-type EventType = 'all' | 'tutoring_income' | 'referral_income' | 'affiliate_spend' | 'gift_reward' | 'caas_threshold';
+type CashbackStatus = 'all' | 'pending' | 'confirmed' | 'declined';
+type RetailerCategory = 'all' | 'fashion' | 'food' | 'electronics' | 'travel' | 'entertainment' | 'other';
 
 const ITEMS_PER_PAGE = 10;
 
-export default function EduPayPage() {
+// Placeholder for cashback transaction type (will be defined properly when API is ready)
+interface CashbackTransaction {
+  id: string;
+  retailer_name: string;
+  retailer_category: RetailerCategory;
+  sale_amount: number;
+  commission_amount: number;
+  ep_awarded: number;
+  status: 'pending' | 'confirmed' | 'declined';
+  transaction_date: string;
+  created_at: string;
+}
+
+export default function EduPayCashbackPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   const tabFilter = (searchParams?.get('tab') as TabFilter) || 'all';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<DateRangeType>('all');
-  const [eventType, setEventType] = useState<EventType>('all');
+  const [statusFilter, setStatusFilter] = useState<CashbackStatus>('all');
+  const [categoryFilter, setCategoryFilter] = useState<RetailerCategory>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showLoanProfileModal, setShowLoanProfileModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  // Queries — gold standard pattern (matches listings/bookings/referrals)
-  const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery({
+  // React Query: Fetch wallet with Gold Standard pattern
+  const {
+    data: wallet,
+    isLoading: walletLoading,
+    isFetching: walletFetching,
+    error: walletError,
+    refetch: refetchWallet,
+  } = useQuery({
     queryKey: ['edupay-wallet', profile?.id],
     queryFn: getEduPayWallet,
     enabled: !!profile?.id,
     placeholderData: keepPreviousData,
-    staleTime: 30_000,
-    gcTime: 10 * 60_000,
+    staleTime: 30_000, // 30 seconds
+    gcTime: 10 * 60_000, // 10 minutes
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     retry: 2,
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
-  });
-
-  const { data: ledger, isLoading: ledgerLoading, error: ledgerError, refetch: refetchLedger } = useQuery({
-    queryKey: ['edupay-ledger', profile?.id],
-    queryFn: getEduPayLedger,
-    enabled: !!profile?.id,
-    placeholderData: keepPreviousData,
-    staleTime: 30_000,
-    gcTime: 10 * 60_000,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-    retry: 2,
-    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    refetchInterval: 60_000, // Auto-refresh every minute
   });
 
   const { data: loanProfile } = useQuery({
@@ -126,26 +133,31 @@ export default function EduPayPage() {
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  const entries = useMemo(() => ledger ?? [], [ledger]);
+  // Placeholder: cashback transactions will come from API when Awin integration is live
+  const transactions: CashbackTransaction[] = useMemo(() => [], []);
 
-  // Tab + filter logic
-  const filteredEntries = useMemo(() => {
-    let result = [...entries];
+  // Filter logic (ready for when data exists)
+  const filteredTransactions = useMemo(() => {
+    let result = [...transactions];
 
     // Tab filter
-    if (tabFilter === 'pending') result = result.filter(e => e.status === 'pending');
-    if (tabFilter === 'available') result = result.filter(e => e.status === 'available');
-    if (tabFilter === 'converted') result = result.filter(e => e.status === 'processed');
+    if (tabFilter === 'pending') result = result.filter(t => t.status === 'pending');
+    if (tabFilter === 'confirmed') result = result.filter(t => t.status === 'confirmed');
 
     // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(e => e.note?.toLowerCase().includes(q) || e.event_type?.toLowerCase().includes(q));
+      result = result.filter(t => t.retailer_name.toLowerCase().includes(q));
     }
 
-    // Event type filter
-    if (eventType !== 'all') {
-      result = result.filter(e => e.event_type === eventType);
+    // Status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(t => t.status === statusFilter);
+    }
+
+    // Category filter
+    if (categoryFilter !== 'all') {
+      result = result.filter(t => t.retailer_category === categoryFilter);
     }
 
     // Date range filter
@@ -154,29 +166,29 @@ export default function EduPayPage() {
       if (dateRange === '30days') cutoff.setDate(cutoff.getDate() - 30);
       if (dateRange === '3months') cutoff.setMonth(cutoff.getMonth() - 3);
       if (dateRange === '1year') cutoff.setFullYear(cutoff.getFullYear() - 1);
-      result = result.filter(e => new Date(e.created_at) >= cutoff);
+      result = result.filter(t => new Date(t.transaction_date) >= cutoff);
     }
 
     return result;
-  }, [entries, tabFilter, searchQuery, eventType, dateRange]);
+  }, [transactions, tabFilter, searchQuery, statusFilter, categoryFilter, dateRange]);
 
-  const totalItems = filteredEntries.length;
-  const paginatedEntries = useMemo(
-    () => filteredEntries.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [filteredEntries, currentPage],
+  const totalItems = filteredTransactions.length;
+  const paginatedTransactions = useMemo(
+    () => filteredTransactions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredTransactions, currentPage],
   );
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [tabFilter, searchQuery, dateRange, eventType]);
+  }, [tabFilter, searchQuery, statusFilter, categoryFilter, dateRange]);
 
+  // Tab counts
   const stats = useMemo(() => ({
-    all: entries.length,
-    pending: entries.filter(e => e.status === 'pending').length,
-    available: entries.filter(e => e.status === 'available').length,
-    converted: entries.filter(e => e.status === 'processed').length,
-  }), [entries]);
+    all: transactions.length,
+    pending: transactions.filter(t => t.status === 'pending').length,
+    confirmed: transactions.filter(t => t.status === 'confirmed').length,
+  }), [transactions]);
 
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
@@ -185,63 +197,42 @@ export default function EduPayPage() {
     } else {
       params.set('tab', tabId);
     }
-    router.push(`/financials/edupay${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(`/edupay/cashback${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
-  // Error state
-  const hasError = !!walletError || !!ledgerError;
-  if (hasError) {
+  // Error state - use dedicated error component
+  if (walletError) {
     return (
-      <HubPageLayout
-        header={<HubHeader title="EduPay" />}
-        sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
-      >
-        <div className={styles.container}>
-          <div className={styles.error}>
-            <p>Failed to load EduPay data. Please try again.</p>
-            <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
-              Try Again
-            </Button>
-          </div>
-        </div>
-      </HubPageLayout>
+      <EduPayError
+        error={walletError as Error}
+        onRetry={() => { void refetchWallet(); }}
+        title="Failed to Load Cashback Data"
+        backUrl="/edupay"
+        backLabel="Back to EduPay Wallet"
+      />
     );
   }
 
-  // Loading state
-  if (profileLoading || walletLoading || ledgerLoading) {
-    return (
-      <HubPageLayout
-        header={<HubHeader title="EduPay" />}
-        sidebar={
-          <HubSidebar>
-            <div className={styles.skeletonWidget} />
-            <div className={styles.skeletonWidget} />
-          </HubSidebar>
-        }
-      >
-        <div className={styles.container}>
-          <div className={styles.loading}>Loading EduPay...</div>
-        </div>
-      </HubPageLayout>
-    );
+  // Loading state - use dedicated skeleton component
+  if (profileLoading || walletLoading) {
+    return <EduPaySkeleton count={4} variant="cashback" />;
   }
 
   return (
     <HubPageLayout
       header={
         <HubHeader
-          title="EduPay"
+          title="Cashback Rewards"
           filters={
             <div className={filterStyles.filtersContainer}>
               <input
                 type="search"
-                placeholder="Search activity..."
+                placeholder="Search retailers..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className={filterStyles.searchInput}
               />
-              <div style={{ minWidth: '150px' }}>
+              <div style={{ minWidth: '140px' }}>
                 <UnifiedSelect
                   value={dateRange}
                   onChange={v => setDateRange(v as DateRangeType)}
@@ -254,21 +245,45 @@ export default function EduPayPage() {
                   placeholder="Date range"
                 />
               </div>
-              <div style={{ minWidth: '150px' }}>
+              <div style={{ minWidth: '130px' }}>
                 <UnifiedSelect
-                  value={eventType}
-                  onChange={v => setEventType(v as EventType)}
+                  value={statusFilter}
+                  onChange={v => setStatusFilter(v as CashbackStatus)}
                   options={[
-                    { value: 'all', label: 'All Types' },
-                    { value: 'tutoring_income', label: 'Tutoring' },
-                    { value: 'referral_income', label: 'Referral' },
-                    { value: 'affiliate_spend', label: 'Affiliate' },
-                    { value: 'gift_reward', label: 'Gift Reward' },
-                    { value: 'caas_threshold', label: 'CaaS Reward' },
+                    { value: 'all', label: 'All Status' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'confirmed', label: 'Confirmed' },
+                    { value: 'declined', label: 'Declined' },
                   ]}
-                  placeholder="Activity type"
+                  placeholder="Status"
                 />
               </div>
+              <div style={{ minWidth: '140px' }}>
+                <UnifiedSelect
+                  value={categoryFilter}
+                  onChange={v => setCategoryFilter(v as RetailerCategory)}
+                  options={[
+                    { value: 'all', label: 'All Categories' },
+                    { value: 'fashion', label: 'Fashion' },
+                    { value: 'food', label: 'Food & Drink' },
+                    { value: 'electronics', label: 'Electronics' },
+                    { value: 'travel', label: 'Travel' },
+                    { value: 'entertainment', label: 'Entertainment' },
+                    { value: 'other', label: 'Other' },
+                  ]}
+                  placeholder="Category"
+                />
+              </div>
+              {/* Background refresh indicator */}
+              {walletFetching && !walletLoading && (
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '18px', color: '#6b7280', animation: 'spin 1s linear infinite' }}
+                  title="Refreshing..."
+                >
+                  sync
+                </span>
+              )}
             </div>
           }
           actions={
@@ -304,7 +319,13 @@ export default function EduPayPage() {
                         onClick={() => setShowActionsMenu(false)}
                         className={actionStyles.menuButton}
                       >
-                        Export EP History
+                        View Partner Stores
+                      </button>
+                      <button
+                        onClick={() => setShowActionsMenu(false)}
+                        className={actionStyles.menuButton}
+                      >
+                        Export Cashback History
                       </button>
                     </div>
                   </>
@@ -317,10 +338,9 @@ export default function EduPayPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'all', label: 'All Activity', count: stats.all, active: tabFilter === 'all' },
+            { id: 'all', label: 'All Rewards', count: stats.all, active: tabFilter === 'all' },
             { id: 'pending', label: 'Pending', count: stats.pending, active: tabFilter === 'pending' },
-            { id: 'available', label: 'Available', count: stats.available, active: tabFilter === 'available' },
-            { id: 'converted', label: 'Converted', count: stats.converted, active: tabFilter === 'converted' },
+            { id: 'confirmed', label: 'Confirmed', count: stats.confirmed, active: tabFilter === 'confirmed' },
           ]}
           onTabChange={handleTabChange}
         />
@@ -343,28 +363,55 @@ export default function EduPayPage() {
       }
     >
       <div className={styles.container}>
-        {paginatedEntries.length === 0 ? (
-          entries.length === 0 ? (
+        {paginatedTransactions.length === 0 ? (
+          transactions.length === 0 ? (
             <HubEmptyState
-              title="No EduPay activity yet"
-              description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
-              actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
-              onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
+              icon={<span className="material-symbols-outlined" style={{ fontSize: '48px' }}>shopping_bag</span>}
+              title="Cashback Coming Soon"
+              description="We're partnering with 80+ retailers including ASOS, Nike, Deliveroo, and more. Shop at your favourite stores and earn up to 15% back as EP automatically."
+              actionLabel="Learn More"
+              onAction={() => window.location.href = '/help-centre/features/edupay'}
             />
           ) : (
             <HubEmptyState
-              title="No activity found"
-              description="No EP activity matches your current filters. Try adjusting your search or date range."
+              title="No cashback found"
+              description="No cashback rewards match your current filters. Try adjusting your search or date range."
             />
           )
         ) : (
           <>
             <div className={styles.ledgerList}>
-              {paginatedEntries.map(entry => (
-                <EduPayLedgerCard key={entry.id} entry={entry} />
+              {paginatedTransactions.map(tx => (
+                <div key={tx.id} style={{
+                  padding: '1rem',
+                  background: '#fff',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 600 }}>{tx.retailer_name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        {new Date(tx.transaction_date).toLocaleDateString()} · £{tx.sale_amount.toFixed(2)} purchase
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 600, color: '#059669' }}>+{tx.ep_awarded.toLocaleString()} EP</div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        background: tx.status === 'confirmed' ? '#d1fae5' : tx.status === 'pending' ? '#fef3c7' : '#fee2e2',
+                        color: tx.status === 'confirmed' ? '#065f46' : tx.status === 'pending' ? '#92400e' : '#991b1b',
+                      }}>
+                        {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
-            {filteredEntries.length > ITEMS_PER_PAGE && (
+            {filteredTransactions.length > ITEMS_PER_PAGE && (
               <HubPagination
                 currentPage={currentPage}
                 totalItems={totalItems}

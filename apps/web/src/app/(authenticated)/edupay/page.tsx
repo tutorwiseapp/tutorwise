@@ -1,10 +1,12 @@
 /**
- * Filename: src/app/(authenticated)/financials/edupay/savings/page.tsx
- * Purpose: EduPay Savings page — view ISA/Savings allocations and linked providers
- * Route: /financials/edupay/savings
- * Created: 2026-02-12
+ * Filename: src/app/(authenticated)/edupay/page.tsx
+ * Purpose: EduPay hub page — EP wallet, ledger, and loan projections
+ * Route: /edupay
+ * Created: 2026-02-10
+ * Design: Section 17 of docs/feature/edupay/edupay-solution-design.md
  *
- * Architecture: Hub Layout pattern — mirrors main EduPay wallet page
+ * Architecture: Hub Layout pattern — top-level feature
+ * Shell: HubPageLayout + HubHeader + HubTabs + HubSidebar + HubPagination + HubEmptyState
  */
 
 'use client';
@@ -17,44 +19,67 @@ import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/componen
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import Button from '@/app/components/ui/actions/Button';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
-import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
 import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
 import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
+import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
 import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
 import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
+import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
 import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
 import EduPayLoanProfileModal from '@/app/components/feature/edupay/EduPayLoanProfileModal';
 import {
   getEduPayWallet,
+  getEduPayLedger,
   getEduPayProjection,
   getLoanProfile,
   getSavingsSummary,
 } from '@/lib/api/edupay';
-import styles from '../page.module.css';
+import styles from './page.module.css';
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
-type TabFilter = 'all' | 'isa' | 'savings';
+type TabFilter = 'all' | 'pending' | 'available' | 'converted';
+type DateRangeType = 'all' | '30days' | '3months' | '1year';
+type EventType = 'all' | 'tutoring_income' | 'referral_income' | 'affiliate_spend' | 'gift_reward' | 'caas_threshold';
 
 const ITEMS_PER_PAGE = 10;
 
-export default function EduPaySavingsPage() {
+export default function EduPayPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const tabFilter = (searchParams?.get('tab') as TabFilter) || 'all';
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState<DateRangeType>('all');
+  const [eventType, setEventType] = useState<EventType>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showLoanProfileModal, setShowLoanProfileModal] = useState(false);
   const [showConversionModal, setShowConversionModal] = useState(false);
 
-  // Queries — same pattern as main EduPay page
+  const queryClient = useQueryClient();
+
+  // Queries — gold standard pattern (matches listings/bookings/referrals)
   const { data: wallet, isLoading: walletLoading, error: walletError, refetch: refetchWallet } = useQuery({
     queryKey: ['edupay-wallet', profile?.id],
     queryFn: getEduPayWallet,
+    enabled: !!profile?.id,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    retry: 2,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  });
+
+  const { data: ledger, isLoading: ledgerLoading, error: ledgerError, refetch: refetchLedger } = useQuery({
+    queryKey: ['edupay-ledger', profile?.id],
+    queryFn: getEduPayLedger,
     enabled: !!profile?.id,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
@@ -89,7 +114,7 @@ export default function EduPaySavingsPage() {
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  const { data: savingsSummary, isLoading: savingsLoading, error: savingsError } = useQuery({
+  const { data: savingsSummary } = useQuery({
     queryKey: ['edupay-savings-summary', profile?.id],
     queryFn: getSavingsSummary,
     enabled: !!profile?.id,
@@ -101,34 +126,57 @@ export default function EduPaySavingsPage() {
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 
-  const hasAllocations = savingsSummary && savingsSummary.total_gbp_allocated > 0;
+  const entries = useMemo(() => ledger ?? [], [ledger]);
 
-  // Placeholder for allocation list — will be populated when allocation API is ready
-  const allocations = useMemo(() => [], []);
+  // Tab + filter logic
+  const filteredEntries = useMemo(() => {
+    let result = [...entries];
 
-  // Tab counts (placeholder — will be computed from real allocations)
-  const stats = useMemo(() => ({
-    all: savingsSummary?.allocation_count ?? 0,
-    isa: 0, // Will be computed from allocations
-    savings: 0, // Will be computed from allocations
-  }), [savingsSummary]);
+    // Tab filter
+    if (tabFilter === 'pending') result = result.filter(e => e.status === 'pending');
+    if (tabFilter === 'available') result = result.filter(e => e.status === 'available');
+    if (tabFilter === 'converted') result = result.filter(e => e.status === 'processed');
 
-  // Filtered and paginated allocations (placeholder)
-  const filteredAllocations = useMemo(() => {
-    // Filter by tab when real data is available
-    return allocations;
-  }, [allocations]);
+    // Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(e => e.note?.toLowerCase().includes(q) || e.event_type?.toLowerCase().includes(q));
+    }
 
-  const totalItems = filteredAllocations.length;
-  const paginatedAllocations = useMemo(
-    () => filteredAllocations.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [filteredAllocations, currentPage],
+    // Event type filter
+    if (eventType !== 'all') {
+      result = result.filter(e => e.event_type === eventType);
+    }
+
+    // Date range filter
+    if (dateRange !== 'all') {
+      const cutoff = new Date();
+      if (dateRange === '30days') cutoff.setDate(cutoff.getDate() - 30);
+      if (dateRange === '3months') cutoff.setMonth(cutoff.getMonth() - 3);
+      if (dateRange === '1year') cutoff.setFullYear(cutoff.getFullYear() - 1);
+      result = result.filter(e => new Date(e.created_at) >= cutoff);
+    }
+
+    return result;
+  }, [entries, tabFilter, searchQuery, eventType, dateRange]);
+
+  const totalItems = filteredEntries.length;
+  const paginatedEntries = useMemo(
+    () => filteredEntries.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredEntries, currentPage],
   );
 
-  // Reset to page 1 when tab changes
+  // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [tabFilter]);
+  }, [tabFilter, searchQuery, dateRange, eventType]);
+
+  const stats = useMemo(() => ({
+    all: entries.length,
+    pending: entries.filter(e => e.status === 'pending').length,
+    available: entries.filter(e => e.status === 'available').length,
+    converted: entries.filter(e => e.status === 'processed').length,
+  }), [entries]);
 
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
@@ -137,20 +185,21 @@ export default function EduPaySavingsPage() {
     } else {
       params.set('tab', tabId);
     }
-    router.push(`/financials/edupay/savings${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(`/edupay${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   // Error state
-  if (walletError || savingsError) {
+  const hasError = !!walletError || !!ledgerError;
+  if (hasError) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Savings & ISA" />}
+        header={<HubHeader title="EduPay" />}
         sidebar={<HubSidebar><div className={styles.skeletonWidget} /></HubSidebar>}
       >
         <div className={styles.container}>
           <div className={styles.error}>
-            <p>Failed to load Savings data. Please try again.</p>
-            <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); }}>
+            <p>Failed to load EduPay data. Please try again.</p>
+            <Button variant="secondary" size="sm" onClick={() => { void refetchWallet(); void refetchLedger(); }}>
               Try Again
             </Button>
           </div>
@@ -160,10 +209,10 @@ export default function EduPaySavingsPage() {
   }
 
   // Loading state
-  if (profileLoading || walletLoading || savingsLoading) {
+  if (profileLoading || walletLoading || ledgerLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="Savings & ISA" />}
+        header={<HubHeader title="EduPay" />}
         sidebar={
           <HubSidebar>
             <div className={styles.skeletonWidget} />
@@ -172,7 +221,7 @@ export default function EduPaySavingsPage() {
         }
       >
         <div className={styles.container}>
-          <div className={styles.loading}>Loading Savings...</div>
+          <div className={styles.loading}>Loading EduPay...</div>
         </div>
       </HubPageLayout>
     );
@@ -182,7 +231,46 @@ export default function EduPaySavingsPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="Savings & ISA"
+          title="EduPay"
+          filters={
+            <div className={filterStyles.filtersContainer}>
+              <input
+                type="search"
+                placeholder="Search activity..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className={filterStyles.searchInput}
+              />
+              <div style={{ minWidth: '150px' }}>
+                <UnifiedSelect
+                  value={dateRange}
+                  onChange={v => setDateRange(v as DateRangeType)}
+                  options={[
+                    { value: 'all', label: 'All Time' },
+                    { value: '30days', label: 'Last 30 Days' },
+                    { value: '3months', label: 'Last 3 Months' },
+                    { value: '1year', label: 'Last Year' },
+                  ]}
+                  placeholder="Date range"
+                />
+              </div>
+              <div style={{ minWidth: '150px' }}>
+                <UnifiedSelect
+                  value={eventType}
+                  onChange={v => setEventType(v as EventType)}
+                  options={[
+                    { value: 'all', label: 'All Types' },
+                    { value: 'tutoring_income', label: 'Tutoring' },
+                    { value: 'referral_income', label: 'Referral' },
+                    { value: 'affiliate_spend', label: 'Affiliate' },
+                    { value: 'gift_reward', label: 'Gift Reward' },
+                    { value: 'caas_threshold', label: 'CaaS Reward' },
+                  ]}
+                  placeholder="Activity type"
+                />
+              </div>
+            </div>
+          }
           actions={
             <>
               <Button variant="primary" size="sm" onClick={() => setShowConversionModal(true)}>
@@ -216,7 +304,7 @@ export default function EduPaySavingsPage() {
                         onClick={() => setShowActionsMenu(false)}
                         className={actionStyles.menuButton}
                       >
-                        Link New Account
+                        Export EP History
                       </button>
                     </div>
                   </>
@@ -229,9 +317,10 @@ export default function EduPaySavingsPage() {
       tabs={
         <HubTabs
           tabs={[
-            { id: 'all', label: 'All Allocations', count: stats.all, active: tabFilter === 'all' },
-            { id: 'isa', label: 'ISA', count: stats.isa, active: tabFilter === 'isa' },
-            { id: 'savings', label: 'Savings', count: stats.savings, active: tabFilter === 'savings' },
+            { id: 'all', label: 'All Activity', count: stats.all, active: tabFilter === 'all' },
+            { id: 'pending', label: 'Pending', count: stats.pending, active: tabFilter === 'pending' },
+            { id: 'available', label: 'Available', count: stats.available, active: tabFilter === 'available' },
+            { id: 'converted', label: 'Converted', count: stats.converted, active: tabFilter === 'converted' },
           ]}
           onTabChange={handleTabChange}
         />
@@ -254,56 +343,28 @@ export default function EduPaySavingsPage() {
       }
     >
       <div className={styles.container}>
-        {!hasAllocations ? (
-          <HubEmptyState
-            icon={<span className="material-symbols-outlined" style={{ fontSize: '48px' }}>savings</span>}
-            title="No Savings Allocations Yet"
-            description="When you convert EP to an ISA or Savings account, your allocations will appear here. Earn up to 5.1% APY in tax-free ISAs or 4.6% APY in savings accounts."
-            actionLabel="Convert EP"
-            onAction={() => setShowConversionModal(true)}
-          />
-        ) : paginatedAllocations.length === 0 ? (
-          <HubEmptyState
-            title="No allocations found"
-            description="No allocations match your current filter. Try selecting a different tab."
-          />
+        {paginatedEntries.length === 0 ? (
+          entries.length === 0 ? (
+            <HubEmptyState
+              title="No EduPay activity yet"
+              description="Complete tutoring sessions, refer friends, or shop via affiliate links to start earning EP."
+              actionLabel={!loanProfile ? 'Set Up Loan Profile' : undefined}
+              onAction={!loanProfile ? () => setShowLoanProfileModal(true) : undefined}
+            />
+          ) : (
+            <HubEmptyState
+              title="No activity found"
+              description="No EP activity matches your current filters. Try adjusting your search or date range."
+            />
+          )
         ) : (
           <>
-            {/* Summary card when allocations exist */}
             <div className={styles.ledgerList}>
-              <div style={{
-                background: '#f9fafb',
-                borderRadius: '8px',
-                padding: '1.5rem',
-                border: '1px solid #e5e7eb',
-                marginBottom: '1rem'
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-                  <div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Total Allocated</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 600 }}>
-                      £{savingsSummary?.total_gbp_allocated.toFixed(2) ?? '0.00'}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Projected Interest (12mo)</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#059669' }}>
-                      +£{savingsSummary?.total_projected_interest.toFixed(2) ?? '0.00'}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Allocations</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 600 }}>
-                      {savingsSummary?.allocation_count ?? 0}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', textAlign: 'center', padding: '1rem 0' }}>
-                Full allocation history and detailed projections coming soon.
-              </p>
+              {paginatedEntries.map(entry => (
+                <EduPayLedgerCard key={entry.id} entry={entry} />
+              ))}
             </div>
-            {filteredAllocations.length > ITEMS_PER_PAGE && (
+            {filteredEntries.length > ITEMS_PER_PAGE && (
               <HubPagination
                 currentPage={currentPage}
                 totalItems={totalItems}

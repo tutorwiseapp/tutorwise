@@ -1498,37 +1498,48 @@ Gift voucher redeemed → Tillo API provides reward → Tutorwise keeps 10%
 ### 6.5.5 Implementation Status (Feb 2026)
 
 **Phase 1 — UI Complete** ✅:
-- Route: `/financials/edupay` (sub-link under Financials in app sidebar)
-- 5 sidebar widgets: Stats, Projection, Loan Profile, Help, Video
+- EduPay elevated to **top-level sidebar nav** with sub-items (Wallet, Cashback, Savings)
+- Route: `/edupay` (Wallet), `/edupay/cashback`, `/edupay/savings`
+- 6 sidebar widgets: Stats, Savings, Projection, Loan Profile, Help, Video
 - EP ledger with 4-tab filtering (All / Pending / Available / Converted)
-- Loan profile setup (Plan 1/2/5/Postgraduate + balance + salary + graduation year)
+- Loan profile setup (Plan 1/2/5/Postgraduate + balance + salary + graduation year + SLC reference)
 - Loan impact projection (years earlier debt-free, interest saved)
-- React Query gold standard (gcTime 10min, exponential retryDelay, placeholderData)
+- **Gold Standard UI patterns** (see `6-DESIGN-SYSTEM.md` Section 7.1):
+  - `EduPaySkeleton.tsx` — dedicated loading skeleton component
+  - `EduPayError.tsx` — dedicated error component with retry
+  - `isFetching` tracking for background refresh indicator
+  - `refetchInterval: 60_000` — auto-refresh every 60 seconds
+  - `keepPreviousData` — instant cached data while refetching
 - Help Centre guide: `apps/web/src/content/help-centre/features/edupay.mdx`
 
 **Phase 1.5 — API & Data Layer Complete** ✅:
-- 7 API routes: `GET /api/edupay/wallet`, `ledger`, `projection`, `GET+POST /api/edupay/loan-profile`, `POST /api/edupay/events`, `POST /api/edupay/conversion/request` (placeholder)
-- 6 database tables (migrations 253–257): events, wallets, ledger, rules, loan_profiles, conversions
+- 14 API routes: wallet, ledger, projection, loan-profile, events, conversion/request, conversion/callback, conversion/status, linked-accounts, savings-summary, webhooks/truelayer, **webhooks/awin**
+- 8 database tables (migrations 253–260): events, wallets, ledger, rules, loan_profiles, conversions, linked_accounts, savings_allocations
 - 4 RPC functions (migration 258): `award_ep_for_payment`, `award_ep_for_event`, `clear_pending_ep`, `get_edupay_projection`
 - Stripe webhook integration — fire-and-forget EP award after successful payment
 - pg_cron job (ID 46, migration 259) — daily 6am UTC clearing of pending → available EP
 - EP earning rules seeded: 100/150/90/90/1 EP per £1 for all 5 event types
+- **Awin webhook endpoint** (`POST /api/webhooks/awin`) — ready for affiliate onboarding
 
 **Phase 2 — Affiliate & Gift Integration** ⏳ Blocked on partner onboarding:
+- ✅ Awin webhook handler built and tested — awaiting publisher account
 - Requires: Awin publisher account, CJ publisher account, Tillo API access
-- Webhook handlers for Awin/CJ commission events (`award_ep_for_event` already supports `affiliate_spend`)
 - Tillo gift card product catalogue + purchase flow
 - No DB changes needed — `edupay_rules` and `edupay_events` already support these event types
 
 **Phase 3 — Loan Payment Conversion** ✅ Complete (stub mode, Feb 2026):
 - Migration 260 executed: `truelayer_payment_id`, `truelayer_resource_token`, `slc_reference`, `initiated_at` added to `edupay_conversions`
-- `EduPayConversionModal.tsx` + `EduPayLoanProfileModal.tsx` built and wired up
+- `EduPayConversionModal.tsx` — 3-step wizard (amount + destination, review, success)
+- `EduPayLoanProfileModal.tsx` — loan profile form with SLC reference
 - TrueLayer client/payment/webhook lib (`src/lib/truelayer/`) implemented
+- **3 conversion destinations**: Student Loan (TrueLayer PISP), ISA (up to 5.1% APY), Savings (up to 4.6% APY)
+- Provider linking for ISA/Savings (Trading 212, Chase, Moneybox, Plum)
+- Interest projection display in conversion modal
 - All 4 API routes complete: `conversion/request`, `conversion/callback`, `conversion/status`, `webhooks/truelayer`
 - Stub mode active: returns `{ stub: true }` when `TRUELAYER_CLIENT_ID` is placeholder — no crash
 - See `docs/feature/edupay/edupay-solution-design.md` Phase 3 section for full spec
 
-**To Go Live**:
+**To Go Live (TrueLayer)**:
 1. Register at [console.truelayer.com](https://console.truelayer.com) and obtain production credentials
 2. Fill `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET` in `.env.local` (and Vercel environment variables)
 3. Update SLC sort code + account number in `src/lib/truelayer/payment.ts`

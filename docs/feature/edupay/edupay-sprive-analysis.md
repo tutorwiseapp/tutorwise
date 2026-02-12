@@ -89,7 +89,7 @@ Sprive is the UK's first mortgage overpayment platform (founded 2019, launched O
 |-----------|--------|--------|--------|
 | Competition | Others entering | **None** | EduPay |
 | Integration | 14+ lender APIs | **ISA/Savings APIs** (SLC has no API) | Sprive (UK) |
-| Development | £6M+ / 4 years | **£0 / 1 day** | EduPay |
+| Development | £6M+ / 4 years | **£0 / 3 days** | EduPay |
 | User Base | Must acquire (£20 CAC) | **Already on Tutorwise (£0 CAC)** | EduPay |
 | Global Scale | UK-locked | **€5-10B EU (no write-off markets)** | ⚠️ Sprive (size), EduPay (fit) |
 | Value Creation | Optimises spending | **Creates new income** | EduPay |
@@ -533,7 +533,7 @@ Given SLC's limitations, EduPay should:
 
 | Metric | EduPay |
 |--------|--------|
-| Time to Build | **1 day** |
+| Time to Build | **3 days** |
 | Development Cost | **£0** |
 | Total Platform Cost | £2,000/12 months |
 | Team Size | 1 + Claude Code |
@@ -542,7 +542,7 @@ Given SLC's limitations, EduPay should:
 
 | Dimension | Sprive | EduPay | Advantage |
 |-----------|--------|--------|-----------|
-| Time to MVP | 2 years | 1 day | **730x faster** |
+| Time to MVP | 2 years | 3 days | **730x faster** |
 | Capital Required | £6M+ | £0 | **∞** |
 | Team | 20 people | 1 person | **20x leaner** |
 | Monthly Burn | £30-35k | £170 | **200x lower** |
@@ -581,7 +581,7 @@ Fintech innovation no longer requires millions in VC funding. AI-assisted develo
 | Payment Destination | 14+ lenders | SLC + **ISA providers + Savings providers** | **EduPay** (more partnerships) |
 | User Choice | 1 path | **3 paths** | **EduPay** |
 | User Demographics | 30-50, settled | 22-40, mobile-first | **EduPay** (higher LTV) |
-| Development Cost | £6M+ / 4 years | £0 / 1 day | **EduPay** |
+| Development Cost | £6M+ / 4 years | £0 / 3 days | **EduPay** |
 | Revenue Streams | 2-3 | **8+** | **EduPay** |
 | Positioning | "Faster" (copyable) | **"Smarter" (unique)** | **EduPay** |
 
@@ -1476,7 +1476,7 @@ At 10,000 users: **£60,000-120,000/year** from ISA/Savings partnerships alone.
 | Revenue Streams | 2-3 | 7+ | **Tutorwise** |
 | Primary Revenue | One-time (remortgage) | Recurring (tutoring) | **Tutorwise** |
 | CAC | £20 | £0 (embedded) | **Tutorwise** |
-| Time to MVP | 2 years | 1 day | **Tutorwise** |
+| Time to MVP | 2 years | 3 days | **Tutorwise** |
 | Development Cost | £6M+ | £0 | **Tutorwise** |
 
 #### Revenue at Same User Count (30,000 users)
@@ -1522,7 +1522,7 @@ At 10,000 users: **£60,000-120,000/year** from ISA/Savings partnerships alone.
 - Year 4: Optimize cashback (~£1-2M revenue)
 
 **Tutorwise's Path (Projected):**
-- Year 0: EduPay built in 1 day (£0 cost)
+- Year 0: EduPay built in 3 days (£0 cost)
 - Year 1: Tutoring revenue exists + cashback launches (£176k-395k)
 - Year 2: B2B + University partnerships (~£1.9M)
 - Year 3: Full ecosystem (~£3.9M)
@@ -1542,7 +1542,7 @@ At 10,000 users: **£60,000-120,000/year** from ISA/Savings partnerships alone.
 | Dimension | Sprive | Tutorwise |
 |-----------|--------|-----------|
 | Must acquire users | Yes (£20 CAC) | No (already on platform) |
-| Must build fintech | Yes (4 years, £6M) | No (1 day, £0) |
+| Must build fintech | Yes (4 years, £6M) | No (3 days, £0) |
 | Revenue from day 1 | No | Yes (tutoring exists) |
 | Multiple revenue streams | 2-3 | 7+ |
 | Data moat | Spending only | Skills + Income + Behaviour |
@@ -1554,7 +1554,7 @@ At 10,000 users: **£60,000-120,000/year** from ISA/Savings partnerships alone.
 | Does Tutorwise have higher ARPU than Sprive? | **Yes, 3-6x higher** |
 | Does Tutorwise have more revenue streams? | **Yes, 7+ vs 2-3** |
 | Does Tutorwise have lower CAC? | **Yes, £0 vs £20** |
-| Does Tutorwise have faster time to market? | **Yes, 1 day vs 4 years** |
+| Does Tutorwise have faster time to market? | **Yes, 3 days vs 4 years** |
 | Does Tutorwise have a higher potential valuation? | **Yes, at same user count** |
 
 **Bottom Line**: Tutorwise can achieve Sprive's revenue with **half the users**, **zero acquisition cost**, and **additional revenue streams** that Sprive cannot access.

@@ -1,8 +1,8 @@
 # EduPay Solution Design
-**Version:** 1.3
+**Version:** 1.4
 **Created:** 2026-02-10
-**Updated:** 2026-02-10
-**Status:** Phase 3 — PISP Loan Payment Conversion: **COMPLETE (stub mode)**
+**Updated:** 2026-02-12
+**Status:** Phase 3 Complete + Gold Standard UI Patterns Applied
 **Author:** Tutorwise Product Team
 
 ---
@@ -345,12 +345,37 @@ Interest saved:          £3,200 (projected)
 
 | Partner | Purpose | Flow | Phase | Status |
 |---|---|---|---|---|
-| Awin | Affiliate network (1,000+ merchants) | Merchant → Awin → Tutorwise commission webhook → EP awarded | 2 | ⏳ Not started — apply at awin.com/gb |
+| Awin | Affiliate network (1,000+ merchants) | Merchant → Awin → Tutorwise commission webhook → EP awarded | 2 | ✅ Webhook ready — apply at awin.com/gb |
 | Commission Junction (CJ) | Affiliate network (alternative) | Same as Awin | 2 | ⏳ Not started — apply at cj.com |
 | Tillo | Gift card network (1,000+ UK retailers) | User buys gift card → retailer margin → 10/90 split → EP | 2 | ⏳ Not started — apply at tillorewards.com |
 | TrueLayer (PISP) | Loan payment initiation | User approves → TrueLayer debits bank → pays SLC | 3 | ✅ Implemented (stub mode) — goes live on real credentials |
 
 Tutorwise never holds affiliate funds. Commission is received → split → EP awarded → user converts via TrueLayer.
+
+### Awin Webhook Endpoint
+
+**Route:** `POST /api/webhooks/awin`
+**File:** `apps/web/src/app/api/webhooks/awin/route.ts`
+
+The Awin webhook endpoint receives cashback transaction notifications and awards EP to users:
+
+1. Verifies request authenticity (Bearer token or X-Awin-Api-Key header)
+2. Extracts user_id from `clickRef` parameter (set when generating affiliate links)
+3. Validates transaction status (only `approved` or `bonus` transactions award EP)
+4. Calls `award_ep_for_event` RPC with `event_type: 'affiliate_spend'`
+5. Idempotency via `awin_{transactionId}` key prevents duplicate awards
+
+**Environment Variable:** `AWIN_WEBHOOK_SECRET` — set in `.env.local`
+
+**Response Format:**
+```json
+{
+  "received": true,
+  "processed": 1,
+  "errors": 0,
+  "details": [{ "transactionId": "...", "success": true }]
+}
+```
 
 **Note:** Phase 2 in the solution design refers to Awin/CJ/Tillo affiliate integrations. The API & data layer (originally unnamed) has been completed first. Affiliate and gift integrations require external partner onboarding before building.
 
@@ -392,7 +417,7 @@ Every benefit is funded by a merchant or the user's own earnings. The platform b
 ## 15. Rollout Phases
 
 ### Phase 1 — Foundation ✅ Complete (Feb 2026)
-- ✅ EduPay hub page (`/financials/edupay`) — hub layout, 4 tabs, pagination
+- ✅ EduPay hub page (`/edupay`) — hub layout, 4 tabs, pagination
 - ✅ 5 sidebar widgets: Stats, Projection, Loan Profile, Help, Video
 - ✅ EP ledger card with activity feed
 - ✅ Loan profile setup (Plan 1/2/5/Postgraduate + balance + salary + graduation year)
@@ -498,27 +523,40 @@ This section specifies the exact implementation required to build the EduPay fea
 ### 17.1 Page Route & File Structure
 
 ```
-apps/web/src/app/(authenticated)/financials/edupay/
-├── page.tsx                          ← EduPay hub page (route: /financials/edupay)
-└── page.module.css                   ← Page-level CSS module
+apps/web/src/app/(authenticated)/edupay/
+├── page.tsx                          ← EduPay Wallet hub page (route: /edupay)
+├── page.module.css                   ← Page-level CSS module
+├── cashback/
+│   └── page.tsx                      ← Cashback page (route: /edupay/cashback)
+└── savings/
+    └── page.tsx                      ← Savings page (route: /edupay/savings)
 
 apps/web/src/app/components/feature/edupay/
 ├── EduPayStatsWidget.tsx             ← HubStatsCard: EP balance + GBP value
 ├── EduPayStatsWidget.module.css
+├── EduPaySavingsWidget.tsx           ← HubStatsCard: ISA/Savings summary
+├── EduPaySavingsWidget.module.css
 ├── EduPayProjectionWidget.tsx        ← HubComplexCard: loan impact projection
 ├── EduPayProjectionWidget.module.css
 ├── EduPayLoanProfileWidget.tsx       ← HubComplexCard: loan plan info (read-only)
 ├── EduPayLoanProfileWidget.module.css
 ├── EduPayHelpWidget.tsx              ← HubComplexCard: what is EduPay help text
 ├── EduPayHelpWidget.module.css
-├── EduPayVideoWidget.tsx             ← HubComplexCard: educational video embed (Phase 1)
+├── EduPayVideoWidget.tsx             ← HubComplexCard: educational video embed
 ├── EduPayVideoWidget.module.css
 ├── EduPayLedgerCard.tsx              ← Individual EP transaction row card
-└── EduPayLedgerCard.module.css
+├── EduPayLedgerCard.module.css
+├── EduPaySkeleton.tsx                ← Gold Standard: Loading skeleton component
+├── EduPaySkeleton.module.css
+├── EduPayError.tsx                   ← Gold Standard: Error state component
+├── EduPayError.module.css
+├── EduPayConversionModal.tsx         ← 3-step conversion modal (Phase 3)
+├── EduPayConversionModal.module.css
+├── EduPayLoanProfileModal.tsx        ← Loan profile form modal (Phase 3)
+└── EduPayLoanProfileModal.module.css
 
-NOTE (Phase 3): EduPayConversionModal and EduPayLoanProfileModal are deferred to Phase 3.
-The "Convert EP" button currently shows an alert placeholder. Loan Profile setup uses
-showLoanProfileModal state (inline form, no dedicated modal component yet).
+apps/web/src/app/api/webhooks/awin/
+└── route.ts                          ← Awin cashback webhook endpoint
 
 apps/web/src/app/api/edupay/
 ├── events/route.ts                   ← POST ingest EP event
@@ -1060,30 +1098,40 @@ All values sourced from `6-DESIGN-SYSTEM.md`:
 
 ### 17.10 Navigation Entry Point
 
-EduPay is a **sub-link under Financials** in [AppSidebar.tsx](apps/web/src/app/components/layout/AppSidebar.tsx). It sits alongside Transactions, Payouts, and Disputes.
+EduPay is a **top-level item** in [AppSidebar.tsx](apps/web/src/app/components/layout/AppSidebar.tsx) with its own sub-items for Wallet, Cashback, and Savings.
 
 ```typescript
-// AppSidebar.tsx — Financials subItems
+// AppSidebar.tsx — EduPay top-level with sub-items
 {
-  href: '/financials',
-  label: 'Financials',
+  href: '/edupay',
+  label: 'EduPay',
   subItems: [
-    { href: '/financials', label: 'Transactions', indent: true },
-    { href: '/financials/payouts', label: 'Payouts', indent: true },
-    { href: '/financials/disputes', label: 'Disputes', indent: true },
-    { href: '/financials/edupay', label: 'EduPay', indent: true },  // ← ADD THIS
+    { href: '/edupay', label: 'Wallet', indent: true },
+    { href: '/edupay/cashback', label: 'Cashback', indent: true },
+    { href: '/edupay/savings', label: 'Savings', indent: true },
   ],
 },
 ```
 
-**Why Financials and not top-level:** EduPay is a financial feature (EP wallet, loan projections, conversions). Users already navigate to Financials for money-related activity. Placing it here keeps the top-level nav clean and groups related features together.
+**Why top-level:** EduPay has grown into a significant feature with multiple sub-pages (Wallet, Cashback, Savings). Elevating it to top-level gives users direct access and reflects its importance as a core platform feature.
 
 ---
 
-### 17.11 React Query Pattern
+### 17.11 React Query Pattern — Gold Standard
 
-Follows the **platform gold standard** (`listings/bookings/referrals` pattern) — see `4-PATTERNS.md`.
-All 4 queries use full configuration: `gcTime`, exponential `retryDelay`, `placeholderData`, `retry: 2`.
+Follows the **platform gold standard** (`listings/bookings/referrals` pattern) — see `4-PATTERNS.md` and `6-DESIGN-SYSTEM.md` Section 7.1.
+All queries use full Gold Standard configuration:
+
+**Required Query Configuration:**
+- `placeholderData: keepPreviousData` — instant cached data while refetching
+- `staleTime: 30_000` — 30 seconds before data is considered stale
+- `gcTime: 10 * 60_000` — 10 minutes garbage collection time
+- `refetchOnMount: 'always'` — refetch when page clicked
+- `refetchOnWindowFocus: true` — refetch on tab return
+- `refetchInterval: 60_000` — auto-refresh every 60 seconds
+- `retry: 2` — retry failed requests twice
+- `retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000)` — exponential backoff
+- `isFetching` — track background refresh state (show spinner in filters area)
 
 ```typescript
 // Wallet + Ledger: expose error and refetch for error state handling
@@ -1201,7 +1249,7 @@ if (profileLoading || walletLoading || ledgerLoading) {
 
 ### 17.13 Complete page.tsx (Implemented — Phase 1)
 
-> See `apps/web/src/app/(authenticated)/financials/edupay/page.tsx` for the live source.
+> See `apps/web/src/app/(authenticated)/edupay/page.tsx` for the live source.
 > Pasted here as the canonical reference for Phase 1 implementation.
 
 ```typescript
@@ -1343,7 +1391,7 @@ export default function EduPayPage() {
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
     if (tabId === 'all') params.delete('tab'); else params.set('tab', tabId);
-    router.push(`/financials/edupay${params.toString() ? `?${params.toString()}` : ''}`);
+    router.push(`/edupay${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   // Error state (checked before loading state)

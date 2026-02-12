@@ -373,41 +373,58 @@
 - ✅ Admin Financials Hub (platform financial oversight)
 - ✅ EduPay Hub (EP wallet, ledger, loan projections — see #33)
 
-### 33. EduPay ✅ (Phase 1)
-**Status**: Phase 1 — UI Implementation Complete
-**Completion**: Phase 1 complete, Phase 2–3 pending
-**Last Updated**: 2026-02-10
+### 33. EduPay ✅ (Phase 3 Complete)
+**Status**: Phase 3 — Conversion Complete (stub mode), Gold Standard UI Applied
+**Completion**: Phase 1–3 complete, Phase 4 (affiliate onboarding) pending
+**Last Updated**: 2026-02-12
 **Design**: `docs/feature/edupay/edupay-solution-design.md`
 
-EduPay converts tutoring activity into real financial progress against a student loan. Points-based rewards system — not a bank. £1 earned = 100 EP → 100 EP = £1 loan impact.
+EduPay converts tutoring activity into real financial progress against a student loan. Points-based rewards system — not a bank. £1 earned = 100 EP → 100 EP = £1 loan impact. "We help students pay loans smarter" — three paths: Student Loan, ISA, Savings.
 
 **Phase 1 — UI Layer** ✅:
-- ✅ EduPay hub page (`/financials/edupay`) — tabs, filters, pagination, error/loading states
+- ✅ EduPay Wallet page (`/edupay`) — tabs, filters, pagination, error/loading states
+- ✅ Cashback page (`/edupay/cashback`) — affiliate rewards tracking
+- ✅ Savings page (`/edupay/savings`) — ISA/Savings allocations
 - ✅ EP ledger feed (All / Pending / Available / Converted tabs)
 - ✅ Search, date range, event type filters (with minWidth wrapper for UnifiedSelect)
 - ✅ EduPayStatsWidget — EP wallet: balance, GBP value, pending EP, total converted
+- ✅ EduPaySavingsWidget — ISA/Savings: allocated, projected interest, accounts
 - ✅ EduPayProjectionWidget — loan impact (years earlier, interest saved)
 - ✅ EduPayLoanProfileWidget — read-only loan plan summary
 - ✅ EduPayHelpWidget — explainer with dash-bullet style (matches GuardianLinksCard)
 - ✅ EduPayVideoWidget — educational video embed
 - ✅ EduPayLedgerCard — type badge, EP amount, GBP value, status dot, available date
+- ✅ EduPaySkeleton — Gold Standard loading skeleton (shimmer animation)
+- ✅ EduPayError — Gold Standard error component with retry
 - ✅ HubEmptyState "Set Up Loan Profile" CTA (surfaced when no loan profile exists)
-- ✅ ⋮ dropdown: "Edit Loan Profile" (conditional on profile) + "Export EP History"
-- ✅ React Query gold standard (gcTime 10min, exponential retryDelay, placeholderData, retry: 2)
-- ✅ Error state with "Try Again" button
-- ✅ Shimmer skeleton loading (matches financials)
+- ✅ ⋮ dropdown: "Edit Loan Profile" (conditional) + context-specific actions
+- ✅ React Query Gold Standard (isFetching, refetchInterval 60s, keepPreviousData, retry: 2)
+- ✅ Background refresh indicator (sync spinner in filters area)
+- ✅ EduPay elevated to top-level sidebar nav with sub-items (Wallet, Cashback, Savings)
 - ✅ Help Centre guide (`apps/web/src/content/help-centre/features/edupay.mdx`)
 
-**Phase 2 — API & Data** (pending):
-- ⏳ API routes: wallet, ledger, projection, loan-profile, events
-- ⏳ Database migrations 244–249
-- ⏳ EP earning rule engine + Stripe webhook integration
-- ⏳ Affiliate integrations (Awin, CJ)
+**Phase 2 — API & Data** ✅:
+- ✅ API routes: wallet, ledger, projection, loan-profile, events, conversion/request, conversion/status
+- ✅ Database migrations 253–260
+- ✅ EP earning rule engine + Stripe webhook integration
+- ✅ Awin webhook endpoint (`POST /api/webhooks/awin`) — ready for affiliate onboarding
+- ⏳ Affiliate account setup (Awin, CJ) — requires external partner onboarding
+- ⏳ Tillo integration (gift rewards) — requires external partner onboarding
 
-**Phase 3 — Conversion** (pending):
-- ⏳ EduPayConversionModal + EduPayLoanProfileModal components
-- ⏳ TrueLayer integration (loan payment disbursement)
-- ⏳ Tillo integration (gift rewards)
+**Phase 3 — Conversion** ✅:
+- ✅ EduPayConversionModal — 3-step wizard (amount, review, success)
+- ✅ EduPayLoanProfileModal — loan profile form with SLC reference
+- ✅ TrueLayer integration (stub mode) — lib/truelayer/client, payment, webhook
+- ✅ 3 destinations: Student Loan, ISA (5.1% APY), Savings (4.6% APY)
+- ✅ Provider linking for ISA/Savings (Trading 212, Chase, Moneybox, Plum)
+- ✅ Interest projection display in conversion modal
+
+**To Go Live (TrueLayer)**:
+1. Register at console.truelayer.com for production credentials
+2. Fill `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET` in `.env.local`
+3. Update SLC sort code/account in `src/lib/truelayer/payment.ts`
+4. Implement ES512 JWS verification in webhook handler
+5. Set `TRUELAYER_ENVIRONMENT=live`
 
 ### 18. Help Centre ✅
 **Status**: Production-ready

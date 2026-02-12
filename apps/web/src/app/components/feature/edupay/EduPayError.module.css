@@ -1,0 +1,124 @@
+/**
+ * Filename: apps/web/src/app/components/feature/edupay/EduPayError.module.css
+ * Purpose: Styles for EduPay error component
+ * Created: 2026-02-12
+ * Pattern: Gold Standard Hub Architecture (matches BookingsError)
+ */
+
+.container {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+}
+
+.errorCard {
+  background: white;
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  color: #dc2626;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.message {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary-default, #006c67);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: var(--color-primary-dark, #005550);
+}
+
+.buttonIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.backButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #e5e7eb;
+}
+
+.details {
+  text-align: left;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.detailsSummary {
+  font-size: 0.875rem;
+  color: #6b7280;
+  cursor: pointer;
+  user-select: none;
+}
+
+.detailsSummary:hover {
+  color: #374151;
+}
+
+.errorStack {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #1f2937;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+}

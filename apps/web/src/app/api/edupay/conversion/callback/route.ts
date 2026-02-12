@@ -9,7 +9,7 @@
  *   1. Finds the pending conversion by truelayer_payment_id
  *   2. Transitions status → processing
  *   3. Deducts EP from wallet + inserts 'convert' ledger entry
- *   4. Redirects user to /financials/edupay?conversion=success (or ?conversion=failed)
+ *   4. Redirects user to /edupay?conversion=success (or ?conversion=failed)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const paymentId = searchParams.get('payment_id');
 
   if (!paymentId) {
-    return NextResponse.redirect(`${BASE_URL}/financials/edupay?conversion=failed&reason=missing_payment_id`);
+    return NextResponse.redirect(`${BASE_URL}/edupay?conversion=failed&reason=missing_payment_id`);
   }
 
   const supabase = await createClient();
@@ -39,12 +39,12 @@ export async function GET(request: NextRequest) {
 
   if (error || !conversion) {
     console.error('[Conversion Callback] Conversion not found for payment_id:', paymentId);
-    return NextResponse.redirect(`${BASE_URL}/financials/edupay?conversion=failed&reason=not_found`);
+    return NextResponse.redirect(`${BASE_URL}/edupay?conversion=failed&reason=not_found`);
   }
 
   if (conversion.status !== 'pending') {
     // Already processed (idempotent)
-    return NextResponse.redirect(`${BASE_URL}/financials/edupay?conversion=success`);
+    return NextResponse.redirect(`${BASE_URL}/edupay?conversion=success`);
   }
 
   // Transition to processing
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   if (updateError) {
     console.error('[Conversion Callback] Failed to update status:', updateError);
-    return NextResponse.redirect(`${BASE_URL}/financials/edupay?conversion=failed&reason=update_error`);
+    return NextResponse.redirect(`${BASE_URL}/edupay?conversion=failed&reason=update_error`);
   }
 
   // Deduct EP from wallet
@@ -82,5 +82,5 @@ export async function GET(request: NextRequest) {
     reference_type: 'edupay_conversion',
   });
 
-  return NextResponse.redirect(`${BASE_URL}/financials/edupay?conversion=success`);
+  return NextResponse.redirect(`${BASE_URL}/edupay?conversion=success`);
 }
