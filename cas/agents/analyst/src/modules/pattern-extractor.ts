@@ -1,8 +1,10 @@
 // src/modules/pattern-extractor.ts
 import * as fs from 'fs';
+import ProjectPaths, { getDesignSystemPath } from '../../../../packages/core/src/config/project-paths';
 
 /**
  * Extracts proven design and architectural patterns from a given file.
+ * References the design system from .ai/6-DESIGN-SYSTEM.md for TutorWise patterns.
  */
 export class PatternExtractor {
   /**
@@ -46,5 +48,27 @@ export class PatternExtractor {
     }
 
     return patterns;
+  }
+
+  /**
+   * Loads design system guidelines from .ai/6-DESIGN-SYSTEM.md
+   */
+  public async loadDesignSystem(): Promise<string | null> {
+    try {
+      const designSystemPath = getDesignSystemPath();
+      const content = fs.readFileSync(designSystemPath, 'utf8');
+      console.log(`Loaded design system from: ${designSystemPath}`);
+      return content;
+    } catch (error: any) {
+      console.warn(`Could not load design system: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Gets the path to the design system documentation
+   */
+  public getDesignSystemPath(): string {
+    return getDesignSystemPath();
   }
 }

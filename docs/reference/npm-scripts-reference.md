@@ -13,7 +13,6 @@ npm run lint                   # Run ESLint for frontend code
 ### Development with Context
 ```bash
 npm run dev:with-context       # Sync context data then start dev server
-npm run dev:with-optimization  # Sync context, optimize DSPy, then start dev
 ```
 
 ## Testing Scripts
@@ -142,11 +141,6 @@ npm run gemini:debug -- -q "API returning 404 errors"
 
 # Interactive with fresh context
 npm run ai:gemini
-```
-
-## Optimization Scripts
-```bash
-npm run optimize:dspy          # Optimize DSPy configurations
 ```
 
 ## Script Categories and Usage Patterns

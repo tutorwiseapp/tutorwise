@@ -186,6 +186,7 @@ cas suggest                   # Proactive improvement suggestions
 - Vector database for pattern storage (Pinecone/Weaviate)
 - Embedding models for log similarity
 - Graph database for service dependency mapping
+- **DSPy Framework** (Future) - Programmatic LLM pipelines for complex agent reasoning
 
 **Implementation:**
 - Integrate Claude API for log analysis
@@ -193,6 +194,52 @@ cas suggest                   # Proactive improvement suggestions
 - Create failure taxonomy
 - Implement similarity search for known issues
 - Generate actionable remediation plans
+
+---
+
+### 2.1.1 DSPy Integration (Future Enhancement)
+
+**Status:** Roadmap
+**Purpose:** Implement declarative LLM programming for complex multi-step agent reasoning
+
+**Why DSPy:**
+- Declarative signatures for agent capabilities (vs. imperative prompts)
+- Automatic prompt optimization based on feedback
+- Composable modules for agent-to-agent communication
+- Built-in evaluation and testing for LLM outputs
+
+**Potential Use Cases:**
+```python
+# Example DSPy module for CAS agent coordination
+class AgentCoordinationModule(dspy.Module):
+    def __init__(self):
+        self.planner = dspy.ChainOfThought("task -> agent_assignments")
+        self.validator = dspy.ChainOfThought("assignments, constraints -> validation")
+
+    def forward(self, task):
+        assignments = self.planner(task=task)
+        validation = self.validator(assignments=assignments, constraints=self.constraints)
+        return validation
+```
+
+**Implementation Phases:**
+1. **Research Phase**: Evaluate DSPy vs. current file-based agent communication
+2. **Pilot Phase**: Implement DSPy module for Analyst -> Developer -> Tester workflow
+3. **Integration Phase**: Replace prompt-based agent coordination with DSPy modules
+4. **Optimization Phase**: Use DSPy's automatic optimization to improve agent performance
+
+**Prerequisites:**
+- Python backend for CAS (currently TypeScript)
+- LLM API integration (Claude/OpenAI)
+- Agent evaluation metrics defined
+
+**Trade-offs:**
+| Approach | Pros | Cons |
+|----------|------|------|
+| Current (File-based) | Simple, no LLM costs, deterministic | Limited reasoning, manual prompts |
+| DSPy Integration | Optimizable, composable, testable | Requires Python, LLM costs, complexity |
+
+**Decision:** Evaluate after Phase 2 completion when agent complexity warrants LLM-based coordination.
 
 ---
 

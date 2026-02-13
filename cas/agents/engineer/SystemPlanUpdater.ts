@@ -96,10 +96,16 @@ export class SystemPlanUpdater {
   async updateComponentTodos(
     componentName: string,
     todos: SystemTodo[]
-  ): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectComponentTodos(plan, componentName, todos);
-    await this.writePlan(updatedPlan);
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.injectComponentTodos(plan, componentName, todos);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to update todos for ${componentName}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
@@ -108,28 +114,46 @@ export class SystemPlanUpdater {
   async updatePerformanceMetrics(
     componentName: string,
     metrics: { [key: string]: string }
-  ): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectPerformanceMetrics(plan, componentName, metrics);
-    await this.writePlan(updatedPlan);
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.injectPerformanceMetrics(plan, componentName, metrics);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to update metrics for ${componentName}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Add infrastructure priority
    */
-  async addInfrastructurePriority(priority: InfrastructurePriority): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectPriority(plan, priority);
-    await this.writePlan(updatedPlan);
+  async addInfrastructurePriority(priority: InfrastructurePriority): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.injectPriority(plan, priority);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to add priority ${priority.title}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Update system health dashboard
    */
-  async updateSystemHealth(health: SystemHealthMetrics): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectSystemHealth(plan, health);
-    await this.writePlan(updatedPlan);
+  async updateSystemHealth(health: SystemHealthMetrics): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.injectSystemHealth(plan, health);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to update system health:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
@@ -139,41 +163,65 @@ export class SystemPlanUpdater {
     componentName: string,
     status: '✅' | '🟡' | '🔴',
     statusText: SystemComponent['statusText']
-  ): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.updateStatus(plan, componentName, status, statusText);
-    await this.writePlan(updatedPlan);
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.updateStatus(plan, componentName, status, statusText);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to update status for ${componentName}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Add known issue to a component
    */
-  async addKnownIssue(componentName: string, issue: string): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.injectKnownIssue(plan, componentName, issue);
-    await this.writePlan(updatedPlan);
+  async addKnownIssue(componentName: string, issue: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.injectKnownIssue(plan, componentName, issue);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to add issue to ${componentName}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Resolve known issue
    */
-  async resolveKnownIssue(componentName: string, issuePattern: string): Promise<void> {
-    const plan = await this.readPlan();
-    const updatedPlan = this.removeKnownIssue(plan, componentName, issuePattern);
-    await this.writePlan(updatedPlan);
+  async resolveKnownIssue(componentName: string, issuePattern: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const updatedPlan = this.removeKnownIssue(plan, componentName, issuePattern);
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to resolve issue for ${componentName}:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   /**
    * Update the "Last Updated" timestamp
    */
-  async updateTimestamp(): Promise<void> {
-    const plan = await this.readPlan();
-    const now = new Date().toISOString().split('.')[0].replace('T', ' ');
-    const updatedPlan = plan.replace(
-      /\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/,
-      `**Last Updated:** ${now}`
-    );
-    await this.writePlan(updatedPlan);
+  async updateTimestamp(): Promise<{ success: boolean; error?: string }> {
+    try {
+      const plan = await this.readPlan();
+      const now = new Date().toISOString().split('.')[0].replace('T', ' ');
+      const updatedPlan = plan.replace(
+        /\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/,
+        `**Last Updated:** ${now}`
+      );
+      await this.writePlan(updatedPlan);
+      return { success: true };
+    } catch (error: any) {
+      console.error(`[SystemPlanUpdater] Failed to update timestamp:`, error.message);
+      return { success: false, error: error.message };
+    }
   }
 
   // Private helper methods

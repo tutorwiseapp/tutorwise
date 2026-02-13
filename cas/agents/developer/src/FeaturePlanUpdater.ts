@@ -28,59 +28,101 @@ export class FeaturePlanUpdater {
     /**
      * Update the plan based on current todos
      */
-    async updateFromTodos(todos: any[], featureName: string) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.injectTodoUpdates(plan, todos, featureName);
-        await this.writePlan(updatedPlan);
+    async updateFromTodos(todos: any[], featureName: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.injectTodoUpdates(plan, todos, featureName);
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to update todos for ${featureName}:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Update test results section
      */
-    async updateTestResults(featureName: string, testResults: any) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.injectTestResults(plan, featureName, testResults);
-        await this.writePlan(updatedPlan);
+    async updateTestResults(featureName: string, testResults: any): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.injectTestResults(plan, featureName, testResults);
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to update test results for ${featureName}:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Update QA review section
      */
-    async updateQAReview(featureName: string, qaReview: any) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.injectQAReview(plan, featureName, qaReview);
-        await this.writePlan(updatedPlan);
+    async updateQAReview(featureName: string, qaReview: any): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.injectQAReview(plan, featureName, qaReview);
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to update QA review for ${featureName}:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Add a new feature to the backlog
      */
-    async addFeatureToBacklog(feature: any) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.addFeature(plan, feature, 'backlog');
-        await this.writePlan(updatedPlan);
+    async addFeatureToBacklog(feature: any): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.addFeature(plan, feature, 'backlog');
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to add feature to backlog:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Move feature from backlog to current sprint
      */
-    async moveToCurrentSprint(featureName: string) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.moveFeature(plan, featureName, 'current');
-        await this.writePlan(updatedPlan);
+    async moveToCurrentSprint(featureName: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.moveFeature(plan, featureName, 'current');
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to move ${featureName} to current sprint:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Mark feature as complete and move to completed section
      */
-    async markFeatureComplete(featureName: string, completedDate: string) {
-        const plan = await this.readPlan();
-        const updatedPlan = this.completeFeature(plan, featureName, completedDate);
-        await this.writePlan(updatedPlan);
+    async markFeatureComplete(featureName: string, completedDate: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const updatedPlan = this.completeFeature(plan, featureName, completedDate);
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to mark ${featureName} complete:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     /**
      * Update the "Last Updated" timestamp
      */
-    async updateTimestamp() {
-        const plan = await this.readPlan();
-        const now = new Date().toISOString().split('.')[0].replace('T', ' ');
-        const updatedPlan = plan.replace(/\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/, `**Last Updated:** ${now}`);
-        await this.writePlan(updatedPlan);
+    async updateTimestamp(): Promise<{ success: boolean; error?: string }> {
+        try {
+            const plan = await this.readPlan();
+            const now = new Date().toISOString().split('.')[0].replace('T', ' ');
+            const updatedPlan = plan.replace(/\*\*Last Updated:\*\* \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/, `**Last Updated:** ${now}`);
+            await this.writePlan(updatedPlan);
+            return { success: true };
+        } catch (error: any) {
+            console.error(`[FeaturePlanUpdater] Failed to update timestamp:`, error.message);
+            return { success: false, error: error.message };
+        }
     }
     // Private helper methods
     async readPlan(): Promise<string> {
