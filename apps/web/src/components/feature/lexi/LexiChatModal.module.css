@@ -3,12 +3,13 @@
 
 .container {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 5.5rem; /* Position above mobile bottom nav (~80px) */
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 1rem;
+  pointer-events: none; /* Allow clicks to pass through container */
 }
 
 .positionRight {
@@ -24,11 +25,11 @@
 .chatPanel {
   width: 380px;
   height: 600px;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 180px); /* Account for bottom nav */
   opacity: 0;
   transform: translateY(20px) scale(0.95);
   transform-origin: bottom right;
-  pointer-events: none;
+  pointer-events: none; /* Hidden state - no pointer events */
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
@@ -122,6 +123,7 @@
   transition: all 0.2s ease;
   font-size: 0.9375rem;
   font-weight: 500;
+  pointer-events: auto; /* Re-enable pointer events for the button */
 }
 
 .fab:hover {
@@ -150,21 +152,27 @@
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    bottom: 1rem;
+    bottom: 5rem; /* Above mobile bottom nav */
     right: 1rem;
-    left: 1rem;
+    /* Don't set left - keep FAB on the right side only */
   }
 
-  .positionRight,
-  .positionLeft {
+  .positionRight {
     right: 1rem;
+  }
+
+  .positionLeft {
     left: 1rem;
-    align-items: stretch;
+    right: auto;
   }
 
   .chatPanel {
-    width: 100%;
-    height: calc(100vh - 100px);
+    position: fixed;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 5rem;
+    width: auto;
+    height: calc(100vh - 160px);
     max-height: none;
     transform-origin: bottom center;
   }
