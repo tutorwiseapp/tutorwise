@@ -22,12 +22,26 @@ if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_BASE_URL) 
   );
 }
 
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable standalone output for Docker deployment
   output: 'standalone',
   // Enable MDX support for help centre articles
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  // Experimental settings for monorepo support
+  experimental: {
+    // Allow importing from outside the Next.js app directory
+    externalDir: true,
+  },
+  // Turbopack configuration for module resolution in monorepo
+  turbopack: {
+    resolveAlias: {
+      '@lexi': path.resolve(__dirname, '../../lexi'),
+      '@cas': path.resolve(__dirname, '../../cas'),
+    },
+  },
   // URL rewrites for cleaner public URLs
   async rewrites() {
     return [];
