@@ -17,11 +17,11 @@ import type { UserRole } from '@cas/packages/core/src/context';
 
 /**
  * POST /api/lexi/session
- * Start a new Lexi session for the authenticated user
+ * Start a new Lexi session for authenticated or anonymous users
  */
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    // Get authenticated user from Supabase
+    // Get authenticated user from Supabase (optional - guests allowed)
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,17 +40,90 @@ export async function POST(_request: NextRequest) {
       }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
+    // Generate a unique identifier for rate limiting
+    // For authenticated users, use their ID; for guests, use IP or a generated ID
+    let rateLimitId: string;
+    let userInfo: {
+      id: string;
+      role: UserRole;
+      organisationId?: string;
+      permissions: string[];
+      metadata: {
+        displayName?: string;
+        email?: string;
+        isGuest?: boolean;
+      };
+    };
+
+    if (user) {
+      // Authenticated user flow
+      rateLimitId = user.id;
+
+      // Get user profile to determine role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, active_role, organisation_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        // User is authenticated but doesn't have a profile yet (e.g., new user)
+        // Create session with default client role instead of failing
+        console.log('[Lexi API] No profile found for user, using default role:', user.id);
+        userInfo = {
+          id: user.id,
+          role: 'client' as UserRole,
+          permissions: [],
+          metadata: {
+            displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            email: user.email,
+          },
+        };
+      } else {
+        // Map active_role to UserRole
+        const roleMap: Record<string, UserRole> = {
+          'tutor': 'tutor',
+          'client': 'client',
+          'student': 'student',
+          'agent': 'agent',
+          'organisation': 'organisation',
+        };
+        const role = roleMap[profile.active_role || ''] || 'client';
+
+        userInfo = {
+          id: user.id,
+          role,
+          organisationId: profile.organisation_id || undefined,
+          permissions: [],
+          metadata: {
+            displayName: profile.full_name,
+            email: user.email,
+          },
+        };
+      }
+    } else {
+      // Guest user flow - create anonymous session
+      // Use IP address or generate a guest ID for rate limiting
+      const forwardedFor = request.headers.get('x-forwarded-for');
+      const ip = forwardedFor?.split(',')[0]?.trim() || 'unknown';
+      const guestId = `guest:${ip}`;
+      rateLimitId = guestId;
+
+      userInfo = {
+        id: guestId,
+        role: 'client' as UserRole, // Guests get basic client persona
+        permissions: [],
+        metadata: {
+          displayName: 'Guest',
+          isGuest: true,
+        },
+      };
     }
 
     // Check rate limit for session creation
-    const rateLimitResult = await rateLimiter.checkLimit(user.id, 'session:start');
+    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'session:start');
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         rateLimitError(rateLimitResult),
@@ -61,41 +134,8 @@ export async function POST(_request: NextRequest) {
       );
     }
 
-    // Get user profile to determine role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, full_name, user_type, organisation_id')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found', code: 'PROFILE_NOT_FOUND' },
-        { status: 404 }
-      );
-    }
-
-    // Map user_type to UserRole
-    const roleMap: Record<string, UserRole> = {
-      'tutor': 'tutor',
-      'client': 'client',
-      'student': 'student',
-      'agent': 'agent',
-      'organisation': 'organisation',
-    };
-    const role = roleMap[profile.user_type] || 'client';
-
     // Start Lexi session
-    const session = await lexiOrchestrator.startSession({
-      id: user.id,
-      role,
-      organisationId: profile.organisation_id || undefined,
-      permissions: [], // Would be fetched from permissions table
-      metadata: {
-        displayName: profile.full_name,
-        email: user.email,
-      },
-    });
+    const session = await lexiOrchestrator.startSession(userInfo);
 
     // Store session in Redis
     await sessionStore.createSession(session);

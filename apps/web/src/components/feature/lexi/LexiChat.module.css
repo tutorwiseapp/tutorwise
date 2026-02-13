@@ -11,14 +11,14 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-/* Header */
+/* Header - uses brand colors */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
-  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  background: linear-gradient(135deg, var(--color-primary, #006C67) 0%, var(--color-primary-accent, #4CAEAD) 100%);
   flex-shrink: 0;
 }
 
@@ -42,7 +42,7 @@
 .avatarIcon {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0d9488;
+  color: var(--color-primary, #006C67);
 }
 
 .headerInfo {
@@ -184,7 +184,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid #e5e7eb;
-  border-top-color: #0d9488;
+  border-top-color: var(--color-primary, #006C67);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -256,7 +256,7 @@
 }
 
 .messageSent .messageContent {
-  background-color: #0d9488;
+  background-color: var(--color-primary, #006C67);
   color: white;
   border-bottom-right-radius: 0.25rem;
 }
@@ -423,9 +423,9 @@
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #0d9488;
-  background-color: #f0fdfa;
-  border: 1px solid #99f6e4;
+  color: var(--color-primary, #006C67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  border: 1px solid var(--color-primary-accent, #4CAEAD);
   border-radius: 1rem;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -433,8 +433,8 @@
 }
 
 .suggestionChip:hover {
-  background-color: #ccfbf1;
-  border-color: #5eead4;
+  background-color: #d0e8e8;
+  border-color: var(--color-primary, #006C67);
 }
 
 /* Input form */
@@ -458,7 +458,7 @@
 }
 
 .input:focus {
-  border-color: #0d9488;
+  border-color: var(--color-primary, #006C67);
 }
 
 .input:disabled {
@@ -477,7 +477,7 @@
   width: 44px;
   height: 44px;
   color: white;
-  background-color: #0d9488;
+  background-color: var(--color-primary, #006C67);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -486,7 +486,7 @@
 }
 
 .sendButton:hover:not(:disabled) {
-  background-color: #0f766e;
+  background-color: var(--color-primary-dark, #005550);
 }
 
 .sendButton:disabled {

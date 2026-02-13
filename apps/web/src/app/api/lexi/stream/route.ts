@@ -24,11 +24,11 @@ interface StreamRequestBody {
 
 /**
  * POST /api/lexi/stream
- * Send a message to Lexi and receive a streamed response via SSE
+ * Send a message to Lexi and receive a streamed response via SSE (supports both authenticated and guest users)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Get authenticated user
+    // Get authenticated user (optional - guests allowed)
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,13 +47,16 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+    // Determine user ID for rate limiting (authenticated user or guest via IP)
+    let rateLimitId: string;
+    if (user) {
+      rateLimitId = user.id;
+    } else {
+      const forwardedFor = request.headers.get('x-forwarded-for');
+      const ip = forwardedFor?.split(',')[0]?.trim() || 'unknown';
+      rateLimitId = `guest:${ip}`;
     }
 
     // Parse request body
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check rate limit for messages
-    const rateLimitResult = await rateLimiter.checkLimit(user.id, 'message');
+    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'message');
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify(rateLimitError(rateLimitResult)),
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify session exists and belongs to user
+    // Verify session exists
     const session = await sessionStore.getSession(sessionId);
     if (!session) {
       return new Response(
@@ -98,7 +101,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (session.userId !== user.id) {
+    // Verify session belongs to this user (authenticated or guest)
+    const expectedUserId = user?.id || rateLimitId;
+    if (session.userId !== expectedUserId) {
       return new Response(
         JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
         { status: 403, headers: { 'Content-Type': 'application/json' } }
