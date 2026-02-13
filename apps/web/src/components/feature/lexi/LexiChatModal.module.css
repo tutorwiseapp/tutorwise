@@ -152,7 +152,7 @@
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    bottom: 8.5rem; /* Position above info CTA (~136px, 56px clearance) */
+    bottom: 9.5rem; /* Position above info CTA (152px, 72px clearance) */
     right: 1rem;
     /* Don't set left - keep FAB on the right side only */
   }
@@ -170,9 +170,9 @@
     position: fixed;
     left: 0.5rem;
     right: 0.5rem;
-    bottom: 8.5rem;
+    bottom: 9.5rem;
     width: auto;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 220px);
     max-height: none;
     transform-origin: bottom center;
   }
