@@ -151,10 +151,11 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
     }
   }, [sendMessage, router, onClose]);
 
-  // Handle close
-  const handleClose = useCallback(async () => {
-    await endSession();
+  // Handle close - close immediately, cleanup session in background
+  const handleClose = useCallback(() => {
     onClose?.();
+    // Cleanup session in background (don't block UI)
+    endSession().catch(() => {});
   }, [endSession, onClose]);
 
   // Handle feedback submission

@@ -91,9 +91,10 @@ export default function LexiChatModal({
               onClick={() => setView('chat')}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M5.5 8H5.505M8 8H8.005M10.5 8H10.505M14 8C14 11.3137 11.3137 14 8 14C6.78053 14 5.64706 13.6456 4.68997 13.0367L2 14L2.96333 11.31C2.34104 10.3484 2 9.21407 2 8C2 4.68629 4.68629 2 8 2C11.3137 2 14 4.68629 14 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6.625 10.333A1.333 1.333 0 0 0 5.667 9.375l-4.09-1.054a.333.333 0 0 1 0-.642l4.09-1.055A1.333 1.333 0 0 0 6.625 5.667l1.054-4.09a.333.333 0 0 1 .642 0l1.054 4.09a1.333 1.333 0 0 0 .958.957l4.09 1.055a.333.333 0 0 1 0 .642l-4.09 1.054a1.333 1.333 0 0 0-.958.958l-1.054 4.09a.333.333 0 0 1-.642 0z" stroke="currentColor" fill="none" strokeWidth="1"/>
+                <path d="M13.333 2v2.667M14.667 3.333h-2.667M2.667 11.333V12.667M3.333 12H2" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
               </svg>
-              Chat
+              AI Agent
             </button>
             <button
               className={`${styles.viewToggleButton} ${view === 'history' ? styles.viewToggleActive : ''}`}
