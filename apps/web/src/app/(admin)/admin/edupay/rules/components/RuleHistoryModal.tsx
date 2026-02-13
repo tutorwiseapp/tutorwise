@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
-import { History, User, Calendar, Edit3, Plus, ToggleLeft, ToggleRight } from 'lucide-react';
+import { History, User, Calendar, Edit3, Plus, ToggleLeft } from 'lucide-react';
 import styles from './RuleHistoryModal.module.css';
 
 interface EduPayRule {

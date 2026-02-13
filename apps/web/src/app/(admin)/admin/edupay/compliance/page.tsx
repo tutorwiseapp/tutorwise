@@ -32,7 +32,7 @@ interface ComplianceStats {
   periodEnd: string;
 }
 
-interface AuditEntry {
+interface _AuditEntry {
   id: string;
   event_type: string;
   user_id: string;
@@ -126,7 +126,7 @@ export default function AdminEduPayCompliancePage() {
       let filename = '';
 
       switch (reportType) {
-        case 'fees':
+        case 'fees': {
           const { data: feeData } = await supabase
             .from('edupay_conversions')
             .select('id, user_id, ep_amount, gbp_amount_pence, platform_fee_pence, net_amount_pence, destination, status, created_at, completed_at')
@@ -136,8 +136,9 @@ export default function AdminEduPayCompliancePage() {
           data = feeData || [];
           filename = `edupay-platform-fees-${selectedPeriod}.csv`;
           break;
+        }
 
-        case 'conversions':
+        case 'conversions': {
           const { data: convData } = await supabase
             .from('edupay_conversions')
             .select('*')
@@ -146,8 +147,9 @@ export default function AdminEduPayCompliancePage() {
           data = convData || [];
           filename = `edupay-conversions-${selectedPeriod}.csv`;
           break;
+        }
 
-        case 'ledger':
+        case 'ledger': {
           const { data: ledgerData } = await supabase
             .from('edupay_ledger')
             .select('*')
@@ -156,6 +158,7 @@ export default function AdminEduPayCompliancePage() {
           data = ledgerData || [];
           filename = `edupay-ledger-${selectedPeriod}.csv`;
           break;
+        }
       }
 
       // Convert to CSV

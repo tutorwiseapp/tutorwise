@@ -24,7 +24,6 @@ import {
   linkAccount,
 } from '@/lib/api/edupay';
 import {
-  SAVINGS_PROVIDERS,
   getProvidersByType,
   calculateInterest,
   projectSavingsGrowth,
