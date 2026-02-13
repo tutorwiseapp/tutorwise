@@ -152,7 +152,7 @@
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    bottom: 5rem; /* Above mobile bottom nav */
+    bottom: 7rem; /* Position above info CTA (~112px, 24px clearance) */
     right: 1rem;
     /* Don't set left - keep FAB on the right side only */
   }
@@ -170,15 +170,22 @@
     position: fixed;
     left: 0.5rem;
     right: 0.5rem;
-    bottom: 5rem;
+    bottom: 7rem;
     width: auto;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 180px);
     max-height: none;
     transform-origin: bottom center;
   }
 
+  /* Icon-only compact FAB on mobile */
   .fab {
     align-self: flex-end;
+    padding: 0.875rem;
+    border-radius: 50%;
+  }
+
+  .fabLabel {
+    display: none;
   }
 
   .positionLeft .fab {
