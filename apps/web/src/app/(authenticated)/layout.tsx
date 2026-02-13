@@ -22,6 +22,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import AppSidebar from '@/app/components/layout/AppSidebar';
+import { LexiChatModal } from '@/components/feature/lexi';
 import styles from './layout.module.css';
 
 interface AuthenticatedLayoutProps {
@@ -68,6 +69,9 @@ export default function AuthenticatedLayout({
 
       {/* Center Column: Page Content (hub pages render their own HubSidebar) */}
       <div className={styles.mainContent}>{children}</div>
+
+      {/* Lexi AI Assistant - Floating Chat */}
+      <LexiChatModal />
     </div>
   );
 }

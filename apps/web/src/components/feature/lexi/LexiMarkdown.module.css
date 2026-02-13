@@ -1,0 +1,124 @@
+/* LexiMarkdown.module.css */
+/* Styles for markdown-rendered content in Lexi chat */
+
+.markdown {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Paragraphs */
+.paragraph {
+  margin: 0;
+}
+
+.paragraph + .paragraph {
+  margin-top: 0.5em;
+}
+
+/* Text formatting */
+.bold {
+  font-weight: 600;
+}
+
+.italic {
+  font-style: italic;
+}
+
+/* Inline code */
+.inlineCode {
+  padding: 0.125em 0.375em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875em;
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 0.25em;
+}
+
+/* Code blocks */
+.codeBlock {
+  margin: 0.5em 0;
+  padding: 0.75em 1em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8125em;
+  line-height: 1.5;
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-radius: 0.5em;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.codeBlock code {
+  background: none;
+  padding: 0;
+}
+
+/* Links */
+.link {
+  color: #0891b2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.link:hover {
+  color: #0e7490;
+}
+
+/* Lists */
+.list {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.list .list {
+  margin: 0.25em 0;
+}
+
+.listItem {
+  margin: 0.25em 0;
+}
+
+/* Blockquotes */
+.blockquote {
+  margin: 0.5em 0;
+  padding-left: 1em;
+  border-left: 3px solid #d1d5db;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* When inside received message (light background) */
+:global(.messageReceived) .inlineCode {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+:global(.messageReceived) .link {
+  color: #0891b2;
+}
+
+:global(.messageReceived) .link:hover {
+  color: #0e7490;
+}
+
+/* When inside sent message (dark teal background) */
+:global(.messageSent) .inlineCode {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+}
+
+:global(.messageSent) .link {
+  color: #99f6e4;
+}
+
+:global(.messageSent) .link:hover {
+  color: #5eead4;
+}
+
+:global(.messageSent) .blockquote {
+  border-left-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+:global(.messageSent) .codeBlock {
+  background-color: rgba(0, 0, 0, 0.3);
+}

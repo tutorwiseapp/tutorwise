@@ -1,0 +1,193 @@
+/* LexiChatModal.module.css */
+/* Floating chat modal following hub architecture */
+
+.container {
+  position: fixed;
+  bottom: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.positionRight {
+  right: 1.5rem;
+}
+
+.positionLeft {
+  left: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Chat panel */
+.chatPanel {
+  width: 380px;
+  height: 600px;
+  max-height: calc(100vh - 120px);
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transform-origin: bottom right;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.positionLeft .chatPanel {
+  transform-origin: bottom left;
+}
+
+.chatPanelOpen {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* View toggle tabs */
+.viewToggle {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.viewToggleButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.viewToggleButton:hover {
+  color: #374151;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.viewToggleActive {
+  color: #0d9488;
+  background-color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.viewToggleActive:hover {
+  color: #0d9488;
+  background-color: white;
+}
+
+/* Panel content wrapper */
+.panelContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelContent > * {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Floating action button */
+.fab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  color: white;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4);
+  transition: all 0.2s ease;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.5);
+}
+
+.fab:active {
+  transform: translateY(0);
+}
+
+.fabActive {
+  padding: 0.875rem;
+  border-radius: 50%;
+  background: #374151;
+}
+
+.fabActive:hover {
+  background: #1f2937;
+}
+
+.fabLabel {
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+  }
+
+  .positionRight,
+  .positionLeft {
+    right: 1rem;
+    left: 1rem;
+    align-items: stretch;
+  }
+
+  .chatPanel {
+    width: 100%;
+    height: calc(100vh - 100px);
+    max-height: none;
+    transform-origin: bottom center;
+  }
+
+  .fab {
+    align-self: flex-end;
+  }
+
+  .positionLeft .fab {
+    align-self: flex-start;
+  }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .chatPanel {
+    transition: opacity 0.15s ease;
+    transform: none;
+  }
+
+  .chatPanelOpen {
+    transform: none;
+  }
+
+  .fab:hover {
+    transform: none;
+  }
+}

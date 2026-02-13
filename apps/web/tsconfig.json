@@ -32,6 +32,12 @@
       ],
       "@tutorwise/ui": [
         "../../packages/ui/src"
+      ],
+      "@lexi/*": [
+        "../../lexi/*"
+      ],
+      "@cas/*": [
+        "../../cas/*"
       ]
     }
   },
