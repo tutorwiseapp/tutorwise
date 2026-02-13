@@ -69,7 +69,7 @@
     "lucide-react": "^0.544.0",
     "nanoid": "^5.1.6",
     "next": "^16.1.6",
-    "next-mdx-remote": "^5.0.0",
+    "next-mdx-remote": "^6.0.0",
     "openai": "^6.10.0",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
