@@ -114,7 +114,7 @@ export default function LexiChatModal({
             {view === 'chat' ? (
               <LexiChat
                 onClose={handleClose}
-                autoStart={isOpen && view === 'chat'}
+                autoStart={false}
               />
             ) : (
               <LexiHistory

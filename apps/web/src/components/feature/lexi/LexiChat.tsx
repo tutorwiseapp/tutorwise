@@ -128,28 +128,37 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
     inputRef.current?.focus();
   }, [session]);
 
-  // Handle message submit
+  // Handle message submit - starts session if needed
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isSending) return;
+    if (!inputValue.trim() || isSending || isLoading) return;
 
     const message = inputValue;
     setInputValue('');
+
+    // Start session first if not already started
+    if (!session) {
+      await startSession();
+    }
     await sendMessage(message);
-  }, [inputValue, isSending, sendMessage]);
+  }, [inputValue, isSending, isLoading, session, startSession, sendMessage]);
 
   // Handle suggestion click - navigate if deep link exists, otherwise send message
-  const handleSuggestionClick = useCallback((suggestion: string) => {
+  const handleSuggestionClick = useCallback(async (suggestion: string) => {
     const deepLink = getDeepLink(suggestion);
     if (deepLink) {
       // Close chat modal if navigating
       onClose?.();
       router.push(deepLink.href);
     } else {
+      // Start session first if not already started
+      if (!session) {
+        await startSession();
+      }
       // Send as message
       sendMessage(suggestion);
     }
-  }, [sendMessage, router, onClose]);
+  }, [session, startSession, sendMessage, router, onClose]);
 
   // Handle close - close immediately, cleanup session in background
   const handleClose = useCallback(() => {
@@ -187,6 +196,12 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
       default: return 'AI Assistant';
     }
   };
+
+  // Default suggestions shown before session starts
+  const defaultSuggestions = ['How can you help?', 'Find a tutor', 'My schedule'];
+
+  // Use session suggestions if available, otherwise show defaults
+  const displaySuggestions = suggestions.length > 0 ? suggestions : defaultSuggestions;
 
   return (
     <div className={`${styles.chat} ${className || ''}`}>
@@ -316,9 +331,9 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
       </div>
 
       {/* Suggestions */}
-      {suggestions.length > 0 && !isSending && (
+      {displaySuggestions.length > 0 && !isSending && (
         <div className={styles.suggestions}>
-          {suggestions.slice(0, 3).map((suggestion, index) => (
+          {displaySuggestions.slice(0, 3).map((suggestion, index) => (
             <button
               key={index}
               className={styles.suggestionChip}
@@ -337,14 +352,14 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder={session ? "Type a message..." : "Starting session..."}
+          placeholder="Type a message..."
           className={styles.input}
-          disabled={!session || isSending}
+          disabled={isSending || isLoading}
         />
         <button
           type="submit"
           className={styles.sendButton}
-          disabled={!session || !inputValue.trim() || isSending}
+          disabled={!inputValue.trim() || isSending || isLoading}
         >
           {isSending ? (
             <span className={styles.sendingDots}>
