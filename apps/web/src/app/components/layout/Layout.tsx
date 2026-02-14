@@ -13,12 +13,18 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import BottomNav from './BottomNav';
-import { LexiChatModal } from '@/components/feature/lexi';
 import styles from './Layout.module.css'; // This import will now find the file
+
+// Lazy load LexiChatModal to reduce initial bundle size and prevent hydration issues
+const LexiChatModal = dynamic(
+  () => import('@/components/feature/lexi').then(mod => ({ default: mod.LexiChatModal })),
+  { ssr: false }
+);
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();

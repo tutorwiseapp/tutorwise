@@ -108,31 +108,28 @@
   box-shadow: none;
 }
 
-/* Floating action button - uses brand colors */
+/* Floating action button - flat style consistent with info CTA */
 .fab {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 1.25rem;
-  background: linear-gradient(135deg, var(--color-primary, #006C67) 0%, var(--color-primary-accent, #4CAEAD) 100%);
+  background: var(--color-primary, #006C67);
   color: white;
   border: none;
   border-radius: 2rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 108, 103, 0.4);
-  transition: all 0.2s ease;
   font-size: 0.9375rem;
   font-weight: 500;
   pointer-events: auto; /* Re-enable pointer events for the button */
 }
 
 .fab:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 108, 103, 0.5);
+  background: var(--color-primary-dark, #005550);
 }
 
 .fab:active {
-  transform: translateY(0);
+  background: var(--color-primary-dark, #005550);
 }
 
 .fabActive {
@@ -152,7 +149,7 @@
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    bottom: 9.5rem; /* Position above info CTA (152px, 72px clearance) */
+    bottom: 9rem; /* Position above info CTA (144px) */
     right: 1rem;
     /* Don't set left - keep FAB on the right side only */
   }
@@ -170,7 +167,7 @@
     position: fixed;
     left: 0.5rem;
     right: 0.5rem;
-    bottom: 9.5rem;
+    bottom: 9rem;
     width: auto;
     height: calc(100vh - 220px);
     max-height: none;
@@ -201,10 +198,6 @@
   }
 
   .chatPanelOpen {
-    transform: none;
-  }
-
-  .fab:hover {
     transform: none;
   }
 }
