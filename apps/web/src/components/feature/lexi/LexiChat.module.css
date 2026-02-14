@@ -206,8 +206,9 @@
 }
 
 .emptyIcon {
-  font-size: 3rem;
+  color: var(--color-primary, #006C67);
   margin-bottom: 1rem;
+  opacity: 0.6;
 }
 
 .emptyText {

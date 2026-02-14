@@ -4,12 +4,14 @@
  * Lexi Chat Hook
  *
  * Custom hook for managing Lexi chat state and interactions.
- * Handles session management, message sending, and real-time updates.
+ * Uses react-query for session management with proper loading states.
+ * Handles message sending with streaming support.
  *
  * @module components/feature/lexi/useLexiChat
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { responseCache } from '@lexi/services/response-cache';
 
 // --- Types ---
@@ -59,33 +61,105 @@ export interface UseLexiChatReturn {
   clearError: () => void;
 }
 
+// --- API Functions ---
+
+async function createSession(): Promise<LexiSession> {
+  const response = await fetch('/api/lexi/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to start session');
+  }
+
+  return response.json();
+}
+
+async function deleteSession(sessionId: string): Promise<void> {
+  await fetch(`/api/lexi/session?sessionId=${sessionId}`, {
+    method: 'DELETE',
+  });
+}
+
 // --- Hook Implementation ---
 
 export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn {
   const { autoStart = false, streaming = true, onError, onSessionStart, onSessionEnd } = options;
 
-  // State
+  // Local state for messages and session
   const [messages, setMessages] = useState<LexiMessage[]>([]);
   const [session, setSession] = useState<LexiSession | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Refs
   const sessionRef = useRef<LexiSession | null>(null);
+  const hasAutoStarted = useRef(false);
 
   // Keep session ref in sync
   useEffect(() => {
     sessionRef.current = session;
   }, [session]);
 
-  // Auto-start session if enabled
+  // Session start mutation with retry logic
+  const startSessionMutation = useMutation({
+    mutationFn: createSession,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    onSuccess: (sessionData) => {
+      setSession(sessionData);
+      setError(null);
+
+      // Add greeting message
+      const greetingMessage: LexiMessage = {
+        id: `msg_greeting_${Date.now()}`,
+        role: 'assistant',
+        content: sessionData.greeting,
+        timestamp: new Date(),
+        metadata: { persona: sessionData.persona },
+      };
+      setMessages([greetingMessage]);
+
+      // Set initial suggestions based on persona
+      setSuggestions(getInitialSuggestions(sessionData.persona));
+
+      onSessionStart?.(sessionData);
+    },
+    onError: (err) => {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start session';
+      setError(errorMessage);
+      onError?.(errorMessage);
+    },
+  });
+
+  // Session end mutation
+  const endSessionMutation = useMutation({
+    mutationFn: deleteSession,
+    onSettled: () => {
+      setSession(null);
+      setMessages([]);
+      setSuggestions([]);
+      setError(null);
+      onSessionEnd?.();
+    },
+  });
+
+  // Auto-start session if enabled (only once)
   useEffect(() => {
-    if (autoStart && !session) {
-      startSession();
+    if (autoStart && !session && !hasAutoStarted.current && !startSessionMutation.isPending) {
+      hasAutoStarted.current = true;
+      startSessionMutation.mutate();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, session, startSessionMutation]);
+
+  // Reset auto-start flag when autoStart changes to false
+  useEffect(() => {
+    if (!autoStart) {
+      hasAutoStarted.current = false;
+    }
   }, [autoStart]);
 
   // Cleanup on unmount
@@ -105,66 +179,18 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
   /**
    * Start a new Lexi session
    */
-  const startSession = useCallback(async () => {
-    setIsLoading(true);
+  const startSession = useCallback(async (): Promise<void> => {
     setError(null);
-
-    try {
-      const response = await fetch('/api/lexi/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to start session');
-      }
-
-      const sessionData: LexiSession = await response.json();
-      setSession(sessionData);
-
-      // Add greeting message
-      const greetingMessage: LexiMessage = {
-        id: `msg_greeting_${Date.now()}`,
-        role: 'assistant',
-        content: sessionData.greeting,
-        timestamp: new Date(),
-        metadata: { persona: sessionData.persona },
-      };
-      setMessages([greetingMessage]);
-
-      // Set initial suggestions based on capabilities
-      setSuggestions(getInitialSuggestions(sessionData.persona));
-
-      onSessionStart?.(sessionData);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to start session';
-      setError(errorMessage);
-      onError?.(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onError, onSessionStart]);
+    await startSessionMutation.mutateAsync();
+  }, [startSessionMutation]);
 
   /**
    * End the current session
    */
-  const endSession = useCallback(async () => {
+  const endSession = useCallback(async (): Promise<void> => {
     if (!session) return;
-
-    try {
-      await fetch(`/api/lexi/session?sessionId=${session.sessionId}`, {
-        method: 'DELETE',
-      });
-    } catch {
-      // Ignore errors on session end
-    } finally {
-      setSession(null);
-      setMessages([]);
-      setSuggestions([]);
-      onSessionEnd?.();
-    }
-  }, [session, onSessionEnd]);
+    await endSessionMutation.mutateAsync(session.sessionId);
+  }, [session, endSessionMutation]);
 
   /**
    * Send a message to Lexi (with streaming support and offline caching)
@@ -217,10 +243,10 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
     try {
       if (streaming) {
         // Use SSE streaming endpoint
-        await sendMessageStreaming(trimmedMessage, streamingMsgId);
+        await sendMessageStreaming(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
       } else {
         // Use regular endpoint
-        await sendMessageRegular(trimmedMessage, streamingMsgId);
+        await sendMessageRegular(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
@@ -232,147 +258,7 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
     } finally {
       setIsSending(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, streaming, onError]);
-
-  /**
-   * Send message with streaming response (SSE)
-   */
-  const sendMessageStreaming = useCallback(async (message: string, msgId: string) => {
-    if (!session) return;
-
-    const response = await fetch('/api/lexi/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: session.sessionId,
-        message,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to send message');
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('No response body');
-
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let accumulatedContent = '';
-    let messageMetadata: LexiMessage['metadata'];
-    let finalMsgId = msgId;
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-
-      // Parse SSE events from buffer
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || ''; // Keep incomplete line in buffer
-
-      let eventType = '';
-      for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          eventType = line.slice(7);
-        } else if (line.startsWith('data: ')) {
-          const data = JSON.parse(line.slice(6));
-
-          switch (eventType) {
-            case 'start':
-              finalMsgId = data.messageId || msgId;
-              break;
-
-            case 'chunk':
-              accumulatedContent += data.content;
-              // Update message with accumulated content (streaming effect)
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === msgId
-                    ? { ...msg, content: accumulatedContent, isLoading: true }
-                    : msg
-                )
-              );
-              break;
-
-            case 'done':
-              messageMetadata = data.metadata;
-              finalMsgId = data.id || finalMsgId;
-              // Final update - remove loading state
-              setMessages(prev =>
-                prev.map(msg =>
-                  msg.id === msgId
-                    ? {
-                        ...msg,
-                        id: finalMsgId,
-                        content: accumulatedContent,
-                        timestamp: new Date(data.timestamp),
-                        metadata: messageMetadata,
-                        isLoading: false,
-                      }
-                    : msg
-                )
-              );
-              // Update suggestions
-              if (data.suggestions && data.suggestions.length > 0) {
-                setSuggestions(data.suggestions);
-              }
-              break;
-
-            case 'error':
-              throw new Error(data.error || 'Stream error');
-          }
-        }
-      }
-    }
-  }, [session]);
-
-  /**
-   * Send message with regular response (non-streaming)
-   */
-  const sendMessageRegular = useCallback(async (message: string, msgId: string) => {
-    if (!session) return;
-
-    const response = await fetch('/api/lexi/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: session.sessionId,
-        message,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || 'Failed to send message');
-    }
-
-    const data = await response.json();
-
-    // Replace loading message with actual response
-    const assistantMessage: LexiMessage = {
-      id: data.response.id,
-      role: 'assistant',
-      content: data.response.content,
-      timestamp: new Date(data.response.timestamp),
-      metadata: data.response.metadata,
-      isLoading: false,
-    };
-
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === msgId ? assistantMessage : msg
-      )
-    );
-
-    // Update suggestions
-    if (data.suggestions && data.suggestions.length > 0) {
-      setSuggestions(data.suggestions);
-    }
-  }, [session]);
 
   /**
    * Clear all messages
@@ -391,7 +277,7 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
   return {
     messages,
     session,
-    isLoading,
+    isLoading: startSessionMutation.isPending,
     isSending,
     error,
     suggestions,
@@ -404,6 +290,153 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
 }
 
 // --- Helper Functions ---
+
+/**
+ * Send message with streaming response (SSE)
+ */
+async function sendMessageStreaming(
+  session: LexiSession,
+  message: string,
+  msgId: string,
+  setMessages: React.Dispatch<React.SetStateAction<LexiMessage[]>>,
+  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
+): Promise<void> {
+  const response = await fetch('/api/lexi/stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: session.sessionId,
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to send message');
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('No response body');
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let accumulatedContent = '';
+  let messageMetadata: LexiMessage['metadata'];
+  let finalMsgId = msgId;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    // Parse SSE events from buffer
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+    let eventType = '';
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        eventType = line.slice(7);
+      } else if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6));
+
+        switch (eventType) {
+          case 'start':
+            finalMsgId = data.messageId || msgId;
+            break;
+
+          case 'chunk':
+            accumulatedContent += data.content;
+            // Update message with accumulated content (streaming effect)
+            setMessages(prev =>
+              prev.map(msg =>
+                msg.id === msgId
+                  ? { ...msg, content: accumulatedContent, isLoading: true }
+                  : msg
+              )
+            );
+            break;
+
+          case 'done':
+            messageMetadata = data.metadata;
+            finalMsgId = data.id || finalMsgId;
+            // Final update - remove loading state
+            setMessages(prev =>
+              prev.map(msg =>
+                msg.id === msgId
+                  ? {
+                      ...msg,
+                      id: finalMsgId,
+                      content: accumulatedContent,
+                      timestamp: new Date(data.timestamp),
+                      metadata: messageMetadata,
+                      isLoading: false,
+                    }
+                  : msg
+              )
+            );
+            // Update suggestions
+            if (data.suggestions && data.suggestions.length > 0) {
+              setSuggestions(data.suggestions);
+            }
+            break;
+
+          case 'error':
+            throw new Error(data.error || 'Stream error');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Send message with regular response (non-streaming)
+ */
+async function sendMessageRegular(
+  session: LexiSession,
+  message: string,
+  msgId: string,
+  setMessages: React.Dispatch<React.SetStateAction<LexiMessage[]>>,
+  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
+): Promise<void> {
+  const response = await fetch('/api/lexi/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: session.sessionId,
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to send message');
+  }
+
+  const data = await response.json();
+
+  // Replace loading message with actual response
+  const assistantMessage: LexiMessage = {
+    id: data.response.id,
+    role: 'assistant',
+    content: data.response.content,
+    timestamp: new Date(data.response.timestamp),
+    metadata: data.response.metadata,
+    isLoading: false,
+  };
+
+  setMessages(prev =>
+    prev.map(msg =>
+      msg.id === msgId ? assistantMessage : msg
+    )
+  );
+
+  // Update suggestions
+  if (data.suggestions && data.suggestions.length > 0) {
+    setSuggestions(data.suggestions);
+  }
+}
 
 function getInitialSuggestions(persona: string): string[] {
   switch (persona) {

@@ -175,15 +175,16 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
     }
   }, []);
 
-  // Get persona display name
+  // Get persona display name based on user role
   const getPersonaTitle = (persona?: string) => {
     switch (persona) {
-      case 'student': return 'Learning Assistant';
-      case 'tutor': return 'Tutor Dashboard';
-      case 'client': return 'Parent Portal';
-      case 'agent': return 'Agent Assistant';
-      case 'organisation': return 'Organisation Admin';
-      default: return 'Assistant';
+      case 'student': return 'Student';
+      case 'tutor': return 'Tutor';
+      case 'client': return 'Client';
+      case 'agent': return 'Agent';
+      case 'organisation': return 'Organisation';
+      case 'guest': return 'Guest';
+      default: return 'AI Assistant';
     }
   };
 
@@ -290,7 +291,12 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
           </div>
         ) : messages.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>💬</div>
+            <div className={styles.emptyIcon}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 3v4M22 5h-4M4 17v2M5 18H3" strokeLinecap="round"/>
+              </svg>
+            </div>
             <p className={styles.emptyText}>Start a conversation</p>
             <p className={styles.emptySubtext}>Ask me anything or try a suggestion below</p>
           </div>
