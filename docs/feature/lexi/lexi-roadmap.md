@@ -157,6 +157,13 @@ Lexi is TutorWise's omnipresent AI assistant that helps users navigate the platf
 - [ ] Custom tool definitions
 - [ ] Persona template sharing
 
+#### School System Integrations (Fuschia MCP Pattern)
+- [ ] MCP tool protocol for school management systems
+- [ ] Student timetable queries
+- [ ] Homework deadline lookups
+- [ ] Parent notification triggers
+- [ ] Intervention logging
+
 #### Multimodal Support
 - [ ] Voice input (speech-to-text)
 - [ ] Voice output (text-to-speech)
@@ -357,6 +364,7 @@ Lexi is TutorWise's omnipresent AI assistant that helps users navigate the platf
 - [ ] Autonomous CAS maintenance
 - [ ] Multi-language support
 - [ ] Proactive outreach
+- [ ] MCP school system integrations (Fuschia pattern)
 
 ---
 

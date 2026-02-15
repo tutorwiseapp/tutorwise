@@ -164,7 +164,111 @@ If CAS proves valuable beyond TutorWise:
 
 ---
 
-## Guiding Principles
+## Fuschia-Inspired Features
+
+Patterns from the [Fuschia](https://github.com/fuschiaapp123/fuschia) enterprise automation platform that could enhance CAS, Lexi, and Sage.
+
+### LangGraph State Machines (Q3 2026)
+**Source:** Fuschia's workflow orchestration
+
+Replace file-based agent coordination with explicit state machines:
+
+```python
+# Target: CAS agent workflow as LangGraph
+class DevWorkflow(StateGraph):
+    nodes: [planner, developer, tester, reviewer]
+    edges: planner → developer → tester → reviewer
+    conditionals: retry on failure, escalate on block
+```
+
+**Benefits:**
+- [ ] Explicit state transitions (vs implicit file-based)
+- [ ] Built-in retry/fallback logic
+- [ ] Visual debugging of agent workflows
+- [ ] Easier to add new agents to pipeline
+
+**Effort:** Medium (Python addition to TypeScript CAS)
+
+---
+
+### MCP Tool Protocol (Q1 2026)
+**Source:** Fuschia's ServiceNow MCP integration
+
+Standardised tool calling for school management systems:
+
+```typescript
+const schoolTools = {
+  "get_student_timetable": (studentId) => { ... },
+  "check_homework_deadline": (classId) => { ... },
+  "notify_parent": (studentId, message) => { ... },
+  "log_intervention": (studentId, topic, action) => { ... }
+};
+```
+
+**Benefits:**
+- [ ] Standard protocol (OpenAI-compatible)
+- [ ] Easy to add new integrations
+- [ ] Aligns with A2A/MCP roadmap items
+
+**Effort:** Low (already in Q1 roadmap)
+
+---
+
+### Neo4j Hybrid Knowledge Graph (2027+)
+**Source:** Fuschia's graph-based knowledge management
+
+Complement pgvector with relationship queries:
+
+```cypher
+// Student-Tutor-Subject relationships
+(Student)-[:LEARNS_FROM]->(Tutor)-[:TEACHES]->(Subject)
+(Student)-[:STRUGGLES_WITH]->(Topic)-[:PART_OF]->(Subject)
+(Student)-[:HAS_ACCESS_TO]->(Material)<-[:SHARED_BY]-(Tutor)
+```
+
+**Benefits:**
+- [ ] Traverse relationships for recommendations
+- [ ] "Students who struggled with X also struggled with Y"
+- [ ] Tutor network effects
+- [ ] Knowledge gap pattern detection
+
+**Effort:** High (migration or hybrid approach)
+
+---
+
+### Visual Workflow Builder (Q2 2026 - Sage)
+**Source:** Fuschia's ReactFlow drag-and-drop designer
+
+Enable tutors to build visual lesson flows:
+
+```
+[Warm-up Quiz] → [Concept Explanation] → [Practice] → [Assessment]
+      ↓                   ↓                  ↓              ↓
+  Sage: generate     Sage: explain     Sage: problems   Sage: mark
+```
+
+**Benefits:**
+- [ ] No-code lesson design for tutors
+- [ ] Reusable lesson templates
+- [ ] Visual progress tracking
+- [ ] Shareable workflows
+
+**Effort:** Medium (ReactFlow + Sage orchestrator)
+
+---
+
+### Integration Priority
+
+| Feature | Target | Value | Effort | Priority |
+|---------|--------|-------|--------|----------|
+| MCP Tool Protocol | Q1 2026 | High | Low | **Now** |
+| Visual Lesson Builder | Q2 2026 | High | Medium | **Next** |
+| LangGraph State Machines | Q3 2026 | Medium | Medium | Planned |
+| Neo4j Hybrid | 2027+ | Medium | High | Future |
+
+---
+
+
 
 1. **Single source of truth:** Markdown plans in `/cas/agents/*/planning/`
 2. **Continuous flow:** No sprints – weekly milestones only

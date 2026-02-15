@@ -188,6 +188,21 @@ Sage is TutorWise's specialised AI tutor that acts as a 24/7 personal teaching a
 - [ ] Agent: platform-wide tutoring metrics
 - [ ] Student: achievement and streak reports
 
+#### Visual Lesson Builder (Fuschia-Inspired)
+Drag-and-drop lesson flow designer using ReactFlow:
+- [ ] Visual workflow canvas for tutors
+- [ ] Lesson step nodes: Quiz, Explanation, Practice, Assessment
+- [ ] Sage executes each step automatically
+- [ ] Reusable lesson templates library
+- [ ] Shareable workflows between tutors
+- [ ] Progress tracking per workflow step
+
+```
+[Warm-up Quiz] → [Concept] → [Practice] → [Assessment]
+      ↓              ↓            ↓             ↓
+  Sage: gen      Sage: explain  Sage: problems  Sage: mark
+```
+
 ---
 
 ### Q3–Q4 2026 – Maturity, Ecosystem & Autonomy
@@ -433,6 +448,7 @@ knowledge/
 - [ ] CAS dashboard integration
 - [ ] Role-specific reporting
 - [ ] Self-healing knowledge
+- [ ] Visual lesson builder (Fuschia-inspired ReactFlow)
 
 ### Q3-Q4 2026 Features
 - [ ] Plugin/subject marketplace
