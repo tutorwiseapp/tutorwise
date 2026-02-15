@@ -117,7 +117,7 @@ export function useSageChat(options: UseSageChatOptions = {}): UseSageChatReturn
   const [session, setSession] = useState<SageSession | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const [isStarting, setIsStarting] = useState(false); // Explicit loading state
+  const [isStarting, setIsStarting] = useState(autoStart); // Start loading immediately if autoStart
   const [error, setError] = useState<string | null>(null);
   const [currentSubject, setCurrentSubject] = useState<SageSubject | undefined>(initialSubject);
   const [currentLevel, setCurrentLevel] = useState<SageLevel | undefined>(initialLevel);
@@ -187,15 +187,12 @@ export function useSageChat(options: UseSageChatOptions = {}): UseSageChatReturn
   useEffect(() => {
     if (autoStart && !hasAutoStarted.current) {
       hasAutoStarted.current = true;
-      // Small delay to ensure component is fully mounted
-      const timer = setTimeout(() => {
-        startSessionMutation.mutate({
-          subject: initialSubject,
-          level: initialLevel,
-          sessionGoal: initialGoal,
-        });
-      }, 50);
-      return () => clearTimeout(timer);
+      // Start session immediately for instant UX
+      startSessionMutation.mutate({
+        subject: initialSubject,
+        level: initialLevel,
+        sessionGoal: initialGoal,
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]); // Only depend on autoStart, run once
