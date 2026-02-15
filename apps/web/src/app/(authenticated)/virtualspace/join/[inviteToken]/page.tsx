@@ -50,13 +50,13 @@ export default async function JoinPage(props: JoinPageProps) {
     if (error instanceof VirtualSpaceAccessError) {
       switch (error.code) {
         case 'NOT_FOUND':
-          redirect('/dashboard?error=invalid_invite');
+          return redirect('/dashboard?error=invalid_invite');
         case 'EXPIRED':
-          redirect('/dashboard?error=invite_expired');
+          return redirect('/dashboard?error=invite_expired');
         case 'FORBIDDEN':
-          redirect('/dashboard?error=session_full');
+          return redirect('/dashboard?error=session_full');
         default:
-          redirect('/dashboard?error=join_failed');
+          return redirect('/dashboard?error=join_failed');
       }
     }
 

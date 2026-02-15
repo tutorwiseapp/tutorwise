@@ -51,13 +51,13 @@ export default async function VirtualSpacePage(props: VirtualSpacePageProps) {
     if (error instanceof VirtualSpaceAccessError) {
       switch (error.code) {
         case 'NOT_FOUND':
-          redirect('/dashboard?error=session_not_found');
+          return redirect('/dashboard?error=session_not_found');
         case 'FORBIDDEN':
-          redirect('/dashboard?error=access_denied');
+          return redirect('/dashboard?error=access_denied');
         case 'EXPIRED':
-          redirect('/dashboard?error=session_expired');
+          return redirect('/dashboard?error=session_expired');
         default:
-          redirect('/dashboard?error=session_error');
+          return redirect('/dashboard?error=session_error');
       }
     }
 

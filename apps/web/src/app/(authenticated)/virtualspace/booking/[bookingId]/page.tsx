@@ -51,11 +51,11 @@ export default async function BookingMigrationPage(props: BookingMigrationPagePr
     if (error instanceof VirtualSpaceAccessError) {
       switch (error.code) {
         case 'NOT_FOUND':
-          redirect('/dashboard?error=booking_not_found');
+          return redirect('/dashboard?error=booking_not_found');
         case 'FORBIDDEN':
-          redirect('/dashboard?error=access_denied');
+          return redirect('/dashboard?error=access_denied');
         default:
-          redirect('/dashboard?error=session_error');
+          return redirect('/dashboard?error=session_error');
       }
     }
 
