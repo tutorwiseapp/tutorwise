@@ -3,7 +3,8 @@
  *
  * POST /api/sage/stream - Send a message and receive streamed response
  *
- * Uses Server-Sent Events (SSE) for streaming responses from Gemini.
+ * Uses Server-Sent Events (SSE) for streaming responses.
+ * Automatically selects best available provider: Claude > Gemini > Rules
  *
  * @module api/sage/stream
  */
@@ -11,9 +12,9 @@
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { SageGeminiProvider } from '@sage/providers/gemini-provider';
+import { getDefaultSageProvider, SageRulesProvider } from '@sage/providers';
 import type { SagePersona, SageSubject, SageLevel } from '@sage/types';
-import type { LLMMessage } from '@sage/providers/types';
+import type { LLMMessage, LLMProvider } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
 
 interface StreamRequestBody {
@@ -78,8 +79,9 @@ export async function POST(request: NextRequest) {
     const persona = mapRoleToPersona(userRole);
     const userName = profileData?.display_name || undefined;
 
-    // Initialize provider
-    const provider = new SageGeminiProvider({ type: 'gemini' });
+    // Initialize provider with automatic fallback (Claude > Gemini > Rules)
+    const provider = getDefaultSageProvider();
+    console.log(`[Sage Stream] Using provider: ${provider.name}`);
 
     if (!provider.isAvailable()) {
       return new Response(
@@ -167,7 +169,7 @@ export async function POST(request: NextRequest) {
               id: messageId,
               content: fullResponse,
               timestamp: new Date().toISOString(),
-              metadata: { persona, subject: body.subject, level: body.level, provider: 'gemini' },
+              metadata: { persona, subject: body.subject, level: body.level, provider: provider.type },
               suggestions,
             })}\n\n`)
           );
@@ -207,22 +209,58 @@ export async function POST(request: NextRequest) {
           console.error('[Sage Stream] Provider error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Stream error';
 
-          // Send error event
+          // Send error event (informational)
           controller.enqueue(
-            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: errorMessage })}\n\n`)
+            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: errorMessage, recoverable: true })}\n\n`)
           );
 
-          // Try to recover with fallback response
-          const fallbackResponse = getFallbackResponse(body.message);
-          controller.enqueue(
-            encoder.encode(`event: done\ndata: ${JSON.stringify({
-              id: messageId,
-              content: fallbackResponse,
-              timestamp: new Date().toISOString(),
-              metadata: { persona, fallback: true },
-              suggestions: getSuggestions(body.message, persona, body.subject),
-            })}\n\n`)
-          );
+          // Fall back to Rules provider for a real response
+          console.log('[Sage Stream] Falling back to Rules provider');
+          try {
+            const rulesProvider = new SageRulesProvider({ type: 'rules' });
+            const rulesStream = rulesProvider.stream({
+              messages,
+              persona,
+              subject: body.subject,
+              level: body.level,
+              context,
+            });
+
+            let rulesResponse = '';
+            for await (const chunk of rulesStream) {
+              if (chunk.content) {
+                rulesResponse += chunk.content;
+                controller.enqueue(
+                  encoder.encode(`event: chunk\ndata: ${JSON.stringify({ content: chunk.content })}\n\n`)
+                );
+              }
+              if (chunk.done) break;
+            }
+
+            fullResponse = rulesResponse;
+            controller.enqueue(
+              encoder.encode(`event: done\ndata: ${JSON.stringify({
+                id: messageId,
+                content: rulesResponse,
+                timestamp: new Date().toISOString(),
+                metadata: { persona, subject: body.subject, level: body.level, provider: 'rules', fallback: true },
+                suggestions: getSuggestions(body.message, persona, body.subject),
+              })}\n\n`)
+            );
+          } catch (rulesError) {
+            console.error('[Sage Stream] Rules fallback also failed:', rulesError);
+            // Last resort: static fallback
+            const staticFallback = getFallbackResponse(body.message);
+            controller.enqueue(
+              encoder.encode(`event: done\ndata: ${JSON.stringify({
+                id: messageId,
+                content: staticFallback,
+                timestamp: new Date().toISOString(),
+                metadata: { persona, fallback: true, static: true },
+                suggestions: getSuggestions(body.message, persona, body.subject),
+              })}\n\n`)
+            );
+          }
 
           controller.close();
         }

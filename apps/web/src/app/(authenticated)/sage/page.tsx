@@ -60,7 +60,7 @@ export default function SagePage() {
   const [level, setLevel] = useState<LevelType>(
     (searchParams?.get('level') as LevelType) || 'gcse'
   );
-  const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(true); // Auto-start session
   const [searchQuery, setSearchQuery] = useState('');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 

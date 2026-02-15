@@ -1,8 +1,158 @@
 /**
- * Sage Providers
+ * Sage LLM Providers
  *
- * LLM provider exports for Sage.
+ * Factory and registry for LLM providers with automatic fallback.
+ *
+ * Fallback order: Claude > Gemini > Rules
+ * - Claude: Best for tutoring (excellent explanations)
+ * - Gemini: Good alternative, fast responses
+ * - Rules: Offline fallback, always available
+ *
+ * @module sage/providers
  */
+
+import { SageRulesProvider } from './rules-provider';
+import { SageClaudeProvider } from './claude-provider';
+import { SageGeminiProvider } from './gemini-provider';
+import type {
+  LLMProvider,
+  LLMProviderType,
+  LLMProviderConfig,
+} from './types';
+
+// --- Provider Registry ---
+
+const PROVIDER_REGISTRY: Record<LLMProviderType, new (config: LLMProviderConfig) => LLMProvider> = {
+  rules: SageRulesProvider,
+  claude: SageClaudeProvider,
+  gemini: SageGeminiProvider,
+};
+
+// --- Provider Factory ---
+
+export interface SageProviderFactory {
+  create(config: LLMProviderConfig): LLMProvider;
+  getAvailableProviders(): LLMProviderType[];
+}
+
+export const providerFactory: SageProviderFactory = {
+  /**
+   * Create a provider instance
+   */
+  create(config: LLMProviderConfig): LLMProvider {
+    const ProviderClass = PROVIDER_REGISTRY[config.type];
+    if (!ProviderClass) {
+      throw new Error(`Unknown provider type: ${config.type}`);
+    }
+    return new ProviderClass(config);
+  },
+
+  /**
+   * Get list of available provider types based on environment
+   */
+  getAvailableProviders(): LLMProviderType[] {
+    const available: LLMProviderType[] = [];
+
+    // Rules is always available
+    available.push('rules');
+
+    // Check for API keys
+    if (process.env.ANTHROPIC_API_KEY) {
+      available.push('claude');
+    }
+    if (process.env.GOOGLE_AI_API_KEY) {
+      available.push('gemini');
+    }
+
+    return available;
+  },
+};
+
+/**
+ * Create a Sage provider by type
+ */
+export function createSageProvider(config: LLMProviderConfig): LLMProvider {
+  return providerFactory.create(config);
+}
+
+/**
+ * Get the default provider based on environment.
+ * Uses fallback chain: Claude > Gemini > Rules
+ */
+export function getDefaultSageProvider(): LLMProvider {
+  // Check environment variable for preferred provider
+  const preferred = process.env.SAGE_LLM_PROVIDER as LLMProviderType | undefined;
+
+  if (preferred && PROVIDER_REGISTRY[preferred]) {
+    const provider = providerFactory.create({ type: preferred });
+    if (provider.isAvailable()) {
+      console.log(`[Sage] Using preferred provider: ${preferred}`);
+      return provider;
+    }
+    console.warn(`[Sage] Preferred provider ${preferred} not available, using fallback`);
+  }
+
+  // Fallback order: Claude > Gemini > Rules
+  if (process.env.ANTHROPIC_API_KEY) {
+    console.log('[Sage] Using Claude provider');
+    return providerFactory.create({ type: 'claude' });
+  }
+  if (process.env.GOOGLE_AI_API_KEY) {
+    console.log('[Sage] Using Gemini provider');
+    return providerFactory.create({ type: 'gemini' });
+  }
+
+  // Default to rules-based (always available)
+  console.log('[Sage] Using Rules provider (offline mode)');
+  return providerFactory.create({ type: 'rules' });
+}
+
+/**
+ * Get provider info for display
+ */
+export function getProviderInfo(type: LLMProviderType): {
+  name: string;
+  description: string;
+  requiresApiKey: boolean;
+  envVar?: string;
+} {
+  const info: Record<LLMProviderType, {
+    name: string;
+    description: string;
+    requiresApiKey: boolean;
+    envVar?: string;
+  }> = {
+    rules: {
+      name: 'Rules-Based (Offline)',
+      description: 'Pattern matching and guided responses. No API calls. Always available.',
+      requiresApiKey: false,
+    },
+    claude: {
+      name: 'Claude (Anthropic)',
+      description: 'Excellent for detailed explanations and tutoring. Requires Anthropic API key.',
+      requiresApiKey: true,
+      envVar: 'ANTHROPIC_API_KEY',
+    },
+    gemini: {
+      name: 'Gemini (Google)',
+      description: 'Fast, capable tutoring responses. Requires Google AI API key.',
+      requiresApiKey: true,
+      envVar: 'GOOGLE_AI_API_KEY',
+    },
+  };
+
+  return info[type];
+}
+
+/**
+ * Check if a specific provider is available
+ */
+export function isProviderAvailable(type: LLMProviderType): boolean {
+  const provider = providerFactory.create({ type });
+  return provider.isAvailable();
+}
+
+// --- Type Exports ---
 
 export type {
   LLMProviderType,
@@ -15,6 +165,8 @@ export type {
   LLMProvider,
 } from './types';
 
+// --- Provider Exports ---
+
 export {
   BaseSageProvider,
   SUBJECT_PROMPTS,
@@ -22,29 +174,6 @@ export {
   PERSONA_PROMPTS,
 } from './base-provider';
 
+export { SageRulesProvider } from './rules-provider';
+export { SageClaudeProvider } from './claude-provider';
 export { SageGeminiProvider } from './gemini-provider';
-
-// --- Provider Factory ---
-
-import type { LLMProviderConfig, LLMProvider } from './types';
-import { SageGeminiProvider } from './gemini-provider';
-
-export function createSageProvider(config: LLMProviderConfig): LLMProvider {
-  switch (config.type) {
-    case 'gemini':
-      return new SageGeminiProvider(config);
-    case 'claude':
-      // TODO: Implement Claude provider
-      throw new Error('Claude provider not yet implemented');
-    case 'rules':
-      // TODO: Implement rules-based provider
-      throw new Error('Rules provider not yet implemented');
-    default:
-      throw new Error(`Unknown provider type: ${config.type}`);
-  }
-}
-
-// Default provider
-export function getDefaultSageProvider(): LLMProvider {
-  return new SageGeminiProvider({ type: 'gemini' });
-}
