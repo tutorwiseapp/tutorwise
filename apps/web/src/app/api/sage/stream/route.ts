@@ -3,7 +3,7 @@
  *
  * POST /api/sage/stream - Send a message and receive streamed response
  *
- * Uses Server-Sent Events (SSE) for streaming responses.
+ * Uses Server-Sent Events (SSE) for streaming responses from Gemini.
  *
  * @module api/sage/stream
  */
@@ -11,11 +11,17 @@
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { SageGeminiProvider } from '@sage/providers/gemini-provider';
+import type { SagePersona, SageSubject, SageLevel } from '@sage/types';
+import type { LLMMessage } from '@sage/providers/types';
+import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
 
 interface StreamRequestBody {
   sessionId: string;
   message: string;
-  subject?: string;
+  subject?: SageSubject;
+  level?: SageLevel;
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 /**
@@ -61,11 +67,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get user profile for role
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role, display_name')
+      .eq('id', user.id)
+      .single();
+
+    const userRole = (profileData?.role || 'student') as UserRole;
+    const persona = mapRoleToPersona(userRole);
+    const userName = profileData?.display_name || undefined;
+
+    // Initialize provider
+    const provider = new SageGeminiProvider({ type: 'gemini' });
+
+    if (!provider.isAvailable()) {
+      return new Response(
+        JSON.stringify({ error: 'AI provider not configured', code: 'PROVIDER_UNAVAILABLE' }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Build messages array
+    const messages: LLMMessage[] = [];
+
+    // Add conversation history if provided
+    if (body.conversationHistory?.length) {
+      for (const msg of body.conversationHistory.slice(-10)) { // Last 10 messages
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.content,
+        });
+      }
+    }
+
+    // Add current message
+    messages.push({
+      role: 'user',
+      content: body.message,
+    });
+
+    // Build context
+    const context: AgentContext = {
+      mode: 'user',
+      user: {
+        id: user.id,
+        role: userRole,
+        permissions: ['read:knowledge', 'write:progress'],
+        metadata: { displayName: userName },
+      },
+      session: {
+        sessionId: body.sessionId,
+        startedAt: new Date(),
+        lastActivityAt: new Date(),
+      },
+      traceId: `sage_${Date.now()}`,
+    };
+
     const messageId = `msg_${Date.now()}`;
-    const response = getPlaceholderResponse(body.message);
 
     // Create SSE stream
     const encoder = new TextEncoder();
+    let fullResponse = '';
+
     const stream = new ReadableStream({
       async start(controller) {
         try {
@@ -74,35 +138,43 @@ export async function POST(request: NextRequest) {
             encoder.encode(`event: start\ndata: ${JSON.stringify({ messageId })}\n\n`)
           );
 
-          // Simulate streaming by sending response in chunks
-          const words = response.split(' ');
+          // Stream from Gemini
+          const streamGenerator = provider.stream({
+            messages,
+            persona,
+            subject: body.subject,
+            level: body.level,
+            context,
+          });
 
-          for (let i = 0; i < words.length; i++) {
+          for await (const chunk of streamGenerator) {
+            if (chunk.content) {
+              fullResponse += chunk.content;
+              controller.enqueue(
+                encoder.encode(`event: chunk\ndata: ${JSON.stringify({ content: chunk.content })}\n\n`)
+              );
+            }
 
-            // Send chunk
-            controller.enqueue(
-              encoder.encode(`event: chunk\ndata: ${JSON.stringify({ content: words[i] + ' ' })}\n\n`)
-            );
-
-            // Small delay to simulate streaming
-            await new Promise(resolve => setTimeout(resolve, 30));
+            if (chunk.done) {
+              break;
+            }
           }
 
-          // Send done event
-          const suggestions = getSuggestions(body.message);
+          // Send done event with suggestions
+          const suggestions = getSuggestions(body.message, persona, body.subject);
           controller.enqueue(
             encoder.encode(`event: done\ndata: ${JSON.stringify({
               id: messageId,
-              content: response,
+              content: fullResponse,
               timestamp: new Date().toISOString(),
-              metadata: { persona: 'sage', subject: body.subject },
+              metadata: { persona, subject: body.subject, level: body.level, provider: 'gemini' },
               suggestions,
             })}\n\n`)
           );
 
           controller.close();
 
-          // Try to store messages (async, don't block stream)
+          // Store messages in database (async, don't block stream)
           supabase.from('sage_messages').insert([
             {
               id: `msg_user_${Date.now()}`,
@@ -115,8 +187,9 @@ export async function POST(request: NextRequest) {
               id: messageId,
               session_id: body.sessionId,
               role: 'assistant',
-              content: response,
+              content: fullResponse,
               timestamp: new Date().toISOString(),
+              metadata: { persona, subject: body.subject, level: body.level },
             },
           ]).then(({ error }) => {
             if (error) {
@@ -124,11 +197,33 @@ export async function POST(request: NextRequest) {
             }
           });
 
+          // Update session activity
+          supabase.from('sage_sessions')
+            .update({ last_activity_at: new Date().toISOString() })
+            .eq('id', body.sessionId)
+            .then(() => {});
+
         } catch (error) {
+          console.error('[Sage Stream] Provider error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Stream error';
+
+          // Send error event
           controller.enqueue(
             encoder.encode(`event: error\ndata: ${JSON.stringify({ error: errorMessage })}\n\n`)
           );
+
+          // Try to recover with fallback response
+          const fallbackResponse = getFallbackResponse(body.message);
+          controller.enqueue(
+            encoder.encode(`event: done\ndata: ${JSON.stringify({
+              id: messageId,
+              content: fallbackResponse,
+              timestamp: new Date().toISOString(),
+              metadata: { persona, fallback: true },
+              suggestions: getSuggestions(body.message, persona, body.subject),
+            })}\n\n`)
+          );
+
           controller.close();
         }
       },
@@ -152,51 +247,51 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Get a placeholder response based on the message
+ * Map user role to Sage persona
  */
-function getPlaceholderResponse(message: string): string {
-  const lowerMessage = message.toLowerCase();
-
-  if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-    return "Hello! I'm Sage, your AI tutor. I'm here to help you learn and understand any subject. What would you like to explore today?";
+function mapRoleToPersona(role: UserRole): SagePersona {
+  switch (role) {
+    case 'student':
+      return 'student';
+    case 'tutor':
+      return 'tutor';
+    case 'client':
+      return 'client';
+    case 'agent':
+      return 'agent';
+    default:
+      return 'student';
   }
-
-  if (lowerMessage.includes('help')) {
-    return "I'd be happy to help! I can assist with Mathematics (algebra, geometry, calculus), English (writing, grammar, literature), Science (physics, chemistry, biology), and Study skills (exam prep, note-taking). What subject would you like to focus on?";
-  }
-
-  if (lowerMessage.includes('math') || lowerMessage.includes('algebra') || lowerMessage.includes('equation')) {
-    return "Great question about maths! To help you effectively, could you share the specific problem or concept you're working on? I can walk through problems step-by-step, explain underlying concepts, provide practice questions, and check your work.";
-  }
-
-  if (lowerMessage.includes('english') || lowerMessage.includes('essay') || lowerMessage.includes('writing')) {
-    return "I'd love to help with English! Whether it's essay writing, grammar, or literature, I'm here to guide you. Could you tell me more about what you're working on? I can help with essay structure, grammar and punctuation, or text analysis.";
-  }
-
-  if (lowerMessage.includes('science') || lowerMessage.includes('physics') || lowerMessage.includes('chemistry') || lowerMessage.includes('biology')) {
-    return "Science is fascinating! I can help explain concepts in physics, chemistry, and biology. What specific topic are you curious about? Whether you need help understanding a concept, working through a problem, or preparing for an exam, I'm here to help!";
-  }
-
-  return "That's a great question! Let me help you think through this. To give you the best guidance, could you share a bit more context about what you're working on? I can explain concepts step-by-step, work through problems with you, provide examples and practice questions, and give feedback on your work.";
 }
 
 /**
  * Get follow-up suggestions based on the conversation
  */
-function getSuggestions(message: string): string[] {
-  const lowerMessage = message.toLowerCase();
+function getSuggestions(_message: string, persona: SagePersona, subject?: SageSubject): string[] {
+  const baseSuggestions: Record<SagePersona, string[]> = {
+    student: ['Explain differently', 'Give me an example', 'Practice problem'],
+    tutor: ['Create worksheet', 'Common mistakes', 'Assessment ideas'],
+    client: ['Progress summary', 'How to help at home', 'What topics next?'],
+    agent: ['More details', 'Resources available', 'Contact support'],
+  };
 
-  if (lowerMessage.includes('math')) {
-    return ['Show me an example', 'Practice problems', 'Explain the concept'];
+  const subjectSuggestions: Record<SageSubject, string[]> = {
+    maths: ['Step-by-step solution', 'Similar problems', 'Show the formula'],
+    english: ['Writing tips', 'Grammar check', 'Vocabulary help'],
+    science: ['Explain concept', 'Real-world example', 'Experiment ideas'],
+    general: ['Tell me more', 'Practice questions', 'Study tips'],
+  };
+
+  if (subject && subjectSuggestions[subject]) {
+    return subjectSuggestions[subject];
   }
 
-  if (lowerMessage.includes('english') || lowerMessage.includes('essay')) {
-    return ['Help with structure', 'Check my grammar', 'Give me feedback'];
-  }
+  return baseSuggestions[persona] || baseSuggestions.student;
+}
 
-  if (lowerMessage.includes('science')) {
-    return ['Explain further', 'Show a diagram', 'Practice questions'];
-  }
-
-  return ['Tell me more', 'Practice questions', 'Explain differently'];
+/**
+ * Fallback response if provider fails
+ */
+function getFallbackResponse(_message: string): string {
+  return "I'm having a bit of trouble right now, but I'm still here to help! Could you try rephrasing your question, or let me know what subject you'd like to focus on? I can help with maths, English, science, and more.";
 }

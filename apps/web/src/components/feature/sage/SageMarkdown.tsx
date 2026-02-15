@@ -103,11 +103,15 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
     const headingMatch = trimmedPara.match(/^(#{1,3})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
-      const HeadingTag = `h${level + 2}` as keyof JSX.IntrinsicElements;
+      // Map # levels 1-3 to h3-h5 (h1-h2 reserved for page structure)
+      const headingLevel = (level + 2) as 3 | 4 | 5;
+      const HeadingTag = `h${headingLevel}` as const;
       elements.push(
-        <HeadingTag key={`h-${key++}`} className={styles.heading}>
-          {parseInlineElements(headingMatch[2])}
-        </HeadingTag>
+        React.createElement(
+          HeadingTag,
+          { key: `h-${key++}`, className: styles.heading },
+          parseInlineElements(headingMatch[2])
+        )
       );
       return;
     }

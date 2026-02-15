@@ -20,8 +20,8 @@ import type {
 // --- Persona Config ---
 
 const config: PersonaConfig = {
-  name: 'New User Guide',
-  description: 'Friendly onboarding assistant for new TutorWise users',
+  type: 'student', // Adapts to any role
+  displayName: 'New User Guide',
   defaultGreeting: `Welcome to TutorWise, {name}! I'm here to help you get started. Whether you're a tutor, parent, or student, I'll guide you through setting up your account and making the most of the platform.`,
   capabilities: [
     'Account setup guidance',
@@ -32,14 +32,16 @@ const config: PersonaConfig = {
     'Platform tour',
     'FAQ answers',
   ],
-  suggestedQueries: [
-    "How do I get started?",
-    "What should I do first?",
-    "How does TutorWise work?",
-    "Help me complete my profile",
-    "What can I do on this platform?",
-  ],
+  tone: 'friendly',
 };
+
+const suggestedQueries = [
+  "How do I get started?",
+  "What should I do first?",
+  "How does TutorWise work?",
+  "Help me complete my profile",
+  "What can I do on this platform?",
+];
 
 // --- Role-Specific Guides ---
 
@@ -118,7 +120,7 @@ const ONBOARDING_GUIDES: Record<string, {
 
 const handlers: IntentHandlerMap = {
   explain: {
-    getting_started: async function(this: NewUserGuide, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    getting_started: async function(this: NewUserGuidePersona, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
       this.log('Providing getting started guide', ctx);
 
       const userRole = ctx.user?.role || 'student';
@@ -134,7 +136,7 @@ const handlers: IntentHandlerMap = {
       return this.success(message, guide, guide.nextActions);
     },
 
-    how_it_works: async function(this: NewUserGuide, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    how_it_works: async function(this: NewUserGuidePersona, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
       const userRole = ctx.user?.role || 'student';
 
       let message = `**How TutorWise Works:**\n\n`;
@@ -165,7 +167,7 @@ const handlers: IntentHandlerMap = {
       return this.success(message, null, ['Find a tutor', 'View my profile', 'Explore features']);
     },
 
-    features: async function(this: NewUserGuide, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    features: async function(this: NewUserGuidePersona, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
       const userRole = ctx.user?.role || 'student';
 
       let message = `**TutorWise Features:**\n\n`;
@@ -202,7 +204,7 @@ const handlers: IntentHandlerMap = {
       return this.success(message, null, ['Try a feature', 'Complete profile', 'Get started']);
     },
 
-    profile: async function(this: NewUserGuide, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    profile: async function(this: NewUserGuidePersona, _intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
       this.log('Profile help', ctx);
 
       const userRole = ctx.user?.role || 'student';
@@ -243,7 +245,7 @@ const handlers: IntentHandlerMap = {
   },
 
   support: {
-    help: async function(this: NewUserGuide, intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    help: async function(this: NewUserGuidePersona, intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
       this.log('General help', ctx);
 
       const topic = intent.entities?.topic;
@@ -296,7 +298,7 @@ const handlers: IntentHandlerMap = {
       );
     },
 
-    faq: async function(this: NewUserGuide, _intent: DetectedIntent, _ctx: AgentContext): Promise<ActionResult> {
+    faq: async function(this: NewUserGuidePersona, _intent: DetectedIntent, _ctx: AgentContext): Promise<ActionResult> {
       return this.success(
         `**Frequently Asked Questions:**\n\n` +
         `**How much does it cost?**\n` +
@@ -324,7 +326,7 @@ class NewUserGuidePersona extends BasePersona {
   config = config;
 
   protected getHandledCategories(): IntentCategory[] {
-    return ['explain', 'support', 'navigation'];
+    return ['support', 'general'];
   }
 
   async handleIntent(_intent: DetectedIntent, _ctx: AgentContext): Promise<ActionResult> {
@@ -334,7 +336,7 @@ class NewUserGuidePersona extends BasePersona {
   async getSuggestedActions(ctx: AgentContext): Promise<string[]> {
     const userRole = ctx.user?.role || 'student';
     const guide = ONBOARDING_GUIDES[userRole];
-    return guide?.nextActions || config.suggestedQueries;
+    return guide?.nextActions || suggestedQueries;
   }
 
   getGreeting(ctx: AgentContext): string {
