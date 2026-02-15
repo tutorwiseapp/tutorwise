@@ -305,7 +305,7 @@ sadd-extract radix-ui-components
 
 - **Main Guide:** [sadd-software-application-discovery-and-development.md](../../../docs/sadd-software-application-discovery-and-development.md)
 - **Phase 1 Status:** [sadd-phase-1-complete.md](../../../docs/sadd-phase-1-complete.md)
-- **CAS Documentation:** [cas-roadmap.md](../../docs/cas-roadmap.md)
+- **CAS Documentation:** [cas-roadmap.md](../../../../docs/feature/cas/cas-roadmap.md)
 
 ---
 

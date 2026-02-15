@@ -456,7 +456,7 @@ cas [command]                 # [Description]
 
 ## 🔗 Related Documentation
 
-- [CAS Roadmap](./cas-roadmap.md) - Long-term vision & strategy
+- [CAS Roadmap](../../../../docs/feature/cas/cas-roadmap.md) - Long-term vision & strategy
 - [CAS Auto-Startup Guide](./setup/direnv-auto-startup.md) - Current features
 - [Service Registry](../configs/service-registry.json) - TutorWise services
 - [TutorWise Roadmap](../../docs/features/UPDATED-SPECS-SUMMARY.md) - Feature list

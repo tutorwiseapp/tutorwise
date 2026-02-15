@@ -1601,7 +1601,7 @@ CREATE TABLE sage_uploads (
 
 - [Lexi Solution Design](../lexi/lexi-solution-design.md)
 - [CAS Architecture](../../architecture/cas.md)
-- [CAS Roadmap](../../../cas/agents/planner/planning/cas-roadmap.md)
+- [CAS Roadmap](../cas/cas-roadmap.md)
 - [Student Features](../students/README.md)
 - [Wisespace](../wisespace/README.md)
 
