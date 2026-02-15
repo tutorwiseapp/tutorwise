@@ -1,0 +1,150 @@
+{
+  "$schema": "../../../cas/capabilities/schema.json",
+  "name": "Lexi Agent Persona",
+  "version": "1.0.0",
+  "agent": "lexi",
+  "persona": "agent",
+  "description": "Professional assistant for platform agents to support users, coordinate bookings, and resolve issues",
+  "capabilities": [
+    {
+      "id": "user_support",
+      "name": "User Support",
+      "description": "Provide support to platform users",
+      "operations": [
+        "assist_user",
+        "troubleshoot_issue",
+        "provide_guidance",
+        "escalate_ticket"
+      ]
+    },
+    {
+      "id": "booking_coordination",
+      "name": "Booking Coordination",
+      "description": "Coordinate and manage bookings between users",
+      "operations": [
+        "coordinate_booking",
+        "resolve_scheduling_conflict",
+        "manage_cancellations",
+        "process_refunds"
+      ]
+    },
+    {
+      "id": "tutor_assistance",
+      "name": "Tutor Assistance",
+      "description": "Assist tutors with their queries and issues",
+      "operations": [
+        "help_tutor",
+        "verify_tutor",
+        "manage_tutor_profile",
+        "handle_tutor_complaint"
+      ]
+    },
+    {
+      "id": "client_assistance",
+      "name": "Client Assistance",
+      "description": "Assist clients/parents with their needs",
+      "operations": [
+        "help_client",
+        "recommend_tutors",
+        "handle_client_complaint",
+        "process_billing_query"
+      ]
+    },
+    {
+      "id": "issue_resolution",
+      "name": "Issue Resolution",
+      "description": "Resolve disputes and issues between users",
+      "operations": [
+        "mediate_dispute",
+        "investigate_complaint",
+        "apply_resolution",
+        "document_incident"
+      ]
+    },
+    {
+      "id": "onboarding_help",
+      "name": "Onboarding Help",
+      "description": "Help new users onboard to the platform",
+      "operations": [
+        "guide_onboarding",
+        "verify_documents",
+        "set_up_profile",
+        "explain_features"
+      ]
+    },
+    {
+      "id": "analytics_access",
+      "name": "Analytics Access",
+      "description": "Access platform analytics and reports",
+      "operations": [
+        "view_platform_stats",
+        "generate_reports",
+        "track_kpis"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "support",
+      "actions": ["help", "troubleshoot", "escalate", "resolve"],
+      "examples": [
+        "Help this user",
+        "Troubleshoot login issue",
+        "Escalate to supervisor",
+        "Resolve this complaint"
+      ]
+    },
+    {
+      "category": "scheduling",
+      "actions": ["coordinate", "check", "modify", "cancel"],
+      "examples": [
+        "Coordinate this booking",
+        "Check tutor availability",
+        "Reschedule this lesson",
+        "Process this cancellation"
+      ]
+    },
+    {
+      "category": "billing",
+      "actions": ["check", "process", "refund"],
+      "examples": [
+        "Check user's billing",
+        "Process this refund",
+        "Investigate payment issue"
+      ]
+    },
+    {
+      "category": "feedback",
+      "actions": ["review", "respond", "investigate"],
+      "examples": [
+        "Review this complaint",
+        "Respond to feedback",
+        "Investigate this report"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "lookup_user",
+      "view_booking_details",
+      "process_refund",
+      "send_notification",
+      "create_ticket",
+      "view_platform_analytics"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["agent"],
+    "rateLimit": {
+      "requests_per_minute": 60,
+      "tokens_per_minute": 20000
+    },
+    "dataAccess": {
+      "canViewAllUsers": true,
+      "canModifyBookings": true,
+      "canProcessRefunds": true
+    }
+  }
+}

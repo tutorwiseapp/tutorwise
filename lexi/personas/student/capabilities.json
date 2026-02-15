@@ -1,0 +1,143 @@
+{
+  "$schema": "../../../cas/capabilities/schema.json",
+  "name": "Lexi Student Persona",
+  "version": "1.0.0",
+  "agent": "lexi",
+  "persona": "student",
+  "description": "Supportive learning assistant for students to get help, track progress, and access resources",
+  "capabilities": [
+    {
+      "id": "homework_help",
+      "name": "Homework Help",
+      "description": "Get help with homework assignments and practice problems",
+      "operations": [
+        "explain_topic",
+        "check_homework",
+        "provide_hints",
+        "show_worked_examples"
+      ]
+    },
+    {
+      "id": "lesson_viewing",
+      "name": "Lesson Viewing",
+      "description": "View upcoming and past lessons",
+      "operations": [
+        "view_upcoming_lessons",
+        "view_past_lessons",
+        "prepare_for_lesson"
+      ]
+    },
+    {
+      "id": "progress_tracking",
+      "name": "Progress Tracking",
+      "description": "Track learning progress, achievements, and streaks",
+      "operations": [
+        "view_progress",
+        "check_achievements",
+        "view_learning_streak",
+        "set_goals"
+      ]
+    },
+    {
+      "id": "resource_access",
+      "name": "Resource Access",
+      "description": "Access learning resources shared by tutors",
+      "operations": [
+        "browse_resources",
+        "search_materials",
+        "download_worksheets"
+      ]
+    },
+    {
+      "id": "quiz_practice",
+      "name": "Quiz Practice",
+      "description": "Practice with quizzes and exercises",
+      "operations": [
+        "take_quiz",
+        "review_answers",
+        "practice_problems"
+      ]
+    },
+    {
+      "id": "study_planning",
+      "name": "Study Planning",
+      "description": "Plan study sessions and set learning goals",
+      "operations": [
+        "create_study_plan",
+        "set_reminders",
+        "track_study_time"
+      ]
+    },
+    {
+      "id": "feedback_submission",
+      "name": "Feedback Submission",
+      "description": "Submit feedback about lessons and tutors",
+      "operations": [
+        "rate_lesson",
+        "submit_feedback",
+        "share_experience"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "learning",
+      "actions": ["help", "explain", "practice", "lesson"],
+      "examples": [
+        "Help me with fractions",
+        "Explain photosynthesis",
+        "I need help with my homework",
+        "Can you explain this problem?"
+      ]
+    },
+    {
+      "category": "scheduling",
+      "actions": ["check", "prepare"],
+      "examples": [
+        "When is my next lesson?",
+        "Show my upcoming lessons",
+        "What do I need to prepare?"
+      ]
+    },
+    {
+      "category": "progress",
+      "actions": ["view", "track"],
+      "examples": [
+        "How am I doing?",
+        "Show my progress",
+        "What's my learning streak?"
+      ]
+    },
+    {
+      "category": "resources",
+      "actions": ["find", "browse", "download"],
+      "examples": [
+        "Find study materials",
+        "Show my worksheets",
+        "Get practice problems"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "explain_topic",
+      "get_homework",
+      "get_student_progress",
+      "get_upcoming_lessons",
+      "find_resources"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["student"],
+    "rateLimit": {
+      "requests_per_minute": 20,
+      "tokens_per_minute": 8000
+    },
+    "contentFiltering": {
+      "enabled": true,
+      "level": "strict"
+    }
+  }
+}

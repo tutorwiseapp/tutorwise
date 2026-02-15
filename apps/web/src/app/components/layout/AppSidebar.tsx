@@ -53,6 +53,13 @@ export default function AppSidebar() {
       ],
     },
     { href: '/bookings', label: 'Bookings' },
+    {
+      href: '/virtualspace',
+      label: 'VirtualSpace',
+      subItems: [
+        { href: '/virtualspace', label: 'My Sessions', indent: true },
+      ],
+    },
     { href: '/referrals', label: 'Referrals' },
     {
       href: '/financials',
@@ -70,6 +77,17 @@ export default function AppSidebar() {
         { href: '/edupay', label: 'Wallet', indent: true },
         { href: '/edupay/cashback', label: 'Cashback', indent: true },
         { href: '/edupay/savings', label: 'Savings', indent: true },
+      ],
+    },
+    {
+      href: '/sage',
+      label: 'Sage',
+      roles: ['student', 'client', 'tutor', 'agent'],
+      subItems: [
+        { href: '/sage', label: 'Chat', indent: true },
+        { href: '/sage/history', label: 'History', indent: true },
+        { href: '/sage/progress', label: 'Progress', indent: true },
+        { href: '/sage/materials', label: 'Materials', indent: true },
       ],
     },
     { href: '/messages', label: 'Messages' },
@@ -164,6 +182,25 @@ export default function AppSidebar() {
     // Special case: /listings/create should match /listings/create/*
     if (href === '/listings/create') {
       return pathname?.startsWith('/listings/create');
+    }
+
+    // Special case: /sage sub-routes should match their paths
+    if (href === '/sage') {
+      return pathname === '/sage';
+    }
+    if (href === '/sage/history') {
+      return pathname?.startsWith('/sage/history');
+    }
+    if (href === '/sage/progress') {
+      return pathname?.startsWith('/sage/progress');
+    }
+    if (href === '/sage/materials') {
+      return pathname?.startsWith('/sage/materials');
+    }
+
+    // Special case: /virtualspace should highlight "My Sessions"
+    if (href === '/virtualspace') {
+      return pathname === '/virtualspace';
     }
 
     // For non-query param links, use exact match

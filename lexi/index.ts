@@ -19,6 +19,19 @@ export { LexiOrchestrator, lexiOrchestrator } from './core/orchestrator';
 // Persona exports
 export { getPersona, BasePersona, StudentPersona } from './personas';
 
+// Tools exports
+export {
+  getToolsForPersona,
+  getToolByName,
+  ALL_TOOLS,
+  TOOLS_BY_PERSONA,
+  toolExecutor,
+  type Tool,
+  type ToolCall,
+  type ToolCallResult,
+  type ToolExecutionContext,
+} from './tools';
+
 // Type exports
 export type {
   PersonaType,

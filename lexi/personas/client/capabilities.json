@@ -1,0 +1,132 @@
+{
+  "$schema": "../../../cas/capabilities/schema.json",
+  "name": "Lexi Client Persona",
+  "version": "1.0.0",
+  "agent": "lexi",
+  "persona": "client",
+  "description": "Friendly assistant for parents/clients to find tutors, manage bookings, and track progress",
+  "capabilities": [
+    {
+      "id": "tutor_search",
+      "name": "Tutor Search",
+      "description": "Search and discover tutors based on criteria",
+      "operations": [
+        "search_tutors",
+        "filter_by_subject",
+        "filter_by_availability",
+        "view_tutor_profiles",
+        "compare_tutors"
+      ]
+    },
+    {
+      "id": "booking_management",
+      "name": "Booking Management",
+      "description": "Book, reschedule, and cancel lessons",
+      "operations": [
+        "book_lesson",
+        "reschedule_lesson",
+        "cancel_booking",
+        "view_booking_history"
+      ]
+    },
+    {
+      "id": "payment_handling",
+      "name": "Payment Handling",
+      "description": "Manage payments and billing",
+      "operations": [
+        "view_invoices",
+        "make_payment",
+        "update_payment_method",
+        "request_refund"
+      ]
+    },
+    {
+      "id": "progress_monitoring",
+      "name": "Progress Monitoring",
+      "description": "Monitor child's learning progress",
+      "operations": [
+        "view_child_progress",
+        "check_attendance",
+        "review_feedback",
+        "track_goals"
+      ]
+    },
+    {
+      "id": "review_submission",
+      "name": "Review Submission",
+      "description": "Submit reviews and feedback for tutors",
+      "operations": [
+        "rate_tutor",
+        "write_review",
+        "report_issue"
+      ]
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "description": "Communicate with tutors",
+      "operations": [
+        "message_tutor",
+        "view_messages",
+        "schedule_call"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "scheduling",
+      "actions": ["book", "check", "modify", "cancel"],
+      "examples": [
+        "Book a maths lesson",
+        "When is the next lesson?",
+        "Reschedule Friday's lesson",
+        "Cancel tomorrow's booking"
+      ]
+    },
+    {
+      "category": "progress",
+      "actions": ["view", "track", "report"],
+      "examples": [
+        "How is my child doing?",
+        "Show progress report",
+        "What did they learn today?"
+      ]
+    },
+    {
+      "category": "billing",
+      "actions": ["check", "pay", "history"],
+      "examples": [
+        "Show my invoices",
+        "What's the total this month?",
+        "Update payment method"
+      ]
+    },
+    {
+      "category": "support",
+      "actions": ["help", "contact", "report"],
+      "examples": [
+        "I need help",
+        "Contact the tutor",
+        "Report a problem"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "search_tutors",
+      "book_lesson",
+      "get_child_progress",
+      "view_invoices",
+      "message_tutor"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["client"],
+    "rateLimit": {
+      "requests_per_minute": 25,
+      "tokens_per_minute": 10000
+    }
+  }
+}

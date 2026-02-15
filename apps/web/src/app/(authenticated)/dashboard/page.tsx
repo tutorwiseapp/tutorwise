@@ -24,6 +24,7 @@ import { useAdminProfile } from '@/lib/rbac';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { PendingLogsWidget } from '@/app/components/feature/dashboard/content/PendingLogsWidget';
+import { VirtualSpaceWidget } from '@/app/components/feature/dashboard/content/VirtualSpaceWidget';
 import KPIGrid from '@/app/components/feature/dashboard/performance/KPIGrid';
 import { HubEarningsTrendChart, HubCalendarHeatmap, type WeeklyEarnings, type DayData } from '@/app/components/hub/charts';
 import ProfileGrowthWidget from '@/app/components/feature/dashboard/performance/ProfileGrowthWidget';
@@ -422,6 +423,11 @@ const DashboardPage = () => {
             <PendingLogsWidget />
           </ErrorBoundary>
         )}
+
+        {/* VirtualSpace Widget - for all roles */}
+        <ErrorBoundary>
+          <VirtualSpaceWidget />
+        </ErrorBoundary>
 
         {/* Messages Widget - for all roles */}
         <ErrorBoundary>

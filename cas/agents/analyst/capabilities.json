@@ -1,0 +1,103 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Analyst Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "analyst",
+  "description": "Data analysis, metrics tracking, and insight generation for TutorWise",
+  "capabilities": [
+    {
+      "id": "metrics_analysis",
+      "name": "Metrics Analysis",
+      "description": "Analyze platform and development metrics",
+      "operations": [
+        "analyze_usage_metrics",
+        "track_kpis",
+        "identify_trends",
+        "generate_reports",
+        "compare_periods"
+      ]
+    },
+    {
+      "id": "user_insights",
+      "name": "User Insights",
+      "description": "Analyze user behavior and patterns",
+      "operations": [
+        "analyze_user_journeys",
+        "identify_drop_offs",
+        "segment_users",
+        "predict_churn",
+        "recommend_improvements"
+      ]
+    },
+    {
+      "id": "feedback_analysis",
+      "name": "Feedback Analysis",
+      "description": "Analyze AI feedback from Lexi and Sage",
+      "operations": [
+        "aggregate_feedback",
+        "identify_patterns",
+        "categorize_issues",
+        "prioritize_improvements",
+        "track_sentiment"
+      ]
+    },
+    {
+      "id": "performance_monitoring",
+      "name": "Performance Monitoring",
+      "description": "Monitor system and AI performance",
+      "operations": [
+        "track_response_times",
+        "monitor_error_rates",
+        "analyze_token_usage",
+        "identify_bottlenecks"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "analysis",
+      "actions": ["analyze", "report", "compare", "forecast"],
+      "examples": [
+        "Analyze this week's Lexi feedback",
+        "Generate usage report",
+        "Compare Sage sessions by role",
+        "What's the error rate trend?"
+      ]
+    },
+    {
+      "category": "insights",
+      "actions": ["identify", "recommend", "predict"],
+      "examples": [
+        "Identify top user pain points",
+        "Recommend improvements",
+        "Predict next month's usage"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "get_metrics",
+      "analyze_feedback",
+      "generate_report",
+      "get_trends",
+      "get_user_segments"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 40,
+      "tokens_per_minute": 20000
+    },
+    "dataAccess": {
+      "canAccessMetrics": true,
+      "canAccessFeedback": true,
+      "canAccessUserData": false
+    }
+  },
+  "messageTypes": ["query", "report", "insight", "alert"],
+  "integrations": ["supabase", "analytics", "dspy"]
+}

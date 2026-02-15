@@ -40,7 +40,7 @@ const USER_SPECIFIC_PATTERNS = [
  * Any key starting with these prefixes will be removed.
  */
 const USER_SPECIFIC_PREFIXES = [
-  'wisespace_meet_',      // Meeting session data
+  'virtualspace_meet_',   // Meeting session data
   'hub_saved_views_',     // Hub table saved views
   'offline_queue_',       // Offline queue data
   'draft_',               // Draft sync data

@@ -1,7 +1,8 @@
 /**
  * Filename: google-meet.ts
- * Purpose: Google Meet API integration utilities for WiseSpace (v5.8)
+ * Purpose: Google Meet API integration utilities for VirtualSpace (v5.9)
  * Created: 2025-11-15
+ * Updated: 2026-02-15 - Renamed from WiseSpace to VirtualSpace
  */
 
 /**
@@ -67,7 +68,7 @@ export function openGoogleMeetWindow(bookingId: string, sessionTitle?: string): 
 
 /**
  * Store Google Meet session details in localStorage for tracking
- * This helps us correlate WiseSpace whiteboard sessions with video calls
+ * This helps us correlate VirtualSpace whiteboard sessions with video calls
  *
  * @param bookingId - The booking ID
  * @param meetingUrl - The Google Meet URL (if available)
@@ -79,7 +80,7 @@ export function trackMeetSession(bookingId: string, meetingUrl?: string): void {
     startedAt: new Date().toISOString(),
   };
 
-  localStorage.setItem(`wisespace_meet_${bookingId}`, JSON.stringify(sessionData));
+  localStorage.setItem(`virtualspace_meet_${bookingId}`, JSON.stringify(sessionData));
 }
 
 /**
@@ -93,7 +94,7 @@ export function getMeetSessionData(bookingId: string): {
   meetingUrl: string;
   startedAt: string;
 } | null {
-  const data = localStorage.getItem(`wisespace_meet_${bookingId}`);
+  const data = localStorage.getItem(`virtualspace_meet_${bookingId}`);
   return data ? JSON.parse(data) : null;
 }
 
@@ -103,5 +104,5 @@ export function getMeetSessionData(bookingId: string): {
  * @param bookingId - The booking ID
  */
 export function clearMeetSessionData(bookingId: string): void {
-  localStorage.removeItem(`wisespace_meet_${bookingId}`);
+  localStorage.removeItem(`virtualspace_meet_${bookingId}`);
 }

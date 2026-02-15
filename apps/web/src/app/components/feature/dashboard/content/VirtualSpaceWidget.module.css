@@ -1,0 +1,231 @@
+/**
+ * Filename: VirtualSpaceWidget.module.css
+ * Purpose: Styles for VirtualSpace dashboard widget (v5.9)
+ * Created: 2026-02-14
+ *
+ * Pattern: Widget card with header and content
+ * - White background with subtle border
+ * - Blue header background (VirtualSpace brand color)
+ * - Quick create button
+ * - Session list with join actions
+ */
+
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.widget:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #eff6ff; /* Light blue for VirtualSpace */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.createButton:hover {
+  background-color: #1d4ed8;
+}
+
+.createButton:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* Content */
+.content {
+  padding: 16px;
+}
+
+.description {
+  font-size: 13px;
+  color: #374151;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+.emptyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.emptyButton:hover {
+  background-color: #1d4ed8;
+}
+
+.emptyButton:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* Session list */
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sessionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.sessionItem:hover {
+  background-color: #eff6ff;
+}
+
+.sessionInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.sessionName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sessionMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 0;
+  font-weight: 500;
+}
+
+.joinButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.joinButton:hover {
+  background-color: #1d4ed8;
+}
+
+.viewAllButton {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s ease-in-out;
+}
+
+.viewAllButton:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .sessionItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .joinButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .sessionName {
+    font-size: 12px;
+  }
+}

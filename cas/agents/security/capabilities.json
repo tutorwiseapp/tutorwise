@@ -1,0 +1,110 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Security Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "security",
+  "description": "Security scanning, vulnerability detection, and compliance verification",
+  "capabilities": [
+    {
+      "id": "vulnerability_scanning",
+      "name": "Vulnerability Scanning",
+      "description": "Scan code and dependencies for vulnerabilities",
+      "operations": [
+        "scan_dependencies",
+        "scan_code",
+        "check_secrets",
+        "analyze_docker",
+        "scan_infrastructure"
+      ]
+    },
+    {
+      "id": "code_security_review",
+      "name": "Code Security Review",
+      "description": "Review code for security issues",
+      "operations": [
+        "review_auth_code",
+        "check_injection_risks",
+        "verify_encryption",
+        "audit_access_control",
+        "check_data_exposure"
+      ]
+    },
+    {
+      "id": "compliance_check",
+      "name": "Compliance Check",
+      "description": "Verify compliance with security standards",
+      "operations": [
+        "check_gdpr_compliance",
+        "verify_data_handling",
+        "audit_logging",
+        "check_retention_policies"
+      ]
+    },
+    {
+      "id": "incident_response",
+      "name": "Incident Response",
+      "description": "Respond to security incidents",
+      "operations": [
+        "analyze_incident",
+        "contain_threat",
+        "generate_report",
+        "recommend_remediation"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "security",
+      "actions": ["scan", "review", "audit", "verify"],
+      "examples": [
+        "Scan for vulnerabilities",
+        "Review EduPay security",
+        "Audit access control",
+        "Check for exposed secrets"
+      ]
+    },
+    {
+      "category": "compliance",
+      "actions": ["check", "verify", "report"],
+      "examples": [
+        "Check GDPR compliance",
+        "Verify data encryption",
+        "Generate security report"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "run_security_scan",
+      "check_vulnerabilities",
+      "audit_access_control",
+      "scan_secrets",
+      "generate_security_report"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 20,
+      "tokens_per_minute": 20000
+    },
+    "securityAccess": {
+      "canScanCode": true,
+      "canAccessSecrets": false,
+      "canBlockDeployment": true,
+      "canGenerateReports": true
+    }
+  },
+  "messageTypes": ["alert", "report", "vulnerability", "recommendation"],
+  "integrations": ["snyk", "github-security", "trivy", "gitleaks"],
+  "scanTargets": [
+    "apps/web",
+    "lexi",
+    "sage",
+    "cas",
+    "packages"
+  ]
+}

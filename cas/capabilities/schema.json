@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tutorwise.com/schemas/capability-manifest.json",
+  "title": "CAS Capability Manifest",
+  "description": "JSON Schema for CAS agent capability manifests. Used for A2A discovery and tool registration.",
+  "type": "object",
+  "required": ["name", "version", "agent", "capabilities"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the capability manifest",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the manifest",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent identifier (e.g., 'lexi', 'sage')",
+      "enum": ["lexi", "sage", "cas"]
+    },
+    "persona": {
+      "type": "string",
+      "description": "Specific persona within the agent",
+      "examples": ["tutor", "student", "client", "agent", "organisation"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what this persona/agent does",
+      "maxLength": 500
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "List of capabilities this persona provides",
+      "items": {
+        "$ref": "#/definitions/capability"
+      },
+      "minItems": 1
+    },
+    "intents": {
+      "type": "array",
+      "description": "Intents this persona can handle",
+      "items": {
+        "$ref": "#/definitions/intent"
+      }
+    },
+    "tools": {
+      "$ref": "#/definitions/toolConfig",
+      "description": "Tool calling configuration"
+    },
+    "constraints": {
+      "$ref": "#/definitions/constraints",
+      "description": "Access constraints and rate limits"
+    }
+  },
+  "definitions": {
+    "capability": {
+      "type": "object",
+      "required": ["id", "name", "operations"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the capability",
+          "pattern": "^[a-z_]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this capability does"
+        },
+        "operations": {
+          "type": "array",
+          "description": "List of operations within this capability",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z_]+$"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "intent": {
+      "type": "object",
+      "required": ["category", "actions"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Intent category",
+          "enum": ["learning", "scheduling", "resources", "progress", "support", "billing", "feedback", "general"]
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions within this category",
+          "items": {
+            "type": "string"
+          }
+        },
+        "examples": {
+          "type": "array",
+          "description": "Example phrases that trigger this intent",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "toolConfig": {
+      "type": "object",
+      "properties": {
+        "supported": {
+          "type": "boolean",
+          "description": "Whether tool calling is supported"
+        },
+        "format": {
+          "type": "string",
+          "description": "Tool format",
+          "enum": ["openai_compatible", "anthropic", "custom"]
+        },
+        "functions": {
+          "type": "array",
+          "description": "List of available function names",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "allowedRoles": {
+          "type": "array",
+          "description": "User roles that can access this persona",
+          "items": {
+            "type": "string",
+            "enum": ["student", "tutor", "client", "agent", "organisation", "admin"]
+          }
+        },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requests_per_minute": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "tokens_per_minute": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "dataAccess": {
+          "type": "object",
+          "description": "Data access permissions",
+          "additionalProperties": true
+        },
+        "contentFiltering": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "level": {
+              "type": "string",
+              "enum": ["strict", "moderate", "minimal"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

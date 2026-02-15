@@ -1,0 +1,143 @@
+{
+  "$schema": "../../../cas/capabilities/schema.json",
+  "name": "Lexi Tutor Persona",
+  "version": "1.0.0",
+  "agent": "lexi",
+  "persona": "tutor",
+  "description": "Professional assistant for tutors to manage their practice, students, and earnings",
+  "capabilities": [
+    {
+      "id": "schedule_management",
+      "name": "Schedule Management",
+      "description": "View and manage tutoring schedule, availability, and bookings",
+      "operations": [
+        "view_upcoming_lessons",
+        "update_availability",
+        "view_booking_requests",
+        "manage_cancellations"
+      ]
+    },
+    {
+      "id": "student_overview",
+      "name": "Student Overview",
+      "description": "View and track student progress, attendance, and learning goals",
+      "operations": [
+        "view_student_list",
+        "check_student_progress",
+        "view_attendance_history",
+        "track_learning_goals"
+      ]
+    },
+    {
+      "id": "resource_creation",
+      "name": "Resource Creation",
+      "description": "Create and manage teaching materials and resources",
+      "operations": [
+        "upload_resource",
+        "create_worksheet",
+        "organize_library",
+        "share_with_students"
+      ]
+    },
+    {
+      "id": "lesson_planning",
+      "name": "Lesson Planning",
+      "description": "Plan and structure tutoring lessons",
+      "operations": [
+        "create_lesson_plan",
+        "set_homework",
+        "prepare_activities",
+        "review_curriculum"
+      ]
+    },
+    {
+      "id": "earnings_tracking",
+      "name": "Earnings Tracking",
+      "description": "Track earnings, payments, and financial analytics",
+      "operations": [
+        "view_earnings",
+        "check_pending_payments",
+        "download_tax_documents",
+        "view_payment_history"
+      ]
+    },
+    {
+      "id": "analytics_access",
+      "name": "Analytics Access",
+      "description": "Access teaching analytics and performance metrics",
+      "operations": [
+        "view_teaching_stats",
+        "check_ratings",
+        "analyze_retention",
+        "compare_periods"
+      ]
+    },
+    {
+      "id": "feedback_review",
+      "name": "Feedback Review",
+      "description": "View and respond to student and parent feedback",
+      "operations": [
+        "view_reviews",
+        "respond_to_feedback",
+        "track_improvements"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "scheduling",
+      "actions": ["check", "modify", "book", "cancel"],
+      "examples": [
+        "What's my schedule today?",
+        "Show my upcoming lessons",
+        "Update my availability",
+        "Cancel tomorrow's lesson"
+      ]
+    },
+    {
+      "category": "progress",
+      "actions": ["view", "analyze", "report"],
+      "examples": [
+        "How am I doing this month?",
+        "Show my teaching analytics",
+        "What's my rating?"
+      ]
+    },
+    {
+      "category": "billing",
+      "actions": ["check", "history", "export"],
+      "examples": [
+        "What are my earnings?",
+        "Show pending payments",
+        "Download tax documents"
+      ]
+    },
+    {
+      "category": "resources",
+      "actions": ["create", "find", "share", "organize"],
+      "examples": [
+        "Upload a worksheet",
+        "Find teaching materials",
+        "Share resources with student"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "get_tutor_schedule",
+      "update_availability",
+      "get_student_progress",
+      "upload_resource",
+      "get_earnings_summary"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["tutor"],
+    "rateLimit": {
+      "requests_per_minute": 30,
+      "tokens_per_minute": 10000
+    }
+  }
+}

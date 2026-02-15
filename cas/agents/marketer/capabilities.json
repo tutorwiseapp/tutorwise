@@ -1,0 +1,108 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Marketer Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "marketer",
+  "description": "Marketing analytics, user growth tracking, and engagement optimization",
+  "capabilities": [
+    {
+      "id": "growth_analytics",
+      "name": "Growth Analytics",
+      "description": "Track and analyze user growth metrics",
+      "operations": [
+        "track_signups",
+        "analyze_acquisition",
+        "measure_retention",
+        "track_referrals",
+        "analyze_churn"
+      ]
+    },
+    {
+      "id": "engagement_tracking",
+      "name": "Engagement Tracking",
+      "description": "Track user engagement with Lexi and Sage",
+      "operations": [
+        "track_lexi_usage",
+        "track_sage_sessions",
+        "analyze_by_role",
+        "measure_satisfaction",
+        "identify_power_users"
+      ]
+    },
+    {
+      "id": "campaign_analysis",
+      "name": "Campaign Analysis",
+      "description": "Analyze marketing campaigns and referrals",
+      "operations": [
+        "track_campaign",
+        "measure_roi",
+        "analyze_channels",
+        "optimize_spend"
+      ]
+    },
+    {
+      "id": "reporting",
+      "name": "Reporting",
+      "description": "Generate marketing and growth reports",
+      "operations": [
+        "daily_metrics",
+        "weekly_report",
+        "monthly_summary",
+        "executive_dashboard"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "analytics",
+      "actions": ["track", "analyze", "report", "compare"],
+      "examples": [
+        "Track this week's signups",
+        "Analyze referral performance",
+        "Report on Sage usage by role",
+        "Compare tutor vs client engagement"
+      ]
+    },
+    {
+      "category": "growth",
+      "actions": ["measure", "forecast", "optimize"],
+      "examples": [
+        "Measure retention rate",
+        "Forecast next month's growth",
+        "Optimize conversion funnel"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "get_growth_metrics",
+      "analyze_engagement",
+      "track_referrals",
+      "generate_report",
+      "get_lexi_sage_usage"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 30,
+      "tokens_per_minute": 15000
+    },
+    "dataAccess": {
+      "canAccessAnalytics": true,
+      "canAccessUserCounts": true,
+      "canAccessPII": false,
+      "canAccessRevenue": true
+    }
+  },
+  "messageTypes": ["query", "report", "insight", "alert"],
+  "integrations": ["analytics", "supabase", "slack"],
+  "trackingTargets": {
+    "agents": ["lexi", "sage"],
+    "roles": ["tutor", "client", "student", "agent", "organisation"],
+    "metrics": ["sessions", "messages", "feedback", "retention"]
+  }
+}

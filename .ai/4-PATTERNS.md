@@ -888,6 +888,851 @@ refactor: consolidate shared fields API logic
 
 ---
 
-*This document reflects production patterns as of February 12, 2026*
+## 🏛️ **Hub Architecture Pattern (Feature Implementation Template)**
+
+This section documents the Hub Architecture pattern used for major features. Use this as a template when implementing new features like Sage, EduPay, Bookings, Referrals, etc.
+
+### Overview
+
+The Hub Architecture provides a consistent, scalable pattern for feature pages:
+- **HubPageLayout**: Main container with header, tabs, sidebar, and content areas
+- **HubHeader**: Title, filters, and action buttons
+- **HubTabs**: Tab navigation with counts
+- **HubSidebar**: Contextual widgets and stats
+- **HubPagination**: Paginated content lists
+- **HubEmptyState**: Empty state messaging
+
+### Reference Implementation: Sage AI Tutor
+
+**Sage** is the AI tutoring assistant that helps students learn between human tutor sessions. This section documents its full architecture as a reference for future features.
+
+---
+
+### 1. AppSidebar Integration
+
+Add feature entry to navigation with submenus:
+
+**Location**: `apps/web/src/app/components/layout/AppSidebar.tsx`
+
+```typescript
+// Add after EduPay link
+{
+  name: 'Sage',
+  href: '/sage',
+  icon: BookOpenIcon,
+  roles: ['student', 'client', 'tutor', 'agent'], // Role-based visibility
+  subItems: [
+    { name: 'Chat', href: '/sage', icon: ChatBubbleIcon },
+    { name: 'History', href: '/sage/history', icon: ClockIcon },
+    { name: 'Progress', href: '/sage/progress', icon: ChartBarIcon },
+    { name: 'Materials', href: '/sage/materials', icon: DocumentIcon },
+  ]
+}
+```
+
+---
+
+### 2. Hub Component Inventory
+
+#### Reusable Hub Components (from `components/hub/`)
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `HubPageLayout` | `hub/layout/HubPageLayout.tsx` | Main page wrapper with slots for header, tabs, sidebar, content |
+| `HubHeader` | `hub/layout/HubHeader.tsx` | Title + filters + actions container |
+| `HubTabs` | `hub/layout/HubTabs.tsx` | Tab navigation with badge counts |
+| `HubPagination` | `hub/layout/HubPagination.tsx` | Page navigation for lists |
+| `HubSidebar` | `hub/sidebar/HubSidebar.tsx` | Sidebar widget container |
+| `HubStatsCard` | `hub/sidebar/cards/HubStatsCard.tsx` | Stats widget with rows |
+| `HubActionCard` | `hub/sidebar/cards/HubActionCard.tsx` | CTA card with action button |
+| `HubEmptyState` | `hub/content/HubEmptyState.tsx` | Empty state with icon/title/description/action |
+| `HubDetailCard` | `hub/content/HubDetailCard/HubDetailCard.tsx` | Detail card for list items |
+
+#### Custom Feature Components (Sage-specific)
+
+| Component | Purpose |
+|-----------|---------|
+| `SageChat` | Main chat interface with messages |
+| `SageMessage` | Individual message bubble (user/assistant) |
+| `SageMessageInput` | Input area with send button |
+| `SageTypingIndicator` | "Sage is thinking..." animation |
+| `SageMarkdown` | Markdown renderer for AI responses |
+| `SageProgressWidget` | Subject progress bars |
+| `SageStreakWidget` | Learning streak display |
+| `SageRecentSessionsWidget` | Recent sessions list |
+| `SageHelpWidget` | Quick help tips |
+| `SageTipWidget` | Daily learning tip |
+| `SageSessionCard` | Session history card |
+| `SageSessionDetailModal` | Full session transcript modal |
+| `SagePracticeModal` | Practice problem interface |
+| `SageUploadModal` | Document upload interface |
+| `SageSkeleton` | Loading state skeleton |
+| `SageError` | Error state with retry |
+
+---
+
+### 3. Page Structure
+
+#### Main Page: `/sage`
+```
+apps/web/src/app/(authenticated)/sage/
+├── page.tsx              # Main Sage chat page
+├── page.module.css       # Page-specific styles
+├── history/
+│   └── page.tsx          # Session history
+├── progress/
+│   └── page.tsx          # Learning progress
+└── materials/
+    └── page.tsx          # Uploaded materials
+```
+
+#### Page Layout Pattern
+```typescript
+// apps/web/src/app/(authenticated)/sage/page.tsx
+'use client';
+
+import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
+import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import SageChat from '@/app/components/feature/sage/SageChat';
+import SageProgressWidget from '@/app/components/feature/sage/SageProgressWidget';
+import SageStreakWidget from '@/app/components/feature/sage/SageStreakWidget';
+import SageHelpWidget from '@/app/components/feature/sage/SageHelpWidget';
+
+export default function SagePage() {
+  const { profile } = useUserProfile();
+  const [subject, setSubject] = useState<SubjectType>('general');
+
+  // React Query for session data
+  const { data: session, isLoading } = useQuery({
+    queryKey: ['sage-session', profile?.id, subject],
+    queryFn: () => createSageSession(subject),
+    enabled: !!profile?.id,
+  });
+
+  return (
+    <HubPageLayout
+      header={
+        <HubHeader
+          title="Sage"
+          filters={<SubjectSelector value={subject} onChange={setSubject} />}
+          actions={<Button onClick={handleNewSession}>New Session</Button>}
+        />
+      }
+      tabs={
+        <HubTabs
+          tabs={[
+            { id: 'chat', label: 'Chat', active: true },
+            { id: 'history', label: 'History', href: '/sage/history' },
+            { id: 'progress', label: 'Progress', href: '/sage/progress' },
+            { id: 'materials', label: 'Materials', href: '/sage/materials' },
+          ]}
+          onTabChange={handleTabChange}
+        />
+      }
+      sidebar={
+        <HubSidebar>
+          <SageProgressWidget studentId={profile?.id} />
+          <SageStreakWidget studentId={profile?.id} />
+          <SageHelpWidget />
+        </HubSidebar>
+      }
+    >
+      {isLoading ? (
+        <SageSkeleton />
+      ) : session ? (
+        <SageChat session={session} subject={subject} />
+      ) : (
+        <HubEmptyState
+          title="Start Learning with Sage"
+          description="Select a subject and ask a question to begin."
+          actionLabel="Start Session"
+          onAction={handleNewSession}
+        />
+      )}
+    </HubPageLayout>
+  );
+}
+```
+
+---
+
+### 4. API Routes Structure
+
+```
+apps/web/src/app/api/sage/
+├── session/
+│   └── route.ts          # POST: Create session, GET: Get active session
+├── message/
+│   └── route.ts          # POST: Send message (non-streaming)
+├── stream/
+│   └── route.ts          # POST: Send message (streaming response)
+├── history/
+│   └── route.ts          # GET: Session history list
+├── progress/
+│   └── route.ts          # GET: Learning progress data
+├── materials/
+│   └── route.ts          # GET/POST: Uploaded materials
+├── feedback/
+│   └── route.ts          # POST: Message feedback (thumbs up/down)
+└── capabilities/
+    └── route.ts          # GET: Available tools and subjects
+```
+
+#### API Route Pattern
+```typescript
+// apps/web/src/app/api/sage/session/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+import { SageOrchestrator } from '@sage/core/orchestrator';
+
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { subject, level } = await request.json();
+
+    // Initialize orchestrator
+    const orchestrator = new SageOrchestrator({
+      studentId: user.id,
+      subject,
+      level,
+    });
+
+    const session = await orchestrator.createSession();
+
+    return NextResponse.json({ success: true, session });
+  } catch (error) {
+    console.error('Sage session error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create session' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+### 5. React Query Patterns
+
+```typescript
+// Standard query configuration for feature data
+const { data, isLoading, error, refetch } = useQuery({
+  queryKey: ['feature-name', profile?.id, ...dependencies],
+  queryFn: fetchFunction,
+  enabled: !!profile?.id,
+  placeholderData: keepPreviousData,
+  staleTime: 30_000,              // 30 seconds
+  gcTime: 10 * 60_000,            // 10 minutes
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+});
+
+// Mutation with cache invalidation
+const mutation = useMutation({
+  mutationFn: updateFunction,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['feature-name'] });
+  },
+});
+```
+
+---
+
+### 6. Streaming Response Pattern
+
+```typescript
+// apps/web/src/app/api/sage/stream/route.ts
+export async function POST(request: NextRequest) {
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const orchestrator = new SageOrchestrator(config);
+
+        for await (const chunk of orchestrator.streamResponse(message)) {
+          const data = JSON.stringify({ type: 'chunk', content: chunk });
+          controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+        }
+
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      } catch (error) {
+        const errorData = JSON.stringify({ type: 'error', message: error.message });
+        controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
+}
+```
+
+---
+
+### 7. Custom Hook Pattern
+
+```typescript
+// apps/web/src/app/components/feature/sage/useSageChat.ts
+import { useState, useCallback, useRef } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+interface UseSageChatOptions {
+  sessionId: string;
+  subject: string;
+  onError?: (error: Error) => void;
+}
+
+export function useSageChat({ sessionId, subject, onError }: UseSageChatOptions) {
+  const [messages, setMessages] = useState<SageMessage[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const sendMessage = useCallback(async (content: string) => {
+    setIsStreaming(true);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const response = await fetch('/api/sage/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, content, subject }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      const reader = response.body?.getReader();
+      // Stream processing...
+
+    } catch (error) {
+      onError?.(error as Error);
+    } finally {
+      setIsStreaming(false);
+    }
+  }, [sessionId, subject, onError]);
+
+  const stopStreaming = useCallback(() => {
+    abortControllerRef.current?.abort();
+    setIsStreaming(false);
+  }, []);
+
+  return {
+    messages,
+    sendMessage,
+    isStreaming,
+    stopStreaming,
+  };
+}
+```
+
+---
+
+### 8. Sidebar Widget Pattern
+
+```typescript
+// apps/web/src/app/components/feature/sage/SageProgressWidget.tsx
+'use client';
+
+import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+
+interface SageProgressWidgetProps {
+  studentId?: string;
+}
+
+export default function SageProgressWidget({ studentId }: SageProgressWidgetProps) {
+  const { data: progress } = useQuery({
+    queryKey: ['sage-progress', studentId],
+    queryFn: () => fetchProgress(studentId!),
+    enabled: !!studentId,
+  });
+
+  const stats: StatRow[] = [
+    {
+      label: 'Sessions This Week',
+      value: progress?.weeklySessionCount ?? 0,
+      valueColor: 'default',
+    },
+    {
+      label: 'Topics Covered',
+      value: progress?.topicCount ?? 0,
+      valueColor: 'green',
+    },
+    {
+      label: 'Current Streak',
+      value: `${progress?.streakDays ?? 0} days`,
+      valueColor: progress?.streakDays > 0 ? 'orange' : 'default',
+    },
+  ];
+
+  return <HubStatsCard title="Learning Progress" stats={stats} />;
+}
+```
+
+---
+
+### 9. Implementation Order (Checklist)
+
+When implementing a new feature using the Hub Architecture:
+
+1. **Documentation** (Optional but recommended)
+   - [ ] Create `docs/feature/{feature-name}/{feature-name}-solution-design.md`
+
+2. **Backend Core** (if AI/service layer needed)
+   - [ ] Create orchestrator/service in dedicated directory
+   - [ ] Define types and interfaces
+   - [ ] Implement core business logic
+
+3. **API Routes**
+   - [ ] Create `/api/{feature}/` directory
+   - [ ] Implement CRUD routes (GET, POST, PUT, DELETE)
+   - [ ] Add streaming routes if needed
+   - [ ] Add authentication checks
+
+4. **UI Components**
+   - [ ] Create `components/feature/{feature}/` directory
+   - [ ] Implement custom feature components
+   - [ ] Create custom hooks for data management
+   - [ ] Add CSS modules for styling
+
+5. **Pages**
+   - [ ] Create `(authenticated)/{feature}/page.tsx`
+   - [ ] Use HubPageLayout with header, tabs, sidebar
+   - [ ] Add sub-pages as needed (history, settings, etc.)
+   - [ ] Implement loading, error, and empty states
+
+6. **Navigation**
+   - [ ] Add to AppSidebar with icon and submenus
+   - [ ] Configure role-based visibility
+
+7. **Integration**
+   - [ ] Connect to existing systems (CAS, profiles, etc.)
+   - [ ] Add React Query caching
+   - [ ] Test full user flow
+
+---
+
+### 10. File Naming Conventions
+
+```
+Feature Components:
+  {Feature}Chat.tsx           # Main interaction component
+  {Feature}Message.tsx        # Message display
+  {Feature}Card.tsx           # List item card
+  {Feature}DetailModal.tsx    # Detail view modal
+  {Feature}StatsWidget.tsx    # Sidebar stats widget
+  {Feature}HelpWidget.tsx     # Sidebar help/tips widget
+  use{Feature}Chat.ts         # Chat/interaction hook
+  use{Feature}History.ts      # History data hook
+  {Feature}.module.css        # Component styles
+
+Pages:
+  page.tsx                    # Main feature page
+  page.module.css             # Page-specific styles
+
+API Routes:
+  route.ts                    # Standard route file
+
+Types:
+  types.ts or index.ts        # Type definitions
+```
+
+---
+
+### 11. CSS Module Pattern
+
+```css
+/* Feature page styles */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Feature-specific skeleton */
+.skeleton {
+  animation: pulse 2s infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-md);
+}
+
+@keyframes pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+```
+
+---
+
+### 12. Error Boundary Pattern
+
+```typescript
+// apps/web/src/app/components/feature/sage/SageError.tsx
+'use client';
+
+import Button from '@/app/components/ui/actions/Button';
+import styles from './SageError.module.css';
+
+interface SageErrorProps {
+  error: Error;
+  onRetry?: () => void;
+}
+
+export default function SageError({ error, onRetry }: SageErrorProps) {
+  return (
+    <div className={styles.errorContainer}>
+      <div className={styles.errorIcon}>⚠️</div>
+      <h3 className={styles.errorTitle}>Something went wrong</h3>
+      <p className={styles.errorMessage}>{error.message}</p>
+      {onRetry && (
+        <Button variant="secondary" size="sm" onClick={onRetry}>
+          Try Again
+        </Button>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+### 13. Lessons Learned & Common Mistakes
+
+This section documents mistakes made during the Sage implementation and how to avoid them in future features. Use this as a pre-implementation checklist.
+
+#### Mistake 1: Wrong Theme Colors
+
+**What went wrong**: Used purple (#7c3aed) in CSS instead of the app's teal theme (#006c67).
+
+**Root cause**: Copied colors from external sources or assumed colors without checking design system.
+
+**How to avoid**:
+- ALWAYS check `.ai/6-design-system.md` before writing any CSS
+- App primary color: `#006c67` (teal), NOT purple
+- App primary light: `#E6F0F0`
+- Search for existing color usage: `grep -r "#006c67" apps/web/src`
+
+**Quick reference**:
+```css
+/* CORRECT - App theme colors */
+--primary: #006c67;
+--primary-hover: #005550;
+--primary-dark: #004442;
+--primary-light: #99c7c4;
+--primary-bg: #E6F0F0;
+
+/* WRONG - Do NOT use */
+--purple: #7c3aed;  /* Not our theme */
+```
+
+---
+
+#### Mistake 2: Not Using Hub Components
+
+**What went wrong**: Created custom empty states instead of using `HubEmptyState`.
+
+**Root cause**: Didn't check available Hub components before implementation.
+
+**How to avoid**:
+- Review `components/hub/` directory before creating new components
+- Use these Hub components for consistency:
+  - `HubEmptyState` - All empty state messaging
+  - `HubStatsCard` - Sidebar statistics
+  - `HubDetailCard` - List item details
+  - `HubPagination` - Paginated lists
+
+**Pattern**:
+```typescript
+// CORRECT
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+
+<HubEmptyState
+  title="No sessions yet"
+  description="Start learning to see your history here."
+  actionLabel="Start Learning"
+  onAction={() => router.push('/sage')}
+/>
+
+// WRONG - Custom empty state
+<div className={styles.emptyState}>
+  <h3>No sessions yet</h3>
+  ...
+</div>
+```
+
+---
+
+#### Mistake 3: Using Icons/Emojis in Feature Components
+
+**What went wrong**: Used SVG icons, emojis, and icon fonts in feature components.
+
+**Root cause**: Assumed icons improve UX; didn't check codebase conventions.
+
+**How to avoid**:
+- Feature components should use TEXT LABELS, not icons
+- Replace: SVG icons → text (e.g., "Send", "Delete", "Yes", "No")
+- Replace: Emojis → nothing or text
+- Only use icons in design system UI components (`components/ui/`)
+
+**Examples**:
+```typescript
+// CORRECT
+<button>Send</button>
+<button>Delete</button>
+<span>PDF</span>
+<span>IMG</span>
+
+// WRONG
+<button><SendIcon /></button>
+<button>🗑️</button>
+<span>📄</span>
+<span>🔥</span>  /* Fire emoji in streak widget */
+```
+
+---
+
+#### Mistake 4: Missing Search Bar in Header
+
+**What went wrong**: Headers lacked search input, breaking consistency.
+
+**Root cause**: Didn't check reference implementation (bookings).
+
+**How to avoid**:
+- EVERY Hub page header should have a search input
+- Use `filterStyles.filtersContainer` for search + filters
+- Check bookings feature as reference
+
+**Pattern**:
+```typescript
+import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+
+<HubHeader
+  title="Feature Name"
+  filters={
+    <div className={filterStyles.filtersContainer}>
+      <input
+        type="search"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={filterStyles.searchInput}
+      />
+      <UnifiedSelect ... />
+    </div>
+  }
+  actions={...}
+/>
+```
+
+---
+
+#### Mistake 5: Wrong Header Action Pattern
+
+**What went wrong**: Actions not using hub primary/secondary dropdown pattern.
+
+**Root cause**: Didn't check existing hub action styles.
+
+**How to avoid**:
+- Import `actionStyles` from hub styles
+- Primary action: Full button with text
+- Secondary action: Dropdown menu with "..." button
+
+**Pattern**:
+```typescript
+import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+
+<HubHeader
+  actions={
+    <>
+      <Button variant="primary" size="sm" onClick={handlePrimaryAction}>
+        Primary Action
+      </Button>
+      <div className={actionStyles.dropdownContainer}>
+        <Button variant="secondary" size="sm" square onClick={toggleMenu}>
+          ...
+        </Button>
+        {showMenu && (
+          <>
+            <div className={actionStyles.backdrop} onClick={closeMenu} />
+            <div className={actionStyles.dropdownMenu}>
+              <button onClick={handleOption1} className={actionStyles.menuButton}>
+                Option 1
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  }
+/>
+```
+
+---
+
+#### Mistake 6: API Errors When Tables Don't Exist
+
+**What went wrong**: API returned 500 errors when database tables were missing.
+
+**Root cause**: Didn't handle database errors gracefully during development.
+
+**How to avoid**:
+- Check for database errors and return empty results gracefully
+- Log warning but don't throw error
+- Allows UI to work during development before migrations run
+
+**Pattern**:
+```typescript
+// CORRECT - Graceful handling
+const { data, error } = await supabase.from('table_name').select('*');
+
+if (error) {
+  console.warn('[Feature] Database error (may be missing table):', error.message);
+  return NextResponse.json({
+    items: [],
+    total: 0,
+    limit,
+    offset,
+  });
+}
+
+// WRONG - Throws 500 error
+if (error) {
+  throw error;  // Causes UI to show error state
+}
+```
+
+---
+
+#### Mistake 7: Missing Gold Standard React Query Config
+
+**What went wrong**: Initial queries missing `keepPreviousData`, retry config, etc.
+
+**Root cause**: Didn't copy react-query config from reference implementation.
+
+**How to avoid**:
+- ALWAYS apply this config to useQuery calls:
+
+**Gold Standard Config**:
+```typescript
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+
+const { data, isLoading, error, refetch } = useQuery({
+  queryKey: ['feature-name', profile?.id, ...dependencies],
+  queryFn: async () => {
+    const res = await fetch('/api/feature');
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
+  },
+  enabled: !!profile?.id,
+  // === GOLD STANDARD CONFIG - ALWAYS INCLUDE ===
+  staleTime: 2 * 60 * 1000,        // 2 minutes
+  gcTime: 5 * 60 * 1000,           // 5 minutes
+  placeholderData: keepPreviousData,
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+});
+```
+
+---
+
+#### Mistake 8: Wrong Module Import Paths
+
+**What went wrong**: Used non-existent paths like `@sage/services/session`.
+
+**Root cause**: Assumed path structure without checking tsconfig or actual files.
+
+**How to avoid**:
+- Check `tsconfig.json` for path aliases
+- Verify file exists before importing
+- Use IDE auto-import when possible
+
+**Check paths**:
+```bash
+# Verify path alias exists
+grep -r "@sage" tsconfig.json
+
+# Find actual module location
+find . -name "*.ts" -path "*/sage/*" | head -20
+```
+
+---
+
+### 14. Pre-Implementation Checklist
+
+Use this checklist BEFORE starting any new Hub feature:
+
+```markdown
+## Pre-Implementation Checklist
+
+### Design System
+- [ ] Read `.ai/6-design-system.md` for colors, spacing, typography
+- [ ] Primary color is teal (#006c67), NOT purple
+- [ ] Check existing component patterns in `components/hub/`
+
+### Reference Implementation
+- [ ] Review bookings feature as gold standard template
+- [ ] Check how similar features handle loading/error/empty states
+- [ ] Review existing Hub component usage patterns
+
+### Component Rules
+- [ ] NO icons or emojis in feature components (use text labels)
+- [ ] Use HubEmptyState for empty states
+- [ ] Use HubStatsCard for sidebar stats
+- [ ] Use HubDetailCard for list items
+
+### Header Pattern
+- [ ] Include search input in EVERY page header
+- [ ] Use filterStyles.filtersContainer for search + filters
+- [ ] Use actionStyles.dropdownContainer for primary + secondary actions
+
+### API Routes
+- [ ] Handle missing database tables gracefully (return empty results)
+- [ ] Use proper error codes (401, 403, 404, 500)
+- [ ] Log errors with feature prefix: `[FeatureName] Error:`
+
+### React Query
+- [ ] Apply gold standard config (keepPreviousData, retry, etc.)
+- [ ] Use proper query keys with all dependencies
+- [ ] Implement loading, error, and success states
+
+### Testing
+- [ ] Test with empty data (no sessions, no materials)
+- [ ] Test with missing database tables
+- [ ] Test loading states
+- [ ] Test error states with retry
+```
+
+---
+
+*This document reflects production patterns as of February 14, 2026*
 *Platform at 98% completion, production-ready*
 *Update this document as new patterns emerge*

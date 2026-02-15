@@ -5,6 +5,8 @@
  *
  * User roles: tutor, client, agent, student
  * Entity: organisation (manages multiple users)
+ *
+ * Sub-personas: specialized experts for specific domains
  */
 
 export { BasePersona, withIntentHandlers, type IPersona, type IntentHandlerMap } from './base-persona';
@@ -13,6 +15,18 @@ export { TutorPersona } from './tutor';
 export { ClientPersona } from './client';
 export { AgentPersona } from './agent';
 export { OrganisationPersona } from './organisation';
+
+// Sub-personas
+export {
+  TutorEarningsExpert,
+  ClientMatchingHelper,
+  OrganisationAdmin,
+  NewUserGuide,
+  getSubPersona,
+  detectSubPersona,
+  subPersonas,
+  type SubPersonaType,
+} from './sub-personas';
 
 import { StudentPersona } from './student';
 import { TutorPersona } from './tutor';

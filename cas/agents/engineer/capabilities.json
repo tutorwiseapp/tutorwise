@@ -1,0 +1,104 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Engineer Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "engineer",
+  "description": "Infrastructure, DevOps, and platform engineering",
+  "capabilities": [
+    {
+      "id": "infrastructure_management",
+      "name": "Infrastructure Management",
+      "description": "Manage cloud infrastructure and resources",
+      "operations": [
+        "provision_resources",
+        "scale_services",
+        "manage_databases",
+        "configure_networking",
+        "manage_secrets"
+      ]
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment",
+      "description": "Manage deployments and releases",
+      "operations": [
+        "deploy_staging",
+        "deploy_production",
+        "rollback_deployment",
+        "manage_environments",
+        "configure_ci_cd"
+      ]
+    },
+    {
+      "id": "monitoring",
+      "name": "Monitoring",
+      "description": "Monitor system health and performance",
+      "operations": [
+        "check_health",
+        "analyze_logs",
+        "track_errors",
+        "monitor_performance",
+        "alert_on_issues"
+      ]
+    },
+    {
+      "id": "optimization",
+      "name": "Optimization",
+      "description": "Optimize infrastructure and performance",
+      "operations": [
+        "optimize_queries",
+        "tune_caching",
+        "reduce_costs",
+        "improve_latency"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "infrastructure",
+      "actions": ["provision", "scale", "configure", "manage"],
+      "examples": [
+        "Scale up the database",
+        "Configure staging environment",
+        "Manage Redis cache",
+        "Check infrastructure status"
+      ]
+    },
+    {
+      "category": "deployment",
+      "actions": ["deploy", "rollback", "verify"],
+      "examples": [
+        "Deploy to staging",
+        "Rollback production",
+        "Verify deployment health"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "deploy_service",
+      "check_health",
+      "analyze_logs",
+      "scale_resources",
+      "run_migration"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 30,
+      "tokens_per_minute": 15000
+    },
+    "infraAccess": {
+      "canDeployStaging": true,
+      "canDeployProduction": false,
+      "canScaleResources": true,
+      "canAccessLogs": true
+    }
+  },
+  "messageTypes": ["task", "status", "alert", "report"],
+  "integrations": ["vercel", "supabase", "cloudflare", "github-actions"]
+}

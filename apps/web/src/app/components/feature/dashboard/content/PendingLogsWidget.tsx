@@ -1,7 +1,8 @@
 /**
  * Filename: PendingLogsWidget.tsx
- * Purpose: Nudge widget for pending session completions (WiseSpace v5.8)
+ * Purpose: Nudge widget for pending session completions (VirtualSpace v5.9)
  * Created: 2025-11-15
+ * Updated: 2026-02-15 - Use VirtualSpace API
  *
  * This widget appears on the tutor dashboard and encourages tutors to
  * mark past sessions as complete, which feeds the CaaS "Proof of Work" metric.
@@ -80,7 +81,7 @@ export function PendingLogsWidget() {
   const handleConfirmCompletion = async (sessionId: string) => {
     setCompleting(sessionId);
     try {
-      const response = await fetch(`/api/wisespace/${sessionId}/complete`, {
+      const response = await fetch(`/api/virtualspace/${sessionId}/complete`, {
         method: 'POST',
       });
 

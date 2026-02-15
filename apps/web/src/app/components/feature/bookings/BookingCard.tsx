@@ -6,7 +6,7 @@
  * Updated: 2026-02-05 - Added scheduling status, Messages button, SchedulingModal (5-stage workflow)
  * Updated: 2026-02-06 - Fixed button visibility:
  *   - Reschedule: Now shows for all scheduled bookings (not just Confirmed)
- *   - WiseSpace: Always shows for online sessions (disabled until ready)
+ *   - VirtualSpace: Always shows for online sessions (disabled until ready)
  * Specification: Expanded detail card layout with HubDetailCard component
  * Design: Uses HubDetailCard component for consistent visual layout across all hubs
  */
@@ -27,7 +27,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 interface BookingCardProps {
   booking: Booking;
   viewMode: 'client' | 'tutor'; // Role-aware display
-  isOnline?: boolean; // Whether the session is online (for Join WiseSpace button)
+  isOnline?: boolean; // Whether the session is online (for Join VirtualSpace button)
   onPayNow?: (bookingId: string) => void;
   onReschedule?: (bookingId: string) => void;
   onCancel?: (bookingId: string) => void;
@@ -184,8 +184,8 @@ export default function BookingCard({
     router.push(`/messages?user=${otherPartyId}&booking=${booking.id}`);
   };
 
-  // Determine if Join WiseSpace button should be enabled
-  const canJoinWiseSpace = booking.status === 'Confirmed' && isOnline && isScheduled;
+  // Determine if Join VirtualSpace button should be enabled
+  const canJoinVirtualSpace = booking.status === 'Confirmed' && isOnline && isScheduled;
 
   // Build actions
   const actions = (
@@ -232,18 +232,18 @@ export default function BookingCard({
         </Button>
       )}
 
-      {/* Join WiseSpace: Always show for online sessions, disabled until ready */}
+      {/* Join VirtualSpace: Always show for online sessions, disabled until ready */}
       {isOnline && (
-        canJoinWiseSpace ? (
+        canJoinVirtualSpace ? (
           <Link
-            href={`/wisespace/${booking.id}`}
+            href={`/virtualspace/booking/${booking.id}`}
             target="_blank"
           >
             <Button
               variant="primary"
               size="sm"
             >
-              Join WiseSpace
+              Join VirtualSpace
             </Button>
           </Link>
         ) : (
@@ -256,10 +256,10 @@ export default function BookingCard({
                 ? 'Available after payment is confirmed'
                 : !isScheduled
                   ? 'Available after session is scheduled'
-                  : 'WiseSpace not available'
+                  : 'VirtualSpace not available'
             }
           >
-            Join WiseSpace
+            Join VirtualSpace
           </Button>
         )
       )}

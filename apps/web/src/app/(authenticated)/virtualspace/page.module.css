@@ -1,0 +1,161 @@
+/**
+ * Filename: src/app/(authenticated)/virtualspace/page.module.css
+ * Purpose: VirtualSpace hub page styles (v5.9)
+ * Created: 2026-02-15
+ * Pattern: Hub Architecture - follows bookings page pattern
+ *
+ * Note: Layout, Header, Tabs, and EmptyStates are handled by global Hub components.
+ * Only feature-specific overrides remain.
+ */
+
+/* Sessions Grid */
+.sessionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+/* Session Card */
+.sessionCard {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sessionCard:hover {
+  border-color: #006c67;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.sessionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
+/* Mode Badge */
+.modeBadge {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.modeStandalone {
+  background-color: #E6F0F0;
+  color: #006c67;
+}
+
+.modeBooking {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.modeFreeHelp {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.modeDefault {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Session Meta */
+.sessionMeta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ownerBadge {
+  font-size: 0.75rem;
+  color: #006c67;
+  font-weight: 500;
+}
+
+/* Card Actions */
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Pagination Container */
+.paginationContainer {
+  margin-top: 1rem;
+}
+
+/* Error Container */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  gap: 1rem;
+}
+
+.errorContainer h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.errorContainer p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sessionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sessionMeta {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .cardActions {
+    flex-direction: column;
+  }
+
+  .cardActions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

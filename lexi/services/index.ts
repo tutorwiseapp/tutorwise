@@ -30,3 +30,13 @@ export {
   type ConversationSummary,
   type ConversationSearchParams,
 } from './conversation-history';
+
+export {
+  LexiFeedbackService,
+  feedbackService,
+  createFeedbackButtons,
+  type FeedbackSubmission,
+  type FeedbackContext,
+  type FeedbackResult,
+  type FeedbackStats,
+} from './feedback-service';

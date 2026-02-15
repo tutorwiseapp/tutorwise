@@ -1,0 +1,103 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Developer Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "developer",
+  "description": "Code generation, implementation, and development assistance",
+  "capabilities": [
+    {
+      "id": "code_generation",
+      "name": "Code Generation",
+      "description": "Generate code based on specifications",
+      "operations": [
+        "generate_component",
+        "generate_api_route",
+        "generate_migration",
+        "generate_tests",
+        "refactor_code"
+      ]
+    },
+    {
+      "id": "code_review",
+      "name": "Code Review",
+      "description": "Review and improve code quality",
+      "operations": [
+        "review_pr",
+        "suggest_improvements",
+        "check_patterns",
+        "identify_bugs",
+        "enforce_standards"
+      ]
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "description": "Generate and maintain documentation",
+      "operations": [
+        "generate_docs",
+        "update_readme",
+        "create_api_docs",
+        "document_changes"
+      ]
+    },
+    {
+      "id": "debugging",
+      "name": "Debugging",
+      "description": "Debug and resolve issues",
+      "operations": [
+        "analyze_error",
+        "trace_issue",
+        "suggest_fix",
+        "reproduce_bug"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "implement",
+      "actions": ["create", "generate", "build", "refactor"],
+      "examples": [
+        "Create a new API endpoint",
+        "Generate tests for this component",
+        "Refactor this function",
+        "Build the feature from spec"
+      ]
+    },
+    {
+      "category": "review",
+      "actions": ["review", "check", "improve"],
+      "examples": [
+        "Review this PR",
+        "Check for security issues",
+        "Improve this code"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "generate_code",
+      "review_code",
+      "run_tests",
+      "create_pr",
+      "analyze_codebase"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 30,
+      "tokens_per_minute": 50000
+    },
+    "codeAccess": {
+      "canReadCode": true,
+      "canWriteCode": true,
+      "canCommit": false,
+      "requiresReview": true
+    }
+  },
+  "messageTypes": ["task", "code", "review", "question"],
+  "integrations": ["github", "vscode", "eslint", "typescript"]
+}

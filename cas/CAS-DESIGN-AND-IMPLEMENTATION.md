@@ -929,6 +929,189 @@ vim cas/agents/developer/planning/cas-feature-dev-plan.md
 
 ---
 
+## AI Infrastructure (Lexi, Sage, DSPy)
+
+### Overview
+
+CAS orchestrates three AI systems:
+
+1. **Lexi** - Platform support assistant (help, navigation)
+2. **Sage** - AI tutor (teaching, learning)
+3. **DSPy** - Automatic prompt optimization
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         CAS CORE                                 │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │      Lexi       │  │      Sage       │  │      DSPy       │ │
+│  │   (Support)     │  │    (Tutor)      │  │  (Optimizer)    │ │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘ │
+│           │                    │                    │          │
+│           └──────────┬─────────┴────────────────────┘          │
+│                      ▼                                          │
+│           ┌─────────────────────┐                              │
+│           │   Message Bus       │                              │
+│           │ (Standardized JSON) │                              │
+│           └─────────┬───────────┘                              │
+│                     ▼                                           │
+│           ┌─────────────────────┐                              │
+│           │    ai_feedback      │                              │
+│           │   (Unified table)   │                              │
+│           └─────────────────────┘                              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Message Bus Architecture
+
+All AI agents communicate via standardized message envelopes:
+
+```typescript
+// cas/messages/envelope.ts
+
+interface MessageEnvelope {
+  id: string;                    // UUID
+  from: string;                  // "sage" | "lexi" | "cas:planner"
+  to: string;                    // Target agent/service
+  type: string;                  // "feedback" | "request" | "response"
+  payload: unknown;              // Typed per message type
+  correlation_id?: string;       // Request/response matching
+  timestamp: string;             // ISO 8601
+  version: string;               // Protocol version
+}
+```
+
+### DSPy Optimization Pipeline
+
+Weekly automated prompt optimization:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   DSPy OPTIMIZATION PIPELINE                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. COLLECT (Production)                                        │
+│     ai_feedback table → sage_sessions → lexi_sessions           │
+│                                                                  │
+│  2. OPTIMIZE (Python - Weekly Cron)                             │
+│     cas/optimization/run_dspy.py                                │
+│     - Load training data from Supabase                          │
+│     - Run DSPy BootstrapFewShot                                 │
+│     - Export optimized prompts to JSON                          │
+│                                                                  │
+│  3. DEPLOY (GitHub Actions)                                     │
+│     - Commit optimized_prompts.json                             │
+│     - TypeScript loads at runtime                               │
+│     - Hot-swap without restart                                  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**File Structure:**
+```
+cas/optimization/
+├── run_dspy.py              # Weekly optimization runner
+├── signatures/              # DSPy signature definitions
+│   ├── maths_solver.py
+│   ├── explain_concept.py
+│   └── diagnose_error.py
+├── metrics/                 # Quality metrics
+│   └── tutoring_metrics.py
+├── data/                    # Data loading
+│   └── loader.py
+└── output/
+    └── optimized_prompts.json
+```
+
+### Capability Manifests
+
+Each Lexi/Sage persona has a capability manifest for discovery:
+
+```json
+// sage/personas/tutor/capabilities.json
+{
+  "name": "Sage Tutor Persona",
+  "version": "1.0.0",
+  "capabilities": [
+    "create_lesson_plan",
+    "review_student_work",
+    "generate_worksheet",
+    "explain_for_student"
+  ],
+  "subjects": ["maths", "english", "science", "general"],
+  "tiers": ["GCSE", "A-Level"],
+  "tool_calling": true
+}
+```
+
+### Database Schema (Shared)
+
+```sql
+-- ai_feedback (shared between Lexi & Sage)
+CREATE TABLE ai_feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  agent_type TEXT NOT NULL,        -- 'sage' | 'lexi'
+  session_id TEXT NOT NULL,
+  user_id UUID REFERENCES auth.users(id),
+  rating TEXT,                     -- 'thumbs_up' | 'thumbs_down'
+  comment TEXT,
+  context JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS policies
+ALTER TABLE ai_feedback ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can insert own feedback"
+  ON ai_feedback FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Service role can read all"
+  ON ai_feedback FOR SELECT
+  USING (auth.role() = 'service_role');
+```
+
+### GitHub Actions Workflow
+
+```yaml
+# .github/workflows/dspy-optimize.yml
+name: DSPy Prompt Optimization
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly Sunday 3am
+  workflow_dispatch:
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r cas/optimization/requirements.txt
+
+      - name: Run optimization
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+        run: python cas/optimization/run_dspy.py --all
+
+      - name: Commit results
+        run: |
+          git config user.name "CAS Bot"
+          git config user.email "cas@tutorwise.com"
+          git add sage/prompts/optimized.json
+          git commit -m "chore: Update DSPy optimized prompts" || true
+          git push
+```
+
+---
+
 ## Migration Path: Framework to Full Autonomy
 
 ### Evolution Overview

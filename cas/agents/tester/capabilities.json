@@ -1,0 +1,103 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Tester Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "tester",
+  "description": "Automated testing, test generation, and quality verification",
+  "capabilities": [
+    {
+      "id": "test_generation",
+      "name": "Test Generation",
+      "description": "Generate test cases and test code",
+      "operations": [
+        "generate_unit_tests",
+        "generate_integration_tests",
+        "generate_e2e_tests",
+        "create_test_fixtures",
+        "generate_test_data"
+      ]
+    },
+    {
+      "id": "test_execution",
+      "name": "Test Execution",
+      "description": "Run and manage test suites",
+      "operations": [
+        "run_tests",
+        "run_coverage",
+        "parallel_execution",
+        "selective_testing",
+        "regression_testing"
+      ]
+    },
+    {
+      "id": "test_analysis",
+      "name": "Test Analysis",
+      "description": "Analyze test results and coverage",
+      "operations": [
+        "analyze_results",
+        "identify_flaky_tests",
+        "measure_coverage",
+        "track_test_trends",
+        "report_failures"
+      ]
+    },
+    {
+      "id": "test_maintenance",
+      "name": "Test Maintenance",
+      "description": "Maintain and update test suites",
+      "operations": [
+        "update_snapshots",
+        "fix_broken_tests",
+        "remove_obsolete_tests",
+        "optimize_test_speed"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "testing",
+      "actions": ["generate", "run", "analyze", "fix"],
+      "examples": [
+        "Generate tests for this component",
+        "Run all unit tests",
+        "Why is this test failing?",
+        "What's our test coverage?"
+      ]
+    },
+    {
+      "category": "verification",
+      "actions": ["verify", "validate", "check"],
+      "examples": [
+        "Verify this feature works",
+        "Validate the API response",
+        "Check for regressions"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "generate_tests",
+      "run_test_suite",
+      "get_coverage",
+      "analyze_failure",
+      "fix_flaky_test"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 40,
+      "tokens_per_minute": 25000
+    },
+    "testAccess": {
+      "canRunTests": true,
+      "canWriteTests": true,
+      "canModifyConfig": false
+    }
+  },
+  "messageTypes": ["task", "result", "failure", "report"],
+  "integrations": ["jest", "playwright", "vitest", "github-actions"]
+}

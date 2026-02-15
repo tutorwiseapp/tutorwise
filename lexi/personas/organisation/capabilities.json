@@ -1,0 +1,145 @@
+{
+  "$schema": "../../../cas/capabilities/schema.json",
+  "name": "Lexi Organisation Persona",
+  "version": "1.0.0",
+  "agent": "lexi",
+  "persona": "organisation",
+  "description": "Formal assistant for organisation admins to manage tutors, students, and platform operations",
+  "capabilities": [
+    {
+      "id": "tutor_management",
+      "name": "Tutor Management",
+      "description": "Manage organisation tutors",
+      "operations": [
+        "view_tutors",
+        "add_tutor",
+        "remove_tutor",
+        "manage_tutor_permissions",
+        "review_tutor_performance"
+      ]
+    },
+    {
+      "id": "student_management",
+      "name": "Student Management",
+      "description": "Manage organisation students",
+      "operations": [
+        "view_students",
+        "add_student",
+        "remove_student",
+        "assign_to_tutor",
+        "track_student_progress"
+      ]
+    },
+    {
+      "id": "analytics_dashboard",
+      "name": "Analytics Dashboard",
+      "description": "Access organisation-wide analytics",
+      "operations": [
+        "view_dashboard",
+        "generate_reports",
+        "export_data",
+        "compare_periods",
+        "track_kpis"
+      ]
+    },
+    {
+      "id": "billing_overview",
+      "name": "Billing Overview",
+      "description": "Manage organisation billing and subscriptions",
+      "operations": [
+        "view_billing",
+        "manage_subscriptions",
+        "view_invoices",
+        "update_payment",
+        "download_statements"
+      ]
+    },
+    {
+      "id": "settings_management",
+      "name": "Settings Management",
+      "description": "Manage organisation settings and preferences",
+      "operations": [
+        "update_settings",
+        "manage_branding",
+        "configure_notifications",
+        "set_policies"
+      ]
+    },
+    {
+      "id": "user_administration",
+      "name": "User Administration",
+      "description": "Administer organisation users",
+      "operations": [
+        "manage_admins",
+        "set_permissions",
+        "audit_access",
+        "reset_passwords"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "progress",
+      "actions": ["view", "analyze", "report", "compare"],
+      "examples": [
+        "Show organisation analytics",
+        "Generate monthly report",
+        "Compare this quarter to last",
+        "What are our KPIs?"
+      ]
+    },
+    {
+      "category": "billing",
+      "actions": ["check", "manage", "export"],
+      "examples": [
+        "Show organisation billing",
+        "Download invoice",
+        "Update subscription",
+        "Export financial report"
+      ]
+    },
+    {
+      "category": "support",
+      "actions": ["help", "configure", "troubleshoot"],
+      "examples": [
+        "Help me configure settings",
+        "How do I add a tutor?",
+        "Troubleshoot integration"
+      ]
+    },
+    {
+      "category": "general",
+      "actions": ["dashboard", "overview", "status"],
+      "examples": [
+        "Show dashboard",
+        "Organisation overview",
+        "System status"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "get_organisation_stats",
+      "list_tutors",
+      "list_students",
+      "get_billing_summary",
+      "generate_report",
+      "update_settings"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["organisation"],
+    "rateLimit": {
+      "requests_per_minute": 50,
+      "tokens_per_minute": 15000
+    },
+    "dataAccess": {
+      "scope": "organisation",
+      "canViewAllTutors": true,
+      "canViewAllStudents": true,
+      "canManageBilling": true
+    }
+  }
+}

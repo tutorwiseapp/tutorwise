@@ -1,16 +1,18 @@
 /**
  * Filename: route.ts
  * Path: /api/sessions/create-free-help-session
- * Purpose: Create instant free help session (v5.9)
+ * Purpose: Create instant free help session with VirtualSpace whiteboard (v5.9)
  * Created: 2025-11-16
+ * Updated: 2026-02-14 - Added VirtualSpace whiteboard integration
  *
  * This endpoint bypasses ALL payment systems and creates an instant free session:
  * 1. Validates tutor is online
  * 2. Rate limits students (5 sessions per 7 days)
  * 3. Generates Google Meet link via meet.new
  * 4. Creates booking record (type: 'free_help', amount: 0)
- * 5. Sends notifications to tutor (placeholder for now)
- * 6. Returns meet link to student
+ * 5. Creates VirtualSpace session linked to booking
+ * 6. Sends notifications to tutor (placeholder for now)
+ * 7. Returns meet link + VirtualSpace URL to student
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -158,15 +160,56 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 9. TODO: Send notifications to tutor
+    // 9. Create VirtualSpace session linked to booking (v5.9)
+    let virtualspaceUrl: string | null = null;
+    let virtualspaceSessionId: string | null = null;
+
+    try {
+      const { data: vsSession, error: vsError } = await supabase
+        .from('virtualspace_sessions')
+        .insert({
+          session_type: 'free_help',
+          booking_id: booking.id,
+          title: `Free Help: ${tutorProfile.full_name}`,
+          owner_id: tutorId, // Tutor is the owner
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (!vsError && vsSession) {
+        virtualspaceSessionId = vsSession.id;
+
+        // Add both tutor and student as participants
+        await supabase.from('virtualspace_participants').insert([
+          { session_id: vsSession.id, user_id: tutorId, role: 'owner' },
+          { session_id: vsSession.id, user_id: user.id, role: 'collaborator' },
+        ]);
+
+        // Build VirtualSpace URL
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+        virtualspaceUrl = `${baseUrl}/virtualspace/${vsSession.id}`;
+
+        console.log(`[Free Help] VirtualSpace session created: ${vsSession.id}`);
+      } else {
+        console.error('[Free Help] Failed to create VirtualSpace session:', vsError);
+        // Non-fatal: continue without whiteboard
+      }
+    } catch (vsCreateError) {
+      console.error('[Free Help] VirtualSpace creation error:', vsCreateError);
+      // Non-fatal: continue without whiteboard
+    }
+
+    // 10. TODO: Send notifications to tutor
     // For now, this is a placeholder. Future implementation will:
     // - Send high-priority email via Resend
     // - Send push notification to tutor's devices
-    // - Include student name, meet link, and "Join Now" button
+    // - Include student name, meet link, virtualspace link, and "Join Now" button
     console.log(`[Free Help] Session created - notifying tutor ${tutorId}`);
     console.log(`[Free Help] Student: ${studentProfile.full_name} (${studentProfile.email})`);
     console.log(`[Free Help] Tutor: ${tutorProfile.full_name} (${tutorProfile.email})`);
     console.log(`[Free Help] Meet URL: ${meetUrl}`);
+    console.log(`[Free Help] VirtualSpace URL: ${virtualspaceUrl || 'Not created'}`);
     console.log(`[Free Help] Booking ID: ${booking.id}`);
 
     // TODO: Implement notification system
@@ -178,18 +221,22 @@ export async function POST(req: NextRequest) {
     //   bookingId: booking.id,
     // });
 
-    // 10. Return success with meet URL
+    // 11. Return success with meet URL and VirtualSpace URL
     return NextResponse.json({
       success: true,
       bookingId: booking.id,
       meetUrl,
+      virtualspaceUrl, // VirtualSpace whiteboard URL (v5.9)
+      virtualspaceSessionId,
       sessionDetails: {
         tutorName: tutorProfile.full_name,
         scheduledFor: scheduledFor.toISOString(),
         durationMinutes: 30,
         type: 'free_help',
       },
-      message: 'Free help session created! Joining meeting now...',
+      message: virtualspaceUrl
+        ? 'Free help session created with whiteboard! Opening VirtualSpace...'
+        : 'Free help session created! Joining meeting now...',
     });
   } catch (error) {
     console.error('[Create Free Help Session] Error:', error);

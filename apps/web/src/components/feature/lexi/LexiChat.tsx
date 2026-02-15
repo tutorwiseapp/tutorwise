@@ -173,7 +173,14 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
       const response = await fetch('/api/lexi/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId, rating }),
+        body: JSON.stringify({
+          messageId,
+          sessionId: session?.sessionId,
+          rating,
+          context: {
+            persona: session?.persona,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -182,7 +189,7 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
     } catch (err) {
       console.error('[LexiChat] Feedback error:', err);
     }
-  }, []);
+  }, [session]);
 
   // Get persona display name based on user role
   const getPersonaTitle = (persona?: string) => {

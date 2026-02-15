@@ -464,7 +464,7 @@ export default function BookingsPage() {
                 key={booking.id}
                 booking={booking}
                 viewMode={viewMode}
-                isOnline={booking.delivery_mode !== 'in_person'} // online or hybrid sessions support WiseSpace
+                isOnline={booking.delivery_mode !== 'in_person'} // online or hybrid sessions support VirtualSpace
                 onPayNow={activeRole === 'client' ? handlePayNow : undefined}
                 onReschedule={handleReschedule}
                 onCancel={handleCancel}

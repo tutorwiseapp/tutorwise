@@ -208,7 +208,7 @@ export async function POST(
         status: 'Confirmed',
         scheduling_status: 'scheduled',
         requires_payment: false,
-        message: 'Session confirmed! You can now access WiseSpace.',
+        message: 'Session confirmed! You can now access VirtualSpace.',
       });
     } else {
       // PAID SESSION: Create Stripe checkout session

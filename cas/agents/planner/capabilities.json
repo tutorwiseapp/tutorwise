@@ -1,0 +1,107 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS Planner Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "planner",
+  "description": "Strategic planning and task orchestration for the TutorWise development ecosystem",
+  "capabilities": [
+    {
+      "id": "sprint_planning",
+      "name": "Sprint Planning",
+      "description": "Plan and organize development sprints",
+      "operations": [
+        "create_sprint",
+        "prioritize_tasks",
+        "assign_agents",
+        "estimate_effort",
+        "identify_dependencies"
+      ]
+    },
+    {
+      "id": "task_orchestration",
+      "name": "Task Orchestration",
+      "description": "Coordinate work across CAS agents",
+      "operations": [
+        "dispatch_task",
+        "monitor_progress",
+        "handle_blockers",
+        "reassign_work",
+        "escalate_issues"
+      ]
+    },
+    {
+      "id": "retrospective",
+      "name": "Retrospective Analysis",
+      "description": "Review and improve development processes",
+      "operations": [
+        "analyze_commits",
+        "review_blockers",
+        "identify_improvements",
+        "generate_insights",
+        "update_plans"
+      ]
+    },
+    {
+      "id": "roadmap_management",
+      "name": "Roadmap Management",
+      "description": "Manage product roadmap and milestones",
+      "operations": [
+        "update_roadmap",
+        "track_milestones",
+        "forecast_delivery",
+        "adjust_priorities"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "planning",
+      "actions": ["create", "update", "review", "prioritize"],
+      "examples": [
+        "Plan the next sprint",
+        "What's blocking progress?",
+        "Review last week's commits",
+        "Update the roadmap"
+      ]
+    },
+    {
+      "category": "orchestration",
+      "actions": ["dispatch", "monitor", "reassign"],
+      "examples": [
+        "Assign this task to Developer",
+        "Check progress on feature X",
+        "Escalate this blocker"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "create_sprint",
+      "dispatch_task",
+      "run_retrospective",
+      "update_plan",
+      "get_agent_status"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 60,
+      "tokens_per_minute": 30000
+    },
+    "canOrchestrate": [
+      "analyst",
+      "developer",
+      "tester",
+      "qa",
+      "security",
+      "engineer",
+      "marketer"
+    ]
+  },
+  "messageTypes": ["task", "status", "feedback", "escalation"],
+  "integrations": ["jira", "github", "slack", "calendar"]
+}

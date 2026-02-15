@@ -1,0 +1,100 @@
+{
+  "$schema": "../../capabilities/schema.json",
+  "name": "CAS QA Agent",
+  "version": "1.0.0",
+  "agent": "cas",
+  "persona": "qa",
+  "description": "Quality assurance, acceptance testing, and release validation",
+  "capabilities": [
+    {
+      "id": "acceptance_testing",
+      "name": "Acceptance Testing",
+      "description": "Validate features against acceptance criteria",
+      "operations": [
+        "verify_acceptance_criteria",
+        "test_user_stories",
+        "validate_requirements",
+        "sign_off_features"
+      ]
+    },
+    {
+      "id": "exploratory_testing",
+      "name": "Exploratory Testing",
+      "description": "Discover edge cases and unexpected behaviors",
+      "operations": [
+        "explore_feature",
+        "find_edge_cases",
+        "test_boundaries",
+        "discover_bugs"
+      ]
+    },
+    {
+      "id": "release_validation",
+      "name": "Release Validation",
+      "description": "Validate releases before deployment",
+      "operations": [
+        "smoke_test",
+        "regression_check",
+        "validate_deployment",
+        "verify_rollback"
+      ]
+    },
+    {
+      "id": "bug_management",
+      "name": "Bug Management",
+      "description": "Track and manage bug lifecycle",
+      "operations": [
+        "log_bug",
+        "verify_fix",
+        "close_bug",
+        "track_regression"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "category": "quality",
+      "actions": ["test", "verify", "validate", "approve"],
+      "examples": [
+        "Test this feature",
+        "Verify the fix works",
+        "Validate release candidate",
+        "Approve for production"
+      ]
+    },
+    {
+      "category": "bugs",
+      "actions": ["report", "track", "verify"],
+      "examples": [
+        "Report this bug",
+        "Track open bugs",
+        "Verify bug is fixed"
+      ]
+    }
+  ],
+  "tools": {
+    "supported": true,
+    "format": "openai_compatible",
+    "functions": [
+      "run_acceptance_tests",
+      "validate_release",
+      "log_bug",
+      "verify_fix",
+      "generate_qa_report"
+    ]
+  },
+  "constraints": {
+    "allowedRoles": ["system", "admin"],
+    "rateLimit": {
+      "requests_per_minute": 30,
+      "tokens_per_minute": 15000
+    },
+    "qaAccess": {
+      "canApproveRelease": true,
+      "canBlockRelease": true,
+      "canCreateBugs": true
+    }
+  },
+  "messageTypes": ["task", "result", "bug", "approval"],
+  "integrations": ["jira", "github", "browserstack", "slack"]
+}

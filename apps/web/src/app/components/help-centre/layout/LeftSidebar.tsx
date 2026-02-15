@@ -57,7 +57,7 @@ const CATEGORIES: Category[] = [
       { title: 'EduPay', slug: 'edupay' },
       { title: 'Messages', slug: 'messages' },
       { title: 'Free Help Now', slug: 'free-help-now' },
-      { title: 'Wisespace', slug: 'wisespace' },
+      { title: 'VirtualSpace', slug: 'virtualspace' },
       { title: 'My Students', slug: 'my-students' },
       { title: 'Integrations', slug: 'integrations' },
       { title: 'Advanced Agents Guide', slug: 'agents-guide' },

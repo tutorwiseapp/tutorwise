@@ -1,0 +1,149 @@
+name: CAS Auto-Plan Updater
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  analyze-commits:
+    name: Analyze Commits & Update Plans
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10  # Get recent commits for analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Get commit info
+        id: commits
+        run: |
+          # Get recent commits
+          COMMITS=$(git log --oneline -10 --pretty=format:'%h|%s|%an' | head -10)
+          echo "recent_commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # Count commits by type
+          FEATURES=$(git log --oneline -50 | grep -c -E '^[a-f0-9]+ feat' || true)
+          FIXES=$(git log --oneline -50 | grep -c -E '^[a-f0-9]+ fix' || true)
+          REFACTORS=$(git log --oneline -50 | grep -c -E '^[a-f0-9]+ refactor' || true)
+
+          echo "feature_count=$FEATURES" >> $GITHUB_OUTPUT
+          echo "fix_count=$FIXES" >> $GITHUB_OUTPUT
+          echo "refactor_count=$REFACTORS" >> $GITHUB_OUTPUT
+
+      - name: Check for blockers
+        id: blockers
+        run: |
+          # Look for TODO, FIXME, HACK in changed files
+          BLOCKERS=$(grep -r -l -E '(TODO|FIXME|HACK):' --include='*.ts' --include='*.tsx' apps/ packages/ lexi/ sage/ cas/ 2>/dev/null | wc -l || echo "0")
+          echo "blocker_count=$BLOCKERS" >> $GITHUB_OUTPUT
+
+      - name: Generate plan update
+        id: plan_update
+        run: |
+          cat << 'EOF' > /tmp/plan-update.md
+          ## Auto-Generated Plan Update
+
+          **Date:** $(date -u +"%Y-%m-%d %H:%M UTC")
+          **Trigger:** ${{ github.event_name }}
+          **Branch:** ${{ github.ref_name }}
+
+          ### Recent Activity
+          - Features: ${{ steps.commits.outputs.feature_count }}
+          - Fixes: ${{ steps.commits.outputs.fix_count }}
+          - Refactors: ${{ steps.commits.outputs.refactor_count }}
+
+          ### Files with TODOs/FIXMEs: ${{ steps.blockers.outputs.blocker_count }}
+
+          ### Recent Commits
+          ```
+          ${{ steps.commits.outputs.recent_commits }}
+          ```
+
+          ### Recommendations
+          - Review any new TODOs for sprint planning
+          - Check if features align with roadmap
+          - Consider running retrospective if >5 features merged
+          EOF
+
+          echo "Generated plan update"
+
+      - name: Update CAS plan file
+        run: |
+          # Append to plan log
+          mkdir -p docs/cas/logs
+
+          cat << EOF >> docs/cas/logs/auto-updates.md
+
+          ---
+
+          ## Update: $(date -u +"%Y-%m-%d %H:%M UTC")
+
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+
+          ### Commit Stats (last 50)
+          - Features: ${{ steps.commits.outputs.feature_count }}
+          - Fixes: ${{ steps.commits.outputs.fix_count }}
+          - Refactors: ${{ steps.commits.outputs.refactor_count }}
+          - Files with TODOs: ${{ steps.blockers.outputs.blocker_count }}
+
+          EOF
+
+      - name: Check if plan update needed
+        id: check_update
+        run: |
+          # Check if any CAS/Lexi/Sage files changed
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -E '^(cas|lexi|sage)/' | wc -l || echo "0")
+          echo "cas_changes=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Commit plan updates
+        if: steps.check_update.outputs.cas_changes > 0
+        run: |
+          git config --local user.email "cas-planner@tutorwise.ai"
+          git config --local user.name "CAS Planner Agent"
+
+          # Check if there are changes to commit
+          if git diff --quiet docs/cas/logs/; then
+            echo "No changes to commit"
+          else
+            git add docs/cas/logs/
+            git commit -m "chore(cas): auto-update plan logs [skip ci]
+
+            Automated plan update from CAS Planner Agent.
+            Analyzed ${GITHUB_SHA::7} on ${{ github.ref_name }}
+
+            Co-Authored-By: CAS Planner Agent <cas-planner@tutorwise.ai>"
+
+            # Only push on main branch
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              git push
+            fi
+          fi
+
+  notify-on-blockers:
+    name: Notify on High Blocker Count
+    runs-on: ubuntu-latest
+    needs: analyze-commits
+    if: needs.analyze-commits.outputs.blocker_count > 20
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "High blocker count detected: ${{ needs.analyze-commits.outputs.blocker_count }}"
+          # In production, would send to Slack or create issue
