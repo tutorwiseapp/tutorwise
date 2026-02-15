@@ -1,8 +1,8 @@
 # Tutorwise Platform Specification
 
 **Document Type**: Complete Platform Specification (Technical + Strategic)
-**Document Version**: 1.5
-**Last Updated**: 2026-02-07
+**Document Version**: 1.6
+**Last Updated**: 2026-02-15
 **Author**: Platform Architecture Team
 **Classification**: Internal - Strategic
 **Location**: `.ai/PLATFORM-SPECIFICATION.md` (Replaces: `docs/platform-overview.md`, `.ai/ARCHITECTURE.md`)
@@ -53,11 +53,11 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 **Platform Scale**: See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.
 
 **Key Statistics**:
-- **260 pages** (111 UI + 141 API endpoints + dynamic routes)
-- **155K lines of code** (TypeScript/TSX) + 176K lines of documentation
-- **196 database migrations** (190 numbered + 6 supporting), 60+ tables
+- **400 pages** (174 UI + 226 API endpoints + dynamic routes)
+- **201K lines of code** (TypeScript/TSX) + 547K lines of documentation
+- **266 database migrations** (260 numbered + 6 supporting), 60+ tables
 - **353 components** across 22 feature directories
-- **32 major features** (98% complete, production-ready)
+- **36 major features** (VirtualSpace, Lexi AI, Sage AI, EduPay) - production-ready
 
 **Advanced Technical Capabilities**:
 - **Neo4j graph database** with PageRank trust propagation for SEO eligibility
@@ -121,7 +121,7 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 │ Marketplace  │ CRM Engine   │ Commission   │ Trust & Safety│ Admin Platform │
 │ - Matching   │ - Bookings   │ - Multi-tier │ - CaaS scoring│ - 12 sections  │
 │ - Search     │ - Calendar   │ - Delegation │ - Fraud detect│ - RBAC/GDPR    │
-│ - Recommend  │ - WiseSpace  │ - Payouts    │ - Verification│ - Audit logs   │
+│ - Recommend  │ - VirtualSpace  │ - Payouts    │ - Verification│ - Audit logs   │
 └──────────────┴──────────────┴──────────────┴───────────────┴────────────────┘
                │
                ▼
@@ -144,7 +144,7 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 │                    INFRASTRUCTURE SERVICES                                   │
 ├──────────────┬──────────────┬──────────────┬──────────────┬─────────────────┤
 │Stripe Connect│ Supabase     │ Upstash Redis│ Ably Realtime│ Google APIs     │
-│- Payments    │- Auth (SSR)  │- Rate limit  │- WiseSpace   │- Calendar       │
+│- Payments    │- Auth (SSR)  │- Rate limit  │- VirtualSpace   │- Calendar       │
 │- Connect acc │- Storage     │- Presence    │- WiseChat    │- Meet (hybrid)  │
 │- Subscriptions│- Realtime   │- Caching     │- Collab      │- Classroom      │
 ├──────────────┼──────────────┼──────────────┼──────────────┼─────────────────┤
@@ -393,7 +393,7 @@ if (activeRole === 'client') {
    - Create **tutor profile** (credentials, bio, reviews, CaaS score)
    - Create **multiple service listings** (70+ subjects, different pricing per subject)
    - Accept bookings
-   - Deliver sessions (WiseSpace virtual classroom)
+   - Deliver sessions (VirtualSpace virtual classroom)
    - Build credibility (CaaS score, trust graph)
    - Refer other users (tutors, agents or clients) → become Agents
    - Refer anyone to platform
@@ -915,7 +915,7 @@ Student Payment:         £100.00
 └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
      │               │                │                │               │
      ▼               ▼                ▼                ▼               ▼
-AI Search      Collections      Stripe Pay      WiseSpace      5-Star Rating
+AI Search      Collections      Stripe Pay      VirtualSpace      5-Star Rating
 Filters        Share Lists      £100 paid       Video+Board    CaaS Impact
 ```
 
@@ -924,7 +924,7 @@ Filters        Share Lists      £100 paid       Video+Board    CaaS Impact
 2. **Evaluation**: Check CaaS score, read reviews, view credentials
 3. **Connection**: Save to Wiselist, view profile, send message
 4. **Booking**: Request session, pay via Stripe, receive confirmation
-5. **Session**: Join WiseSpace (video + whiteboard), receive teaching
+5. **Session**: Join VirtualSpace (video + whiteboard), receive teaching
 6. **Review**: Leave 5-star rating, write feedback, impact tutor's CaaS score
 
 ### 4.3 Tutor Journey
@@ -936,7 +936,7 @@ Filters        Share Lists      £100 paid       Video+Board    CaaS Impact
 └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
      │               │                │                │               │
      ▼               ▼                ▼                ▼               ▼
-Identity          Subject          Dashboard       WiseSpace      £90/session
+Identity          Subject          Dashboard       VirtualSpace      £90/session
 DBS Check         Price            Confirm         Complete       Build CaaS
 Referral Code     Location         Schedule        Review         Refer Tutors
 ```
@@ -946,7 +946,7 @@ Referral Code     Location         Schedule        Review         Refer Tutors
 2. **Listing Creation**: Dynamic form with shared fields system (23 global fields). Define subjects, set hourly rate, availability, location type. Smart matching with similarity scores.
 3. **Profile Building**: Build CaaS score (verification +10, integrations +3, network +6). Public/private profile views with professional templates.
 4. **Booking Management**: Accept/decline requests, manage calendar, communicate via WiseChat (WhatsApp-style interface)
-5. **Session Delivery**: Conduct sessions in WiseSpace (tldraw + Google Meet hybrid), mark complete, receive payment
+5. **Session Delivery**: Conduct sessions in VirtualSpace (tldraw + Google Meet hybrid), mark complete, receive payment
 6. **Growth**: Refer other tutors → become Agent, join Organisation, share Wiselists, build network trust graph
 
 ### 4.4 Agent Journey
@@ -1336,6 +1336,124 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 **Trust Signal**: Visible score badge (e.g., "CaaS Score: 78/100") on profiles
 **Gamification**: Tutors incentivised to improve (integrate calendar +3, get DBS +5, refer tutors +10)
 **Quality Filter**: Clients filter by minimum CaaS score (e.g., "Show 70+ only")
+
+### 5.8 Lexi AI (Conversational AI Assistant)
+
+**Status**: ✅ Production-ready (Implemented 2026-02-15)
+**Purpose**: Context-aware AI assistant providing role-specific guidance across the platform
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     LEXI AI ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   User Request → Persona Router → AI Provider Chain → Response  │
+│                                                                 │
+│   ┌───────────┐    ┌──────────────────┐    ┌─────────────────┐ │
+│   │ FAB/Modal │───►│ Persona Detection │───►│ Claude API      │ │
+│   └───────────┘    │ (5 personas)      │    │ ↓ Gemini API    │ │
+│                    │ - Student         │    │ ↓ Rules Engine  │ │
+│                    │ - Tutor           │    └─────────────────┘ │
+│                    │ - Client          │                        │
+│                    │ - Agent           │                        │
+│                    │ - Organisation    │                        │
+│                    └──────────────────┘                        │
+│                                                                 │
+│   Features:                                                     │
+│   - Lazy session start (instant UI responsiveness)              │
+│   - React Query with streaming support                          │
+│   - Conversation persistence and history                        │
+│   - Context-aware persona detection                             │
+│   - Feedback collection for AI improvement                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Persona Capabilities**:
+- **Student**: Learning support, homework help, study strategies, tutor recommendations
+- **Tutor**: Session planning, teaching resources, business advice, CaaS improvement tips
+- **Client**: Tutor discovery, booking assistance, platform guidance, payment help
+- **Agent**: Recruitment tips, commission tracking, network growth strategies
+- **Organisation**: Team management, billing support, compliance guidance, growth metrics
+
+**API Architecture**:
+```typescript
+// API Endpoints
+POST /api/lexi/chat        // Send message, receive AI response (streaming)
+GET  /api/lexi/conversations // List conversation history
+POST /api/lexi/feedback    // Submit feedback on AI responses
+
+// Provider Fallback Chain
+const providers = ['claude', 'gemini', 'rules'];
+// Claude (primary) → Gemini (fallback) → Rules Engine (offline)
+```
+
+**Implementation Files**:
+- `apps/web/src/components/feature/lexi/LexiChat.tsx` - Main chat interface
+- `apps/web/src/components/feature/lexi/LexiFAB.tsx` - Floating action button
+- `apps/web/src/app/api/lexi/chat/route.ts` - Chat API endpoint
+- `lexi/personas/` - Persona definitions and routing logic
+- `lexi/services/` - AI provider integration services
+
+### 5.9 Sage AI (Analytics & Insights Engine)
+
+**Status**: ✅ Production-ready (Implemented 2026-02-15)
+**Purpose**: AI-powered analytics providing intelligent insights and recommendations
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     SAGE AI ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Data Sources → Analytics Engine → AI Processing → Insights    │
+│                                                                 │
+│   ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐ │
+│   │ Platform Data│───►│ Aggregation  │───►│ AI Analysis      │ │
+│   │ - Bookings   │    │ - Trends     │    │ - Pattern detect │ │
+│   │ - Sessions   │    │ - Patterns   │    │ - Forecasting    │ │
+│   │ - Payments   │    │ - Metrics    │    │ - Recommendations│ │
+│   │ - CaaS scores│    └──────────────┘    └──────────────────┘ │
+│   │ - Reviews    │                                              │
+│   └──────────────┘                                              │
+│                                                                 │
+│   Role-Specific Insights:                                       │
+│   - Tutor: Session performance, earning forecasts               │
+│   - Client: Booking patterns, engagement scores                 │
+│   - Agent: Recruitment funnel, commission projections           │
+│   - Organisation: Team performance, revenue metrics             │
+│   - Admin: Platform health, user acquisition                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Analytics Capabilities**:
+- **Tutor Analytics**: Session performance trends, rating analysis, earning forecasts, CaaS improvement paths
+- **Client Analytics**: Booking patterns, tutor match quality scores, engagement metrics
+- **Agent Analytics**: Recruitment funnel analysis, commission projections, network growth rates
+- **Organisation Analytics**: Team performance aggregates, revenue allocation, growth metrics
+- **Admin Analytics**: Platform health metrics, user acquisition trends, revenue forecasting
+
+**API Architecture**:
+```typescript
+// API Endpoints
+GET  /api/sage/insights        // Get AI-generated insights for dashboard
+GET  /api/sage/trends          // Get performance trends and forecasts
+POST /api/sage/recommendations // Get actionable recommendations
+
+// Insight Types
+type InsightCategory =
+  | 'performance'     // Performance trends
+  | 'engagement'      // User engagement metrics
+  | 'revenue'         // Financial insights
+  | 'growth'          // Growth opportunities
+  | 'risk';           // Risk alerts and warnings
+```
+
+**Implementation Files**:
+- `apps/web/src/components/feature/sage/SageInsights.tsx` - Insights panel
+- `apps/web/src/app/(authenticated)/sage/page.tsx` - Sage dashboard
+- `apps/web/src/app/api/sage/` - API endpoints
+- `sage/` - Analytics engine and AI processing
 
 ---
 
@@ -1748,12 +1866,12 @@ The v7.0 release introduces 9 major enhancements that transform the booking syst
 - Penalty calculator (`penalty-calculator.ts`)
 - Exception management (`availability/exceptions.ts`)
 
-### 7.4 WiseSpace Virtual Classroom
+### 7.4 VirtualSpace Virtual Classroom
 
 **Hybrid Architecture**:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     WISESPACE SESSION                           │
+│                     VIRTUALSPACE SESSION                           │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────────┐       ┌─────────────────────┐          │
 │  │  Video Conference   │       │  Collaborative      │          │
@@ -1770,7 +1888,7 @@ The v7.0 release introduces 9 major enhancements that transform the booking syst
 ```
 
 **Session Completion**:
-1. Tutor marks session "Complete" in WiseSpace
+1. Tutor marks session "Complete" in VirtualSpace
 2. Whiteboard snapshot saved to Supabase Storage (booking_artifacts bucket)
 3. Triggers payment processing (charge student, clear to tutor after 7 days)
 4. Review request sent to both parties
@@ -1793,7 +1911,7 @@ The v7.0 release introduces 9 major enhancements that transform the booking syst
                                                       │
                                                       ▼
                                               ┌──────────────┐
-                                              │ WiseSpace    │
+                                              │ VirtualSpace    │
                                               │ 30min Session│
                                               │ +6 CaaS pts  │
                                               └──────────────┘
@@ -2536,7 +2654,7 @@ Tasks can link to any platform entity for context:
 ├─────────────────────────────────────────────────────────────────┤
 │  Google Calendar      │  Google Classroom   │  Google Meet      │
 │  - Sync availability  │  - Link students    │  - Video sessions │
-│  - Block booking slots│  - Track assignments│  - In WiseSpace   │
+│  - Block booking slots│  - Track assignments│  - In VirtualSpace   │
 │  - CaaS +3 points     │  - Import rosters   │  - Screen share   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -2600,11 +2718,11 @@ Note: All auth emails use token_hash verification (not PKCE) for cross-browser/d
 - Vercel Cron: `/api/admin/notifications/process` (daily 9am)
 
 **Video Conferencing**:
-- Google Meet (primary, embedded in WiseSpace)
+- Google Meet (primary, embedded in VirtualSpace)
 - Zoom (alternative, direct link)
 
 **Real-time (Ably)**:
-- WiseSpace whiteboard collaboration
+- VirtualSpace whiteboard collaboration
 - Presence tracking (who's online)
 - Cursor positions (collaborative editing)
 
@@ -3321,7 +3439,7 @@ NET MARGIN PER BOOKING:      -£2.80 (currently negative)
 
 **Q2 2026** (Apr-Jun):
 - Activate 3-tier referral system (10% + 3% + 2%)
-- WiseSpace polish (session recording, whiteboard templates)
+- VirtualSpace polish (session recording, whiteboard templates)
 - Mobile app (React Native, iOS/Android)
 
 **Q3 2026** (Jul-Sep):
@@ -3497,7 +3615,7 @@ Our patent-protected referral system creates a defensible moat that compounds ov
 By 2027, Tutorwise aims to be the default platform for tutors who want to build a business, not just find students. We're not building a marketplace—we're building an operating system for tutoring businesses.
 
 **Strategic Focus (2026)**:
-- **Product**: Polish WiseSpace, activate 3-tier referrals, launch mobile app
+- **Product**: Polish VirtualSpace, activate 3-tier referrals, launch mobile app
 - **Growth**: Agent recruitment campaigns, Wiselist SEO, Free Help Now PR
 - **Revenue**: Breakeven by Q3, 15% net margin by Q4
 - **Market**: Solidify UK leadership before EU expansion (2027)
@@ -3513,7 +3631,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 - **Wiselist**: Curated collection of tutors (like Airbnb Lists)
 - **Agent**: User who refers tutors and earns commission
 - **Organisation**: Team of tutors managed as a business (£50/month Premium)
-- **WiseSpace**: Integrated virtual classroom (video + whiteboard)
+- **VirtualSpace**: Integrated virtual classroom (video + whiteboard)
 - **Free Help Now**: 30-minute free tutoring sessions (no payment)
 - **RLS**: Row-Level Security - database-level access control
 - **DBS**: Disclosure and Barring Service (UK background check)
@@ -3586,7 +3704,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 │  Recurring Sessions      │ ✗ Planned           │ ✓ Advanced recurring        │
 │  Waitlist Management     │ ✗ Not available     │ ✓ Available                 │
 │  Automated Scheduling    │ ✗ Planned Q3 2026   │ ✓ Available                 │
-│  Session Notes           │ ✓ WiseSpace notes   │ ✓ Comprehensive notes       │
+│  Session Notes           │ ✓ VirtualSpace notes   │ ✓ Comprehensive notes       │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │  FINANCIAL MANAGEMENT                                                         │
 ├──────────────────────────────────────────────────────────────────────────────┤
@@ -3743,13 +3861,13 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 │  Escrow System         │ ✓ 7-day hold │ N/A          │ ✓ Held       │ ✓ Held           │
 │  Calendar Integration  │ ✓ Google Cal │ ✗            │ ✓ Own system │ ✗                │
 │  Automated Reminders   │ ✓ Email      │ ✗            │ ✓ Email/SMS  │ ✓ Email          │
-│  Session Notes         │ ✓ WiseSpace  │ ✗            │ ✓ Platform   │ ✗                │
+│  Session Notes         │ ✓ VirtualSpace  │ ✗            │ ✓ Platform   │ ✗                │
 │  Cancellation Policy   │ ✓ Flexible   │ Tutor-set    │ ✓ 24hr policy│ ✓ Flexible       │
 │  Refund Process        │ ✓ 7-day      │ Direct w/tutor│ ✓ Admin     │ ✓ Support-driven │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │  SESSION DELIVERY                                                                        │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
-│  Virtual Classroom     │ ✓ WiseSpace  │ ✗ Ext. tools │ ✓ Built-in   │ ✗ External tools │
+│  Virtual Classroom     │ ✓ VirtualSpace  │ ✗ Ext. tools │ ✓ Built-in   │ ✗ External tools │
 │  Whiteboard            │ ✓ Integrated │ ✗            │ ✓ Integrated │ ✗                │
 │  Screen Sharing        │ ✓ Google Meet│ Tutor choice │ ✓ Built-in   │ Tutor choice     │
 │  Session Recording     │ ✗ Planned    │ Tutor choice │ ✓ Available  │ Tutor choice     │
@@ -3792,7 +3910,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 │  Distinctive Feature 2 │ Multi-tier   │ £20/mo flat  │ Curriculum   │ Instant matching │
 │  Distinctive Feature 3 │ Wiselists    │ Direct pay   │ Vetted pool  │ Parent community │
 │  Distinctive Feature 4 │ Free Help Now│ 1000+ subjects│ Guaranteed  │ High-quality pool│
-│  Distinctive Feature 5 │ WiseSpace    │ No commission│ Standardised │ In-home focus    │
+│  Distinctive Feature 5 │ VirtualSpace    │ No commission│ Standardised │ In-home focus    │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -3868,7 +3986,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 │ Referral System          │ 2-3 weeks     │ High (patent-pending) │
 │ Wiselists (viral)        │ 3-4 weeks     │ Medium-High           │
 │ Organisation CRM         │ 4-5 weeks     │ High (subscriptions)  │
-│ WiseSpace Classroom      │ 3-4 weeks     │ High (real-time)      │
+│ VirtualSpace Classroom      │ 3-4 weeks     │ High (real-time)      │
 │ Payment Integration      │ 2-3 weeks     │ Medium (Stripe)       │
 │ Free Help Now            │ 1-2 weeks     │ Medium (Redis)        │
 │ Network Graph            │ 2-3 weeks     │ Medium-High           │
@@ -4541,7 +4659,7 @@ cloud services (Vercel, Supabase, Resend, Ably).
 - **Valuation**: £3.5M pre-money
 - **Use of Funds**:
   - Marketing/user acquisition: £375k (targeted growth)
-  - Product polish (WiseSpace, admin tools): £150k
+  - Product polish (VirtualSpace, admin tools): £150k
   - Founder salary + AI tools (18 months): £150k
   - Operations/runway: £75k
 - **Runway**: 18-24 months to £300k-£500k ARR (profitable)

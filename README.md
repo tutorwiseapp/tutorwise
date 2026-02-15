@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Mar 2026)
-**Last Updated**: 2026-02-07
+**Last Updated**: 2026-02-15
 
 ---
 
@@ -17,7 +17,7 @@ Key Pillars & Capabilities
 1. AI-Powered Credibility (CaaS)
 The platform features a built-in Credibility as a Service (CaaS) engine. This system automatically scores tutor reliability and professionalism based on verified "Proof of Work" data points—such as completed sessions and saved artifacts—rather than just subjective reviews.
 
-2. WiseSpace (Hybrid Virtual Classroom)
+2. VirtualSpace (Hybrid Virtual Classroom)
 A cost-optimized, zero-marginal-cost virtual learning environment. It employs a "Hybrid Model" that embeds a collaborative whiteboard (powered by tldraw and Ably real-time sync) alongside external video conferencing (Google Meet integration), ensuring a robust classroom experience without heavy infrastructure costs.
 
 3. Collaborative Wiselists (Planning & Growth)
@@ -33,7 +33,13 @@ Network: A LinkedIn-style connection graph allowing Agents to manage tutor roste
 5. Contextual Autonomous System (CAS)
 The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing.
 
-Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a professional marketplace with powerful CRM tools. Featuring the WiseSpace hybrid classroom, CaaS credibility scoring, and Collaborative Wiselists, it empowers Tutors, Students, and Agents to connect, plan, and learn within a single, trust-based network.
+6. Lexi AI (Conversational AI Assistant)
+An AI-powered conversational assistant that provides context-aware support across the platform. Built with persona-based routing (Student, Tutor, Client, Agent, Organisation) to deliver role-specific guidance. Features lazy session start for instant UI, streaming responses, and feedback collection for continuous improvement.
+
+7. Sage AI (Analytics & Insights Engine)
+An AI-powered analytics engine providing intelligent data analysis, trend detection, and actionable recommendations. Delivers role-specific insights for tutors (performance trends, earning forecasts), clients (booking patterns), agents (recruitment funnel, commission projections), and organisations (team metrics).
+
+Short Description: TutorWise is an AI-enhanced tutoring ecosystem that merges a professional marketplace with powerful CRM tools. Featuring the VirtualSpace hybrid classroom, CaaS credibility scoring, Lexi AI assistant, Sage analytics, and Collaborative Wiselists, it empowers Tutors, Students, and Agents to connect, plan, and learn within a single, trust-based network.
 
 ---
 
@@ -268,7 +274,7 @@ CAS will apply 8 agent perspectives:
 - **Support Snapshots**: Database tracking with sync status
 - **Progressive Capture Levels**: Minimal/standard/diagnostic data collection
 
-### Core Features by Module (21 Features)
+### Core Features by Module (23 Features)
 - **Authentication**: Supabase Auth with OAuth and multi-role support
 - **Onboarding**: Page-based routing for all 3 roles (Tutor, Client, Agent) with zero data loss
 - **Profiles**: Dynamic profile management with public/private views
@@ -280,12 +286,14 @@ CAS will apply 8 agent perspectives:
 - **Network**: Connection management, groups, trust graph
 - **Students**: Student (child) relationship to the Client (parent) and the Tutor
 - **Wiselists**: Collaborative lists ("My Saves" feature) with sharing
-- **WiseSpace**: Hybrid virtual classroom with tldraw whiteboard + Google Meet
+- **VirtualSpace**: Hybrid virtual classroom with tldraw whiteboard + Google Meet (3 modes: standalone, booking, free help)
 - **Reviews**: Mutual review system with moderation
 - **CaaS**: Credibility scoring (Tutor complete, Agent/Org designed)
 - **Referrals**: Multi-tier attribution system with QR codes and gamification
 - **Financials**: Earnings tracking, transaction history, payout management
 - **EduPay**: Points-based rewards converting tutoring activity into student loan payments (Phases 1, 1.5 & 3 complete — PISP conversion in stub mode)
+- **Lexi AI**: Context-aware conversational AI assistant with 5 personas (Student, Tutor, Client, Agent, Organisation)
+- **Sage AI**: AI-powered analytics and insights engine with role-specific recommendations
 - **Organisations**: Team management, subscriptions, tasks, recruitment
 - **Developer Tools**: API key management, webhooks, integrations
 - **Help Centre**: In-app bug reporting with Jira Service Desk integration
@@ -684,20 +692,20 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 
 ## Project Status
 
-**Current Phase**: Final Implementation (95% Complete)
+**Current Phase**: Final Implementation (96% Complete)
 **Beta Release Target**: 1 Mar 2026
 **Target Launch**: Q2 2026
 
-### Development Activity (Oct 2025 - Jan 2026)
-- **1,400 commits** across 3.5 months
-- **82 new features** implemented
+### Development Activity (Oct 2025 - Feb 2026)
+- **1,450+ commits** across 4 months
+- **87 new features** implemented (including VirtualSpace, Lexi AI, Sage AI)
 - **151 bug fixes** resolved
-- **63 refactors** for code quality
+- **65 refactors** for code quality
 - **55 documentation** updates
-- **260 pages** implemented
-- **141 API endpoints** created
-- **192 database migrations** executed
-- **353 components** in library
+- **400 pages** implemented (174 UI + 226 API endpoints)
+- **226 API endpoints** created
+- **266 database migrations** executed
+- **382 components** in library
 
 **Recent Completions**:
 - ✅ **Onboarding System** (Jan 2026):
@@ -798,8 +806,25 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Message persistence via Supabase chat_messages table
   - ✅ File attachments and delivery status
   - ✅ Integration with Network connections
+- ✅ **VirtualSpace** (Feb 2026 - renamed from WiseSpace):
+  - ✅ Hybrid virtual classroom (tldraw whiteboard + Google Meet)
+  - ✅ Three session modes: standalone, booking-linked, free help
+  - ✅ Real-time collaboration via Ably channels
+  - ✅ Session list hub with Gold Standard patterns
+  - ✅ Invite link generation with secure tokens
+- ✅ **Lexi AI** (Feb 2026):
+  - ✅ Context-aware conversational AI assistant
+  - ✅ 5 personas: Student, Tutor, Client, Agent, Organisation
+  - ✅ Anthropic Claude API with Gemini fallback
+  - ✅ Lazy session start for instant UI responsiveness
+  - ✅ Feedback collection for AI improvement
+- ✅ **Sage AI** (Feb 2026):
+  - ✅ AI-powered analytics and insights engine
+  - ✅ Role-specific performance insights and forecasts
+  - ✅ Booking pattern recognition and recommendations
+  - ✅ CaaS score improvement suggestions
 
-**In Progress (Final 10%)**:
+**In Progress (Final 4%)**:
 - 🔄 Notification service and token configuration (70% complete)
 - 🔄 Legal documents (0% complete)
 - 🔄 Final mobile responsiveness polish (85% complete)
@@ -818,11 +843,11 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 
 **Planned (Post-Beta)**:
 - Review and ratings system expansion
-- Advanced analytics dashboard
+- Lexi AI and Sage AI enhancements
 - Multi-tier commission expansion (Tier 2-3)
-- WiseSpace virtual classroom v2
+- VirtualSpace v2 (session recording, whiteboard templates)
 - Mobile app (React Native)
-- Video call integration
+- Native video call integration
 
 ---
 

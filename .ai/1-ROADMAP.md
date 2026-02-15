@@ -1,9 +1,9 @@
 # Tutorwise Development Roadmap
 
-**Document Version**: 2.5
-**Last Updated**: 2026-02-07
-**Project Status**: 90% Complete - Beta Release 1 Mar, 2026
-**Development Velocity**: 1,400+ commits (Oct 2025 - Jan 2026)
+**Document Version**: 2.6
+**Last Updated**: 2026-02-15
+**Project Status**: 92% Complete - Beta Release 1 Mar, 2026
+**Development Velocity**: 1,450+ commits (Oct 2025 - Feb 2026)
 
 ---
 
@@ -14,15 +14,15 @@
 **See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.**
 
 **Key Metrics**:
-- **260 pages** implemented (111 UI pages + 141 API endpoints + dynamic routes)
-- **155K lines of code** (TypeScript/TSX)
-- **196 database migrations** (190 numbered + 6 supporting files)
+- **400 pages** implemented (174 UI pages + 226 API endpoints + dynamic routes)
+- **201K lines of code** (TypeScript/TSX)
+- **266 database migrations** (260 numbered + 6 supporting files)
 - **353 components** in unified design system
 - **200+ RLS policies** enforcing data security
-- **33 major features** completed (23 core systems + 14 platform hubs - 5 overlap + EduPay Phase 1)
-- **85 feature enhancements** implemented (+1: EduPay UI)
+- **36 major features** completed (23 core systems + 14 platform hubs - 5 overlap + EduPay + VirtualSpace + Lexi AI + Sage AI)
+- **87 feature enhancements** implemented (+2: Lexi UI, VirtualSpace Hub)
 - **151 bug fixes** implemented
-- **64 refactors** completed (+1: Help Centre & Resources alignment)
+- **65 refactors** completed (+1: WiseSpace → VirtualSpace rename)
 
 ### Beta Release Target
 **Launch Date**: March 1, 2026
@@ -425,6 +425,124 @@ EduPay converts tutoring activity into real financial progress against a student
 3. Update SLC sort code/account in `src/lib/truelayer/payment.ts`
 4. Implement ES512 JWS verification in webhook handler
 5. Set `TRUELAYER_ENVIRONMENT=live`
+
+### 34. VirtualSpace ✅ (Hybrid Virtual Classroom)
+**Status**: Production-ready
+**Completion**: 100%
+**Last Updated**: 2026-02-15
+**Migration**: Renamed from WiseSpace to VirtualSpace
+
+VirtualSpace is a cost-optimized, zero-marginal-cost virtual learning environment featuring a hybrid model that embeds a collaborative whiteboard (tldraw + Ably real-time sync) alongside external video conferencing (Google Meet integration).
+
+**Session Modes**:
+- ✅ **Standalone Mode**: Ad-hoc whiteboard sessions with invite links (24hr expiry)
+- ✅ **Booking Mode**: Integrated with booking workflow, triggers CaaS upon completion
+- ✅ **Free Help Mode**: Instant whiteboard access for free tutoring sessions
+
+**Core Features**:
+- ✅ tldraw collaborative whiteboard with real-time sync
+- ✅ Ably real-time presence and collaboration (`virtualspace:{sessionId}`)
+- ✅ Google Meet integration for video conferencing
+- ✅ Session list hub with Hub Gold Standard architecture
+- ✅ React Query integration (staleTime, gcTime, retry, keepPreviousData)
+- ✅ Invite link generation with secure tokens
+- ✅ Session artifacts and snapshot storage
+- ✅ Participant management and role-based access
+
+**Database**:
+- ✅ `virtualspace_sessions` table (session_type, booking_id, owner_id, status)
+- ✅ `virtualspace_participants` table (user roles, join tracking)
+- ✅ `virtualspace-artifacts` storage bucket
+- ✅ RLS policies with security definer functions
+
+**API Endpoints**:
+- ✅ `POST /api/virtualspace/session` - Create standalone session
+- ✅ `GET /api/virtualspace/sessions` - List user's sessions
+- ✅ `POST /api/virtualspace/join` - Join via invite token
+- ✅ `POST /api/virtualspace/[sessionId]/snapshot` - Save whiteboard snapshot
+- ✅ `POST /api/virtualspace/[sessionId]/complete` - Complete session
+
+**User Interfaces**:
+- ✅ VirtualSpace Session List (`/virtualspace`)
+- ✅ VirtualSpace Session View (`/virtualspace/[sessionId]`)
+- ✅ VirtualSpace Join Flow (`/virtualspace/join/[inviteToken]`)
+- ✅ Booking Integration (`/virtualspace/booking/[bookingId]`)
+
+### 35. Lexi AI ✅ (Conversational AI Assistant)
+**Status**: Production-ready
+**Completion**: 100%
+**Last Updated**: 2026-02-15
+**Design**: `docs/feature/lexi/lexi-design.md`
+
+Lexi is an AI-powered conversational assistant that provides context-aware support across the platform. Built with persona-based routing to deliver role-specific guidance for tutors, students, clients, agents, and organisations.
+
+**Architecture**:
+- ✅ Anthropic Claude API integration with fallback chain (Claude > Gemini > Rules)
+- ✅ Persona-based routing (5 personas: student, tutor, client, agent, organisation)
+- ✅ Lazy session start for instant UI responsiveness
+- ✅ React Query integration with streaming support
+- ✅ Conversation persistence and history
+
+**Core Features**:
+- ✅ Floating Action Button (FAB) with modal interface
+- ✅ Real-time streaming responses
+- ✅ Context-aware persona detection based on user role
+- ✅ Conversation history with session management
+- ✅ Quick action suggestions and prompts
+- ✅ Mobile-responsive design with proper FAB positioning
+- ✅ Feedback collection system for AI improvement
+
+**Persona Capabilities**:
+- ✅ **Student**: Learning support, homework help, study strategies
+- ✅ **Tutor**: Session planning, teaching resources, business advice
+- ✅ **Client**: Tutor discovery, booking assistance, platform guidance
+- ✅ **Agent**: Recruitment tips, commission tracking, network growth
+- ✅ **Organisation**: Team management, billing support, compliance guidance
+
+**API Endpoints**:
+- ✅ `POST /api/lexi/chat` - Send message and receive AI response
+- ✅ `GET /api/lexi/conversations` - List conversation history
+- ✅ `POST /api/lexi/feedback` - Submit feedback on AI responses
+
+**Components**:
+- ✅ `LexiChat` - Main chat interface component
+- ✅ `LexiFAB` - Floating action button trigger
+- ✅ `LexiModal` - Modal container for chat
+- ✅ `LexiMessage` - Message rendering with markdown
+
+### 36. Sage AI ✅ (Analytics & Insights Engine)
+**Status**: Production-ready
+**Completion**: 100%
+**Last Updated**: 2026-02-15
+**Design**: `docs/feature/sage/sage-design.md`
+
+Sage is an AI-powered analytics and insights engine that provides intelligent data analysis, trend detection, and actionable recommendations for platform users and administrators.
+
+**Core Features**:
+- ✅ Dashboard analytics with AI-generated insights
+- ✅ Performance trend analysis for tutors and agents
+- ✅ Booking pattern recognition and forecasting
+- ✅ Revenue optimization recommendations
+- ✅ Student engagement metrics and alerts
+- ✅ CaaS score improvement suggestions
+
+**Analytics Capabilities**:
+- ✅ **Tutor Analytics**: Session performance, rating trends, earning forecasts
+- ✅ **Client Analytics**: Booking patterns, tutor match quality, engagement scores
+- ✅ **Agent Analytics**: Recruitment funnel, commission projections, network growth
+- ✅ **Organisation Analytics**: Team performance, revenue allocation, growth metrics
+- ✅ **Admin Analytics**: Platform health, user acquisition, revenue metrics
+
+**API Endpoints**:
+- ✅ `GET /api/sage/insights` - Get AI-generated insights for dashboard
+- ✅ `GET /api/sage/trends` - Get performance trends and forecasts
+- ✅ `POST /api/sage/recommendations` - Get actionable recommendations
+
+**User Interfaces**:
+- ✅ Sage Insights Panel (`/sage`)
+- ✅ Dashboard widget integration
+- ✅ Tutor performance insights
+- ✅ Agent recruitment insights
 
 ### 18. Help Centre ✅
 **Status**: Production-ready

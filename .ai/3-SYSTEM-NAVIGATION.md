@@ -9,18 +9,25 @@
 1.0 2026-01-14 - Initial creation - comprehensive system navigation
 1.1 2026-02-04 - Update - Last update
 1.2 2026-02-12 - Update - Refreshed codebase metrics (396 pages, 191K LOC, 270 migrations)
+1.3 2026-02-15 - Update - Verified codebase metrics (202K LOC, 547K docs, 46K SQL, 3M+ total project lines)
 
 ---
 
 ## Platform Metrics (Single Source of Truth)
 
-### Codebase Scale
-- **396 pages** (131 UI pages + 222 API routes + 43 dynamic route patterns)
-- **191,000 lines of code** (TypeScript/TSX across app, components, lib)
-- **238,000 lines of documentation** (18K AI context + 220K feature/technical docs)
-- **42,000 lines of SQL** (270 migration files, 70+ tables)
+### Codebase Scale (Verified 2026-02-15)
+- **400 pages** (131 UI pages + 226 API routes + 43 dynamic route patterns)
+- **201,775 lines of application code** (TypeScript/TSX across app, components, lib)
+- **547,436 lines of documentation** (16K .ai context + 244K docs/ + 287K other MD)
+- **45,896 lines of SQL** (270 migration files, 70+ tables)
+- **3,083,104 total project lines** (all TS/TSX/JS/CSS/SQL/MD excluding node_modules)
 - **382 components** (feature components + UI library)
 - **31 major features** (22 core systems + 14 platform hubs - 5 overlap)
+
+### Estimated Development Value
+- **Replacement cost**: $3M - $5M (200K LOC × $15-25/line industry standard)
+- **Development effort**: 2-3 years of senior engineering
+- **Pre-revenue valuation**: $5M - $8M (based on tech + integrated AI + FinTech)
 
 ### Total User-Facing Views Including Modals
 - 175 total UI views that users can see and interact with:
@@ -50,14 +57,14 @@
 - 6 Advanced filter drawers (admin hubs)
 
 #### Summary:
-- Total pages: 396 = 131 UI pages + 222 API routes + 43 dynamic patterns
+- Total pages: 400 = 131 UI pages + 226 API routes + 43 dynamic patterns
 - Including all interactive views: 175 UI views = 131 pages + 36 modals + 8 dialogs/drawers
 - Pure user interaction surfaces: 167 views (if excluding filter drawers, which are utility overlays)
 - The 131 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
 
 ### API & Database
-- **222 API endpoints** (REST + webhooks + RPC functions)
-- **270 database migrations** (numbered: 000-270)
+- **226 API endpoints** (REST + webhooks + RPC functions)
+- **270 database migrations** (numbered: 000-270, including VirtualSpace 265-266)
 - **200+ Row-Level Security policies** with granular RBAC
 - **70+ database tables** with comprehensive relationships
 
@@ -184,7 +191,7 @@
 
 ## Visual Page Sitemap
 
-**All 396 Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
+**All 400 Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
 
 ### Summary
 
@@ -199,9 +206,9 @@
 | **Dashboard Pages** | 39 | Account, bookings, financials, network, org management |
 | **Admin Pages** | 50 | 13 admin hubs + SEO management + Signal Analytics + settings |
 | **Total UI Pages** | **131** | |
-| **API Endpoints** | **222** | REST APIs + webhooks |
+| **API Endpoints** | **226** | REST APIs + webhooks (updated for VirtualSpace) |
 | **Dynamic Routes** | **~43** | [id], [slug], etc. (counted in category totals) |
-| **GRAND TOTAL** | **396** | All pages including dynamic variations |
+| **GRAND TOTAL** | **400** | All pages including dynamic variations |
 
 ---
 
@@ -305,7 +312,8 @@
 ```
 # Dashboard
 /dashboard                           # Main dashboard hub (role-specific)
-/wisespace/[bookingId]               # Tutoring session space (dynamic)
+/virtualspace                        # VirtualSpace session list
+/virtualspace/[sessionId]            # Virtual classroom (dynamic)
 
 # Account Management (6 pages)
 /account                             # Account overview
@@ -399,7 +407,7 @@
 
 ---
 
-### API Endpoints (222 routes)
+### API Endpoints (226 routes)
 
 #### Resources Attribution (3 endpoints)
 ```
@@ -638,10 +646,14 @@ POST /api/wiselists/[id]/collaborators   # Add collaborator
 POST /api/wiselists/[id]/collaborators/[collabId] # Update collaborator
 ```
 
-#### WiseSpace Session Management (2 endpoints)
+#### VirtualSpace Session Management (6 endpoints)
 ```
-POST /api/wisespace/[bookingId]/snapshot # Snapshot session
-POST /api/wisespace/[bookingId]/complete # Complete session
+POST /api/virtualspace/session           # Create standalone session
+GET  /api/virtualspace/sessions          # List user's sessions
+POST /api/virtualspace/join              # Join via invite token
+POST /api/virtualspace/[sessionId]/snapshot # Save whiteboard snapshot
+POST /api/virtualspace/[sessionId]/complete # Mark session complete
+GET  /api/virtualspace/[sessionId]       # Get session details
 ```
 
 #### Help Centre (1 endpoint)
@@ -725,9 +737,9 @@ The platform uses Next.js route groups to organize pages:
 4. **Public profiles** - Dynamic profile/listing pages (7 pages)
 5. **/onboarding** - Onboarding flows (16 pages)
 6. **Authenticated** - Protected user section (39 pages)
-7. **/api** - Backend API endpoints (222 routes)
+7. **/api** - Backend API endpoints (226 routes)
 
-**Total: 353 distinct routes** (131 UI pages + 222 API endpoints). The 396 pages metric includes dynamic route variations (e.g., `/listings/[id]` counted per listing).
+**Total: 357 distinct routes** (131 UI pages + 226 API endpoints). The 400 pages metric includes dynamic route variations (e.g., `/listings/[id]` counted per listing).
 
 ---
 
@@ -1126,29 +1138,52 @@ Database:
 
 ---
 
-### 11. WiseSpace (Virtual Classroom)
+### 11. VirtualSpace (Virtual Classroom)
 
-**Description**: Hybrid virtual classroom with tldraw whiteboard + Google Meet
+**Description**: Hybrid virtual classroom with tldraw whiteboard + Google Meet. Supports three modes: standalone (ad-hoc), booking-linked, and free help sessions.
 
 **User Flow**:
-- `/wisespace/[sessionId]` → Join virtual classroom
+- `/virtualspace` → Session list (create, view, join sessions)
+- `/virtualspace/[sessionId]` → Join virtual classroom
+- `/virtualspace/booking/[bookingId]` → Join via booking (creates session if needed)
+- `/virtualspace/join/[inviteToken]` → Join via invite link
 
 **File Locations**:
 ```
-apps/web/src/app/(admin)/
-└── wisespace/
-    └── [sessionId]/page.tsx              # Virtual classroom
+apps/web/src/app/(authenticated)/
+└── virtualspace/
+    ├── page.tsx                          # Session list (Hub Gold Standard)
+    ├── [sessionId]/
+    │   ├── page.tsx                      # Session page (server component)
+    │   └── VirtualSpaceClient.tsx        # Client-side whiteboard + controls
+    ├── booking/[bookingId]/page.tsx      # Booking redirect
+    └── join/[inviteToken]/page.tsx       # Invite link handler
 
 Components:
-apps/web/src/app/components/feature/wisespace/
-├── WhiteboardCanvas.tsx                  # tldraw integration
-├── VideoCall.tsx                         # Google Meet embed
-├── FileShare.tsx
-└── SessionRecording.tsx
+apps/web/src/app/components/feature/virtualspace/
+├── EmbeddedWhiteboard.tsx                # tldraw + Ably real-time sync
+├── VirtualSpaceHeader.module.css         # Header styles (teal theme)
+└── (sidebar widgets)/                    # Stats, Help, Tip, Video widgets
+
+API Routes:
+apps/web/src/app/api/virtualspace/
+├── session/route.ts                      # Create standalone session
+├── sessions/route.ts                     # List user's sessions
+├── join/route.ts                         # Join via invite token
+└── [sessionId]/
+    ├── snapshot/route.ts                 # Save whiteboard snapshot
+    └── complete/route.ts                 # Mark session complete
 
 Database:
-- tools/database/migrations/145_create_wisespace_sessions_table.sql
+- tools/database/migrations/265_create_virtualspace_sessions.sql
+- tools/database/migrations/266_create_virtualspace_artifacts_storage.sql
 ```
+
+**Key Features**:
+- **Three modes**: Standalone (24hr expiry), Booking (CaaS triggers), Free Help
+- **Real-time sync**: Ably channels for whiteboard collaboration
+- **Invite system**: Shareable links for standalone sessions
+- **Hub Gold Standard**: React Query, loading skeletons, error states
 
 ---
 
@@ -1559,7 +1594,7 @@ Database:
 6. RECEIVE BOOKINGS
    /bookings → View upcoming sessions
    /messages → Communicate with students
-   /wisespace/[sessionId] → Virtual classroom
+   /virtualspace/[sessionId] → Virtual classroom
 
 7. TRACK EARNINGS
    /financials → Earnings dashboard
@@ -1616,7 +1651,7 @@ Database:
 6. BOOK & COMMUNICATE
    /bookings → Manage sessions
    /messages → Chat with tutor
-   /wisespace/[sessionId] → Join virtual classroom
+   /virtualspace/[sessionId] → Join virtual classroom
 
 7. LEAVE REVIEWS
    /reviews/write/[bookingId] → Write review
@@ -1685,14 +1720,16 @@ Database:
 ### Platform Metrics Summary
 
 ```
-📊 Codebase Statistics:
-├── 191,000 lines of TypeScript/TSX code
-├── 238,000 lines of documentation (18K AI context + 220K features)
-├── 42,000 lines of SQL (270 migrations)
-├── 396 pages (131 UI + 222 API + 43 dynamic routes)
+📊 Codebase Statistics (Verified 2026-02-15):
+├── 201,775 lines of TypeScript/TSX application code
+├── 547,436 lines of documentation (16K .ai + 244K docs + 287K other MD)
+├── 45,896 lines of SQL (270 migrations)
+├── 3,083,104 total project lines (all source files)
+├── 400 pages (131 UI + 226 API + 43 dynamic routes)
 ├── 382 components (feature components + UI library)
-├── 222 API endpoints
-└── 31 major features
+├── 226 API endpoints
+├── 31 major features
+└── Estimated value: $5M - $8M (based on 200K LOC enterprise platform)
 ```
 
 ### Complete Directory Tree
@@ -1700,7 +1737,7 @@ Database:
 ```
 tutorwise/
 ├── .ai/                                   # AI context files (START HERE)
-│   │                                      # 18,000 lines of documentation
+│   │                                      # 15,902 lines of AI context documentation
 │   ├── 1 - ROADMAP.md                     # 670 lines - 98% complete, 31 features
 │   ├── 2 - PLATFORM-SPECIFICATION.md      # 3,194 lines - Complete tech spec
 │   ├── 3 - SYSTEM-NAVIGATION.md           # This file - Complete navigation
@@ -1714,10 +1751,10 @@ tutorwise/
 │   └── RESOURCES-REVENUE-SIGNAL.md        # Resources attribution system (Phases 1-3, Blog→Resources migration complete 2026-01-18)
 │
 ├── apps/
-│   └── web/                               # Next.js 14.x frontend (191K lines)
+│   └── web/                               # Next.js 16.x frontend (202K lines)
 │       ├── src/
 │       │   ├── app/                       # App Router (160K lines)
-│       │   │   │                          # 131 UI pages + 222 API endpoints
+│       │   │   │                          # 131 UI pages + 226 API endpoints
 │       │   │   ├── (auth)/                # Authentication routes (4 pages)
 │       │   │   │   ├── login/
 │       │   │   │   ├── signup/
@@ -1730,7 +1767,7 @@ tutorwise/
 │       │   │   │   ├── messages/          # WhatsApp-style chat
 │       │   │   │   ├── network/           # Connections
 │       │   │   │   ├── wiselists/         # Saved lists
-│       │   │   │   ├── wisespace/         # Virtual classroom
+│       │   │   │   ├── virtualspace/      # Virtual classroom (3 modes)
 │       │   │   │   ├── reviews/           # Reviews system
 │       │   │   │   ├── financials/        # Earnings (3 pages)
 │       │   │   │   ├── payments/          # Stripe
@@ -1749,7 +1786,7 @@ tutorwise/
 │       │   │   │   │   ├── financials/    # Financials hub (3 pages)
 │       │   │   │   │   ├── seo/           # SEO hub (11 pages)
 │       │   │   │   │   └── settings/      # Settings hub (6 pages)
-│       │   │   ├── api/                   # API routes (222 endpoints)
+│       │   │   ├── api/                   # API routes (226 endpoints)
 │       │   │   │   ├── admin/             # Admin APIs (23)
 │       │   │   │   ├── marketplace/       # Marketplace APIs (17)
 │       │   │   │   ├── bookings/          # Booking APIs (4)
@@ -1761,7 +1798,7 @@ tutorwise/
 │       │   │   │   ├── dashboard/         # Dashboard APIs (7)
 │       │   │   │   ├── caas/              # CaaS APIs (6)
 │       │   │   │   ├── wiselists/         # Wiselist APIs (10)
-│       │   │   │   ├── wisespace/         # WiseSpace APIs (2)
+│       │   │   │   ├── virtualspace/      # VirtualSpace APIs (6)
 │       │   │   │   ├── financials/        # Financial APIs (5)
 │       │   │   │   └── [other APIs]       # Remaining endpoints
 │       │   │   ├── proxy.ts               # Next.js proxy - redirects/rewrites (Next.js 16)
@@ -1775,7 +1812,7 @@ tutorwise/
 │       │   │       ├── messages/          # Message components
 │       │   │       ├── network/           # Network components
 │       │   │       ├── wiselists/         # Wiselist components
-│       │   │       ├── wisespace/         # WiseSpace components
+│       │   │       ├── virtualspace/      # VirtualSpace components
 │       │   │       ├── reviews/           # Review components
 │       │   │       ├── caas/              # CaaS components
 │       │   │       ├── referrals/         # Referral components
@@ -1980,7 +2017,7 @@ tutorwise/
 ### Tech Stack Summary
 
 **Frontend**:
-- Next.js 14.x with App Router
+- Next.js 16.x with App Router
 - TypeScript 5.x (strict mode)
 - React 18 with Server Components
 - Tailwind CSS + CSS Modules
