@@ -56,20 +56,21 @@ Sage is TutorWise's specialised AI tutor that acts as a 24/7 personal teaching a
 **Target: Functional AI tutor with Maths subject**
 
 #### Architecture & Structure
-- [ ] Fork Lexi architecture → `/sage` with optimum structure
-- [ ] Clear separation: `personas/tutor/`, `personas/agent/`, `personas/client/`, `personas/student/`
-- [ ] Role-aware knowledge partitioning: `global/`, `users/{user_id}/`, `shared/{owner_id}/`
-- [ ] Upload pipeline with role-specific configs (`upload/config/`)
-- [ ] Access control enforcement via `access-control.ts`
+- [x] Fork Lexi architecture → `/sage` with optimum structure
+- [x] Clear separation: `personas/tutor/`, `personas/agent/`, `personas/client/`, `personas/student/`
+- [x] Role-aware knowledge partitioning: `global/`, `users/{user_id}/`, `shared/{owner_id}/`
+- [x] Upload pipeline with role-specific configs (`upload/config/`) *(scaffolded)*
+- [x] Access control enforcement via `access-control.ts`
 
-#### LLM Integration (Critical Path)
+#### LLM Integration (Critical Path) ⚠️ BLOCKER
 - [ ] Implement Gemini provider (primary) with Claude fallback
-- [ ] Connect orchestrator to provider for real responses
+- [ ] Connect orchestrator to provider for real responses *(currently stubbed)*
 - [ ] Intent detection via LLM (replace keyword matching)
 - [ ] Streaming responses via SSE (connect to real LLM stream)
 - [ ] Token usage tracking and cost routing
 
 #### Subject Engine (Maths First)
+- [x] GCSE Maths topic structure loaded
 - [ ] Step-by-step problem solving with working shown
 - [ ] Error diagnosis with remediation suggestions
 - [ ] Practice problem generation with marking criteria
@@ -78,14 +79,17 @@ Sage is TutorWise's specialised AI tutor that acts as a 24/7 personal teaching a
 
 #### Knowledge Pipeline
 - [ ] Ingest tutor/agent PowerPoint materials → pgvector embeddings
-- [ ] Implement actual file extraction (pptx, pdf-parse, mammoth)
-- [ ] Embedding generation via OpenAI/Gemini embedding models
+- [ ] Implement actual file extraction (pptx, pdf-parse, mammoth) *(scaffolded)*
+- [ ] Embedding generation via OpenAI/Gemini embedding models *(scaffolded)*
 - [ ] RAG layer with strict role-based access control
-- [ ] Priority scoring: user uploads > shared > global
+- [x] Priority scoring: user uploads > shared > global *(framework done)*
 
 #### UI Integration
+- [x] Sage page with chat interface
+- [x] Materials section for tutor/agent uploads
+- [x] Progress section for student tracking
+- [x] History section for conversation archive
 - [ ] "Ask Sage" buttons on tutor/agent dashboard
-- [ ] "Ask Sage" buttons on client/student profile
 - [ ] Subject selector in chat header
 - [ ] Level selector (GCSE, A-Level)
 - [ ] Mobile-optimised chat interface
@@ -419,25 +423,25 @@ knowledge/
 ## Appendix: Feature Checklist
 
 ### Q1 2026 Features (Critical)
-- [ ] Fork Lexi → Sage structure
-- [ ] LLM provider implementation (Gemini + Claude)
-- [ ] Real response generation
+- [x] Fork Lexi → Sage structure
+- [ ] LLM provider implementation (Gemini + Claude) ⚠️ BLOCKER
+- [ ] Real response generation ⚠️ BLOCKER
 - [ ] Maths step-by-step engine
-- [ ] PowerPoint/PDF extraction
-- [ ] Embedding generation
+- [ ] PowerPoint/PDF extraction *(scaffolded)*
+- [ ] Embedding generation *(scaffolded)*
 - [ ] pgvector RAG search
 - [ ] "Ask Sage" button integration
-- [ ] Message envelope + manifests
+- [x] Message envelope + manifests
 
 ### Q1-Q2 2026 Features
 - [ ] DSPy signatures
 - [ ] Weekly optimisation pipeline
-- [ ] Progress/mastery tracking
+- [x] Progress/mastery tracking *(framework done)*
 - [ ] Spaced repetition
-- [ ] Full GCSE coverage
-- [ ] English + Science subjects
+- [x] GCSE Maths topics loaded
+- [ ] English + Science subject engines
 - [ ] Upload validation
-- [ ] Context switching
+- [x] Context switching (role resolver)
 - [ ] Sage → Lexi handoff for platform questions
 - [ ] Unified onboarding (Sage + Lexi introduction)
 

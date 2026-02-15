@@ -50,12 +50,12 @@ Transform CAS from a TutorWise development tool into an AI-powered autonomous de
 
 #### Core Infrastructure
 - [ ] Git commit auto-plan updater (real-time plan syncing)
-- [ ] Lightweight message bus with standardised JSON envelope (shared with Sage/Lexi)
-- [ ] Version/protocol field on message bus for future A2A/MCP compatibility
-- [ ] Capability manifests for all 8 agents
+- [x] Lightweight message bus with standardised JSON envelope (shared with Sage/Lexi)
+- [x] Version/protocol field on message bus for future A2A/MCP compatibility
+- [x] Capability manifests for all 8 agents
 
 #### AI Integration
-- [ ] OpenAI-compatible tool calling interface for internal actions
+- [x] OpenAI-compatible tool calling interface for internal actions
 - [ ] DSPy framework integration (optimised prompting for Lexi & Sage)
 - [ ] One-time ingestion pipeline for tutor/agent PowerPoint materials → Sage knowledge layer (pgvector)
 
@@ -307,6 +307,27 @@ Enable tutors to build visual lesson flows:
 
 ---
 
+### Decision: Extend existing profile_graph rather than adding Neo4j
+
+Aspect	Neo4j Approach	profile_graph Approach
+Effort	High (new DB)	Low (extend existing)
+Complexity	Migration required	Already integrated
+Timeline	2027+	Q2 2026
+Dependencies	Supabase + Neo4j	Supabase only
+What's already working:
+
+TUTOR relationship → LEARNS_FROM pattern
+AccessControlService → HAS_ACCESS_TO pattern
+Relationship queries in sage/services/access-control.ts
+Extensions needed:
+
+Add TEACHES via tutor_profiles.subjects
+Add STRUGGLES_WITH via student_learning_progress table
+Pattern detection queries for recommendations
+Pushed to GitHub: 2fc91e18
+
+---
+
 
 1. **Single source of truth:** Markdown plans in `/cas/agents/*/planning/`
 2. **Continuous flow:** No sprints – weekly milestones only
@@ -406,14 +427,14 @@ Enable tutors to build visual lesson flows:
 
 ### Q1 2026 Features
 - [ ] Git commit auto-plan updater
-- [ ] Message bus JSON envelope
-- [ ] Capability manifests (8 agents)
-- [ ] OpenAI-compatible tool interface
+- [x] Message bus JSON envelope
+- [x] Capability manifests (8 agents)
+- [x] OpenAI-compatible tool interface
 - [ ] DSPy framework integration
 - [ ] PowerPoint → pgvector pipeline
 - [ ] Predictive failure prevention
 - [ ] Weekly self-optimisation task
-- [ ] A2A/MCP protocol fields
+- [x] A2A/MCP protocol fields
 
 ### Q2 2026 Features
 - [ ] CAS monitoring dashboard

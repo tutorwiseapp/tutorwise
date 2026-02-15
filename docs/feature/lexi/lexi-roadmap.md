@@ -57,27 +57,27 @@ Lexi is TutorWise's omnipresent AI assistant that helps users navigate the platf
 **Target: Full production deployment with CAS integration**
 
 #### Platform Integration
-- [ ] Omnipresent FAB widget on all authenticated pages
+- [ ] Omnipresent FAB widget on all authenticated pages *(partial - on some pages)*
 - [ ] Proactive prompts based on user context (stuck on page, first visit)
 - [ ] Deep link support (open Lexi with pre-filled query)
-- [ ] Mobile-optimised modal with touch gestures
+- [x] Mobile-optimised modal with touch gestures
 
 #### Persona Enhancement
-- [ ] Expand to 6 specialised personas (add PaymentsExpert, OnboardingGuide)
+- [x] 5 main personas + 4 sub-personas active (Student, Tutor, Client, Agent, Organisation)
 - [ ] Cross-persona handoff for complex queries
 - [ ] Persona confidence scoring (route to best match)
 - [ ] Guest user persona with conversion prompts
 
 #### CAS Integration
-- [ ] Full feedback loop → CAS message bus (shared with Sage)
+- [x] Full feedback loop → CAS message bus (shared with Sage)
 - [ ] CAS status awareness (feature timelines, Sage readiness, maintenance windows)
-- [ ] Standardised JSON message envelope (shared format)
+- [x] Standardised JSON message envelope (shared format)
 - [ ] Capability manifests per persona
-- [ ] OpenAI-compatible tool calling interface
+- [x] OpenAI-compatible tool calling interface
 
 #### Cost & Performance
-- [ ] Basic response caching for repeated queries
-- [ ] Provider cost routing (Rules first, LLM fallback)
+- [x] Basic response caching for repeated queries
+- [x] Provider cost routing (Rules first, LLM fallback) *(basic implementation)*
 - [ ] Token usage tracking per user/session
 - [ ] Response time monitoring
 
@@ -326,25 +326,25 @@ Lexi is TutorWise's omnipresent AI assistant that helps users navigate the platf
 ## Appendix: Feature Checklist
 
 ### Q1 2026 Features
-- [ ] Omnipresent FAB widget
+- [ ] Omnipresent FAB widget *(partial)*
 - [ ] Proactive contextual prompts
-- [ ] 6 specialised personas
-- [ ] CAS message bus integration
-- [ ] Standardised JSON envelope
-- [ ] Capability manifests
-- [ ] OpenAI-compatible tool interface
-- [ ] Response caching
-- [ ] Provider cost routing
+- [x] 5 main personas + 4 sub-personas active
+- [x] CAS message bus integration
+- [x] Standardised JSON envelope
+- [ ] Capability manifests per persona
+- [x] OpenAI-compatible tool interface
+- [x] Response caching
+- [x] Provider cost routing *(basic)*
 
 ### Q1-Q2 2026 Features
 - [ ] DSPy intent classification
 - [ ] Weekly optimisation pipeline
 - [ ] Page URL context injection
-- [ ] Role auto-detection
+- [x] Role auto-detection
 - [ ] Self-healing knowledge base
 - [ ] Recurring question detection
 - [ ] Role-aware behaviour adaptation
-- [ ] Lexi → Sage handoff for tutoring questions
+- [ ] Lexi → Sage handoff for tutoring questions *(bridge exists)*
 - [ ] Unified onboarding (Lexi + Sage introduction)
 
 ### Q2 2026 Features
