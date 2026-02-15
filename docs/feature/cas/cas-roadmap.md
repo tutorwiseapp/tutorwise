@@ -92,6 +92,8 @@ Transform CAS from a TutorWise development tool into an AI-powered autonomous de
   - Referral/conversion tracking
   - Sage usage by Tutor/Agent/Client/Student roles
 - [ ] Time-series data collection (InfluxDB integration)
+- [ ] Centralised provider cost dashboard (Lexi + Sage token usage)
+- [ ] AI accuracy monitoring (Lexi resolution rate + Sage curriculum accuracy)
 
 ---
 
