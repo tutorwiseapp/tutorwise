@@ -62,7 +62,7 @@ export class SageGeminiProvider extends BaseSageProvider {
       throw new Error('Gemini API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic } = request;
+    const { messages, persona, subject, level, context, topic, ragContext } = request;
 
     // Build system prompt with tutoring context
     const systemPrompt = this.buildSystemPrompt({
@@ -76,6 +76,7 @@ export class SageGeminiProvider extends BaseSageProvider {
       learningContext: request.intent?.entities?.topic
         ? { currentTopic: request.intent.entities.topic }
         : undefined,
+      ragContext,
     });
 
     // Convert messages to Gemini format
@@ -137,7 +138,7 @@ export class SageGeminiProvider extends BaseSageProvider {
       throw new Error('Gemini API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic } = request;
+    const { messages, persona, subject, level, context, topic, ragContext } = request;
 
     // Build system prompt
     const systemPrompt = this.buildSystemPrompt({
@@ -148,6 +149,7 @@ export class SageGeminiProvider extends BaseSageProvider {
       userName: context.user?.metadata?.displayName as string | undefined,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona, subject),
+      ragContext,
     });
 
     // Convert messages to Gemini format

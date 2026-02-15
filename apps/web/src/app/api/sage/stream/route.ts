@@ -13,8 +13,10 @@ import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getDefaultSageProvider, SageRulesProvider } from '@sage/providers';
+import { knowledgeRetriever } from '@sage/knowledge';
+import { contextResolver } from '@sage/context';
 import type { SagePersona, SageSubject, SageLevel } from '@sage/types';
-import type { LLMMessage, LLMProvider } from '@sage/providers/types';
+import type { LLMMessage } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
 
 interface StreamRequestBody {
@@ -83,6 +85,41 @@ export async function POST(request: NextRequest) {
     const provider = getDefaultSageProvider();
     console.log(`[Sage Stream] Using provider: ${provider.name}`);
 
+    // Initialize knowledge retriever for RAG
+    knowledgeRetriever.initialize(supabase);
+
+    // Resolve context for knowledge sources
+    const resolvedContext = contextResolver.resolve({
+      userId: user.id,
+      userRole: userRole,
+      subject: body.subject,
+      level: body.level,
+    });
+
+    // Search knowledge base for relevant context
+    let ragContext: string | undefined;
+    try {
+      const namespaces = resolvedContext.knowledgeSources.map(s => s.namespace);
+      const searchResults = await knowledgeRetriever.search(
+        {
+          query: body.message,
+          namespaces,
+          subject: body.subject,
+          level: body.level,
+          topK: 5,
+          minScore: 0.6,
+        },
+        resolvedContext.knowledgeSources
+      );
+
+      if (searchResults.chunks.length > 0) {
+        ragContext = knowledgeRetriever.formatForContext(searchResults.chunks, 1500);
+        console.log(`[Sage Stream] RAG: Found ${searchResults.chunks.length} relevant chunks (${searchResults.searchTime}ms)`);
+      }
+    } catch (ragError) {
+      console.warn('[Sage Stream] RAG search failed, continuing without context:', ragError);
+    }
+
     if (!provider.isAvailable()) {
       return new Response(
         JSON.stringify({ error: 'AI provider not configured', code: 'PROVIDER_UNAVAILABLE' }),
@@ -140,13 +177,14 @@ export async function POST(request: NextRequest) {
             encoder.encode(`event: start\ndata: ${JSON.stringify({ messageId })}\n\n`)
           );
 
-          // Stream from Gemini
+          // Stream from provider with RAG context
           const streamGenerator = provider.stream({
             messages,
             persona,
             subject: body.subject,
             level: body.level,
             context,
+            ragContext,
           });
 
           for await (const chunk of streamGenerator) {

@@ -46,6 +46,7 @@ export interface DocumentMetadata {
   language?: string;
   extractedAt?: Date;
   processingTime?: number;
+  error?: string;
 }
 
 // --- Chunk Types ---

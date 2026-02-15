@@ -16,12 +16,13 @@
  * @module components/feature/lexi/LexiChat
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './LexiChat.module.css';
 import { useLexiChat, type LexiMessage as LexiMessageType } from './useLexiChat';
 import LexiMarkdown from './LexiMarkdown';
 import { getDeepLink } from '@lexi/utils/deep-links';
+import SageHandoff, { detectEducationalIntent } from './SageHandoff';
 
 // --- Types ---
 
@@ -74,9 +75,39 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
   const [inputValue, setInputValue] = useState('');
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [handoffDismissed, setHandoffDismissed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect educational intent from recent user messages
+  const educationalIntent = useMemo(() => {
+    if (handoffDismissed) return null;
+
+    // Check last 3 user messages for educational content
+    const userMessages = messages
+      .filter(m => m.role === 'user')
+      .slice(-3);
+
+    for (const msg of userMessages) {
+      const intent = detectEducationalIntent(msg.content);
+      if (intent.isEducational && intent.confidence >= 0.6) {
+        return intent;
+      }
+    }
+    return null;
+  }, [messages, handoffDismissed]);
+
+  // Handle Sage handoff
+  const handleSageHandoff = useCallback(() => {
+    // Close Lexi chat and navigate to Sage
+    onClose?.();
+    router.push('/sage');
+  }, [onClose, router]);
+
+  const handleDismissHandoff = useCallback(() => {
+    setHandoffDismissed(true);
+  }, []);
 
   // Handle rate limit countdown
   useEffect(() => {
@@ -336,6 +367,19 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
           </div>
         )}
       </div>
+
+      {/* Sage Handoff - show when educational intent detected */}
+      {educationalIntent && !isSending && (
+        <SageHandoff
+          subject={educationalIntent.subject}
+          topic={educationalIntent.topic}
+          conversationContext={messages
+            .filter(m => m.role !== 'system')
+            .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))}
+          onAccept={handleSageHandoff}
+          onDismiss={handleDismissHandoff}
+        />
+      )}
 
       {/* Suggestions */}
       {displaySuggestions.length > 0 && !isSending && (

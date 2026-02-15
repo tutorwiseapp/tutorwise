@@ -37,6 +37,8 @@ export interface LLMCompletionRequest {
   intent?: SageDetectedIntent;
   topic?: string;
   stream?: boolean;
+  /** RAG context from knowledge retrieval */
+  ragContext?: string;
 }
 
 export interface LLMCompletionResponse {
@@ -69,6 +71,8 @@ export interface SystemPromptContext {
     priorKnowledge?: string[];
     errorPatterns?: string[];
   };
+  /** RAG context from knowledge retrieval */
+  ragContext?: string;
 }
 
 // --- Provider Interface ---

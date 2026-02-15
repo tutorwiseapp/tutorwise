@@ -24,6 +24,13 @@ export { default as LexiHistory, LexiHistory as LexiHistoryComponent } from './L
 // Error boundary
 export { default as LexiErrorBoundary, LexiErrorBoundary as LexiErrorBoundaryComponent } from './LexiErrorBoundary';
 
+// Sage handoff component
+export {
+  default as SageHandoff,
+  SageHandoff as SageHandoffComponent,
+  detectEducationalIntent,
+} from './SageHandoff';
+
 // Chat hook
 export {
   useLexiChat,

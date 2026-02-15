@@ -1,0 +1,139 @@
+/**
+ * Sage Handoff Styles
+ *
+ * Styling for the Lexi → Sage handoff prompt.
+ */
+
+.handoff {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--sage-light, #f0f4ff), var(--sage-lighter, #e8ecff));
+  border: 1px solid var(--sage-border, #c7d2fe);
+  border-radius: 12px;
+  margin: 12px 16px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.handoffContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.handoffIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sage-primary, #6366f1);
+  border-radius: 10px;
+  color: white;
+}
+
+.handoffText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.handoffText strong {
+  color: var(--sage-primary, #4f46e5);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.handoffText span {
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.handoffActions {
+  display: flex;
+  gap: 8px;
+  margin-left: 52px; /* Align with text (40px icon + 12px gap) */
+}
+
+.handoffAccept {
+  padding: 8px 16px;
+  background: var(--sage-primary, #6366f1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.handoffAccept:hover:not(:disabled) {
+  background: var(--sage-dark, #4f46e5);
+  transform: translateY(-1px);
+}
+
+.handoffAccept:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.handoffAccept:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.handoffDismiss {
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--text-secondary, #6b7280);
+  border: 1px solid var(--border-light, #e5e7eb);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.handoffDismiss:hover {
+  background: var(--bg-hover, #f3f4f6);
+  color: var(--text-primary, #1f2937);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .handoff {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.08));
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .handoffText strong {
+    color: #a5b4fc;
+  }
+
+  .handoffText span {
+    color: #9ca3af;
+  }
+
+  .handoffDismiss {
+    border-color: #374151;
+    color: #9ca3af;
+  }
+
+  .handoffDismiss:hover {
+    background: #374151;
+    color: #f3f4f6;
+  }
+}

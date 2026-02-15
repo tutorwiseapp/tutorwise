@@ -98,6 +98,10 @@
     "deploy:railway": "bash tools/scripts/deployment/railway-deploy.sh",
     "deploy:vercel": "bash tools/scripts/deployment/vercel-deploy.sh",
     "deploy:vercel:prod": "bash tools/scripts/deployment/vercel-deploy.sh prod",
+    "dspy:optimize": "bash cas/optimization/run_first_optimization.sh",
+    "dspy:optimize:dry": "bash cas/optimization/run_first_optimization.sh --dry-run",
+    "dspy:optimize:sage": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent sage --all",
+    "dspy:optimize:lexi": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent lexi --all",
     "prepare": "husky"
   },
   "dependencies": {

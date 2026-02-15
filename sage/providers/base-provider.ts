@@ -243,6 +243,11 @@ Your purpose is to supplement human tutoring by providing instant help and pract
       parts.push(`\nThe user's name is ${context.userName}.`);
     }
 
+    // RAG context from knowledge base
+    if (context.ragContext) {
+      parts.push(`\n---\n${context.ragContext}`);
+    }
+
     // Response guidelines
     parts.push(`
 Response Guidelines:
@@ -253,7 +258,8 @@ Response Guidelines:
 - Suggest practice problems when appropriate
 - Never make up information - admit when you don't know
 - For students: guide, don't give answers directly
-- Celebrate effort and progress`);
+- Celebrate effort and progress
+- When relevant knowledge context is provided above, use it to inform your response`);
 
     return parts.join('\n');
   }

@@ -36,7 +36,8 @@ async function loadOfficeParser() {
 async function loadPdfParse() {
   if (!pdfParse) {
     try {
-      pdfParse = (await import('pdf-parse')).default;
+      const module = await import('pdf-parse') as any;
+      pdfParse = module.default || module;
     } catch {
       console.warn('[DocumentProcessor] pdf-parse not installed. Run: npm install pdf-parse');
     }
@@ -213,7 +214,6 @@ export class DocumentProcessor {
         metadata: {
           pageCount: estimatedSlides,
           wordCount,
-          format: 'powerpoint',
         },
       };
     } catch (error) {
@@ -256,7 +256,6 @@ export class DocumentProcessor {
         metadata: {
           pageCount: data.numpages,
           wordCount,
-          format: 'pdf',
           title: data.info?.Title,
           author: data.info?.Author,
         },
@@ -304,7 +303,6 @@ export class DocumentProcessor {
         metadata: {
           pageCount: estimatedPages,
           wordCount,
-          format: 'word',
         },
       };
     } catch (error) {
