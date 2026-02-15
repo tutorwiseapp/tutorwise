@@ -1,0 +1,178 @@
+/**
+ * Sage Materials Page Styles
+ */
+
+/* Upload Info Sidebar */
+.uploadInfo {
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.uploadInfo h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.uploadInfo ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.uploadInfo li {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 4px 0;
+}
+
+.uploadLimit {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Materials Grid */
+.materialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.materialCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.materialCard:hover {
+  border-color: #99c7c4;
+}
+
+.materialIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #E6F0F0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #006c67;
+  flex-shrink: 0;
+}
+
+.materialInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.materialName {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materialMeta {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.materialSubject {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 8px;
+  background: #E6F0F0;
+  color: #006c67;
+  border-radius: 12px;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.materialStatus {
+  position: absolute;
+  top: 12px;
+  right: 36px;
+}
+
+.statusProcessing {
+  padding: 2px 8px;
+  background: #fef3c7;
+  color: #d97706;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.statusReady {
+  padding: 2px 8px;
+  background: #d1fae5;
+  color: #059669;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.statusError {
+  padding: 2px 8px;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #9ca3af;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.materialCard:hover .deleteButton {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .materialsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .deleteButton {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "role": "agent",
+  "description": "Upload configuration for tutoring agents - organisation-wide material management",
+  "allowedTypes": [
+    {
+      "extension": ".pptx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "maxSize": 104857600,
+      "description": "PowerPoint presentations"
+    },
+    {
+      "extension": ".ppt",
+      "mimeType": "application/vnd.ms-powerpoint",
+      "maxSize": 104857600,
+      "description": "Legacy PowerPoint"
+    },
+    {
+      "extension": ".pdf",
+      "mimeType": "application/pdf",
+      "maxSize": 52428800,
+      "description": "PDF documents"
+    },
+    {
+      "extension": ".docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "maxSize": 52428800,
+      "description": "Word documents"
+    },
+    {
+      "extension": ".doc",
+      "mimeType": "application/msword",
+      "maxSize": 52428800,
+      "description": "Legacy Word"
+    },
+    {
+      "extension": ".xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "maxSize": 26214400,
+      "description": "Excel spreadsheets"
+    },
+    {
+      "extension": ".csv",
+      "mimeType": "text/csv",
+      "maxSize": 10485760,
+      "description": "CSV data files"
+    },
+    {
+      "extension": ".md",
+      "mimeType": "text/markdown",
+      "maxSize": 5242880,
+      "description": "Markdown files"
+    },
+    {
+      "extension": ".txt",
+      "mimeType": "text/plain",
+      "maxSize": 5242880,
+      "description": "Plain text"
+    }
+  ],
+  "totalStorageLimit": 2147483648,
+  "singleFileLimit": 104857600,
+  "permissions": {
+    "canUpload": true,
+    "canDelete": true,
+    "canShare": true,
+    "canOrganise": true,
+    "canBulkUpload": true,
+    "namespaces": ["user", "shared", "organisation"],
+    "shareTargets": ["tutors", "students", "organisation"]
+  },
+  "processing": {
+    "autoEmbed": true,
+    "extractImages": true,
+    "preserveFormatting": true,
+    "generateSummary": true,
+    "batchProcessing": true
+  },
+  "visibility": {
+    "defaultNamespace": "shared",
+    "defaultVisibility": "organisation",
+    "canSetPublic": true
+  }
+}

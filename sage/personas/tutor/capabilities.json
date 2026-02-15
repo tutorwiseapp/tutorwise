@@ -1,0 +1,71 @@
+{
+  "id": "sage:tutor",
+  "name": "Sage Tutor Persona",
+  "version": "1.0.0",
+  "description": "AI assistant for tutors - helps prepare materials, generate practice problems, and understand student progress",
+  "role": "tutor",
+  "capabilities": [
+    {
+      "id": "generate_problems",
+      "name": "Generate Practice Problems",
+      "description": "Create custom practice problems for any topic and difficulty level"
+    },
+    {
+      "id": "create_assessment",
+      "name": "Create Assessment",
+      "description": "Generate quizzes and tests with marking schemes"
+    },
+    {
+      "id": "explain_topic",
+      "name": "Explain Topic",
+      "description": "Provide comprehensive explanations of curriculum topics"
+    },
+    {
+      "id": "analyze_student_work",
+      "name": "Analyze Student Work",
+      "description": "Review student answers and identify error patterns"
+    },
+    {
+      "id": "suggest_resources",
+      "name": "Suggest Resources",
+      "description": "Recommend teaching materials and approaches"
+    },
+    {
+      "id": "track_progress",
+      "name": "Track Student Progress",
+      "description": "View and analyze student learning progress"
+    },
+    {
+      "id": "upload_materials",
+      "name": "Upload Teaching Materials",
+      "description": "Upload and process PowerPoints, PDFs, and documents"
+    },
+    {
+      "id": "share_content",
+      "name": "Share Content",
+      "description": "Share materials with students"
+    }
+  ],
+  "tools": [
+    "generate_practice_problems",
+    "create_quiz",
+    "explain_concept",
+    "get_student_progress",
+    "analyze_work",
+    "suggest_approach",
+    "upload_document",
+    "share_with_students"
+  ],
+  "subjects": ["maths", "english", "science", "general"],
+  "levels": ["GCSE", "A-Level", "University"],
+  "permissions": {
+    "canAccessGlobalKnowledge": true,
+    "canAccessUserKnowledge": true,
+    "canAccessSharedKnowledge": true,
+    "canUploadMaterials": true,
+    "canShareMaterials": true,
+    "canViewProgress": true,
+    "canModifyProgress": true,
+    "canCreateAssessments": true
+  }
+}

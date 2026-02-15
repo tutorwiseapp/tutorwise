@@ -1,0 +1,28 @@
+{
+  "role": "client",
+  "description": "Upload configuration for clients/parents - limited to viewing shared materials",
+  "allowedTypes": [],
+  "totalStorageLimit": 0,
+  "singleFileLimit": 0,
+  "permissions": {
+    "canUpload": false,
+    "canDelete": false,
+    "canShare": false,
+    "canOrganise": false,
+    "namespaces": [],
+    "shareTargets": []
+  },
+  "processing": {
+    "autoEmbed": false,
+    "extractImages": false,
+    "preserveFormatting": false,
+    "generateSummary": false
+  },
+  "visibility": {
+    "defaultNamespace": null,
+    "defaultVisibility": null,
+    "canSetPublic": false,
+    "canView": ["shared"]
+  },
+  "note": "Clients can view materials shared with them by tutors but cannot upload"
+}

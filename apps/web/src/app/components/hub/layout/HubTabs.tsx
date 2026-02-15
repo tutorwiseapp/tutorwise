@@ -23,7 +23,8 @@ export interface HubTab {
   id: string;
   label: string;
   count?: number;
-  active: boolean;
+  active?: boolean;
+  href?: string;
 }
 
 interface HubTabsProps {

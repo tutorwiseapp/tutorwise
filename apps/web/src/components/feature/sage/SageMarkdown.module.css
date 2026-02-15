@@ -1,0 +1,132 @@
+/**
+ * Sage Markdown Styles
+ */
+
+.markdown {
+  font-size: 14px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.paragraph {
+  margin: 0 0 12px;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.heading {
+  margin: 16px 0 8px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.heading:first-child {
+  margin-top: 0;
+}
+
+h3.heading {
+  font-size: 16px;
+}
+
+h4.heading {
+  font-size: 15px;
+}
+
+h5.heading {
+  font-size: 14px;
+}
+
+.list {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.listItem {
+  margin: 4px 0;
+}
+
+.inlineCode {
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  font-size: 13px;
+}
+
+.codeBlock {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: #1e1e2e;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.codeBlock code {
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cdd6f4;
+}
+
+.link {
+  color: #006c67;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Math notation styling (for future LaTeX support) */
+.math {
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+}
+
+.mathBlock {
+  display: block;
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: #E6F0F0;
+  border-left: 3px solid #006c67;
+  border-radius: 0 8px 8px 0;
+  font-family: 'Times New Roman', serif;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Blockquote for important notes */
+.blockquote {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border-left: 3px solid #22c55e;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+}
+
+/* Tables */
+.table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th,
+.table td {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.table th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.table tr:nth-child(even) {
+  background: #f9fafb;
+}

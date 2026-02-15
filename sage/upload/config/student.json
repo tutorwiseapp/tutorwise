@@ -1,0 +1,78 @@
+{
+  "role": "student",
+  "description": "Upload configuration for students - can upload homework and personal notes",
+  "allowedTypes": [
+    {
+      "extension": ".pdf",
+      "mimeType": "application/pdf",
+      "maxSize": 10485760,
+      "description": "PDF documents (homework, notes)"
+    },
+    {
+      "extension": ".docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "maxSize": 10485760,
+      "description": "Word documents"
+    },
+    {
+      "extension": ".jpg",
+      "mimeType": "image/jpeg",
+      "maxSize": 5242880,
+      "description": "Photos of handwritten work"
+    },
+    {
+      "extension": ".jpeg",
+      "mimeType": "image/jpeg",
+      "maxSize": 5242880,
+      "description": "Photos of handwritten work"
+    },
+    {
+      "extension": ".png",
+      "mimeType": "image/png",
+      "maxSize": 5242880,
+      "description": "Screenshots and diagrams"
+    },
+    {
+      "extension": ".heic",
+      "mimeType": "image/heic",
+      "maxSize": 5242880,
+      "description": "iPhone photos"
+    },
+    {
+      "extension": ".md",
+      "mimeType": "text/markdown",
+      "maxSize": 2097152,
+      "description": "Markdown notes"
+    },
+    {
+      "extension": ".txt",
+      "mimeType": "text/plain",
+      "maxSize": 2097152,
+      "description": "Plain text notes"
+    }
+  ],
+  "totalStorageLimit": 104857600,
+  "singleFileLimit": 10485760,
+  "permissions": {
+    "canUpload": true,
+    "canDelete": true,
+    "canShare": false,
+    "canOrganise": true,
+    "namespaces": ["user"],
+    "shareTargets": []
+  },
+  "processing": {
+    "autoEmbed": true,
+    "extractImages": false,
+    "preserveFormatting": false,
+    "generateSummary": false,
+    "ocrEnabled": true
+  },
+  "visibility": {
+    "defaultNamespace": "user",
+    "defaultVisibility": "private",
+    "canSetPublic": false,
+    "canView": ["user", "shared"]
+  },
+  "note": "Students can upload homework photos and notes for Sage to analyze"
+}
