@@ -2,11 +2,16 @@
  * Sage Page Styles
  */
 
+/* Chat container - Fixed height for independent scrolling (like Messages page) */
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 500px;
+  height: calc(100vh - 400px);
+  min-height: 400px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
 }
 
 .loading {
@@ -73,11 +78,21 @@
 /* Responsive */
 @media (max-width: 768px) {
   .chatContainer {
-    min-height: 400px;
+    height: calc(100vh - 280px);
+    min-height: 300px;
+    border-radius: 0;
   }
 
   .progressGrid,
   .materialsGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chatContainer {
+    height: calc(100vh - 350px);
+    min-height: 350px;
   }
 }

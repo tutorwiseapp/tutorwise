@@ -20,6 +20,7 @@
   padding: 12px 16px;
   background: #fef2f2;
   border-bottom: 1px solid #fecaca;
+  flex-shrink: 0; /* Keep error banner at top */
 }
 
 .errorIcon {
@@ -298,6 +299,8 @@
   gap: 8px;
   padding: 12px 24px;
   border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  flex-shrink: 0; /* Keep suggestions pinned above input */
 }
 
 .suggestionChip {
@@ -325,6 +328,7 @@
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
   background: #fafafa;
+  flex-shrink: 0; /* Keep input anchored at bottom */
 }
 
 .input {
