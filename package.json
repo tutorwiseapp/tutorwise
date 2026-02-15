@@ -102,6 +102,7 @@
     "dspy:optimize:dry": "bash cas/optimization/run_first_optimization.sh --dry-run",
     "dspy:optimize:sage": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent sage --all",
     "dspy:optimize:lexi": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent lexi --all",
+    "dspy:optimize:weekly": "bash cas/optimization/schedule_weekly.sh",
     "prepare": "husky"
   },
   "dependencies": {
@@ -118,6 +119,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-virtual": "^3.13.14",
+    "@types/katex": "^0.16.8",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.6",
     "@vercel/blob": "^2.0.1",
@@ -127,6 +129,7 @@
     "dotenv": "^16.6.1",
     "eslint-config-next": "^15.5.10",
     "googleapis": "^130.0.0",
+    "katex": "^0.16.28",
     "marked": "^16.3.0",
     "neo4j-driver": "^5.28.2",
     "nodemailer": "^7.0.7",

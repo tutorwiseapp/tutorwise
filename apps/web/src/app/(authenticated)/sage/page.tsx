@@ -11,7 +11,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
@@ -28,6 +28,13 @@ import SageVideoWidget from '../../../components/feature/sage/widgets/SageVideoW
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+
+// Handoff context from Lexi
+interface HandoffContext {
+  subject?: 'maths' | 'english' | 'science' | 'general';
+  topic?: string;
+  conversationContext?: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
 
 type SubjectType = 'maths' | 'english' | 'science' | 'general';
 type LevelType = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
@@ -63,6 +70,34 @@ export default function SagePage() {
   const [sessionStarted, setSessionStarted] = useState(true); // Auto-start session
   const [searchQuery, setSearchQuery] = useState('');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [handoffContext, setHandoffContext] = useState<HandoffContext | null>(null);
+
+  // Check for handoff context from Lexi
+  useEffect(() => {
+    try {
+      const handoffData = sessionStorage.getItem('sage_handoff');
+      if (handoffData) {
+        const parsed: HandoffContext = JSON.parse(handoffData);
+        setHandoffContext(parsed);
+
+        // Update subject if provided by handoff
+        if (parsed.subject) {
+          setSubject(parsed.subject);
+        }
+
+        // Clear handoff data after reading
+        sessionStorage.removeItem('sage_handoff');
+
+        console.log('[Sage] Received handoff from Lexi:', {
+          subject: parsed.subject,
+          topic: parsed.topic,
+          messageCount: parsed.conversationContext?.length || 0,
+        });
+      }
+    } catch (err) {
+      console.warn('[Sage] Failed to read handoff context:', err);
+    }
+  }, []);
 
   // Capabilities query with gold standard config
   const { data: _capabilities } = useQuery({
@@ -239,6 +274,10 @@ export default function SagePage() {
             autoStart={true}
             streaming={true}
             onSessionStart={() => setSessionStarted(true)}
+            initialContext={handoffContext ? {
+              topic: handoffContext.topic,
+              conversationHistory: handoffContext.conversationContext,
+            } : undefined}
           />
         </div>
       )}

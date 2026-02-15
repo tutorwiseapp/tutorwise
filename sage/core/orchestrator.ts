@@ -30,6 +30,14 @@ import type {
   LearningContext,
 } from '../types';
 
+import {
+  getDefaultSageProvider,
+  type LLMProvider,
+  type LLMMessage,
+} from '../providers';
+
+import { getSignatureContext } from '../subjects/engine-executor';
+
 // --- Persona Configurations ---
 
 const PERSONA_CONFIGS: Record<SagePersona, SagePersonaConfig> = {
@@ -92,9 +100,23 @@ const PERSONA_CONFIGS: Record<SagePersona, SagePersonaConfig> = {
 export class SageOrchestrator {
   private activeSessions: Map<string, SageSession> = new Map();
   private conversations: Map<string, SageConversation> = new Map();
+  private provider: LLMProvider;
 
   constructor() {
-    console.log('[Sage] Orchestrator initialized');
+    this.provider = getDefaultSageProvider();
+    console.log(`[Sage] Orchestrator initialized with ${this.provider.name}`);
+  }
+
+  /**
+   * Get or update the LLM provider.
+   */
+  getProvider(): LLMProvider {
+    return this.provider;
+  }
+
+  setProvider(provider: LLMProvider): void {
+    this.provider = provider;
+    console.log(`[Sage] Provider updated to ${provider.name}`);
   }
 
   /**
@@ -175,11 +197,12 @@ export class SageOrchestrator {
 
   /**
    * Process a user message and generate a tutoring response.
-   * Returns a placeholder - actual LLM integration via providers.
+   * Uses the configured LLM provider for intelligent responses.
    */
   async processMessage(
     sessionId: string,
-    userMessage: string
+    userMessage: string,
+    ragContext?: string
   ): Promise<{ response: SageMessage; suggestions?: string[] }> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
@@ -202,8 +225,20 @@ export class SageOrchestrator {
       metadata: { messageId: userMsg.id },
     });
 
-    // Detect intent (placeholder)
-    const intent = await this.detectIntent(userMessage, session);
+    // Detect intent using provider (if available) or fallback to basic detection
+    let intent: SageDetectedIntent;
+    try {
+      intent = await this.provider.detectIntent(
+        userMessage,
+        session.persona,
+        interactionContext,
+        session.subject,
+        session.level
+      );
+    } catch (error) {
+      console.warn('[Sage] Intent detection failed, using fallback:', error);
+      intent = await this.detectIntent(userMessage, session);
+    }
 
     // Check permissions
     const operation = `${intent.category}:${intent.action}`;
@@ -217,13 +252,63 @@ export class SageOrchestrator {
       return { response };
     }
 
-    // Generate response (placeholder - actual implementation via provider)
-    const responseContent = this.generatePlaceholderResponse(session, intent, userMessage);
+    // Build conversation history for LLM
+    const llmMessages: LLMMessage[] = conversation.messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+
+    // Resolve DSPy signature for structured response
+    let signaturePrompt: string | undefined;
+    if (session.subject) {
+      const sigContext = getSignatureContext(
+        intent.category,
+        session.subject,
+        {
+          topic: intent.entities.topic,
+          level: session.level,
+          userMessage,
+        }
+      );
+      if (sigContext) {
+        signaturePrompt = sigContext.promptEnhancement;
+      }
+    }
+
+    // Combine RAG context with signature prompt
+    const combinedContext = [ragContext, signaturePrompt].filter(Boolean).join('\n') || undefined;
+
+    // Generate response using LLM provider
+    let responseContent: string;
+    let suggestions: string[] = [];
+
+    try {
+      const completion = await this.provider.complete({
+        messages: llmMessages,
+        persona: session.persona,
+        subject: session.subject,
+        level: session.level,
+        context: interactionContext,
+        topic: intent.entities.topic,
+        intent,
+        ragContext: combinedContext,
+      });
+
+      responseContent = completion.content;
+      suggestions = completion.suggestions || this.getSuggestions(session, intent);
+    } catch (error) {
+      console.error('[Sage] Provider completion failed:', error);
+      // Fallback to basic response on provider failure
+      responseContent = this.generateFallbackResponse(session, intent, userMessage);
+      suggestions = this.getSuggestions(session, intent);
+    }
+
     const response = this.createMessage('assistant', responseContent, {
       persona: session.persona,
       subject: session.subject,
       level: session.level,
       topic: intent.entities.topic,
+      provider: this.provider.type,
     });
 
     conversation.messages.push(response);
@@ -235,10 +320,7 @@ export class SageOrchestrator {
       session.topicsCovered.push(intent.entities.topic);
     }
 
-    return {
-      response,
-      suggestions: this.getSuggestions(session, intent),
-    };
+    return { response, suggestions };
   }
 
   /**
@@ -384,26 +466,38 @@ export class SageOrchestrator {
     };
   }
 
-  private generatePlaceholderResponse(
+  /**
+   * Generate a fallback response when the LLM provider fails.
+   * Used as graceful degradation.
+   */
+  private generateFallbackResponse(
     session: SageSession,
     intent: SageDetectedIntent,
-    userMessage: string
+    _userMessage: string
   ): string {
-    const persona = session.persona;
     const subject = session.subject || 'this topic';
 
-    if (persona === 'student') {
-      return `Great question about ${subject}! Let me help you understand this step by step.
-
-This is a placeholder response - the actual tutoring response would be generated by the LLM provider.
-
-Would you like me to:
-- Explain the concept further
-- Show a worked example
-- Give you a practice problem`;
+    if (session.persona === 'student') {
+      const responses: Record<string, string> = {
+        explain: `I'd love to help explain ${intent.entities.topic || subject}. Could you tell me what specific part you'd like me to clarify?`,
+        solve: `Let's work through this problem together. Can you share the complete problem so I can guide you step by step?`,
+        practice: `Great that you want to practice! What topic would you like practice problems for?`,
+        homework: `I'm here to help with your homework. What's the question you're working on?`,
+        exam: `Let's prepare for your exam. Which topics would you like to review?`,
+        general: `I'm Sage, your AI tutor. How can I help you learn today?`,
+      };
+      return responses[intent.category] || responses.general;
     }
 
-    return `I'd be happy to help with ${intent.category}. This is a placeholder response that would be replaced with actual LLM-generated content.`;
+    if (session.persona === 'tutor') {
+      return `I can help you prepare teaching materials for ${subject}. What would you like to create - lesson plans, worksheets, or assessment questions?`;
+    }
+
+    if (session.persona === 'client') {
+      return `I can help you understand and support your child's learning in ${subject}. What would you like to know?`;
+    }
+
+    return `I'm Sage, here to help with ${intent.category}. How can I assist you?`;
   }
 
   private getSuggestions(

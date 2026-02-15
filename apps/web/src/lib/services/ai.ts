@@ -74,7 +74,7 @@ export const claude = new Anthropic({
 // ============================================================================
 // Google Gemini Client
 // ============================================================================
-export const gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+export const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 /**
  * Recommended Gemini models:

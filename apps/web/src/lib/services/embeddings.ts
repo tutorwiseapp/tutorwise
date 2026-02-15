@@ -27,7 +27,7 @@ export const anthropic = new Anthropic({
 });
 
 // Gemini client for embeddings and generation
-const gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || 'dummy-key-for-build');
+const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || 'dummy-key-for-build');
 
 // Default embedding provider (openai or gemini)
 const EMBEDDING_PROVIDER = process.env.EMBEDDING_PROVIDER || 'openai';

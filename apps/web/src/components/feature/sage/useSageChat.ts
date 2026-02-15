@@ -48,6 +48,8 @@ export interface UseSageChatOptions {
   subject?: SageSubject;
   level?: SageLevel;
   sessionGoal?: SessionGoal;
+  /** Initial conversation history from Lexi handoff */
+  initialConversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
   onError?: (error: string) => void;
   onSessionStart?: (session: SageSession) => void;
   onSessionEnd?: () => void;
@@ -107,10 +109,14 @@ export function useSageChat(options: UseSageChatOptions = {}): UseSageChatReturn
     subject: initialSubject,
     level: initialLevel,
     sessionGoal: initialGoal,
+    initialConversationHistory,
     onError,
     onSessionStart,
     onSessionEnd,
   } = options;
+
+  // Ref to track initial conversation history (from Lexi handoff)
+  const handoffHistoryRef = useRef(initialConversationHistory);
 
   // Local state
   const [messages, setMessages] = useState<SageMessage[]>([]);
@@ -275,10 +281,28 @@ export function useSageChat(options: UseSageChatOptions = {}): UseSageChatReturn
     setMessages(prev => [...prev, userMessage, streamingMessage]);
 
     try {
+      // Build conversation history from current messages + any handoff history
+      const conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+
+      // Include handoff history (only on first message)
+      if (handoffHistoryRef.current && messages.length <= 1) {
+        conversationHistory.push(...handoffHistoryRef.current);
+      }
+
+      // Include current messages (excluding the loading message we just added)
+      messages.forEach(msg => {
+        if (msg.role !== 'system' && !msg.isLoading && msg.id !== streamingMsgId) {
+          conversationHistory.push({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+          });
+        }
+      });
+
       if (streaming) {
-        await sendMessageStreaming(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
+        await sendMessageStreaming(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions, conversationHistory);
       } else {
-        await sendMessageRegular(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
+        await sendMessageRegular(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions, conversationHistory);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
@@ -331,7 +355,8 @@ async function sendMessageStreaming(
   message: string,
   msgId: string,
   setMessages: React.Dispatch<React.SetStateAction<SageMessage[]>>,
-  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
+  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>,
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<void> {
   const response = await fetch('/api/sage/stream', {
     method: 'POST',
@@ -340,6 +365,8 @@ async function sendMessageStreaming(
       sessionId: session.sessionId,
       message,
       subject: session.subject,
+      level: session.level,
+      conversationHistory,
     }),
   });
 
@@ -427,7 +454,8 @@ async function sendMessageRegular(
   message: string,
   msgId: string,
   setMessages: React.Dispatch<React.SetStateAction<SageMessage[]>>,
-  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>
+  setSuggestions: React.Dispatch<React.SetStateAction<string[]>>,
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<void> {
   const response = await fetch('/api/sage/message', {
     method: 'POST',
@@ -435,6 +463,9 @@ async function sendMessageRegular(
     body: JSON.stringify({
       sessionId: session.sessionId,
       message,
+      subject: session.subject,
+      level: session.level,
+      conversationHistory,
     }),
   });
 

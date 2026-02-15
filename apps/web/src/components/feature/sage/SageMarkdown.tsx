@@ -4,12 +4,17 @@
  * Sage Markdown Component
  *
  * Renders markdown content from Sage AI responses.
- * Supports code blocks, math notation, and educational formatting.
+ * Supports code blocks, LaTeX math notation, and educational formatting.
+ *
+ * LaTeX Support:
+ * - Inline math: $x^2$ or \(x^2\)
+ * - Display math: $$x^2$$ or \[x^2\]
  *
  * @module components/feature/sage/SageMarkdown
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
+import 'katex/dist/katex.min.css';
 import styles from './SageMarkdown.module.css';
 
 interface SageMarkdownProps {
@@ -17,21 +22,81 @@ interface SageMarkdownProps {
   className?: string;
 }
 
+// KaTeX render function (loaded dynamically)
+let katex: { renderToString: (tex: string, options?: object) => string } | null = null;
+let katexLoaded = false;
+let katexPromise: Promise<void> | null = null;
+
+async function loadKaTeX(): Promise<void> {
+  if (katexLoaded) return;
+  if (katexPromise) return katexPromise;
+
+  katexPromise = (async () => {
+    try {
+      const katexModule = await import('katex');
+      katex = katexModule.default || katexModule;
+      katexLoaded = true;
+    } catch {
+      console.warn('[SageMarkdown] KaTeX not available, LaTeX will render as text');
+      katexLoaded = true;
+    }
+  })();
+
+  return katexPromise;
+}
+
+/**
+ * Render LaTeX expression to HTML string
+ */
+function renderLatex(tex: string, displayMode: boolean = false): string {
+  if (!katex) {
+    return displayMode ? `\\[${tex}\\]` : `\\(${tex}\\)`;
+  }
+
+  try {
+    return katex.renderToString(tex, {
+      displayMode,
+      throwOnError: false,
+      errorColor: '#cc0000',
+      trust: false,
+      strict: false,
+    });
+  } catch (err) {
+    console.warn('[SageMarkdown] LaTeX render error:', err);
+    return displayMode ? `\\[${tex}\\]` : `\\(${tex}\\)`;
+  }
+}
+
 // Simple markdown parser for common patterns
-function parseMarkdown(content: string): React.ReactNode[] {
+function parseMarkdown(content: string, katexReady: boolean): React.ReactNode[] {
   const elements: React.ReactNode[] = [];
   let key = 0;
 
-  // Split by code blocks first
+  // First, process display math blocks ($$...$$ or \[...\])
+  let processedContent = content;
+
+  if (katexReady) {
+    // Display math: $$...$$ or \[...\]
+    processedContent = processedContent.replace(
+      /\$\$([^$]+)\$\$|\\\[([^\]]+)\\\]/g,
+      (_, tex1, tex2) => {
+        const tex = tex1 || tex2;
+        const html = renderLatex(tex.trim(), true);
+        return `<div class="${styles.mathBlock}">${html}</div>`;
+      }
+    );
+  }
+
+  // Split by code blocks
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
   let lastIndex = 0;
   let match;
 
-  while ((match = codeBlockRegex.exec(content)) !== null) {
+  while ((match = codeBlockRegex.exec(processedContent)) !== null) {
     // Add text before code block
     if (match.index > lastIndex) {
-      const textBefore = content.slice(lastIndex, match.index);
-      elements.push(...parseInlineMarkdown(textBefore, key));
+      const textBefore = processedContent.slice(lastIndex, match.index);
+      elements.push(...parseInlineMarkdown(textBefore, key, katexReady));
       key += 100;
     }
 
@@ -48,21 +113,34 @@ function parseMarkdown(content: string): React.ReactNode[] {
   }
 
   // Add remaining text
-  if (lastIndex < content.length) {
-    const remaining = content.slice(lastIndex);
-    elements.push(...parseInlineMarkdown(remaining, key));
+  if (lastIndex < processedContent.length) {
+    const remaining = processedContent.slice(lastIndex);
+    elements.push(...parseInlineMarkdown(remaining, key, katexReady));
   }
 
   return elements;
 }
 
-// Parse inline markdown (bold, italic, inline code, links, lists)
-function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] {
+// Parse inline markdown (bold, italic, inline code, links, lists, inline math)
+function parseInlineMarkdown(text: string, startKey: number, katexReady: boolean): React.ReactNode[] {
   const elements: React.ReactNode[] = [];
   let key = startKey;
 
+  // Process inline math first if KaTeX is ready: $...$ or \(...\)
+  let processedText = text;
+  if (katexReady) {
+    processedText = processedText.replace(
+      /\$([^$\n]+)\$|\\\(([^)]+)\\\)/g,
+      (_, tex1, tex2) => {
+        const tex = tex1 || tex2;
+        const html = renderLatex(tex.trim(), false);
+        return `<span class="${styles.mathInline}">${html}</span>`;
+      }
+    );
+  }
+
   // Split by paragraphs
-  const paragraphs = text.split(/\n\n+/);
+  const paragraphs = processedText.split(/\n\n+/);
 
   paragraphs.forEach((para, paraIndex) => {
     if (!para.trim()) return;
@@ -190,11 +268,35 @@ function parseInlineElements(text: string): React.ReactNode[] {
 }
 
 export default function SageMarkdown({ content, className }: SageMarkdownProps) {
-  const parsedContent = useMemo(() => parseMarkdown(content), [content]);
+  const [katexReady, setKatexReady] = React.useState(katexLoaded);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Load KaTeX on mount if content contains math
+  useEffect(() => {
+    const hasMath = /\$[^$]+\$|\\\([^)]+\\\)|\$\$[^$]+\$\$|\\\[[^\]]+\\\]/.test(content);
+    if (hasMath && !katexLoaded) {
+      loadKaTeX().then(() => {
+        setKatexReady(true);
+      });
+    }
+  }, [content]);
+
+  const parsedContent = useMemo(
+    () => parseMarkdown(content, katexReady),
+    [content, katexReady]
+  );
 
   return (
-    <div className={`${styles.markdown} ${className || ''}`}>
+    <div
+      ref={containerRef}
+      className={`${styles.markdown} ${className || ''}`}
+      // Use dangerouslySetInnerHTML for math content since KaTeX returns HTML
+      // Only if content contains rendered math
+    >
       {parsedContent}
     </div>
   );
 }
+
+// Also export as named export
+export { SageMarkdown };

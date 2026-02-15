@@ -15,7 +15,8 @@ import { cookies } from 'next/headers';
 import { getDefaultSageProvider, SageRulesProvider } from '@sage/providers';
 import { knowledgeRetriever } from '@sage/knowledge';
 import { contextResolver } from '@sage/context';
-import type { SagePersona, SageSubject, SageLevel } from '@sage/types';
+import { getSignatureContext } from '@sage/subjects/engine-executor';
+import type { SagePersona, SageSubject, SageLevel, SageIntentCategory } from '@sage/types';
 import type { LLMMessage } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
 
@@ -165,6 +166,24 @@ export async function POST(request: NextRequest) {
 
     const messageId = `msg_${Date.now()}`;
 
+    // Resolve DSPy signature for structured responses
+    let signaturePrompt: string | undefined;
+    if (body.subject) {
+      // Detect basic intent from message for signature selection
+      const intentCategory = detectBasicIntent(body.message);
+      const sigContext = getSignatureContext(intentCategory, body.subject, {
+        topic: undefined,
+        level: body.level,
+        userMessage: body.message,
+      });
+      if (sigContext) {
+        signaturePrompt = sigContext.promptEnhancement;
+      }
+    }
+
+    // Combine RAG context with signature prompt
+    const combinedRagContext = [ragContext, signaturePrompt].filter(Boolean).join('\n') || undefined;
+
     // Create SSE stream
     const encoder = new TextEncoder();
     let fullResponse = '';
@@ -177,14 +196,14 @@ export async function POST(request: NextRequest) {
             encoder.encode(`event: start\ndata: ${JSON.stringify({ messageId })}\n\n`)
           );
 
-          // Stream from provider with RAG context
+          // Stream from provider with RAG + DSPy context
           const streamGenerator = provider.stream({
             messages,
             persona,
             subject: body.subject,
             level: body.level,
             context,
-            ragContext,
+            ragContext: combinedRagContext,
           });
 
           for await (const chunk of streamGenerator) {
@@ -370,4 +389,23 @@ function getSuggestions(_message: string, persona: SagePersona, subject?: SageSu
  */
 function getFallbackResponse(_message: string): string {
   return "I'm having a bit of trouble right now, but I'm still here to help! Could you try rephrasing your question, or let me know what subject you'd like to focus on? I can help with maths, English, science, and more.";
+}
+
+/**
+ * Detect basic intent from message text for DSPy signature selection.
+ * Lightweight keyword-based detection used in the stream route.
+ */
+function detectBasicIntent(message: string): SageIntentCategory {
+  const lower = message.toLowerCase();
+
+  if (/solve|calculate|work out|find|what is/.test(lower)) return 'solve';
+  if (/explain|how does|what does|why does|tell me about/.test(lower)) return 'explain';
+  if (/practice|exercise|quiz|test me|problems/.test(lower)) return 'practice';
+  if (/wrong|mistake|error|incorrect|check my/.test(lower)) return 'diagnose';
+  if (/review|revise|summary|recap/.test(lower)) return 'review';
+  if (/homework|assignment|coursework/.test(lower)) return 'homework';
+  if (/exam|test|prepare|revision/.test(lower)) return 'exam';
+  if (/resource|material|textbook|video/.test(lower)) return 'resources';
+
+  return 'general';
 }

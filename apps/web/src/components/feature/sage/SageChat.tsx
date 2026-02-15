@@ -16,6 +16,13 @@ import SageMarkdown from './SageMarkdown';
 
 // --- Types ---
 
+interface InitialContext {
+  /** Topic transferred from Lexi handoff */
+  topic?: string;
+  /** Conversation history transferred from Lexi */
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
+
 interface SageChatProps {
   subject?: SageSubject;
   level?: SageLevel;
@@ -23,6 +30,8 @@ interface SageChatProps {
   streaming?: boolean;
   className?: string;
   onSessionStart?: () => void;
+  /** Initial context from Lexi handoff */
+  initialContext?: InitialContext;
 }
 
 // --- Component ---
@@ -34,6 +43,7 @@ export default function SageChat({
   streaming = true,
   className,
   onSessionStart,
+  initialContext,
 }: SageChatProps) {
   const {
     messages,
@@ -52,11 +62,23 @@ export default function SageChat({
     level,
     onError: (err) => console.error('[SageChat] Error:', err),
     onSessionStart: () => onSessionStart?.(),
+    initialConversationHistory: initialContext?.conversationHistory,
   });
 
   const [inputValue, setInputValue] = useState('');
+  const [handoffProcessed, setHandoffProcessed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Process handoff context - send initial message about transferred topic
+  useEffect(() => {
+    if (initialContext?.topic && session && !handoffProcessed && !isLoading) {
+      setHandoffProcessed(true);
+      // Send a greeting message referencing the transferred topic
+      const handoffMessage = `I'd like help with ${initialContext.topic}. I was just chatting with Lexi about this.`;
+      sendMessage(handoffMessage);
+    }
+  }, [initialContext, session, handoffProcessed, isLoading, sendMessage]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
