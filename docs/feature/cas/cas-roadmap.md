@@ -216,15 +216,28 @@ const schoolTools = {
 
 ### Neo4j Hybrid Knowledge Graph (2027+)
 **Source:** Fuschia's graph-based knowledge management
+**Decision:** Use existing `profile_graph` table instead of Neo4j
 
-Complement pgvector with relationship queries:
+TutorWise already has relationship capabilities via `profile_graph`:
 
-```cypher
-// Student-Tutor-Subject relationships
-(Student)-[:LEARNS_FROM]->(Tutor)-[:TEACHES]->(Subject)
-(Student)-[:STRUGGLES_WITH]->(Topic)-[:PART_OF]->(Subject)
-(Student)-[:HAS_ACCESS_TO]->(Material)<-[:SHARED_BY]-(Tutor)
+```typescript
+// Existing profile_graph usage (sage/services/access-control.ts)
+const relationships = await supabase
+  .from('profile_graph')
+  .select('source_profile_id, target_profile_id, relationship_type')
+  .or(`source_profile_id.eq.${userId},target_profile_id.eq.${userId}`)
+  .eq('status', 'ACTIVE');
+
+// Relationship types: TUTOR, AGENT, GUARDIAN, STUDENT
 ```
+
+**Mapping Neo4j patterns → profile_graph:**
+| Neo4j Pattern | profile_graph Implementation |
+|---------------|------------------------------|
+| `(Student)-[:LEARNS_FROM]->(Tutor)` | `relationship_type: 'TUTOR'` ✅ |
+| `(Student)-[:HAS_ACCESS_TO]->(Material)` | AccessControlService ✅ |
+| `(Tutor)-[:TEACHES]->(Subject)` | Extend `tutor_profiles.subjects` |
+| `(Student)-[:STRUGGLES_WITH]->(Topic)` | Add to `student_learning_progress` |
 
 **Benefits:**
 - [ ] Traverse relationships for recommendations
@@ -232,7 +245,7 @@ Complement pgvector with relationship queries:
 - [ ] Tutor network effects
 - [ ] Knowledge gap pattern detection
 
-**Effort:** High (migration or hybrid approach)
+**Effort:** Low (extend existing tables, no new DB)
 
 ---
 
@@ -264,10 +277,35 @@ Enable tutors to build visual lesson flows:
 | MCP Tool Protocol | Q1 2026 | High | Low | **Now** |
 | Visual Lesson Builder | Q2 2026 | High | Medium | **Next** |
 | LangGraph State Machines | Q3 2026 | Medium | Medium | Planned |
-| Neo4j Hybrid | 2027+ | Medium | High | Future |
+| profile_graph Extensions | Q2 2026 | Medium | Low | **Next** |
 
 ---
 
+### Shared Architecture Pattern
+#### Recommended Hybrid:
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    TutorWise + Fuschia Patterns                  │
+├─────────────────────────────────────────────────────────────────┤
+│  FROM FUSCHIA:                                                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │ ReactFlow   │  │  LangGraph  │  │    MCP      │              │
+│  │ (Lessons)   │  │  (CAS Dev)  │  │  (Schools)  │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+│         ↓                ↓                ↓                      │
+├─────────────────────────────────────────────────────────────────┤
+│  TUTORWISE CORE (Keep):                                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │ Role-Aware  │  │  Knowledge  │  │    DSPy     │              │
+│  │  Personas   │  │ Partitions  │  │ Optimisation│              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │ Lexi↔Sage   │  │  pgvector   │  │  Message    │              │
+│  │  Handoff    │  │    RAG      │  │    Bus      │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
+
+---
 
 
 1. **Single source of truth:** Markdown plans in `/cas/agents/*/planning/`
