@@ -10,6 +10,7 @@ from .tutoring_metrics import (
     explanation_quality_metric,
     student_understanding_metric,
     composite_tutoring_metric,
+    dspy_tutoring_metric,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "explanation_quality_metric",
     "student_understanding_metric",
     "composite_tutoring_metric",
+    "dspy_tutoring_metric",
 ]

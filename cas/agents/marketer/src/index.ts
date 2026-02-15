@@ -7,14 +7,47 @@
  * - A/B testing coordination
  * - Production metrics review
  * - Feature impact assessment
+ * - AI feedback analysis (Sage/Lexi)
  *
  * @agent Marketer Agent
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { analyst } from '../../analyst/src';
 import { developer } from '../../developer/src';
+
+// --- AI Feedback Types ---
+
+export interface AIFeedbackRecord {
+  id: string;
+  agent_type: 'sage' | 'lexi';
+  session_id: string;
+  user_id: string;
+  rating: 'thumbs_up' | 'thumbs_down';
+  comment?: string;
+  context: {
+    user_role?: string;
+    subject?: string;
+    topic?: string;
+    persona?: string;
+  };
+  created_at: string;
+}
+
+export interface AIFeedbackSummary {
+  agentType: 'sage' | 'lexi' | 'all';
+  period: string;
+  totalFeedback: number;
+  positiveCount: number;
+  negativeCount: number;
+  satisfactionRate: number;
+  byRole: Record<string, { positive: number; negative: number }>;
+  bySubject: Record<string, { positive: number; negative: number }>;
+  topComplaints: string[];
+  topPraise: string[];
+}
 
 export interface FeatureMetrics {
   featureName: string;
@@ -65,10 +98,194 @@ export interface FeatureImpactSummary {
 class MarketerAgent {
   private projectRoot: string;
   private metricsDir: string;
+  private supabase: SupabaseClient | null = null;
 
   constructor() {
     this.projectRoot = path.resolve(__dirname, '../../../../');
     this.metricsDir = path.join(this.projectRoot, 'cas/agents/marketer/data');
+    this.initializeSupabase();
+  }
+
+  /**
+   * Initialize Supabase client for database access.
+   */
+  private initializeSupabase(): void {
+    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+
+    if (url && key) {
+      this.supabase = createClient(url, key);
+      console.log('[MarketerAgent] Supabase initialized');
+    } else {
+      console.warn('[MarketerAgent] Supabase credentials not found - using simulated data');
+    }
+  }
+
+  /**
+   * Fetch real AI feedback from the database.
+   */
+  public async fetchAIFeedback(options: {
+    agentType?: 'sage' | 'lexi';
+    days?: number;
+    limit?: number;
+  } = {}): Promise<AIFeedbackRecord[]> {
+    if (!this.supabase) {
+      console.warn('[MarketerAgent] No database connection - returning empty feedback');
+      return [];
+    }
+
+    const { agentType, days = 7, limit = 1000 } = options;
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    let query = this.supabase
+      .from('ai_feedback')
+      .select('*')
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (agentType) {
+      query = query.eq('agent_type', agentType);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('[MarketerAgent] Failed to fetch feedback:', error);
+      return [];
+    }
+
+    console.log(`[MarketerAgent] Fetched ${data?.length || 0} feedback records`);
+    return data || [];
+  }
+
+  /**
+   * Analyze AI feedback and generate a summary report.
+   */
+  public async analyzeAIFeedback(options: {
+    agentType?: 'sage' | 'lexi';
+    days?: number;
+  } = {}): Promise<AIFeedbackSummary> {
+    console.log(`▶️ Marketer Agent: Analyzing AI feedback for ${options.agentType || 'all agents'}...`);
+
+    const feedback = await this.fetchAIFeedback(options);
+
+    // Initialize counters
+    const byRole: Record<string, { positive: number; negative: number }> = {};
+    const bySubject: Record<string, { positive: number; negative: number }> = {};
+    const positiveComments: string[] = [];
+    const negativeComments: string[] = [];
+
+    let positiveCount = 0;
+    let negativeCount = 0;
+
+    // Process feedback records
+    for (const record of feedback) {
+      const isPositive = record.rating === 'thumbs_up';
+      if (isPositive) positiveCount++; else negativeCount++;
+
+      // Track by role
+      const role = record.context?.user_role || 'unknown';
+      if (!byRole[role]) byRole[role] = { positive: 0, negative: 0 };
+      if (isPositive) byRole[role].positive++; else byRole[role].negative++;
+
+      // Track by subject (Sage only)
+      const subject = record.context?.subject;
+      if (subject) {
+        if (!bySubject[subject]) bySubject[subject] = { positive: 0, negative: 0 };
+        if (isPositive) bySubject[subject].positive++; else bySubject[subject].negative++;
+      }
+
+      // Collect comments
+      if (record.comment) {
+        if (isPositive) positiveComments.push(record.comment);
+        else negativeComments.push(record.comment);
+      }
+    }
+
+    const totalFeedback = positiveCount + negativeCount;
+    const satisfactionRate = totalFeedback > 0 ? (positiveCount / totalFeedback) * 100 : 0;
+
+    const summary: AIFeedbackSummary = {
+      agentType: options.agentType || 'all',
+      period: `${options.days || 7} days`,
+      totalFeedback,
+      positiveCount,
+      negativeCount,
+      satisfactionRate: Math.round(satisfactionRate * 10) / 10,
+      byRole,
+      bySubject,
+      topComplaints: negativeComments.slice(0, 5),
+      topPraise: positiveComments.slice(0, 5),
+    };
+
+    console.log(`✅ AI Feedback Analysis complete. Satisfaction: ${summary.satisfactionRate}%`);
+    return summary;
+  }
+
+  /**
+   * Generate a markdown report of AI feedback trends.
+   */
+  public async generateAIFeedbackReport(options: {
+    agentType?: 'sage' | 'lexi';
+    days?: number;
+  } = {}): Promise<string> {
+    const summary = await this.analyzeAIFeedback(options);
+
+    let report = `## AI Agent Feedback Report\n\n`;
+    report += `**Agent:** ${summary.agentType === 'all' ? 'Sage & Lexi' : summary.agentType.charAt(0).toUpperCase() + summary.agentType.slice(1)}\n`;
+    report += `**Period:** Last ${summary.period}\n`;
+    report += `**Generated:** ${new Date().toLocaleDateString()}\n\n`;
+
+    report += `### Summary\n\n`;
+    report += `| Metric | Value |\n`;
+    report += `|--------|-------|\n`;
+    report += `| Total Feedback | ${summary.totalFeedback} |\n`;
+    report += `| 👍 Positive | ${summary.positiveCount} |\n`;
+    report += `| 👎 Negative | ${summary.negativeCount} |\n`;
+    report += `| Satisfaction Rate | ${summary.satisfactionRate}% |\n\n`;
+
+    if (Object.keys(summary.byRole).length > 0) {
+      report += `### Feedback by Role\n\n`;
+      report += `| Role | 👍 | 👎 | Rate |\n`;
+      report += `|------|-----|-----|------|\n`;
+      for (const [role, counts] of Object.entries(summary.byRole)) {
+        const total = counts.positive + counts.negative;
+        const rate = total > 0 ? Math.round((counts.positive / total) * 100) : 0;
+        report += `| ${role} | ${counts.positive} | ${counts.negative} | ${rate}% |\n`;
+      }
+      report += '\n';
+    }
+
+    if (Object.keys(summary.bySubject).length > 0) {
+      report += `### Feedback by Subject (Sage)\n\n`;
+      report += `| Subject | 👍 | 👎 | Rate |\n`;
+      report += `|---------|-----|-----|------|\n`;
+      for (const [subject, counts] of Object.entries(summary.bySubject)) {
+        const total = counts.positive + counts.negative;
+        const rate = total > 0 ? Math.round((counts.positive / total) * 100) : 0;
+        report += `| ${subject} | ${counts.positive} | ${counts.negative} | ${rate}% |\n`;
+      }
+      report += '\n';
+    }
+
+    if (summary.topComplaints.length > 0) {
+      report += `### Top Complaints\n\n`;
+      for (const complaint of summary.topComplaints) {
+        report += `- "${complaint}"\n`;
+      }
+      report += '\n';
+    }
+
+    if (summary.topPraise.length > 0) {
+      report += `### Positive Feedback\n\n`;
+      for (const praise of summary.topPraise) {
+        report += `- "${praise}"\n`;
+      }
+      report += '\n';
+    }
+
+    return report;
   }
 
   /**
@@ -347,7 +564,24 @@ export const runMarketer = async (): Promise<void> => {
 
   const marketerAgent = new MarketerAgent();
 
+  // Run AI feedback analysis
+  console.log('\n=== AI Agent Feedback Analysis ===\n');
+
+  const sageReport = await marketerAgent.generateAIFeedbackReport({
+    agentType: 'sage',
+    days: 7,
+  });
+  console.log(sageReport);
+
+  const lexiReport = await marketerAgent.generateAIFeedbackReport({
+    agentType: 'lexi',
+    days: 7,
+  });
+  console.log(lexiReport);
+
   // Run a production metrics review
+  console.log('\n=== Feature Production Review ===\n');
+
   const summary = await marketerAgent.runProductionMetricsReview(
     'Listing Creation Wizard',
     { adoption: 80, completion: 85 },

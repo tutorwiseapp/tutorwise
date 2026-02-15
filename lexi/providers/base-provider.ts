@@ -2,6 +2,7 @@
  * Base LLM Provider
  *
  * Abstract base class providing shared functionality for all LLM providers.
+ * Integrates with CAS DSPy optimization pipeline for enhanced prompts.
  *
  * @module lexi/providers/base-provider
  */
@@ -14,6 +15,11 @@ import type {
   SystemPromptContext,
 } from './types';
 import type { PersonaType } from '../types';
+import {
+  loadOptimizedPrompts,
+  formatFewShotExamples,
+  type SignatureType,
+} from '../../cas/optimization/prompt-loader';
 
 // --- Persona System Prompts ---
 
@@ -96,12 +102,19 @@ export abstract class BaseLLMProvider implements LLMProvider {
   ): Promise<import('../types').DetectedIntent>;
 
   /**
-   * Build system prompt for persona
+   * Build system prompt for persona.
+   * Integrates DSPy-optimized few-shot examples when available.
    */
   protected buildSystemPrompt(context: SystemPromptContext): string {
     const basePrompt = PERSONA_PROMPTS[context.persona];
 
     const contextParts: string[] = [basePrompt];
+
+    // Add DSPy-optimized few-shot examples if available
+    const dspyExamples = this.getDSPyEnhancements(context);
+    if (dspyExamples) {
+      contextParts.push(dspyExamples);
+    }
 
     // Add user context
     if (context.userName) {
@@ -142,6 +155,53 @@ Response Guidelines:
       { role: 'system', content: systemPrompt },
       ...messages,
     ];
+  }
+
+  /**
+   * Get DSPy-optimized prompt enhancements.
+   * Returns few-shot examples if optimization is available.
+   */
+  protected getDSPyEnhancements(context: SystemPromptContext): string | null {
+    try {
+      // Attempt to load optimized prompts
+      const prompts = loadOptimizedPrompts('lexi');
+      if (!prompts) {
+        return null;
+      }
+
+      // Map persona to relevant signature type
+      const signatureType = this.mapPersonaToSignature(context.persona);
+      if (!signatureType) {
+        return null;
+      }
+
+      // Get formatted few-shot examples
+      const examples = formatFewShotExamples('lexi', signatureType);
+      if (!examples) {
+        return null;
+      }
+
+      return `\n---\n## Examples of Good Responses\n\n${examples}\n\nApply these patterns when responding.`;
+    } catch (error) {
+      // Silently fail - DSPy enhancement is optional
+      return null;
+    }
+  }
+
+  /**
+   * Map persona type to DSPy signature type.
+   */
+  protected mapPersonaToSignature(persona: PersonaType): SignatureType | null {
+    // Lexi primarily uses 'explain' signature for all personas
+    // Could be extended to use different signatures per persona
+    switch (persona) {
+      case 'student':
+        return 'explain';
+      case 'tutor':
+        return 'explain';
+      default:
+        return null;
+    }
   }
 
   /**

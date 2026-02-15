@@ -8,6 +8,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { documentEmbedder } from '../upload/embedder';
 import type {
   KnowledgeSearchRequest,
   KnowledgeSearchResult,
@@ -149,10 +150,12 @@ export class KnowledgeRetriever {
    * Uses the same embedding model as document processing.
    */
   private async generateEmbedding(text: string): Promise<number[] | null> {
-    // TODO: Implement with actual embedding API (OpenAI, Gemini, etc.)
-    // For now, return null to indicate not implemented
-    console.warn('[KnowledgeRetriever] Embedding generation not implemented');
-    return null;
+    // Initialize embedder if not already done
+    if (!documentEmbedder.getProvider()) {
+      documentEmbedder.initialize();
+    }
+
+    return documentEmbedder.generateQueryEmbedding(text);
   }
 
   /**

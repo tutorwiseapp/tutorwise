@@ -4,6 +4,9 @@
  * Processes uploaded files (PowerPoint, PDF, etc.) and extracts
  * text content for embedding.
  *
+ * Dependencies:
+ *   npm install officeparser pdf-parse
+ *
  * @module sage/upload
  */
 
@@ -14,6 +17,32 @@ import type {
   DocumentChunk,
   ChunkMetadata,
 } from '../knowledge/types';
+
+// Dynamic imports for optional dependencies
+let officeparser: any = null;
+let pdfParse: any = null;
+
+async function loadOfficeParser() {
+  if (!officeparser) {
+    try {
+      officeparser = await import('officeparser');
+    } catch {
+      console.warn('[DocumentProcessor] officeparser not installed. Run: npm install officeparser');
+    }
+  }
+  return officeparser;
+}
+
+async function loadPdfParse() {
+  if (!pdfParse) {
+    try {
+      pdfParse = (await import('pdf-parse')).default;
+    } catch {
+      console.warn('[DocumentProcessor] pdf-parse not installed. Run: npm install pdf-parse');
+    }
+  }
+  return pdfParse;
+}
 
 // --- Processor Types ---
 
@@ -149,61 +178,161 @@ export class DocumentProcessor {
 
   /**
    * Process PowerPoint file.
+   * Extracts text from all slides including titles, body text, and notes.
    */
   private async processPowerPoint(buffer: Buffer): Promise<{
     content: string;
     metadata: DocumentMetadata;
   }> {
-    // TODO: Implement actual PowerPoint processing with pptx library
-    // For now, return placeholder
+    const parser = await loadOfficeParser();
 
-    console.warn('[DocumentProcessor] PowerPoint processing not implemented - using placeholder');
+    if (!parser) {
+      console.warn('[DocumentProcessor] officeparser not available');
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0 },
+      };
+    }
 
-    return {
-      content: '[PowerPoint content would be extracted here]',
-      metadata: {
-        pageCount: 1,
-        wordCount: 0,
-      },
-    };
+    try {
+      // officeparser.parseOfficeAsync returns extracted text
+      const text = await parser.parseOfficeAsync(buffer);
+
+      // Clean up the extracted text
+      const cleanedText = this.cleanExtractedText(text);
+      const wordCount = cleanedText.split(/\s+/).filter(Boolean).length;
+
+      // Estimate slide count from content structure
+      const slideMarkers = (cleanedText.match(/^(?:Slide|Page|\d+\.)\s/gm) || []).length;
+      const estimatedSlides = Math.max(slideMarkers, Math.ceil(wordCount / 100));
+
+      console.log(`[DocumentProcessor] PowerPoint extracted: ${wordCount} words, ~${estimatedSlides} slides`);
+
+      return {
+        content: cleanedText,
+        metadata: {
+          pageCount: estimatedSlides,
+          wordCount,
+          format: 'powerpoint',
+        },
+      };
+    } catch (error) {
+      console.error('[DocumentProcessor] PowerPoint extraction failed:', error);
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0, error: (error as Error).message },
+      };
+    }
   }
 
   /**
    * Process PDF file.
+   * Extracts text from all pages.
    */
   private async processPDF(buffer: Buffer): Promise<{
     content: string;
     metadata: DocumentMetadata;
   }> {
-    // TODO: Implement actual PDF processing with pdf-parse or similar
-    console.warn('[DocumentProcessor] PDF processing not implemented - using placeholder');
+    const parse = await loadPdfParse();
 
-    return {
-      content: '[PDF content would be extracted here]',
-      metadata: {
-        pageCount: 1,
-        wordCount: 0,
-      },
-    };
+    if (!parse) {
+      console.warn('[DocumentProcessor] pdf-parse not available');
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0 },
+      };
+    }
+
+    try {
+      const data = await parse(buffer);
+
+      const cleanedText = this.cleanExtractedText(data.text);
+      const wordCount = cleanedText.split(/\s+/).filter(Boolean).length;
+
+      console.log(`[DocumentProcessor] PDF extracted: ${wordCount} words, ${data.numpages} pages`);
+
+      return {
+        content: cleanedText,
+        metadata: {
+          pageCount: data.numpages,
+          wordCount,
+          format: 'pdf',
+          title: data.info?.Title,
+          author: data.info?.Author,
+        },
+      };
+    } catch (error) {
+      console.error('[DocumentProcessor] PDF extraction failed:', error);
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0, error: (error as Error).message },
+      };
+    }
   }
 
   /**
    * Process Word document.
+   * Extracts text from .docx files.
    */
   private async processWord(buffer: Buffer): Promise<{
     content: string;
     metadata: DocumentMetadata;
   }> {
-    // TODO: Implement actual Word processing with mammoth or similar
-    console.warn('[DocumentProcessor] Word processing not implemented - using placeholder');
+    const parser = await loadOfficeParser();
 
-    return {
-      content: '[Word content would be extracted here]',
-      metadata: {
-        pageCount: 1,
-        wordCount: 0,
-      },
-    };
+    if (!parser) {
+      console.warn('[DocumentProcessor] officeparser not available');
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0 },
+      };
+    }
+
+    try {
+      const text = await parser.parseOfficeAsync(buffer);
+
+      const cleanedText = this.cleanExtractedText(text);
+      const wordCount = cleanedText.split(/\s+/).filter(Boolean).length;
+
+      // Estimate page count (avg ~500 words per page)
+      const estimatedPages = Math.max(1, Math.ceil(wordCount / 500));
+
+      console.log(`[DocumentProcessor] Word extracted: ${wordCount} words, ~${estimatedPages} pages`);
+
+      return {
+        content: cleanedText,
+        metadata: {
+          pageCount: estimatedPages,
+          wordCount,
+          format: 'word',
+        },
+      };
+    } catch (error) {
+      console.error('[DocumentProcessor] Word extraction failed:', error);
+      return {
+        content: '',
+        metadata: { pageCount: 0, wordCount: 0, error: (error as Error).message },
+      };
+    }
+  }
+
+  /**
+   * Clean up extracted text.
+   * Removes excessive whitespace, normalizes line breaks.
+   */
+  private cleanExtractedText(text: string): string {
+    return text
+      // Normalize line endings
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      // Remove excessive blank lines (more than 2)
+      .replace(/\n{3,}/g, '\n\n')
+      // Remove leading/trailing whitespace from lines
+      .split('\n')
+      .map(line => line.trim())
+      .join('\n')
+      // Remove leading/trailing whitespace from entire text
+      .trim();
   }
 
   /**

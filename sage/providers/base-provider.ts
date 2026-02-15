@@ -3,6 +3,7 @@
  *
  * Abstract base class for Sage LLM providers.
  * Contains role-aware tutoring system prompts.
+ * Integrates with CAS DSPy optimization pipeline for enhanced tutoring.
  *
  * @module sage/providers/base-provider
  */
@@ -19,6 +20,11 @@ import type {
 } from './types';
 import type { SagePersona, SageSubject, SageLevel, SageDetectedIntent } from '../types';
 import type { AgentContext } from '../../cas/packages/core/src/context';
+import {
+  loadOptimizedPrompts,
+  formatFewShotExamples,
+  type SignatureType,
+} from '../../cas/optimization/prompt-loader';
 
 // --- Subject-Specific Prompts ---
 
@@ -189,6 +195,7 @@ export abstract class BaseSageProvider implements LLMProvider {
 
   /**
    * Build comprehensive system prompt for Sage tutoring.
+   * Integrates DSPy-optimized few-shot examples when available.
    */
   protected buildSystemPrompt(context: SystemPromptContext): string {
     const parts: string[] = [];
@@ -211,6 +218,12 @@ Your purpose is to supplement human tutoring by providing instant help and pract
 
     // Persona prompt
     parts.push('\n' + PERSONA_PROMPTS[context.persona]);
+
+    // DSPy-optimized few-shot examples (subject-aware)
+    const dspyEnhancement = this.getDSPyEnhancements(context);
+    if (dspyEnhancement) {
+      parts.push(dspyEnhancement);
+    }
 
     // Learning context
     if (context.learningContext) {
@@ -243,6 +256,57 @@ Response Guidelines:
 - Celebrate effort and progress`);
 
     return parts.join('\n');
+  }
+
+  /**
+   * Get DSPy-optimized prompt enhancements based on subject.
+   * Returns few-shot examples if optimization is available.
+   */
+  protected getDSPyEnhancements(context: SystemPromptContext): string | null {
+    try {
+      // Attempt to load optimized prompts for Sage
+      const prompts = loadOptimizedPrompts('sage');
+      if (!prompts) {
+        return null;
+      }
+
+      // Map subject to signature type
+      const signatureType = this.mapSubjectToSignature(context.subject);
+      if (!signatureType) {
+        return null;
+      }
+
+      // Get formatted few-shot examples
+      const examples = formatFewShotExamples('sage', signatureType);
+      if (!examples) {
+        return null;
+      }
+
+      return `\n---\n## Examples of Effective Tutoring Responses\n\n${examples}\n\nApply these tutoring patterns when helping the student.`;
+    } catch {
+      // Silently fail - DSPy enhancement is optional
+      return null;
+    }
+  }
+
+  /**
+   * Map subject to DSPy signature type.
+   */
+  protected mapSubjectToSignature(subject?: SageSubject): SignatureType | null {
+    if (!subject) return 'explain';
+
+    switch (subject) {
+      case 'maths':
+        return 'maths';
+      case 'science':
+        return 'explain';
+      case 'english':
+        return 'explain';
+      case 'general':
+        return 'explain';
+      default:
+        return 'explain';
+    }
   }
 
   /**

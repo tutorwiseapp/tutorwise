@@ -69,20 +69,35 @@ class DSPyOptimizer:
         self._configure_dspy()
 
     def _configure_dspy(self):
-        """Configure DSPy with the LLM provider."""
-        api_key = os.environ.get("GOOGLE_AI_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_AI_API_KEY environment variable required")
+        """Configure DSPy with the LLM provider (supports Claude and Gemini)."""
+        # Check for Claude first (preferred), then Gemini
+        anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
+        google_key = os.environ.get("GOOGLE_AI_API_KEY")
 
-        # Configure Gemini as the LLM
-        lm = dspy.LM(
-            model=self.model,
-            api_key=api_key,
-            temperature=0.7,
-            max_tokens=2048
-        )
+        if anthropic_key and self.model.startswith("claude"):
+            # Use Claude/Anthropic
+            lm = dspy.LM(
+                model=self.model,
+                api_key=anthropic_key,
+                temperature=0.7,
+                max_tokens=2048
+            )
+            logger.info(f"Configured DSPy with Claude: {self.model}")
+        elif google_key:
+            # Use Gemini
+            lm = dspy.LM(
+                model=self.model,
+                api_key=google_key,
+                temperature=0.7,
+                max_tokens=2048
+            )
+            logger.info(f"Configured DSPy with Gemini: {self.model}")
+        else:
+            raise ValueError(
+                "No API key found. Set ANTHROPIC_API_KEY (for Claude) or GOOGLE_AI_API_KEY (for Gemini)"
+            )
+
         dspy.configure(lm=lm)
-        logger.info(f"Configured DSPy with {self.model}")
 
     def optimize_signature(
         self,
@@ -364,7 +379,7 @@ class DSPyOptimizer:
 @click.option(
     "--model",
     default="gemini/gemini-1.5-flash-latest",
-    help="LLM model to use"
+    help="LLM model: 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', or 'gemini/gemini-1.5-flash-latest'"
 )
 @click.option(
     "--dry-run",

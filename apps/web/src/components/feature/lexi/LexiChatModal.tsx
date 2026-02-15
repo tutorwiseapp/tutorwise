@@ -6,12 +6,14 @@
  * Floating chat modal that can be triggered from anywhere in the app.
  * Includes a floating action button and slide-up chat panel.
  * Supports toggling between chat and history views.
+ * Includes proactive message triggers based on user context.
  *
  * @module components/feature/lexi/LexiChatModal
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { usePathname } from 'next/navigation';
 import LexiChat from './LexiChat';
 import LexiHistory from './LexiHistory';
 import LexiErrorBoundary from './LexiErrorBoundary';
@@ -21,11 +23,58 @@ import styles from './LexiChatModal.module.css';
 
 type ModalView = 'chat' | 'history';
 
+interface ProactiveMessage {
+  id: string;
+  message: string;
+  trigger: string;
+  dismissed?: boolean;
+}
+
 interface LexiChatModalProps {
   defaultOpen?: boolean;
   defaultView?: ModalView;
   position?: 'bottom-right' | 'bottom-left';
 }
+
+// --- Proactive Message Triggers ---
+
+const PROACTIVE_TRIGGERS: Array<{
+  id: string;
+  pathMatch: string | RegExp;
+  message: string;
+  delay?: number;
+}> = [
+  {
+    id: 'edupay-help',
+    pathMatch: '/edupay',
+    message: "Have questions about your wallet or cashback? I can help!",
+    delay: 3000,
+  },
+  {
+    id: 'booking-help',
+    pathMatch: '/bookings',
+    message: "Need help scheduling or managing a booking?",
+    delay: 5000,
+  },
+  {
+    id: 'listing-create-help',
+    pathMatch: '/listings/create',
+    message: "Creating your first listing? I can guide you through it!",
+    delay: 3000,
+  },
+  {
+    id: 'financials-help',
+    pathMatch: '/financials',
+    message: "Questions about earnings, payouts, or commissions?",
+    delay: 4000,
+  },
+  {
+    id: 'onboarding-help',
+    pathMatch: /^\/onboarding/,
+    message: "Hi! I'm Lexi. Need help completing your profile?",
+    delay: 5000,
+  },
+];
 
 // --- Component ---
 
@@ -37,11 +86,62 @@ export default function LexiChatModal({
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [view, setView] = useState<ModalView>(defaultView);
   const [isMounted, setIsMounted] = useState(false);
+  const [proactiveMessage, setProactiveMessage] = useState<ProactiveMessage | null>(null);
+  const [dismissedMessages, setDismissedMessages] = useState<Set<string>>(new Set());
+  const pathname = usePathname();
 
   // Handle client-side mounting for portal
   useEffect(() => {
     setIsMounted(true);
+    // Load dismissed messages from localStorage
+    const stored = localStorage.getItem('lexi-dismissed-messages');
+    if (stored) {
+      setDismissedMessages(new Set(JSON.parse(stored)));
+    }
   }, []);
+
+  // Proactive message triggers based on current path
+  useEffect(() => {
+    if (!isMounted || isOpen) return;
+
+    const trigger = PROACTIVE_TRIGGERS.find(t => {
+      if (typeof t.pathMatch === 'string') {
+        return pathname?.startsWith(t.pathMatch);
+      }
+      return t.pathMatch.test(pathname || '');
+    });
+
+    if (trigger && !dismissedMessages.has(trigger.id)) {
+      const timer = setTimeout(() => {
+        setProactiveMessage({
+          id: trigger.id,
+          message: trigger.message,
+          trigger: pathname || '',
+        });
+      }, trigger.delay || 3000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setProactiveMessage(null);
+    }
+  }, [pathname, isMounted, isOpen, dismissedMessages]);
+
+  const dismissProactiveMessage = useCallback((id: string) => {
+    setProactiveMessage(null);
+    setDismissedMessages(prev => {
+      const next = new Set(prev).add(id);
+      localStorage.setItem('lexi-dismissed-messages', JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
+
+  const handleProactiveClick = useCallback(() => {
+    if (proactiveMessage) {
+      dismissProactiveMessage(proactiveMessage.id);
+      setIsOpen(true);
+      setView('chat');
+    }
+  }, [proactiveMessage, dismissProactiveMessage]);
 
   // Handle escape key to close
   useEffect(() => {
@@ -125,6 +225,28 @@ export default function LexiChatModal({
           </LexiErrorBoundary>
         </div>
       </div>
+
+      {/* Proactive message bubble */}
+      {proactiveMessage && !isOpen && (
+        <div className={styles.proactiveBubble}>
+          <p className={styles.proactiveText}>{proactiveMessage.message}</p>
+          <div className={styles.proactiveActions}>
+            <button
+              className={styles.proactiveChat}
+              onClick={handleProactiveClick}
+            >
+              Chat with Lexi
+            </button>
+            <button
+              className={styles.proactiveDismiss}
+              onClick={() => dismissProactiveMessage(proactiveMessage.id)}
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Floating action button */}
       <button
