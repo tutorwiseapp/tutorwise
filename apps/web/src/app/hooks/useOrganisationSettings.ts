@@ -50,7 +50,7 @@ export function useOrganisationSettings({ currentTab }: UseOrganisationSettingsO
   // Handle tab change
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId as OrganisationSettingsTabId);
-    router.push(`/organisation/settings/${tabId}`);
+    router.push(`/organisations/settings/${tabId}`);
   };
 
   // Authorization check

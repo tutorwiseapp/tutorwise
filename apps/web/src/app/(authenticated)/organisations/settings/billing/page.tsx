@@ -1,5 +1,5 @@
 /**
- * Filename: /organisation/settings/billing/page.tsx
+ * Filename: /organisations/settings/billing/page.tsx
  * Purpose: Billing & Subscription settings page
  * Created: 2026-01-07
  */
@@ -261,7 +261,7 @@ export default function BillingSettingsPage() {
               data
             );
             toast.success('Your new card was added successfully!', { id: toastId });
-            router.replace('/organisation/settings/billing', { scroll: false });
+            router.replace('/organisations/settings/billing', { scroll: false });
             setIsVerifying(false);
             return true;
           }
@@ -285,7 +285,7 @@ export default function BillingSettingsPage() {
         if (attempts >= maxAttempts) {
           clearInterval(poll);
           toast.error('Card verification timed out. Please refresh to see your new card.', { id: toastId });
-          router.replace('/organisation/settings/billing', { scroll: false });
+          router.replace('/organisations/settings/billing', { scroll: false });
           setIsVerifying(false);
           setTimeout(() => refetchCards(), 1000);
         }

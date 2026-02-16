@@ -50,7 +50,7 @@ export default function OrganisationHelpWidget({
     if (onManageSubscription) {
       onManageSubscription();
     } else {
-      router.push('/organisation/settings/billing');
+      router.push('/organisations/settings/billing');
     }
   };
 

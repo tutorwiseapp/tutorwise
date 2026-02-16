@@ -101,8 +101,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       mode: 'setup',
       customer: stripeCustomerId,
-      success_url: `${origin}/organisation/settings/billing?status=success&customer_id=${stripeCustomerId}&organisation_id=${organisationId}`,
-      cancel_url: `${origin}/organisation/settings/billing?status=cancelled`,
+      success_url: `${origin}/organisations/settings/billing?status=success&customer_id=${stripeCustomerId}&organisation_id=${organisationId}`,
+      cancel_url: `${origin}/organisations/settings/billing?status=cancelled`,
     });
 
     return NextResponse.json({

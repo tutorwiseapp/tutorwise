@@ -31,7 +31,7 @@ export default function OrganisationTasksRedirect() {
     if (!profileLoading && !orgLoading) {
       if (organisation?.id) {
         // Redirect to the organisation's tasks page
-        router.replace(`/organisation/${organisation.id}/tasks`);
+        router.replace(`/organisations/${organisation.id}/tasks`);
       } else if (error || !organisation) {
         // No organisation found, redirect to organisation page to create one
         router.replace('/organisation');

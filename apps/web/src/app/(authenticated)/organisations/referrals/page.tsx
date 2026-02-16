@@ -33,7 +33,7 @@ export default function OrganisationReferralsRedirect() {
     if (!profileLoading && !orgLoading) {
       if (organisation?.id) {
         // Redirect to the organisation's referrals page
-        router.replace(`/organisation/${organisation.id}/referrals`);
+        router.replace(`/organisations/${organisation.id}/referrals`);
       } else if (error || !organisation) {
         // No organisation found, redirect to organisation page to create one
         router.replace('/organisation');

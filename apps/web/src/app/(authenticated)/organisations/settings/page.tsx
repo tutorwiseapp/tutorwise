@@ -3,7 +3,7 @@
  * Purpose: Redirect to organisation settings/billing page
  * Created: 2026-01-07
  * Updated: 2026-01-08 - Changed default from general to billing after removing General Settings page
- * Pattern: Fetches user's organisation and redirects to /organisation/settings/billing
+ * Pattern: Fetches user's organisation and redirects to /organisations/settings/billing
  */
 
 'use client';
@@ -34,7 +34,7 @@ export default function OrganisationSettingsRedirect() {
     if (!profileLoading && !orgLoading) {
       if (organisation?.id) {
         // Redirect to the billing settings page (default tab)
-        router.replace('/organisation/settings/billing');
+        router.replace('/organisations/settings/billing');
       } else if (error || !organisation) {
         // No organisation found, redirect to organisation page to create one
         router.replace('/organisation');

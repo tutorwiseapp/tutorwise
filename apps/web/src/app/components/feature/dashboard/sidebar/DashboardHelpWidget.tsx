@@ -77,7 +77,7 @@ export default function DashboardHelpWidget({
               'Complete your agency profile with verification documents and team details to attract more clients and tutors.',
               'Agencies with verified profiles receive 5x more partnership inquiries than unverified ones.',
             ],
-            link: { href: '/organisation/settings', text: 'Complete Agency Profile →' },
+            link: { href: '/organisations/settings', text: 'Complete Agency Profile →' },
           };
         }
         return {
