@@ -65,6 +65,7 @@ export class DeepSeekProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert to OpenAI-compatible format
@@ -131,6 +132,7 @@ export class DeepSeekProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert to OpenAI-compatible format

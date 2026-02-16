@@ -42,6 +42,8 @@ import type {
   UserPreferences,
 } from '../types';
 
+import { lexiKnowledgeRetriever } from '../knowledge/retriever';
+
 // --- Persona Configurations ---
 
 const PERSONA_CONFIGS: Record<PersonaType, PersonaConfig> = {
@@ -129,6 +131,16 @@ export class LexiOrchestrator {
       this.provider = getDefaultProvider();
     }
     console.log(`[Lexi] Initialized with provider: ${this.provider.name}`);
+
+    // Initialize RAG knowledge retriever (best-effort)
+    try {
+      lexiKnowledgeRetriever.initialize();
+      if (lexiKnowledgeRetriever.isReady()) {
+        console.log(`[Lexi] RAG knowledge retriever initialized`);
+      }
+    } catch {
+      // RAG is optional
+    }
   }
 
   /**
@@ -225,18 +237,38 @@ export class LexiOrchestrator {
       return { response };
     }
 
+    // Retrieve RAG context (third knowledge layer - best effort)
+    let ragContext: string | undefined;
+    if (lexiKnowledgeRetriever.isReady()) {
+      try {
+        const ragResult = await lexiKnowledgeRetriever.search({
+          query: userMessage,
+          category: intent.category !== 'general' ? intent.category : undefined,
+          audience: session.persona === 'student' ? 'student' : session.persona === 'tutor' ? 'tutor' : undefined,
+          topK: 3,
+          minScore: 0.55,
+        });
+        if (ragResult.chunks.length > 0) {
+          ragContext = lexiKnowledgeRetriever.formatForContext(ragResult.chunks, 1500);
+        }
+      } catch {
+        // RAG is optional — silently continue without it
+      }
+    }
+
     // Convert conversation messages to LLM format
     const llmMessages: LLMMessage[] = conversation.messages.map(m => ({
       role: m.role,
       content: m.content,
     }));
 
-    // Generate response using provider
+    // Generate response using provider (with RAG context if available)
     const result = await this.provider.complete({
       messages: llmMessages,
       persona: session.persona,
       context: interactionContext,
       intent,
+      ragContext,
     });
 
     // Create response message
@@ -307,19 +339,38 @@ export class LexiOrchestrator {
       return;
     }
 
+    // Retrieve RAG context (third knowledge layer - best effort)
+    let streamRagContext: string | undefined;
+    if (lexiKnowledgeRetriever.isReady()) {
+      try {
+        const ragResult = await lexiKnowledgeRetriever.search({
+          query: userMessage,
+          category: intent.category !== 'general' ? intent.category : undefined,
+          topK: 3,
+          minScore: 0.55,
+        });
+        if (ragResult.chunks.length > 0) {
+          streamRagContext = lexiKnowledgeRetriever.formatForContext(ragResult.chunks, 1500);
+        }
+      } catch {
+        // RAG is optional
+      }
+    }
+
     // Convert conversation messages to LLM format
     const llmMessages: LLMMessage[] = conversation.messages.map(m => ({
       role: m.role,
       content: m.content,
     }));
 
-    // Stream response using provider
+    // Stream response using provider (with RAG context if available)
     let accumulatedContent = '';
     for await (const chunk of this.provider.stream({
       messages: llmMessages,
       persona: session.persona,
       context: interactionContext,
       intent,
+      ragContext: streamRagContext,
     })) {
       if (chunk.done) {
         // Create final response message

@@ -204,6 +204,11 @@ export abstract class BaseLLMProvider implements LLMProvider {
       contextParts.push(`\nYou can help with: ${context.capabilities.join(', ')}.`);
     }
 
+    // Add RAG context (retrieved platform knowledge)
+    if (context.ragContext) {
+      contextParts.push(`\n---\n${context.ragContext}`);
+    }
+
     // Add response guidelines
     contextParts.push(`
 Response Guidelines:

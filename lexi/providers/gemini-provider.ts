@@ -65,6 +65,7 @@ export class GeminiProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert messages to Gemini format
@@ -139,6 +140,7 @@ export class GeminiProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert messages to Gemini format

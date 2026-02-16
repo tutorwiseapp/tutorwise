@@ -65,6 +65,7 @@ export class ClaudeProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert messages to Claude format
@@ -133,6 +134,7 @@ export class ClaudeProvider extends BaseLLMProvider {
       userRole: context.user?.role,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona),
+      ragContext: request.ragContext,
     });
 
     // Convert messages to Claude format

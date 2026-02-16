@@ -35,6 +35,7 @@ export interface LLMCompletionRequest {
   persona: PersonaType;
   context: AgentContext;
   intent?: DetectedIntent;
+  ragContext?: string;
   maxTokens?: number;
   temperature?: number;
   stream?: boolean;
@@ -104,6 +105,7 @@ export interface SystemPromptContext {
   organisationName?: string;
   capabilities: string[];
   conversationHistory?: LLMMessage[];
+  ragContext?: string;
 }
 
 // --- Provider Factory ---
