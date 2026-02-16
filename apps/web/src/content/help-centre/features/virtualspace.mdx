@@ -1,0 +1,297 @@
+---
+title: "VirtualSpace"
+subtitle: "Your Collaborative Learning Environment"
+slug: "virtualspace"
+category: "features"
+audience: "all"
+description: "VirtualSpace is Tutorwise's real-time collaboration environment — featuring an interactive whiteboard, Google Meet integration, invite links, and three session modes: standalone rooms, booking-linked sessions, and Free Help Now sessions."
+keywords: ["VirtualSpace", "whiteboard", "collaboration", "online tutoring", "tldraw", "Google Meet", "invite link", "session", "real-time", "standalone", "free help", "booking"]
+author: "Tutorwise Team"
+lastUpdated: "2026-02-15"
+version: "1.0"
+readTime: "7 min"
+relatedArticles:
+  - "bookings"
+  - "caas"
+  - "for-tutors"
+  - "sage"
+  - "lexi"
+---
+
+import CalloutBox from '@/app/components/help-centre/mdx/CalloutBox';
+import Tabs from '@/app/components/help-centre/mdx/Tabs';
+import Tab from '@/app/components/help-centre/mdx/Tab';
+
+<CalloutBox type="success">
+**Three ways to collaborate.** VirtualSpace works as an instant whiteboard room, a booking-linked session with CaaS scoring, or a Free Help Now session — all with the same powerful tools.
+</CalloutBox>
+
+<CalloutBox type="info">
+**Quick Access:** Go to [VirtualSpace](/virtualspace) to create or join a session. For booked sessions, click "Join Session" from your [Bookings](/bookings) page.
+</CalloutBox>
+
+## What Is VirtualSpace?
+
+VirtualSpace is Tutorwise's built-in collaboration environment for real-time learning. It combines an interactive whiteboard with video calling so you can teach, learn, and work together — all within the platform.
+
+- **Interactive whiteboard** powered by tldraw — draw, annotate, and collaborate in real time
+- **Google Meet integration** for video and audio alongside the whiteboard
+- **Invite links** to share rooms with anyone on the platform
+- **Whiteboard snapshots** saved automatically for future reference
+- **Real-time sync** via Ably — all participants see changes instantly
+- **CaaS integration** for booking sessions that count toward your Credibility Score
+
+### Three Session Modes
+
+VirtualSpace adapts to how you want to use it:
+
+| Mode | Best For | Expiry | CaaS Impact |
+|------|----------|--------|-------------|
+| **Standalone** | Ad-hoc collaboration, study groups, brainstorming | 24 hours | No |
+| **Booking** | Scheduled tutoring sessions linked to a booking | No expiry | Yes (+3 points for 80%+ usage) |
+| **Free Help** | Instant sessions via Free Help Now | 24 hours | No |
+
+<CalloutBox type="tip">
+**CaaS Boost:** Using VirtualSpace for 80%+ of your booked sessions earns +3 Credibility Score points in the Digital Professionalism bucket. See [CaaS Guide](/help-centre/features/caas) for details.
+</CalloutBox>
+
+## Standalone Mode
+
+Create an instant whiteboard room for ad-hoc collaboration — no booking required.
+
+### Creating a Standalone Session
+
+1. Go to [VirtualSpace](/virtualspace)
+2. Click **"Create Session"**
+3. Give your session a title (optional — defaults to "Untitled Session")
+4. Your room is created instantly with a unique invite link
+5. Share the link with participants
+
+### Invite Links
+
+When you create a standalone session, you get a shareable invite link:
+- **Unique token** — each link is tied to one session
+- **24-hour expiry** — links expire after 24 hours for security
+- **Up to 10 participants** — collaborate with a group
+- **Authentication required** — participants must be signed in to Tutorwise
+
+### Use Cases
+
+- Study groups working through problems together
+- Tutors brainstorming lesson ideas with colleagues
+- Quick whiteboard sessions for explaining a concept
+- Collaborative note-taking during a revision session
+
+## Booking Mode
+
+When you join a VirtualSpace session linked to a booking, you get the full tutoring experience.
+
+### Joining a Booked Session
+
+<Tabs>
+  <Tab label="Students">
+    1. Go to [Bookings](/bookings) or your [Dashboard](/dashboard)
+    2. Find your upcoming session
+    3. Click **"Join Session"** (available 5 minutes before start)
+    4. VirtualSpace opens with the whiteboard and Google Meet
+    5. Your tutor appears when they join
+  </Tab>
+
+  <Tab label="Tutors">
+    1. Go to [Bookings](/bookings)
+    2. Find the upcoming session
+    3. Click **"Start Session"**
+    4. VirtualSpace opens — prepare your whiteboard while waiting
+    5. Student joins automatically when they click their link
+
+    **After the session:**
+    - Click **"Complete Session"** in the header
+    - This marks the booking as completed
+    - CaaS recalculation is triggered automatically
+  </Tab>
+</Tabs>
+
+### Booking Mode Features
+
+| Feature | Description |
+|---------|-------------|
+| **Auto-created** | VirtualSpace session created when booking is confirmed |
+| **No expiry** | Session stays available as long as the booking exists |
+| **Complete button** | Tutor can mark session as completed (triggers CaaS) |
+| **Participant lock** | Only the booked tutor and student can join |
+
+<CalloutBox type="info">
+**CaaS Integration:** Completing a booking session through VirtualSpace contributes to your Digital Professionalism score. The platform tracks your VirtualSpace usage rate automatically.
+</CalloutBox>
+
+## Free Help Mode
+
+Free Help Now sessions include VirtualSpace so you can use the whiteboard during instant sessions.
+
+### How It Works
+
+1. A student requests **Free Help Now** from the [Marketplace](/marketplace)
+2. A tutor accepts the request
+3. Both a Google Meet link **and** a VirtualSpace session are created
+4. Redirect to VirtualSpace with the whiteboard and Meet embedded
+5. Session expires after 24 hours
+
+### Free Help vs Booking Sessions
+
+| | Free Help | Booking |
+|---|-----------|---------|
+| **Created by** | Free Help Now request | Booking confirmation |
+| **Duration** | Flexible (24hr expiry) | Matches booking duration |
+| **CaaS impact** | No | Yes |
+| **Participants** | Tutor + student | Tutor + student |
+| **Complete button** | No | Yes (tutor only) |
+
+## The Whiteboard
+
+VirtualSpace's interactive whiteboard is powered by tldraw — a professional-grade drawing tool built for collaboration.
+
+### Drawing Tools
+
+| Tool | What It Does |
+|------|-------------|
+| **Select** | Move and resize objects |
+| **Draw** | Freehand pen tool (multiple colours and sizes) |
+| **Eraser** | Remove drawn elements |
+| **Arrow** | Draw arrows between points |
+| **Text** | Add text labels and annotations |
+| **Shapes** | Rectangle, ellipse, diamond, and more |
+| **Note** | Sticky notes for quick annotations |
+| **Laser** | Temporary pointer for presentations |
+
+### Real-Time Collaboration
+
+The whiteboard syncs in real time across all participants:
+- See each other's cursors and selections
+- Changes appear instantly (powered by Ably real-time channels)
+- No lag — CRDT-based sync ensures consistency
+- Multiple users can draw simultaneously
+
+### Saving Snapshots
+
+Click **"Save Snapshot"** in the session header to save the current whiteboard state:
+- Snapshot is stored as a JSON file in secure storage
+- Can be restored to review past work
+- Available from the session details after the session ends
+
+<CalloutBox type="tip">
+**Snapshot before completing.** Save a whiteboard snapshot before marking a booking session as complete — the snapshot captures all your work for future reference.
+</CalloutBox>
+
+## Google Meet Integration
+
+VirtualSpace includes Google Meet for video and audio alongside the whiteboard.
+
+### How Meet Works
+
+- A Google Meet link is generated when the session starts
+- Meet opens in a panel alongside the whiteboard
+- Both tutor and student join the same Meet room
+- Audio and video run through Meet while you collaborate on the whiteboard
+
+### Best Setup
+
+- **Dual-screen** or **side-by-side layout** — whiteboard on one side, Meet on the other
+- **Headset with microphone** — reduces echo and background noise
+- **Stable internet** — 10 Mbps+ recommended for smooth video + whiteboard sync
+
+## Session Management
+
+### Your Sessions Dashboard
+
+Go to [VirtualSpace](/virtualspace) to see all your sessions:
+
+| Column | Description |
+|--------|-------------|
+| **Title** | Session name |
+| **Mode** | Standalone, Booking, or Free Help badge |
+| **Status** | Active, Completed, or Expired |
+| **Participants** | Number of people in the session |
+| **Last Activity** | When the session was last used |
+
+### Session Lifecycle
+
+| Status | Meaning |
+|--------|---------|
+| **Active** | Session is open and can be joined |
+| **Completed** | Tutor marked the session as complete (booking mode) |
+| **Expired** | 24-hour time limit reached (standalone and free help modes) |
+
+### Participant Roles
+
+| Role | Capabilities |
+|------|-------------|
+| **Owner** | Full access — invite, kick, edit, save snapshot, end session |
+| **Collaborator** | Draw on whiteboard, save snapshots |
+| **Viewer** | View the whiteboard (read-only) |
+
+## Access Control
+
+| Mode | Who Can Join | How |
+|------|-------------|-----|
+| **Standalone** | Anyone with the invite link (must be signed in) | Invite URL shared by owner |
+| **Booking** | Booked tutor and student only | From Bookings page or Dashboard |
+| **Free Help** | Matched tutor and student only | Auto-redirect from Free Help Now |
+
+## Best Practices
+
+**For Tutors:**
+- Test your whiteboard tools before the student joins
+- Save snapshots of key explanations
+- Use the laser pointer to highlight areas during verbal explanations
+- Prepare whiteboard templates for common lesson types
+- Complete sessions through VirtualSpace for CaaS credit
+
+**For Students:**
+- Join 2–3 minutes early to test your setup
+- Use the draw tools to show your working
+- Ask your tutor to save snapshots of key concepts
+- Use sticky notes for questions during the session
+
+## Troubleshooting
+
+**Q: My invite link says "expired". What do I do?**
+A: Standalone invite links expire after 24 hours. Ask the session owner to create a new session with a fresh link.
+
+**Q: The whiteboard isn't syncing. How do I fix it?**
+A: Try:
+- Refresh the page
+- Check your internet connection
+- Close other browser tabs to free up resources
+- Use Chrome or Firefox for best compatibility
+
+**Q: I can't see the "Complete" button. Where is it?**
+A: The Complete button only appears in **booking mode** for the **tutor**. If you're in a standalone or free help session, there's no Complete action — the session expires automatically.
+
+**Q: Can I use VirtualSpace on mobile?**
+A: VirtualSpace works best on desktop or laptop with Chrome. Mobile support is limited — the whiteboard tools require a larger screen for comfortable use.
+
+**Q: My whiteboard snapshot didn't save. What happened?**
+A: Check your internet connection and try again. Snapshots require an active connection to upload. If the issue persists, try refreshing the page and saving again.
+
+**Q: How do I switch between the whiteboard and Google Meet?**
+A: Both the whiteboard and Meet panel are visible simultaneously. On smaller screens, you can toggle between them using the layout controls in the header.
+
+**Q: Can I rejoin a session after leaving?**
+A: Yes, as long as the session is still active (not expired or completed). Go to [VirtualSpace](/virtualspace) and click the session, or use the original invite link.
+
+## Quick Links
+
+- [VirtualSpace Dashboard](/virtualspace) — Create or join sessions
+- [Bookings](/bookings) — Join booked VirtualSpace sessions
+- [Marketplace](/marketplace) — Find tutors and use Free Help Now
+- [CaaS Guide](/help-centre/features/caas) — Understand Digital Professionalism scoring
+- [AI Tutor (Sage)](/help-centre/features/sage) — Get academic help during or between sessions
+- [AI Assistant (Lexi)](/help-centre/features/lexi) — Platform help and navigation
+
+## Collaborate, Learn, Create
+
+VirtualSpace brings the best of in-person tutoring online — a shared whiteboard where you can draw, annotate, and solve problems together in real time. Whether it's a scheduled lesson, a quick study group, or an instant help session, VirtualSpace has you covered.
+
+<CalloutBox type="success">
+**Start collaborating now.** Go to [VirtualSpace](/virtualspace) to create your first session, or join your next booked lesson with a single click.
+</CalloutBox>
