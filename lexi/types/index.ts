@@ -54,8 +54,16 @@ export type IntentCategory =
   | 'resources'     // Access learning materials
   | 'progress'      // Track progress and analytics
   | 'support'       // Help and troubleshooting
-  | 'billing'       // Payment and subscriptions
+  | 'billing'       // Payment, financials, and subscriptions
   | 'feedback'      // Reviews and feedback
+  | 'referrals'     // Referral programme, commissions, delegation
+  | 'edupay'        // EduPay wallet, EP points, student loan, cashback, savings
+  | 'marketplace'   // Finding tutors, search, Wiselists
+  | 'network'       // Connections, messaging
+  | 'virtualspace'  // Virtual classroom, whiteboard
+  | 'credibility'   // CaaS Credibility Score
+  | 'account'       // Profile, settings, integrations, verification
+  | 'organisation'  // Organisation management, teams, tasks
   | 'general';      // General conversation
 
 export interface DetectedIntent {
