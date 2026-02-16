@@ -263,6 +263,14 @@ export class SageRulesProvider extends BaseSageProvider {
     const subjectName = this.getSubjectDisplayName(subject);
     const levelName = this.getLevelDisplayName(level);
 
+    // Try to directly answer simple/factual questions first
+    if (originalMessage) {
+      const directAnswer = this.tryDirectAnswer(originalMessage, subject);
+      if (directAnswer) {
+        return directAnswer;
+      }
+    }
+
     // Handle action-specific responses first
     if (intent.action === 'capabilities') {
       return this.getCapabilitiesResponse(persona, subject);
@@ -294,6 +302,174 @@ export class SageRulesProvider extends BaseSageProvider {
 
     // Generic category responses
     return this.getCategoryResponse(intent.category, topic, subjectName, levelName);
+  }
+
+  /**
+   * Try to directly answer simple questions instead of giving generic guidance.
+   * Handles basic arithmetic, definitions, and common educational questions.
+   */
+  private tryDirectAnswer(message: string, subject?: SageSubject): { message: string; suggestions: string[] } | null {
+    const lower = message.toLowerCase().trim();
+
+    // --- Simple arithmetic ---
+    const arithmeticMatch = message.match(/(?:what\s+is\s+)?(\d+(?:\.\d+)?)\s*([+\-×x*÷/])\s*(\d+(?:\.\d+)?)\s*[?]?\s*$/i);
+    if (arithmeticMatch) {
+      const a = parseFloat(arithmeticMatch[1]);
+      const op = arithmeticMatch[2];
+      const b = parseFloat(arithmeticMatch[3]);
+      let result: number | null = null;
+      let opName = '';
+
+      switch (op) {
+        case '+': result = a + b; opName = 'addition'; break;
+        case '-': result = a - b; opName = 'subtraction'; break;
+        case '×': case 'x': case '*': result = a * b; opName = 'multiplication'; break;
+        case '÷': case '/': result = b !== 0 ? a / b : null; opName = 'division'; break;
+      }
+
+      if (result !== null) {
+        const displayResult = Number.isInteger(result) ? result.toString() : result.toFixed(2);
+        return {
+          message: `**${a} ${op === '*' || op === 'x' ? '×' : op === '/' ? '÷' : op} ${b} = ${displayResult}**\n\nThis is a ${opName} problem. ${this.getArithmeticExplanation(a, op, b, result)}\n\nWant to try a similar problem to practice?`,
+          suggestions: ['Give me a similar problem', 'Explain the method', 'Something harder'],
+        };
+      }
+    }
+
+    // --- "What is [concept]?" questions ---
+    const whatIsMatch = lower.match(/^(?:what\s+(?:is|are)\s+)(.+?)(?:\?|$)/);
+    if (whatIsMatch) {
+      const concept = whatIsMatch[1].trim();
+      const definition = this.getConceptDefinition(concept, subject);
+      if (definition) {
+        return definition;
+      }
+    }
+
+    // --- "How do I/you [action]?" questions ---
+    const howDoMatch = lower.match(/^how\s+(?:do\s+(?:i|you)|can\s+i|to)\s+(.+?)(?:\?|$)/);
+    if (howDoMatch) {
+      const action = howDoMatch[1].trim();
+      const howTo = this.getHowToAnswer(action, subject);
+      if (howTo) {
+        return howTo;
+      }
+    }
+
+    return null;
+  }
+
+  private getArithmeticExplanation(a: number, op: string, b: number, result: number): string {
+    switch (op) {
+      case '+':
+        return `When we add ${a} and ${b} together, we get ${result}.`;
+      case '-':
+        return `When we subtract ${b} from ${a}, we get ${result}.`;
+      case '*': case 'x': case '×':
+        return `Multiplying ${a} by ${b} gives us ${result}. You can think of this as ${a} groups of ${b}.`;
+      case '/': case '÷':
+        return `Dividing ${a} by ${b} gives us ${Number.isInteger(result) ? result : result.toFixed(2)}. This means ${a} shared equally into ${b} groups.`;
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Return definitions for common educational concepts.
+   */
+  private getConceptDefinition(concept: string, subject?: SageSubject): { message: string; suggestions: string[] } | null {
+    const definitions: Record<string, { message: string; suggestions: string[] }> = {
+      // Maths concepts
+      'trigonometry': {
+        message: `**Trigonometry** is a branch of mathematics that studies the relationships between the sides and angles of triangles.\n\n**Key concepts:**\n- **SOH CAH TOA** — the three main ratios:\n  - **Sin(θ)** = Opposite / Hypotenuse\n  - **Cos(θ)** = Adjacent / Hypotenuse\n  - **Tan(θ)** = Opposite / Adjacent\n- Used extensively in engineering, physics, navigation, and architecture\n- At GCSE level, you'll work with right-angled triangles\n- At A-Level, you'll explore sine/cosine rules for non-right triangles\n\nWould you like me to walk through an example problem?`,
+        suggestions: ['Show me an example', 'Practice problems', 'Explain sine rule'],
+      },
+      'algebra': {
+        message: `**Algebra** is a branch of mathematics that uses letters and symbols to represent numbers and quantities in formulas and equations.\n\n**Key ideas:**\n- **Variables** (like x, y) represent unknown values\n- **Expressions** combine numbers and variables (e.g., 3x + 2)\n- **Equations** set expressions equal to each other (e.g., 3x + 2 = 11)\n- The goal is often to "solve for x" — find the value of the unknown\n\n**Example:** If 3x + 2 = 11, then 3x = 9, so x = 3\n\nWant to try solving an equation?`,
+        suggestions: ['Solve an equation', 'Explain expressions', 'Practice algebra'],
+      },
+      'fractions': {
+        message: `**Fractions** represent parts of a whole. A fraction has a **numerator** (top number) and a **denominator** (bottom number).\n\n**Key operations:**\n- **Adding/Subtracting**: Find a common denominator first\n- **Multiplying**: Multiply tops together and bottoms together\n- **Dividing**: Flip the second fraction and multiply\n- **Simplifying**: Divide top and bottom by their highest common factor\n\n**Example:** ½ + ¼ = 2/4 + 1/4 = 3/4\n\nWhat would you like to practise with fractions?`,
+        suggestions: ['Adding fractions', 'Multiplying fractions', 'Practice problems'],
+      },
+      'pythagoras': {
+        message: `**Pythagoras' Theorem** states that in a right-angled triangle:\n\n> **a² + b² = c²**\n\nWhere **c** is the hypotenuse (the longest side, opposite the right angle), and **a** and **b** are the other two sides.\n\n**Example:** If a = 3 and b = 4:\n- c² = 3² + 4² = 9 + 16 = 25\n- c = √25 = **5**\n\nThis is one of the most useful theorems in mathematics!\n\nWant to try a Pythagoras problem?`,
+        suggestions: ['Solve a problem', 'When do I use it?', 'Practice questions'],
+      },
+      'quadratic equations': {
+        message: `**Quadratic equations** have the form **ax² + bx + c = 0**.\n\n**Methods to solve:**\n1. **Factorising** — find two brackets that multiply to give the equation\n2. **Quadratic formula** — x = (-b ± √(b²-4ac)) / 2a\n3. **Completing the square** — rewrite in (x+p)² + q form\n\n**The discriminant** (b²-4ac) tells you how many solutions:\n- Positive → 2 real solutions\n- Zero → 1 repeated solution\n- Negative → no real solutions\n\nWhich method would you like to explore?`,
+        suggestions: ['Show factorising', 'Use the formula', 'Practice problems'],
+      },
+      // English concepts
+      'a metaphor': {
+        message: `**A metaphor** is a figure of speech that directly compares two unlike things by stating one IS the other (without using "like" or "as").\n\n**Examples:**\n- "Time is money" — time isn't literally money, but this emphasises its value\n- "The world is a stage" — Shakespeare comparing life to theatre\n- "Her voice was music" — comparing voice to music\n\n**Difference from simile:** A simile uses "like" or "as" (e.g., "her voice was LIKE music").\n\n**In writing:** Metaphors make your writing more vivid and engaging. They help readers see things in new ways.\n\nWant to practise identifying metaphors?`,
+        suggestions: ['Simile vs metaphor', 'Find metaphors in text', 'Use in my writing'],
+      },
+      'a simile': {
+        message: `**A simile** is a figure of speech that compares two things using **"like"** or **"as"**.\n\n**Examples:**\n- "She ran **like** the wind"\n- "He was as brave **as** a lion"\n- "The snow was **like** a white blanket"\n\n**Purpose in writing:** Similes create vivid images and help readers connect to unfamiliar ideas through familiar comparisons.\n\n**Tip:** Don't overuse similes — pick strong, original ones for impact!`,
+        suggestions: ['Metaphor vs simile', 'Practice identifying', 'Use in essays'],
+      },
+      // Science concepts
+      'photosynthesis': {
+        message: `**Photosynthesis** is the process by which plants convert light energy into chemical energy (food).\n\n**Word equation:**\n> Carbon dioxide + Water → Glucose + Oxygen\n\n**Chemical equation:**\n> 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂\n\n**Key facts:**\n- Takes place in **chloroplasts** (containing chlorophyll)\n- Chlorophyll absorbs **red and blue** light (reflects green — that's why leaves are green!)\n- **Light-dependent reactions** happen in the thylakoid membranes\n- **Light-independent reactions** (Calvin cycle) happen in the stroma\n\nWant me to explain any part in more detail?`,
+        suggestions: ['Factors affecting rate', 'Draw a diagram', 'Practice questions'],
+      },
+      'gravity': {
+        message: `**Gravity** is a force of attraction between any two objects with mass.\n\n**Key facts:**\n- On Earth, gravity accelerates objects at approximately **9.8 m/s²** (often rounded to 10 m/s²)\n- **Weight = mass × gravitational field strength** (W = mg)\n- The larger the mass, the stronger the gravitational pull\n- Gravity keeps planets in orbit around the Sun\n\n**Newton's Law of Universal Gravitation:**\n> F = G(m₁m₂)/r²\n\nWhere G is the gravitational constant, m₁ and m₂ are the masses, and r is the distance between them.\n\nWant to solve a gravity problem?`,
+        suggestions: ['Weight vs mass', 'Calculate weight', 'Planetary gravity'],
+      },
+    };
+
+    // Try exact match first, then partial match
+    if (definitions[concept]) {
+      return definitions[concept];
+    }
+
+    // Try without articles
+    const withoutArticle = concept.replace(/^(a|an|the)\s+/i, '');
+    if (definitions[withoutArticle]) {
+      return definitions[withoutArticle];
+    }
+
+    // Try partial matching
+    for (const [key, value] of Object.entries(definitions)) {
+      const cleanKey = key.replace(/^(a|an|the)\s+/i, '');
+      if (concept.includes(cleanKey) || cleanKey.includes(concept)) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Provide step-by-step how-to answers for common learning questions.
+   */
+  private getHowToAnswer(action: string, subject?: SageSubject): { message: string; suggestions: string[] } | null {
+    const lower = action.toLowerCase();
+
+    if (lower.includes('solve') && (lower.includes('equation') || lower.includes('quadratic'))) {
+      return {
+        message: `**How to solve equations:**\n\n**Linear equations** (e.g., 3x + 5 = 20):\n1. Isolate the variable on one side\n2. Undo operations in reverse order (BODMAS backwards)\n3. Check your answer by substituting back\n\n**Example:** 3x + 5 = 20\n- Subtract 5: 3x = 15\n- Divide by 3: x = 5\n- Check: 3(5) + 5 = 20 ✓\n\nWant me to walk through a specific equation?`,
+        suggestions: ['Try an example', 'Quadratic equations', 'Simultaneous equations'],
+      };
+    }
+
+    if (lower.includes('write') && lower.includes('essay')) {
+      return {
+        message: `**How to write a great essay:**\n\n**Structure:**\n1. **Introduction** — Hook the reader, provide context, state your thesis\n2. **Body paragraphs** — Use PEE/PEA structure:\n   - **P**oint — Make your argument\n   - **E**vidence — Quote or reference\n   - **E**xplain/Analyse — Why does this matter?\n3. **Conclusion** — Summarise, restate thesis, broader implications\n\n**Tips:**\n- Plan before you write (5-10 mins)\n- Use connectives to link ideas\n- Vary sentence length for impact\n- Proofread for SPAG errors\n\nWhat type of essay are you writing?`,
+        suggestions: ['Persuasive essay', 'Analytical essay', 'Check my introduction'],
+      };
+    }
+
+    if (lower.includes('revise') || lower.includes('prepare') && lower.includes('exam')) {
+      return {
+        message: `**How to revise effectively:**\n\n**Proven techniques:**\n1. **Active recall** — Test yourself instead of re-reading notes\n2. **Spaced repetition** — Review at increasing intervals (1 day, 3 days, 1 week...)\n3. **Practice papers** — Do past papers under timed conditions\n4. **Mind maps** — Create visual summaries of topics\n5. **Teach someone** — Explaining to others deepens understanding\n\n**Revision timetable tips:**\n- Start early — don't cram\n- Mix subjects to avoid fatigue\n- Take regular breaks (Pomodoro: 25 min work, 5 min break)\n- Get enough sleep — your brain processes learning during sleep!\n\nWhat subject are you revising for?`,
+        suggestions: ['Create a revision plan', 'Practice questions', 'Subject-specific tips'],
+      };
+    }
+
+    return null;
   }
 
   private getSubjectDisplayName(subject?: SageSubject): string {

@@ -17,10 +17,39 @@ type SageSubject = 'maths' | 'english' | 'science' | 'general';
 type SageLevel = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
 type SessionGoal = 'homework' | 'exam-prep' | 'concept-review' | 'practice' | 'general';
 
+// Database enum values (must match Supabase sage_level, sage_session_goal, sage_persona enums)
+type DbSageLevel = 'GCSE' | 'A-Level' | 'University' | 'Other';
+type DbSessionGoal = 'homework_help' | 'exam_prep' | 'concept_review' | 'practice' | 'general';
+type DbSagePersona = 'student' | 'tutor' | 'client' | 'agent';
+
 interface SessionRequestBody {
   subject?: SageSubject;
   level?: SageLevel;
   sessionGoal?: SessionGoal;
+}
+
+/**
+ * Map frontend level to database enum value.
+ * After migration 270, the DB supports lowercase values directly.
+ * This mapping handles both old (uppercase) and new (lowercase) enum values.
+ */
+function mapLevelToDb(level: SageLevel): DbSageLevel | string {
+  // After migration 270_fix_sage_enums.sql, lowercase values are supported directly
+  return level;
+}
+
+/** Map frontend session goal to database enum value */
+function mapGoalToDb(goal: SessionGoal): DbSessionGoal | string {
+  // After migration 270_fix_sage_enums.sql, frontend values are supported directly
+  return goal;
+}
+
+/** Map user role to database persona enum value */
+function mapRoleToPersona(role?: string): DbSagePersona {
+  if (role === 'tutor') return 'tutor';
+  if (role === 'client') return 'client';
+  if (role === 'agent') return 'agent';
+  return 'student';
 }
 
 // Subject-specific greetings
@@ -80,16 +109,21 @@ export async function POST(request: NextRequest) {
     const sessionId = `sage_${randomUUID()}`;
     const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours
 
+    // Map frontend values to database enum values
+    const dbLevel = mapLevelToDb(level);
+    const dbGoal = mapGoalToDb(body.sessionGoal || 'general');
+    const dbPersona = mapRoleToPersona(profile?.active_role);
+
     // Try to store session in database (gracefully handle if table doesn't exist)
     const { error: insertError } = await supabase
       .from('sage_sessions')
       .insert({
         id: sessionId,
         user_id: user.id,
-        persona: 'sage',
+        persona: dbPersona,
         subject,
-        level,
-        session_goal: body.sessionGoal || 'general',
+        level: dbLevel,
+        session_goal: dbGoal,
         topics_covered: [],
         message_count: 0,
         started_at: new Date().toISOString(),
