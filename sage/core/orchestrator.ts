@@ -32,7 +32,9 @@ import type {
 
 import {
   getDefaultSageProvider,
+  providerFactory,
   type LLMProvider,
+  type LLMProviderType,
   type LLMMessage,
 } from '../providers';
 
@@ -101,10 +103,31 @@ export class SageOrchestrator {
   private activeSessions: Map<string, SageSession> = new Map();
   private conversations: Map<string, SageConversation> = new Map();
   private provider: LLMProvider;
+  private fallbackProviders: LLMProvider[] = [];
 
   constructor() {
     this.provider = getDefaultSageProvider();
+    this.initializeFallbacks();
     console.log(`[Sage] Orchestrator initialized with ${this.provider.name}`);
+    if (this.fallbackProviders.length > 0) {
+      console.log(`[Sage] Fallback providers: ${this.fallbackProviders.map(p => p.name).join(', ')}`);
+    }
+  }
+
+  /**
+   * Initialize fallback provider chain: DeepSeek → Claude → Rules
+   */
+  private initializeFallbacks(): void {
+    const fallbackOrder: LLMProviderType[] = ['deepseek', 'claude', 'rules'];
+    for (const type of fallbackOrder) {
+      if (type === this.provider.type) continue;
+      try {
+        const fb = providerFactory.create({ type });
+        if (fb.isAvailable()) {
+          this.fallbackProviders.push(fb);
+        }
+      } catch { /* Skip unavailable providers */ }
+    }
   }
 
   /**
@@ -278,29 +301,48 @@ export class SageOrchestrator {
     // Combine RAG context with signature prompt
     const combinedContext = [ragContext, signaturePrompt].filter(Boolean).join('\n') || undefined;
 
-    // Generate response using LLM provider
+    // Generate response using LLM provider with fallback chain
     let responseContent: string;
     let suggestions: string[] = [];
 
-    try {
-      const completion = await this.provider.complete({
-        messages: llmMessages,
-        persona: session.persona,
-        subject: session.subject,
-        level: session.level,
-        context: interactionContext,
-        topic: intent.entities.topic,
-        intent,
-        ragContext: combinedContext,
-      });
+    const completionRequest = {
+      messages: llmMessages,
+      persona: session.persona,
+      subject: session.subject,
+      level: session.level,
+      context: interactionContext,
+      topic: intent.entities.topic,
+      intent,
+      ragContext: combinedContext,
+    };
 
+    try {
+      const completion = await this.provider.complete(completionRequest);
       responseContent = completion.content;
       suggestions = completion.suggestions || this.getSuggestions(session, intent);
-    } catch (error) {
-      console.error('[Sage] Provider completion failed:', error);
-      // Fallback to basic response on provider failure
-      responseContent = this.generateFallbackResponse(session, intent, userMessage);
-      suggestions = this.getSuggestions(session, intent);
+    } catch (primaryError) {
+      console.warn(`[Sage] Primary provider ${this.provider.name} failed:`, primaryError);
+
+      // Try fallback providers
+      let recovered = false;
+      for (const fallback of this.fallbackProviders) {
+        try {
+          console.log(`[Sage] Trying fallback provider: ${fallback.name}`);
+          const completion = await fallback.complete(completionRequest);
+          responseContent = completion.content;
+          suggestions = completion.suggestions || this.getSuggestions(session, intent);
+          recovered = true;
+          break;
+        } catch (fbError) {
+          console.warn(`[Sage] Fallback ${fallback.name} also failed:`, fbError);
+        }
+      }
+
+      if (!recovered) {
+        // All providers failed — use static fallback
+        responseContent = this.generateFallbackResponse(session, intent, userMessage);
+        suggestions = this.getSuggestions(session, intent);
+      }
     }
 
     const response = this.createMessage('assistant', responseContent, {

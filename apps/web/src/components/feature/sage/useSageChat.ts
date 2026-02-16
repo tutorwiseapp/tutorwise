@@ -439,6 +439,11 @@ async function sendMessageStreaming(
             break;
 
           case 'error':
+            // Recoverable errors mean the backend is falling back to another provider
+            if (data.recoverable) {
+              console.warn('[SageChat] Provider error (recovering):', data.error);
+              break;
+            }
             throw new Error(data.error || 'Stream error');
         }
       }

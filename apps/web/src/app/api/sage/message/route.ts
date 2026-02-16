@@ -9,7 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getDefaultSageProvider, SageRulesProvider } from '@sage/providers';
+import { getDefaultSageProvider, providerFactory } from '@sage/providers';
+import type { LLMProviderType } from '@sage/providers/types';
 import { knowledgeRetriever } from '@sage/knowledge';
 import { contextResolver } from '@sage/context';
 import { getSignatureContext } from '@sage/subjects/engine-executor';
@@ -214,45 +215,56 @@ export async function POST(request: NextRequest) {
       });
     } catch (providerError) {
       console.error('[Sage Message] Provider error:', providerError);
-      // Fall back to Rules provider
-      try {
-        const rulesProvider = new SageRulesProvider({ type: 'rules' });
-        const rulesCompletion = await rulesProvider.complete({
-          messages,
-          persona,
-          subject: body.subject,
-          level: body.level,
-          context,
-        });
 
-        storeMessages(supabase, body.sessionId, body.message, rulesCompletion.content, messageId, {
-          persona,
-          subject: body.subject,
-          level: body.level,
-          provider: 'rules',
-          fallback: true,
-        });
+      // Try fallback providers: DeepSeek → Claude → Rules
+      const fallbackOrder: LLMProviderType[] = ['deepseek', 'claude', 'rules'];
+      for (const fbType of fallbackOrder) {
+        if (fbType === provider.type) continue;
+        try {
+          const fbProvider = providerFactory.create({ type: fbType });
+          if (!fbProvider.isAvailable()) continue;
 
-        return NextResponse.json({
-          response: {
-            id: messageId,
-            role: 'assistant',
-            content: rulesCompletion.content,
-            timestamp: new Date().toISOString(),
-            metadata: {
-              persona,
-              subject: body.subject,
-              level: body.level,
-              provider: 'rules',
-              fallback: true,
+          console.log(`[Sage Message] Trying fallback provider: ${fbProvider.name}`);
+          const fbCompletion = await fbProvider.complete({
+            messages,
+            persona,
+            subject: body.subject,
+            level: body.level,
+            context,
+            ragContext: combinedRagContext,
+          });
+
+          storeMessages(supabase, body.sessionId, body.message, fbCompletion.content, messageId, {
+            persona,
+            subject: body.subject,
+            level: body.level,
+            provider: fbType,
+            fallback: true,
+          });
+
+          return NextResponse.json({
+            response: {
+              id: messageId,
+              role: 'assistant',
+              content: fbCompletion.content,
+              timestamp: new Date().toISOString(),
+              metadata: {
+                persona,
+                subject: body.subject,
+                level: body.level,
+                provider: fbType,
+                fallback: true,
+              },
             },
-          },
-          suggestions: rulesCompletion.suggestions || getSuggestions(persona, body.subject),
-        });
-      } catch (rulesError) {
-        console.error('[Sage Message] Rules fallback also failed:', rulesError);
-        return handleFallbackResponse(body, supabase);
+            suggestions: fbCompletion.suggestions || getSuggestions(persona, body.subject),
+          });
+        } catch (fbError) {
+          console.warn(`[Sage Message] Fallback ${fbType} also failed:`, fbError);
+        }
       }
+
+      // All providers failed — use static fallback
+      return handleFallbackResponse(body, supabase);
     }
   } catch (error) {
     console.error('[Sage Message] Error:', error);

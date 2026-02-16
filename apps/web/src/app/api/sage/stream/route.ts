@@ -12,7 +12,8 @@
 import { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getDefaultSageProvider, SageRulesProvider } from '@sage/providers';
+import { getDefaultSageProvider, providerFactory } from '@sage/providers';
+import type { LLMProviderType } from '@sage/providers/types';
 import { knowledgeRetriever } from '@sage/knowledge';
 import { contextResolver } from '@sage/context';
 import { getSignatureContext } from '@sage/subjects/engine-executor';
@@ -266,46 +267,60 @@ export async function POST(request: NextRequest) {
           console.error('[Sage Stream] Provider error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Stream error';
 
-          // Send error event (informational)
+          // Send error event (informational — frontend will continue reading for fallback)
           controller.enqueue(
             encoder.encode(`event: error\ndata: ${JSON.stringify({ error: errorMessage, recoverable: true })}\n\n`)
           );
 
-          // Fall back to Rules provider for a real response
-          console.log('[Sage Stream] Falling back to Rules provider');
-          try {
-            const rulesProvider = new SageRulesProvider({ type: 'rules' });
-            const rulesStream = rulesProvider.stream({
-              messages,
-              persona,
-              subject: body.subject,
-              level: body.level,
-              context,
-            });
+          // Try fallback providers: DeepSeek → Claude → Rules → static
+          const fallbackOrder: LLMProviderType[] = ['deepseek', 'claude', 'rules'];
+          let recovered = false;
 
-            let rulesResponse = '';
-            for await (const chunk of rulesStream) {
-              if (chunk.content) {
-                rulesResponse += chunk.content;
-                controller.enqueue(
-                  encoder.encode(`event: chunk\ndata: ${JSON.stringify({ content: chunk.content })}\n\n`)
-                );
+          for (const fbType of fallbackOrder) {
+            if (fbType === provider.type) continue; // Skip the provider that just failed
+            try {
+              const fbProvider = providerFactory.create({ type: fbType });
+              if (!fbProvider.isAvailable()) continue;
+
+              console.log(`[Sage Stream] Trying fallback provider: ${fbProvider.name}`);
+              const fbStream = fbProvider.stream({
+                messages,
+                persona,
+                subject: body.subject,
+                level: body.level,
+                context,
+                ragContext: combinedRagContext,
+              });
+
+              let fbResponse = '';
+              for await (const chunk of fbStream) {
+                if (chunk.content) {
+                  fbResponse += chunk.content;
+                  controller.enqueue(
+                    encoder.encode(`event: chunk\ndata: ${JSON.stringify({ content: chunk.content })}\n\n`)
+                  );
+                }
+                if (chunk.done) break;
               }
-              if (chunk.done) break;
-            }
 
-            fullResponse = rulesResponse;
-            controller.enqueue(
-              encoder.encode(`event: done\ndata: ${JSON.stringify({
-                id: messageId,
-                content: rulesResponse,
-                timestamp: new Date().toISOString(),
-                metadata: { persona, subject: body.subject, level: body.level, provider: 'rules', fallback: true },
-                suggestions: getSuggestions(body.message, persona, body.subject),
-              })}\n\n`)
-            );
-          } catch (rulesError) {
-            console.error('[Sage Stream] Rules fallback also failed:', rulesError);
+              fullResponse = fbResponse;
+              controller.enqueue(
+                encoder.encode(`event: done\ndata: ${JSON.stringify({
+                  id: messageId,
+                  content: fbResponse,
+                  timestamp: new Date().toISOString(),
+                  metadata: { persona, subject: body.subject, level: body.level, provider: fbType, fallback: true },
+                  suggestions: getSuggestions(body.message, persona, body.subject),
+                })}\n\n`)
+              );
+              recovered = true;
+              break;
+            } catch (fbError) {
+              console.warn(`[Sage Stream] Fallback ${fbType} also failed:`, fbError);
+            }
+          }
+
+          if (!recovered) {
             // Last resort: static fallback
             const staticFallback = getFallbackResponse(body.message);
             controller.enqueue(
