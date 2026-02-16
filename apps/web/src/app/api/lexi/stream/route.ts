@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check rate limit for messages
-    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'message');
+    // Check rate limit for messages (best-effort if Redis is down)
+    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'message').catch(() => ({ allowed: true } as { allowed: true }));
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify(rateLimitError(rateLimitResult)),
@@ -92,21 +92,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify session exists
-    const session = await sessionStore.getSession(sessionId);
-    if (!session) {
+    // Verify session exists (Redis first, fall back to in-memory orchestrator)
+    let sessionVerified = false;
+    const session = await sessionStore.getSession(sessionId).catch(() => null);
+    if (session) {
+      const expectedUserId = user?.id || rateLimitId;
+      if (session.userId !== expectedUserId) {
+        return new Response(
+          JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      sessionVerified = true;
+    } else if (lexiOrchestrator.hasSession(sessionId)) {
+      const sessionUserId = lexiOrchestrator.getSessionUserId(sessionId);
+      const expectedUserId = user?.id || rateLimitId;
+      if (sessionUserId && sessionUserId !== expectedUserId) {
+        return new Response(
+          JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      sessionVerified = true;
+    }
+
+    if (!sessionVerified) {
       return new Response(
         JSON.stringify({ error: 'Session not found or expired', code: 'SESSION_NOT_FOUND' }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Verify session belongs to this user (authenticated or guest)
-    const expectedUserId = user?.id || rateLimitId;
-    if (session.userId !== expectedUserId) {
-      return new Response(
-        JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -150,12 +163,12 @@ export async function POST(request: NextRequest) {
             await new Promise(resolve => setTimeout(resolve, 50));
           }
 
-          // Update session activity
-          await sessionStore.touchSession(sessionId);
+          // Update session activity (best-effort if Redis is down)
+          await sessionStore.touchSession(sessionId).catch(() => {});
 
-          // Save conversation if active
-          if (session.activeConversation?.id) {
-            await sessionStore.addMessage(session.activeConversation.id, result.response);
+          // Save conversation if active (best-effort if Redis is down)
+          if (session?.activeConversation?.id) {
+            await sessionStore.addMessage(session.activeConversation.id, result.response).catch(() => {});
           }
 
           // Send completion event with metadata

@@ -368,6 +368,20 @@ export class LexiOrchestrator {
   }
 
   /**
+   * Check if a session exists in memory
+   */
+  hasSession(sessionId: string): boolean {
+    return this.activeSessions.has(sessionId);
+  }
+
+  /**
+   * Get the user ID for an in-memory session
+   */
+  getSessionUserId(sessionId: string): string | null {
+    return this.activeSessions.get(sessionId)?.userId ?? null;
+  }
+
+  /**
    * End a session
    */
   endSession(sessionId: string): void {

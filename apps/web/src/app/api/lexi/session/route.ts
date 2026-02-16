@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // Check rate limit for session creation
-    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'session:start');
+    // Check rate limit for session creation (best-effort if Redis is down)
+    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'session:start').catch(() => ({ allowed: true } as { allowed: true }));
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         rateLimitError(rateLimitResult),
@@ -137,8 +137,10 @@ export async function POST(request: NextRequest) {
     // Start Lexi session
     const session = await lexiOrchestrator.startSession(userInfo);
 
-    // Store session in Redis
-    await sessionStore.createSession(session);
+    // Store session in Redis (best-effort — orchestrator holds in-memory fallback)
+    await sessionStore.createSession(session).catch(() => {
+      console.warn('[Lexi API] Redis unavailable, session stored in-memory only');
+    });
 
     // Get greeting and capabilities
     const greeting = lexiOrchestrator.getGreeting(session.sessionId);
