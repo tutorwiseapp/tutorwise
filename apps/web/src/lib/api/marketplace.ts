@@ -17,6 +17,7 @@ export interface FeaturedItemsResponse {
 
 export interface SearchResponse {
   listings: Listing[];
+  profiles: any[];
   organisations: OrganisationProfile[];
   total: number;
 }
@@ -62,11 +63,16 @@ export async function getFeaturedItems(limit = 10, offset = 0): Promise<Featured
 }
 
 /**
- * Search marketplace with filters (listings + organisations)
+ * Search marketplace with filters (listings + profiles + organisations).
+ * When a `query` is present, the search API uses hybrid semantic search
+ * and returns all three entity types in a single request.
  */
-export async function searchMarketplace(filters: SearchFilters): Promise<SearchResponse> {
+export async function searchMarketplace(filters: SearchFilters & { query?: string }): Promise<SearchResponse> {
   const params = new URLSearchParams();
 
+  if (filters.query) {
+    params.append('query', filters.query);
+  }
   if (filters.subjects) {
     params.append('subjects', filters.subjects.join(','));
   }
@@ -86,7 +92,25 @@ export async function searchMarketplace(filters: SearchFilters): Promise<SearchR
     params.append('max_price', filters.max_price.toString());
   }
 
-  // Fetch both listings and organisations in parallel
+  // When query is present, the search API returns listings + profiles + organisations
+  if (filters.query) {
+    const res = await fetch(`/api/marketplace/search?${params.toString()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    });
+
+    if (!res.ok) throw new Error('Failed to search marketplace');
+    const data = await res.json();
+
+    return {
+      listings: data.listings || [],
+      profiles: data.profiles || [],
+      organisations: data.organisations || [],
+      total: data.total || 0,
+    };
+  }
+
+  // Structured-only: fetch listings and organisations separately (backward compatible)
   const [listingsRes, organisationsRes] = await Promise.all([
     fetch(`/api/marketplace/search?${params.toString()}`, {
       cache: 'no-store',
@@ -107,6 +131,7 @@ export async function searchMarketplace(filters: SearchFilters): Promise<SearchR
 
   return {
     listings: listingsData.listings || [],
+    profiles: [],
     organisations: organisationsData.organisations || [],
     total: (listingsData.total || 0) + (organisationsData.total || 0),
   };

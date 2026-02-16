@@ -10,9 +10,10 @@ interface HeroSectionProps {
   activeFilterCount?: number;
   onReset?: () => void;
   hasActiveSearch?: boolean;
+  interpretedQuery?: string;
 }
 
-export default function HeroSection({ onSearch, isSearching, onOpenFilters, activeFilterCount, onReset, hasActiveSearch }: HeroSectionProps) {
+export default function HeroSection({ onSearch, isSearching, onOpenFilters, activeFilterCount, onReset, hasActiveSearch, interpretedQuery }: HeroSectionProps) {
   const [query, setQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -173,6 +174,13 @@ export default function HeroSection({ onSearch, isSearching, onOpenFilters, acti
             </div>
           </div>
         </form>
+
+        {/* Interpreted query feedback */}
+        {hasActiveSearch && interpretedQuery && (
+          <div className={styles.interpretedQuery}>
+            Showing: {interpretedQuery}
+          </div>
+        )}
 
         {/* Example queries */}
         <div className={styles.exampleQueries}>

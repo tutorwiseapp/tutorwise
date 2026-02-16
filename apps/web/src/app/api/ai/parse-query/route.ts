@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use Gemini to parse the query
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are an AI assistant helping parse natural language queries for a tutoring marketplace.
 

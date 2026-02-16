@@ -149,9 +149,11 @@ function fallbackQueryParser(query: string): ParsedSearchQuery {
 }
 
 /**
- * Convert parsed query to search filters
+ * Convert parsed query to search filters.
+ * Includes raw query text for hybrid semantic search and
+ * interpretedQuery for UI display.
  */
-export function queryToFilters(parsed: ParsedSearchQuery) {
+export function queryToFilters(parsed: ParsedSearchQuery, rawQuery?: string) {
   return {
     subjects: parsed.subjects,
     levels: parsed.levels,
@@ -160,5 +162,7 @@ export function queryToFilters(parsed: ParsedSearchQuery) {
     min_price: parsed.minPrice,
     max_price: parsed.maxPrice,
     free_trial_only: parsed.freeTrialOnly,
+    query: rawQuery || '',
+    interpreted_query: parsed.interpretedQuery,
   };
 }

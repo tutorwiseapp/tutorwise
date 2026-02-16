@@ -1,113 +1,67 @@
 /**
- * Filename: apps/web/src/lib/services/embeddings.ts
- * Purpose: Generate embeddings for semantic search using multiple AI providers
- * Created: 2025-12-10
- * Phase: Marketplace Phase 1 - Smart Search
+ * Embedding Service
  *
- * Supported AI Providers:
- * - OpenAI: text-embedding-3-small (1536 dims, $0.02/1M tokens) - for embeddings
- * - Anthropic Claude: Sonnet/Opus models - for text generation and analysis
- * - Google Gemini: text-embedding-004 (768 dims) + Gemini Pro - for embeddings and generation
+ * Generates embeddings for semantic search using Google Gemini gemini-embedding-001 (768 dimensions).
+ * Standardised on Gemini as the sole embedding provider across the platform.
  *
- * Note: Claude doesn't provide embeddings directly. For embeddings with Claude ecosystem,
- * use Voyage AI (recommended by Anthropic) or OpenAI/Gemini embeddings.
+ * Used by: Marketplace search, Sage knowledge base, match scoring, recommendations.
+ *
+ * @module lib/services/embeddings
  */
 
-import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
-});
-
-// Claude client for text generation tasks
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key-for-build',
-});
-
-// Gemini client for embeddings and generation
 const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || 'dummy-key-for-build');
 
-// Default embedding provider (openai or gemini)
-const EMBEDDING_PROVIDER = process.env.EMBEDDING_PROVIDER || 'openai';
+/** Embedding dimensions: gemini-embedding-001 configured for 768-dim vectors */
+export const EMBEDDING_DIMENSIONS = 768;
 
 /**
- * Generate embedding vector for text using specified provider
- * @param text Text to embed (max 8191 tokens for OpenAI, unlimited for Gemini)
- * @param provider 'openai' or 'gemini' (defaults to EMBEDDING_PROVIDER env var)
- * @returns Embedding vector (1536 dims for OpenAI, 768 dims for Gemini)
+ * Generate embedding vector for text using Gemini gemini-embedding-001.
+ * Uses outputDimensionality=768 to produce 768-dim vectors (model default is 3072).
+ * @param text Text to embed
+ * @returns 768-dimensional embedding vector
  */
-export async function generateEmbedding(text: string, provider?: 'openai' | 'gemini'): Promise<number[]> {
-  const selectedProvider = provider || EMBEDDING_PROVIDER;
-
+export async function generateEmbedding(text: string): Promise<number[]> {
   try {
-    if (selectedProvider === 'gemini') {
-      // Use Gemini embeddings (768 dimensions)
-      const model = gemini.getGenerativeModel({ model: 'text-embedding-004' });
-      const result = await model.embedContent(text);
-      return result.embedding.values;
-    } else {
-      // Use OpenAI embeddings (1536 dimensions) - default
-      // Truncate text if too long (rough estimate: 1 token ≈ 4 characters)
-      const maxChars = 8191 * 4;
-      const truncatedText = text.slice(0, maxChars);
-
-      const response = await openai.embeddings.create({
-        model: 'text-embedding-3-small', // 1536 dimensions, $0.02/1M tokens
-        input: truncatedText,
-        encoding_format: 'float',
-      });
-
-      return response.data[0].embedding;
-    }
+    const model = gemini.getGenerativeModel({ model: 'gemini-embedding-001' });
+    const result = await model.embedContent({
+      content: { role: 'user', parts: [{ text }] },
+      outputDimensionality: EMBEDDING_DIMENSIONS,
+    } as any);
+    return result.embedding.values;
   } catch (error) {
-    console.error(`Error generating embedding with ${selectedProvider}:`, error);
+    console.error('Error generating embedding:', error);
     throw new Error(`Failed to generate embedding: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
 /**
- * Generate embeddings for multiple texts in batch
- * @param texts Array of texts to embed
- * @returns Array of embedding vectors
+ * Generate embedding and format as pgvector literal for direct database storage.
+ * Returns format: '[0.1,0.2,0.3,...]' (native pgvector vector literal).
  */
-export async function generateEmbeddingsBatch(texts: string[]): Promise<number[][]> {
-  try {
-    // OpenAI supports batch requests up to 2048 texts
-    const maxBatchSize = 2048;
-
-    if (texts.length > maxBatchSize) {
-      // Split into smaller batches
-      const batches: number[][][] = [];
-      for (let i = 0; i < texts.length; i += maxBatchSize) {
-        const batch = texts.slice(i, i + maxBatchSize);
-        const embeddings = await generateEmbeddingsBatch(batch);
-        batches.push(embeddings);
-      }
-      return batches.flat();
-    }
-
-    // Truncate texts
-    const maxChars = 8191 * 4;
-    const truncatedTexts = texts.map(text => text.slice(0, maxChars));
-
-    const response = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: truncatedTexts,
-      encoding_format: 'float',
-    });
-
-    return response.data.map(item => item.embedding);
-  } catch (error) {
-    console.error('Error generating embeddings batch:', error);
-    throw new Error(`Failed to generate embeddings batch: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+export async function generateEmbeddingForStorage(text: string): Promise<string> {
+  const embedding = await generateEmbedding(text);
+  return `[${embedding.join(',')}]`;
 }
 
 /**
- * Generate embedding text representation for a listing
- * Matches the SQL function get_listing_embedding_text()
+ * Generate embeddings for multiple texts sequentially.
+ * @param texts Array of texts to embed
+ * @returns Array of 768-dimensional embedding vectors
+ */
+export async function generateEmbeddingsBatch(texts: string[]): Promise<number[][]> {
+  const results: number[][] = [];
+  for (const text of texts) {
+    const embedding = await generateEmbedding(text);
+    results.push(embedding);
+  }
+  return results;
+}
+
+/**
+ * Generate embedding text representation for a listing.
+ * Matches the SQL function get_listing_embedding_text().
  */
 export function getListingEmbeddingText(listing: {
   title?: string | null;
@@ -115,7 +69,7 @@ export function getListingEmbeddingText(listing: {
   subjects?: string[] | null;
   levels?: string[] | null;
   specializations?: string[] | null;
-  location_type?: string | null;
+  delivery_mode?: string[] | null;
   location_city?: string | null;
 }): string {
   return [
@@ -124,14 +78,14 @@ export function getListingEmbeddingText(listing: {
     `Subjects: ${listing.subjects?.join(', ') || ''}`,
     `Levels: ${listing.levels?.join(', ') || ''}`,
     `Specializations: ${listing.specializations?.join(', ') || ''}`,
-    `Location: ${listing.location_type || ''}`,
+    `Delivery: ${listing.delivery_mode?.join(', ') || ''}`,
     listing.location_city || '',
   ].filter(Boolean).join(' ');
 }
 
 /**
- * Generate embedding text representation for a profile
- * Matches the SQL function get_profile_embedding_text()
+ * Generate embedding text representation for a profile.
+ * Matches the SQL function get_profile_embedding_text().
  */
 export function getProfileEmbeddingText(profile: {
   full_name?: string | null;
@@ -146,25 +100,25 @@ export function getProfileEmbeddingText(profile: {
 }
 
 /**
- * Calculate cosine similarity between two vectors
- * @param a First vector
- * @param b Second vector
- * @returns Similarity score between 0 and 1 (1 = identical)
+ * Generate embedding text representation for an organisation.
+ * Matches the SQL function get_organisation_embedding_text().
  */
-export function cosineSimilarity(a: number[], b: number[]): number {
-  if (a.length !== b.length) {
-    throw new Error('Vectors must have the same length');
-  }
-
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-
-  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+export function getOrganisationEmbeddingText(org: {
+  name?: string | null;
+  tagline?: string | null;
+  bio?: string | null;
+  subjects_offered?: string[] | null;
+  service_area?: string[] | null;
+  location_city?: string | null;
+  location_country?: string | null;
+}): string {
+  return [
+    org.name || '',
+    org.tagline || '',
+    org.bio || '',
+    `Subjects: ${org.subjects_offered?.join(', ') || ''}`,
+    `Service Area: ${org.service_area?.join(', ') || ''}`,
+    `Location: ${org.location_city || ''}`,
+    org.location_country || '',
+  ].filter(Boolean).join(' ');
 }

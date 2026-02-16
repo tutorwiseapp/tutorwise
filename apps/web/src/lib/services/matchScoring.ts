@@ -25,7 +25,28 @@
  * - 0-39: Poor match
  */
 
-import { cosineSimilarity } from './embeddings';
+/**
+ * Calculate cosine similarity between two vectors.
+ * Inlined here since it's only used by match scoring (not needed in embeddings service
+ * now that pgvector handles similarity server-side).
+ */
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length !== b.length) {
+    throw new Error('Vectors must have the same length');
+  }
+
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    dotProduct += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
 
 /**
  * Base interface for entities that can be matched
@@ -315,9 +336,20 @@ function calculateAvailabilityScore(
     return 50; // Unknown availability
   }
 
-  // TODO: Implement availability matching based on your availability schema
-  // For now, return neutral score
-  return 75;
+  // Extract tutor's available days from the availability JSONB
+  // Format: { generalDays: ["Monday", "Tuesday", ...], generalTimes: ["09:00-17:00", ...] }
+  const tutorDays = listingAvailability.generalDays as string[] | undefined;
+
+  if (!tutorDays || tutorDays.length === 0) {
+    return 50; // No days specified = neutral
+  }
+
+  const tutorDaysLower = new Set(tutorDays.map((d: string) => d.toLowerCase()));
+  const clientDays = desiredSchedule.map(d => d.toLowerCase());
+  const matchCount = clientDays.filter(d => tutorDaysLower.has(d)).length;
+
+  // Score: percentage of client's desired days that the tutor is available
+  return Math.round((matchCount / clientDays.length) * 100);
 }
 
 /**

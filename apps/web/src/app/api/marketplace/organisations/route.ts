@@ -1,24 +1,34 @@
 /**
- * Filename: /api/marketplace/organisations/route.ts
- * Purpose: Fetch public organisations for marketplace
- * Created: 2026-01-03
+ * Marketplace Organisations API Route
+ *
+ * Fetches public organisations for marketplace.
+ * Supports structured filters (subjects, city, category) and
+ * semantic search via search_organisations_hybrid RPC.
  */
 
 import { createClient } from '@/utils/supabase/server';
+import { createServiceRoleClient } from '@/utils/supabase/server';
+import { generateEmbedding } from '@/lib/services/embeddings';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const limit = parseInt(searchParams.get('limit') || '10', 10);
   const offset = parseInt(searchParams.get('offset') || '0', 10);
-  const category = searchParams.get('category'); // Optional category filter
-  const city = searchParams.get('city'); // Optional city filter
-  const subjects = searchParams.get('subjects')?.split(','); // Optional subjects filter
+  const category = searchParams.get('category');
+  const city = searchParams.get('city');
+  const subjects = searchParams.get('subjects')?.split(',');
+  const query = searchParams.get('query') || '';
 
+  // If query is present, use hybrid semantic search
+  if (query) {
+    return await hybridOrganisationSearch(query, { subjects, city, category }, limit, offset);
+  }
+
+  // Structured-only path (backward compatible)
   const supabase = await createClient();
 
-  // Build query
-  let query = supabase
+  let dbQuery = supabase
     .from('connection_groups')
     .select(`
       id,
@@ -35,34 +45,86 @@ export async function GET(request: NextRequest) {
     .eq('type', 'organisation')
     .eq('public_visible', true);
 
-  // Apply filters
   if (category) {
-    query = query.eq('category', category);
+    dbQuery = dbQuery.eq('category', category);
   }
 
   if (city) {
-    query = query.eq('location_city', city);
+    dbQuery = dbQuery.eq('location_city', city);
   }
 
   if (subjects && subjects.length > 0) {
-    query = query.overlaps('subjects_offered', subjects);
+    dbQuery = dbQuery.overlaps('subjects_offered', subjects);
   }
 
-  // Sort and paginate
-  query = query
+  dbQuery = dbQuery
     .order('caas_score', { ascending: false })
     .range(offset, offset + limit - 1);
 
-  const { data: organisations, error, count } = await query;
+  const { data: organisations, error, count } = await dbQuery;
 
   if (error) {
     console.error('Failed to fetch organisations:', error);
     return NextResponse.json({ error: 'Failed to fetch organisations' }, { status: 500 });
   }
 
-  // Fetch stats for each organisation
-  const organisationsWithStats = await Promise.all(
-    (organisations || []).map(async (org) => {
+  const organisationsWithStats = await fetchOrgStats(supabase, organisations || []);
+
+  return NextResponse.json({
+    organisations: organisationsWithStats,
+    total: count || 0,
+  });
+}
+
+// =============================================================================
+// Hybrid Organisation Search
+// =============================================================================
+
+async function hybridOrganisationSearch(
+  query: string,
+  filters: { subjects?: string[]; city?: string | null; category?: string | null },
+  limit: number,
+  offset: number
+) {
+  const supabase = createServiceRoleClient();
+
+  let queryEmbedding: number[] | null = null;
+  try {
+    queryEmbedding = await generateEmbedding(query);
+  } catch (err) {
+    console.error('Failed to generate organisation query embedding:', err);
+  }
+
+  const embeddingParam = queryEmbedding ? `[${queryEmbedding.join(',')}]` : null;
+
+  const { data, error } = await supabase.rpc('search_organisations_hybrid', {
+    query_embedding: embeddingParam,
+    filter_subjects: filters.subjects?.length ? filters.subjects : null,
+    filter_city: filters.city || null,
+    filter_category: filters.category || null,
+    match_count: limit,
+    match_offset: offset,
+    match_threshold: 0.3,
+  });
+
+  if (error) {
+    console.error('Organisation hybrid search error:', error);
+    return NextResponse.json({ error: 'Failed to search organisations' }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    organisations: data || [],
+    total: data?.length || 0,
+  });
+}
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+async function fetchOrgStats(supabase: any, organisations: any[]) {
+  return Promise.all(
+    organisations.map(async (org) => {
       const { data: stats } = await supabase.rpc('get_organisation_public_stats', {
         p_org_id: org.id,
       });
@@ -75,9 +137,4 @@ export async function GET(request: NextRequest) {
       };
     })
   );
-
-  return NextResponse.json({
-    organisations: organisationsWithStats,
-    total: count || 0,
-  });
 }

@@ -245,6 +245,14 @@ export async function publishListing(id: string): Promise<Listing> {
     .single();
 
   if (error) throw error;
+
+  // Fire-and-forget: generate embedding for the published listing
+  try {
+    fetch(`/api/listings/${id}/embed`, { method: 'POST' }).catch(() => {});
+  } catch {
+    // Non-blocking — embedding failure doesn't affect publish
+  }
+
   return data as Listing;
 }
 

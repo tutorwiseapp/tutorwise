@@ -25,7 +25,8 @@ export default function HomePage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<SearchFilters>({});
-  const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  const [searchFilters, setSearchFilters] = useState<SearchFilters & { query?: string }>({});
+  const [interpretedQuery, setInterpretedQuery] = useState<string>('');
 
   // React Query: Fetch featured items (shown when not searching)
   const {
@@ -61,7 +62,7 @@ export default function HomePage() {
 
   // Combine data based on search state
   let allItems = hasSearched && searchData
-    ? toMarketplaceItems([], searchData.listings, searchData.organisations || [])
+    ? toMarketplaceItems(searchData.profiles || [], searchData.listings, searchData.organisations || [])
     : featuredData
     ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [])
     : [];
@@ -91,10 +92,11 @@ export default function HomePage() {
       const parsed = await parseSearchQuery(query);
       console.log('Parsed query:', parsed);
 
-      // Convert parsed query to filters
-      const filters = queryToFilters(parsed);
+      // Convert parsed query to filters (includes raw query for hybrid search)
+      const filters = queryToFilters(parsed, query);
       setSearchFilters(filters);
       setAdvancedFilters(filters);
+      setInterpretedQuery(parsed.interpretedQuery || query);
     } catch (error) {
       console.error('Search error:', error);
     }
@@ -118,6 +120,7 @@ export default function HomePage() {
     setHasSearched(false);
     setAdvancedFilters({});
     setSearchFilters({});
+    setInterpretedQuery('');
   };
 
   return (
@@ -130,6 +133,7 @@ export default function HomePage() {
         activeFilterCount={activeFilterCount}
         onReset={handleReset}
         hasActiveSearch={hasSearched}
+        interpretedQuery={interpretedQuery}
       />
 
       {/* Beta Launch Announcement Banner */}

@@ -151,7 +151,7 @@ export class KnowledgeRetriever {
    */
   private async generateEmbedding(text: string): Promise<number[] | null> {
     // Initialize embedder if not already done
-    if (!documentEmbedder.getProvider()) {
+    if (!documentEmbedder.isReady()) {
       documentEmbedder.initialize();
     }
 
