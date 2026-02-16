@@ -40,6 +40,14 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    // Parse request body for optional activeRole from frontend
+    let requestBody: { activeRole?: string } = {};
+    try {
+      requestBody = await request.json();
+    } catch {
+      // No body or invalid JSON - that's fine
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     // Generate a unique identifier for rate limiting
@@ -83,6 +91,8 @@ export async function POST(request: NextRequest) {
         };
       } else {
         // Map active_role to UserRole
+        // Prefer frontend-provided activeRole (authoritative, synced with localStorage)
+        // Fall back to database active_role
         const roleMap: Record<string, UserRole> = {
           'tutor': 'tutor',
           'client': 'client',
@@ -90,7 +100,8 @@ export async function POST(request: NextRequest) {
           'agent': 'agent',
           'organisation': 'organisation',
         };
-        const role = roleMap[profile.active_role || ''] || 'client';
+        const roleSource = requestBody.activeRole || profile.active_role || '';
+        const role = roleMap[roleSource] || 'client';
 
         userInfo = {
           id: user.id,

@@ -23,6 +23,7 @@ import { useLexiChat, type LexiMessage as LexiMessageType } from './useLexiChat'
 import LexiMarkdown from './LexiMarkdown';
 import { getDeepLink } from '@lexi/utils/deep-links';
 import SageHandoff, { detectEducationalIntent } from './SageHandoff';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import type { ModalView } from './LexiChatModal';
 
 // --- Types ---
@@ -57,6 +58,7 @@ function parseErrorType(error: string): { type: ErrorType; retryAfter?: number }
 
 export default function LexiChat({ onClose, autoStart = true, streaming = true, className, view, onViewChange }: LexiChatProps) {
   const router = useRouter();
+  const { activeRole } = useUserProfile();
 
   const {
     messages,
@@ -72,6 +74,7 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
   } = useLexiChat({
     autoStart,
     streaming,
+    activeRole: activeRole || undefined,
     onError: (err) => console.error('[LexiChat] Error:', err),
   });
 

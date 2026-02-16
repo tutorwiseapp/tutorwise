@@ -39,6 +39,7 @@ export interface LexiSession {
 export interface UseLexiChatOptions {
   autoStart?: boolean;
   streaming?: boolean; // Enable streaming responses via SSE
+  activeRole?: string; // Current active role from UserProfileContext
   onError?: (error: string) => void;
   onSessionStart?: (session: LexiSession) => void;
   onSessionEnd?: () => void;
@@ -63,10 +64,11 @@ export interface UseLexiChatReturn {
 
 // --- API Functions ---
 
-async function createSession(): Promise<LexiSession> {
+async function createSession(activeRole?: string): Promise<LexiSession> {
   const response = await fetch('/api/lexi/session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ activeRole }),
   });
 
   if (!response.ok) {
@@ -86,7 +88,7 @@ async function deleteSession(sessionId: string): Promise<void> {
 // --- Hook Implementation ---
 
 export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn {
-  const { autoStart = false, streaming = true, onError, onSessionStart, onSessionEnd } = options;
+  const { autoStart = false, streaming = true, activeRole, onError, onSessionStart, onSessionEnd } = options;
 
   // Local state for messages and session
   const [messages, setMessages] = useState<LexiMessage[]>([]);
@@ -106,11 +108,12 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
 
   // Session start mutation with retry logic
   const startSessionMutation = useMutation({
-    mutationFn: createSession,
+    mutationFn: () => createSession(activeRole),
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
     onSuccess: (sessionData) => {
       setSession(sessionData);
+      sessionRef.current = sessionData; // Sync ref immediately for use in callbacks
       setError(null);
 
       // Add greeting message
@@ -140,6 +143,7 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
     mutationFn: deleteSession,
     onSettled: () => {
       setSession(null);
+      sessionRef.current = null;
       setMessages([]);
       setSuggestions([]);
       setError(null);
@@ -196,7 +200,9 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
    * Send a message to Lexi (with streaming support and offline caching)
    */
   const sendMessage = useCallback(async (messageText: string) => {
-    if (!session || !messageText.trim()) return;
+    // Use ref to avoid stale closure when session was just created in handleSubmit
+    const currentSession = sessionRef.current;
+    if (!currentSession || !messageText.trim()) return;
 
     const trimmedMessage = messageText.trim();
     setIsSending(true);
@@ -243,10 +249,10 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
     try {
       if (streaming) {
         // Use SSE streaming endpoint
-        await sendMessageStreaming(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
+        await sendMessageStreaming(currentSession, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
       } else {
         // Use regular endpoint
-        await sendMessageRegular(session, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
+        await sendMessageRegular(currentSession, trimmedMessage, streamingMsgId, setMessages, setSuggestions);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send message';
@@ -258,7 +264,7 @@ export function useLexiChat(options: UseLexiChatOptions = {}): UseLexiChatReturn
     } finally {
       setIsSending(false);
     }
-  }, [session, streaming, onError]);
+  }, [streaming, onError]);
 
   /**
    * Clear all messages
