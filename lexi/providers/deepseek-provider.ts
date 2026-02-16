@@ -1,12 +1,12 @@
 /**
- * Gemini API Provider
+ * DeepSeek API Provider
  *
- * Uses Google's Gemini API for intelligent response generation.
+ * Uses DeepSeek's OpenAI-compatible API for intelligent response generation.
  * Supports both streaming and non-streaming completions.
  *
- * Required environment variable: GOOGLE_AI_API_KEY
+ * Required environment variable: DEEPSEEK_API_KEY
  *
- * @module lexi/providers/gemini-provider
+ * @module lexi/providers/deepseek-provider
  */
 
 import { BaseLLMProvider } from './base-provider';
@@ -23,16 +23,16 @@ import type { AgentContext } from '../../cas/packages/core/src/context';
 
 // --- Constants ---
 
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
-const DEFAULT_MODEL = 'gemini-2.0-flash';
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const DEFAULT_MODEL = 'deepseek-chat';
 const DEFAULT_MAX_TOKENS = 1024;
 const DEFAULT_TEMPERATURE = 0.7;
 
-// --- Gemini Provider ---
+// --- DeepSeek Provider ---
 
-export class GeminiProvider extends BaseLLMProvider {
-  readonly type: LLMProviderType = 'gemini';
-  readonly name = 'Gemini (Google)';
+export class DeepSeekProvider extends BaseLLMProvider {
+  readonly type: LLMProviderType = 'deepseek';
+  readonly name = 'DeepSeek V3';
 
   private apiKey: string;
   private model: string;
@@ -41,7 +41,7 @@ export class GeminiProvider extends BaseLLMProvider {
 
   constructor(config: LLMProviderConfig) {
     super(config);
-    this.apiKey = config.apiKey || process.env.GOOGLE_AI_API_KEY || '';
+    this.apiKey = config.apiKey || process.env.DEEPSEEK_API_KEY || '';
     this.model = config.model || DEFAULT_MODEL;
     this.maxTokens = config.maxTokens || DEFAULT_MAX_TOKENS;
     this.temperature = config.temperature ?? DEFAULT_TEMPERATURE;
@@ -53,7 +53,7 @@ export class GeminiProvider extends BaseLLMProvider {
 
   async complete(request: LLMCompletionRequest): Promise<LLMCompletionResponse> {
     if (!this.isAvailable()) {
-      throw new Error('Gemini API key not configured');
+      throw new Error('DeepSeek API key not configured');
     }
 
     const { messages, persona, context } = request;
@@ -67,39 +67,31 @@ export class GeminiProvider extends BaseLLMProvider {
       capabilities: this.getCapabilities(persona),
     });
 
-    // Convert messages to Gemini format
-    const geminiContents = this.convertMessages(messages, systemPrompt);
-
-    const url = `${GEMINI_API_BASE}/models/${this.model}:generateContent?key=${this.apiKey}`;
+    // Convert to OpenAI-compatible format
+    const deepseekMessages = this.convertMessages(systemPrompt, messages);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          contents: geminiContents,
-          generationConfig: {
-            maxOutputTokens: request.maxTokens || this.maxTokens,
-            temperature: request.temperature ?? this.temperature,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          ],
+          model: this.model,
+          max_tokens: request.maxTokens || this.maxTokens,
+          temperature: request.temperature ?? this.temperature,
+          messages: deepseekMessages,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(`Gemini API error: ${error.error?.message || response.statusText}`);
+        throw new Error(`DeepSeek API error: ${error.error?.message || response.statusText}`);
       }
 
       const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const content = data.choices?.[0]?.message?.content || '';
 
       // Detect intent from response
       const intent = await this.detectIntent(
@@ -113,21 +105,21 @@ export class GeminiProvider extends BaseLLMProvider {
         intent,
         suggestions: this.extractSuggestions(content),
         usage: {
-          promptTokens: data.usageMetadata?.promptTokenCount || 0,
-          completionTokens: data.usageMetadata?.candidatesTokenCount || 0,
-          totalTokens: data.usageMetadata?.totalTokenCount || 0,
+          promptTokens: data.usage?.prompt_tokens || 0,
+          completionTokens: data.usage?.completion_tokens || 0,
+          totalTokens: data.usage?.total_tokens || 0,
         },
-        finishReason: data.candidates?.[0]?.finishReason === 'STOP' ? 'stop' : 'length',
+        finishReason: data.choices?.[0]?.finish_reason === 'stop' ? 'stop' : 'length',
       };
     } catch (error) {
-      console.error('[GeminiProvider] API error:', error);
+      console.error('[DeepSeekProvider] API error:', error);
       throw error;
     }
   }
 
   async *stream(request: LLMCompletionRequest): AsyncGenerator<LLMStreamChunk> {
     if (!this.isAvailable()) {
-      throw new Error('Gemini API key not configured');
+      throw new Error('DeepSeek API key not configured');
     }
 
     const { messages, persona, context } = request;
@@ -141,29 +133,28 @@ export class GeminiProvider extends BaseLLMProvider {
       capabilities: this.getCapabilities(persona),
     });
 
-    // Convert messages to Gemini format
-    const geminiContents = this.convertMessages(messages, systemPrompt);
-
-    const url = `${GEMINI_API_BASE}/models/${this.model}:streamGenerateContent?key=${this.apiKey}&alt=sse`;
+    // Convert to OpenAI-compatible format
+    const deepseekMessages = this.convertMessages(systemPrompt, messages);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          contents: geminiContents,
-          generationConfig: {
-            maxOutputTokens: request.maxTokens || this.maxTokens,
-            temperature: request.temperature ?? this.temperature,
-          },
+          model: this.model,
+          max_tokens: request.maxTokens || this.maxTokens,
+          temperature: request.temperature ?? this.temperature,
+          messages: deepseekMessages,
+          stream: true,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(`Gemini API error: ${error.error?.message || response.statusText}`);
+        throw new Error(`DeepSeek API error: ${error.error?.message || response.statusText}`);
       }
 
       const reader = response.body?.getReader();
@@ -184,7 +175,7 @@ export class GeminiProvider extends BaseLLMProvider {
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const data = line.slice(6);
+            const data = line.slice(6).trim();
             if (data === '[DONE]') {
               yield { content: '', done: true };
               return;
@@ -192,14 +183,9 @@ export class GeminiProvider extends BaseLLMProvider {
 
             try {
               const parsed = JSON.parse(data);
-              const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              const text = parsed.choices?.[0]?.delta?.content || '';
               if (text) {
                 yield { content: text, done: false };
-              }
-
-              if (parsed.candidates?.[0]?.finishReason === 'STOP') {
-                yield { content: '', done: true };
-                return;
               }
             } catch {
               // Skip malformed JSON
@@ -210,7 +196,7 @@ export class GeminiProvider extends BaseLLMProvider {
 
       yield { content: '', done: true };
     } catch (error) {
-      console.error('[GeminiProvider] Stream error:', error);
+      console.error('[DeepSeekProvider] Stream error:', error);
       throw error;
     }
   }
@@ -220,7 +206,6 @@ export class GeminiProvider extends BaseLLMProvider {
     persona: PersonaType,
     context: AgentContext
   ): Promise<DetectedIntent> {
-    // Use a quick classification prompt
     const classificationPrompt = `Classify the following user message into one of these categories:
 - learning (homework help, explanations, lessons)
 - scheduling (booking, canceling, rescheduling)
@@ -246,20 +231,18 @@ User message: "${message}"
 Respond in JSON format only:
 {"category": "...", "action": "...", "confidence": 0.0-1.0, "requiresConfirmation": true/false}`;
 
-    const url = `${GEMINI_API_BASE}/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
-
     try {
-      const response = await fetch(url, {
+      const response = await fetch(DEEPSEEK_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: classificationPrompt }] }],
-          generationConfig: {
-            maxOutputTokens: 100,
-            temperature: 0,
-          },
+          model: this.model,
+          max_tokens: 100,
+          temperature: 0,
+          messages: [{ role: 'user', content: classificationPrompt }],
         }),
       });
 
@@ -268,7 +251,7 @@ Respond in JSON format only:
       }
 
       const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const content = data.choices?.[0]?.message?.content || '';
 
       // Parse JSON response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -283,7 +266,7 @@ Respond in JSON format only:
         };
       }
     } catch (error) {
-      console.error('[GeminiProvider] Intent detection error:', error);
+      console.error('[DeepSeekProvider] Intent detection error:', error);
     }
 
     // Fallback to general
@@ -299,34 +282,18 @@ Respond in JSON format only:
   // --- Private Methods ---
 
   private convertMessages(
-    messages: LLMMessage[],
-    systemPrompt: string
-  ): Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> {
-    const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
-
-    // Add system prompt as first user message (Gemini doesn't have system role)
-    if (systemPrompt) {
-      contents.push({
-        role: 'user',
-        parts: [{ text: `System instructions: ${systemPrompt}\n\nPlease acknowledge you understand these instructions.` }],
-      });
-      contents.push({
-        role: 'model',
-        parts: [{ text: 'I understand. I will follow these instructions and assist accordingly.' }],
-      });
-    }
-
-    // Add conversation messages
-    for (const msg of messages) {
-      if (msg.role === 'system') continue;
-
-      contents.push({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }],
-      });
-    }
-
-    return contents;
+    systemPrompt: string,
+    messages: LLMMessage[]
+  ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
+    return [
+      { role: 'system', content: systemPrompt },
+      ...messages
+        .filter(m => m.role !== 'system')
+        .map(m => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        })),
+    ];
   }
 
   private getCapabilities(persona: PersonaType): string[] {
@@ -341,4 +308,4 @@ Respond in JSON format only:
   }
 }
 
-export default GeminiProvider;
+export default DeepSeekProvider;

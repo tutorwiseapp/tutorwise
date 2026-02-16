@@ -52,7 +52,7 @@ class DSPyOptimizer:
     def __init__(
         self,
         agent_type: str,
-        model: str = "gemini/gemini-1.5-flash-latest"
+        model: str = "gemini/gemini-2.0-flash"
     ):
         """
         Initialize the optimizer.
@@ -378,8 +378,8 @@ class DSPyOptimizer:
 )
 @click.option(
     "--model",
-    default="gemini/gemini-1.5-flash-latest",
-    help="LLM model: 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', or 'gemini/gemini-1.5-flash-latest'"
+    default="gemini/gemini-2.0-flash",
+    help="LLM model: 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', or 'gemini/gemini-2.0-flash'"
 )
 @click.option(
     "--dry-run",

@@ -3,9 +3,9 @@
  *
  * Factory and registry for LLM providers with automatic fallback.
  *
- * Fallback order: DeepSeek > Gemini > Claude > Rules
- * - DeepSeek: Excellent reasoning at low cost (primary)
- * - Gemini: Good alternative, fast responses
+ * Fallback order: Gemini > DeepSeek > Claude > Rules
+ * - Gemini: Fast, cheap, reliable (primary)
+ * - DeepSeek: Strong reasoning at low cost
  * - Claude: Best for tutoring (excellent explanations)
  * - Rules: Offline fallback, always available
  *
@@ -98,14 +98,14 @@ export function getDefaultSageProvider(): LLMProvider {
     console.warn(`[Sage] Preferred provider ${preferred} not available, using fallback`);
   }
 
-  // Fallback order: DeepSeek > Gemini > Claude > Rules
-  if (process.env.DEEPSEEK_API_KEY) {
-    console.log('[Sage] Using DeepSeek provider');
-    return providerFactory.create({ type: 'deepseek' });
-  }
+  // Fallback order: Gemini > DeepSeek > Claude > Rules
   if (process.env.GOOGLE_AI_API_KEY) {
     console.log('[Sage] Using Gemini provider');
     return providerFactory.create({ type: 'gemini' });
+  }
+  if (process.env.DEEPSEEK_API_KEY) {
+    console.log('[Sage] Using DeepSeek provider');
+    return providerFactory.create({ type: 'deepseek' });
   }
   if (process.env.ANTHROPIC_API_KEY) {
     console.log('[Sage] Using Claude provider');

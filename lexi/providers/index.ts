@@ -9,6 +9,7 @@
 import { RulesProvider } from './rules-provider';
 import { ClaudeProvider } from './claude-provider';
 import { GeminiProvider } from './gemini-provider';
+import { DeepSeekProvider } from './deepseek-provider';
 import type {
   LLMProvider,
   LLMProviderType,
@@ -22,6 +23,7 @@ const PROVIDER_REGISTRY: Record<LLMProviderType, new (config: LLMProviderConfig)
   rules: RulesProvider,
   claude: ClaudeProvider,
   gemini: GeminiProvider,
+  deepseek: DeepSeekProvider,
 };
 
 // --- Factory Implementation ---
@@ -48,11 +50,14 @@ export const providerFactory: LLMProviderFactory = {
     available.push('rules');
 
     // Check for API keys
-    if (process.env.ANTHROPIC_API_KEY) {
-      available.push('claude');
-    }
     if (process.env.GOOGLE_AI_API_KEY) {
       available.push('gemini');
+    }
+    if (process.env.DEEPSEEK_API_KEY) {
+      available.push('deepseek');
+    }
+    if (process.env.ANTHROPIC_API_KEY) {
+      available.push('claude');
     }
 
     return available;
@@ -73,12 +78,15 @@ export function getDefaultProvider(): LLMProvider {
     }
   }
 
-  // Fallback order: Claude > Gemini > Rules
-  if (process.env.ANTHROPIC_API_KEY) {
-    return providerFactory.create({ type: 'claude' });
-  }
+  // Fallback order: Gemini > DeepSeek > Claude > Rules
   if (process.env.GOOGLE_AI_API_KEY) {
     return providerFactory.create({ type: 'gemini' });
+  }
+  if (process.env.DEEPSEEK_API_KEY) {
+    return providerFactory.create({ type: 'deepseek' });
+  }
+  if (process.env.ANTHROPIC_API_KEY) {
+    return providerFactory.create({ type: 'claude' });
   }
 
   // Default to rules-based
@@ -105,6 +113,12 @@ export function getProviderInfo(type: LLMProviderType): {
       description: 'Pattern matching and predefined responses. No API calls. Always available.',
       requiresApiKey: false,
     },
+    deepseek: {
+      name: 'DeepSeek V3',
+      description: 'Strong reasoning at low cost. OpenAI-compatible API. Requires DeepSeek API key.',
+      requiresApiKey: true,
+      envVar: 'DEEPSEEK_API_KEY',
+    },
     claude: {
       name: 'Claude (Anthropic)',
       description: 'Intelligent AI responses using Claude. Requires Anthropic API key.',
@@ -127,5 +141,6 @@ export function getProviderInfo(type: LLMProviderType): {
 export { RulesProvider } from './rules-provider';
 export { ClaudeProvider } from './claude-provider';
 export { GeminiProvider } from './gemini-provider';
+export { DeepSeekProvider } from './deepseek-provider';
 export { BaseLLMProvider, PERSONA_PROMPTS } from './base-provider';
 export * from './types';

@@ -38,7 +38,7 @@ echo "CAS DSPy Optimization - First Run"
 echo "=========================================="
 echo ""
 echo "Agent: sage"
-echo "Model: gemini/gemini-1.5-flash-latest"
+echo "Model: gemini/gemini-2.0-flash"
 echo "Signatures: all (maths, explain, diagnose)"
 echo ""
 

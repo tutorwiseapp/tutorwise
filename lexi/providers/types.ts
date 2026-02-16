@@ -12,7 +12,7 @@ import type { AgentContext } from '../../cas/packages/core/src/context';
 
 // --- Provider Types ---
 
-export type LLMProviderType = 'rules' | 'claude' | 'gemini';
+export type LLMProviderType = 'rules' | 'claude' | 'gemini' | 'deepseek';
 
 export interface LLMProviderConfig {
   type: LLMProviderType;
