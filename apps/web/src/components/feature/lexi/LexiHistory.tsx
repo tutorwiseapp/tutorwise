@@ -13,6 +13,7 @@ import React, { useCallback } from 'react';
 import styles from './LexiHistory.module.css';
 import { useLexiHistory, type LexiConversation, type ConversationWithMessages } from './useLexiHistory';
 import LexiMarkdown from './LexiMarkdown';
+import type { ModalView } from './LexiChatModal';
 
 // --- Types ---
 
@@ -20,11 +21,13 @@ interface LexiHistoryProps {
   onClose?: () => void;
   onStartNewChat?: () => void;
   className?: string;
+  view?: ModalView;
+  onViewChange?: (view: ModalView) => void;
 }
 
 // --- Component ---
 
-export default function LexiHistory({ onClose, onStartNewChat, className }: LexiHistoryProps) {
+export default function LexiHistory({ onClose, onStartNewChat, className, view, onViewChange }: LexiHistoryProps) {
   const {
     conversations,
     selectedConversation,
@@ -50,31 +53,39 @@ export default function LexiHistory({ onClose, onStartNewChat, className }: Lexi
 
   return (
     <div className={`${styles.history} ${className || ''}`}>
-      {/* Header */}
+      {/* Header - merged branding + tabs + close */}
       <header className={styles.header}>
-        <div className={styles.headerContent}>
+        <div className={styles.headerBranding}>
           {selectedConversation ? (
             <button className={styles.backButton} onClick={handleBack} aria-label="Back to list">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+              <span>Back</span>
             </button>
           ) : (
-            <div className={styles.avatar}>
-              <span className={styles.avatarIcon}>L</span>
-            </div>
+            <>
+              <h2 className={styles.title}>Lexi</h2>
+              <span className={styles.subtitle}>AI Assistant</span>
+            </>
           )}
-          <div className={styles.headerInfo}>
-            <h2 className={styles.title}>
-              {selectedConversation ? 'Conversation' : 'Chat History'}
-            </h2>
-            <span className={styles.subtitle}>
-              {selectedConversation
-                ? formatDate(selectedConversation.started_at)
-                : `${conversations.length} conversation${conversations.length !== 1 ? 's' : ''}`}
-            </span>
-          </div>
         </div>
+        {onViewChange && (
+          <div className={styles.headerTabs}>
+            <button
+              className={`${styles.headerTab} ${view === 'chat' ? styles.headerTabActive : ''}`}
+              onClick={() => onViewChange('chat')}
+            >
+              Chat
+            </button>
+            <button
+              className={`${styles.headerTab} ${view === 'history' ? styles.headerTabActive : ''}`}
+              onClick={() => onViewChange('history')}
+            >
+              History
+            </button>
+          </div>
+        )}
         <div className={styles.headerActions}>
           {!selectedConversation && (
             <button className={styles.refreshButton} onClick={refresh} aria-label="Refresh">

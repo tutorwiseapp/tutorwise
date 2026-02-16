@@ -11,70 +11,82 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-/* Header - uses brand colors */
+/* Header - merged branding + tabs + close */
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
+  padding: 0.625rem 1rem;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
-  background: linear-gradient(135deg, var(--color-primary, #006C67) 0%, var(--color-primary-accent, #4CAEAD) 100%);
+  background-color: var(--color-primary-light, #E6F0F0);
   flex-shrink: 0;
-}
-
-.headerContent {
-  display: flex;
-  align-items: center;
   gap: 0.75rem;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: white;
+.headerBranding {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.0625rem;
   flex-shrink: 0;
 }
 
-.avatarIcon {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-primary, #006C67);
-}
-
-.headerInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
 .title {
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-gray-900, #111827);
   margin: 0;
+  line-height: 1.2;
 }
 
 .subtitle {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.6875rem;
+  color: var(--color-gray-500, #6b7280);
+  line-height: 1.2;
+}
+
+/* Header tabs - center aligned */
+.headerTabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.headerTab {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-500, #6b7280);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.headerTab:hover {
+  color: var(--color-gray-700, #374151);
+}
+
+.headerTabActive {
+  color: var(--color-primary, #006C67);
+  border-bottom-color: var(--color-primary, #006C67);
 }
 
 .closeButton {
-  padding: 0.5rem;
+  padding: 0.375rem;
   background: none;
   border: none;
-  color: white;
+  color: var(--color-gray-500, #6b7280);
   cursor: pointer;
   border-radius: 0.375rem;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--color-gray-700, #374151);
 }
 
 /* Error banner */
@@ -452,7 +464,7 @@
   flex: 1;
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
-  border: 1px solid var(--color-border, #e5e7eb);
+  border: 1px solid #9ca3af;
   border-radius: 1.5rem;
   outline: none;
   transition: border-color 0.15s ease;

@@ -23,6 +23,7 @@ import { useLexiChat, type LexiMessage as LexiMessageType } from './useLexiChat'
 import LexiMarkdown from './LexiMarkdown';
 import { getDeepLink } from '@lexi/utils/deep-links';
 import SageHandoff, { detectEducationalIntent } from './SageHandoff';
+import type { ModalView } from './LexiChatModal';
 
 // --- Types ---
 
@@ -31,6 +32,8 @@ interface LexiChatProps {
   autoStart?: boolean;
   streaming?: boolean;
   className?: string;
+  view?: ModalView;
+  onViewChange?: (view: ModalView) => void;
 }
 
 // Error types for better handling
@@ -52,7 +55,7 @@ function parseErrorType(error: string): { type: ErrorType; retryAfter?: number }
 
 // --- Component ---
 
-export default function LexiChat({ onClose, autoStart = true, streaming = true, className }: LexiChatProps) {
+export default function LexiChat({ onClose, autoStart = true, streaming = true, className, view, onViewChange }: LexiChatProps) {
   const router = useRouter();
 
   const {
@@ -243,19 +246,30 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
 
   return (
     <div className={`${styles.chat} ${className || ''}`}>
-      {/* Header */}
+      {/* Header - merged branding + tabs + close */}
       <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.avatar}>
-            <span className={styles.avatarIcon}>L</span>
-          </div>
-          <div className={styles.headerInfo}>
-            <h2 className={styles.title}>Lexi</h2>
-            <span className={styles.subtitle}>
-              {session ? getPersonaTitle(session.persona) : 'AI Assistant'}
-            </span>
-          </div>
+        <div className={styles.headerBranding}>
+          <h2 className={styles.title}>Lexi</h2>
+          <span className={styles.subtitle}>
+            {session ? getPersonaTitle(session.persona) : 'AI Assistant'}
+          </span>
         </div>
+        {onViewChange && (
+          <div className={styles.headerTabs}>
+            <button
+              className={`${styles.headerTab} ${view === 'chat' ? styles.headerTabActive : ''}`}
+              onClick={() => onViewChange('chat')}
+            >
+              Chat
+            </button>
+            <button
+              className={`${styles.headerTab} ${view === 'history' ? styles.headerTabActive : ''}`}
+              onClick={() => onViewChange('history')}
+            >
+              History
+            </button>
+          </div>
+        )}
         {onClose && (
           <button className={styles.closeButton} onClick={handleClose} aria-label="Close chat">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
