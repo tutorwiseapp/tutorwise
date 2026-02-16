@@ -122,6 +122,7 @@ export class LexiOrchestrator {
   private activeSessions: Map<string, LexiSession> = new Map();
   private conversations: Map<string, Conversation> = new Map();
   private provider: LLMProvider;
+  private fallbackProviders: LLMProvider[] = [];
 
   constructor(providerConfig?: LLMProviderConfig) {
     // Initialize with configured provider or default
@@ -132,6 +133,9 @@ export class LexiOrchestrator {
     }
     console.log(`[Lexi] Initialized with provider: ${this.provider.name}`);
 
+    // Build fallback provider chain (skip the primary provider)
+    this.initializeFallbacks();
+
     // Initialize RAG knowledge retriever (best-effort)
     try {
       lexiKnowledgeRetriever.initialize();
@@ -140,6 +144,27 @@ export class LexiOrchestrator {
       }
     } catch {
       // RAG is optional
+    }
+  }
+
+  /**
+   * Build fallback provider chain for resilience
+   */
+  private initializeFallbacks(): void {
+    const fallbackOrder: LLMProviderType[] = ['deepseek', 'claude', 'rules'];
+    for (const type of fallbackOrder) {
+      if (type === this.provider.type) continue;
+      try {
+        const fb = providerFactory.create({ type });
+        if (fb.isAvailable()) {
+          this.fallbackProviders.push(fb);
+        }
+      } catch {
+        // Skip unavailable providers
+      }
+    }
+    if (this.fallbackProviders.length > 0) {
+      console.log(`[Lexi] Fallback providers: ${this.fallbackProviders.map(p => p.name).join(', ')}`);
     }
   }
 
@@ -218,12 +243,18 @@ export class LexiOrchestrator {
       metadata: { messageId: userMsg.id },
     });
 
-    // Detect intent using provider
-    const intent = await this.provider.detectIntent(
-      userMessage,
-      session.persona,
-      interactionContext
-    );
+    // Detect intent using provider (with fallback)
+    let intent: DetectedIntent;
+    try {
+      intent = await this.provider.detectIntent(
+        userMessage,
+        session.persona,
+        interactionContext
+      );
+    } catch (intentError) {
+      console.warn(`[Lexi] Intent detection failed with ${this.provider.name}, using default intent:`, intentError);
+      intent = { category: 'general', action: 'chat', confidence: 0.5, entities: {}, requiresConfirmation: false };
+    }
 
     // Check permissions
     const operation = `${intent.category}:${intent.action}`;
@@ -262,20 +293,46 @@ export class LexiOrchestrator {
       content: m.content,
     }));
 
-    // Generate response using provider (with RAG context if available)
-    const result = await this.provider.complete({
+    // Generate response using provider with fallback chain
+    const completionRequest = {
       messages: llmMessages,
       persona: session.persona,
       context: interactionContext,
       intent,
       ragContext,
-    });
+    };
+
+    let result: { content: string; suggestions?: string[] };
+    let usedProvider = this.provider;
+
+    try {
+      result = await this.provider.complete(completionRequest);
+    } catch (primaryError) {
+      console.warn(`[Lexi] Primary provider ${this.provider.name} failed, trying fallbacks:`, primaryError);
+      result = null as unknown as typeof result;
+
+      for (const fallback of this.fallbackProviders) {
+        try {
+          console.log(`[Lexi] Trying fallback provider: ${fallback.name}`);
+          result = await fallback.complete(completionRequest);
+          usedProvider = fallback;
+          console.log(`[Lexi] Fallback provider ${fallback.name} succeeded`);
+          break;
+        } catch (fallbackError) {
+          console.warn(`[Lexi] Fallback provider ${fallback.name} also failed:`, fallbackError);
+        }
+      }
+
+      if (!result) {
+        throw primaryError; // All providers failed, throw original error
+      }
+    }
 
     // Create response message
     const response = this.createMessage('assistant', result.content, {
       persona: session.persona,
       intent: operation,
-      provider: this.provider.type,
+      provider: usedProvider.type,
     });
 
     conversation.messages.push(response);
