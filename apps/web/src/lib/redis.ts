@@ -24,6 +24,8 @@ export const redis = hasRedisCredentials
   ? new Redis(process.env.REDIS_URL!, {
       maxRetriesPerRequest: 3,
       retryStrategy: (times) => {
+        // Stop retrying after 5 attempts to avoid flooding logs when Redis is unreachable
+        if (times > 5) return null;
         // Exponential backoff: 50ms, 100ms, 200ms, max 2000ms
         return Math.min(times * 50, 2000);
       },
@@ -42,6 +44,20 @@ export const redis = hasRedisCredentials
       },
     })
   : null;
+
+// Attach error handler to prevent unhandled ioredis error events from flooding the console
+if (redis) {
+  let errorLogged = false;
+  redis.on('error', (err) => {
+    if (!errorLogged) {
+      console.warn('[Redis] Connection error (further errors suppressed):', err.message);
+      errorLogged = true;
+    }
+  });
+  redis.on('connect', () => {
+    errorLogged = false; // Reset so we log again if it disconnects later
+  });
+}
 
 // Key prefix for free help presence
 const PRESENCE_KEY_PREFIX = 'presence:free-help:';
