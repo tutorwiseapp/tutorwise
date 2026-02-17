@@ -20,6 +20,7 @@ import { getSignatureContext } from '@sage/subjects/engine-executor';
 import type { SagePersona, SageSubject, SageLevel, SageIntentCategory } from '@sage/types';
 import type { LLMMessage } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
+import { checkAIAgentRateLimit, incrementAIAgentUsage, getSageSubscription } from '@/lib/ai-agents/rate-limiter';
 
 interface StreamRequestBody {
   sessionId: string;
@@ -82,6 +83,28 @@ export async function POST(request: NextRequest) {
     const userRole = (profileData?.role || 'student') as UserRole;
     const persona = mapRoleToPersona(userRole);
     const userName = profileData?.display_name || undefined;
+
+    // Check rate limit
+    const subscription = await getSageSubscription(user.id);
+    const rateLimit = await checkAIAgentRateLimit('sage', user.id, subscription);
+
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: rateLimit.error,
+          message: rateLimit.message,
+          rateLimit: {
+            tier: rateLimit.tier,
+            limit: rateLimit.limit,
+            used: rateLimit.used,
+            remaining: rateLimit.remaining,
+            resetAt: rateLimit.resetAt.toISOString(),
+          },
+          upsell: rateLimit.upsell,
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Initialize provider with automatic fallback (Claude > Gemini > Rules)
     const provider = getDefaultSageProvider();
@@ -220,7 +243,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Send done event with suggestions
+          // Send done event with suggestions and rate limit info
           const suggestions = getSuggestions(body.message, persona, body.subject);
           controller.enqueue(
             encoder.encode(`event: done\ndata: ${JSON.stringify({
@@ -229,10 +252,20 @@ export async function POST(request: NextRequest) {
               timestamp: new Date().toISOString(),
               metadata: { persona, subject: body.subject, level: body.level, provider: provider.type },
               suggestions,
+              rateLimit: {
+                tier: rateLimit.tier,
+                limit: rateLimit.limit,
+                used: rateLimit.used + 1,
+                remaining: rateLimit.remaining - 1,
+                resetAt: rateLimit.resetAt.toISOString(),
+              },
             })}\n\n`)
           );
 
           controller.close();
+
+          // Increment usage counter (async, don't block)
+          incrementAIAgentUsage('sage', user.id, subscription);
 
           // Store messages in database (async, don't block stream)
           supabase.from('sage_messages').insert([
@@ -311,8 +344,19 @@ export async function POST(request: NextRequest) {
                   timestamp: new Date().toISOString(),
                   metadata: { persona, subject: body.subject, level: body.level, provider: fbType, fallback: true },
                   suggestions: getSuggestions(body.message, persona, body.subject),
+                  rateLimit: {
+                    tier: rateLimit.tier,
+                    limit: rateLimit.limit,
+                    used: rateLimit.used + 1,
+                    remaining: rateLimit.remaining - 1,
+                    resetAt: rateLimit.resetAt.toISOString(),
+                  },
                 })}\n\n`)
               );
+
+              // Increment usage counter
+              incrementAIAgentUsage('sage', user.id, subscription);
+
               recovered = true;
               break;
             } catch (fbError) {
@@ -330,8 +374,18 @@ export async function POST(request: NextRequest) {
                 timestamp: new Date().toISOString(),
                 metadata: { persona, fallback: true, static: true },
                 suggestions: getSuggestions(body.message, persona, body.subject),
+                rateLimit: {
+                  tier: rateLimit.tier,
+                  limit: rateLimit.limit,
+                  used: rateLimit.used + 1,
+                  remaining: rateLimit.remaining - 1,
+                  resetAt: rateLimit.resetAt.toISOString(),
+                },
               })}\n\n`)
             );
+
+            // Increment usage counter
+            incrementAIAgentUsage('sage', user.id, subscription);
           }
 
           controller.close();

@@ -17,6 +17,7 @@ import { getSignatureContext } from '@sage/subjects/engine-executor';
 import type { SagePersona, SageSubject, SageLevel, SageIntentCategory } from '@sage/types';
 import type { LLMMessage } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
+import { checkAIAgentRateLimit, incrementAIAgentUsage, getSageSubscription } from '@/lib/ai-agents/rate-limiter';
 
 interface MessageRequestBody {
   sessionId: string;
@@ -78,6 +79,28 @@ export async function POST(request: NextRequest) {
     const userRole = (profileData?.role || 'student') as UserRole;
     const persona = mapRoleToPersona(userRole);
     const userName = profileData?.display_name || undefined;
+
+    // Check rate limit
+    const subscription = await getSageSubscription(user.id);
+    const rateLimit = await checkAIAgentRateLimit('sage', user.id, subscription);
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: rateLimit.error,
+          message: rateLimit.message,
+          rateLimit: {
+            tier: rateLimit.tier,
+            limit: rateLimit.limit,
+            used: rateLimit.used,
+            remaining: rateLimit.remaining,
+            resetAt: rateLimit.resetAt.toISOString(),
+          },
+          upsell: rateLimit.upsell,
+        },
+        { status: 429 }
+      );
+    }
 
     // Initialize provider with automatic fallback (Claude > Gemini > Rules)
     const provider = getDefaultSageProvider();
@@ -197,6 +220,9 @@ export async function POST(request: NextRequest) {
         provider: provider.type,
       });
 
+      // Increment usage counter (async, don't block response)
+      incrementAIAgentUsage('sage', user.id, subscription);
+
       return NextResponse.json({
         response: {
           id: messageId,
@@ -212,6 +238,13 @@ export async function POST(request: NextRequest) {
         },
         suggestions: completion.suggestions || getSuggestions(persona, body.subject),
         relatedTopics: completion.relatedTopics,
+        rateLimit: {
+          tier: rateLimit.tier,
+          limit: rateLimit.limit,
+          used: rateLimit.used + 1,
+          remaining: rateLimit.remaining - 1,
+          resetAt: rateLimit.resetAt.toISOString(),
+        },
       });
     } catch (providerError) {
       console.error('[Sage Message] Provider error:', providerError);
@@ -242,6 +275,9 @@ export async function POST(request: NextRequest) {
             fallback: true,
           });
 
+          // Increment usage counter
+          incrementAIAgentUsage('sage', user.id, subscription);
+
           return NextResponse.json({
             response: {
               id: messageId,
@@ -257,6 +293,13 @@ export async function POST(request: NextRequest) {
               },
             },
             suggestions: fbCompletion.suggestions || getSuggestions(persona, body.subject),
+            rateLimit: {
+              tier: rateLimit.tier,
+              limit: rateLimit.limit,
+              used: rateLimit.used + 1,
+              remaining: rateLimit.remaining - 1,
+              resetAt: rateLimit.resetAt.toISOString(),
+            },
           });
         } catch (fbError) {
           console.warn(`[Sage Message] Fallback ${fbType} also failed:`, fbError);

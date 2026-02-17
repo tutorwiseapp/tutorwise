@@ -22,7 +22,7 @@ import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type TabFilter = 'overview' | 'conversations' | 'feedback' | 'providers';
+type TabFilter = 'overview' | 'conversations' | 'feedback' | 'providers' | 'quota';
 
 interface SummaryStats {
   totalConversations: number;
@@ -53,6 +53,22 @@ interface ProviderData {
   current: string;
   currentName: string;
   providers: ProviderInfo[];
+}
+
+interface QuotaData {
+  freeTier: {
+    totalUsers: number;
+    dailyUsage: number;
+    limitHits: number;
+    avgConversationsPerUser: number;
+  };
+  costAnalysis: {
+    totalConversations: number;
+    geminiConversations: number;
+    rulesConversations: number;
+    totalCost: number;
+    costPerConversation: number;
+  };
 }
 
 export default function LexiAnalyticsPage() {
@@ -98,6 +114,20 @@ export default function LexiAnalyticsPage() {
     staleTime: 60 * 1000,
   });
 
+  // Fetch quota data
+  const { data: quotaData, isLoading: quotaLoading } = useQuery({
+    queryKey: ['admin', 'lexi', 'quota'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/lexi/analytics?type=quota');
+      if (!response.ok) throw new Error('Failed to fetch quota');
+      const data = await response.json();
+      return data as QuotaData;
+    },
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    enabled: tabFilter === 'quota',
+  });
+
   // Calculate feedback rate
   const feedbackTotal = (summaryData?.feedbackPositive || 0) + (summaryData?.feedbackNegative || 0);
   const feedbackRate = feedbackTotal > 0
@@ -126,6 +156,7 @@ export default function LexiAnalyticsPage() {
               { id: 'conversations', label: 'Conversations', active: tabFilter === 'conversations' },
               { id: 'feedback', label: 'Feedback', active: tabFilter === 'feedback' },
               { id: 'providers', label: 'Providers', active: tabFilter === 'providers' },
+              { id: 'quota', label: 'Quota & Costs', active: tabFilter === 'quota' },
             ]}
             onTabChange={handleTabChange}
             className={styles.lexiTabs}
@@ -190,6 +221,104 @@ export default function LexiAnalyticsPage() {
               breakdownData={breakdownData}
               isLoading={breakdownLoading}
             />
+          )}
+          {tabFilter === 'quota' && (
+            <div className={styles.quotaTab}>
+              {quotaLoading && (
+                <div className={styles.loading}>Loading quota analytics...</div>
+              )}
+              {!quotaLoading && quotaData && (
+                <>
+                  <div className={styles.section}>
+                    <h2>Free Tier Usage (10/day limit)</h2>
+                    <div className={styles.statsGrid}>
+                      <div className={styles.statCard}>
+                        <h3>Total Users</h3>
+                        <p className={styles.statValue}>{quotaData.freeTier.totalUsers}</p>
+                        <span className={styles.statLabel}>Authenticated users</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Daily Usage</h3>
+                        <p className={styles.statValue}>{quotaData.freeTier.dailyUsage}</p>
+                        <span className={styles.statLabel}>Conversations today</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Limit Hits</h3>
+                        <p className={styles.statValue}>{quotaData.freeTier.limitHits}</p>
+                        <span className={styles.statLabel}>Users hitting daily limit</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Avg Usage</h3>
+                        <p className={styles.statValue}>{quotaData.freeTier.avgConversationsPerUser.toFixed(1)}</p>
+                        <span className={styles.statLabel}>Conversations per user</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.section}>
+                    <h2>Cost Analysis</h2>
+                    <div className={styles.statsGrid}>
+                      <div className={styles.statCard}>
+                        <h3>Total Conversations</h3>
+                        <p className={styles.statValue}>{quotaData.costAnalysis.totalConversations}</p>
+                        <span className={styles.statLabel}>All time</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Gemini (Paid)</h3>
+                        <p className={styles.statValue}>{quotaData.costAnalysis.geminiConversations}</p>
+                        <span className={styles.statLabel}>Using Gemini API</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Rules (Free)</h3>
+                        <p className={styles.statValue}>{quotaData.costAnalysis.rulesConversations}</p>
+                        <span className={styles.statLabel}>Zero cost fallback</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Total AI Cost</h3>
+                        <p className={styles.statValue}>£{quotaData.costAnalysis.totalCost.toFixed(2)}</p>
+                        <span className={styles.statLabel}>Gemini API usage</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.section}>
+                    <h2>Cost Efficiency</h2>
+                    <div className={styles.statsGrid}>
+                      <div className={styles.statCard}>
+                        <h3>Cost per Conversation</h3>
+                        <p className={styles.statValue}>£{quotaData.costAnalysis.costPerConversation.toFixed(4)}</p>
+                        <span className={styles.statLabel}>Average Gemini cost</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Free Usage %</h3>
+                        <p className={styles.statValue}>
+                          {quotaData.costAnalysis.totalConversations > 0
+                            ? ((quotaData.costAnalysis.rulesConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
+                            : 0}%
+                        </p>
+                        <span className={styles.statLabel}>Rules provider usage</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Paid Usage %</h3>
+                        <p className={styles.statValue}>
+                          {quotaData.costAnalysis.totalConversations > 0
+                            ? ((quotaData.costAnalysis.geminiConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
+                            : 0}%
+                        </p>
+                        <span className={styles.statLabel}>Gemini provider usage</span>
+                      </div>
+                      <div className={styles.statCard}>
+                        <h3>Monthly Projection</h3>
+                        <p className={styles.statValue}>
+                          £{(quotaData.freeTier.dailyUsage * quotaData.costAnalysis.costPerConversation * 30).toFixed(2)}
+                        </p>
+                        <span className={styles.statLabel}>Estimated monthly cost</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
       </HubPageLayout>

@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     // Get conversation breakdown by persona
     if (type === 'breakdown') {
-      const { data: personaBreakdown, error: personaError } = await supabase
+      const { data: personaBreakdown, error: personaError} = await supabase
         .from('lexi_conversations')
         .select('persona')
         .limit(10000);
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       }
 
       const breakdown: Record<string, number> = {};
-      personaBreakdown?.forEach(c => {
+      personaBreakdown?.forEach((c: { persona: string }) => {
         breakdown[c.persona] = (breakdown[c.persona] || 0) + 1;
       });
 
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
         .limit(10000);
 
       const providerBreakdown: Record<string, number> = {};
-      providerData?.forEach(c => {
+      providerData?.forEach((c: { provider: string }) => {
         providerBreakdown[c.provider] = (providerBreakdown[c.provider] || 0) + 1;
       });
 
@@ -125,6 +125,63 @@ export async function GET(request: NextRequest) {
         breakdown: {
           byPersona: breakdown,
           byProvider: providerBreakdown,
+        },
+      });
+    }
+
+    // Get quota and rate limit analytics
+    if (type === 'quota') {
+      // Get today's usage
+      const today = new Date().toISOString().split('T')[0];
+      const { data: todayConversations } = await supabase
+        .from('lexi_conversations')
+        .select('user_id')
+        .gte('created_at', `${today}T00:00:00Z`)
+        .lte('created_at', `${today}T23:59:59Z`);
+
+      const dailyUsage = todayConversations?.length || 0;
+
+      // Get unique users
+      const { data: uniqueUsersData } = await supabase
+        .from('lexi_conversations')
+        .select('user_id');
+
+      const totalUsers = new Set(uniqueUsersData?.map((c: { user_id: string }) => c.user_id) || []).size;
+
+      // Calculate avg conversations per user
+      const { count: totalConversations } = await supabase
+        .from('lexi_conversations')
+        .select('*', { count: 'exact', head: true });
+
+      const avgConversationsPerUser = totalUsers ? (totalConversations || 0) / totalUsers : 0;
+
+      // Mock limit hits (will be calculated from Redis rate limiter in production)
+      const limitHits = 0;
+
+      // Cost analysis (Lexi uses Gemini or Rules provider)
+      // Rules provider is zero cost, Gemini has cost
+      const { data: geminiConversations } = await supabase
+        .from('lexi_conversations')
+        .select('id')
+        .eq('provider', 'gemini');
+
+      const geminiCount = geminiConversations?.length || 0;
+      const costPerConversation = 0.0003; // £0.0003 per conversation (Gemini Flash 2.0)
+      const totalCost = geminiCount * costPerConversation;
+
+      return NextResponse.json({
+        freeTier: {
+          totalUsers,
+          dailyUsage,
+          limitHits,
+          avgConversationsPerUser,
+        },
+        costAnalysis: {
+          totalConversations: totalConversations || 0,
+          geminiConversations: geminiCount,
+          rulesConversations: (totalConversations || 0) - geminiCount,
+          totalCost,
+          costPerConversation,
         },
       });
     }

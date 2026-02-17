@@ -50,9 +50,22 @@ export async function POST(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Generate a unique identifier for rate limiting
-    // For authenticated users, use their ID; for guests, use IP or a generated ID
-    let rateLimitId: string;
+    // Require authentication for Lexi (no guest access)
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
+
+    // Generate user info for session (user is guaranteed to exist due to auth check above)
+    // Get user profile to determine role
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, full_name, active_role, organisation_id')
+      .eq('id', user.id)
+      .single();
+
     let userInfo: {
       id: string;
       role: UserRole;
@@ -61,80 +74,50 @@ export async function POST(request: NextRequest) {
       metadata: {
         displayName?: string;
         email?: string;
-        isGuest?: boolean;
       };
     };
 
-    if (user) {
-      // Authenticated user flow
-      rateLimitId = user.id;
-
-      // Get user profile to determine role
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, full_name, active_role, organisation_id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        // User is authenticated but doesn't have a profile yet (e.g., new user)
-        // Create session with default client role instead of failing
-        console.log('[Lexi API] No profile found for user, using default role:', user.id);
-        userInfo = {
-          id: user.id,
-          role: 'client' as UserRole,
-          permissions: [],
-          metadata: {
-            displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            email: user.email,
-          },
-        };
-      } else {
-        // Map active_role to UserRole
-        // Prefer frontend-provided activeRole (authoritative, synced with localStorage)
-        // Fall back to database active_role
-        const roleMap: Record<string, UserRole> = {
-          'tutor': 'tutor',
-          'client': 'client',
-          'student': 'student',
-          'agent': 'agent',
-          'organisation': 'organisation',
-        };
-        const roleSource = requestBody.activeRole || profile.active_role || '';
-        const role = roleMap[roleSource] || 'client';
-
-        userInfo = {
-          id: user.id,
-          role,
-          organisationId: profile.organisation_id || undefined,
-          permissions: [],
-          metadata: {
-            displayName: profile.full_name,
-            email: user.email,
-          },
-        };
-      }
-    } else {
-      // Guest user flow - create anonymous session
-      // Use IP address or generate a guest ID for rate limiting
-      const forwardedFor = request.headers.get('x-forwarded-for');
-      const ip = forwardedFor?.split(',')[0]?.trim() || 'unknown';
-      const guestId = `guest:${ip}`;
-      rateLimitId = guestId;
-
+    if (profileError || !profile) {
+      // User is authenticated but doesn't have a profile yet (e.g., new user)
+      // Create session with default client role instead of failing
+      console.log('[Lexi API] No profile found for user, using default role:', user.id);
       userInfo = {
-        id: guestId,
-        role: 'client' as UserRole, // Guests get basic client persona
+        id: user.id,
+        role: 'client' as UserRole,
         permissions: [],
         metadata: {
-          displayName: 'Guest',
-          isGuest: true,
+          displayName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          email: user.email,
+        },
+      };
+    } else {
+      // Map active_role to UserRole
+      // Prefer frontend-provided activeRole (authoritative, synced with localStorage)
+      // Fall back to database active_role
+      const roleMap: Record<string, UserRole> = {
+        'tutor': 'tutor',
+        'client': 'client',
+        'student': 'student',
+        'agent': 'agent',
+        'organisation': 'organisation',
+      };
+      const roleSource = requestBody.activeRole || profile.active_role || '';
+      const role = roleMap[roleSource] || 'client';
+
+      userInfo = {
+        id: user.id,
+        role,
+        organisationId: profile.organisation_id || undefined,
+        permissions: [],
+        metadata: {
+          displayName: profile.full_name,
+          email: user.email,
         },
       };
     }
 
     // Check rate limit for session creation (best-effort if Redis is down)
-    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'session:start').catch(() => ({ allowed: true } as { allowed: true }));
+    const rateLimitResult = await rateLimiter.checkLimit(user.id, 'session:start').catch(() => ({ allowed: true } as { allowed: true }));
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         rateLimitError(rateLimitResult),
@@ -157,15 +140,12 @@ export async function POST(request: NextRequest) {
     const greeting = lexiOrchestrator.getGreeting(session.sessionId);
     const capabilities = lexiOrchestrator.getCapabilities(session.sessionId);
 
-    const isGuest = !user;
-
     return NextResponse.json({
       sessionId: session.sessionId,
       persona: session.persona,
       greeting,
       capabilities,
       expiresAt: session.expiresAt.toISOString(),
-      guestMode: isGuest,
     });
   } catch (error) {
     console.error('[Lexi API] Session creation error:', error);

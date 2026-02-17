@@ -15,7 +15,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { lexiOrchestrator } from '@lexi/core/orchestrator';
 import { sessionStore } from '@lexi/services/session-store';
-import { rateLimiter, rateLimitHeaders, rateLimitError } from '@lexi/services/rate-limiter';
+import { checkAIAgentRateLimit, incrementAIAgentUsage } from '@/lib/ai-agents/rate-limiter';
 
 interface StreamRequestBody {
   sessionId: string;
@@ -49,14 +49,12 @@ export async function POST(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Determine user ID for rate limiting (authenticated user or guest via IP)
-    let rateLimitId: string;
-    if (user) {
-      rateLimitId = user.id;
-    } else {
-      const forwardedFor = request.headers.get('x-forwarded-for');
-      const ip = forwardedFor?.split(',')[0]?.trim() || 'unknown';
-      rateLimitId = `guest:${ip}`;
+    // Require authentication for Lexi (no guest access)
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required', code: 'UNAUTHORIZED' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     // Parse request body
@@ -77,18 +75,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check rate limit for messages (best-effort if Redis is down)
-    const rateLimitResult = await rateLimiter.checkLimit(rateLimitId, 'message').catch(() => ({ allowed: true } as { allowed: true }));
-    if (!rateLimitResult.allowed) {
+    // Check rate limit (10 questions/day for authenticated users)
+    const rateLimit = await checkAIAgentRateLimit('lexi', user.id);
+    if (!rateLimit.allowed) {
       return new Response(
-        JSON.stringify(rateLimitError(rateLimitResult)),
-        {
-          status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            ...rateLimitHeaders(rateLimitResult),
+        JSON.stringify({
+          error: rateLimit.error,
+          message: rateLimit.message,
+          rateLimit: {
+            tier: rateLimit.tier,
+            limit: rateLimit.limit,
+            used: rateLimit.used,
+            remaining: rateLimit.remaining,
+            resetAt: rateLimit.resetAt.toISOString(),
           },
-        }
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -96,8 +98,7 @@ export async function POST(request: NextRequest) {
     let sessionVerified = false;
     const session = await sessionStore.getSession(sessionId).catch(() => null);
     if (session) {
-      const expectedUserId = user?.id || rateLimitId;
-      if (session.userId !== expectedUserId) {
+      if (session.userId !== user.id) {
         return new Response(
           JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
           { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -106,8 +107,7 @@ export async function POST(request: NextRequest) {
       sessionVerified = true;
     } else if (lexiOrchestrator.hasSession(sessionId)) {
       const sessionUserId = lexiOrchestrator.getSessionUserId(sessionId);
-      const expectedUserId = user?.id || rateLimitId;
-      if (sessionUserId && sessionUserId !== expectedUserId) {
+      if (sessionUserId && sessionUserId !== user.id) {
         return new Response(
           JSON.stringify({ error: 'Session does not belong to user', code: 'SESSION_MISMATCH' }),
           { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -141,12 +141,8 @@ export async function POST(request: NextRequest) {
             timestamp: new Date().toISOString(),
           });
 
-          // Process message through Lexi (guests use Rules provider only — zero cost)
-          const isGuest = !user;
-          if (isGuest) {
-            console.log('[Lexi Stream] Guest mode — using Rules provider');
-          }
-          const result = await lexiOrchestrator.processMessage(sessionId, message, { forceRulesOnly: isGuest });
+          // Process message through Lexi (authenticated users only)
+          const result = await lexiOrchestrator.processMessage(sessionId, message);
 
           // Simulate streaming by sending response in chunks
           // In production with an actual LLM, this would stream real tokens
@@ -175,12 +171,22 @@ export async function POST(request: NextRequest) {
             await sessionStore.addMessage(session.activeConversation.id, result.response).catch(() => {});
           }
 
-          // Send completion event with metadata
+          // Increment usage counter (async, don't block)
+          incrementAIAgentUsage('lexi', user.id);
+
+          // Send completion event with metadata and rate limit info
           sendEvent('done', {
             id: result.response.id,
             timestamp: result.response.timestamp.toISOString(),
             metadata: result.response.metadata,
             suggestions: result.actions?.[0]?.nextSteps || [],
+            rateLimit: {
+              tier: rateLimit.tier,
+              limit: rateLimit.limit,
+              used: rateLimit.used + 1,
+              remaining: rateLimit.remaining - 1,
+              resetAt: rateLimit.resetAt.toISOString(),
+            },
           });
 
           controller.close();
