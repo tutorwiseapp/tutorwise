@@ -42,6 +42,10 @@ import type {
   UserPreferences,
 } from '../types';
 
+import type { LLMCompletionRequest } from '../providers/types';
+import type { ToolExecutionContext } from '../tools/types';
+import { toolExecutor } from '../tools/executor';
+import { getToolsForPersona } from '../tools/definitions';
 import { lexiKnowledgeRetriever } from '../knowledge/retriever';
 
 // --- Persona Configurations ---
@@ -303,12 +307,25 @@ export class LexiOrchestrator {
     }));
 
     // Generate response using provider with fallback chain
-    const completionRequest = {
+    const completionRequest: LLMCompletionRequest = {
       messages: llmMessages,
       persona: session.persona,
       context: interactionContext,
       intent,
       ragContext,
+    };
+
+    // Build tool execution context from session data
+    const displayName = session.context.user?.metadata?.displayName as string | undefined;
+    const nameParts = displayName?.split(' ') || [];
+    const toolContext: ToolExecutionContext = {
+      userId: session.userId,
+      userRole: session.userRole,
+      organisationId: session.organisationId,
+      sessionId,
+      userFirstName: nameParts[0] || undefined,
+      userLastName: nameParts.slice(1).join(' ') || undefined,
+      userEmail: session.context.user?.metadata?.email as string | undefined,
     };
 
     let result: { content: string; suggestions?: string[] };
@@ -318,9 +335,9 @@ export class LexiOrchestrator {
       // Guest mode: use Rules provider directly (zero cost)
       result = await activeProvider.complete(completionRequest);
     } else {
-      // Authenticated mode: use primary provider with fallback chain
+      // Authenticated mode: use primary provider with tool support and fallback chain
       try {
-        result = await this.provider.complete(completionRequest);
+        result = await this.runWithTools(completionRequest, toolContext, session.persona);
       } catch (primaryError) {
         console.warn(`[Lexi] Primary provider ${this.provider.name} failed, trying fallbacks:`, primaryError);
         result = null as unknown as typeof result;
@@ -361,6 +378,56 @@ export class LexiOrchestrator {
         nextSteps: result.suggestions,
       }] : undefined,
     };
+  }
+
+  /**
+   * Run a completion with tool calling support.
+   * If the LLM returns a tool call, executes it and re-completes for the final answer.
+   * Capped at 1 tool round-trip.
+   */
+  private async runWithTools(
+    completionRequest: LLMCompletionRequest,
+    toolContext: ToolExecutionContext,
+    persona: PersonaType
+  ): Promise<{ content: string; suggestions?: string[] }> {
+    const tools = getToolsForPersona(persona);
+    const requestWithTools: LLMCompletionRequest = { ...completionRequest, tools };
+
+    // First completion — may return tool call or direct text
+    const firstResult = await this.provider.complete(requestWithTools);
+
+    // If no tool calls, return text directly
+    if (!firstResult.toolCalls || firstResult.toolCalls.length === 0) {
+      return { content: firstResult.content, suggestions: firstResult.suggestions };
+    }
+
+    // Execute the tool call
+    const toolCall = firstResult.toolCalls[0];
+    console.log(`[Lexi] Tool call: ${toolCall.function.name}(${toolCall.function.arguments})`);
+
+    const toolResult = await toolExecutor.execute(toolCall, toolContext);
+    console.log(`[Lexi] Tool result: ${toolResult.content}`);
+
+    // Build second completion: original messages + tool call context + tool result
+    const messagesWithToolResult: LLMCompletionRequest['messages'] = [
+      ...completionRequest.messages,
+      {
+        role: 'assistant',
+        content: `[Called tool: ${toolCall.function.name} with ${toolCall.function.arguments}]`,
+      },
+      {
+        role: 'user',
+        content: `Tool "${toolCall.function.name}" returned: ${toolResult.content}\n\nPlease summarise the result for the user in a friendly, conversational way.`,
+      },
+    ];
+
+    // Second completion without tools — get final user-facing response
+    const finalResult = await this.provider.complete({
+      ...completionRequest,
+      messages: messagesWithToolResult,
+    });
+
+    return { content: finalResult.content, suggestions: finalResult.suggestions };
   }
 
   /**

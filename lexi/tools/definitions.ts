@@ -163,26 +163,30 @@ export const createSupportTicket: Tool = {
   type: 'function',
   function: {
     name: 'create_support_ticket',
-    description: 'Create a support ticket for issues that need human assistance',
+    description: 'Create a Jira support ticket for issues that need human team assistance. Only call this after gathering what the issue is, which category it fits, and how urgently it affects the user.',
     parameters: {
       type: 'object',
       properties: {
         category: {
           type: 'string',
-          description: 'Ticket category',
-          enum: ['billing', 'booking', 'technical', 'tutor', 'other'],
+          description: 'Category of the issue',
+          enum: ['account', 'billing', 'bookings', 'technical', 'features', 'other'],
         },
-        description: {
+        summary: {
           type: 'string',
-          description: 'Description of the issue',
+          description: 'A clear, one-line summary of the issue (becomes the ticket title)',
+        },
+        details: {
+          type: 'string',
+          description: 'Full description of the issue as the user described it',
         },
         priority: {
           type: 'string',
-          description: 'Ticket priority',
+          description: 'Priority based on user impact',
           enum: ['low', 'medium', 'high'],
         },
       },
-      required: ['category', 'description'],
+      required: ['category', 'summary'],
     },
   },
 };

@@ -9,6 +9,7 @@
 
 import type { PersonaType, DetectedIntent, IntentCategory } from '../types';
 import type { AgentContext } from '../../cas/packages/core/src/context';
+import type { Tool, ToolCall } from '../tools/types';
 
 // --- Provider Types ---
 
@@ -39,10 +40,12 @@ export interface LLMCompletionRequest {
   maxTokens?: number;
   temperature?: number;
   stream?: boolean;
+  tools?: Tool[];
 }
 
 export interface LLMCompletionResponse {
   content: string;
+  toolCalls?: ToolCall[];
   intent?: DetectedIntent;
   suggestions?: string[];
   usage?: {
@@ -50,7 +53,7 @@ export interface LLMCompletionResponse {
     completionTokens: number;
     totalTokens: number;
   };
-  finishReason?: 'stop' | 'length' | 'content_filter' | 'error';
+  finishReason?: 'stop' | 'length' | 'content_filter' | 'tool_call' | 'error';
 }
 
 export interface LLMStreamChunk {

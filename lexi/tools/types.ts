@@ -55,6 +55,9 @@ export interface ToolExecutionContext {
   userRole: string;
   organisationId?: string;
   sessionId: string;
+  userFirstName?: string;
+  userLastName?: string;
+  userEmail?: string;
 }
 
 export type ToolExecutor<T = unknown, R = unknown> = (
@@ -103,7 +106,8 @@ export interface GetUpcomingLessonsArgs {
 }
 
 export interface CreateSupportTicketArgs {
-  category: string;
-  description: string;
+  category: 'account' | 'billing' | 'bookings' | 'technical' | 'features' | 'other';
+  summary: string;
+  details?: string;
   priority?: 'low' | 'medium' | 'high';
 }

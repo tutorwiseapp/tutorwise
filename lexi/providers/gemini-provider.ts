@@ -20,6 +20,7 @@ import type {
 } from './types';
 import type { PersonaType, DetectedIntent, IntentCategory } from '../types';
 import type { AgentContext } from '../../cas/packages/core/src/context';
+import type { Tool, ToolCall } from '../tools/types';
 
 // --- Constants ---
 
@@ -73,25 +74,33 @@ export class GeminiProvider extends BaseLLMProvider {
 
     const url = `${GEMINI_API_BASE}/models/${this.model}:generateContent?key=${this.apiKey}`;
 
+    // Build request body
+    const requestBody: Record<string, unknown> = {
+      contents: geminiContents,
+      generationConfig: {
+        maxOutputTokens: request.maxTokens || this.maxTokens,
+        temperature: request.temperature ?? this.temperature,
+      },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      ],
+    };
+
+    // Add tools if provided (Gemini function calling)
+    if (request.tools && request.tools.length > 0) {
+      requestBody.tools = this.convertToolsToGeminiFormat(request.tools);
+    }
+
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: geminiContents,
-          generationConfig: {
-            maxOutputTokens: request.maxTokens || this.maxTokens,
-            temperature: request.temperature ?? this.temperature,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          ],
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -100,7 +109,33 @@ export class GeminiProvider extends BaseLLMProvider {
       }
 
       const data = await response.json();
-      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const part = data.candidates?.[0]?.content?.parts?.[0];
+
+      // Check for function call response (tool calling)
+      if (part?.functionCall) {
+        const toolCall: ToolCall = {
+          id: `call_${Date.now()}`,
+          type: 'function',
+          function: {
+            name: part.functionCall.name,
+            arguments: JSON.stringify(part.functionCall.args || {}),
+          },
+        };
+
+        return {
+          content: '',
+          toolCalls: [toolCall],
+          finishReason: 'tool_call',
+          usage: {
+            promptTokens: data.usageMetadata?.promptTokenCount || 0,
+            completionTokens: data.usageMetadata?.candidatesTokenCount || 0,
+            totalTokens: data.usageMetadata?.totalTokenCount || 0,
+          },
+        };
+      }
+
+      // Standard text response
+      const content = part?.text || '';
 
       // Detect intent from response
       const intent = await this.detectIntent(
@@ -299,6 +334,16 @@ Respond in JSON format only:
   }
 
   // --- Private Methods ---
+
+  private convertToolsToGeminiFormat(tools: Tool[]): Array<{ functionDeclarations: Array<{ name: string; description: string; parameters: unknown }> }> {
+    return [{
+      functionDeclarations: tools.map(t => ({
+        name: t.function.name,
+        description: t.function.description,
+        parameters: t.function.parameters,
+      })),
+    }];
+  }
 
   private convertMessages(
     messages: LLMMessage[],

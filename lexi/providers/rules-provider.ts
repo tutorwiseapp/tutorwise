@@ -792,8 +792,8 @@ export class RulesProvider extends BaseLLMProvider {
       };
     }
     return {
-      message: "I'm here to help! You can:\n\n- Ask me about any TutorWise feature\n- Visit the **Help Centre** for detailed guides\n- Contact support through the Help Centre for account-specific issues\n\nWhat would you like help with?",
-      suggestions: ['Go to Help Centre', 'Ask about a feature'],
+      message: "I can help you create a support ticket! When you're signed in, just tell me what's wrong and I'll raise a ticket with our team directly.\n\nYou can also:\n- Visit the **Help Centre** for guides and FAQs\n- Use **Report a Problem** in the Help Centre for bug reports with screenshots\n\nWhat would you like help with?",
+      suggestions: ['Go to Help Centre', 'Report a problem', 'Ask about a feature'],
     };
   }
 

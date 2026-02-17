@@ -430,32 +430,45 @@ export class ToolExecutor {
     args: CreateSupportTicketArgs,
     context: ToolExecutionContext
   ): Promise<object> {
-    if (!this.supabase) {
-      return { error: 'Database not available' };
+    // Guest users can't create tickets (no name/email available)
+    if (!context.userFirstName && !context.userLastName) {
+      return {
+        error: 'unauthenticated',
+        message: 'Please sign in to create a support ticket, or visit the Help Centre.',
+      };
     }
 
-    const { data, error } = await this.supabase
-      .from('support_tickets')
-      .insert({
-        user_id: context.userId,
+    try {
+      const { createJiraTicketFromLexi } = await import(
+        '../../apps/web/src/lib/integrations/jira-lexi-sync'
+      );
+
+      const isUrgent = args.priority === 'high';
+
+      const result = await createJiraTicketFromLexi({
+        firstName: context.userFirstName || 'User',
+        lastName: context.userLastName || '',
+        email: context.userEmail,
+        userRole: context.userRole,
         category: args.category,
-        description: args.description,
-        priority: args.priority || 'medium',
-        status: 'open',
-        source: 'lexi',
-      })
-      .select('id')
-      .single();
+        summary: args.summary,
+        details: args.details,
+        isUrgent,
+      });
 
-    if (error) {
-      return { error: 'Failed to create ticket' };
+      return {
+        success: true,
+        ticketKey: result.ticketKey,
+        ticketUrl: result.ticketUrl,
+        message: `Ticket ${result.ticketKey} created successfully. Our team will look into this within 24 hours.`,
+      };
+    } catch (error) {
+      console.error('[ToolExecutor] Jira ticket creation failed:', error);
+      return {
+        error: 'jira_unavailable',
+        message: 'Failed to create the ticket. Please try submitting via the Help Centre instead.',
+      };
     }
-
-    return {
-      success: true,
-      ticketId: data.id,
-      message: `Support ticket #${data.id} created. Our team will respond within 24 hours.`,
-    };
   }
 
   private async getUserProfile(context: ToolExecutionContext): Promise<object> {
