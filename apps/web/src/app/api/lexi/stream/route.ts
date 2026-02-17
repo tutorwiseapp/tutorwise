@@ -141,8 +141,12 @@ export async function POST(request: NextRequest) {
             timestamp: new Date().toISOString(),
           });
 
-          // Process message through Lexi
-          const result = await lexiOrchestrator.processMessage(sessionId, message);
+          // Process message through Lexi (guests use Rules provider only — zero cost)
+          const isGuest = !user;
+          if (isGuest) {
+            console.log('[Lexi Stream] Guest mode — using Rules provider');
+          }
+          const result = await lexiOrchestrator.processMessage(sessionId, message, { forceRulesOnly: isGuest });
 
           // Simulate streaming by sending response in chunks
           // In production with an actual LLM, this would stream real tokens

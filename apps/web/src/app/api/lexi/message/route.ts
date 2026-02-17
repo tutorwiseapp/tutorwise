@@ -118,8 +118,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process message through Lexi
-    const result = await lexiOrchestrator.processMessage(sessionId, message);
+    // Process message through Lexi (guests use Rules provider only — zero cost)
+    const isGuest = !user;
+    if (isGuest) {
+      console.log('[Lexi Message] Guest mode — using Rules provider');
+    }
+    const result = await lexiOrchestrator.processMessage(sessionId, message, { forceRulesOnly: isGuest });
 
     // Update session activity (best-effort if Redis is down)
     await sessionStore.touchSession(sessionId).catch(() => {});

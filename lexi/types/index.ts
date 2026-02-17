@@ -64,6 +64,7 @@ export type IntentCategory =
   | 'credibility'   // CaaS Credibility Score
   | 'account'       // Profile, settings, integrations, verification
   | 'organisation'  // Organisation management, teams, tasks
+  | 'platform'      // Platform info for guests (how it works, pricing, signup)
   | 'general';      // General conversation
 
 export interface DetectedIntent {

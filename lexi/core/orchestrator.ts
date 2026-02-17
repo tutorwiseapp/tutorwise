@@ -216,11 +216,13 @@ export class LexiOrchestrator {
   }
 
   /**
-   * Process a user message and generate a response
+   * Process a user message and generate a response.
+   * @param options.forceRulesOnly - When true, uses Rules provider only (zero cost, for guest users)
    */
   async processMessage(
     sessionId: string,
-    userMessage: string
+    userMessage: string,
+    options?: { forceRulesOnly?: boolean }
   ): Promise<{ response: LexiMessage; actions?: ActionResult[] }> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
@@ -243,16 +245,23 @@ export class LexiOrchestrator {
       metadata: { messageId: userMsg.id },
     });
 
+    // Select provider: force Rules for guest mode (zero cost)
+    const forceRules = options?.forceRulesOnly === true;
+    const rulesProvider = forceRules
+      ? this.fallbackProviders.find(p => p.type === 'rules') || providerFactory.create({ type: 'rules' })
+      : null;
+    const activeProvider = rulesProvider || this.provider;
+
     // Detect intent using provider (with fallback)
     let intent: DetectedIntent;
     try {
-      intent = await this.provider.detectIntent(
+      intent = await activeProvider.detectIntent(
         userMessage,
         session.persona,
         interactionContext
       );
     } catch (intentError) {
-      console.warn(`[Lexi] Intent detection failed with ${this.provider.name}, using default intent:`, intentError);
+      console.warn(`[Lexi] Intent detection failed with ${activeProvider.name}, using default intent:`, intentError);
       intent = { category: 'general', action: 'chat', confidence: 0.5, entities: {}, requiresConfirmation: false };
     }
 
@@ -268,9 +277,9 @@ export class LexiOrchestrator {
       return { response };
     }
 
-    // Retrieve RAG context (third knowledge layer - best effort)
+    // Retrieve RAG context (skip for guest mode — no user context to enrich)
     let ragContext: string | undefined;
-    if (lexiKnowledgeRetriever.isReady()) {
+    if (!forceRules && lexiKnowledgeRetriever.isReady()) {
       try {
         const ragResult = await lexiKnowledgeRetriever.search({
           query: userMessage,
@@ -303,28 +312,34 @@ export class LexiOrchestrator {
     };
 
     let result: { content: string; suggestions?: string[] };
-    let usedProvider = this.provider;
+    let usedProvider = activeProvider;
 
-    try {
-      result = await this.provider.complete(completionRequest);
-    } catch (primaryError) {
-      console.warn(`[Lexi] Primary provider ${this.provider.name} failed, trying fallbacks:`, primaryError);
-      result = null as unknown as typeof result;
+    if (forceRules) {
+      // Guest mode: use Rules provider directly (zero cost)
+      result = await activeProvider.complete(completionRequest);
+    } else {
+      // Authenticated mode: use primary provider with fallback chain
+      try {
+        result = await this.provider.complete(completionRequest);
+      } catch (primaryError) {
+        console.warn(`[Lexi] Primary provider ${this.provider.name} failed, trying fallbacks:`, primaryError);
+        result = null as unknown as typeof result;
 
-      for (const fallback of this.fallbackProviders) {
-        try {
-          console.log(`[Lexi] Trying fallback provider: ${fallback.name}`);
-          result = await fallback.complete(completionRequest);
-          usedProvider = fallback;
-          console.log(`[Lexi] Fallback provider ${fallback.name} succeeded`);
-          break;
-        } catch (fallbackError) {
-          console.warn(`[Lexi] Fallback provider ${fallback.name} also failed:`, fallbackError);
+        for (const fallback of this.fallbackProviders) {
+          try {
+            console.log(`[Lexi] Trying fallback provider: ${fallback.name}`);
+            result = await fallback.complete(completionRequest);
+            usedProvider = fallback;
+            console.log(`[Lexi] Fallback provider ${fallback.name} succeeded`);
+            break;
+          } catch (fallbackError) {
+            console.warn(`[Lexi] Fallback provider ${fallback.name} also failed:`, fallbackError);
+          }
         }
-      }
 
-      if (!result) {
-        throw primaryError; // All providers failed, throw original error
+        if (!result) {
+          throw primaryError; // All providers failed, throw original error
+        }
       }
     }
 

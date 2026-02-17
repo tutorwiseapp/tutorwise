@@ -34,6 +34,7 @@ export interface LexiSession {
   greeting: string;
   capabilities: string[];
   expiresAt: string;
+  guestMode?: boolean;
 }
 
 export interface UseLexiChatOptions {

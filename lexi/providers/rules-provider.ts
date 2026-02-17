@@ -36,6 +36,14 @@ interface IntentPattern {
 }
 
 const INTENT_PATTERNS: IntentPattern[] = [
+  // Platform info intents (for guests and general visitors — checked first)
+  { patterns: ['how does tutorwise work', 'what is tutorwise', 'about tutorwise', 'tell me about tutorwise'], category: 'platform', action: 'about' },
+  { patterns: ['how much does it cost', 'pricing', 'prices', 'is it free', 'subscription', 'membership fee'], category: 'platform', action: 'pricing' },
+  { patterns: ['what subjects', 'which subjects', 'subjects available', 'do you cover', 'what do you teach'], category: 'platform', action: 'subjects' },
+  { patterns: ['is it safe', 'safety', 'safeguarding', 'how do you vet', 'background check', 'trusted', 'trustworthy'], category: 'platform', action: 'safety' },
+  { patterns: ['sign up', 'create account', 'register', 'join tutorwise', 'get started', 'how to start'], category: 'platform', action: 'signup' },
+  { patterns: ['what is sage', 'ai tutor feature', 'do you have ai'], category: 'platform', action: 'sage' },
+
   // Referral intents (check before general 'help' patterns)
   { patterns: ['referral', 'refer', 'invite friend', 'referral link', 'referral code', 'qr code'], category: 'referrals', action: 'info' },
   { patterns: ['commission', 'delegation', 'referral earning'], category: 'referrals', action: 'earnings' },
@@ -299,6 +307,8 @@ export class RulesProvider extends BaseLLMProvider {
           return this.handleOrganisationIntent(intent, persona);
         case 'support':
           return this.handleSupportIntent(intent, persona);
+        case 'platform':
+          return this.handlePlatformIntent(intent);
         default:
           return {
             message: "I'm here to help! I can assist with bookings, referrals, earnings, EduPay, your Credibility Score, VirtualSpace, and much more. What would you like to know about?",
@@ -856,6 +866,56 @@ export class RulesProvider extends BaseLLMProvider {
     };
 
     return suggestions[persona]?.[category] || ['How else can I help you?'];
+  }
+
+  /**
+   * Handle platform info intents — public-facing responses for guests
+   * Zero cost, no API calls, no user context needed
+   */
+  private handlePlatformIntent(intent: DetectedIntent): { message: string; suggestions: string[] } {
+    switch (intent.action) {
+      case 'about':
+        return {
+          message: "**Tutorwise** is a UK-based platform that connects students and parents with credible, vetted tutors.\n\n**How it works:**\n1. **Search** — Browse our marketplace to find tutors by subject, location, and price\n2. **Book** — Schedule sessions directly with secure online payments\n3. **Learn** — Join virtual or in-person sessions with tools like VirtualSpace (our interactive whiteboard)\n4. **Track** — Monitor progress with learning analytics and feedback\n\n**Key features:**\n- Credibility-scored tutors (DBS-checked, verified qualifications)\n- AI tutoring assistant (Sage) for on-demand homework help\n- EduPay for student finance management\n- Referral programme with commission\n\nWould you like to find a tutor or learn more about a specific feature?",
+          suggestions: ['Find a tutor', 'How much does it cost?', 'Sign up'],
+        };
+
+      case 'pricing':
+        return {
+          message: "**Tutorwise pricing is set by individual tutors**, so you'll find options for every budget.\n\n**For students/parents:**\n- **Free to join** — no subscription or membership fees\n- **Pay per session** — each tutor sets their own hourly rate\n- **Typical rates:** £15-£50/hour depending on subject, level, and tutor experience\n- **Secure payments** via Stripe\n\n**For tutors:**\n- **Free to create a profile** and list your services\n- A small platform fee applies to bookings\n\n**Bonus:** Sage (our AI tutor) is included free for all registered users!\n\nWant to browse tutors and see specific rates?",
+          suggestions: ['Find a tutor', 'Sign up free', 'What subjects?'],
+        };
+
+      case 'subjects':
+        return {
+          message: "Tutorwise covers a wide range of subjects across all levels:\n\n**Core subjects:**\n- Mathematics (KS1 through A-Level and beyond)\n- English (Language, Literature, Creative Writing)\n- Science (Physics, Chemistry, Biology)\n\n**Also available:**\n- Modern Languages (French, Spanish, German, etc.)\n- Humanities (History, Geography, RE)\n- Computing & IT\n- Music, Art & Drama\n- 11+, GCSE, A-Level and university exam prep\n\n**Levels:** Primary, KS3, GCSE, A-Level, University, Adult learners\n\nBrowse our marketplace to find tutors for your specific subject and level.",
+          suggestions: ['Find a tutor', 'How much does it cost?', 'Sign up'],
+        };
+
+      case 'safety':
+        return {
+          message: "Safety is our top priority at Tutorwise.\n\n**How we protect you:**\n- **Credibility Score** — Every tutor has a transparent trust score based on verified credentials\n- **DBS checks** — Enhanced background checks for all tutors\n- **ID verification** — Verified identity before tutors can accept bookings\n- **Qualification verification** — We check teaching qualifications and certificates\n- **Secure payments** — All payments handled through Stripe (no cash exchanges)\n- **Reviews & ratings** — Read honest feedback from other students and parents\n- **VirtualSpace** — Safe, monitored virtual classroom environment\n\nYour child's safety and your peace of mind come first.",
+          suggestions: ['Find a tutor', 'How does it work?', 'Sign up'],
+        };
+
+      case 'signup':
+        return {
+          message: "Getting started with Tutorwise is quick and free!\n\n**To sign up:**\n1. Click **Sign Up** on the top of the page\n2. Create your account with email or Google\n3. Choose your role (Student, Parent, or Tutor)\n4. Complete your profile\n5. Start browsing tutors or listing your services!\n\n**It's completely free** to create an account. You only pay when you book a session.\n\nReady to get started?",
+          suggestions: ['Sign up now', 'Find a tutor', 'How much does it cost?'],
+        };
+
+      case 'sage':
+        return {
+          message: "**Sage** is our AI-powered tutoring assistant, available to all registered users.\n\n**What Sage can do:**\n- Explain concepts in maths, English, and science\n- Walk through problems step-by-step\n- Generate practice questions\n- Help with homework (guiding, not giving answers)\n- Prepare you for GCSE, A-Level, and other exams\n\n**Key benefits:**\n- Available 24/7 — get help anytime\n- Adapts to your level (Primary through University)\n- Completely free for registered users\n- Works alongside your human tutor\n\nSign up to try Sage for free!",
+          suggestions: ['Sign up free', 'Find a tutor', 'What subjects?'],
+        };
+
+      default:
+        return {
+          message: "Welcome to Tutorwise! I can help you learn about our platform. I can tell you about our tutors, pricing, subjects, safety features, and more.\n\nWhat would you like to know?",
+          suggestions: ['How does it work?', 'Find a tutor', 'Is it safe?'],
+        };
+    }
   }
 }
 

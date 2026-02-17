@@ -282,6 +282,16 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
         )}
       </header>
 
+      {/* Guest mode banner */}
+      {session?.guestMode && (
+        <div className={styles.guestBanner}>
+          <span>Guest mode</span>
+          <span>&middot;</span>
+          <a href="/login">Sign in</a>
+          <span>for personalised help</span>
+        </div>
+      )}
+
       {/* Error banner with contextual actions */}
       {error && (
         <div className={styles.errorBanner}>

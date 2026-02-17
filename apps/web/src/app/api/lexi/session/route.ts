@@ -157,12 +157,15 @@ export async function POST(request: NextRequest) {
     const greeting = lexiOrchestrator.getGreeting(session.sessionId);
     const capabilities = lexiOrchestrator.getCapabilities(session.sessionId);
 
+    const isGuest = !user;
+
     return NextResponse.json({
       sessionId: session.sessionId,
       persona: session.persona,
       greeting,
       capabilities,
       expiresAt: session.expiresAt.toISOString(),
+      guestMode: isGuest,
     });
   } catch (error) {
     console.error('[Lexi API] Session creation error:', error);
