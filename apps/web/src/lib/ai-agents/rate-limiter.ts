@@ -73,18 +73,31 @@ export async function checkAIAgentRateLimit(
     };
   }
 
-  // Lexi: Always free tier (10/day), no premium option
-  if (agent === 'lexi') {
-    return checkFreeTierLimit(userId, agent);
-  }
+  try {
+    // Lexi: Always free tier (10/day), no premium option
+    if (agent === 'lexi') {
+      return await checkFreeTierLimit(userId, agent);
+    }
 
-  // Sage: Check subscription status
-  const hasSagePro = subscription?.isActive && subscription?.plan === 'sage_pro';
+    // Sage: Check subscription status
+    const hasSagePro = subscription?.isActive && subscription?.plan === 'sage_pro';
 
-  if (hasSagePro) {
-    return checkSageProLimit(userId);
-  } else {
-    return checkFreeTierLimit(userId, agent);
+    if (hasSagePro) {
+      return await checkSageProLimit(userId);
+    } else {
+      return await checkFreeTierLimit(userId, agent);
+    }
+  } catch (error) {
+    // Redis connection failed - allow request but log error
+    console.error('[RateLimiter] Redis connection error, allowing request:', error instanceof Error ? error.message : error);
+    return {
+      allowed: true,
+      tier: 'free',
+      limit: FREE_DAILY_LIMIT,
+      used: 0,
+      remaining: FREE_DAILY_LIMIT,
+      resetAt: getNextMidnightUTC(),
+    };
   }
 }
 
@@ -102,13 +115,18 @@ export async function incrementAIAgentUsage(
     return;
   }
 
-  const hasSagePro =
-    agent === 'sage' && subscription?.isActive && subscription?.plan === 'sage_pro';
+  try {
+    const hasSagePro =
+      agent === 'sage' && subscription?.isActive && subscription?.plan === 'sage_pro';
 
-  if (hasSagePro) {
-    await incrementSageProUsage(userId);
-  } else {
-    await incrementFreeTierUsage(userId, agent);
+    if (hasSagePro) {
+      await incrementSageProUsage(userId);
+    } else {
+      await incrementFreeTierUsage(userId, agent);
+    }
+  } catch (error) {
+    // Redis connection failed - log error but don't throw (this is best-effort tracking)
+    console.error('[RateLimiter] Redis connection error, skipping increment:', error instanceof Error ? error.message : error);
   }
 }
 
