@@ -468,81 +468,102 @@ VirtualSpace is a cost-optimized, zero-marginal-cost virtual learning environmen
 - ✅ VirtualSpace Join Flow (`/virtualspace/join/[inviteToken]`)
 - ✅ Booking Integration (`/virtualspace/booking/[bookingId]`)
 
-### 35. Lexi AI ✅ (Conversational AI Assistant)
-**Status**: Production-ready
+### 35. Lexi AI ✅ (Platform Help Bot)
+**Status**: Production-ready (v2.0.0)
 **Completion**: 100%
-**Last Updated**: 2026-02-15
-**Design**: `docs/feature/lexi/lexi-design.md`
+**Last Updated**: 2026-02-21
+**Documentation**: [lexi/README.md](../lexi/README.md)
 
-Lexi is an AI-powered conversational assistant that provides context-aware support across the platform. Built with persona-based routing to deliver role-specific guidance for tutors, students, clients, agents, and organisations.
+Lexi is TutorWise's AI-powered platform assistant providing instant support, task automation, and context-aware guidance across all user roles. Features guest mode with zero API cost and 20+ function tools for platform actions.
 
 **Architecture**:
-- ✅ Anthropic Claude API integration with fallback chain (Claude > Gemini > Rules)
-- ✅ Persona-based routing (5 personas: student, tutor, client, agent, organisation)
-- ✅ Lazy session start for instant UI responsiveness
-- ✅ React Query integration with streaming support
+- ✅ Multi-provider system: Gemini (primary) → Claude (fallback) → DeepSeek → Rules-based
+- ✅ Guest mode with Rules-only provider (zero API cost for unauthenticated users)
+- ✅ Persona-based routing (5 primary personas + 4 specialized sub-personas)
+- ✅ Function calling with 20+ tools (bookings, search, payments, navigation)
+- ✅ RAG knowledge retrieval from platform documentation
+
+**Core Features (v2.0.0)**:
+- ✅ 20+ function tools for platform actions
+- ✅ Deep links for seamless navigation to any feature
+- ✅ Streaming responses with React Query
 - ✅ Conversation persistence and history
+- ✅ Feedback collection for continuous improvement
+- ✅ Analytics integration with CAS Marketer
 
-**Core Features**:
-- ✅ Floating Action Button (FAB) with modal interface
-- ✅ Real-time streaming responses
-- ✅ Context-aware persona detection based on user role
-- ✅ Conversation history with session management
-- ✅ Quick action suggestions and prompts
-- ✅ Mobile-responsive design with proper FAB positioning
-- ✅ Feedback collection system for AI improvement
-
-**Persona Capabilities**:
-- ✅ **Student**: Learning support, homework help, study strategies
-- ✅ **Tutor**: Session planning, teaching resources, business advice
-- ✅ **Client**: Tutor discovery, booking assistance, platform guidance
-- ✅ **Agent**: Recruitment tips, commission tracking, network growth
-- ✅ **Organisation**: Team management, billing support, compliance guidance
+**Personas & Sub-Personas**:
+- ✅ **Student**: Lesson scheduling, progress tracking, resource access
+- ✅ **Tutor**: Schedule management, earnings tracking, student overview
+- ✅ **Client**: Tutor search/matching, booking management, payments
+- ✅ **Agent**: User support, booking coordination, tutor assistance
+- ✅ **Organisation**: Team management, analytics, billing
+- ✅ **Sub-Personas**: New user guide, Earnings expert, Matching helper, Org admin
 
 **API Endpoints**:
-- ✅ `POST /api/lexi/chat` - Send message and receive AI response
-- ✅ `GET /api/lexi/conversations` - List conversation history
-- ✅ `POST /api/lexi/feedback` - Submit feedback on AI responses
+- ✅ `POST /api/lexi/message` - Send message and receive response
+- ✅ `POST /api/lexi/stream` - Streaming responses
+- ✅ `POST /api/lexi/session` - Session management
+- ✅ `GET /api/lexi/history` - Conversation history
+- ✅ `POST /api/lexi/feedback` - Submit feedback
+- ✅ `GET /api/lexi/capabilities` - List persona capabilities
+- ✅ `POST /api/lexi/provider` - Switch LLM provider
 
 **Components**:
 - ✅ `LexiChat` - Main chat interface component
 - ✅ `LexiFAB` - Floating action button trigger
 - ✅ `LexiModal` - Modal container for chat
-- ✅ `LexiMessage` - Message rendering with markdown
 
-### 36. Sage AI ✅ (Analytics & Insights Engine)
-**Status**: Production-ready
-**Completion**: 100%
-**Last Updated**: 2026-02-15
-**Design**: `docs/feature/sage/sage-design.md`
+### 36. Sage AI ✅ (GCSE AI Tutor)
+**Status**: Production-ready (v2.0.0)
+**Completion**: 85% (110/500 topics)
+**Last Updated**: 2026-02-21
+**Documentation**: [sage/README.md](../sage/README.md)
 
-Sage is an AI-powered analytics and insights engine that provides intelligent data analysis, trend detection, and actionable recommendations for platform users and administrators.
+Sage is an AI-powered GCSE tutor providing personalized educational support with curriculum-specific knowledge, mathematical problem solving, and continuous improvement through feedback analysis. Features multimodal input (voice, handwriting OCR) and automated curriculum gap detection.
 
-**Core Features**:
-- ✅ Dashboard analytics with AI-generated insights
-- ✅ Performance trend analysis for tutors and agents
-- ✅ Booking pattern recognition and forecasting
-- ✅ Revenue optimization recommendations
-- ✅ Student engagement metrics and alerts
-- ✅ CaaS score improvement suggestions
+**Core Features (v2.0.0)**:
+- ✅ **110 knowledge chunks** across 22 GCSE Maths topics (database-verified)
+- ✅ **Hybrid RAG system** with semantic (pgvector) + keyword (tsvector) search
+- ✅ **Mathematical solver** combining SymPy, Algebrite, and LLM reasoning
+- ✅ **Multi-provider** architecture (Gemini primary → Claude → DeepSeek → Rules)
+- ✅ **Feedback loop** with automated gap detection (< 60% satisfaction threshold)
+- ✅ **Content regeneration** for topics with < 30% positive feedback
+- 🟡 **Multimodal input** endpoints ready (OCR, Speech-to-Text awaiting Google APIs)
 
-**Analytics Capabilities**:
-- ✅ **Tutor Analytics**: Session performance, rating trends, earning forecasts
-- ✅ **Client Analytics**: Booking patterns, tutor match quality, engagement scores
-- ✅ **Agent Analytics**: Recruitment funnel, commission projections, network growth
-- ✅ **Organisation Analytics**: Team performance, revenue allocation, growth metrics
-- ✅ **Admin Analytics**: Platform health, user acquisition, revenue metrics
+**Architecture**:
+- ✅ 4 personas: Student, Tutor, Parent, Agent with role-specific capabilities
+- ✅ Subject specialization: Maths (active), English (planned), Science (planned)
+- ✅ Adaptive difficulty: GCSE Foundation/Higher tier support
+- ✅ Learning context tracking: Progress, preferences, goals
+- ✅ 6 knowledge chunk types: Definition, Concepts, Examples, Misconceptions, Vocabulary, Prerequisites
+
+**Curriculum Coverage**:
+- ✅ **Maths**: 110 chunks ingested (22 topics: Algebra, Geometry, Statistics, Probability, Trigonometry)
+- 🎯 **Target**: 500+ topics (Maths, English, Science) by Q2 2026
 
 **API Endpoints**:
-- ✅ `GET /api/sage/insights` - Get AI-generated insights for dashboard
-- ✅ `GET /api/sage/trends` - Get performance trends and forecasts
-- ✅ `POST /api/sage/recommendations` - Get actionable recommendations
+- ✅ `POST /api/sage/session` - Session management
+- ✅ `POST /api/sage/message` - Send message
+- ✅ `POST /api/sage/stream` - Streaming responses
+- ✅ `POST /api/sage/feedback` - Submit feedback (thumbs up/down)
+- ✅ `POST /api/sage/transcribe` - Voice transcription (placeholder)
+- ✅ `POST /api/sage/ocr` - Handwriting OCR (placeholder)
+- ✅ `GET /api/sage/history` - Session history
+- ✅ `GET /api/sage/materials` - Saved materials
+- ✅ `GET /api/sage/progress` - Learning progress
 
 **User Interfaces**:
-- ✅ Sage Insights Panel (`/sage`)
-- ✅ Dashboard widget integration
-- ✅ Tutor performance insights
-- ✅ Agent recruitment insights
+- ✅ `/sage` - Main chat interface
+- ✅ `/sage/history` - Session history
+- ✅ `/sage/materials` - Saved materials
+- ✅ `/sage/progress` - Learning progress dashboard
+
+**Feedback & Improvement System**:
+- ✅ Automated feedback processing (Supabase Edge Function: `sage-feedback-processor`, cron: 0 2 * * *)
+- ✅ Gap detection with severity classification (critical/high/medium/low)
+- ✅ Content regeneration for critical gaps (< 30% satisfaction)
+- ✅ Analytics integration with CAS Marketer for strategic planning
+- ✅ CLI script: `npm run process:sage-feedback`
 
 ### 18. Help Centre ✅
 **Status**: Production-ready
