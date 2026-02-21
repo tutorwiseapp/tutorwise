@@ -248,13 +248,24 @@ CAS operates as a complete AI product team with 8 specialized agents:
 ### 6. **Security Agent** - Security Engineer
 **Role:** Security validation, vulnerability scanning, auth testing
 **Location:** `agents/security/`
-**Status:** 🟡 Planned
+**Status:** 🟡 Ready for Activation
+**Deployment:** See [`DEPLOYMENT-INSTRUCTIONS.md`](DEPLOYMENT-INSTRUCTIONS.md)
 
 **Responsibilities:**
-- Vulnerability scanning (npm audit)
+- Dependency vulnerability scanning (npm audit)
+- Code security analysis (XSS, secrets, injection)
 - Authentication/authorization testing
-- Input sanitization validation
-- Security best practices enforcement
+- Pre-deployment security gates
+- OWASP Top 10 compliance checks
+
+**Implementation Complete:**
+- ✅ Comprehensive security scanner ([`agents/security/src/index.ts`](agents/security/src/index.ts))
+- ✅ Vulnerability detection and reporting
+- ✅ Supabase Edge Function for weekly scans
+- ✅ Database table for scan results (`cas_security_scans`)
+- ✅ Cron job configuration (weekly on Sundays at 03:00 UTC)
+
+**Activation Pending:** Database migration + Edge Function deployment
 
 ---
 
@@ -277,15 +288,26 @@ CAS operates as a complete AI product team with 8 specialized agents:
 ---
 
 ### 8. **Marketer Agent** - Product Marketing Manager
-**Role:** Analytics tracking, user behavior analysis, A/B testing
+**Role:** Analytics tracking, user behavior analysis, growth insights
 **Location:** `agents/marketer/`
-**Status:** 🔴 Planned Week 3+
+**Status:** 🟡 Ready for Activation
+**Deployment:** See [`DEPLOYMENT-INSTRUCTIONS.md`](DEPLOYMENT-INSTRUCTIONS.md)
 
 **Responsibilities:**
-- Set up usage analytics
-- Track feature adoption
-- Monitor conversion funnels
-- Analyze user engagement
+- Daily analytics collection from Sage & Lexi
+- User behavior and engagement analysis
+- Growth insights and risk detection
+- Feedback trend analysis
+- Feature adoption tracking
+
+**Implementation Complete:**
+- ✅ Analytics collection service ([`analytics-collector.ts`](agents/marketer/analytics-collector.ts))
+- ✅ Growth insights generation
+- ✅ Supabase Edge Function for automated daily runs
+- ✅ Database table for storing insights (`cas_marketer_insights`)
+- ✅ Cron job configuration (daily at 02:00 UTC)
+
+**Activation Pending:** Database migration + Edge Function deployment
 
 ---
 
@@ -293,16 +315,16 @@ CAS operates as a complete AI product team with 8 specialized agents:
 
 ### AI Product Team Agents
 
-| Agent | Role | Status | Week 2 Performance |
-|-------|------|--------|--------------------|
+| Agent | Role | Status | Performance / Status |
+|-------|------|--------|----------------------|
 | **Planner** | Project Manager | ✅ Active | 8/8 todos completed (100%) |
 | **Analyst** | Business Analyst | ✅ Active | Client & Agent requirements delivered |
 | **Developer** | Software Developer | ✅ Active | 2 forms | 751 LOC | 89.71% coverage |
 | **Tester** | QA Tester | ✅ Active | 48 tests | 100% passing |
 | **QA** | QA Engineer | ✅ Active | 29 Storybook stories created |
-| **Security** | Security Engineer | 🟡 Planned | Week 3 activation |
+| **Security** | Security Engineer | 🟡 Ready | Edge Function + DB migration ready |
 | **Engineer** | System Engineer | ✅ Active | API operational | No blockers |
-| **Marketer** | Marketing Manager | 🔴 Planned | Week 3+ activation |
+| **Marketer** | Marketing Manager | 🟡 Ready | Edge Function + DB migration ready |
 
 ### Week 2 Summary
 
