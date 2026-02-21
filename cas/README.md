@@ -388,13 +388,24 @@ npm run dev:docs
 
 ---
 
-## 🔗 Integration
+## 🔗 Integration & AI Ecosystem
 
-CAS is designed to work with:
+CAS powers the entire TutorWise AI ecosystem:
 
-- **TutorWise** - Service management for TutorWise app
-- **Vinite** - SADD migration support
-- **Future Apps** - Any Next.js/Node.js application
+### AI Agents
+- **[Sage AI Tutor](../sage/README.md)** - GCSE educational tutoring with curriculum knowledge
+- **[Lexi Help Bot](../lexi/README.md)** - Platform assistance and user support
+
+### CAS Services for Sage & Lexi
+- **[Marketer Agent](agents/marketer/README.md)** collects analytics from both agents
+- **[Analyst Agent](agents/analyst/README.md)** analyzes feedback and identifies improvements
+- **[Planner Agent](agents/planner/README.md)** prioritizes curriculum gaps and feature requests
+- **[Developer Agent](agents/developer/README.md)** implements improvements autonomously
+
+### Platform Integration
+- **TutorWise Web App** - Main Next.js application
+- **Supabase Edge Functions** - Automated cron jobs for analytics and feedback processing
+- **Database** - Shared knowledge base and analytics storage
 
 ---
 
