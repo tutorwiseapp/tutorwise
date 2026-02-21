@@ -21,6 +21,10 @@ import type { SagePersona, SageSubject, SageLevel, SageIntentCategory } from '@s
 import type { LLMMessage } from '@sage/providers/types';
 import type { AgentContext, UserRole } from '@cas/packages/core/src/context';
 import { checkAIAgentRateLimit, incrementAIAgentUsage, getSageSubscription } from '@/lib/ai-agents/rate-limiter';
+import { containsMath, solveMathFromMessage, formatSolutionsForContext } from '@sage/math/hybrid-solver';
+import { resolveCurriculumContext, formatCurriculumContext } from '@sage/curriculum/resolver';
+import { enhancedRetriever } from '@sage/knowledge/enhanced-retriever';
+import { recommendMode, getSystemPrompt, estimateStruggleLevel, formatModeContext } from '@sage/teaching/modes';
 
 interface StreamRequestBody {
   sessionId: string;
@@ -121,29 +125,10 @@ export async function POST(request: NextRequest) {
       level: body.level,
     });
 
-    // Search knowledge base for relevant context
+    // Enhanced RAG: Multi-tier knowledge retrieval with quality scoring
+    // This will be populated after curriculum context is resolved (to use topic-aware retrieval)
     let ragContext: string | undefined;
-    try {
-      const namespaces = resolvedContext.knowledgeSources.map(s => s.namespace);
-      const searchResults = await knowledgeRetriever.search(
-        {
-          query: body.message,
-          namespaces,
-          subject: body.subject,
-          level: body.level,
-          topK: 5,
-          minScore: 0.6,
-        },
-        resolvedContext.knowledgeSources
-      );
-
-      if (searchResults.chunks.length > 0) {
-        ragContext = knowledgeRetriever.formatForContext(searchResults.chunks, 1500);
-        console.log(`[Sage Stream] RAG: Found ${searchResults.chunks.length} relevant chunks (${searchResults.searchTime}ms)`);
-      }
-    } catch (ragError) {
-      console.warn('[Sage Stream] RAG search failed, continuing without context:', ragError);
-    }
+    let enhancedRagResult: any = null;
 
     if (!provider.isAvailable()) {
       return new Response(
@@ -205,8 +190,87 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Combine RAG context with signature prompt
-    const combinedRagContext = [ragContext, signaturePrompt].filter(Boolean).join('\n') || undefined;
+    // Hybrid Math Solver: Check for mathematical expressions and solve them deterministically
+    let mathContext: string | undefined;
+    try {
+      if (containsMath(body.message)) {
+        console.log('[Sage Stream] Math detected in message, solving with hybrid solver');
+        const solutions = solveMathFromMessage(body.message);
+        if (solutions.length > 0) {
+          mathContext = formatSolutionsForContext(solutions);
+          console.log(`[Sage Stream] Solved ${solutions.length} math problem(s)`);
+        }
+      }
+    } catch (mathError) {
+      console.warn('[Sage Stream] Hybrid solver failed, LLM will handle math:', mathError);
+    }
+
+    // Curriculum Mapping: Detect curriculum topics and provide context-aware guidance
+    let curriculumContext: string | undefined;
+    let curriculumTopic: any = undefined;
+    try {
+      if (body.subject === 'maths') {
+        // Default to foundation tier for GCSE students (can be enhanced later with student profile data)
+        const tier: 'foundation' | 'higher' = 'foundation';
+        const curriculum = resolveCurriculumContext(
+          body.message,
+          'maths',
+          tier
+        );
+        if (curriculum) {
+          curriculumContext = formatCurriculumContext(curriculum);
+          curriculumTopic = curriculum.topics[0]?.topic; // Primary topic for RAG
+          console.log(`[Sage Stream] Curriculum: Matched ${curriculum.topics.length} topic(s) - ${curriculum.topics[0]?.topic.name}`);
+        }
+      }
+    } catch (curriculumError) {
+      console.warn('[Sage Stream] Curriculum resolver failed, continuing without curriculum context:', curriculumError);
+    }
+
+    // Enhanced RAG: Multi-tier retrieval with curriculum topic awareness
+    try {
+      enhancedRagResult = await enhancedRetriever.search({
+        query: body.message,
+        curriculumTopic,
+        userId: user.id,
+        subject: body.subject,
+        level: body.level,
+        maxChunks: 10,
+        minSimilarity: 0.6,
+        expandContext: true,
+      });
+
+      if (enhancedRagResult.chunks.length > 0) {
+        ragContext = enhancedRetriever.formatForContext(enhancedRagResult, 1500);
+        console.log(`[Sage Stream] Enhanced RAG: ${enhancedRetriever.getRetrievalSummary(enhancedRagResult)}`);
+      }
+    } catch (ragError) {
+      console.warn('[Sage Stream] Enhanced RAG search failed, continuing without context:', ragError);
+    }
+
+    // Teaching Mode Selection: Socratic vs Direct vs Adaptive vs Supportive
+    let teachingModePrompt: string | undefined;
+    try {
+      const struggleLevel = estimateStruggleLevel(body.message);
+      const intentCategory = detectBasicIntent(body.message);
+
+      const modeRecommendation = recommendMode({
+        intent: intentCategory,
+        persona,
+        struggleLevel,
+        topic: curriculumTopic,
+        questionsAsked: 0, // TODO: Track from session history
+        previouslyStudied: false, // TODO: Check from student progress
+      });
+
+      teachingModePrompt = getSystemPrompt(modeRecommendation.mode);
+      console.log(`[Sage Stream] ${formatModeContext(modeRecommendation)}`);
+    } catch (modeError) {
+      console.warn('[Sage Stream] Teaching mode selection failed, using default:', modeError);
+    }
+
+    // Combine RAG context with signature prompt, math solutions, curriculum context, and teaching mode
+    const combinedRagContext = [ragContext, signaturePrompt, mathContext, curriculumContext, teachingModePrompt].filter(Boolean).join('\n') || undefined;
 
     // Create SSE stream
     const encoder = new TextEncoder();
