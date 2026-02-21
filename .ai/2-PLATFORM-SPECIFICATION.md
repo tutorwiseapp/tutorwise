@@ -57,7 +57,7 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 - **201K lines of code** (TypeScript/TSX) + 547K lines of documentation
 - **266 database migrations** (260 numbered + 6 supporting), 60+ tables
 - **353 components** across 22 feature directories
-- **36 major features** (VirtualSpace, Lexi AI, Sage AI, EduPay) - production-ready
+- **36 major features** (VirtualSpace, Lexi Platform Help Bot, Sage GCSE Tutor, EduPay) - production-ready
 
 **Advanced Technical Capabilities**:
 - **Neo4j graph database** with PageRank trust propagation for SEO eligibility
@@ -1337,123 +1337,205 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 **Gamification**: Tutors incentivised to improve (integrate calendar +3, get DBS +5, refer tutors +10)
 **Quality Filter**: Clients filter by minimum CaaS score (e.g., "Show 70+ only")
 
-### 5.8 Lexi AI (Conversational AI Assistant)
+### 5.8 Lexi AI (Platform Help Bot)
 
-**Status**: ✅ Production-ready (Implemented 2026-02-15)
-**Purpose**: Context-aware AI assistant providing role-specific guidance across the platform
+**Status**: ✅ Production-ready v2.0.0 (Enhanced with Guest Mode & Analytics)
+**Purpose**: AI-powered platform assistant that automates tasks, provides support, and handles user inquiries
+**Documentation**: [lexi/README.md](../lexi/README.md)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     LEXI AI ARCHITECTURE                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   User Request → Persona Router → AI Provider Chain → Response  │
+│   User Query → Persona Router → Tool Executor → AI Response     │
 │                                                                 │
 │   ┌───────────┐    ┌──────────────────┐    ┌─────────────────┐ │
-│   │ FAB/Modal │───►│ Persona Detection │───►│ Claude API      │ │
-│   └───────────┘    │ (5 personas)      │    │ ↓ Gemini API    │ │
-│                    │ - Student         │    │ ↓ Rules Engine  │ │
-│                    │ - Tutor           │    └─────────────────┘ │
-│                    │ - Client          │                        │
+│   │ FAB/Chat  │───►│ Persona Detection │───►│ Gemini (Primary)│ │
+│   └───────────┘    │ (9 total)         │    │ ↓ Claude        │ │
+│                    │ 5 Primary:        │    │ ↓ DeepSeek      │ │
+│                    │ - Tutor           │    │ ↓ Rules-Based   │ │
+│                    │ - Client          │    └─────────────────┘ │
 │                    │ - Agent           │                        │
-│                    │ - Organisation    │                        │
-│                    └──────────────────┘                        │
-│                                                                 │
-│   Features:                                                     │
-│   - Lazy session start (instant UI responsiveness)              │
-│   - React Query with streaming support                          │
-│   - Conversation persistence and history                        │
-│   - Context-aware persona detection                             │
-│   - Feedback collection for AI improvement                      │
+│                    │ - Organisation    │    ┌─────────────────┐ │
+│                    │ - Admin           │───►│ 20+ Tools       │ │
+│                    │ 4 Sub-personas    │    │ - Bookings      │ │
+│                    └──────────────────┘    │ - Search        │ │
+│                                            │ - Payments      │ │
+│   Features:                                │ - Calendar      │ │
+│   - 20+ function tools for platform tasks  │ - Analytics     │ │
+│   - Guest mode (Rules-only, zero cost)     └─────────────────┘ │
+│   - Multi-provider fallback chain                              │
+│   - Deep links for seamless navigation                         │
+│   - Feedback collection for CAS improvement                    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Persona Capabilities**:
-- **Student**: Learning support, homework help, study strategies, tutor recommendations
-- **Tutor**: Session planning, teaching resources, business advice, CaaS improvement tips
-- **Client**: Tutor discovery, booking assistance, platform guidance, payment help
-- **Agent**: Recruitment tips, commission tracking, network growth strategies
-- **Organisation**: Team management, billing support, compliance guidance, growth metrics
+**Core Capabilities**:
+- **Task Automation**: 20+ function tools (create/modify bookings, search tutors, process payments)
+- **Guest Mode**: Rules-only provider for unauthenticated users (zero API cost)
+- **Multi-Provider**: Gemini (primary) → Claude → DeepSeek → Rules-based fallback
+- **Deep Links**: Navigate directly to platform features from chat responses
+- **Context-Aware**: Adapts to user role and current page context
+
+**Personas & Tools**:
+- **Tutor**: Booking management, calendar sync, session prep, earnings tracking (13 tools)
+- **Client**: Tutor search, booking creation, payment management (11 tools)
+- **Agent**: Commission tracking, recruitment tools (9 tools)
+- **Organisation**: Team management, billing, analytics (14 tools)
+- **Admin**: Platform management, user support (20 tools)
+- **Guest**: Basic FAQs and platform information (Rules-only, no AI cost)
 
 **API Architecture**:
 ```typescript
 // API Endpoints
-POST /api/lexi/chat        // Send message, receive AI response (streaming)
-GET  /api/lexi/conversations // List conversation history
-POST /api/lexi/feedback    // Submit feedback on AI responses
+POST /api/lexi/session    // Create new session (lazy initialization)
+POST /api/lexi/message    // Send message
+POST /api/lexi/stream     // Streaming responses
+POST /api/lexi/feedback   // Submit feedback
+GET  /api/lexi/history    // Conversation history
+GET  /api/lexi/provider   // Get current provider status
 
 // Provider Fallback Chain
-const providers = ['claude', 'gemini', 'rules'];
-// Claude (primary) → Gemini (fallback) → Rules Engine (offline)
+Gemini (primary, cost-efficient) →
+Claude (complex queries) →
+DeepSeek (budget fallback) →
+Rules-Based (offline/guest mode)
+
+// Tool Categories
+- Booking Tools: create, modify, cancel, reschedule
+- Search Tools: find tutors, organizations, listings
+- Payment Tools: process payments, manage subscriptions
+- Analytics Tools: generate insights, track metrics
+- Admin Tools: user management, platform configuration
 ```
 
+**CAS Integration**:
+- **Marketer Agent**: Collects Lexi usage analytics (sessions, feedback, tool usage)
+- **Analyst Agent**: Analyzes user queries to identify feature requests
+- **Developer Agent**: Implements tool improvements based on feedback
+
 **Implementation Files**:
-- `apps/web/src/components/feature/lexi/LexiChat.tsx` - Main chat interface
-- `apps/web/src/components/feature/lexi/LexiFAB.tsx` - Floating action button
-- `apps/web/src/app/api/lexi/chat/route.ts` - Chat API endpoint
-- `lexi/personas/` - Persona definitions and routing logic
-- `lexi/services/` - AI provider integration services
+- `lexi/core/orchestrator.ts` - Session management and orchestration
+- `lexi/providers/` - Multi-provider implementation (Gemini, Claude, DeepSeek, Rules)
+- `lexi/tools/` - 20+ function tool definitions and executors
+- `lexi/personas/` - Role-based persona definitions
+- `apps/web/src/components/feature/lexi/` - UI components (FAB, chat interface)
 
-### 5.9 Sage AI (Analytics & Insights Engine)
+### 5.9 Sage AI (GCSE AI Tutor)
 
-**Status**: ✅ Production-ready (Implemented 2026-02-15)
-**Purpose**: AI-powered analytics providing intelligent insights and recommendations
+**Status**: ✅ Production-ready v2.0.0 (Enhanced with Multimodal Input & Feedback Loop)
+**Purpose**: AI-powered GCSE tutor providing personalized educational support for students, teachers, and parents
+**Documentation**: [sage/README.md](../sage/README.md)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     SAGE AI ARCHITECTURE                         │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Data Sources → Analytics Engine → AI Processing → Insights    │
+│   Question → RAG Retrieval → Math Solver → AI Tutor → Response  │
 │                                                                 │
-│   ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐ │
-│   │ Platform Data│───►│ Aggregation  │───►│ AI Analysis      │ │
-│   │ - Bookings   │    │ - Trends     │    │ - Pattern detect │ │
-│   │ - Sessions   │    │ - Patterns   │    │ - Forecasting    │ │
-│   │ - Payments   │    │ - Metrics    │    │ - Recommendations│ │
-│   │ - CaaS scores│    └──────────────┘    └──────────────────┘ │
-│   │ - Reviews    │                                              │
-│   └──────────────┘                                              │
+│   ┌──────────────┐    ┌──────────────────┐    ┌──────────────┐ │
+│   │User Question │───►│ Enhanced RAG     │───►│ Gemini (Pri) │ │
+│   │- Text        │    │ - 110+ chunks    │    │ ↓ Claude     │ │
+│   │- Voice (WIP) │    │ - Hybrid search  │    │ ↓ DeepSeek   │ │
+│   │- Handwriting │    │ - Semantic +     │    │ ↓ Rules      │ │
+│   │  (WIP)       │    │   Keyword        │    └──────────────┘ │
+│   └──────────────┘    └──────────────────┘                      │
 │                                                                 │
-│   Role-Specific Insights:                                       │
-│   - Tutor: Session performance, earning forecasts               │
-│   - Client: Booking patterns, engagement scores                 │
-│   - Agent: Recruitment funnel, commission projections           │
-│   - Organisation: Team performance, revenue metrics             │
-│   - Admin: Platform health, user acquisition                    │
+│   ┌──────────────────┐    ┌────────────────────────────────┐   │
+│   │ Math Solver      │───►│ Pedagogical Engine             │   │
+│   │ - SymPy (Python) │    │ - Step-by-step explanations    │   │
+│   │ - Algebrite (JS) │    │ - Socratic method              │   │
+│   │ - LLM Reasoning  │    │ - Worked examples              │   │
+│   └──────────────────┘    │ - Common misconceptions        │   │
+│                           └────────────────────────────────┘   │
+│                                                                 │
+│   Feedback Loop:                                                │
+│   User Feedback (👍/👎) → Gap Detection → Content Regeneration  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Analytics Capabilities**:
-- **Tutor Analytics**: Session performance trends, rating analysis, earning forecasts, CaaS improvement paths
-- **Client Analytics**: Booking patterns, tutor match quality scores, engagement metrics
-- **Agent Analytics**: Recruitment funnel analysis, commission projections, network growth rates
-- **Organisation Analytics**: Team performance aggregates, revenue allocation, growth metrics
-- **Admin Analytics**: Platform health metrics, user acquisition trends, revenue forecasting
+**Core Capabilities**:
+- **Curriculum Coverage**: 110+ knowledge chunks across 22 GCSE Maths topics (target: 500+ by Q2 2026)
+- **Hybrid RAG**: Semantic search (pgvector) + keyword search (tsvector) for accurate retrieval
+- **Mathematical Solver**: SymPy + Algebrite + LLM reasoning for problem-solving
+- **Multimodal Input**: Voice transcription (WIP) and handwriting OCR (WIP)
+- **Feedback Loop**: Automated gap detection and content regeneration based on user feedback
+
+**Personas**:
+- **Student**: Personalized GCSE tutoring, step-by-step solutions, exam prep, homework help
+- **Tutor**: Lesson planning, resource creation, student progress review, teaching strategies
+- **Parent**: Progress explanations, learning support tips, curriculum overview
+- **Agent**: Tutoring information, curriculum queries, student support
+
+**Knowledge Structure** (Per Topic):
+Each of 22 GCSE topics includes 6 specialized chunks:
+1. **Definition** - Core concept explanation
+2. **Concepts** - Learning objectives breakdown
+3. **Examples** - Worked problems with solutions
+4. **Misconceptions** - Common mistakes to avoid
+5. **Vocabulary** - Subject-specific terminology
+6. **Prerequisites** - Required prior knowledge
 
 **API Architecture**:
 ```typescript
 // API Endpoints
-GET  /api/sage/insights        // Get AI-generated insights for dashboard
-GET  /api/sage/trends          // Get performance trends and forecasts
-POST /api/sage/recommendations // Get actionable recommendations
+POST /api/sage/session      // Create new tutoring session
+POST /api/sage/message      // Send question (text)
+POST /api/sage/stream       // Streaming responses
+POST /api/sage/transcribe   // Voice-to-text (WIP)
+POST /api/sage/ocr          // Handwriting OCR (WIP)
+POST /api/sage/feedback     // Submit thumbs up/down
+GET  /api/sage/history      // Session history
+GET  /api/sage/materials    // Saved materials
+GET  /api/sage/progress     // Learning progress
 
-// Insight Types
-type InsightCategory =
-  | 'performance'     // Performance trends
-  | 'engagement'      // User engagement metrics
-  | 'revenue'         // Financial insights
-  | 'growth'          // Growth opportunities
-  | 'risk';           // Risk alerts and warnings
+// RAG Process
+Question → Intent Detection → Context Enhancement →
+Hybrid Search (semantic + keyword) →
+Relevance Filtering (threshold: 0.6) →
+Contextual Ranking → LLM Prompt Injection
+
+// Math Solver
+Problem → Pattern Detection →
+  Parallel Execution: [SymPy, Algebrite, LLM] →
+  Confidence Scoring → Best Solution Selection →
+  Step-by-Step Explanation
 ```
 
+**Continuous Improvement Cycle**:
+```
+User Feedback (👍/👎) →
+Daily Processing (Supabase Edge Function) →
+Gap Detection (< 60% positive rate) →
+Severity Classification (critical/high/medium/low) →
+Content Regeneration (auto-fix critical gaps) →
+Publish to CAS Planner (strategic planning)
+```
+
+**CAS Integration**:
+- **Marketer Agent**: Collects Sage usage analytics (sessions, feedback, engagement)
+- **Analyst Agent**: Analyzes feedback patterns to identify curriculum gaps
+- **Planner Agent**: Prioritizes curriculum gaps and improvement roadmap
+- **Developer Agent**: Implements curriculum improvements autonomously
+
+**Current Metrics** (Production, Last 30 Days):
+- ✅ **14 sessions** created
+- ✅ **110 knowledge chunks** ingested (22 GCSE Maths topics)
+- ✅ **1 curriculum document** (GCSE Maths v1.0)
+- 📈 **Target**: 100+ sessions/week by Q2 2026
+
 **Implementation Files**:
-- `apps/web/src/components/feature/sage/SageInsights.tsx` - Insights panel
-- `apps/web/src/app/(authenticated)/sage/page.tsx` - Sage dashboard
-- `apps/web/src/app/api/sage/` - API endpoints
-- `sage/` - Analytics engine and AI processing
+- `sage/core/orchestrator.ts` - Session management and orchestration
+- `sage/providers/` - Multi-provider implementation (Gemini, Claude, DeepSeek, Rules)
+- `sage/knowledge/enhanced-rag.ts` - Hybrid RAG search system
+- `sage/math/hybrid-solver.ts` - Mathematical computation engine
+- `sage/curriculum/` - GCSE curriculum knowledge and content generation
+- `sage/services/feedback-service.ts` - Feedback analysis and gap detection
+- `apps/web/src/app/(authenticated)/sage/` - UI pages (chat, history, materials)
 
 ---
 

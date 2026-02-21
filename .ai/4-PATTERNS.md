@@ -904,7 +904,9 @@ The Hub Architecture provides a consistent, scalable pattern for feature pages:
 
 ### Reference Implementation: Sage AI Tutor
 
-**Sage** is the AI tutoring assistant that helps students learn between human tutor sessions. This section documents its full architecture as a reference for future features.
+**Sage** is the AI-powered GCSE tutor providing personalized educational support with curriculum knowledge, mathematical solving, and adaptive learning. This section documents its full architecture as a reference for future features.
+
+**Documentation**: See [sage/README.md](../sage/README.md) for complete technical details.
 
 ---
 
