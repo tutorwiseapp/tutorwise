@@ -1,57 +1,192 @@
-# Tools Documentation
+# CAS Documentation
 
-This folder contains documentation for development tools, automation scripts, and context engineering systems used in the Tutorwise platform.
+**Version:** 2.0.0
+**Last Updated:** 2026-02-21
 
-## Current Documents
+This directory contains detailed documentation for the Contextual Autonomous System (CAS) - TutorWise's AI-Powered Continuous Delivery Platform.
 
-- **`context-engineering.md`** - Framework specification for AI-assisted development
-- **`context-engineering-implementation.md`** - Implementation details of the context engineering system
+---
 
-## Structure
+## 📚 Quick Links
 
-```
-tools/
-├── README.md                           # This file
-├── context-engineering.md             # Context engineering framework
-├── context-engineering-implementation.md # Context system implementation
-├── code-generation.md                 # Code generation tools and templates
-├── automation-scripts.md              # Build and deployment automation
-├── development-workflow.md            # Development tools and workflows
-└── monitoring-tools.md                # Monitoring and debugging tools
-```
+### Main Documentation
+- **[CAS Overview](../README.md)** - Complete CAS architecture and agents
+- **[Sage AI Tutor](../../sage/README.md)** - GCSE educational AI (v2.0.0)
+- **[Lexi Help Bot](../../lexi/README.md)** - Platform assistance AI (v2.0.0)
 
-## Available Tools
+### Agent Documentation
+- **[Planner Agent](../agents/planner/README.md)** - Project management and coordination
+- **[Analyst Agent](../agents/analyst/README.md)** - Requirements and feedback analysis
+- **[Developer Agent](../agents/developer/README.md)** - Feature implementation
+- **[Tester Agent](../agents/tester/README.md)** - Test implementation and coverage
+- **[QA Agent](../agents/qa/README.md)** - Quality assurance and accessibility
+- **[Security Agent](../agents/security/README.md)** - Security validation
+- **[Engineer Agent](../agents/engineer/README.md)** - System engineering and deployment
+- **[Marketer Agent](../agents/marketer/README.md)** - Analytics and growth insights
+
+---
+
+## 📁 Document Index
+
+### Architecture & Design
+- **[cas-architecture-detailed.md](cas-architecture-detailed.md)** - Comprehensive CAS architecture (⚠️ Needs Update)
+- **[fullstack-architecture.md](fullstack-architecture.md)** - Full-stack design patterns
+- **[application-registry.md](application-registry.md)** - Application structure and routing
+
+### Development Guides
+- **[feature-development-checklist.md](feature-development-checklist.md)** - Feature implementation workflow
+- **[proven-patterns.md](proven-patterns.md)** - Tested development patterns
+- **[naming-conventions.md](naming-conventions.md)** - Code naming standards
 
 ### Context Engineering
-- **AI Context Generation**: `npm run context:generate`
-- **Codebase Analysis**: Automated component and API discovery
-- **Dependency Mapping**: Component relationship graphs
+- **[context-engineering.md](context-engineering.md)** - AI-assisted development framework
+- **[context-engineering-implementation.md](context-engineering-implementation.md)** - Implementation details
+- **[context-engineering-quickstart.md](context-engineering-quickstart.md)** - Quick start guide
 
-### Development Scripts
+### Task Scheduling & Automation
+- **[autonomous-task-scheduling.md](autonomous-task-scheduling.md)** - Autonomous task management
+- **[remote-task-scheduling-howto.md](remote-task-scheduling-howto.md)** - Remote scheduling guide
+
+### Progress & Reports
+- **[week-2-summary.md](week-2-summary.md)** - Week 2 achievements
+- **[week-3-progress.md](week-3-progress.md)** - Week 3 progress
+
+### Migration & Consolidation
+- **[consolidation-plan.md](consolidation-plan.md)** - CAS consolidation strategy
+- **[consolidation-complete.md](consolidation-complete.md)** - Consolidation results
+- **[typescript-migration-summary.md](typescript-migration-summary.md)** - TypeScript migration
+- **[fullstack-restructure-complete.md](fullstack-restructure-complete.md)** - Restructure summary
+
+---
+
+## 🚀 CAS Overview (v2.0.0)
+
+### What is CAS?
+
+CAS is an **AI-Powered Continuous Delivery Platform** that models a complete product team with 8 autonomous AI agents operating in continuous flow. It combines strategic product management with autonomous execution.
+
+**Key Innovation:** Strategic Feedback Loop (Marketer → Planner → Analyst → Development)
+
+### AI Ecosystem
+
+CAS powers the entire TutorWise AI ecosystem:
+
+1. **Sage AI GCSE Tutor** (v2.0.0)
+   - 110+ knowledge chunks across 22 GCSE topics
+   - Hybrid RAG with mathematical solver
+   - Feedback loop with automated gap detection
+   - Multimodal input (voice, handwriting OCR)
+
+2. **Lexi AI Help Bot** (v2.0.0)
+   - 20+ function tools for platform actions
+   - Guest mode with Rules-only provider
+   - 5 personas + 4 sub-personas
+   - Deep links for seamless navigation
+
+3. **CAS AI Product Team** (v2.0.0)
+   - 8 specialized agents (Planner, Analyst, Developer, Tester, QA, Security, Engineer, Marketer)
+   - Strategic feedback loop
+   - Analytics collection from Sage & Lexi
+   - Autonomous improvements
+
+---
+
+## 🔧 Development Tools
+
+### CAS Commands
 ```bash
-# Context tools
-npm run context:generate    # Generate fresh codebase context
-npm run context:update      # Alias for context generation
+# View CAS documentation
+cd cas && cat README.md
 
-# Build tools
-npm run build              # Production build
-npm run dev                # Development server
-npm run lint               # Code linting
-npm run test               # Run tests
+# Run CAS agents (via Claude Code)
+CAS: [Your request here]
+
+# Example: CAS: Review the booking system for security vulnerabilities
 ```
 
-## Guidelines
+### Analytics Scripts
+```bash
+# Collect Sage & Lexi metrics
+npx tsx tools/scripts/get-agent-metrics.ts
 
-When documenting tools:
-1. Include installation and setup instructions
-2. Provide usage examples and common commands
-3. Document configuration options and customization
-4. Include troubleshooting guides
-5. Link to related development documentation
-6. Update this index when adding new tools
+# Process Sage feedback
+npm run process:sage-feedback
 
-## Related Documentation
+# Process with auto-fix
+npm run process:sage-feedback:auto
 
-- **Development**: See `../development/` for development processes
-- **Reference**: See `../reference/` for quick command references
-- **Infrastructure**: See `../infrastructure/` for deployment tools
+# Ingest curriculum content
+npm run ingest:curriculum
+npm run ingest:curriculum:test
+```
+
+### Supabase Edge Functions
+```bash
+# Deploy feedback processor
+supabase functions deploy sage-feedback-processor --no-verify-jwt
+
+# Deploy analytics collector
+supabase functions deploy marketer-analytics --no-verify-jwt
+
+# View deployment guide
+cat ../supabase/functions/README.md
+```
+
+---
+
+## 📊 Recent Updates (Feb 2026)
+
+### Priority Implementations
+1. ✅ **Sage Feedback Processor** - Automated gap detection and content regeneration
+2. ✅ **Multimodal Input** - Voice transcription and handwriting OCR endpoints
+3. ✅ **CAS Marketer Activation** - Daily analytics collection from Sage & Lexi
+4. ✅ **Teacher Free Tier** - Auto-verification for 50+ UK educational domains
+
+### Documentation Updates
+- ✅ Created comprehensive READMEs for Sage, Lexi, and CAS
+- ✅ Unified versioning to 2.0.0 across all agents
+- ✅ Cross-referenced all agent documentation
+- ✅ Added real metrics from production database
+- ✅ Updated root README and roadmap
+
+---
+
+## 🔗 Related Documentation
+
+**Platform Documentation:**
+- [Root README](../../README.md) - TutorWise platform overview
+- [.ai/1-ROADMAP.md](../../.ai/1-ROADMAP.md) - Development roadmap
+- [.ai/2-PLATFORM-SPECIFICATION.md](../../.ai/2-PLATFORM-SPECIFICATION.md) - Platform specification
+
+**Agent-Specific Documentation:**
+- [Sage Documentation](../../sage/README.md) - AI GCSE Tutor
+- [Lexi Documentation](../../lexi/README.md) - Platform Help Bot
+- [CAS Main README](../README.md) - AI Product Team
+
+**Deployment:**
+- [Supabase Edge Functions](../../supabase/functions/README.md) - Deployment guide
+- [Database Migrations](../../tools/database/migrations/) - Schema changes
+
+---
+
+## 📝 Contributing
+
+When adding new documentation:
+1. Follow the existing structure and format
+2. Include version and last updated date
+3. Add cross-references to related docs
+4. Update this README index
+5. Keep code examples up to date
+
+---
+
+## ⚠️ Outdated Documentation
+
+The following files need updating for v2.0.0:
+- `cas-architecture-detailed.md` - Reflects v1.0 structure
+- Some weekly summaries and progress reports
+
+---
+
+**CAS Documentation Hub**
+*Version 2.0.0 | Last Updated: 2026-02-21*
