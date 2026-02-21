@@ -46,7 +46,7 @@ async function collectUsageMetrics(
 
     // Get sessions
     const { data: sessions, error: sessionsError } = await supabase
-      .from(agent === 'sage' ? 'sage_sessions' : 'lexi_sessions')
+      .from(agent === 'sage' ? 'sage_sessions' : 'lexi_conversations')
       .select('id, user_id, message_count, started_at, ended_at')
       .gte('started_at', startTime);
 

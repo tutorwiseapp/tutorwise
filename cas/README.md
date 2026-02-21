@@ -248,7 +248,7 @@ CAS operates as a complete AI product team with 8 specialized agents:
 ### 6. **Security Agent** - Security Engineer
 **Role:** Security validation, vulnerability scanning, auth testing
 **Location:** `agents/security/`
-**Status:** 🟡 Ready for Activation
+**Status:** ✅ Active
 **Deployment:** See [`DEPLOYMENT-INSTRUCTIONS.md`](DEPLOYMENT-INSTRUCTIONS.md)
 
 **Responsibilities:**
@@ -265,7 +265,7 @@ CAS operates as a complete AI product team with 8 specialized agents:
 - ✅ Database table for scan results (`cas_security_scans`)
 - ✅ Cron job configuration (weekly on Sundays at 03:00 UTC)
 
-**Activation Pending:** Database migration + Edge Function deployment
+**Activated:** 2026-02-21 | Cron Job ID: 49 | Next run: Sundays 03:00 UTC
 
 ---
 
@@ -290,7 +290,7 @@ CAS operates as a complete AI product team with 8 specialized agents:
 ### 8. **Marketer Agent** - Product Marketing Manager
 **Role:** Analytics tracking, user behavior analysis, growth insights
 **Location:** `agents/marketer/`
-**Status:** 🟡 Ready for Activation
+**Status:** ✅ Active
 **Deployment:** See [`DEPLOYMENT-INSTRUCTIONS.md`](DEPLOYMENT-INSTRUCTIONS.md)
 
 **Responsibilities:**
@@ -307,7 +307,88 @@ CAS operates as a complete AI product team with 8 specialized agents:
 - ✅ Database table for storing insights (`cas_marketer_insights`)
 - ✅ Cron job configuration (daily at 02:00 UTC)
 
-**Activation Pending:** Database migration + Edge Function deployment
+**Activated:** 2026-02-21 | Cron Job ID: 48 | Next run: Daily 02:00 UTC
+
+---
+
+## 🔄 Feedback Automation Bridge
+
+**Purpose:** Automated feedback processing pipeline connecting Sage/Lexi user feedback to CAS Planner and Analyst agents
+**Status:** ✅ Active
+**Activation Date:** 2026-02-21
+**Documentation:** [`docs/FEEDBACK-BRIDGE.md`](docs/FEEDBACK-BRIDGE.md)
+
+### How It Works
+
+The Feedback Bridge creates a fully automated pipeline for processing user feedback:
+
+```
+User Feedback (thumbs up/down)
+        ↓
+ai_feedback table (processed: false)
+        ↓
+cas-feedback-processor (hourly)
+    ├─→ Detect negative patterns
+    ├─→ Generate CAS Planner tasks
+    ├─→ Generate CAS Analyst reports
+    └─→ Mark feedback as processed
+        ↓
+    ┌───────────────────┬──────────────────┐
+    ↓                   ↓                  ↓
+cas_planner_tasks  cas_analyst_reports  Updated ai_feedback
+```
+
+### Key Features
+
+1. **Pattern Detection**:
+   - Groups feedback by agent (Sage/Lexi) and topic
+   - Significance threshold: 3+ instances OR 2+ users
+   - Automatic priority assignment (critical/high/medium/low)
+
+2. **Task Generation**:
+   - Creates actionable tasks for CAS Planner
+   - Task types: curriculum_fix, bug_fix, ux_improvement, etc.
+   - Deduplication to prevent duplicate tasks
+
+3. **Analytical Reports**:
+   - Generates insights for CAS Analyst review
+   - Metrics tracking: satisfaction rates, affected users, trends
+   - Recommendations with expected impact
+
+4. **Automated Execution**:
+   - Runs hourly via pg_cron (Cron Job ID: 50)
+   - Processes unprocessed feedback from last 24 hours
+   - Marks processed feedback to prevent reprocessing
+
+### Infrastructure
+
+**Database Tables:**
+- `cas_planner_tasks` - Actionable tasks (Migration 273)
+- `cas_analyst_reports` - Analytical insights (Migration 274)
+
+**Edge Function:**
+- `cas-feedback-processor` - Hourly feedback analysis
+
+**Cron Schedule:**
+- **Frequency:** Hourly (0 * * * *)
+- **Job Name:** `cas-feedback-processor-hourly`
+- **Job ID:** 50
+
+### Monitoring
+
+View recent tasks:
+```sql
+SELECT title, task_type, priority, status, affected_users_count
+FROM cas_planner_tasks
+ORDER BY created_at DESC LIMIT 10;
+```
+
+View recent reports:
+```sql
+SELECT title, severity, affected_users_count, status
+FROM cas_analyst_reports
+ORDER BY created_at DESC LIMIT 5;
+```
 
 ---
 
@@ -322,9 +403,9 @@ CAS operates as a complete AI product team with 8 specialized agents:
 | **Developer** | Software Developer | ✅ Active | 2 forms | 751 LOC | 89.71% coverage |
 | **Tester** | QA Tester | ✅ Active | 48 tests | 100% passing |
 | **QA** | QA Engineer | ✅ Active | 29 Storybook stories created |
-| **Security** | Security Engineer | 🟡 Ready | Edge Function + DB migration ready |
+| **Security** | Security Engineer | ✅ Active | Weekly scans | Cron ID: 49 |
 | **Engineer** | System Engineer | ✅ Active | API operational | No blockers |
-| **Marketer** | Marketing Manager | 🟡 Ready | Edge Function + DB migration ready |
+| **Marketer** | Marketing Manager | ✅ Active | Daily analytics | Cron ID: 48 |
 
 ### Week 2 Summary
 
