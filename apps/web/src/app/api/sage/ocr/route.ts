@@ -83,50 +83,67 @@ export async function POST(request: NextRequest) {
     const imageBuffer = await imageFile.arrayBuffer();
     const imageBase64 = Buffer.from(imageBuffer).toString('base64');
 
-    // --- OCR Processing ---
-    // TODO: Implement with Google Cloud Vision API or Tesseract.js
-    //
-    // Option 1: Google Cloud Vision (best for handwriting)
-    // import { ImageAnnotatorClient } from '@google-cloud/vision';
-    // const client = new ImageAnnotatorClient();
-    // const [result] = await client.textDetection({
-    //   image: { content: imageBase64 },
-    //   imageContext: {
-    //     languageHints: ['en'],
-    //   },
-    // });
-    // const detectedText = result.textAnnotations?.[0]?.description || '';
-    //
-    // Option 2: Tesseract.js (open-source, runs client-side or server)
-    // import Tesseract from 'tesseract.js';
-    // const { data: { text } } = await Tesseract.recognize(
-    //   imageBuffer,
-    //   'eng',
-    //   { logger: m => console.log(m) }
-    // );
-    //
-    // If detectMath = true, also use LaTeX OCR (e.g., pix2tex, MathPix)
+    // --- OCR Processing with Gemini Vision ---
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-    // For now, return placeholder
+    // Use Gemini Pro Vision for OCR
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    // Create prompt based on detectMath flag
+    const prompt = detectMath
+      ? `Extract all text and mathematical expressions from this image.
+
+         For mathematical expressions:
+         - Convert them to LaTeX format
+         - Preserve equation structure and notation
+         - List each math expression separately
+
+         Format your response as JSON:
+         {
+           "text": "all extracted text",
+           "mathExpressions": ["\\\\frac{x^2}{2}", "y = mx + b", ...]
+         }`
+      : `Extract all text from this image. Return the text as plain text, preserving line breaks and structure where possible.`;
+
+    const imageParts = [
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: imageFile.type,
+        },
+      },
+    ];
+
+    const result = await model.generateContent([prompt, ...imageParts]);
+    const response = await result.response;
+    let extractedText = response.text();
+
+    // Parse JSON response if detectMath is true
+    let mathExpressions: string[] | undefined;
+    if (detectMath) {
+      try {
+        // Try to parse as JSON
+        const jsonMatch = extractedText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          extractedText = parsed.text || extractedText;
+          mathExpressions = parsed.mathExpressions || [];
+        }
+      } catch {
+        // If JSON parsing fails, just use raw text
+        console.warn('[Sage OCR] Failed to parse math expressions as JSON');
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      text: 'OCR processing not yet implemented. Use Google Cloud Vision or Tesseract.js',
-      math: detectMath ? [] : undefined,
-      confidence: 0.0,
-      method: 'placeholder',
+      text: extractedText.trim(),
+      math: mathExpressions,
+      confidence: 0.9, // Gemini doesn't provide confidence scores
+      method: 'gemini-vision',
       detectedLanguage: 'en',
     });
-
-    // --- Future Implementation ---
-    // return NextResponse.json({
-    //   success: true,
-    //   text: detectedText,
-    //   math: detectMath ? extractedMathExpressions : undefined,
-    //   confidence: 0.95,
-    //   method: 'google-vision',
-    //   detectedLanguage: 'en',
-    //   boundingBoxes: textAnnotations.slice(1), // Word-level bounding boxes
-    // });
   } catch (error) {
     console.error('[Sage OCR] Error:', error);
     return NextResponse.json(

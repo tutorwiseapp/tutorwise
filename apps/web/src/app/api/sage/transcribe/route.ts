@@ -74,40 +74,47 @@ export async function POST(request: NextRequest) {
     const audioBuffer = await audioFile.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
 
-    // Transcribe using Google Speech-to-Text
-    // TODO: This requires @google-cloud/speech library and service account
-    // For now, return a mock response prompting to use browser Speech API
+    // --- Transcribe using Gemini Audio API ---
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+    // Use Gemini 1.5 Flash for audio transcription
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    // Determine MIME type based on file extension/type
+    let mimeType = audioFile.type;
+    if (!mimeType || mimeType === 'audio/mpeg') {
+      // Common audio formats supported by Gemini
+      const ext = audioFile.name.split('.').pop()?.toLowerCase();
+      if (ext === 'webm') mimeType = 'audio/webm';
+      else if (ext === 'mp3') mimeType = 'audio/mp3';
+      else if (ext === 'm4a') mimeType = 'audio/mp4';
+      else if (ext === 'wav') mimeType = 'audio/wav';
+    }
+
+    const audioParts = [
+      {
+        inlineData: {
+          data: audioBase64,
+          mimeType,
+        },
+      },
+    ];
+
+    const prompt = `Transcribe this audio recording accurately. Return only the transcribed text without any additional commentary or formatting.`;
+
+    const result = await model.generateContent([prompt, ...audioParts]);
+    const response = await result.response;
+    const transcription = response.text().trim();
 
     return NextResponse.json({
       success: true,
-      text: '', // Empty - client should use Web Speech API
-      method: 'client-side',
-      message: 'Please use Web Speech API on the client for transcription',
+      text: transcription,
+      confidence: 0.9, // Gemini doesn't provide confidence scores
+      method: 'gemini-audio',
       language,
+      duration: audioFile.size / (16000 * 2), // Rough estimate (16kHz, 16-bit)
     });
-
-    // --- Future Google Speech-to-Text Implementation ---
-    // import { SpeechClient } from '@google-cloud/speech';
-    // const client = new SpeechClient();
-    // const audio = { content: audioBase64 };
-    // const config = {
-    //   encoding: 'WEBM_OPUS',
-    //   sampleRateHertz: 48000,
-    //   languageCode: language,
-    //   model: 'latest_long',
-    // };
-    // const [response] = await client.recognize({ audio, config });
-    // const transcription = response.results
-    //   ?.map(result => result.alternatives?.[0]?.transcript)
-    //   .join('\n') || '';
-    //
-    // return NextResponse.json({
-    //   success: true,
-    //   text: transcription,
-    //   confidence: response.results?.[0]?.alternatives?.[0]?.confidence || 1.0,
-    //   method: 'google-speech',
-    //   language,
-    // });
   } catch (error) {
     console.error('[Sage Transcribe] Error:', error);
     return NextResponse.json(
