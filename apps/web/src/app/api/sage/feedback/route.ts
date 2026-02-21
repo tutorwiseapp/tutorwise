@@ -113,8 +113,27 @@ export async function POST(request: NextRequest) {
       console.warn('[Sage Feedback] Could not store feedback:', feedbackError.message);
     }
 
-    // TODO: Add CAS message bus integration when available
-    // This will enable DSPy optimization and curriculum flagging
+    // TODO: Publish to CAS message bus for automated improvement
+    // This requires fixing CAS message bus exports (createTaskEnvelope, createStatusEnvelope)
+    // For now, feedback is stored in DB and can be processed by scheduled jobs
+    //
+    // try {
+    //   const { sageBridge } = await import('@/../../cas/integration/sage-bridge');
+    //   await sageBridge.handleFeedback({
+    //     sessionId,
+    //     messageId,
+    //     userId: user.id,
+    //     userRole,
+    //     subject: subject || 'general',
+    //     level: 'GCSE', // TODO: get from session context
+    //     rating: rating === 1 ? 'thumbs_up' : 'thumbs_down',
+    //     comment,
+    //     topic,
+    //   });
+    // } catch (error) {
+    //   console.warn('[Sage Feedback] Could not publish to CAS:', error);
+    //   // Don't fail the request if CAS publish fails
+    // }
 
     return NextResponse.json({
       success: true,

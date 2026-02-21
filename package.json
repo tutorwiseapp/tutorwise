@@ -103,6 +103,12 @@
     "dspy:optimize:sage": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent sage --all",
     "dspy:optimize:lexi": "cd cas/optimization && source venv/bin/activate && python run_dspy.py --agent lexi --all",
     "dspy:optimize:weekly": "bash cas/optimization/schedule_weekly.sh",
+    "ingest:curriculum": "tsx tools/scripts/ingest-curriculum-content.ts",
+    "ingest:curriculum:test": "tsx tools/scripts/ingest-curriculum-content.ts --limit 5 --dry-run",
+    "ingest:curriculum:dry": "tsx tools/scripts/ingest-curriculum-content.ts --dry-run",
+    "process:sage-feedback": "tsx tools/scripts/process-sage-feedback.ts",
+    "process:sage-feedback:dry": "tsx tools/scripts/process-sage-feedback.ts --dry-run",
+    "process:sage-feedback:auto": "tsx tools/scripts/process-sage-feedback.ts --auto-fix",
     "prepare": "husky"
   },
   "dependencies": {
@@ -158,6 +164,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "ts-jest": "^29.4.5",
     "tsconfig-paths-jest": "^0.0.1",
+    "tsx": "^4.21.0",
     "wait-on": "^9.0.1"
   },
   "overrides": {
