@@ -283,7 +283,7 @@ export default function SageBillingPage() {
             {!isPro ? (
               <Button
                 variant="primary"
-                size="large"
+                size="lg"
                 onClick={handleStartTrial}
                 fullWidth
               >
