@@ -14,8 +14,8 @@
  * @module sage/curriculum/resolver
  */
 
-import type { CurriculumTopic, DifficultyLevel, GCSETier } from './types';
-import { mathsTopics, getTopicById, getChildTopics } from './data/maths';
+import type { CurriculumTopic, DifficultyLevel, GCSETier, CurriculumSubject } from './types';
+import { allTopics, getTopicById, getChildTopics, getTopicsBySubject } from './data/index';
 
 export interface TopicMatch {
   /** Matched topic */
@@ -48,12 +48,25 @@ export interface CurriculumContext {
 /**
  * Detect curriculum topics from user message
  */
-export function detectTopics(message: string, subject: 'maths' | 'english' | 'science' = 'maths'): TopicMatch[] {
+export function detectTopics(
+  message: string,
+  subject: CurriculumSubject = 'maths'
+): TopicMatch[] {
   const lowerMessage = message.toLowerCase();
   const matches: TopicMatch[] = [];
 
   // Get relevant curriculum data based on subject
-  const curriculumTopics = subject === 'maths' ? mathsTopics : [];
+  // For 'science' generic, search across all science subjects
+  let curriculumTopics: CurriculumTopic[];
+  if (subject === 'combined-science') {
+    curriculumTopics = [
+      ...getTopicsBySubject('biology'),
+      ...getTopicsBySubject('chemistry'),
+      ...getTopicsBySubject('physics'),
+    ];
+  } else {
+    curriculumTopics = getTopicsBySubject(subject);
+  }
 
   for (const topic of curriculumTopics) {
     const matchedKeywords: string[] = [];
@@ -129,7 +142,7 @@ function extractKeywords(text: string): string[] {
  */
 export function resolveCurriculumContext(
   message: string,
-  subject: 'maths' | 'english' | 'science' = 'maths',
+  subject: CurriculumSubject = 'maths',
   userLevel?: 'foundation' | 'higher'
 ): CurriculumContext | null {
   const topicMatches = detectTopics(message, subject);
