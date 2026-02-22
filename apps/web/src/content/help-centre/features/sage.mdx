@@ -7,8 +7,8 @@ audience: "all"
 description: "Sage is Tutorwise's AI-powered academic tutor. It explains concepts, solves problems, generates practice exercises, and adapts to your subject, level, and learning style — available anytime at /sage."
 keywords: ["Sage", "AI tutor", "maths help", "english help", "science help", "homework", "GCSE", "A-Level", "study", "revision", "practice", "learning", "LaTeX", "materials", "progress"]
 author: "Tutorwise Team"
-lastUpdated: "2026-02-15"
-version: "1.0"
+lastUpdated: "2026-02-22"
+version: "1.1"
 readTime: "8 min"
 relatedArticles:
   - "lexi"
@@ -31,7 +31,7 @@ import Tab from '@/app/components/help-centre/mdx/Tab';
 
 ## What Is Sage?
 
-Sage is Tutorwise's built-in AI tutor — a conversational learning assistant that helps you understand concepts, solve problems, and practise for exams. It's available 24/7 from your dashboard at no extra cost.
+Sage is Tutorwise's built-in AI tutor — a conversational learning assistant that helps you understand concepts, solve problems, and practise for exams. It's available 24/7 from your dashboard with a free tier (10 questions/day) and Pro upgrade option (£10/month for unlimited access).
 
 - **Explains** topics step-by-step with examples
 - **Solves** equations, grammar exercises, and science problems with working
@@ -295,9 +295,50 @@ Sage automatically adjusts based on your Tutorwise role:
   </Tab>
 </Tabs>
 
+## Sage Pro Subscription
+
+### Free Tier
+
+Everyone gets access to Sage with generous free limits:
+
+| Feature | Free Tier |
+|---------|-----------|
+| **Questions** | 10 per day (rolling 24h window) |
+| **Storage** | 50 MB for uploaded materials |
+| **Subjects** | Mathematics only |
+| **Features** | Basic AI tutoring, 10-message conversation history |
+
+When you reach the daily question limit, Sage automatically falls back to rules-based responses to keep helping you learn.
+
+### Sage Pro - £10/month
+
+Upgrade to Sage Pro for unlimited learning:
+
+| Feature | Sage Pro |
+|---------|----------|
+| **Questions** | 5,000 per month (~167/day) |
+| **Storage** | 1 GB for materials (20x more) |
+| **Subjects** | All subjects: Maths, English, Science, General |
+| **Features** | Extended conversation history (100 messages), priority responses, progress analytics, PDF transcript downloads |
+
+<CalloutBox type="info">
+**No trial period.** Sage's free tier lets you test all features extensively before upgrading. When you're ready for unlimited access, upgrade directly to Pro from the [Billing page](/sage/billing).
+</CalloutBox>
+
+### Managing Your Subscription
+
+Go to [Sage Billing](/sage/billing) to:
+- View your current tier and usage stats
+- Upgrade to Sage Pro
+- Manage payment methods
+- Download session transcripts (Pro only)
+- Cancel or reactivate subscription
+
+Your subscription status is also shown in the sidebar widget on the main Sage page.
+
 ## Sage Navigation
 
-Sage has four pages accessible from the sidebar:
+Sage has five pages accessible from the sidebar:
 
 | Page | Route | Purpose |
 |------|-------|---------|
@@ -305,6 +346,7 @@ Sage has four pages accessible from the sidebar:
 | **History** | [/sage/history](/sage/history) | Review past sessions and conversations |
 | **Progress** | [/sage/progress](/sage/progress) | View learning statistics and streaks |
 | **Materials** | [/sage/materials](/sage/materials) | Upload and manage study materials |
+| **Billing** | [/sage/billing](/sage/billing) | Manage subscription and view usage stats |
 
 ## Tips for Best Results
 

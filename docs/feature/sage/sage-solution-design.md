@@ -1,9 +1,9 @@
 # Sage Solution Design
 **AI Tutor Agent for GCSE/A-Level – Maths, English, Science & General**
-**Version:** 2.0
+**Version:** 2.1
 **Created:** 2026-02-14
-**Last Updated:** 2026-02-14
-**Status:** Approved for Implementation
+**Last Updated:** 2026-02-22
+**Status:** Approved for Implementation | Subscription Model: Free + Pro (£10/month)
 **Owner:** Michael Quan
 
 ---
@@ -24,7 +24,65 @@ Sage must be:
 
 ---
 
-## 2. Sage vs Lexi
+## 2. Subscription Model
+
+Sage operates on a freemium model with direct upgrade path from free tier to Pro.
+
+### 2.1 Free Tier
+
+| Feature | Limit | Implementation |
+|---------|-------|----------------|
+| **Questions** | 10 per day (rolling 24h window) | Redis rate limiter (`lib/ai-agents/rate-limiter.ts`) |
+| **Storage** | 50 MB for uploaded materials | PostgreSQL function `sage_check_storage_quota` |
+| **Subjects** | Mathematics only | UI restriction + fallback to rules |
+| **Conversation History** | 10 messages | Session limit in database |
+| **Fallback** | Rules-based responses when quota exceeded | `lexi/providers/rules-provider.ts` |
+
+**Cost Control:**
+- Free tier users consume ~0.45p per question (Gemini Flash)
+- 10 questions/day = £1.35/month average cost per active user
+- Storage costs negligible: 50 MB × £0.021/GB = £0.001/month
+
+### 2.2 Sage Pro - £10/month
+
+| Feature | Limit | Value |
+|---------|-------|-------|
+| **Questions** | 5,000 per month (~167/day) | 500x more than free tier |
+| **Storage** | 1 GB for materials | 20x more than free tier |
+| **Subjects** | All: Maths, English, Science, General | Full subject access |
+| **Conversation History** | 100 messages | 10x longer sessions |
+| **Advanced Features** | Priority responses, progress analytics, PDF transcripts | Pro-only capabilities |
+
+**Pricing Strategy:**
+- £10/month positions Sage as accessible learning tool
+- Revenue per Pro user: £10/month
+- Cost per Pro user: ~£2.25/month (5,000 questions @ £0.45p each)
+- Gross margin: 77.5%
+- Storage cost: £0.021/month (1 GB)
+- **Net margin: ~77%**
+
+### 2.3 Trial & Upgrade Model
+
+**No Trial Period:**
+- Free tier provides extensive testing (10 questions/day = 300/month)
+- Users can experience all core features before upgrading
+- Direct upgrade path from free → Pro
+- Simpler UX than traditional trial model
+
+**Subscription Management:**
+- Stripe integration for payments
+- Customer Portal for self-service management
+- Database: `sage_pro_subscriptions` table
+- Quota tracking: `sage_usage_log` and `sage_storage_files` tables
+
+**Migration Note:**
+- Previous plan included 14-day trial, now deprecated for new signups
+- Existing trial users still supported for backwards compatibility
+- Trial handling in billing page remains for legacy subscribers
+
+---
+
+## 3. Sage vs Lexi
 
 | Aspect | Lexi | Sage |
 |--------|------|------|
@@ -45,7 +103,7 @@ Sage must be:
 
 ---
 
-## 3. Core Architecture
+## 4. Core Architecture
 
 ```
 sage/
@@ -120,9 +178,9 @@ sage/
 
 ---
 
-## 4. Role-Aware Personas
+## 5. Role-Aware Personas
 
-### 4.1 Role Detection
+### 5.1 Role Detection
 
 ```typescript
 // context/resolver.ts
@@ -143,7 +201,7 @@ function resolveContext(user: UserInfo): RoleContext {
 }
 ```
 
-### 4.2 Persona Behaviours
+### 5.2 Persona Behaviours
 
 | Persona | Mode | Capabilities | Tone |
 |---------|------|--------------|------|
@@ -152,7 +210,7 @@ function resolveContext(user: UserInfo): RoleContext {
 | **Client** | Managing | Monitor child's progress, understand topics, help at home | Encouraging, accessible |
 | **Student** | Learning | Ask questions, practice problems, track mastery | Patient, encouraging |
 
-### 4.3 Capability Manifests
+### 5.3 Capability Manifests
 
 Each persona has a `capabilities.json` for future A2A discovery:
 
@@ -177,15 +235,15 @@ Each persona has a `capabilities.json` for future A2A discovery:
 
 ---
 
-## 5. Knowledge Architecture (RAG)
+## 6. Knowledge Architecture (RAG)
 
-### 5.1 Knowledge Sources (Priority Order)
+### 6.1 Knowledge Sources (Priority Order)
 
 1. **User's own uploads** – Highest priority, personal context
 2. **Shared from tutor/agent** – Materials shared with specific students
 3. **Global platform resources** – Curriculum specs, verified content
 
-### 5.2 Access Control
+### 6.2 Access Control
 
 ```typescript
 // knowledge/access-control.ts
@@ -218,7 +276,7 @@ function getAccessControl(context: RoleContext): KnowledgeAccess {
 }
 ```
 
-### 5.3 RAG Retrieval Flow
+### 6.3 RAG Retrieval Flow
 
 ```
 User asks question
@@ -248,9 +306,9 @@ User asks question
 
 ---
 
-## 6. Upload Pipeline
+## 7. Upload Pipeline
 
-### 6.1 Supported Formats
+### 7.1 Supported Formats
 
 | Format | Extraction Method |
 |--------|-------------------|
@@ -259,7 +317,7 @@ User asks question
 | DOCX | Full text + tables |
 | Images | OCR + vision model description |
 
-### 6.2 Role-Specific Upload Config
+### 7.2 Role-Specific Upload Config
 
 ```json
 // upload/config/tutor.json
@@ -277,7 +335,7 @@ User asks question
 }
 ```
 
-### 6.3 Upload Flow
+### 7.3 Upload Flow
 
 ```
 Tutor uploads PowerPoint
@@ -307,9 +365,9 @@ Tutor uploads PowerPoint
 
 ---
 
-## 7. Subject Engines
+## 8. Subject Engines
 
-### 7.1 Architecture
+### 8.1 Architecture
 
 Each subject has an engine with DSPy-powered reasoning:
 
@@ -346,7 +404,7 @@ export class MathsEngine {
 }
 ```
 
-### 7.2 Subject Coverage
+### 8.2 Subject Coverage
 
 | Subject | GCSE Topics | A-Level Topics |
 |---------|-------------|----------------|
@@ -357,9 +415,9 @@ export class MathsEngine {
 
 ---
 
-## 8. DSPy Integration (Full Implementation)
+## 9. DSPy Integration (Full Implementation)
 
-### 8.1 Architecture Overview
+### 9.1 Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
