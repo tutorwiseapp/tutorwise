@@ -1,8 +1,9 @@
 /**
  * Sage Sidebar Widgets
  *
- * 4 standard widgets matching the Bookings pattern:
+ * 5 standard widgets:
  * - Stats (SageProgressWidget)
+ * - Subscription (SageSubscriptionWidget)
  * - Help (SageHelpWidget)
  * - Tips (SageTipsWidget)
  * - Video (SageVideoWidget)
@@ -11,6 +12,7 @@
  */
 
 export { default as SageProgressWidget } from './SageProgressWidget';
+export { default as SageSubscriptionWidget } from './SageSubscriptionWidget';
 export { default as SageHelpWidget } from './SageHelpWidget';
 export { default as SageTipsWidget } from './SageTipsWidget';
 export { default as SageVideoWidget } from './SageVideoWidget';

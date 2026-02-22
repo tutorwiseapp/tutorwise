@@ -8,14 +8,15 @@
 
 ## Executive Summary
 
-Implementation plan for Sage AI Tutor **Pro** subscription tier following the proven organisation subscription pattern.
+Implementation plan for Sage AI Tutor **Pro** subscription tier with free tier model.
 
 **Note**: "Premium" tier reserved for future higher-tier offering.
 
-**Pricing**: £10/month
-**Question Limit**: 5,000 questions/month
-**Storage Limit**: 1 GB
-**Trial Period**: 14 days (configurable)
+**Free Tier**: 10 questions/day + 50 MB storage
+**Pro Pricing**: £10/month
+**Pro Question Limit**: 5,000 questions/month
+**Pro Storage Limit**: 1 GB
+**Trial Period**: None (users upgrade directly from free tier)
 **Tier Naming**: Free → **Pro** → Premium (future)
 
 ---
@@ -95,11 +96,12 @@ Implementation plan for Sage AI Tutor **Pro** subscription tier following the pr
 
 ### Free Tier Limits
 
-- 10 questions per month
-- No document storage
+- **10 questions per day** (rolling 24h window)
+- **50 MB document storage** (allows testing multimodal features)
 - Basic features only
 - Maths-only (other subjects require Pro)
 - 10 message conversation history
+- Fallback to rules-based responses when quota exceeded
 
 ---
 

@@ -22,9 +22,11 @@ import Button from '@/app/components/ui/actions/Button';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import { SageChat } from '@/components/feature/sage';
 import SageProgressWidget from '../../../components/feature/sage/widgets/SageProgressWidget';
+import SageSubscriptionWidget from '../../../components/feature/sage/widgets/SageSubscriptionWidget';
 import SageHelpWidget from '../../../components/feature/sage/widgets/SageHelpWidget';
 import SageTipsWidget from '../../../components/feature/sage/widgets/SageTipsWidget';
 import SageVideoWidget from '../../../components/feature/sage/widgets/SageVideoWidget';
+import { useSageBilling } from '@/app/hooks/useSageBilling';
 import styles from './page.module.css';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -59,6 +61,7 @@ export default function SagePage() {
   const { profile, isLoading: profileLoading } = useUserProfile();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { subscription } = useSageBilling();
 
   // State
   const [subject, setSubject] = useState<SubjectType>(
@@ -71,6 +74,11 @@ export default function SagePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [handoffContext, setHandoffContext] = useState<HandoffContext | null>(null);
+
+  // Scroll to top on page load/refresh
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Check for handoff context from Lexi
   useEffect(() => {
@@ -253,6 +261,7 @@ export default function SagePage() {
       sidebar={
         <HubSidebar>
           <SageProgressWidget studentId={profile?.id} />
+          <SageSubscriptionWidget subscription={subscription} />
           <SageHelpWidget />
           <SageTipsWidget subject={subject} />
           <SageVideoWidget subject={subject} />
