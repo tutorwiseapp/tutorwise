@@ -16,6 +16,7 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
+import SageProSubscriptionsTable from './components/SageProSubscriptionsTable';
 import styles from './page.module.css';
 
 // Force dynamic rendering
@@ -356,16 +357,7 @@ export default function SageAnalyticsPage() {
 
           {tabFilter === 'subscriptions' && (
             <div className={styles.subscriptionsView}>
-              <div className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <h2>Sage Pro Subscriptions</h2>
-                  <p className={styles.sectionDesc}>Manage all Sage Pro subscribers and their usage</p>
-                </div>
-                <HubEmptyState
-                  title="Subscription Management"
-                  description="Full subscription data table with filtering, search, and management actions coming soon. Will include user details, subscription status, usage stats, and admin actions (force-activate, reset quota, cancel)."
-                />
-              </div>
+              <SageProSubscriptionsTable />
             </div>
           )}
 

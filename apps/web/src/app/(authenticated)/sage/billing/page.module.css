@@ -297,6 +297,196 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Payment Methods Section */
+.paymentMethodsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.savedCard {
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s ease;
+}
+
+.savedCard:hover {
+  border-color: var(--color-border-hover);
+}
+
+.savedCardDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cardIcon {
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cardBrand {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+}
+
+.cardNumber {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cardExpiry {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.defaultBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: 0.5rem;
+}
+
+.manageButton {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manageButton:hover {
+  background: var(--color-neutral-100);
+  color: var(--color-text-primary);
+}
+
+.manageButton:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Radix Dropdown Styles */
+.dropdownContent {
+  min-width: 180px;
+  background: white;
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: 0 10px 38px -10px rgba(22, 23, 24, 0.35),
+              0 10px 20px -15px rgba(22, 23, 24, 0.2);
+  border: 1px solid var(--color-border-subtle);
+  z-index: 50;
+}
+
+.dropdownItem {
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--color-text-primary);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  position: relative;
+  user-select: none;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdownItem:hover {
+  background: var(--color-neutral-100);
+}
+
+.dropdownItem:focus {
+  background: var(--color-neutral-100);
+}
+
+.dropdownItem.destructive {
+  color: var(--color-error);
+}
+
+.dropdownItem.destructive:hover {
+  background: var(--color-error-bg);
+}
+
+.dropdownSeparator {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 0.5rem 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-tertiary);
+}
+
+.emptyState p {
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
+}
+
+.addCardSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.addCardSection p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.verificationNotice {
+  background: var(--color-info-bg);
+  border: 1px solid var(--color-info);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.verificationNotice p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-info);
+  line-height: 1.5;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -313,6 +503,10 @@
   }
 
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentMethodsGrid {
     grid-template-columns: 1fr;
   }
 }
