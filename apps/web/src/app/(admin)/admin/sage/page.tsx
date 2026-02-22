@@ -22,7 +22,7 @@ import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type TabFilter = 'overview' | 'usage' | 'quota' | 'subjects';
+type TabFilter = 'overview' | 'usage' | 'quota' | 'subjects' | 'subscriptions';
 
 interface SummaryStats {
   totalSessions: number;
@@ -148,6 +148,7 @@ export default function SageAnalyticsPage() {
               { id: 'usage', label: 'Usage', active: tabFilter === 'usage' },
               { id: 'quota', label: 'Quota & Costs', active: tabFilter === 'quota' },
               { id: 'subjects', label: 'Subjects', active: tabFilter === 'subjects' },
+              { id: 'subscriptions', label: 'Subscriptions', active: tabFilter === 'subscriptions' },
             ]}
             onTabChange={handleTabChange}
           />
@@ -349,6 +350,21 @@ export default function SageAnalyticsPage() {
                   <p className={styles.statValue}>{subjectData.general}</p>
                   <span className={styles.statLabel}>Questions asked</span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {tabFilter === 'subscriptions' && (
+            <div className={styles.subscriptionsView}>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h2>Sage Pro Subscriptions</h2>
+                  <p className={styles.sectionDesc}>Manage all Sage Pro subscribers and their usage</p>
+                </div>
+                <HubEmptyState
+                  title="Subscription Management"
+                  description="Full subscription data table with filtering, search, and management actions coming soon. Will include user details, subscription status, usage stats, and admin actions (force-activate, reset quota, cancel)."
+                />
               </div>
             </div>
           )}

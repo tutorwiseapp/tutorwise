@@ -1,0 +1,318 @@
+/* Sage Pro Billing Page Styles */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-text-secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.cardActions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Plan Info */
+.planInfo {
+  margin-bottom: 1.5rem;
+}
+
+.planTier {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.tierName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.planPrice {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.trialInfo,
+.cancelInfo {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  margin: 0.5rem 0 0 0;
+}
+
+.cancelInfo {
+  color: var(--color-warning);
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusTrialing {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.statusActive {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.statusPastDue,
+.statusUnpaid {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.statusCanceled,
+.statusIncomplete,
+.statusExpired {
+  background: var(--color-neutral-100);
+  color: var(--color-text-tertiary);
+}
+
+/* Plan Features */
+.planFeatures {
+  margin: 1.5rem 0;
+}
+
+.planFeatures h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+  margin: 0 0 1rem 0;
+}
+
+.planFeatures ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.planFeatures li {
+  padding: 0.5rem 0;
+  padding-left: 1.75rem;
+  position: relative;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.planFeatures li.included::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.planFeatures li.notIncluded::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--color-text-tertiary);
+}
+
+/* Usage Section */
+.usageSection {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.usageSection:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.usageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.usageHeader span:first-child {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.usageNumbers {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--color-neutral-100);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.usageDetail {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+.upgradeHint {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Upgrade Prompt */
+.upgradePrompt {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: white;
+  margin-top: 1.5rem;
+}
+
+.upgradePrompt p {
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.upgradePrompt ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.upgradePrompt li {
+  padding: 0.375rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.875rem;
+}
+
+.upgradePrompt li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+/* Billing Info */
+.billingInfo {
+  margin: 1rem 0;
+}
+
+.billingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.billingRow:last-child {
+  border-bottom: none;
+}
+
+.billingRow span:first-child {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+}
+
+.billingRow span:last-child {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

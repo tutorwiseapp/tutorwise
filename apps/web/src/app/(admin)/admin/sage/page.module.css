@@ -149,6 +149,30 @@
   color: var(--color-text-primary);
 }
 
+/* Subscriptions View */
+.subscriptionsView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+}
+
+.sectionDesc {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .statsGrid {
