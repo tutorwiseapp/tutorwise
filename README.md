@@ -4,7 +4,7 @@
 
 **Version**: 1.0.0-beta
 **Status**: Pre-Launch (Beta Release: 1 Mar 2026)
-**Last Updated**: 2026-02-15
+**Last Updated**: 2026-02-22
 
 ---
 
@@ -34,14 +34,16 @@ Network: A LinkedIn-style connection graph allowing Agents to manage tutor roste
 The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing.
 
 6. Sage AI GCSE Tutor (**[Documentation](sage/README.md)**)
-An AI-powered GCSE tutor providing personalized educational support with multi-modal input (voice, handwriting OCR). Features:
-- **110+ knowledge chunks** across 22 GCSE Maths topics (expanding to 500+)
-- **Hybrid RAG system** with semantic + keyword search
+An AI-powered GCSE tutor providing personalized educational support with comprehensive curriculum coverage. Features:
+- **100+ curriculum topics** across 6 subjects (Maths, Biology, Chemistry, Physics, History, Geography)
+- **Multimodal input**: OCR (handwriting/textbook recognition) + Speech-to-Text via Gemini Vision & Audio
+- **Hybrid RAG system** with semantic + keyword search across all subjects
 - **Mathematical solver** combining SymPy, Algebrite, and LLM reasoning
 - **Feedback loop** with automated gap detection and content regeneration
+- **Safety & Ethics Framework**: Age gates, parental controls, content monitoring, usage limits (COPPA/GDPR compliant)
 - **4 personas**: Student, Tutor, Parent, Agent with adaptive tone and capabilities
 
-**Version**: 2.0.0 | **Status**: Active Production
+**Version**: 2.0.0 | **Status**: Active Production | **Latest**: Science & Humanities curriculum (Feb 2026)
 
 7. Lexi AI Help Bot (**[Documentation](lexi/README.md)**)
 An AI-powered platform assistant providing instant support and task automation across all user roles. Features:

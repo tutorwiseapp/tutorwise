@@ -1,7 +1,7 @@
 # CAS Documentation
 
 **Version:** 2.0.0
-**Last Updated:** 2026-02-21
+**Last Updated:** 2026-02-22
 
 This directory contains detailed documentation for the Contextual Autonomous System (CAS) - TutorWise's AI-Powered Continuous Delivery Platform.
 
@@ -29,9 +29,10 @@ This directory contains detailed documentation for the Contextual Autonomous Sys
 ## 📁 Document Index
 
 ### Architecture & Design
-- **[cas-architecture-detailed.md](cas-architecture-detailed.md)** - Comprehensive CAS architecture (⚠️ Needs Update)
+- **[cas-architecture-detailed.md](cas-architecture-detailed.md)** - Comprehensive CAS architecture
 - **[fullstack-architecture.md](fullstack-architecture.md)** - Full-stack design patterns
 - **[application-registry.md](application-registry.md)** - Application structure and routing
+- **[FEEDBACK-BRIDGE.md](FEEDBACK-BRIDGE.md)** - CAS Feedback Automation Bridge (Edge Function)
 
 ### Development Guides
 - **[feature-development-checklist.md](feature-development-checklist.md)** - Feature implementation workflow
@@ -72,10 +73,11 @@ CAS is an **AI-Powered Continuous Delivery Platform** that models a complete pro
 CAS powers the entire TutorWise AI ecosystem:
 
 1. **Sage AI GCSE Tutor** (v2.0.0)
-   - 110+ knowledge chunks across 22 GCSE topics
+   - 100+ curriculum topics across 6 GCSE subjects (Maths, Biology, Chemistry, Physics, History, Geography)
+   - Multimodal input: OCR (Gemini Vision) + Speech-to-Text (Gemini Audio)
    - Hybrid RAG with mathematical solver
+   - Safety & Ethics Framework (COPPA/GDPR compliant)
    - Feedback loop with automated gap detection
-   - Multimodal input (voice, handwriting OCR)
 
 2. **Lexi AI Help Bot** (v2.0.0)
    - 20+ function tools for platform actions
