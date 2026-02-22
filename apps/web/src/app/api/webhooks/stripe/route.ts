@@ -490,45 +490,85 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      // v7.0: Organisation Premium subscription event handlers
+      // v7.0: Organisation Premium & Sage Pro subscription event handlers
       case 'customer.subscription.created': {
         const subscription = event.data.object as Stripe.Subscription;
         console.log(`[WEBHOOK:SUBSCRIPTION] Subscription created: ${subscription.id}`);
 
-        const organisationId = subscription.metadata?.organisation_id;
-
-        if (!organisationId) {
-          console.error('[WEBHOOK:SUBSCRIPTION] No organisation_id in subscription metadata');
-          throw new Error('Missing organisation_id in subscription metadata');
-        }
-
         const supabase = await createClient();
+        const subscriptionType = subscription.metadata?.subscription_type;
 
-        // Create organisation_subscriptions record
-        const { error: insertError } = await supabase
-          .from('organisation_subscriptions')
-          .insert({
-            organisation_id: organisationId,
-            stripe_subscription_id: subscription.id,
-            stripe_customer_id: subscription.customer as string,
-            status: subscription.status,
-            trial_start: (subscription as any).trial_start
-              ? new Date((subscription as any).trial_start * 1000).toISOString()
-              : null,
-            trial_end: (subscription as any).trial_end
-              ? new Date((subscription as any).trial_end * 1000).toISOString()
-              : null,
-            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-            cancel_at_period_end: (subscription as any).cancel_at_period_end,
-          });
+        // Handle Sage Pro subscriptions
+        if (subscriptionType === 'sage_pro') {
+          const userId = subscription.metadata?.user_id;
 
-        if (insertError) {
-          console.error('[WEBHOOK:SUBSCRIPTION] Failed to create subscription record:', insertError);
-          throw insertError;
+          if (!userId) {
+            console.error('[WEBHOOK:SUBSCRIPTION] No user_id in Sage Pro subscription metadata');
+            throw new Error('Missing user_id in Sage Pro subscription metadata');
+          }
+
+          // Create sage_pro_subscriptions record
+          const { error: insertError } = await supabase
+            .from('sage_pro_subscriptions')
+            .insert({
+              user_id: userId,
+              stripe_subscription_id: subscription.id,
+              stripe_customer_id: subscription.customer as string,
+              status: subscription.status,
+              trial_start: (subscription as any).trial_start
+                ? new Date((subscription as any).trial_start * 1000).toISOString()
+                : null,
+              trial_end: (subscription as any).trial_end
+                ? new Date((subscription as any).trial_end * 1000).toISOString()
+                : null,
+              current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+              cancel_at_period_end: (subscription as any).cancel_at_period_end,
+            });
+
+          if (insertError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to create Sage Pro subscription record:', insertError);
+            throw insertError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Created Sage Pro subscription record for user ${userId}`);
+        }
+        // Handle Organisation subscriptions (legacy)
+        else {
+          const organisationId = subscription.metadata?.organisation_id;
+
+          if (!organisationId) {
+            console.error('[WEBHOOK:SUBSCRIPTION] No organisation_id in subscription metadata');
+            throw new Error('Missing organisation_id in subscription metadata');
+          }
+
+          // Create organisation_subscriptions record
+          const { error: insertError } = await supabase
+            .from('organisation_subscriptions')
+            .insert({
+              organisation_id: organisationId,
+              stripe_subscription_id: subscription.id,
+              stripe_customer_id: subscription.customer as string,
+              status: subscription.status,
+              trial_start: (subscription as any).trial_start
+                ? new Date((subscription as any).trial_start * 1000).toISOString()
+                : null,
+              trial_end: (subscription as any).trial_end
+                ? new Date((subscription as any).trial_end * 1000).toISOString()
+                : null,
+              current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+              cancel_at_period_end: (subscription as any).cancel_at_period_end,
+            });
+
+          if (insertError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to create subscription record:', insertError);
+            throw insertError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Created subscription record for organisation ${organisationId}`);
         }
 
-        console.log(`[WEBHOOK:SUBSCRIPTION] Created subscription record for organisation ${organisationId}`);
         break;
       }
 
@@ -540,33 +580,53 @@ export async function POST(req: NextRequest) {
         });
 
         const supabase = await createClient();
+        const subscriptionType = subscription.metadata?.subscription_type;
 
-        // Update subscription status in database
-        const { error: updateError } = await supabase
-          .from('organisation_subscriptions')
-          .update({
-            status: subscription.status,
-            trial_start: (subscription as any).trial_start
-              ? new Date((subscription as any).trial_start * 1000).toISOString()
-              : null,
-            trial_end: (subscription as any).trial_end
-              ? new Date((subscription as any).trial_end * 1000).toISOString()
-              : null,
-            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-            cancel_at_period_end: (subscription as any).cancel_at_period_end,
-            canceled_at: subscription.canceled_at
-              ? new Date(subscription.canceled_at * 1000).toISOString()
-              : null,
-          })
-          .eq('stripe_subscription_id', subscription.id);
+        const updateData = {
+          status: subscription.status,
+          trial_start: (subscription as any).trial_start
+            ? new Date((subscription as any).trial_start * 1000).toISOString()
+            : null,
+          trial_end: (subscription as any).trial_end
+            ? new Date((subscription as any).trial_end * 1000).toISOString()
+            : null,
+          current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+          current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+          cancel_at_period_end: (subscription as any).cancel_at_period_end,
+          canceled_at: subscription.canceled_at
+            ? new Date(subscription.canceled_at * 1000).toISOString()
+            : null,
+        };
 
-        if (updateError) {
-          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription:', updateError);
-          throw updateError;
+        // Update Sage Pro subscription
+        if (subscriptionType === 'sage_pro') {
+          const { error: updateError } = await supabase
+            .from('sage_pro_subscriptions')
+            .update(updateData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update Sage Pro subscription:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Updated Sage Pro subscription ${subscription.id}`);
+        }
+        // Update Organisation subscription
+        else {
+          const { error: updateError } = await supabase
+            .from('organisation_subscriptions')
+            .update(updateData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Updated subscription ${subscription.id}`);
         }
 
-        console.log(`[WEBHOOK:SUBSCRIPTION] Updated subscription ${subscription.id}`);
         break;
       }
 
@@ -575,22 +635,42 @@ export async function POST(req: NextRequest) {
         console.log(`[WEBHOOK:SUBSCRIPTION] Subscription deleted: ${subscription.id}`);
 
         const supabase = await createClient();
+        const subscriptionType = subscription.metadata?.subscription_type;
 
-        // Mark subscription as canceled
-        const { error: updateError } = await supabase
-          .from('organisation_subscriptions')
-          .update({
-            status: 'canceled',
-            canceled_at: new Date().toISOString(),
-          })
-          .eq('stripe_subscription_id', subscription.id);
+        const cancelData = {
+          status: 'canceled',
+          canceled_at: new Date().toISOString(),
+        };
 
-        if (updateError) {
-          console.error('[WEBHOOK:SUBSCRIPTION] Failed to mark subscription as canceled:', updateError);
-          throw updateError;
+        // Delete Sage Pro subscription
+        if (subscriptionType === 'sage_pro') {
+          const { error: updateError } = await supabase
+            .from('sage_pro_subscriptions')
+            .update(cancelData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to mark Sage Pro subscription as canceled:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Marked Sage Pro subscription ${subscription.id} as canceled`);
+        }
+        // Delete Organisation subscription
+        else {
+          const { error: updateError } = await supabase
+            .from('organisation_subscriptions')
+            .update(cancelData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to mark subscription as canceled:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${subscription.id} as canceled`);
         }
 
-        console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${subscription.id} as canceled`);
         break;
       }
 
@@ -605,22 +685,30 @@ export async function POST(req: NextRequest) {
         }
 
         const supabase = await createClient();
+        const subscriptionId = (invoice as any).subscription as string;
 
-        // Ensure subscription status is 'active' (trial → active conversion)
-        const { error: updateError } = await supabase
-          .from('organisation_subscriptions')
-          .update({
-            status: 'active',
-          })
-          .eq('stripe_subscription_id', (invoice as any).subscription as string)
-          .in('status', ['trialing', 'past_due']); // Only update if trialing or recovering from past_due
+        // Try updating Sage Pro subscription first
+        const { error: sageError } = await supabase
+          .from('sage_pro_subscriptions')
+          .update({ status: 'active' })
+          .eq('stripe_subscription_id', subscriptionId)
+          .in('status', ['trialing', 'past_due']);
 
-        if (updateError) {
-          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to active:', updateError);
-          // Non-critical - subscription.updated event will also sync status
+        // If not Sage Pro, try Organisation subscription
+        if (sageError && sageError.code === 'PGRST116') {
+          const { error: orgError } = await supabase
+            .from('organisation_subscriptions')
+            .update({ status: 'active' })
+            .eq('stripe_subscription_id', subscriptionId)
+            .in('status', ['trialing', 'past_due']);
+
+          if (orgError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to active:', orgError);
+            // Non-critical - subscription.updated event will also sync status
+          }
         }
 
-        console.log(`[WEBHOOK:SUBSCRIPTION] Confirmed subscription ${(invoice as any).subscription} is active`);
+        console.log(`[WEBHOOK:SUBSCRIPTION] Confirmed subscription ${subscriptionId} is active`);
         break;
       }
 
@@ -635,23 +723,30 @@ export async function POST(req: NextRequest) {
         }
 
         const supabase = await createClient();
+        const subscriptionId = (invoice as any).subscription as string;
 
-        // Update subscription status to 'past_due'
-        const { error: updateError } = await supabase
-          .from('organisation_subscriptions')
-          .update({
-            status: 'past_due',
-          })
-          .eq('stripe_subscription_id', (invoice as any).subscription as string);
+        // Try updating Sage Pro subscription first
+        const { error: sageError } = await supabase
+          .from('sage_pro_subscriptions')
+          .update({ status: 'past_due' })
+          .eq('stripe_subscription_id', subscriptionId);
 
-        if (updateError) {
-          console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to past_due:', updateError);
-          throw updateError;
+        // If not Sage Pro, try Organisation subscription
+        if (sageError && sageError.code === 'PGRST116') {
+          const { error: orgError } = await supabase
+            .from('organisation_subscriptions')
+            .update({ status: 'past_due' })
+            .eq('stripe_subscription_id', subscriptionId);
+
+          if (orgError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to past_due:', orgError);
+            throw orgError;
+          }
         }
 
-        console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${(invoice as any).subscription} as past_due`);
+        console.log(`[WEBHOOK:SUBSCRIPTION] Marked subscription ${subscriptionId} as past_due`);
 
-        // TODO: Send email notification to organisation owner about failed payment
+        // TODO: Send email notification about failed payment
         // Can be implemented later with email service integration
 
         break;

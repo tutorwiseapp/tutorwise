@@ -70,6 +70,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check storage quota (only for Pro users - free tier has no storage)
+    const { checkStorageQuota } = await import('@/lib/stripe/sage-pro-subscription');
+    const storageCheck = await checkStorageQuota(user.id, audioFile.size);
+
+    if (!storageCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Storage quota exceeded',
+          code: 'STORAGE_QUOTA_EXCEEDED',
+          quota: {
+            used: storageCheck.used,
+            quota: storageCheck.quota,
+            remaining: storageCheck.remaining,
+          },
+          upsell: storageCheck.quota === 0 ? {
+            plan: 'sage_pro',
+            price: '£10/month',
+            storage: '1GB',
+          } : undefined,
+        },
+        { status: 429 }
+      );
+    }
+
     // Convert audio file to buffer
     const audioBuffer = await audioFile.arrayBuffer();
     const audioBase64 = Buffer.from(audioBuffer).toString('base64');
@@ -106,6 +130,22 @@ export async function POST(request: NextRequest) {
     const result = await model.generateContent([prompt, ...audioParts]);
     const response = await result.response;
     const transcription = response.text().trim();
+
+    // Track file usage for storage quota (async, don't block response)
+    const sessionId = formData.get('sessionId') as string | null;
+    if (sessionId && storageCheck.quota > 0) {
+      // Only track if user is Pro (has storage quota)
+      const { trackStorageFile } = await import('@/lib/stripe/sage-pro-subscription');
+      trackStorageFile(
+        user.id,
+        audioFile.name,
+        'audio',
+        audioFile.size,
+        `audio/${user.id}/${Date.now()}-${audioFile.name}`, // Virtual path (not actually stored yet)
+        sessionId,
+        transcription
+      ).catch(err => console.error('[Sage Transcribe] Failed to track file:', err));
+    }
 
     return NextResponse.json({
       success: true,

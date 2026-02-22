@@ -329,7 +329,7 @@ export async function POST(request: NextRequest) {
           controller.close();
 
           // Increment usage counter (async, don't block)
-          incrementAIAgentUsage('sage', user.id, subscription);
+          incrementAIAgentUsage('sage', user.id, subscription, body.sessionId);
 
           // Store messages in database (async, don't block stream)
           supabase.from('sage_messages').insert([
@@ -419,7 +419,7 @@ export async function POST(request: NextRequest) {
               );
 
               // Increment usage counter
-              incrementAIAgentUsage('sage', user.id, subscription);
+              incrementAIAgentUsage('sage', user.id, subscription, body.sessionId);
 
               recovered = true;
               break;
@@ -449,7 +449,7 @@ export async function POST(request: NextRequest) {
             );
 
             // Increment usage counter
-            incrementAIAgentUsage('sage', user.id, subscription);
+            incrementAIAgentUsage('sage', user.id, subscription, body.sessionId);
           }
 
           controller.close();

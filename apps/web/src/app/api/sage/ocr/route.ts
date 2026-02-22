@@ -79,6 +79,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check storage quota (only for Pro users - free tier has no storage)
+    const { checkStorageQuota } = await import('@/lib/stripe/sage-pro-subscription');
+    const storageCheck = await checkStorageQuota(user.id, imageFile.size);
+
+    if (!storageCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Storage quota exceeded',
+          code: 'STORAGE_QUOTA_EXCEEDED',
+          quota: {
+            used: storageCheck.used,
+            quota: storageCheck.quota,
+            remaining: storageCheck.remaining,
+          },
+          upsell: storageCheck.quota === 0 ? {
+            plan: 'sage_pro',
+            price: '£10/month',
+            storage: '1GB',
+          } : undefined,
+        },
+        { status: 429 }
+      );
+    }
+
     // Convert image to base64
     const imageBuffer = await imageFile.arrayBuffer();
     const imageBase64 = Buffer.from(imageBuffer).toString('base64');
@@ -134,6 +158,24 @@ export async function POST(request: NextRequest) {
         // If JSON parsing fails, just use raw text
         console.warn('[Sage OCR] Failed to parse math expressions as JSON');
       }
+    }
+
+    // Track file usage for storage quota (async, don't block response)
+    // NOTE: For now we're not actually storing the file, just tracking its size for quota
+    // Future enhancement: Store file in Supabase Storage for caching
+    const sessionId = formData.get('sessionId') as string | null;
+    if (sessionId && storageCheck.quota > 0) {
+      // Only track if user is Pro (has storage quota)
+      const { trackStorageFile } = await import('@/lib/stripe/sage-pro-subscription');
+      trackStorageFile(
+        user.id,
+        imageFile.name,
+        'image',
+        imageFile.size,
+        `ocr/${user.id}/${Date.now()}-${imageFile.name}`, // Virtual path (not actually stored yet)
+        sessionId,
+        extractedText.trim()
+      ).catch(err => console.error('[Sage OCR] Failed to track file:', err));
     }
 
     return NextResponse.json({

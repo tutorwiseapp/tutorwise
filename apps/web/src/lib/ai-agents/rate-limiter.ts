@@ -108,7 +108,8 @@ export async function checkAIAgentRateLimit(
 export async function incrementAIAgentUsage(
   agent: AIAgent,
   userId: string,
-  subscription?: SubscriptionStatus
+  subscription?: SubscriptionStatus,
+  sessionId?: string
 ): Promise<void> {
   if (!redis) {
     console.warn('[RateLimiter] Redis not available, skipping increment');
@@ -120,7 +121,17 @@ export async function incrementAIAgentUsage(
       agent === 'sage' && subscription?.isActive && subscription?.plan === 'sage_pro';
 
     if (hasSagePro) {
+      // Increment Redis counter (fast rate limiting)
       await incrementSageProUsage(userId);
+
+      // Also increment database counter (authoritative billing tracking)
+      try {
+        const { incrementUsage } = await import('@/lib/stripe/sage-pro-subscription');
+        await incrementUsage(userId, sessionId || 'unknown', 1);
+      } catch (dbError) {
+        console.error('[RateLimiter] Database increment failed (non-critical):', dbError);
+        // Don't throw - Redis increment succeeded, which is enough for rate limiting
+      }
     } else {
       await incrementFreeTierUsage(userId, agent);
     }
@@ -340,12 +351,31 @@ function getNextMidnightUTC(): Date {
  * For now, always returns inactive (no subscriptions yet).
  * Future: Query database for active Stripe subscription.
  */
-export async function getSageSubscription(_userId: string): Promise<SubscriptionStatus> {
-  // TODO: Query database when Stripe integration is ready
-  // const subscription = await db.query('SELECT * FROM profiles WHERE id = $1', [_userId]);
-  // if (subscription.sage_subscription_status === 'active') {
-  //   return { isActive: true, plan: 'sage_pro', expiresAt: subscription.sage_subscription_expires_at };
-  // }
+export async function getSageSubscription(userId: string): Promise<SubscriptionStatus> {
+  try {
+    // Import at runtime to avoid circular dependencies
+    const { getSageProSubscription } = await import('@/lib/stripe/sage-pro-subscription');
 
-  return { isActive: false };
+    const subscription = await getSageProSubscription(userId);
+
+    if (!subscription) {
+      return { isActive: false };
+    }
+
+    // Check if subscription is active or trialing
+    const isActive = subscription.status === 'trialing' || subscription.status === 'active';
+
+    if (isActive) {
+      return {
+        isActive: true,
+        plan: 'sage_pro',
+        expiresAt: new Date(subscription.current_period_end),
+      };
+    }
+
+    return { isActive: false };
+  } catch (error) {
+    console.error('[RateLimiter] Error fetching Sage subscription:', error);
+    return { isActive: false };
+  }
 }

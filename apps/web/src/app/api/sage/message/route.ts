@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Increment usage counter (async, don't block response)
-      incrementAIAgentUsage('sage', user.id, subscription);
+      incrementAIAgentUsage('sage', user.id, subscription, body.sessionId);
 
       return NextResponse.json({
         response: {
