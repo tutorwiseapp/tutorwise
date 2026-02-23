@@ -37,6 +37,7 @@ export async function GET(
         *,
         ai_tutors (
           id,
+          owner_id,
           display_name,
           subject,
           avatar_url

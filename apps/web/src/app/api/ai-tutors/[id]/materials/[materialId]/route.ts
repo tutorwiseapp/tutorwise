@@ -23,7 +23,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; materialId: string }> }
 ) {
   try {
-    const { materialId } = await params;
+    const { id, materialId } = await params;
     const supabase = await createClient();
 
     // Get authenticated user
@@ -34,6 +34,18 @@ export async function DELETE(
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify material belongs to this AI tutor
+    const { data: material } = await supabase
+      .from('ai_tutor_materials')
+      .select('id')
+      .eq('id', materialId)
+      .eq('ai_tutor_id', id)
+      .single();
+
+    if (!material) {
+      return NextResponse.json({ error: 'Material not found for this AI tutor' }, { status: 404 });
     }
 
     // Delete material

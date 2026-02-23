@@ -45,6 +45,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    // Prevent double-ending
+    if (session.status !== 'active') {
+      return NextResponse.json(
+        { error: 'Session is already ended', status: session.status },
+        { status: 400 }
+      );
+    }
+
     // Calculate duration in minutes
     const startedAt = new Date(session.started_at);
     const endedAt = new Date();

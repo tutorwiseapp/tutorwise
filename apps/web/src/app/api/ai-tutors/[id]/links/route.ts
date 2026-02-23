@@ -135,6 +135,18 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Verify ownership
+    const { data: tutor } = await supabase
+      .from('ai_tutors')
+      .select('id')
+      .eq('id', id)
+      .eq('owner_id', user.id)
+      .single();
+
+    if (!tutor) {
+      return NextResponse.json({ error: 'AI tutor not found or access denied' }, { status: 403 });
+    }
+
     // List links
     const links = await listLinks(id);
 

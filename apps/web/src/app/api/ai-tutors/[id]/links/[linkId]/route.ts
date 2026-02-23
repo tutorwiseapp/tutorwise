@@ -31,7 +31,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; linkId: string }> }
 ) {
   try {
-    const { linkId } = await params;
+    const { id, linkId } = await params;
     const supabase = await createClient();
 
     // Get authenticated user
@@ -42,6 +42,18 @@ export async function PATCH(
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify link belongs to this AI tutor
+    const { data: existingLink } = await supabase
+      .from('ai_tutor_links')
+      .select('id')
+      .eq('id', linkId)
+      .eq('ai_tutor_id', id)
+      .single();
+
+    if (!existingLink) {
+      return NextResponse.json({ error: 'Link not found for this AI tutor' }, { status: 404 });
     }
 
     // Parse request body
@@ -100,7 +112,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; linkId: string }> }
 ) {
   try {
-    const { linkId } = await params;
+    const { id, linkId } = await params;
     const supabase = await createClient();
 
     // Get authenticated user
@@ -111,6 +123,18 @@ export async function DELETE(
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify link belongs to this AI tutor
+    const { data: linkRecord } = await supabase
+      .from('ai_tutor_links')
+      .select('id')
+      .eq('id', linkId)
+      .eq('ai_tutor_id', id)
+      .single();
+
+    if (!linkRecord) {
+      return NextResponse.json({ error: 'Link not found for this AI tutor' }, { status: 404 });
     }
 
     // Delete link

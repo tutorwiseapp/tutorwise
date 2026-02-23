@@ -792,8 +792,12 @@ export async function POST(req: NextRequest) {
             .in('status', ['trialing', 'past_due']);
 
           if (orgError) {
-            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to active:', orgError);
-            // Non-critical - subscription.updated event will also sync status
+            // Try AI Tutor subscription
+            await supabase
+              .from('ai_tutor_subscriptions')
+              .update({ status: 'active', updated_at: new Date().toISOString() })
+              .eq('stripe_subscription_id', subscriptionId)
+              .in('status', ['past_due', 'unpaid']);
           }
         }
 
@@ -828,8 +832,16 @@ export async function POST(req: NextRequest) {
             .eq('stripe_subscription_id', subscriptionId);
 
           if (orgError) {
-            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to past_due:', orgError);
-            throw orgError;
+            // Try AI Tutor subscription
+            const { error: aiTutorError } = await supabase
+              .from('ai_tutor_subscriptions')
+              .update({ status: 'past_due', updated_at: new Date().toISOString() })
+              .eq('stripe_subscription_id', subscriptionId);
+
+            if (aiTutorError) {
+              console.error('[WEBHOOK:SUBSCRIPTION] Failed to update subscription to past_due:', aiTutorError);
+              throw aiTutorError;
+            }
           }
         }
 

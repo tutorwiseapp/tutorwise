@@ -21,9 +21,10 @@ export async function GET(
     const offset = (page - 1) * limit;
 
     // Get reviews from sessions (reviewed = true)
+    // Strip client_id from response - this endpoint is public
     const { data: reviews, error, count } = await supabase
       .from('ai_tutor_sessions')
-      .select('id, client_id, rating, review_text, reviewed_at, started_at', { count: 'exact' })
+      .select('id, rating, review_text, reviewed_at, started_at', { count: 'exact' })
       .eq('ai_tutor_id', id)
       .eq('reviewed', true)
       .not('rating', 'is', null)
@@ -62,6 +63,10 @@ export async function POST(
 
     if (!session_id || !rating || rating < 1 || rating > 5) {
       return NextResponse.json({ error: 'Invalid review data' }, { status: 400 });
+    }
+
+    if (review_text && review_text.length > 2000) {
+      return NextResponse.json({ error: 'Review text must be 2000 characters or less' }, { status: 400 });
     }
 
     // Verify session belongs to this user and AI tutor
