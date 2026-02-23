@@ -8,21 +8,25 @@
 'use client';
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './AITutorLimitsWidget.module.css';
 
-interface AITutorLimitsWidgetProps {
-  current: number;
-  limit: number;
-  caasScore: number;
-}
+export default function AITutorLimitsWidget() {
+  const { data: limits } = useQuery({
+    queryKey: ['ai-tutor-limits'],
+    queryFn: async () => {
+      const res = await fetch('/api/ai-tutors/limits');
+      if (!res.ok) return { current: 0, limit: 1, caasScore: 0 };
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
 
-export default function AITutorLimitsWidget({
-  current,
-  limit,
-  caasScore,
-}: AITutorLimitsWidgetProps) {
-  const percentage = (current / limit) * 100;
+  const current = limits?.current ?? 0;
+  const limit = limits?.limit ?? 1;
+  const percentage = limit > 0 ? (current / limit) * 100 : 0;
 
   return (
     <HubComplexCard>

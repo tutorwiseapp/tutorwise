@@ -79,14 +79,43 @@ export class GeminiProvider {
   }
 
   /**
-   * Stream chat response (stub - returns regular response)
+   * Stream chat response using Gemini's streaming API
    */
   async *streamChat(
     message: string,
     history: ChatMessage[] = [],
     context?: string
   ): AsyncGenerator<string> {
-    const response = await this.chat(message, history, context);
-    yield response.content;
+    try {
+      const model = this.genAI.getGenerativeModel({ model: this.model });
+
+      // Build prompt with context
+      let prompt = '';
+      if (context) {
+        prompt += `Context:\n${context}\n\n`;
+      }
+
+      if (history.length > 0) {
+        prompt += 'Conversation History:\n';
+        for (const msg of history.slice(-10)) {
+          prompt += `${msg.role === 'user' ? 'Student' : 'Tutor'}: ${msg.content}\n`;
+        }
+        prompt += '\n';
+      }
+
+      prompt += `Student: ${message}\nTutor:`;
+
+      const result = await model.generateContentStream(prompt);
+
+      for await (const chunk of result.stream) {
+        const text = chunk.text();
+        if (text) {
+          yield text;
+        }
+      }
+    } catch (error) {
+      console.error('Gemini streaming error:', error);
+      throw new Error('Failed to stream response');
+    }
   }
 }

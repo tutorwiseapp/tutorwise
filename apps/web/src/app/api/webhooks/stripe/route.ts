@@ -498,8 +498,44 @@ export async function POST(req: NextRequest) {
         const supabase = await createClient();
         const subscriptionType = subscription.metadata?.subscription_type;
 
+        // Handle AI Tutor subscriptions
+        if (subscriptionType === 'ai_tutor') {
+          const aiTutorId = subscription.metadata?.ai_tutor_id;
+          const ownerId = subscription.metadata?.owner_id;
+
+          if (!aiTutorId || !ownerId) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Missing ai_tutor_id or owner_id in AI Tutor subscription metadata');
+            throw new Error('Missing ai_tutor_id or owner_id in AI Tutor subscription metadata');
+          }
+
+          // Upsert ai_tutor_subscriptions record
+          const { error: upsertError } = await supabase
+            .from('ai_tutor_subscriptions')
+            .upsert({
+              ai_tutor_id: aiTutorId,
+              owner_id: ownerId,
+              stripe_subscription_id: subscription.id,
+              stripe_customer_id: subscription.customer as string,
+              status: subscription.status,
+              current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+            }, { onConflict: 'ai_tutor_id' });
+
+          if (upsertError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to upsert AI Tutor subscription:', upsertError);
+            throw upsertError;
+          }
+
+          // Update AI tutor subscription_status
+          await supabase
+            .from('ai_tutors')
+            .update({ subscription_status: subscription.status })
+            .eq('id', aiTutorId);
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Created AI Tutor subscription for tutor ${aiTutorId}`);
+        }
         // Handle Sage Pro subscriptions
-        if (subscriptionType === 'sage_pro') {
+        else if (subscriptionType === 'sage_pro') {
           const userId = subscription.metadata?.user_id;
 
           if (!userId) {
@@ -598,8 +634,37 @@ export async function POST(req: NextRequest) {
             : null,
         };
 
+        // Update AI Tutor subscription
+        if (subscriptionType === 'ai_tutor') {
+          const aiTutorId = subscription.metadata?.ai_tutor_id;
+
+          const { error: updateError } = await supabase
+            .from('ai_tutor_subscriptions')
+            .update({
+              ...updateData,
+              cancel_at: (subscription as any).cancel_at
+                ? new Date((subscription as any).cancel_at * 1000).toISOString()
+                : null,
+            })
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update AI Tutor subscription:', updateError);
+            throw updateError;
+          }
+
+          // Sync subscription_status to ai_tutors table
+          if (aiTutorId) {
+            await supabase
+              .from('ai_tutors')
+              .update({ subscription_status: subscription.status })
+              .eq('id', aiTutorId);
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Updated AI Tutor subscription ${subscription.id}`);
+        }
         // Update Sage Pro subscription
-        if (subscriptionType === 'sage_pro') {
+        else if (subscriptionType === 'sage_pro') {
           const { error: updateError } = await supabase
             .from('sage_pro_subscriptions')
             .update(updateData)
@@ -642,8 +707,32 @@ export async function POST(req: NextRequest) {
           canceled_at: new Date().toISOString(),
         };
 
+        // Delete AI Tutor subscription
+        if (subscriptionType === 'ai_tutor') {
+          const aiTutorId = subscription.metadata?.ai_tutor_id;
+
+          const { error: updateError } = await supabase
+            .from('ai_tutor_subscriptions')
+            .update(cancelData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to cancel AI Tutor subscription:', updateError);
+            throw updateError;
+          }
+
+          // Unpublish AI tutor and set subscription_status to canceled
+          if (aiTutorId) {
+            await supabase
+              .from('ai_tutors')
+              .update({ subscription_status: 'canceled', status: 'unpublished' })
+              .eq('id', aiTutorId);
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Canceled AI Tutor subscription ${subscription.id}`);
+        }
         // Delete Sage Pro subscription
-        if (subscriptionType === 'sage_pro') {
+        else if (subscriptionType === 'sage_pro') {
           const { error: updateError } = await supabase
             .from('sage_pro_subscriptions')
             .update(cancelData)

@@ -2,7 +2,7 @@
  * Filename: AITutorStatsWidget.tsx
  * Purpose: AI Tutor Stats Widget - shows key metrics
  * Created: 2026-02-23
- * Pattern: Uses HubStatsCard (matches BookingStatsWidget)
+ * Pattern: Uses HubStatsCard (matches ListingStatsWidget)
  */
 
 'use client';
@@ -11,31 +11,38 @@ import React from 'react';
 import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
 
 interface AITutorStatsWidgetProps {
-  activeTutors?: number;
-  totalSessions?: number;
-  totalRevenue?: number;
+  aiTutors?: any[];
+  isLoading?: boolean;
 }
 
 export default function AITutorStatsWidget({
-  activeTutors = 0,
-  totalSessions = 0,
-  totalRevenue = 0,
+  aiTutors = [],
+  isLoading = false,
 }: AITutorStatsWidgetProps) {
+  const activeTutors = aiTutors.filter(t => t.status === 'published').length;
+  const totalSessions = aiTutors.reduce((sum, t) => sum + (t.total_sessions || 0), 0);
+  const totalRevenue = aiTutors.reduce((sum, t) => sum + (t.total_revenue || 0), 0);
+
   const stats: StatRow[] = [
     {
       label: 'Active AI Tutors',
-      value: activeTutors,
+      value: isLoading ? '-' : activeTutors,
       valueColor: activeTutors > 0 ? 'green' : 'default',
     },
     {
       label: 'Total Sessions',
-      value: totalSessions,
+      value: isLoading ? '-' : totalSessions,
       valueColor: 'default',
     },
     {
       label: 'Total Revenue',
-      value: `£${totalRevenue.toFixed(2)}`,
+      value: isLoading ? '-' : `£${totalRevenue.toFixed(2)}`,
       valueColor: totalRevenue > 0 ? 'green' : 'default',
+    },
+    {
+      label: 'Total AI Tutors',
+      value: isLoading ? '-' : aiTutors.length,
+      valueColor: 'default',
     },
   ];
 

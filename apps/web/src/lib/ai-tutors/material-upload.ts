@@ -1,11 +1,14 @@
 /**
  * Filename: material-upload.ts
- * Purpose: Material Upload Service (Stub - to be implemented)
+ * Purpose: Material Upload Service for AI Tutors
  * Created: 2026-02-23
- * Version: v1.0 (Stub)
+ * Version: v1.0
+ *
+ * Reuses Sage DocumentProcessor for text extraction. Embeddings via Gemini directly.
  */
 
 import { createClient } from '@/utils/supabase/server';
+import { DocumentProcessor } from '@sage/upload/processor';
 
 export interface Material {
   id: string;
@@ -41,8 +44,14 @@ export async function listMaterials(aiTutorId: string): Promise<Material[]> {
 }
 
 /**
- * Upload material (stub - to be implemented)
- * TODO: Implement file upload, processing, and embedding
+ * Upload material for AI tutor
+ *
+ * Flow:
+ * 1. Check storage quota
+ * 2. Upload file to Supabase Storage
+ * 3. Create material record
+ * 4. Process document (extract text, generate embeddings, store chunks)
+ * 5. Update material status and storage usage
  */
 export async function uploadMaterial(
   file: File,
@@ -54,7 +63,7 @@ export async function uploadMaterial(
   // Verify ownership
   const { data: tutor } = await supabase
     .from('ai_tutors')
-    .select('owner_id')
+    .select('owner_id, storage_used_mb, storage_limit_mb')
     .eq('id', aiTutorId)
     .eq('owner_id', userId)
     .single();
@@ -63,12 +72,170 @@ export async function uploadMaterial(
     throw new Error('AI tutor not found or access denied');
   }
 
-  // TODO: Implement file upload to Supabase Storage
-  // TODO: Implement document processing
-  // TODO: Implement embedding generation
-  // TODO: Implement chunk storage
+  // Check storage quota
+  const fileSizeMB = Math.ceil(file.size / (1024 * 1024));
+  const used = tutor.storage_used_mb || 0;
+  const limit = tutor.storage_limit_mb || 1024;
 
-  throw new Error('Material upload not yet implemented');
+  if (used + fileSizeMB > limit) {
+    throw new Error(`Storage quota exceeded. ${Math.max(0, limit - used)}MB remaining of ${limit}MB.`);
+  }
+
+  // Upload file to Supabase Storage
+  const fileId = crypto.randomUUID();
+  const ext = file.name.split('.').pop() || 'bin';
+  const storagePath = `ai-tutors/${aiTutorId}/${fileId}.${ext}`;
+
+  const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await supabase.storage
+    .from('ai-tutor-materials')
+    .upload(storagePath, fileBuffer, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    throw new Error(`File upload failed: ${uploadError.message}`);
+  }
+
+  const { data: urlData } = supabase.storage
+    .from('ai-tutor-materials')
+    .getPublicUrl(storagePath);
+
+  // Create material record (status: processing)
+  const { data: material, error: insertError } = await supabase
+    .from('ai_tutor_materials')
+    .insert({
+      ai_tutor_id: aiTutorId,
+      file_name: file.name,
+      file_type: ext,
+      file_size_mb: fileSizeMB,
+      file_url: urlData.publicUrl,
+      status: 'processing',
+    })
+    .select()
+    .single();
+
+  if (insertError) throw insertError;
+
+  // Process document asynchronously (don't await in request handler)
+  processAndEmbedMaterial(material.id, aiTutorId, fileBuffer, file.name, fileSizeMB)
+    .catch(err => console.error('[MaterialUpload] Background processing failed:', err));
+
+  return material;
+}
+
+/**
+ * Process document: extract text, chunk, embed, store
+ * Reuses Sage DocumentProcessor for text extraction
+ */
+async function processAndEmbedMaterial(
+  materialId: string,
+  aiTutorId: string,
+  buffer: Buffer,
+  filename: string,
+  _fileSizeMB: number
+): Promise<void> {
+  const supabase = await createClient();
+
+  try {
+    // 1. Extract text using Sage DocumentProcessor
+    const processor = new DocumentProcessor({
+      chunkSize: 1000,
+      chunkOverlap: 100,
+    });
+
+    const processed = await processor.process(buffer, filename);
+
+    if (processed.chunks.length === 0) {
+      await supabase
+        .from('ai_tutor_materials')
+        .update({ status: 'failed', error_message: 'No text content extracted' })
+        .eq('id', materialId);
+      return;
+    }
+
+    // 2. Generate embeddings using Gemini directly
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const googleKey = process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!googleKey) throw new Error('Google AI API key not configured');
+
+    const genAI = new GoogleGenerativeAI(googleKey);
+    const embModel = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
+
+    let chunksStored = 0;
+
+    // Process chunks in batches
+    for (let i = 0; i < processed.chunks.length; i += 20) {
+      const batch = processed.chunks.slice(i, i + 20);
+
+      for (const chunk of batch) {
+        try {
+          const truncated = chunk.content.slice(0, 8000);
+          const result = await embModel.embedContent({
+            content: { role: 'user', parts: [{ text: truncated }] },
+            outputDimensionality: 768,
+          } as any);
+
+          const embedding = result.embedding.values;
+
+          await supabase
+            .from('ai_tutor_material_chunks')
+            .insert({
+              material_id: materialId,
+              ai_tutor_id: aiTutorId,
+              chunk_text: chunk.content,
+              chunk_index: chunk.position,
+              page_number: chunk.pageNumber || null,
+              embedding: JSON.stringify(embedding),
+            });
+
+          chunksStored++;
+        } catch (err) {
+          console.error(`[MaterialUpload] Failed to embed chunk ${chunk.position}:`, err);
+        }
+      }
+    }
+
+    // 4. Update material status
+    await supabase
+      .from('ai_tutor_materials')
+      .update({
+        status: chunksStored > 0 ? 'ready' : 'failed',
+        error_message: chunksStored === 0 ? 'No chunks could be embedded' : null,
+        processed_at: new Date().toISOString(),
+        page_count: processed.metadata.pageCount || null,
+        word_count: processed.metadata.wordCount || null,
+        chunk_count: chunksStored,
+      })
+      .eq('id', materialId);
+
+    // 5. Update storage usage
+    const { data: totalStorage } = await supabase
+      .from('ai_tutor_materials')
+      .select('file_size_mb')
+      .eq('ai_tutor_id', aiTutorId);
+
+    const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
+
+    await supabase
+      .from('ai_tutors')
+      .update({ storage_used_mb: Math.ceil(totalUsed) })
+      .eq('id', aiTutorId);
+
+    console.log(`[MaterialUpload] Processed ${filename}: ${chunksStored}/${processed.chunks.length} chunks embedded`);
+  } catch (error) {
+    console.error('[MaterialUpload] Processing failed:', error);
+
+    await supabase
+      .from('ai_tutor_materials')
+      .update({
+        status: 'failed',
+        error_message: (error as Error).message,
+      })
+      .eq('id', materialId);
+  }
 }
 
 /**
@@ -83,12 +250,21 @@ export async function deleteMaterial(
   // Verify ownership via AI tutor
   const { data: material } = await supabase
     .from('ai_tutor_materials')
-    .select('ai_tutor_id, ai_tutors!inner(owner_id)')
+    .select('ai_tutor_id, file_url, file_size_mb, ai_tutors!inner(owner_id)')
     .eq('id', materialId)
     .single();
 
   if (!material || (material as any).ai_tutors.owner_id !== userId) {
     throw new Error('Material not found or access denied');
+  }
+
+  // Delete from storage (extract path from URL)
+  const url = material.file_url;
+  const pathMatch = url.match(/ai-tutors\/.+/);
+  if (pathMatch) {
+    await supabase.storage
+      .from('ai-tutor-materials')
+      .remove([pathMatch[0]]);
   }
 
   // Delete material (cascades to chunks)
@@ -98,6 +274,19 @@ export async function deleteMaterial(
     .eq('id', materialId);
 
   if (error) throw error;
+
+  // Update storage usage
+  const { data: totalStorage } = await supabase
+    .from('ai_tutor_materials')
+    .select('file_size_mb')
+    .eq('ai_tutor_id', material.ai_tutor_id);
+
+  const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
+
+  await supabase
+    .from('ai_tutors')
+    .update({ storage_used_mb: Math.ceil(totalUsed) })
+    .eq('id', material.ai_tutor_id);
 }
 
 /**
