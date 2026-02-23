@@ -17,6 +17,7 @@ interface HybridSearchResult {
   listings: any[];
   profiles: any[];
   organisations: any[];
+  aiTutors: any[];
   total: number;
 }
 
@@ -100,47 +101,84 @@ async function hybridSearch(
   // Build RPC params
   const embeddingParam = queryEmbedding ? `[${queryEmbedding.join(',')}]` : null;
 
-  // Run all three searches in parallel
-  const [listingsResult, profilesResult, organisationsResult] = await Promise.all([
-    // --- Listings hybrid search ---
-    supabase.rpc('search_listings_hybrid', {
-      query_embedding: embeddingParam,
-      filter_subjects: filters.subjects?.length ? filters.subjects : null,
-      filter_levels: filters.levels?.length ? filters.levels : null,
-      filter_location_city: filters.location_city || null,
-      filter_delivery_modes: filters.delivery_modes?.length ? filters.delivery_modes : null,
-      filter_min_price: filters.min_price || null,
-      filter_max_price: filters.max_price || null,
-      filter_free_trial: filters.free_trial_only || null,
-      filter_listing_type: filters.listing_type || null,
-      filter_search_text: query || null,
-      match_count: limit,
-      match_offset: offset,
-      match_threshold: 0.3,
-    }),
+  // Determine which entity types to search based on filter
+  const entityType = filters.entity_type || 'all';
+  const searchHumans = entityType === 'all' || entityType === 'humans';
+  const searchAITutors = entityType === 'all' || entityType === 'ai-tutors';
 
-    // --- Profiles hybrid search ---
-    supabase.rpc('search_profiles_hybrid', {
-      query_embedding: embeddingParam,
-      filter_subjects: filters.subjects?.length ? filters.subjects : null,
-      filter_levels: filters.levels?.length ? filters.levels : null,
-      filter_city: filters.location_city || null,
-      match_count: Math.min(limit, 10),
-      match_offset: 0,
-      match_threshold: 0.3,
-    }),
+  // Build search promises conditionally
+  const searchPromises = [];
 
-    // --- Organisations hybrid search ---
-    supabase.rpc('search_organisations_hybrid', {
-      query_embedding: embeddingParam,
-      filter_subjects: filters.subjects?.length ? filters.subjects : null,
-      filter_city: filters.location_city || null,
-      filter_category: filters.listing_type || null,
-      match_count: Math.min(limit, 5),
-      match_offset: 0,
-      match_threshold: 0.3,
-    }),
-  ]);
+  if (searchHumans) {
+    // Listings
+    searchPromises.push(
+      supabase.rpc('search_listings_hybrid', {
+        query_embedding: embeddingParam,
+        filter_subjects: filters.subjects?.length ? filters.subjects : null,
+        filter_levels: filters.levels?.length ? filters.levels : null,
+        filter_location_city: filters.location_city || null,
+        filter_delivery_modes: filters.delivery_modes?.length ? filters.delivery_modes : null,
+        filter_min_price: filters.min_price || null,
+        filter_max_price: filters.max_price || null,
+        filter_free_trial: filters.free_trial_only || null,
+        filter_listing_type: filters.listing_type || null,
+        filter_search_text: query || null,
+        match_count: limit,
+        match_offset: offset,
+        match_threshold: 0.3,
+      })
+    );
+    // Profiles
+    searchPromises.push(
+      supabase.rpc('search_profiles_hybrid', {
+        query_embedding: embeddingParam,
+        filter_subjects: filters.subjects?.length ? filters.subjects : null,
+        filter_levels: filters.levels?.length ? filters.levels : null,
+        filter_city: filters.location_city || null,
+        match_count: Math.min(limit, 10),
+        match_offset: 0,
+        match_threshold: 0.3,
+      })
+    );
+    // Organisations
+    searchPromises.push(
+      supabase.rpc('search_organisations_hybrid', {
+        query_embedding: embeddingParam,
+        filter_subjects: filters.subjects?.length ? filters.subjects : null,
+        filter_city: filters.location_city || null,
+        filter_category: filters.listing_type || null,
+        match_count: Math.min(limit, 5),
+        match_offset: 0,
+        match_threshold: 0.3,
+      })
+    );
+  } else {
+    // Push empty results if not searching humans
+    searchPromises.push(Promise.resolve({ data: [], error: null }));
+    searchPromises.push(Promise.resolve({ data: [], error: null }));
+    searchPromises.push(Promise.resolve({ data: [], error: null }));
+  }
+
+  if (searchAITutors) {
+    // AI Tutors
+    searchPromises.push(
+      supabase.rpc('search_ai_tutors_hybrid', {
+        query_embedding: embeddingParam,
+        filter_subjects: filters.subjects?.length ? filters.subjects : null,
+        filter_min_price: filters.min_price || null,
+        filter_max_price: filters.max_price || null,
+        filter_search_text: query || null,
+        match_count: Math.min(limit, 10),
+        match_offset: 0,
+        match_threshold: 0.3,
+      })
+    );
+  } else {
+    // Push empty result if not searching AI tutors
+    searchPromises.push(Promise.resolve({ data: [], error: null }));
+  }
+
+  const [listingsResult, profilesResult, organisationsResult, aiTutorsResult] = await Promise.all(searchPromises);
 
   if (listingsResult.error) {
     console.error('Listings hybrid search error:', listingsResult.error);
@@ -151,16 +189,21 @@ async function hybridSearch(
   if (organisationsResult.error) {
     console.error('Organisations hybrid search error:', organisationsResult.error);
   }
+  if (aiTutorsResult.error) {
+    console.error('AI Tutors hybrid search error:', aiTutorsResult.error);
+  }
 
   const listings = listingsResult.data || [];
   const profiles = profilesResult.data || [];
   const organisations = organisationsResult.data || [];
+  const aiTutors = aiTutorsResult.data || [];
 
   return {
     listings,
     profiles,
     organisations,
-    total: listings.length + profiles.length + organisations.length,
+    aiTutors,
+    total: listings.length + profiles.length + organisations.length + aiTutors.length,
   };
 }
 
@@ -170,6 +213,12 @@ async function hybridSearch(
 
 function parseFilters(searchParams: URLSearchParams): any {
   const filters: any = {};
+
+  // Entity type filter: 'all', 'humans', 'ai-tutors'
+  const entityType = searchParams.get('entity_type');
+  if (entityType) {
+    filters.entity_type = entityType;
+  }
 
   const category = searchParams.get('category') || searchParams.get('listing_type');
   if (category) {

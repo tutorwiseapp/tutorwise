@@ -1,10 +1,12 @@
 # AI Tutor Studio - Solution Design
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Date:** 2026-02-23
 **Author:** Tutorwise Product Team
-**Status:** Design Phase
+**Status:** Implementation Phase (85% complete)
 **Feature Name:** AI Tutor Studio (Studio)
+
+> **Implementation Update (2026-02-23):** Phase 1 MVP is 85% complete. Builder form implemented as single-page (not wizard). See [implementation-status-update.md](./implementation-status-update.md) for current status and remaining tasks.
 
 ---
 
@@ -2358,22 +2360,27 @@ if (price_per_hour < 5.00) {
 
 **Goal:** Validate demand with 10 top tutors
 
+**Status Update (2026-02-23):**
+- **Progress:** 85% complete
+- **ETA to Beta:** 4-5 days
+- See [implementation-status-update.md](./implementation-status-update.md) for detailed status
+
 **Scope:**
-- ✅ AI Tutor Builder (basic 4-step flow)
-- ✅ **AI Tutor Templates** (GCSE Maths, A-Level Physics, English Essay, Homework Helper)
+- ✅ AI Tutor Builder (single-page form - COMPLETE, not wizard)
+- 🟡 **AI Tutor Templates** (API ready, needs template data)
 - ✅ Material upload (PDF, DOCX, PPTX - 1GB limit per AI tutor)
 - ✅ **URL link support** (YouTube, Google Docs, webpages - max 20 links per AI tutor)
 - ✅ Pre-defined skills library (no custom skills in MVP)
 - ✅ Stripe subscription (£10/month per AI tutor)
-- ✅ Marketplace listings (AI tutors appear in search results)
-- ✅ Chat-based sessions (reuse Sage UI)
+- 🟡 Marketplace listings (API ready, UI filters pending)
+- 🔴 Chat-based sessions (API ready, client UI pending)
 - ✅ RAG pipeline (Gemini + pgvector)
 - ✅ **Sage fallback system** (AI uses Sage knowledge when materials insufficient)
 - ✅ Material priority (uploaded files > URL links > Sage knowledge)
 - ✅ Reviews (5-star system, same as human tutors)
 - ✅ Refund/dispute (reuse human tutor policies - 24h window)
 - ✅ Anonymized owner transcripts (privacy-first design)
-- ✅ **Graduated AI tutor limits** (1-50 AI tutors based on CaaS score)
+- 🟡 **Graduated AI tutor limits** (Database ready, enforcement pending)
 
 **Success Criteria:**
 - 5/10 tutors create AI tutors
