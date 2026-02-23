@@ -10,18 +10,33 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { checkCreationLimit } from '@/lib/ai-tutors/manager';
+import {
+  getLimitTierForScore,
+  getNextTier,
+  getRemainingSlots,
+  canCreateAITutor,
+  getUpgradeSuggestions,
+} from '@/lib/ai-tutors/limits';
 
 /**
  * GET /api/ai-tutors/limits
- * Get AI tutor creation limits for current user
+ * Get AI tutor creation limits for current user with tier information
  *
  * Returns:
  * {
- *   allowed: boolean (can create more AI tutors)
- *   current: number (current AI tutor count)
- *   limit: number (maximum allowed)
- *   caas_score: number (user's CaaS score)
+ *   allowed: boolean
+ *   current: number
+ *   limit: number
+ *   remaining: number
+ *   caas_score: number
+ *   tier: {
+ *     tierName: string
+ *     tierColor: string
+ *     maxAITutors: number
+ *     description: string
+ *   }
+ *   nextTier: { ... } | null
+ *   upgradeSuggestions: string[]
  * }
  */
 export async function GET(_request: NextRequest) {
@@ -38,10 +53,65 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get limits
-    const limits = await checkCreationLimit(user.id);
+    // Get user's CaaS score
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('caas_score')
+      .eq('id', user.id)
+      .single();
 
-    return NextResponse.json(limits, { status: 200 });
+    const caasScore = profile?.caas_score ?? 0;
+
+    // Get current AI tutor count
+    const { count: currentCount, error: countError } = await supabase
+      .from('ai_tutors')
+      .select('*', { count: 'exact', head: true })
+      .eq('owner_id', user.id);
+
+    if (countError) {
+      console.error('Error counting AI tutors:', countError);
+      return NextResponse.json(
+        { error: 'Failed to check AI tutor limits' },
+        { status: 500 }
+      );
+    }
+
+    const current = currentCount || 0;
+    const tier = getLimitTierForScore(caasScore);
+    const nextTier = getNextTier(tier);
+    const remaining = getRemainingSlots(caasScore, current);
+    const allowed = canCreateAITutor(caasScore, current);
+    const upgradeSuggestions = getUpgradeSuggestions(caasScore);
+
+    return NextResponse.json(
+      {
+        allowed,
+        current,
+        limit: tier.maxAITutors,
+        remaining,
+        caasScore,
+        tier: {
+          tierName: tier.tierName,
+          tierColor: tier.tierColor,
+          minScore: tier.minScore,
+          maxScore: tier.maxScore,
+          maxAITutors: tier.maxAITutors,
+          description: tier.description,
+        },
+        nextTier: nextTier
+          ? {
+              tierName: nextTier.tierName,
+              tierColor: nextTier.tierColor,
+              minScore: nextTier.minScore,
+              maxScore: nextTier.maxScore,
+              maxAITutors: nextTier.maxAITutors,
+              description: nextTier.description,
+            }
+          : null,
+        upgradeSuggestions,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error checking AI tutor limits:', error);
     return NextResponse.json(

@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createAITutor, listUserAITutors } from '@/lib/ai-tutors/manager';
+import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-tutors/limits';
 
 /**
  * GET /api/ai-tutors
@@ -113,6 +114,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: `Invalid subject. Must be one of: ${validSubjects.join(', ')}` },
         { status: 400 }
+      );
+    }
+
+    // Check CaaS-based limits
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('caas_score')
+      .eq('id', user.id)
+      .single();
+
+    const caasScore = profile?.caas_score ?? 0;
+
+    // Get current AI tutor count
+    const { count: currentCount, error: countError } = await supabase
+      .from('ai_tutors')
+      .select('*', { count: 'exact', head: true })
+      .eq('owner_id', user.id);
+
+    if (countError) {
+      console.error('Error counting AI tutors:', countError);
+      return NextResponse.json(
+        { error: 'Failed to check AI tutor limits' },
+        { status: 500 }
+      );
+    }
+
+    // Check if user can create another AI tutor
+    if (!canCreateAITutor(caasScore, currentCount || 0)) {
+      const tier = getLimitTierForScore(caasScore);
+      return NextResponse.json(
+        {
+          error: `AI Tutor limit reached. Your current tier (${tier.tierName}) allows ${tier.maxAITutors} AI tutor${tier.maxAITutors !== 1 ? 's' : ''}. Increase your CaaS score to unlock more slots.`,
+          currentTier: tier.tierName,
+          maxAITutors: tier.maxAITutors,
+          currentCount: currentCount || 0,
+          caasScore,
+        },
+        { status: 403 }
       );
     }
 
