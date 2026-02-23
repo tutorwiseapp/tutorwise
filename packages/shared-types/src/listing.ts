@@ -417,6 +417,7 @@ export interface UpdateListingInput extends Partial<CreateListingInput> {
 }
 
 export interface ListingFilters {
+  entity_type?: 'all' | 'humans' | 'ai-tutors'; // Filter by entity type (humans vs AI tutors)
   listing_category?: ListingCategory; // v5.0: Filter by category
   subjects?: string[];
   levels?: string[];

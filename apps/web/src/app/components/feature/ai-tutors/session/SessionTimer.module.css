@@ -1,0 +1,52 @@
+/**
+ * Session Timer Styles
+ */
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.timerWarning {
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.timerWarning .timerIcon,
+.timerWarning .timerText {
+  color: #92400e;
+}
+
+.timerCritical {
+  background: #fee2e2;
+  border-color: #fecaca;
+  animation: pulse 1s infinite;
+}
+
+.timerCritical .timerIcon,
+.timerCritical .timerText {
+  color: #991b1b;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.timerIcon {
+  color: #0d9488;
+}
+
+.timerText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f766e;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5rem;
+}

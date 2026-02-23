@@ -62,17 +62,18 @@ export default function HomePage() {
 
   // Combine data based on search state
   let allItems = hasSearched && searchData
-    ? toMarketplaceItems(searchData.profiles || [], searchData.listings, searchData.organisations || [])
+    ? toMarketplaceItems(searchData.profiles || [], searchData.listings, searchData.organisations || [], searchData.aiTutors || [])
     : featuredData
-    ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [])
+    ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [], featuredData.aiTutors || [])
     : [];
 
-  // Filter by marketplace type (tutors/organisations/all)
+  // Filter by marketplace type (tutors/organisations/ai-tutors/all)
   const marketplaceType = searchFilters.marketplace_type || 'all';
   const items = allItems.filter(item => {
     if (marketplaceType === 'all') return true;
     if (marketplaceType === 'tutors') return item.type === 'profile' || item.type === 'listing';
     if (marketplaceType === 'organisations') return item.type === 'organisation';
+    if (marketplaceType === 'ai-tutors') return item.type === 'ai_tutor';
     return true;
   });
 

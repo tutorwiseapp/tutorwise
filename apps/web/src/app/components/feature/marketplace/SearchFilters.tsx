@@ -84,6 +84,10 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
     });
   };
 
+  const handleEntityTypeChange = (entityType: string) => {
+    onFilterChange({ ...filters, entity_type: entityType as any });
+  };
+
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -104,6 +108,46 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
             Go
           </Button>
         </form>
+      </div>
+
+      {/* Entity Type Filter */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tutor Type</label>
+        <div className="space-y-2">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              name="entity_type"
+              value="all"
+              checked={!filters.entity_type || filters.entity_type === 'all'}
+              onChange={() => handleEntityTypeChange('all')}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-700">All Tutors</span>
+          </label>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              name="entity_type"
+              value="humans"
+              checked={filters.entity_type === 'humans'}
+              onChange={() => handleEntityTypeChange('humans')}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-700">👨‍🏫 Human Tutors</span>
+          </label>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              name="entity_type"
+              value="ai-tutors"
+              checked={filters.entity_type === 'ai-tutors'}
+              onChange={() => handleEntityTypeChange('ai-tutors')}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-700">🤖 AI Tutors</span>
+          </label>
+        </div>
       </div>
 
       {/* Subjects */}

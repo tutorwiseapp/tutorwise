@@ -92,14 +92,21 @@ export default function AITutorBuilderForm({
     const id = String(templateId);
     setFormData((prev) => ({ ...prev, template_id: id || null }));
 
-    // Apply template skills
+    // Apply template data
     if (id && templates) {
       const template = templates.find((t: any) => t.id === id);
       if (template) {
-        setFormData((prev) => ({ ...prev, skills: template.skills }));
+        setFormData((prev) => ({
+          ...prev,
+          skills: template.skills,
+          subject: template.subject || prev.subject,
+          display_name: template.displayName || prev.display_name,
+          description: template.tutorDescription || prev.description,
+          price_per_hour: template.suggestedPrice || prev.price_per_hour,
+        }));
       }
     } else {
-      // Custom template - clear skills
+      // Custom template - clear skills only
       setFormData((prev) => ({ ...prev, skills: [] }));
     }
   };

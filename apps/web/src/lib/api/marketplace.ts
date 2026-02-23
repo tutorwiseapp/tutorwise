@@ -5,13 +5,14 @@
  */
 
 import type { Listing } from '@tutorwise/shared-types';
-import type { MarketplaceItem, OrganisationProfile } from '@/types/marketplace';
+import type { MarketplaceItem, OrganisationProfile, AITutorProfile } from '@/types/marketplace';
 import type { SearchFilters } from '@/lib/services/savedSearches';
 
 export interface FeaturedItemsResponse {
   profiles: any[];
   listings: Listing[];
   organisations: OrganisationProfile[];
+  aiTutors: AITutorProfile[];
   total: number;
 }
 
@@ -19,6 +20,7 @@ export interface SearchResponse {
   listings: Listing[];
   profiles: any[];
   organisations: OrganisationProfile[];
+  aiTutors: AITutorProfile[];
   total: number;
 }
 
@@ -28,10 +30,10 @@ export interface ProfilesResponse {
 }
 
 /**
- * Fetch featured tutors, listings, and organisations
+ * Fetch featured tutors, listings, organisations, and AI tutors
  */
 export async function getFeaturedItems(limit = 10, offset = 0): Promise<FeaturedItemsResponse> {
-  const [profilesRes, listingsRes, organisationsRes] = await Promise.all([
+  const [profilesRes, listingsRes, organisationsRes, aiTutorsRes] = await Promise.all([
     fetch(`/api/marketplace/profiles?limit=${limit}&offset=${offset}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
@@ -44,34 +46,43 @@ export async function getFeaturedItems(limit = 10, offset = 0): Promise<Featured
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
+    fetch(`/api/marketplace/ai-tutors?limit=${Math.floor(limit / 2)}&offset=${offset}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
   ]);
 
-  if (!profilesRes.ok || !listingsRes.ok || !organisationsRes.ok) {
+  if (!profilesRes.ok || !listingsRes.ok || !organisationsRes.ok || !aiTutorsRes.ok) {
     throw new Error('Failed to fetch featured items');
   }
 
   const profilesData = await profilesRes.json();
   const listingsData = await listingsRes.json();
   const organisationsData = await organisationsRes.json();
+  const aiTutorsData = await aiTutorsRes.json();
 
   return {
     profiles: profilesData.profiles || [],
     listings: listingsData.listings || [],
     organisations: organisationsData.organisations || [],
-    total: (profilesData.total || 0) + (listingsData.total || 0) + (organisationsData.total || 0),
+    aiTutors: aiTutorsData.aiTutors || [],
+    total: (profilesData.total || 0) + (listingsData.total || 0) + (organisationsData.total || 0) + (aiTutorsData.total || 0),
   };
 }
 
 /**
- * Search marketplace with filters (listings + profiles + organisations).
+ * Search marketplace with filters (listings + profiles + organisations + AI tutors).
  * When a `query` is present, the search API uses hybrid semantic search
- * and returns all three entity types in a single request.
+ * and returns all entity types in a single request.
  */
-export async function searchMarketplace(filters: SearchFilters & { query?: string }): Promise<SearchResponse> {
+export async function searchMarketplace(filters: SearchFilters & { query?: string; entity_type?: string }): Promise<SearchResponse> {
   const params = new URLSearchParams();
 
   if (filters.query) {
     params.append('query', filters.query);
+  }
+  if (filters.entity_type) {
+    params.append('entity_type', filters.entity_type);
   }
   if (filters.subjects) {
     params.append('subjects', filters.subjects.join(','));
@@ -92,7 +103,7 @@ export async function searchMarketplace(filters: SearchFilters & { query?: strin
     params.append('max_price', filters.max_price.toString());
   }
 
-  // When query is present, the search API returns listings + profiles + organisations
+  // When query is present, the search API returns listings + profiles + organisations + AI tutors
   if (filters.query) {
     const res = await fetch(`/api/marketplace/search?${params.toString()}`, {
       cache: 'no-store',
@@ -106,12 +117,13 @@ export async function searchMarketplace(filters: SearchFilters & { query?: strin
       listings: data.listings || [],
       profiles: data.profiles || [],
       organisations: data.organisations || [],
+      aiTutors: data.aiTutors || [],
       total: data.total || 0,
     };
   }
 
-  // Structured-only: fetch listings and organisations separately (backward compatible)
-  const [listingsRes, organisationsRes] = await Promise.all([
+  // Structured-only: fetch listings, organisations, and AI tutors separately (backward compatible)
+  const [listingsRes, organisationsRes, aiTutorsRes] = await Promise.all([
     fetch(`/api/marketplace/search?${params.toString()}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
@@ -120,20 +132,26 @@ export async function searchMarketplace(filters: SearchFilters & { query?: strin
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
+    fetch(`/api/marketplace/ai-tutors?${params.toString()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    }),
   ]);
 
-  if (!listingsRes.ok || !organisationsRes.ok) {
+  if (!listingsRes.ok || !organisationsRes.ok || !aiTutorsRes.ok) {
     throw new Error('Failed to search marketplace');
   }
 
   const listingsData = await listingsRes.json();
   const organisationsData = await organisationsRes.json();
+  const aiTutorsData = await aiTutorsRes.json();
 
   return {
     listings: listingsData.listings || [],
     profiles: [],
     organisations: organisationsData.organisations || [],
-    total: (listingsData.total || 0) + (organisationsData.total || 0),
+    aiTutors: aiTutorsData.aiTutors || [],
+    total: (listingsData.total || 0) + (organisationsData.total || 0) + (aiTutorsData.total || 0),
   };
 }
 
@@ -208,7 +226,12 @@ export async function searchMarketplaceWithPagination(
 /**
  * Helper function to convert API responses to MarketplaceItem[]
  */
-export function toMarketplaceItems(profiles: any[], listings: Listing[], organisations: OrganisationProfile[] = []): MarketplaceItem[] {
+export function toMarketplaceItems(
+  profiles: any[],
+  listings: Listing[],
+  organisations: OrganisationProfile[] = [],
+  aiTutors: AITutorProfile[] = []
+): MarketplaceItem[] {
   const profileItems: MarketplaceItem[] = profiles.map((profile) => ({
     type: 'profile' as const,
     data: profile,
@@ -224,11 +247,17 @@ export function toMarketplaceItems(profiles: any[], listings: Listing[], organis
     data: org,
   }));
 
-  // Interleave listings, profiles, and organisations (listings first, then profiles, then orgs)
+  const aiTutorItems: MarketplaceItem[] = aiTutors.map((aiTutor) => ({
+    type: 'ai_tutor' as const,
+    data: aiTutor,
+  }));
+
+  // Interleave listings, AI tutors, profiles, and organisations
   const merged: MarketplaceItem[] = [];
-  const maxLength = Math.max(profileItems.length, listingItems.length, organisationItems.length);
+  const maxLength = Math.max(profileItems.length, listingItems.length, organisationItems.length, aiTutorItems.length);
   for (let i = 0; i < maxLength; i++) {
     if (i < listingItems.length) merged.push(listingItems[i]);
+    if (i < aiTutorItems.length) merged.push(aiTutorItems[i]);
     if (i < profileItems.length) merged.push(profileItems[i]);
     if (i < organisationItems.length) merged.push(organisationItems[i]);
   }

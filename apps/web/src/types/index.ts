@@ -468,6 +468,7 @@ export interface Listing {
 
 export interface ListingFilters {
   search?: string;
+  entity_type?: 'all' | 'humans' | 'ai-tutors'; // Filter by entity type
   subjects?: string[];
   levels?: string[];
   min_price?: number;
