@@ -1,0 +1,204 @@
+.container {
+  max-width: 900px;
+}
+
+.section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--background-card, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+}
+
+.section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+/* Subscription */
+.subscriptionActive {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subscriptionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statusBadge {
+  padding: 0.5rem 1rem;
+  background: var(--success-background, #e8f5e9);
+  color: var(--success-color, #2e7d32);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.subscriptionDetails p {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}
+
+.canceling {
+  color: var(--error-color, #dc2626) !important;
+  font-weight: 500;
+}
+
+.subscriptionInactive {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pricingCard {
+  padding: 1.5rem;
+  background: var(--background-secondary, #f5f5f5);
+  border-radius: 8px;
+}
+
+.pricingCard h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.pricingAmount {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color, #006c67);
+}
+
+.period {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.features li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}
+
+.features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success-color, #10b981);
+  font-weight: 600;
+}
+
+.publishPrompt {
+  padding: 1rem;
+  background: var(--info-background, #e3f2fd);
+  border-left: 4px solid var(--info-color, #2196f3);
+  border-radius: 6px;
+}
+
+.publishPrompt p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+/* Info Grid */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}
+
+.infoValue {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  text-transform: capitalize;
+}
+
+.description h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.description p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary, #666);
+}
+
+/* Next Steps */
+.nextSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary-color, #006c67);
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stepContent h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.stepContent p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}

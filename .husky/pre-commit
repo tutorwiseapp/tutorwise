@@ -1,3 +1,6 @@
+# Set PATH to include node
+export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
+
 # CRITICAL: Check for protected file violations
 echo "🛡️  Checking critical files protection..."
 node tools/change-management/critical-files-protection.js validate-commit || exit 1

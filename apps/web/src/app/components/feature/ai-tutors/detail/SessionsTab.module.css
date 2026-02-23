@@ -1,0 +1,158 @@
+.container {
+  max-width: 900px;
+}
+
+.section {
+  padding: 1.5rem;
+  background: var(--background-card, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+}
+
+.section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  padding: 1.5rem;
+  background: var(--background-card, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 0.5rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #1a1a1a);
+}
+
+/* Sessions List */
+.sessionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sessionItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-secondary, #f5f5f5);
+  border-radius: 6px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.sessionItem:hover {
+  background: var(--border-color, #e0e0e0);
+}
+
+.sessionInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.sessionDate {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.sessionMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  flex-wrap: wrap;
+}
+
+.sessionMeta span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusBadge.active {
+  background: var(--success-background, #e8f5e9);
+  color: var(--success-color, #2e7d32);
+}
+
+.statusBadge.completed {
+  background: var(--info-background, #e3f2fd);
+  color: var(--info-color, #1976d2);
+}
+
+.statusBadge.disputed {
+  background: var(--warning-background, #fff4e5);
+  color: var(--warning-color, #f57c00);
+}
+
+.statusBadge.refunded {
+  background: var(--error-background, #ffebee);
+  color: var(--error-color, #c62828);
+}
+
+.viewButton {
+  padding: 0.5rem 1rem;
+  background: var(--primary-color, #006c67);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.viewButton:hover {
+  background: var(--primary-dark, #005550);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #666);
+}
+
+.emptyState p {
+  margin: 0.5rem 0;
+}
+
+/* Rating Display */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.stars {
+  color: var(--warning-color, #f57c00);
+}

@@ -41,11 +41,29 @@ export interface OrganisationProfile {
   total_reviews?: number;
 }
 
-export type MarketplaceItemType = 'profile' | 'listing' | 'organisation';
+export interface AITutorProfile {
+  id: string;
+  name: string; // URL slug
+  display_name: string;
+  description?: string;
+  avatar_url?: string;
+  subject: string;
+  skills?: string[];
+  price_per_hour: number;
+  currency?: string;
+  status: string;
+  avg_rating?: number;
+  total_reviews?: number;
+  total_sessions?: number;
+  owner_name?: string; // Name of tutor who created it
+  owner_avatar?: string;
+}
+
+export type MarketplaceItemType = 'profile' | 'listing' | 'organisation' | 'ai_tutor';
 
 export interface MarketplaceItem {
   type: MarketplaceItemType;
-  data: TutorProfile | Listing | OrganisationProfile;
+  data: TutorProfile | Listing | OrganisationProfile | AITutorProfile;
 }
 
 // Type guards
@@ -59,4 +77,8 @@ export function isListing(item: MarketplaceItem): item is MarketplaceItem & { da
 
 export function isOrganisation(item: MarketplaceItem): item is MarketplaceItem & { data: OrganisationProfile } {
   return item.type === 'organisation';
+}
+
+export function isAITutor(item: MarketplaceItem): item is MarketplaceItem & { data: AITutorProfile } {
+  return item.type === 'ai_tutor';
 }
