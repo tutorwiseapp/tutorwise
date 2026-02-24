@@ -62,34 +62,34 @@
 
 /* --- Variants --- */
 .primary {
-  background-color: #2c7a7b;
+  background-color: #006C67; /* Primary Default - design system */
   color: white;
-  border-color: #2c7a7b;
+  border-color: #006C67;
 }
 .primary:hover:not(:disabled) {
-  background-color: #4CAEAD !important;
-  border-color: #4CAEAD !important;
+  background-color: #005550 !important; /* Primary Hover - design system */
+  border-color: #005550 !important;
 }
 
 .secondary {
   background-color: #ffffff;
-  color: #2c7a7b;
-  border-color: #2c7a7b;
+  color: #006C67; /* Primary Default - design system */
+  border-color: #006C67;
 }
 .secondary:hover:not(:disabled) {
-  background-color: #f0fdfa;
+  background-color: #E6F0F0; /* Primary Light - design system */
 }
 
 .link {
   background-color: transparent;
-  color: #2c7a7b;
+  color: #006C67; /* Primary Default - design system */
   border: none;
   padding: 0;
   text-decoration: underline;
   justify-content: flex-start;
 }
 .link:hover {
-  color: #286a69;
+  color: #005550; /* Primary Hover - design system */
 }
 
 .google {
@@ -116,11 +116,11 @@
 
 .outline {
   background-color: transparent;
-  color: #2c7a7b;
-  border: 1px solid #2c7a7b;
+  color: #006C67; /* Primary Default - design system */
+  border: 1px solid #006C67;
 }
 .outline:hover:not(:disabled) {
-  background-color: #4CAEAD;
+  background-color: #006C67; /* Primary Default - design system */
   color: white;
 }
 

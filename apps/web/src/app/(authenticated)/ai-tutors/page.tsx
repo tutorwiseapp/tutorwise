@@ -22,6 +22,7 @@ import AITutorStatsWidget from '@/app/components/feature/ai-tutors/AITutorStatsW
 import AITutorLimitsWidget from '@/app/components/feature/ai-tutors/AITutorLimitsWidget';
 import AITutorHelpWidget from '@/app/components/feature/ai-tutors/AITutorHelpWidget';
 import AITutorTipsWidget from '@/app/components/feature/ai-tutors/AITutorTipsWidget';
+import AITutorCard from './AITutorCard';
 import toast from 'react-hot-toast';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
@@ -91,6 +92,35 @@ export default function AITutorsPage() {
     onError: () => toast.error('Failed to delete AI tutor'),
   });
 
+  const publishMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/ai-tutors/${id}/publish`, { method: 'POST' });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to publish');
+      }
+    },
+    onSuccess: () => {
+      toast.success('AI tutor published successfully!');
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors'] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const unpublishMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/ai-tutors/${id}/unpublish`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to unpublish');
+    },
+    onSuccess: () => {
+      toast.success('AI tutor unpublished');
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors'] });
+    },
+    onError: () => toast.error('Failed to unpublish AI tutor'),
+  });
+
   const tabCounts = useMemo(() => ({
     all: aiTutors.length,
     published: aiTutors.filter(t => t.status === 'published').length,
@@ -137,8 +167,32 @@ export default function AITutorsPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm('Are you sure you want to delete this AI tutor? This action cannot be undone.')) return;
     deleteMutation.mutate(id);
+  };
+
+  const handlePublish = async (id: string) => {
+    // Check if AI tutor has subscription
+    const tutor = aiTutors.find(t => t.id === id);
+    if (!tutor) return;
+
+    if (tutor.subscription_status !== 'active') {
+      // Redirect to subscription checkout
+      try {
+        const res = await fetch(`/api/ai-tutors/${id}/subscription`, { method: 'POST' });
+        if (!res.ok) throw new Error('Failed to create checkout session');
+        const { url } = await res.json();
+        window.location.href = url;
+      } catch (error) {
+        toast.error('Failed to start subscription checkout');
+      }
+    } else {
+      // Already has subscription, just publish
+      publishMutation.mutate(id);
+    }
+  };
+
+  const handleUnpublish = (id: string) => {
+    unpublishMutation.mutate(id);
   };
 
   if (userLoading || roleLoading) {
@@ -264,46 +318,13 @@ export default function AITutorsPage() {
       {paginatedTutors.length > 0 && (
         <div className={styles.tutorsList}>
           {paginatedTutors.map((tutor) => (
-            <div
+            <AITutorCard
               key={tutor.id}
-              className={styles.tutorCard}
-              onClick={() => router.push(`/ai-tutors/${tutor.id}`)}
-            >
-              <div className={styles.tutorHeader}>
-                <h3 className={styles.tutorName}>{tutor.display_name}</h3>
-                <div className={styles.badges}>
-                  <span className={`${styles.badge} ${styles[`badge-${tutor.status}`]}`}>
-                    {tutor.status}
-                  </span>
-                  <span className={`${styles.badge} ${styles[`badge-${tutor.subscription_status}`]}`}>
-                    {tutor.subscription_status}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.tutorMeta}>
-                <span>{tutor.subject}</span>
-                <span>£{tutor.price_per_hour}/hr</span>
-                <span>{tutor.total_sessions ?? 0} sessions</span>
-                <span>£{(tutor.total_revenue ?? 0).toFixed(2)} revenue</span>
-                {tutor.avg_rating && <span>{tutor.avg_rating.toFixed(1)} rating</span>}
-              </div>
-              <div className={styles.tutorActions}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); router.push(`/ai-tutors/${tutor.id}`); }}
-                >
-                  Manage
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); handleDelete(tutor.id); }}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
+              aiTutor={tutor}
+              onDelete={handleDelete}
+              onPublish={handlePublish}
+              onUnpublish={handleUnpublish}
+            />
           ))}
         </div>
       )}

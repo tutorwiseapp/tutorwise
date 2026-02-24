@@ -76,9 +76,27 @@ export default function NewAITutorPage() {
       toast.success('AI tutor created successfully!');
 
       if (shouldPublish) {
-        router.push(`/ai-tutors/${aiTutor.id}?tab=overview&publish=true`);
+        // Redirect to subscription checkout for publishing
+        try {
+          const subResponse = await fetch(`/api/ai-tutors/${aiTutor.id}/subscription`, {
+            method: 'POST',
+          });
+
+          if (!subResponse.ok) {
+            throw new Error('Failed to create subscription checkout');
+          }
+
+          const { url } = await subResponse.json();
+          toast.loading('Redirecting to payment...');
+          window.location.href = url; // Redirect to Stripe Checkout
+        } catch (subError) {
+          console.error('Subscription error:', subError);
+          toast.error('Failed to start subscription. Redirecting to AI Tutor list...');
+          router.push('/ai-tutors');
+        }
       } else {
-        router.push(`/ai-tutors/${aiTutor.id}`);
+        // Save as draft - redirect to hub list (matches listings pattern)
+        router.push('/ai-tutors');
       }
     } catch (error) {
       console.error('Error creating AI tutor:', error);
