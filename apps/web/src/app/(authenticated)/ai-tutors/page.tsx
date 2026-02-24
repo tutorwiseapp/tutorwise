@@ -23,13 +23,14 @@ import AITutorLimitsWidget from '@/app/components/feature/ai-tutors/AITutorLimit
 import AITutorHelpWidget from '@/app/components/feature/ai-tutors/AITutorHelpWidget';
 import AITutorTipsWidget from '@/app/components/feature/ai-tutors/AITutorTipsWidget';
 import AITutorCard from './AITutorCard';
+import AITutorSkeleton from './AITutorSkeleton';
 import toast from 'react-hot-toast';
 import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'published' | 'draft' | 'unpublished';
-type SortType = 'newest' | 'oldest' | 'revenue-high' | 'sessions-high';
+type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'revenue-high' | 'sessions-high';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -60,38 +61,65 @@ export default function AITutorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
+  // React Query: Fetch AI tutors with automatic retry, caching, and background refetch
   const {
     data: aiTutors = [],
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery<AITutor[]>({
-    queryKey: ['ai-tutors'],
+    queryKey: ['ai-tutors', profile?.id],
     queryFn: async () => {
       const res = await fetch('/api/ai-tutors');
       if (!res.ok) throw new Error('Failed to fetch AI tutors');
       return res.json();
     },
-    enabled: !!profile?.id,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    placeholderData: keepPreviousData,
-    refetchOnMount: 'always',
+    enabled: !!profile?.id, // Wait for profile to load before fetching
+    staleTime: 3 * 60 * 1000, // 3 minutes (AI tutors change frequently with sessions)
+    gcTime: 6 * 60 * 1000, // 6 minutes
+    placeholderData: keepPreviousData, // Show cached data instantly while refetching
+    refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
     retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
   });
 
+  // Delete mutation with optimistic updates
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`/api/ai-tutors/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
     },
-    onSuccess: () => {
-      toast.success('AI tutor deleted');
-      queryClient.invalidateQueries({ queryKey: ['ai-tutors'] });
+    onMutate: async (id) => {
+      // Cancel outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ['ai-tutors', profile?.id] });
+
+      // Snapshot current value for rollback
+      const previousTutors = queryClient.getQueryData(['ai-tutors', profile?.id]);
+
+      // Optimistically update cache
+      queryClient.setQueryData(['ai-tutors', profile?.id], (old: AITutor[] = []) =>
+        old.filter((t) => t.id !== id)
+      );
+
+      return { previousTutors };
     },
-    onError: () => toast.error('Failed to delete AI tutor'),
+    onError: (_err, _id, context) => {
+      // Rollback on error
+      queryClient.setQueryData(['ai-tutors', profile?.id], context?.previousTutors);
+      toast.error('Failed to delete AI tutor');
+    },
+    onSuccess: () => {
+      toast.success('AI tutor deleted successfully');
+    },
+    onSettled: () => {
+      // Always refetch to ensure sync with server
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors', profile?.id] });
+    },
   });
 
+  // Publish mutation
   const publishMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`/api/ai-tutors/${id}/publish`, { method: 'POST' });
@@ -102,13 +130,16 @@ export default function AITutorsPage() {
     },
     onSuccess: () => {
       toast.success('AI tutor published successfully!');
-      queryClient.invalidateQueries({ queryKey: ['ai-tutors'] });
     },
     onError: (error: Error) => {
       toast.error(error.message);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors', profile?.id] });
+    },
   });
 
+  // Unpublish mutation
   const unpublishMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`/api/ai-tutors/${id}/unpublish`, { method: 'POST' });
@@ -116,9 +147,13 @@ export default function AITutorsPage() {
     },
     onSuccess: () => {
       toast.success('AI tutor unpublished');
-      queryClient.invalidateQueries({ queryKey: ['ai-tutors'] });
     },
-    onError: () => toast.error('Failed to unpublish AI tutor'),
+    onError: () => {
+      toast.error('Failed to unpublish AI tutor');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors', profile?.id] });
+    },
   });
 
   const tabCounts = useMemo(() => ({
@@ -128,26 +163,43 @@ export default function AITutorsPage() {
     unpublished: aiTutors.filter(t => t.status === 'unpublished').length,
   }), [aiTutors]);
 
+  // Filter AI tutors based on tab, search (comprehensive search across all relevant fields)
   const filteredTutors = useMemo(() => {
     let result = aiTutors;
     if (filter !== 'all') {
       result = result.filter(t => t.status === filter);
     }
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(t =>
-        t.display_name.toLowerCase().includes(q) ||
-        t.subject.toLowerCase().includes(q)
-      );
+      const query = searchQuery.toLowerCase();
+      result = result.filter(t => {
+        const displayName = t.display_name?.toLowerCase() || '';
+        const subject = t.subject?.toLowerCase() || '';
+        const status = t.status?.toLowerCase() || '';
+        const subscriptionStatus = t.subscription_status?.toLowerCase() || '';
+        const price = `£${t.price_per_hour}`;
+        const sessions = `${t.total_sessions || 0}`;
+        const revenue = `£${(t.total_revenue || 0).toFixed(2)}`;
+
+        return displayName.includes(query) ||
+               subject.includes(query) ||
+               status.includes(query) ||
+               subscriptionStatus.includes(query) ||
+               price.includes(query) ||
+               sessions.includes(query) ||
+               revenue.includes(query);
+      });
     }
     return result;
   }, [aiTutors, filter, searchQuery]);
 
+  // Sort AI tutors
   const sortedTutors = useMemo(() => {
     const sorted = [...filteredTutors];
     switch (sortBy) {
       case 'newest': return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       case 'oldest': return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      case 'price-high': return sorted.sort((a, b) => (b.price_per_hour || 0) - (a.price_per_hour || 0));
+      case 'price-low': return sorted.sort((a, b) => (a.price_per_hour || 0) - (b.price_per_hour || 0));
       case 'revenue-high': return sorted.sort((a, b) => (b.total_revenue || 0) - (a.total_revenue || 0));
       case 'sessions-high': return sorted.sort((a, b) => (b.total_sessions || 0) - (a.total_sessions || 0));
       default: return sorted;
@@ -195,13 +247,76 @@ export default function AITutorsPage() {
     unpublishMutation.mutate(id);
   };
 
+  const handleEdit = (id: string) => {
+    router.push(`/ai-tutors/${id}/edit`);
+  };
+
+  const handleArchive = (_id: string) => {
+    // TODO: Implement archive mutation
+    toast('Archive functionality coming soon', { icon: 'ℹ️' });
+  };
+
+  // Export AI tutors to CSV
+  const handleExportCSV = () => {
+    const headers = ['Name', 'Subject', 'Status', 'Subscription', 'Price/Hour', 'Sessions', 'Revenue', 'Rating', 'Created'];
+    const rows = aiTutors.map(t => [
+      t.display_name,
+      t.subject,
+      t.status,
+      t.subscription_status,
+      `£${t.price_per_hour}`,
+      t.total_sessions || 0,
+      `£${(t.total_revenue || 0).toFixed(2)}`,
+      t.avg_rating ? `${t.avg_rating.toFixed(1)}/5 (${t.total_reviews})` : 'No reviews',
+      new Date(t.created_at).toLocaleDateString(),
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ai-tutors-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('AI tutors exported to CSV');
+    setShowActionsMenu(false);
+  };
+
   if (userLoading || roleLoading) {
     return (
       <HubPageLayout
         header={<HubHeader title="AI Tutor Studio" />}
-        sidebar={<HubSidebar><div style={{ height: 200 }} /></HubSidebar>}
+        sidebar={
+          <HubSidebar>
+            <div style={{ padding: '1rem' }}>
+              <div style={{ height: 120, background: '#f3f4f6', borderRadius: '8px', marginBottom: '1rem' }} />
+              <div style={{ height: 100, background: '#f3f4f6', borderRadius: '8px', marginBottom: '1rem' }} />
+              <div style={{ height: 80, background: '#f3f4f6', borderRadius: '8px' }} />
+            </div>
+          </HubSidebar>
+        }
+        tabs={
+          <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ width: 100, height: 32, background: '#f3f4f6', borderRadius: '8px' }} />
+              ))}
+            </div>
+          </div>
+        }
       >
-        <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+        <div style={{ padding: '1rem' }}>
+          {[1, 2, 3, 4].map(i => (
+            <AITutorSkeleton key={i} />
+          ))}
+        </div>
       </HubPageLayout>
     );
   }
@@ -244,6 +359,8 @@ export default function AITutorsPage() {
                 options={[
                   { value: 'newest', label: 'Newest First' },
                   { value: 'oldest', label: 'Oldest First' },
+                  { value: 'price-high', label: 'Price: High to Low' },
+                  { value: 'price-low', label: 'Price: Low to High' },
                   { value: 'revenue-high', label: 'Revenue: High to Low' },
                   { value: 'sessions-high', label: 'Sessions: High to Low' },
                 ]}
@@ -266,6 +383,9 @@ export default function AITutorsPage() {
                     <div className={actionStyles.dropdownMenu}>
                       <button onClick={() => { refetch(); setShowActionsMenu(false); }} className={actionStyles.menuButton}>
                         Refresh
+                      </button>
+                      <button onClick={handleExportCSV} className={actionStyles.menuButton}>
+                        Export CSV
                       </button>
                     </div>
                   </>
@@ -295,7 +415,42 @@ export default function AITutorsPage() {
         </HubSidebar>
       }
     >
-      {paginatedTutors.length === 0 && !searchQuery && (
+      {isFetching && !isLoading && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '20px',
+          padding: '8px 16px',
+          background: '#006C67',
+          color: 'white',
+          borderRadius: '8px',
+          fontSize: '14px',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <div style={{
+            width: '12px',
+            height: '12px',
+            border: '2px solid white',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.6s linear infinite',
+          }} />
+          Updating...
+        </div>
+      )}
+
+      {isLoading && (
+        <div className={styles.tutorsList}>
+          {[1, 2, 3, 4].map(i => (
+            <AITutorSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
+      {!isLoading && paginatedTutors.length === 0 && !searchQuery && (
         <HubEmptyState
           title="No AI tutors found"
           description={
@@ -308,14 +463,14 @@ export default function AITutorsPage() {
         />
       )}
 
-      {paginatedTutors.length === 0 && searchQuery && (
+      {!isLoading && paginatedTutors.length === 0 && searchQuery && (
         <HubEmptyState
           title="No results found"
           description={`No AI tutors match "${searchQuery}".`}
         />
       )}
 
-      {paginatedTutors.length > 0 && (
+      {!isLoading && paginatedTutors.length > 0 && (
         <div className={styles.tutorsList}>
           {paginatedTutors.map((tutor) => (
             <AITutorCard
@@ -324,6 +479,8 @@ export default function AITutorsPage() {
               onDelete={handleDelete}
               onPublish={handlePublish}
               onUnpublish={handleUnpublish}
+              onEdit={handleEdit}
+              onArchive={handleArchive}
             />
           ))}
         </div>

@@ -35,6 +35,8 @@ interface AITutorCardProps {
   onDelete: (id: string) => void;
   onPublish: (id: string) => void;
   onUnpublish: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onArchive?: (id: string) => void;
 }
 
 export default function AITutorCard({
@@ -42,6 +44,8 @@ export default function AITutorCard({
   onDelete,
   onPublish,
   onUnpublish,
+  onEdit,
+  onArchive,
 }: AITutorCardProps) {
   const router = useRouter();
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -177,7 +181,7 @@ export default function AITutorCard({
   const actions = (
     <>
       {(isDraft || isUnpublished) ? (
-        // Draft/Unpublished: Publish, Manage, Delete
+        // Draft/Unpublished: Publish, Edit, Manage, Delete
         <>
           <Button
             variant="primary"
@@ -186,6 +190,15 @@ export default function AITutorCard({
           >
             Publish
           </Button>
+          {onEdit && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onEdit(aiTutor.id)}
+            >
+              Edit
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
@@ -202,8 +215,17 @@ export default function AITutorCard({
           </Button>
         </>
       ) : isPublished ? (
-        // Published: Manage, Unpublish, Delete
+        // Published: Edit, Manage, Unpublish, Archive
         <>
+          {onEdit && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onEdit(aiTutor.id)}
+            >
+              Edit
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
@@ -218,17 +240,28 @@ export default function AITutorCard({
           >
             Unpublish
           </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={handleDeleteClick}
-          >
-            Delete
-          </Button>
+          {onArchive && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onArchive(aiTutor.id)}
+            >
+              Archive
+            </Button>
+          )}
         </>
       ) : (
-        // Default: Manage, Delete
+        // Default: Edit, Manage, Delete
         <>
+          {onEdit && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onEdit(aiTutor.id)}
+            >
+              Edit
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
@@ -257,21 +290,29 @@ export default function AITutorCard({
           fallbackChar: getInitials(aiTutor.display_name),
         }}
         title={aiTutor.display_name}
-        description={`${aiTutor.subject} • ${formatSubscriptionStatus(aiTutor.subscription_status)}`}
+        description={aiTutor.subject}
         status={{
           label: formatStatus(aiTutor.status),
           variant: getStatusVariant(aiTutor.status),
         }}
         details={[
+          // Row 1: Price, Subject, Subscription
           { label: 'Price', value: `£${aiTutor.price_per_hour}/hr` },
+          { label: 'Subject', value: aiTutor.subject },
+          { label: 'Subscription', value: formatSubscriptionStatus(aiTutor.subscription_status) },
+          // Row 2: Sessions, Revenue, Rating
           { label: 'Sessions', value: `${aiTutor.total_sessions ?? 0}` },
           { label: 'Revenue', value: `£${(aiTutor.total_revenue ?? 0).toFixed(2)}` },
           {
             label: 'Rating',
             value: aiTutor.avg_rating
-              ? `${aiTutor.avg_rating.toFixed(1)}/5 (${aiTutor.total_reviews} reviews)`
+              ? `${aiTutor.avg_rating.toFixed(1)}/5`
               : 'No reviews'
           },
+          // Row 3: Status, Created, Reviews
+          { label: 'Status', value: formatStatus(aiTutor.status) },
+          { label: 'Created', value: new Date(aiTutor.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) },
+          { label: 'Reviews', value: `${aiTutor.total_reviews ?? 0}` },
         ]}
         actions={actions}
       />
