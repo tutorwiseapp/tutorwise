@@ -103,6 +103,7 @@ export default function CreateOneToOnePage() {
     { id: 'group-session', label: 'Group Session', active: pathname === '/listings/create/group-session' },
     { id: 'workshop', label: 'Workshop', active: pathname === '/listings/create/workshop' },
     { id: 'study-package', label: 'Study Package', active: pathname === '/listings/create/study-package' },
+    { id: 'subscription', label: 'Subscription', active: pathname === '/listings/create/subscription' },
   ];
 
   // Add Job Listing tab only for agents
