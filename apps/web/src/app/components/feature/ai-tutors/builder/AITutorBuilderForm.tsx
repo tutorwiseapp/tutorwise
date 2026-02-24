@@ -65,7 +65,7 @@ export default function AITutorBuilderForm({
     description: initialData?.description || '',
     template_id: initialData?.template_id || null,
     skills: initialData?.skills || [],
-    price_per_hour: initialData?.price_per_hour || 15,
+    price_per_hour: initialData?.price_per_hour || 0,
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof AITutorFormData, string>>>({});
@@ -161,7 +161,7 @@ export default function AITutorBuilderForm({
       <HubForm.Section title="Basic Information">
         <HubForm.Grid>
           {/* Display Name */}
-          <HubForm.Field label="Display Name *" isEditing={true}>
+          <HubForm.Field label="Display Name" required isEditing={true}>
             <input
               id="display_name"
               type="text"
@@ -180,7 +180,7 @@ export default function AITutorBuilderForm({
           </HubForm.Field>
 
           {/* Subject */}
-          <HubForm.Field label="Subject *" isEditing={true}>
+          <HubForm.Field label="Subject" required isEditing={true}>
             <UnifiedSelect
               options={SUBJECTS}
               value={formData.subject}
@@ -196,7 +196,7 @@ export default function AITutorBuilderForm({
 
           {/* Description - Full Width */}
           <div style={{ gridColumn: '1 / -1' }}>
-            <HubForm.Field label="Description *" isEditing={true}>
+            <HubForm.Field label="Description" required isEditing={true}>
               <textarea
                 id="description"
                 value={formData.description}
@@ -261,14 +261,14 @@ export default function AITutorBuilderForm({
       {/* Section 3: Pricing */}
       <HubForm.Section title="Pricing">
         <HubForm.Grid>
-          <HubForm.Field label="Price per Hour (£/hour) *" isEditing={true}>
+          <HubForm.Field label="Price per Hour (£/hour)" required isEditing={true}>
             <input
               id="price_per_hour"
               type="number"
               min="5"
               max="100"
               step="0.01"
-              value={formData.price_per_hour}
+              value={formData.price_per_hour || ''}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
