@@ -2,6 +2,8 @@
  * Filename: api/ai-tutors/[id]/analytics/route.ts
  * Purpose: Analytics data for AI tutor dashboard
  * Created: 2026-02-23
+ * Version: v1.1 (Phase 2)
+ * Updated: 2026-02-24 - Added skill performance analytics
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -81,6 +83,29 @@ export async function GET(
       }
     }
 
+    // Get skill performance analytics
+    const { data: skillStats } = await supabase.rpc('get_ai_tutor_skill_analytics', {
+      p_ai_tutor_id: id,
+      p_start_date: startDate.toISOString(),
+    });
+
+    // Get session heatmap data (last 90 days for calendar view)
+    const heatmapStartDate = new Date();
+    heatmapStartDate.setDate(heatmapStartDate.getDate() - 90);
+
+    const { data: heatmapSessions } = await supabase
+      .from('ai_tutor_sessions')
+      .select('started_at')
+      .eq('ai_tutor_id', id)
+      .gte('started_at', heatmapStartDate.toISOString());
+
+    // Aggregate heatmap data by day
+    const heatmapData = new Map<string, number>();
+    for (const session of heatmapSessions || []) {
+      const day = new Date(session.started_at).toISOString().split('T')[0];
+      heatmapData.set(day, (heatmapData.get(day) || 0) + 1);
+    }
+
     return NextResponse.json({
       summary: {
         total_sessions: tutor.total_sessions || 0,
@@ -94,6 +119,8 @@ export async function GET(
       sessions: sessionTrend,
       revenue: revenueTrend,
       ratings: ratingDist.map((count, i) => ({ stars: i + 1, count })),
+      skillPerformance: skillStats || [],
+      heatmap: Array.from(heatmapData.entries()).map(([date, count]) => ({ date, count })),
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);
