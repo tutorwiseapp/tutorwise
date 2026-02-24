@@ -12,7 +12,7 @@ import styles from './ListingsHeader.module.css';
 
 interface ListingsHeaderProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   showActions?: boolean;
 }
 
@@ -33,7 +33,7 @@ export default function ListingsHeader({
         {/* Left: Title and Subtitle */}
         <div className={styles.titleSection}>
           <h1 className={styles.title}>{title}</h1>
-          <p className={styles.subtitle}>{subtitle}</p>
+          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
 
         {/* Right: Action Buttons (optional) */}

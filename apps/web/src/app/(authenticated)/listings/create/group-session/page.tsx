@@ -2,11 +2,13 @@
  * Filename: group-session/page.tsx
  * Purpose: Group Session tutoring service listing creation page
  * Updated: 2026-01-19 - Migrated to Hub Layout Architecture
+ * Updated: 2026-02-24 - Upgraded to React Query gold standard
  */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing, getListing, updateListing } from '@/lib/api/listings';
@@ -28,67 +30,106 @@ export default function CreateGroupSessionPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const editId = searchParams?.get('edit');
   const isEditMode = !!editId;
 
   const { user, activeRole, profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
-  const [isSaving, setIsSaving] = useState(false);
-  const [initialData, setInitialData] = useState<Partial<CreateListingInput>>({});
-  const [isLoadingListing, setIsLoadingListing] = useState(isEditMode);
 
-  // Load existing listing data if in edit mode
-  useEffect(() => {
-    async function loadListingData() {
-      if (!editId) return;
-      try {
-        const listing = await getListing(editId);
-        if (listing) {
-          setInitialData(listing as unknown as Partial<CreateListingInput>);
-        } else {
-          toast.error('Listing not found');
-          router.push('/listings');
-        }
-      } catch (error) {
-        console.error('Failed to load listing:', error);
-        toast.error('Failed to load listing');
+  // React Query: Load existing listing in edit mode
+  const {
+    data: existingListing,
+    isLoading: isLoadingListing,
+    error: loadError,
+  } = useQuery({
+    queryKey: ['listing', editId],
+    queryFn: async () => {
+      if (!editId) return null;
+      const listing = await getListing(editId);
+      if (!listing) {
+        toast.error('Listing not found');
         router.push('/listings');
-      } finally {
-        setIsLoadingListing(false);
+        return null;
       }
-    }
-    loadListingData();
-  }, [editId, router]);
+      return listing;
+    },
+    enabled: isEditMode && !!editId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
+    retry: 1,
+  });
 
-  // Pre-fill form from professional_details (only for create mode)
-  useEffect(() => {
-    if (isEditMode) return;
-    if (!profile?.professional_details || !activeRole) return;
+  // Pre-fill form data from profile or existing listing
+  const initialData = useMemo(() => {
+    // Edit mode: use existing listing data
+    if (isEditMode && existingListing) {
+      return existingListing as unknown as Partial<CreateListingInput>;
+    }
+
+    // Create mode: prefill from profile
+    if (!profile?.professional_details || !activeRole) return {};
 
     const prefillData: Partial<CreateListingInput> = {};
 
     if (activeRole === 'tutor') {
       const tutorData = profile.professional_details.tutor;
-      if (tutorData?.subjects) prefillData.subjects = tutorData.subjects as string[];
-      // Pre-fill group hourly rate from tutor's group_session_rate profile setting
-      if (tutorData?.group_session_rate) {
-        (prefillData as any).group_hourly_rate = tutorData.group_session_rate;
+      if (tutorData) {
+        if (tutorData.subjects) prefillData.subjects = tutorData.subjects as string[];
+        // Pre-fill hourly rate from tutor's group_session_rate profile setting
+        if (tutorData.group_session_rate) {
+          (prefillData as any).hourly_rate = tutorData.group_session_rate;
+        }
       }
     }
 
     if (activeRole === 'agent') {
       const agentData = profile.professional_details.agent;
-      if (agentData?.subject_specializations) {
-        prefillData.subjects = agentData.subject_specializations;
-      }
-      // Pre-fill group hourly rate from agent's group_session_rate profile setting
-      if (agentData?.group_session_rate) {
-        (prefillData as any).group_hourly_rate = agentData.group_session_rate;
+      if (agentData) {
+        if (agentData.subject_specializations) {
+          prefillData.subjects = agentData.subject_specializations;
+        }
+        // Pre-fill hourly rate from agent's group_session_rate profile setting
+        if (agentData.group_session_rate) {
+          (prefillData as any).hourly_rate = agentData.group_session_rate;
+        }
       }
     }
 
-    setInitialData(prefillData);
-  }, [profile, activeRole, isEditMode]);
+    return prefillData;
+  }, [isEditMode, existingListing, profile, activeRole]);
+
+  // React Query: Create/Update mutation
+  const mutation = useMutation({
+    mutationFn: async (data: CreateListingInput) => {
+      if (isEditMode && editId) {
+        return updateListing({ ...data, id: editId });
+      }
+      return createListing(data);
+    },
+    onSuccess: () => {
+      const successMessage = isEditMode
+        ? 'Group session listing updated successfully!'
+        : 'Group session listing published successfully!';
+      toast.success(successMessage);
+
+      // Clear draft from localStorage
+      if (!isEditMode) {
+        localStorage.removeItem('group_session_draft');
+      }
+
+      // Invalidate listings cache
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+
+      // Navigate back to listings page
+      router.push('/listings');
+    },
+    onError: (error) => {
+      console.error(`Failed to ${isEditMode ? 'update' : 'create'} listing:`, error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} listing. Please try again.`);
+    },
+  });
 
   // Prepare tabs data
   const baseTabs: HubTab[] = [
@@ -108,6 +149,15 @@ export default function CreateGroupSessionPage() {
     router.push(`/listings/create/${tabId}`);
   };
 
+  const handleSubmit = (data: CreateListingInput) => {
+    mutation.mutate(data);
+  };
+
+  const handleCancel = () => {
+    router.push('/listings');
+  };
+
+  // Loading states
   if (userLoading || roleLoading || isLoadingListing) {
     return (
       <HubPageLayout
@@ -127,6 +177,7 @@ export default function CreateGroupSessionPage() {
     );
   }
 
+  // Auth check
   if (!user) {
     router.push('/login?redirect=/listings/create/group-session');
     return null;
@@ -134,29 +185,24 @@ export default function CreateGroupSessionPage() {
 
   if (!isAllowed) return null;
 
-  const handleSubmit = async (data: CreateListingInput) => {
-    setIsSaving(true);
-    try {
-      if (isEditMode && editId) {
-        await updateListing({ ...data, id: editId });
-        toast.success('Listing updated successfully!');
-      } else {
-        await createListing(data);
-        toast.success('Group session listing published successfully!');
-        localStorage.removeItem('group_session_draft');
-      }
-      router.push('/listings');
-    } catch (error) {
-      console.error(`Failed to ${isEditMode ? 'update' : 'create'} listing:`, error);
-      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} listing. Please try again.`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    router.push('/listings');
-  };
+  // Error state
+  if (loadError) {
+    return (
+      <HubPageLayout
+        header={<ListingsHeader title="Error" />}
+        tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
+        sidebar={
+          <HubSidebar>
+            <ListingsHelpWidget />
+          </HubSidebar>
+        }
+      >
+        <div className={styles.error}>
+          <p>Failed to load listing. Please try again.</p>
+        </div>
+      </HubPageLayout>
+    );
+  }
 
   return (
     <HubPageLayout
@@ -181,14 +227,14 @@ export default function CreateGroupSessionPage() {
           <AgentGroupSessionForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}
-            isSaving={isSaving}
+            isSaving={mutation.isPending}
             initialData={initialData}
           />
         ) : (
           <TutorGroupSessionForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}
-            isSaving={isSaving}
+            isSaving={mutation.isPending}
             initialData={initialData}
           />
         )}
