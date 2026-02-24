@@ -229,7 +229,7 @@ export default function AITutorBuilderForm({
                   { value: '', label: 'Custom (add your own skills)' },
                   ...(templates || []).map((t: any) => ({
                     value: t.id,
-                    label: `${t.icon} ${t.name}`,
+                    label: t.name,
                   })),
                 ]}
                 value={formData.template_id || ''}
@@ -261,29 +261,31 @@ export default function AITutorBuilderForm({
       {/* Section 3: Pricing */}
       <HubForm.Section title="Pricing">
         <HubForm.Grid>
-          <HubForm.Field label="Price per Hour (£/hour)" required isEditing={true}>
-            <input
-              id="price_per_hour"
-              type="number"
-              min="5"
-              max="100"
-              step="0.01"
-              value={formData.price_per_hour || ''}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  price_per_hour: parseFloat(e.target.value) || 0,
-                }))
-              }
-              placeholder="£15"
-            />
-            <p className={styles.helperText}>
-              Set between £5 and £100 per hour. You can change this later.
-            </p>
-            {errors.price_per_hour && (
-              <span className={styles.errorText}>{errors.price_per_hour}</span>
-            )}
-          </HubForm.Field>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <HubForm.Field label="Price per Hour (£/hour)" required isEditing={true}>
+              <input
+                id="price_per_hour"
+                type="number"
+                min="5"
+                max="100"
+                step="0.01"
+                value={formData.price_per_hour || ''}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    price_per_hour: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                placeholder="£15"
+              />
+              <p className={styles.helperText}>
+                Set between £5 and £100 per hour. You can change this later.
+              </p>
+              {errors.price_per_hour && (
+                <span className={styles.errorText}>{errors.price_per_hour}</span>
+              )}
+            </HubForm.Field>
+          </div>
         </HubForm.Grid>
       </HubForm.Section>
 
