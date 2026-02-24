@@ -5,6 +5,7 @@ import os
 
 import redis
 from neo4j import GraphDatabase
+from supabase import create_client, Client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,24 @@ neo4j_driver: Optional[GraphDatabase.driver] = None
 class DatabaseError(Exception):
     """Custom exception for database connection errors"""
     pass
+
+def get_supabase() -> Client:
+    """
+    Get Supabase client for FastAPI dependency injection.
+
+    Returns:
+        Client: Configured Supabase client with service role key
+
+    Raises:
+        DatabaseError: If Supabase configuration is missing
+    """
+    supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL") or os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+    if not supabase_url or not supabase_key:
+        raise DatabaseError("Supabase configuration missing: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set")
+
+    return create_client(supabase_url, supabase_key)
 
 def get_redis_config():
     """Get Redis configuration from environment variables"""
