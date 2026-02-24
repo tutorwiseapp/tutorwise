@@ -218,7 +218,7 @@ export default function AdvancedFilters({
             </div>
           </div>
 
-          {/* Marketplace Type (Tutors/Organisations/All) */}
+          {/* Marketplace Type (Tutors/AI Tutors/Organisations/All) */}
           <div className={styles.filterSection}>
             <h3 className={styles.sectionTitle}>Browse</h3>
             <div className={styles.radioGroup}>
@@ -239,7 +239,17 @@ export default function AdvancedFilters({
                   checked={localFilters.marketplace_type === 'tutors'}
                   onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
                 />
-                <span>Tutors</span>
+                <span>Human Tutors</span>
+              </label>
+              <label className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="marketplace_type"
+                  value="ai-tutors"
+                  checked={localFilters.marketplace_type === 'ai-tutors'}
+                  onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
+                />
+                <span>🤖 AI Tutors</span>
               </label>
               <label className={styles.radioLabel}>
                 <input

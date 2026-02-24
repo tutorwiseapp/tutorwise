@@ -50,7 +50,25 @@ export default function HomePage() {
     isLoading: isSearchLoading,
   } = useQuery({
     queryKey: ['marketplace-search', searchFilters],
-    queryFn: () => searchMarketplace(searchFilters),
+    queryFn: () => {
+      // Map marketplace_type to entity_type for API
+      const apiFilters = { ...searchFilters };
+      if (searchFilters.marketplace_type) {
+        // Map: 'tutors' → 'humans', 'ai-tutors' → 'ai-tutors', 'all' → 'all'
+        let entityType: 'humans' | 'ai-tutors' | 'all' = 'all';
+        if (searchFilters.marketplace_type === 'tutors') {
+          entityType = 'humans';
+        } else if (searchFilters.marketplace_type === 'ai-tutors') {
+          entityType = 'ai-tutors';
+        } else if (searchFilters.marketplace_type === 'organisations') {
+          entityType = 'humans'; // Organisations are part of humans search
+        } else {
+          entityType = 'all';
+        }
+        apiFilters.entity_type = entityType;
+      }
+      return searchMarketplace(apiFilters);
+    },
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (standardized)

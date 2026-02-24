@@ -31,7 +31,8 @@ export interface SearchFilters {
   min_price?: number;
   max_price?: number;
   listing_type?: 'session' | 'course' | 'job';
-  marketplace_type?: 'tutors' | 'organisations' | 'all'; // Filter by tutor profiles, organisations, or all
+  marketplace_type?: 'tutors' | 'ai-tutors' | 'organisations' | 'all'; // Filter by human tutors, AI tutors, organisations, or all
+  entity_type?: 'humans' | 'ai-tutors' | 'all'; // API-level filter (mapped from marketplace_type)
   availability?: string[];
   min_rating?: number;
   verified_only?: boolean;
