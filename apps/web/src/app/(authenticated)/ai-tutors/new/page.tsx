@@ -16,7 +16,6 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
 import AITutorBuilderForm from '@/app/components/feature/ai-tutors/builder/AITutorBuilderForm';
 import type { AITutorFormData } from '@/app/components/feature/ai-tutors/builder/AITutorBuilderForm';
 import AITutorStatsWidget from '@/app/components/feature/ai-tutors/AITutorStatsWidget';
@@ -89,16 +88,12 @@ export default function NewAITutorPage() {
     }
   };
 
-  // Prepare tabs
   const tabs: HubTab[] = [
-    { id: 'my-ai-tutors', label: 'My AI Tutors', active: false },
     { id: 'create', label: 'Create AI Tutor', active: true },
   ];
 
   const handleTabChange = (tabId: string) => {
-    if (tabId === 'my-ai-tutors') {
-      router.push('/ai-tutors');
-    }
+    // Single tab - no navigation needed
   };
 
   if (userLoading || roleLoading) {
@@ -117,20 +112,7 @@ export default function NewAITutorPage() {
 
   return (
     <HubPageLayout
-      header={
-        <HubHeader
-          title="AI Tutor Studio"
-          actions={
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => router.push('/ai-tutors')}
-            >
-              ← Back to My AI Tutors
-            </Button>
-          }
-        />
-      }
+      header={<HubHeader title="AI Tutor Studio" />}
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
