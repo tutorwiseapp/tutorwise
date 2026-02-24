@@ -2,7 +2,8 @@
  * Filename: AITutorBuilderForm.tsx
  * Purpose: AI Tutor creation form - follows listing form pattern
  * Created: 2026-02-23
- * Version: v1.0
+ * Version: v1.1 (Phase 2)
+ * Updated: 2026-02-24 - Integrated SkillSelector with custom skills support
  *
  * Pattern: Single-page form with sections (like TutorOneToOneForm)
  * Sections: Basic Info, Skills & Template, Pricing
@@ -16,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import HubForm from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
+import SkillSelector, { Skill } from '@/app/components/feature/ai-tutors/SkillSelector';
 import styles from './AITutorBuilderForm.module.css';
 
 interface AITutorBuilderFormProps {
@@ -30,7 +32,7 @@ export interface AITutorFormData {
   subject: string;
   description: string;
   template_id: string | null;
-  skills: string[];
+  skills: Skill[]; // Updated to support custom skills
   price_per_hour: number;
 }
 
@@ -66,7 +68,6 @@ export default function AITutorBuilderForm({
     price_per_hour: initialData?.price_per_hour || 15,
   });
 
-  const [customSkill, setCustomSkill] = useState('');
   const [errors, setErrors] = useState<Partial<Record<keyof AITutorFormData, string>>>({});
 
   // Fetch templates
@@ -96,9 +97,15 @@ export default function AITutorBuilderForm({
     if (id && templates) {
       const template = templates.find((t: any) => t.id === id);
       if (template) {
+        // Convert template skills (string[]) to Skill[] objects
+        const templateSkills: Skill[] = (template.skills || []).map((skillName: string) => ({
+          name: skillName,
+          is_custom: false, // Template skills are always predefined
+        }));
+
         setFormData((prev) => ({
           ...prev,
-          skills: template.skills,
+          skills: templateSkills,
           subject: template.subject || prev.subject,
           display_name: template.displayName || prev.display_name,
           description: template.tutorDescription || prev.description,
@@ -109,29 +116,6 @@ export default function AITutorBuilderForm({
       // Custom template - clear skills only
       setFormData((prev) => ({ ...prev, skills: [] }));
     }
-  };
-
-  // Add custom skill
-  const handleAddSkill = () => {
-    if (!customSkill.trim()) return;
-
-    if (formData.skills.includes(customSkill.trim())) {
-      return; // Duplicate
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      skills: [...prev.skills, customSkill.trim()],
-    }));
-    setCustomSkill('');
-  };
-
-  // Remove skill
-  const handleRemoveSkill = (skill: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((s) => s !== skill),
-    }));
   };
 
   // Validate form
@@ -263,47 +247,18 @@ export default function AITutorBuilderForm({
           </div>
 
           <div className={styles.formGroup}>
-            <label>
-              Skills <span className={styles.required}>*</span>
-            </label>
-            <div className={styles.skillsInput}>
-              <input
-                type="text"
-                value={customSkill}
-                onChange={(e) => setCustomSkill(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddSkill();
-                  }
-                }}
-                placeholder="Add a skill..."
-                disabled={!!formData.template_id}
-              />
-              <Button
-                onClick={handleAddSkill}
-                disabled={!!formData.template_id}
-                variant="secondary"
-              >
-                Add
-              </Button>
-            </div>
-            <div className={styles.skillsList}>
-              {formData.skills.map((skill) => (
-                <span key={skill} className={styles.skillTag}>
-                  {skill}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill)}
-                    className={styles.removeSkill}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-            {errors.skills && (
-              <span className={styles.errorText}>{errors.skills}</span>
+            <SkillSelector
+              selectedSkills={formData.skills}
+              onSkillsChange={(skills) =>
+                setFormData((prev) => ({ ...prev, skills }))
+              }
+              disabled={!!formData.template_id}
+              error={errors.skills}
+            />
+            {formData.template_id && (
+              <p className={styles.helperText}>
+                Using skills from template. Clear template to add custom skills.
+              </p>
             )}
           </div>
         </div>

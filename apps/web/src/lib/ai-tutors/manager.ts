@@ -32,13 +32,18 @@ export interface AITutor {
   last_session_at?: string;
 }
 
+export interface Skill {
+  name: string;
+  is_custom: boolean;
+}
+
 export interface AITutorCreateInput {
   name: string;
   display_name: string;
   description?: string;
   avatar_url?: string;
   subject: string;
-  skills: string[];
+  skills: Skill[]; // Updated to support custom skills
   price_per_hour: number;
 }
 
@@ -134,12 +139,13 @@ export async function createAITutor(
 
   if (error) throw error;
 
-  // Insert skills
+  // Insert skills with custom flag
   if (input.skills && input.skills.length > 0) {
     const { error: skillsError } = await supabase.from('ai_tutor_skills').insert(
       input.skills.map((skill) => ({
         ai_tutor_id: tutor.id,
-        skill_name: skill,
+        skill_name: skill.name,
+        is_custom: skill.is_custom,
       }))
     );
 
@@ -285,19 +291,19 @@ export async function getAITutorLimits(userId: string): Promise<{
 }
 
 /**
- * Get AI tutor skills
+ * Get AI tutor skills with custom flag
  */
-export async function getAITutorSkills(aiTutorId: string): Promise<string[]> {
+export async function getAITutorSkills(aiTutorId: string): Promise<Skill[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('ai_tutor_skills')
-    .select('skill_name')
+    .select('skill_name, is_custom')
     .eq('ai_tutor_id', aiTutorId);
 
   if (error) throw error;
 
-  return data?.map((s) => s.skill_name) || [];
+  return data?.map((s) => ({ name: s.skill_name, is_custom: s.is_custom })) || [];
 }
 
 // Export aliases for backward compatibility
