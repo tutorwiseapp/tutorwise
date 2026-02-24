@@ -305,7 +305,7 @@ export async function POST(
   return NextResponse.json({ purchase });
 }
 
-// POST /api/ai-tutors/bundles/[purchaseId]/redeem
+// POST /api/ai-tutors/bundle-purchases/[purchaseId]/redeem
 // Redeem a session from bundle
 export async function POST(
   request: NextRequest,

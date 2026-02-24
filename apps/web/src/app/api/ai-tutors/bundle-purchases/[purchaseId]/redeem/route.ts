@@ -1,5 +1,5 @@
 /**
- * Filename: api/ai-tutors/bundles/[purchaseId]/redeem/route.ts
+ * Filename: api/ai-tutors/bundle-purchases/[purchaseId]/redeem/route.ts
  * Purpose: Redeem a session from a bundle purchase
  * Created: 2026-02-24
  * Phase: 3C - Bundle Pricing
@@ -18,7 +18,7 @@ interface RedeemSessionRequest {
 }
 
 /**
- * POST /api/ai-tutors/bundles/[purchaseId]/redeem
+ * POST /api/ai-tutors/bundle-purchases/[purchaseId]/redeem
  * Redeem a session from bundle
  *
  * Body: {
