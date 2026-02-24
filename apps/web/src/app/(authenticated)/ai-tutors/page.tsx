@@ -29,7 +29,7 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 import styles from './page.module.css';
 
-type FilterType = 'all' | 'published' | 'draft' | 'unpublished';
+type FilterType = 'all' | 'published' | 'draft' | 'unpublished' | 'archived';
 type SortType = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'revenue-high' | 'sessions-high';
 
 const ITEMS_PER_PAGE = 10;
@@ -46,6 +46,9 @@ interface AITutor {
   total_reviews: number;
   created_at: string;
   price_per_hour: number;
+  archived_at?: string | null;
+  avatar_url?: string;
+  owner_id?: string;
 }
 
 export default function AITutorsPage() {
@@ -156,11 +159,29 @@ export default function AITutorsPage() {
     },
   });
 
+  // Archive mutation
+  const archiveMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/ai-tutors/${id}/archive`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to archive');
+    },
+    onSuccess: () => {
+      toast.success('AI tutor archived');
+    },
+    onError: () => {
+      toast.error('Failed to archive AI tutor');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['ai-tutors', profile?.id] });
+    },
+  });
+
   const tabCounts = useMemo(() => ({
     all: aiTutors.length,
     published: aiTutors.filter(t => t.status === 'published').length,
     draft: aiTutors.filter(t => t.status === 'draft').length,
     unpublished: aiTutors.filter(t => t.status === 'unpublished').length,
+    archived: aiTutors.filter(t => t.status === 'archived').length,
   }), [aiTutors]);
 
   // Filter AI tutors based on tab, search (comprehensive search across all relevant fields)
@@ -251,9 +272,8 @@ export default function AITutorsPage() {
     router.push(`/ai-tutors/${id}/edit`);
   };
 
-  const handleArchive = (_id: string) => {
-    // TODO: Implement archive mutation
-    toast('Archive functionality coming soon', { icon: 'ℹ️' });
+  const handleArchive = (id: string) => {
+    archiveMutation.mutate(id);
   };
 
   // Export AI tutors to CSV
@@ -402,6 +422,7 @@ export default function AITutorsPage() {
             { id: 'published', label: 'Published', count: tabCounts.published, active: filter === 'published' },
             { id: 'draft', label: 'Drafts', count: tabCounts.draft, active: filter === 'draft' },
             { id: 'unpublished', label: 'Unpublished', count: tabCounts.unpublished, active: filter === 'unpublished' },
+            { id: 'archived', label: 'Archived', count: tabCounts.archived, active: filter === 'archived' },
           ]}
           onTabChange={(tabId) => handleFilterChange(tabId as FilterType)}
         />
