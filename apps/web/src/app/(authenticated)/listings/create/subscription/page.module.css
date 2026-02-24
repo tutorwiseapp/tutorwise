@@ -1,0 +1,14 @@
+/* Subscription listing creation page styles */
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.content {
+  padding: 0;
+}
