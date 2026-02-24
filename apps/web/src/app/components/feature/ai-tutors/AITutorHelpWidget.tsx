@@ -20,10 +20,7 @@ export default function AITutorHelpWidget() {
           Create AI tutors trained on your own teaching materials.
         </p>
         <p className={styles.text}>
-          Upload PDFs, DOCX, or PPTX files to customize responses.
-        </p>
-        <p className={styles.text}>
-          Add URL links for additional reference materials.
+          After creating your AI tutor, you can upload materials (PDF/DOCX/PPTX) and add URL links in the detail page to customize responses.
         </p>
         <p className={styles.text}>
           Students can chat with your AI tutor 24/7 at your set hourly rate.

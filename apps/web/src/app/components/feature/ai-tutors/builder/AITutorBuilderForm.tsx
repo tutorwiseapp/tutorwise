@@ -156,16 +156,12 @@ export default function AITutorBuilderForm({
   };
 
   return (
-    <div className={styles.formContainer}>
-      <HubForm.Root>
-        {/* Basic Information */}
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Basic Information</h2>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="display_name">
-              Display Name <span className={styles.required}>*</span>
-            </label>
+    <HubForm.Root>
+      {/* Section 1: Basic Information */}
+      <HubForm.Section title="Basic Information">
+        <HubForm.Grid>
+          {/* Display Name */}
+          <HubForm.Field label="Display Name *" isEditing={true}>
             <input
               id="display_name"
               type="text"
@@ -177,17 +173,14 @@ export default function AITutorBuilderForm({
                 }))
               }
               placeholder="e.g., Physics Pro, Maths Expert"
-              className={errors.display_name ? styles.inputError : ''}
             />
             {errors.display_name && (
               <span className={styles.errorText}>{errors.display_name}</span>
             )}
-          </div>
+          </HubForm.Field>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="subject">
-              Subject <span className={styles.required}>*</span>
-            </label>
+          {/* Subject */}
+          <HubForm.Field label="Subject *" isEditing={true}>
             <UnifiedSelect
               options={SUBJECTS}
               value={formData.subject}
@@ -199,54 +192,55 @@ export default function AITutorBuilderForm({
             {errors.subject && (
               <span className={styles.errorText}>{errors.subject}</span>
             )}
+          </HubForm.Field>
+
+          {/* Description - Full Width */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <HubForm.Field label="Description *" isEditing={true}>
+              <textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Describe what your AI tutor specializes in..."
+                rows={4}
+                className={styles.textarea}
+              />
+              {errors.description && (
+                <span className={styles.errorText}>{errors.description}</span>
+              )}
+            </HubForm.Field>
+          </div>
+        </HubForm.Grid>
+      </HubForm.Section>
+
+      {/* Section 2: Skills & Template */}
+      <HubForm.Section title="Skills & Template">
+        <HubForm.Grid>
+          {/* Template Selector - Full Width */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <HubForm.Field label="Choose Template (or select Custom)" isEditing={true}>
+              <UnifiedSelect
+                options={[
+                  { value: '', label: 'Custom (add your own skills)' },
+                  ...(templates || []).map((t: any) => ({
+                    value: t.id,
+                    label: `${t.icon} ${t.name}`,
+                  })),
+                ]}
+                value={formData.template_id || ''}
+                onChange={handleTemplateChange}
+                placeholder="Select template"
+              />
+            </HubForm.Field>
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="description">
-              Description <span className={styles.required}>*</span>
-            </label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              placeholder="Describe what your AI tutor specializes in..."
-              rows={4}
-              className={errors.description ? styles.inputError : ''}
-            />
-            {errors.description && (
-              <span className={styles.errorText}>{errors.description}</span>
-            )}
-          </div>
-        </div>
-
-        {/* Skills & Template */}
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Skills & Template</h2>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="template">
-              Choose Template (or select Custom)
-            </label>
-            <UnifiedSelect
-              options={[
-                { value: '', label: 'Custom (add your own skills)' },
-                ...(templates || []).map((t: any) => ({
-                  value: t.id,
-                  label: `${t.icon} ${t.name}`,
-                })),
-              ]}
-              value={formData.template_id || ''}
-              onChange={handleTemplateChange}
-              placeholder="Select template"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
+          {/* Skills Selector - Full Width */}
+          <div style={{ gridColumn: '1 / -1' }}>
             <SkillSelector
               selectedSkills={formData.skills}
               onSkillsChange={(skills) =>
@@ -261,69 +255,55 @@ export default function AITutorBuilderForm({
               </p>
             )}
           </div>
-        </div>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Pricing */}
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Pricing</h2>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="price_per_hour">
-              Price per Hour <span className={styles.required}>*</span>
-            </label>
-            <div className={styles.priceInput}>
-              <span className={styles.currency}>£</span>
-              <input
-                id="price_per_hour"
-                type="number"
-                min="5"
-                max="100"
-                step="0.01"
-                value={formData.price_per_hour}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    price_per_hour: parseFloat(e.target.value) || 0,
-                  }))
-                }
-                className={errors.price_per_hour ? styles.inputError : ''}
-              />
-            </div>
+      {/* Section 3: Pricing */}
+      <HubForm.Section title="Pricing">
+        <HubForm.Grid>
+          <HubForm.Field label="Price per Hour (£/hour) *" isEditing={true}>
+            <input
+              id="price_per_hour"
+              type="number"
+              min="5"
+              max="100"
+              step="0.01"
+              value={formData.price_per_hour}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  price_per_hour: parseFloat(e.target.value) || 0,
+                }))
+              }
+              placeholder="£15"
+            />
             <p className={styles.helperText}>
               Set between £5 and £100 per hour. You can change this later.
             </p>
             {errors.price_per_hour && (
               <span className={styles.errorText}>{errors.price_per_hour}</span>
             )}
-          </div>
-        </div>
+          </HubForm.Field>
+        </HubForm.Grid>
+      </HubForm.Section>
 
-        {/* Actions */}
-        <div className={styles.actions}>
-          <Button
-            onClick={() => handleSubmit(false)}
-            disabled={isSubmitting}
-            variant="secondary"
-          >
-            {isSubmitting ? 'Saving...' : 'Save as Draft'}
-          </Button>
-          <Button
-            onClick={() => handleSubmit(true)}
-            disabled={isSubmitting}
-            variant="primary"
-          >
-            {isSubmitting ? 'Creating...' : 'Create & Publish'}
-          </Button>
-        </div>
-
-        {/* Info Note */}
-        <div className={styles.infoNote}>
-          <p>
-            <strong>Note:</strong> You can add materials (PDF/DOCX/PPTX) and
-            URL links after creating your AI tutor in the detail page.
-          </p>
-        </div>
-      </HubForm.Root>
-    </div>
+      {/* Action Buttons */}
+      <div className={styles.actions}>
+        <Button
+          onClick={() => handleSubmit(false)}
+          disabled={isSubmitting}
+          variant="secondary"
+        >
+          {isSubmitting ? 'Saving...' : 'Save as Draft'}
+        </Button>
+        <Button
+          onClick={() => handleSubmit(true)}
+          disabled={isSubmitting}
+          variant="primary"
+        >
+          {isSubmitting ? 'Creating...' : 'Create & Publish'}
+        </Button>
+      </div>
+    </HubForm.Root>
   );
 }
