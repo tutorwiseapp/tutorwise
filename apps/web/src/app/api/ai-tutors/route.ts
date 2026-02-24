@@ -117,14 +117,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check CaaS-based limits
+    // Check CaaS-based limits and get active role
     const { data: profile } = await supabase
       .from('profiles')
-      .select('caas_score')
+      .select('caas_score, active_role')
       .eq('id', user.id)
       .single();
 
     const caasScore = profile?.caas_score ?? 0;
+    const activeRole = profile?.active_role || 'tutor'; // Default to tutor if not set
 
     // Get current AI tutor count
     const { count: currentCount, error: countError } = await supabase
@@ -166,7 +167,8 @@ export async function POST(request: NextRequest) {
         skills: body.skills || [],
         price_per_hour: body.price_per_hour,
       },
-      user.id
+      user.id,
+      activeRole
     );
 
     return NextResponse.json(tutor, { status: 201 });

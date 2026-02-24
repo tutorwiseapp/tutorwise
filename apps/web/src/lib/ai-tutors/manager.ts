@@ -103,7 +103,8 @@ export async function getAITutor(id: string, userId?: string): Promise<AITutor |
  */
 export async function createAITutor(
   input: AITutorCreateInput,
-  userId: string
+  userId: string,
+  activeRole?: string
 ): Promise<AITutor> {
   const supabase = await createClient();
 
@@ -133,6 +134,7 @@ export async function createAITutor(
       subject: input.subject,
       price_per_hour: input.price_per_hour,
       status: 'draft',
+      created_as_role: activeRole || 'tutor', // Set created_as_role to track which role created this AI tutor
     })
     .select()
     .single();

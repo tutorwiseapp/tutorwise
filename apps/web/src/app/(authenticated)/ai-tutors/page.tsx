@@ -49,13 +49,14 @@ interface AITutor {
   archived_at?: string | null;
   avatar_url?: string;
   owner_id?: string;
+  created_as_role?: string;
 }
 
 export default function AITutorsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const { profile, isLoading: userLoading } = useUserProfile();
+  const { profile, activeRole, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
 
   const filter = (searchParams?.get('filter') as FilterType) || 'all';
@@ -176,17 +177,29 @@ export default function AITutorsPage() {
     },
   });
 
+  // Filter AI tutors by created_as_role - each role sees ONLY AI tutors they created in that role
+  const roleFilteredTutors = useMemo(() => {
+    return aiTutors.filter((tutor) => {
+      // Show only AI tutors created while in the current active role
+      // This creates separate AI tutor inventories per role:
+      // - AI tutors created as "client" only visible in client role
+      // - AI tutors created as "tutor" only visible in tutor role
+      // - AI tutors created as "agent" only visible in agent role
+      return tutor.created_as_role === activeRole;
+    });
+  }, [aiTutors, activeRole]);
+
   const tabCounts = useMemo(() => ({
-    all: aiTutors.length,
-    published: aiTutors.filter(t => t.status === 'published').length,
-    draft: aiTutors.filter(t => t.status === 'draft').length,
-    unpublished: aiTutors.filter(t => t.status === 'unpublished').length,
-    archived: aiTutors.filter(t => t.status === 'archived').length,
-  }), [aiTutors]);
+    all: roleFilteredTutors.length,
+    published: roleFilteredTutors.filter(t => t.status === 'published').length,
+    draft: roleFilteredTutors.filter(t => t.status === 'draft').length,
+    unpublished: roleFilteredTutors.filter(t => t.status === 'unpublished').length,
+    archived: roleFilteredTutors.filter(t => t.status === 'archived').length,
+  }), [roleFilteredTutors]);
 
   // Filter AI tutors based on tab, search (comprehensive search across all relevant fields)
   const filteredTutors = useMemo(() => {
-    let result = aiTutors;
+    let result = roleFilteredTutors;
     if (filter !== 'all') {
       result = result.filter(t => t.status === filter);
     }
@@ -211,7 +224,7 @@ export default function AITutorsPage() {
       });
     }
     return result;
-  }, [aiTutors, filter, searchQuery]);
+  }, [roleFilteredTutors, filter, searchQuery]);
 
   // Sort AI tutors
   const sortedTutors = useMemo(() => {

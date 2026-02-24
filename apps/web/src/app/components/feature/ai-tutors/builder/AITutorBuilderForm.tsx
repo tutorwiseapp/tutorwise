@@ -24,6 +24,8 @@ interface AITutorBuilderFormProps {
   onSubmit: (data: AITutorFormData, shouldPublish: boolean) => Promise<void>;
   isSubmitting: boolean;
   initialData?: Partial<AITutorFormData>;
+  onCancel?: () => void;
+  isEditing?: boolean;
 }
 
 export interface AITutorFormData {
@@ -57,6 +59,8 @@ export default function AITutorBuilderForm({
   onSubmit,
   isSubmitting,
   initialData,
+  onCancel,
+  isEditing = false,
 }: AITutorBuilderFormProps) {
   const [formData, setFormData] = useState<AITutorFormData>({
     name: initialData?.name || '',
@@ -291,19 +295,28 @@ export default function AITutorBuilderForm({
 
       {/* Action Buttons */}
       <div className={styles.actions}>
+        {onCancel && (
+          <Button
+            onClick={onCancel}
+            disabled={isSubmitting}
+            variant="secondary"
+          >
+            Cancel
+          </Button>
+        )}
         <Button
           onClick={() => handleSubmit(false)}
           disabled={isSubmitting}
           variant="secondary"
         >
-          {isSubmitting ? 'Saving...' : 'Save as Draft'}
+          {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Save as Draft'}
         </Button>
         <Button
           onClick={() => handleSubmit(true)}
           disabled={isSubmitting}
           variant="primary"
         >
-          {isSubmitting ? 'Creating...' : 'Create & Publish'}
+          {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : isEditing ? 'Update & Publish' : 'Create & Publish'}
         </Button>
       </div>
     </HubForm.Root>
