@@ -10,12 +10,13 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createClient } from '@/utils/supabase/client';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
-import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
@@ -62,6 +63,29 @@ export default function LexiAnalyticsPage() {
     window.location.href = `/admin/lexi${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
+  // Fetch real-time counts from lexi tables
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+  const { data: lexiStats } = useQuery({
+    queryKey: ['admin-lexi-stats'],
+    queryFn: async () => {
+      const [conversationsRes, messagesRes, usersRes] = await Promise.all([
+        supabase.from('lexi_conversations').select('id', { count: 'exact', head: true }),
+        supabase.from('lexi_messages').select('id', { count: 'exact', head: true }),
+        supabase.from('lexi_conversations').select('user_id'),
+      ]);
+      const uniqueUsers = new Set(usersRes.data?.map((s: { user_id: string }) => s.user_id) || []).size;
+      return {
+        totalConversations: conversationsRes.count || 0,
+        totalMessages: messagesRes.count || 0,
+        uniqueUsers,
+      };
+    },
+    staleTime: 30000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
+
   // Fetch historical metrics from platform_statistics_daily
   const conversationsMetric = useAdminMetric({ metric: 'lexi_conversations_total', compareWith: 'last_month' });
   const messagesMetric = useAdminMetric({ metric: 'lexi_messages_total', compareWith: 'last_month' });
@@ -99,7 +123,7 @@ export default function LexiAnalyticsPage() {
   // Cost metrics
   const aiCostTotalMetric = useAdminMetric({ metric: 'lexi_ai_cost_total', compareWith: 'last_month' });
   const costPerConversationMetric = useAdminMetric({ metric: 'lexi_cost_per_conversation', compareWith: 'last_month' });
-  const freeUsagePercentMetric = useAdminMetric({ metric: 'lexi_free_usage_percent', compareWith: 'last_month' });
+  const _freeUsagePercentMetric = useAdminMetric({ metric: 'lexi_free_usage_percent', compareWith: 'last_month' });
   const paidUsagePercentMetric = useAdminMetric({ metric: 'lexi_paid_usage_percent', compareWith: 'last_month' });
   const monthlyProjectionMetric = useAdminMetric({ metric: 'lexi_monthly_projection', compareWith: 'last_month' });
 
@@ -150,9 +174,14 @@ export default function LexiAnalyticsPage() {
             subtitle="AI Assistant Usage & Performance"
             className={styles.lexiHeader}
             actions={
-              <Button variant="secondary" size="sm" onClick={() => router.push('/admin')}>
-                Back to Dashboard
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Button variant="secondary" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ['admin'] })}>
+                  Refresh Data
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => router.push('/admin')}>
+                  Back to Dashboard
+                </Button>
+              </div>
             }
           />
         }
@@ -174,10 +203,18 @@ export default function LexiAnalyticsPage() {
             <AdminStatsWidget
               title="Quick Stats"
               stats={[
-                { label: 'Total Conversations', value: conversationsMetric.value },
-                { label: 'Total Messages', value: messagesMetric.value },
-                { label: 'Unique Users', value: uniqueUsersMetric.value },
+                { label: 'Total Conversations', value: lexiStats?.totalConversations ?? 0 },
+                { label: 'Total Messages', value: lexiStats?.totalMessages ?? 0 },
+                { label: 'Unique Users', value: lexiStats?.uniqueUsers ?? 0 },
                 { label: 'Satisfaction Rate', value: `${feedbackRate}%`, valueColor: feedbackRate >= 80 ? 'green' : feedbackRate >= 50 ? 'orange' : 'default' },
+              ]}
+            />
+            <AdminHelpWidget
+              title="Lexi Help"
+              items={[
+                { question: 'What is Lexi?', answer: 'Lexi is the AI help assistant that answers platform questions for users.' },
+                { question: 'How do providers work?', answer: 'Lexi can use Rules (free), Claude, or Gemini as its AI backend. Switch in the Providers tab.' },
+                { question: 'What are limit hits?', answer: 'When users reach their daily free conversation limit, tracked to identify upgrade opportunities.' },
               ]}
             />
             <AdminTipWidget

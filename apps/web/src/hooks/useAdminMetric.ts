@@ -141,6 +141,8 @@ export type MetricName =
   | 'ai_tutors_active'
   | 'ai_tutors_platform'
   | 'ai_tutors_user'
+  | 'ai_tutors_draft'
+  | 'ai_tutors_active_rate'
   | 'ai_tutor_sessions_total';
 
 export type ComparisonPeriod = 'yesterday' | 'last_week' | 'last_month';

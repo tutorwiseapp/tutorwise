@@ -14,7 +14,7 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { Bot, Activity, Users } from 'lucide-react';
+import { Bot, Activity, Users, FileEdit, MessageSquare, TrendingUp } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import { HubKPIGrid, HubKPICard, HubCategoryBreakdownChart, HubTrendChart, type CategoryData } from '@/app/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
@@ -61,6 +61,9 @@ export default function AdminAITutorsOverviewPage() {
   const activeAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
   const platformAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_platform', compareWith: 'last_month' });
   const userAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_user', compareWith: 'last_month' });
+  const draftAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_draft', compareWith: 'last_month' });
+  const totalSessionsMetric = useAdminMetric({ metric: 'ai_tutor_sessions_total', compareWith: 'last_month' });
+  const activeRateMetric = useAdminMetric({ metric: 'ai_tutors_active_rate', compareWith: 'last_month' });
 
   // Header actions
   const getHeaderActions = () => {
@@ -189,6 +192,53 @@ export default function AdminAITutorsOverviewPage() {
               )}
               icon={Users}
               trend={userAITutorsMetric.trend}
+            />
+            <HubKPICard
+              label="Draft"
+              value={draftAITutorsMetric.value}
+              sublabel={formatMetricChange(
+                draftAITutorsMetric.change,
+                draftAITutorsMetric.changePercent,
+                'last_month'
+              )}
+              icon={FileEdit}
+              trend={draftAITutorsMetric.trend}
+            />
+            <HubKPICard
+              label="Total Sessions"
+              value={totalSessionsMetric.value}
+              sublabel={formatMetricChange(
+                totalSessionsMetric.change,
+                totalSessionsMetric.changePercent,
+                'last_month'
+              )}
+              icon={MessageSquare}
+              trend={totalSessionsMetric.trend}
+            />
+            <HubKPICard
+              label="Avg Sessions/Tutor"
+              value={
+                totalAITutorsMetric.value > 0
+                  ? (totalSessionsMetric.value / totalAITutorsMetric.value).toFixed(1)
+                  : '0'
+              }
+              sublabel={
+                totalAITutorsMetric.previousValue && totalAITutorsMetric.previousValue > 0
+                  ? `${(totalSessionsMetric.previousValue! / totalAITutorsMetric.previousValue!).toFixed(1)} last month`
+                  : undefined
+              }
+              icon={TrendingUp}
+            />
+            <HubKPICard
+              label="Active Rate"
+              value={`${activeRateMetric.value}%`}
+              sublabel={formatMetricChange(
+                activeRateMetric.change,
+                activeRateMetric.changePercent,
+                'last_month'
+              )}
+              icon={Activity}
+              trend={activeRateMetric.trend}
             />
           </HubKPIGrid>
 

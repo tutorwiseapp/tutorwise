@@ -10,17 +10,18 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { createClient } from '@/utils/supabase/client';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
-import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
-import { Bot, Users, MessageSquare, DollarSign, TrendingUp, BookOpen, Clock, AlertTriangle } from 'lucide-react';
+import { Bot, Users, MessageSquare, DollarSign, TrendingUp, BookOpen, AlertTriangle } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import SageProSubscriptionsTable from './components/SageProSubscriptionsTable';
 import styles from './page.module.css';
@@ -31,20 +32,10 @@ export const dynamicParams = true;
 
 type TabFilter = 'overview' | 'usage' | 'quota' | 'subjects' | 'subscriptions';
 
-interface SummaryStats {
-  totalSessions: number;
-  totalQuestions: number;
-  uniqueUsers: number;
-  avgQuestionsPerSession: number;
-  freeUsers: number;
-  proUsers: number;
-  topSubjects: Array<{ subject: string; count: number }>;
-  topLevels: Array<{ level: string; count: number }>;
-}
-
 export default function SageAnalyticsPage() {
   const _router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   const tabFilter = (searchParams?.get('tab') as TabFilter) || 'overview';
 
@@ -57,6 +48,28 @@ export default function SageAnalyticsPage() {
     }
     window.location.href = `/admin/sage${params.toString() ? `?${params.toString()}` : ''}`;
   };
+
+  // Fetch real-time counts from sage tables
+  const supabase = createClient();
+  const { data: sageStats } = useQuery({
+    queryKey: ['admin-sage-stats'],
+    queryFn: async () => {
+      const [sessionsRes, questionsRes, usersRes] = await Promise.all([
+        supabase.from('sage_sessions').select('id', { count: 'exact', head: true }),
+        supabase.from('sage_messages').select('id', { count: 'exact', head: true }).eq('role', 'user'),
+        supabase.from('sage_sessions').select('user_id'),
+      ]);
+      const uniqueUsers = new Set(usersRes.data?.map((s: { user_id: string }) => s.user_id) || []).size;
+      return {
+        totalSessions: sessionsRes.count || 0,
+        totalQuestions: questionsRes.count || 0,
+        uniqueUsers,
+      };
+    },
+    staleTime: 30000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
 
   // Fetch historical metrics from platform_statistics_daily
   const sessionsMetric = useAdminMetric({ metric: 'sage_sessions_total', compareWith: 'last_month' });
@@ -106,23 +119,6 @@ export default function SageAnalyticsPage() {
     { label: 'General', value: subjectGeneralMetric.value, color: '#8B5CF6' },
   ];
 
-  // Fetch summary stats (for subjects/levels data)
-  const { data: summaryData } = useQuery({
-    queryKey: ['admin', 'sage', 'summary'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/sage/analytics?type=summary');
-      if (!response.ok) throw new Error('Failed to fetch summary');
-      const data = await response.json();
-      return data as SummaryStats;
-    },
-    staleTime: 2 * 60 * 1000,
-    placeholderData: keepPreviousData,
-    refetchOnMount: true,
-  });
-
-  // Note: Quota and subject data now come from platform_statistics_daily via useAdminMetric hooks
-  // No longer need separate API queries for these tabs
-
   // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -144,7 +140,7 @@ export default function SageAnalyticsPage() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => window.location.reload()}
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['admin'] })}
               >
                 Refresh Data
               </Button>
@@ -168,10 +164,18 @@ export default function SageAnalyticsPage() {
             <AdminStatsWidget
               title="Quick Stats"
               stats={[
-                { label: 'Total Questions', value: questionsMetric.value },
-                { label: 'Total Sessions', value: sessionsMetric.value },
-                { label: 'Active Users', value: uniqueUsersMetric.value },
+                { label: 'Total Sessions', value: sageStats?.totalSessions ?? 0 },
+                { label: 'Total Questions', value: sageStats?.totalQuestions ?? 0 },
+                { label: 'Unique Users', value: sageStats?.uniqueUsers ?? 0 },
                 { label: 'Pro Subscriptions', value: proSubscriptionsMetric.value },
+              ]}
+            />
+            <AdminHelpWidget
+              title="Sage Help"
+              items={[
+                { question: 'What is Sage?', answer: 'Sage is the AI tutor that helps students learn through interactive Q&A sessions.' },
+                { question: 'Free vs Pro?', answer: 'Free users get 10 questions/day. Pro users get unlimited access with priority support.' },
+                { question: 'How are costs calculated?', answer: 'Costs are based on AI API usage per question, tracked in the Quota & Costs tab.' },
               ]}
             />
             <AdminTipWidget
