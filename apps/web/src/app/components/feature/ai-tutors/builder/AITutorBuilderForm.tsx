@@ -26,6 +26,7 @@ interface AITutorBuilderFormProps {
   initialData?: Partial<AITutorFormData>;
   onCancel?: () => void;
   isEditing?: boolean;
+  isAdminMode?: boolean; // For admin-specific features (future use)
 }
 
 export interface AITutorFormData {
@@ -61,6 +62,7 @@ export default function AITutorBuilderForm({
   initialData,
   onCancel,
   isEditing = false,
+  isAdminMode = false,
 }: AITutorBuilderFormProps) {
   const [formData, setFormData] = useState<AITutorFormData>({
     name: initialData?.name || '',

@@ -99,27 +99,31 @@ export async function getAITutor(id: string, userId?: string): Promise<AITutor |
 
 /**
  * Create new AI tutor (draft status)
- * Checks graduated limits before creation
+ * Checks graduated limits before creation (unless platform-owned)
  */
 export async function createAITutor(
   input: AITutorCreateInput,
   userId: string,
-  activeRole?: string
+  activeRole?: string,
+  isPlatformOwned: boolean = false
 ): Promise<AITutor> {
   const supabase = await createClient();
 
-  // Check creation limit
-  const { data: canCreate, error: limitError } = await supabase
-    .rpc('check_ai_tutor_limit', { p_user_id: userId })
-    .single();
+  // Skip limit check for platform-owned AI tutors (admin-created)
+  if (!isPlatformOwned) {
+    // Check creation limit for user-created AI tutors
+    const { data: canCreate, error: limitError } = await supabase
+      .rpc('check_ai_tutor_limit', { p_user_id: userId })
+      .single();
 
-  if (limitError) {
-    console.error('Error checking AI tutor limit:', limitError);
-    throw new Error('Failed to check AI tutor creation limit');
-  }
+    if (limitError) {
+      console.error('Error checking AI tutor limit:', limitError);
+      throw new Error('Failed to check AI tutor creation limit');
+    }
 
-  if (!canCreate) {
-    throw new Error('AI tutor creation limit reached. Increase your CaaS score to create more.');
+    if (!canCreate) {
+      throw new Error('AI tutor creation limit reached. Increase your CaaS score to create more.');
+    }
   }
 
   // Create AI tutor
@@ -134,6 +138,7 @@ export async function createAITutor(
       subject: input.subject,
       price_per_hour: input.price_per_hour,
       status: 'draft',
+      is_platform_owned: isPlatformOwned,
       created_as_role: activeRole || 'tutor', // Set created_as_role to track which role created this AI tutor
     })
     .select()

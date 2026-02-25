@@ -156,6 +156,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if creating platform-owned AI tutor (admin only)
+    const isPlatformOwned = body.is_platform_owned === true;
+
+    // If requesting platform ownership, verify user is admin
+    if (isPlatformOwned) {
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (adminProfile?.is_admin !== true) {
+        return NextResponse.json(
+          { error: 'Only admins can create platform-owned AI tutors' },
+          { status: 403 }
+        );
+      }
+    }
+
     // Create AI tutor
     const tutor = await createAITutor(
       {
@@ -168,7 +187,8 @@ export async function POST(request: NextRequest) {
         price_per_hour: body.price_per_hour,
       },
       user.id,
-      activeRole
+      activeRole,
+      isPlatformOwned
     );
 
     return NextResponse.json(tutor, { status: 201 });
