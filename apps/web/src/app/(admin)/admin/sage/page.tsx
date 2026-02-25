@@ -2,8 +2,9 @@
  * Filename: src/app/(admin)/admin/sage/page.tsx
  * Purpose: Sage AI Tutor Analytics Dashboard
  * Created: 2026-02-17
+ * Updated: 2026-02-25 - Refactored to use Hub architecture components
  *
- * Pattern: Follows Admin Dashboard pattern with HubPageLayout + HubTabs + 4-card sidebar
+ * Pattern: Follows Admin Dashboard pattern (Listings/Bookings/AI Tutors)
  */
 'use client';
 
@@ -13,8 +14,13 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
 import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { Bot, Users, MessageSquare, DollarSign, TrendingUp, BookOpen, Clock, AlertTriangle } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import SageProSubscriptionsTable from './components/SageProSubscriptionsTable';
 import styles from './page.module.css';
@@ -36,36 +42,8 @@ interface SummaryStats {
   topLevels: Array<{ level: string; count: number }>;
 }
 
-interface QuotaStats {
-  freeTier: {
-    totalUsers: number;
-    dailyUsage: number;
-    limitHits: number;
-    avgQuestionsPerUser: number;
-  };
-  proTier: {
-    totalSubscriptions: number;
-    monthlyUsage: number;
-    avgQuestionsPerUser: number;
-    revenue: number;
-  };
-  costAnalysis: {
-    totalCost: number;
-    costPerQuestion: number;
-    marginFree: number;
-    marginPro: number;
-  };
-}
-
-interface SubjectBreakdown {
-  maths: number;
-  english: number;
-  science: number;
-  general: number;
-}
-
 export default function SageAnalyticsPage() {
-  const router = useRouter();
+  const _router = useRouter();
   const searchParams = useSearchParams();
 
   const tabFilter = (searchParams?.get('tab') as TabFilter) || 'overview';
@@ -77,11 +55,59 @@ export default function SageAnalyticsPage() {
     } else {
       params.set('tab', tabId);
     }
-    router.push(`/admin/sage${params.toString() ? `?${params.toString()}` : ''}`);
+    window.location.href = `/admin/sage${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
-  // Fetch summary stats
-  const { data: summaryData, isLoading: summaryLoading } = useQuery({
+  // Fetch historical metrics from platform_statistics_daily
+  const sessionsMetric = useAdminMetric({ metric: 'sage_sessions_total', compareWith: 'last_month' });
+  const questionsMetric = useAdminMetric({ metric: 'sage_questions_total', compareWith: 'last_month' });
+  const uniqueUsersMetric = useAdminMetric({ metric: 'sage_unique_users', compareWith: 'last_month' });
+  const freeUsersMetric = useAdminMetric({ metric: 'sage_free_users', compareWith: 'last_month' });
+  const proUsersMetric = useAdminMetric({ metric: 'sage_pro_users', compareWith: 'last_month' });
+  const proSubscriptionsMetric = useAdminMetric({ metric: 'sage_pro_subscriptions', compareWith: 'last_month' });
+  const proMrrMetric = useAdminMetric({ metric: 'sage_pro_mrr', compareWith: 'last_month' });
+
+  // Subject metrics
+  const subjectMathsMetric = useAdminMetric({ metric: 'sage_subject_maths', compareWith: 'last_month' });
+  const subjectEnglishMetric = useAdminMetric({ metric: 'sage_subject_english', compareWith: 'last_month' });
+  const subjectScienceMetric = useAdminMetric({ metric: 'sage_subject_science', compareWith: 'last_month' });
+  const subjectGeneralMetric = useAdminMetric({ metric: 'sage_subject_general', compareWith: 'last_month' });
+
+  // Quota metrics
+  const freeDailyUsageMetric = useAdminMetric({ metric: 'sage_free_daily_usage', compareWith: 'last_month' });
+  const freeLimitHitsMetric = useAdminMetric({ metric: 'sage_free_limit_hits', compareWith: 'last_month' });
+  const freeAvgQuestionsMetric = useAdminMetric({ metric: 'sage_free_avg_questions', compareWith: 'last_month' });
+  const proMonthlyUsageMetric = useAdminMetric({ metric: 'sage_pro_monthly_usage', compareWith: 'last_month' });
+  const proAvgQuestionsMetric = useAdminMetric({ metric: 'sage_pro_avg_questions', compareWith: 'last_month' });
+
+  // Cost metrics
+  const totalAICostMetric = useAdminMetric({ metric: 'sage_total_ai_cost', compareWith: 'last_month' });
+  const costPerQuestionMetric = useAdminMetric({ metric: 'sage_cost_per_question', compareWith: 'last_month' });
+  const marginFreeMetric = useAdminMetric({ metric: 'sage_margin_free', compareWith: 'last_month' });
+  const marginProMetric = useAdminMetric({ metric: 'sage_margin_pro', compareWith: 'last_month' });
+
+  // Fetch trend data for charts (last 7 days)
+  const sessionsTrendsQuery = useAdminTrendData({ metric: 'sage_sessions_total', days: 7 });
+  const questionsTrendsQuery = useAdminTrendData({ metric: 'sage_questions_total', days: 7 });
+
+  const isLoadingCharts = sessionsTrendsQuery.isLoading || questionsTrendsQuery.isLoading;
+
+  // User type breakdown data
+  const userTypeData: CategoryData[] = [
+    { label: 'Free Users', value: freeUsersMetric.value, color: '#3B82F6' },
+    { label: 'Pro Users', value: proUsersMetric.value, color: '#10B981' },
+  ];
+
+  // Subject breakdown data
+  const subjectBreakdownData: CategoryData[] = [
+    { label: 'Mathematics', value: subjectMathsMetric.value, color: '#3B82F6' },
+    { label: 'English', value: subjectEnglishMetric.value, color: '#10B981' },
+    { label: 'Science', value: subjectScienceMetric.value, color: '#F59E0B' },
+    { label: 'General', value: subjectGeneralMetric.value, color: '#8B5CF6' },
+  ];
+
+  // Fetch summary stats (for subjects/levels data)
+  const { data: summaryData } = useQuery({
     queryKey: ['admin', 'sage', 'summary'],
     queryFn: async () => {
       const response = await fetch('/api/admin/sage/analytics?type=summary');
@@ -94,35 +120,18 @@ export default function SageAnalyticsPage() {
     refetchOnMount: true,
   });
 
-  // Fetch quota stats
-  const { data: quotaData, isLoading: quotaLoading } = useQuery({
-    queryKey: ['admin', 'sage', 'quota'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/sage/analytics?type=quota');
-      if (!response.ok) throw new Error('Failed to fetch quota stats');
-      const data = await response.json();
-      return data as QuotaStats;
-    },
-    staleTime: 5 * 60 * 1000,
-    placeholderData: keepPreviousData,
-    enabled: tabFilter === 'quota',
-  });
+  // Note: Quota and subject data now come from platform_statistics_daily via useAdminMetric hooks
+  // No longer need separate API queries for these tabs
 
-  // Fetch subject breakdown
-  const { data: subjectData, isLoading: subjectLoading } = useQuery({
-    queryKey: ['admin', 'sage', 'subjects'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/sage/analytics?type=subjects');
-      if (!response.ok) throw new Error('Failed to fetch subject breakdown');
-      const data = await response.json();
-      return data as SubjectBreakdown;
-    },
-    staleTime: 5 * 60 * 1000,
-    placeholderData: keepPreviousData,
-    enabled: tabFilter === 'subjects',
-  });
-
-  const isLoading = summaryLoading || (tabFilter === 'quota' && quotaLoading) || (tabFilter === 'subjects' && subjectLoading);
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
 
   return (
     <ErrorBoundary>
@@ -158,16 +167,11 @@ export default function SageAnalyticsPage() {
           <HubSidebar>
             <AdminStatsWidget
               title="Quick Stats"
-              stats={summaryData ? [
-                { label: 'Total Questions', value: summaryData.totalQuestions },
-                { label: 'Total Sessions', value: summaryData.totalSessions },
-                { label: 'Active Users', value: summaryData.uniqueUsers },
-                { label: 'Avg Questions/Session', value: summaryData.avgQuestionsPerSession.toFixed(1) },
-              ] : [
-                { label: 'Total Questions', value: '...' },
-                { label: 'Total Sessions', value: '...' },
-                { label: 'Active Users', value: '...' },
-                { label: 'Avg Questions/Session', value: '...' },
+              stats={[
+                { label: 'Total Questions', value: questionsMetric.value },
+                { label: 'Total Sessions', value: sessionsMetric.value },
+                { label: 'Active Users', value: uniqueUsersMetric.value },
+                { label: 'Pro Subscriptions', value: proSubscriptionsMetric.value },
               ]}
             />
             <AdminTipWidget
@@ -182,192 +186,376 @@ export default function SageAnalyticsPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.content}>
-          {isLoading && (
-            <div className={styles.loading}>
-              <div className={styles.spinner} />
-              <p>Loading analytics...</p>
+        {/* Overview Tab */}
+        {tabFilter === 'overview' && (
+          <>
+            {/* KPI Cards Grid */}
+            <HubKPIGrid>
+              <HubKPICard
+                label="Total Sessions"
+                value={sessionsMetric.value}
+                sublabel={formatMetricChange(
+                  sessionsMetric.change,
+                  sessionsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Bot}
+                trend={sessionsMetric.trend}
+              />
+              <HubKPICard
+                label="Total Questions"
+                value={questionsMetric.value}
+                sublabel={formatMetricChange(
+                  questionsMetric.change,
+                  questionsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={MessageSquare}
+                trend={questionsMetric.trend}
+              />
+              <HubKPICard
+                label="Unique Users"
+                value={uniqueUsersMetric.value}
+                sublabel={formatMetricChange(
+                  uniqueUsersMetric.change,
+                  uniqueUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={uniqueUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Avg Questions/Session"
+                value={
+                  sessionsMetric.value > 0
+                    ? (questionsMetric.value / sessionsMetric.value).toFixed(1)
+                    : '0'
+                }
+                sublabel={
+                  sessionsMetric.previousValue && sessionsMetric.previousValue > 0
+                    ? `${(questionsMetric.previousValue! / sessionsMetric.previousValue!).toFixed(1)} last month`
+                    : undefined
+                }
+                icon={TrendingUp}
+              />
+              <HubKPICard
+                label="Free Users"
+                value={freeUsersMetric.value}
+                sublabel={formatMetricChange(
+                  freeUsersMetric.change,
+                  freeUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={freeUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Pro Users"
+                value={proUsersMetric.value}
+                sublabel={formatMetricChange(
+                  proUsersMetric.change,
+                  proUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={proUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Pro Subscriptions"
+                value={proSubscriptionsMetric.value}
+                sublabel={formatMetricChange(
+                  proSubscriptionsMetric.change,
+                  proSubscriptionsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={DollarSign}
+                trend={proSubscriptionsMetric.trend}
+              />
+              <HubKPICard
+                label="Monthly Recurring Revenue"
+                value={formatCurrency(proMrrMetric.value)}
+                sublabel={
+                  proMrrMetric.change !== null
+                    ? `${proMrrMetric.change >= 0 ? '+' : ''}${formatCurrency(proMrrMetric.change)} vs last month`
+                    : undefined
+                }
+                icon={DollarSign}
+                trend={proMrrMetric.trend}
+              />
+            </HubKPIGrid>
+
+            {/* Charts Section */}
+            <div className={styles.chartsSection}>
+              {/* Session Trends Chart */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load session trends chart</div>}>
+                {isLoadingCharts ? (
+                  <ChartSkeleton height="320px" />
+                ) : (
+                  <HubTrendChart
+                    data={sessionsTrendsQuery.data}
+                    title="Session Trends"
+                    subtitle="Last 7 days"
+                    valueName="Sessions"
+                    lineColor="#3B82F6"
+                  />
+                )}
+              </ErrorBoundary>
+
+              {/* Questions Trends Chart */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load questions trends chart</div>}>
+                {isLoadingCharts ? (
+                  <ChartSkeleton height="320px" />
+                ) : (
+                  <HubTrendChart
+                    data={questionsTrendsQuery.data}
+                    title="Questions Trends"
+                    subtitle="Last 7 days"
+                    valueName="Questions"
+                    lineColor="#10B981"
+                  />
+                )}
+              </ErrorBoundary>
+
+              {/* User Type Breakdown */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load user breakdown chart</div>}>
+                <HubCategoryBreakdownChart
+                  data={userTypeData}
+                  title="User Type Breakdown"
+                  subtitle="Free vs Pro users"
+                />
+              </ErrorBoundary>
             </div>
-          )}
 
-          {!isLoading && tabFilter === 'overview' && summaryData && (
-            <div className={styles.overview}>
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <h3>Total Sessions</h3>
-                  <p className={styles.statValue}>{summaryData.totalSessions.toLocaleString()}</p>
-                  <span className={styles.statLabel}>Learning sessions started</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>Total Questions</h3>
-                  <p className={styles.statValue}>{summaryData.totalQuestions.toLocaleString()}</p>
-                  <span className={styles.statLabel}>AI-powered responses</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>Unique Users</h3>
-                  <p className={styles.statValue}>{summaryData.uniqueUsers.toLocaleString()}</p>
-                  <span className={styles.statLabel}>Active learners</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>Avg Questions/Session</h3>
-                  <p className={styles.statValue}>{summaryData.avgQuestionsPerSession.toFixed(1)}</p>
-                  <span className={styles.statLabel}>Engagement metric</span>
-                </div>
-              </div>
+          </>
+        )}
 
-              <div className={styles.section}>
-                <h2>Popular Subjects</h2>
-                <div className={styles.list}>
-                  {summaryData.topSubjects.map((item, idx) => (
-                    <div key={idx} className={styles.listItem}>
-                      <span className={styles.listLabel}>{item.subject}</span>
-                      <span className={styles.listValue}>{item.count} questions</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* Usage Tab - Coming Soon */}
+        {tabFilter === 'usage' && (
+          <HubEmptyState
+            title="Usage Analytics Coming Soon"
+            description="Detailed usage patterns, peak times, and session analytics will be available here."
+          />
+        )}
 
-              <div className={styles.section}>
-                <h2>Study Levels</h2>
-                <div className={styles.list}>
-                  {summaryData.topLevels.map((item, idx) => (
-                    <div key={idx} className={styles.listItem}>
-                      <span className={styles.listLabel}>{item.level}</span>
-                      <span className={styles.listValue}>{item.count} questions</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* Quota & Costs Tab */}
+        {tabFilter === 'quota' && (
+          <>
+            {/* Free Tier Analytics Section */}
+            <h2 className={styles.sectionHeading}>Free Tier Analytics</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Free Users"
+                value={freeUsersMetric.value}
+                sublabel={formatMetricChange(
+                  freeUsersMetric.change,
+                  freeUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={freeUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Daily Usage"
+                value={freeDailyUsageMetric.value}
+                sublabel={formatMetricChange(
+                  freeDailyUsageMetric.change,
+                  freeDailyUsageMetric.changePercent,
+                  'last_month'
+                )}
+                icon={MessageSquare}
+                trend={freeDailyUsageMetric.trend}
+              />
+              <HubKPICard
+                label="Limit Hits"
+                value={freeLimitHitsMetric.value}
+                sublabel={formatMetricChange(
+                  freeLimitHitsMetric.change,
+                  freeLimitHitsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={AlertTriangle}
+                trend={freeLimitHitsMetric.trend}
+              />
+              <HubKPICard
+                label="Avg Questions/User"
+                value={freeAvgQuestionsMetric.value > 0 ? freeAvgQuestionsMetric.value.toFixed(1) : '0'}
+                sublabel={
+                  freeAvgQuestionsMetric.previousValue
+                    ? `${freeAvgQuestionsMetric.previousValue.toFixed(1)} last month`
+                    : 'Questions per free user'
+                }
+                icon={TrendingUp}
+              />
+            </HubKPIGrid>
+
+            {/* Sage Pro Analytics Section */}
+            <h2 className={styles.sectionHeading}>Sage Pro Analytics</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Pro Subscriptions"
+                value={proSubscriptionsMetric.value}
+                sublabel={formatMetricChange(
+                  proSubscriptionsMetric.change,
+                  proSubscriptionsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={proSubscriptionsMetric.trend}
+              />
+              <HubKPICard
+                label="Monthly Usage"
+                value={proMonthlyUsageMetric.value}
+                sublabel={formatMetricChange(
+                  proMonthlyUsageMetric.change,
+                  proMonthlyUsageMetric.changePercent,
+                  'last_month'
+                )}
+                icon={MessageSquare}
+                trend={proMonthlyUsageMetric.trend}
+              />
+              <HubKPICard
+                label="Monthly Recurring Revenue"
+                value={formatCurrency(proMrrMetric.value)}
+                sublabel={
+                  proMrrMetric.change !== null
+                    ? `${proMrrMetric.change >= 0 ? '+' : ''}${formatCurrency(proMrrMetric.change)} vs last month`
+                    : undefined
+                }
+                icon={DollarSign}
+                trend={proMrrMetric.trend}
+              />
+              <HubKPICard
+                label="Avg Questions/User"
+                value={proAvgQuestionsMetric.value > 0 ? proAvgQuestionsMetric.value.toFixed(0) : '0'}
+                sublabel={
+                  proAvgQuestionsMetric.previousValue
+                    ? `${proAvgQuestionsMetric.previousValue.toFixed(0)} last month`
+                    : 'Questions per Pro user'
+                }
+                icon={TrendingUp}
+              />
+            </HubKPIGrid>
+
+            {/* Cost Analysis Section */}
+            <h2 className={styles.sectionHeading}>Cost Analysis</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Total AI Cost"
+                value={formatCurrency(totalAICostMetric.value)}
+                sublabel={formatMetricChange(
+                  totalAICostMetric.change,
+                  totalAICostMetric.changePercent,
+                  'last_month'
+                )}
+                icon={DollarSign}
+                trend={totalAICostMetric.trend}
+              />
+              <HubKPICard
+                label="Cost per Question"
+                value={costPerQuestionMetric.value > 0 ? formatCurrency(costPerQuestionMetric.value) : '£0.00'}
+                sublabel={
+                  costPerQuestionMetric.previousValue
+                    ? `${formatCurrency(costPerQuestionMetric.previousValue)} last month`
+                    : 'Average AI cost'
+                }
+                icon={DollarSign}
+              />
+              <HubKPICard
+                label="Free Tier Margin"
+                value={formatCurrency(marginFreeMetric.value)}
+                sublabel={
+                  marginFreeMetric.change !== null
+                    ? `${marginFreeMetric.change >= 0 ? '+' : ''}${formatCurrency(marginFreeMetric.change)} vs last month`
+                    : 'Loss on free tier'
+                }
+                icon={DollarSign}
+                trend={marginFreeMetric.trend}
+              />
+              <HubKPICard
+                label="Pro Tier Margin"
+                value={formatCurrency(marginProMetric.value)}
+                sublabel={
+                  marginProMetric.change !== null
+                    ? `${marginProMetric.change >= 0 ? '+' : ''}${formatCurrency(marginProMetric.change)} vs last month`
+                    : 'Profit from Pro tier'
+                }
+                icon={DollarSign}
+                trend={marginProMetric.trend}
+              />
+            </HubKPIGrid>
+          </>
+        )}
+
+        {/* Subjects Tab */}
+        {tabFilter === 'subjects' && (
+          <>
+            {/* Subject KPI Cards */}
+            <HubKPIGrid>
+              <HubKPICard
+                label="Mathematics"
+                value={subjectMathsMetric.value}
+                sublabel={formatMetricChange(
+                  subjectMathsMetric.change,
+                  subjectMathsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={BookOpen}
+                trend={subjectMathsMetric.trend}
+              />
+              <HubKPICard
+                label="English"
+                value={subjectEnglishMetric.value}
+                sublabel={formatMetricChange(
+                  subjectEnglishMetric.change,
+                  subjectEnglishMetric.changePercent,
+                  'last_month'
+                )}
+                icon={BookOpen}
+                trend={subjectEnglishMetric.trend}
+              />
+              <HubKPICard
+                label="Science"
+                value={subjectScienceMetric.value}
+                sublabel={formatMetricChange(
+                  subjectScienceMetric.change,
+                  subjectScienceMetric.changePercent,
+                  'last_month'
+                )}
+                icon={BookOpen}
+                trend={subjectScienceMetric.trend}
+              />
+              <HubKPICard
+                label="General"
+                value={subjectGeneralMetric.value}
+                sublabel={formatMetricChange(
+                  subjectGeneralMetric.change,
+                  subjectGeneralMetric.changePercent,
+                  'last_month'
+                )}
+                icon={BookOpen}
+                trend={subjectGeneralMetric.trend}
+              />
+            </HubKPIGrid>
+
+            {/* Subject Breakdown Chart */}
+            <div className={styles.chartsSection}>
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load subject breakdown chart</div>}>
+                <HubCategoryBreakdownChart
+                  data={subjectBreakdownData}
+                  title="Subject Distribution"
+                  subtitle="Questions asked by subject"
+                />
+              </ErrorBoundary>
             </div>
-          )}
+          </>
+        )}
 
-          {!isLoading && tabFilter === 'quota' && quotaData && (
-            <div className={styles.quotaView}>
-              <div className={styles.section}>
-                <h2>Free Tier Analytics</h2>
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <h3>Free Users</h3>
-                    <p className={styles.statValue}>{quotaData.freeTier.totalUsers}</p>
-                    <span className={styles.statLabel}>10 questions/day limit</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Daily Usage</h3>
-                    <p className={styles.statValue}>{quotaData.freeTier.dailyUsage}</p>
-                    <span className={styles.statLabel}>Questions today</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Limit Hits</h3>
-                    <p className={styles.statValue}>{quotaData.freeTier.limitHits}</p>
-                    <span className={styles.statLabel}>Users hitting daily limit</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Avg Usage</h3>
-                    <p className={styles.statValue}>{quotaData.freeTier.avgQuestionsPerUser.toFixed(1)}</p>
-                    <span className={styles.statLabel}>Questions per free user</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.section}>
-                <h2>Sage Pro Analytics</h2>
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <h3>Pro Subscriptions</h3>
-                    <p className={styles.statValue}>{quotaData.proTier.totalSubscriptions}</p>
-                    <span className={styles.statLabel}>5,000 questions/month</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Monthly Usage</h3>
-                    <p className={styles.statValue}>{quotaData.proTier.monthlyUsage}</p>
-                    <span className={styles.statLabel}>Questions this month</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>MRR</h3>
-                    <p className={styles.statValue}>£{(quotaData.proTier.revenue / 100).toFixed(0)}</p>
-                    <span className={styles.statLabel}>Monthly recurring revenue</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Avg Usage</h3>
-                    <p className={styles.statValue}>{quotaData.proTier.avgQuestionsPerUser.toFixed(0)}</p>
-                    <span className={styles.statLabel}>Questions per Pro user</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.section}>
-                <h2>Cost Analysis</h2>
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <h3>Total AI Cost</h3>
-                    <p className={styles.statValue}>£{quotaData.costAnalysis.totalCost.toFixed(2)}</p>
-                    <span className={styles.statLabel}>Gemini API usage</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Cost per Question</h3>
-                    <p className={styles.statValue}>£{quotaData.costAnalysis.costPerQuestion.toFixed(4)}</p>
-                    <span className={styles.statLabel}>Average token cost</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Free Margin</h3>
-                    <p className={styles.statValue} style={{ color: quotaData.costAnalysis.marginFree < 0 ? 'var(--color-danger)' : 'var(--color-success)' }}>
-                      £{quotaData.costAnalysis.marginFree.toFixed(2)}
-                    </p>
-                    <span className={styles.statLabel}>Loss on free tier</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <h3>Pro Margin</h3>
-                    <p className={styles.statValue} style={{ color: 'var(--color-success)' }}>
-                      £{quotaData.costAnalysis.marginPro.toFixed(2)}
-                    </p>
-                    <span className={styles.statLabel}>Profit from Pro tier</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!isLoading && tabFilter === 'subjects' && subjectData && (
-            <div className={styles.subjectsView}>
-              <h2>Subject Distribution</h2>
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <h3>Mathematics</h3>
-                  <p className={styles.statValue}>{subjectData.maths}</p>
-                  <span className={styles.statLabel}>Questions asked</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>English</h3>
-                  <p className={styles.statValue}>{subjectData.english}</p>
-                  <span className={styles.statLabel}>Questions asked</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>Science</h3>
-                  <p className={styles.statValue}>{subjectData.science}</p>
-                  <span className={styles.statLabel}>Questions asked</span>
-                </div>
-                <div className={styles.statCard}>
-                  <h3>General</h3>
-                  <p className={styles.statValue}>{subjectData.general}</p>
-                  <span className={styles.statLabel}>Questions asked</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {tabFilter === 'subscriptions' && (
-            <div className={styles.subscriptionsView}>
-              <SageProSubscriptionsTable />
-            </div>
-          )}
-
-          {!isLoading && tabFilter === 'usage' && (
-            <HubEmptyState
-              title="Usage Analytics Coming Soon"
-              description="Detailed usage patterns, peak times, and session analytics will be available here."
-            />
-          )}
-        </div>
+        {/* Subscriptions Tab */}
+        {tabFilter === 'subscriptions' && (
+          <div className={styles.subscriptionsView}>
+            <SageProSubscriptionsTable />
+          </div>
+        )}
       </HubPageLayout>
     </ErrorBoundary>
   );

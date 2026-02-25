@@ -4,6 +4,14 @@
   padding: 1.5rem;
 }
 
+/* Charts Section - matches Listings admin pattern */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
 .loading {
   display: flex;
   flex-direction: column;
@@ -33,54 +41,13 @@
   font-size: 0.9375rem;
 }
 
-/* Stats Grid */
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.statCard {
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: box-shadow 0.2s;
-}
-
-.statCard:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.statCard h3 {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  margin: 0 0 0.75rem 0;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.statValue {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 0.5rem 0;
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
-  display: block;
-}
+/* Note: Stats now use Hub components (HubKPICard + HubKPIGrid) - custom styles removed */
 
 /* Sections */
 .section {
   background: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
+  border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -88,7 +55,15 @@
 .section h2 {
   font-size: 1.125rem;
   font-weight: 600;
-  margin: 0 0 1.25rem 0;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+/* Plain section heading - no box container */
+.sectionHeading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
   color: var(--color-text-primary);
 }
 
@@ -128,27 +103,6 @@
   gap: 1.5rem;
 }
 
-/* Quota View */
-.quotaView {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Subjects View */
-.subjectsView {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.subjectsView h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem 0;
-  color: var(--color-text-primary);
-}
-
 /* Subscriptions View */
 .subscriptionsView {
   display: flex;
@@ -174,41 +128,13 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .statsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .statCard {
-    padding: 1.25rem;
-  }
-
-  .statValue {
-    font-size: 1.75rem;
-  }
-}
-
 @media (max-width: 768px) {
   .content {
     padding: 1rem;
   }
 
-  .statsGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .section {
     padding: 1.25rem;
-  }
-
-  .statCard {
-    padding: 1rem;
-  }
-
-  .statValue {
-    font-size: 1.5rem;
   }
 
   .listItem {

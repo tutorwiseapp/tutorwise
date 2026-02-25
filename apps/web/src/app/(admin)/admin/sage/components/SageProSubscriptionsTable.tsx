@@ -17,6 +17,7 @@ import { formatDate as formatDateUtil, calculateDaysRemaining } from '@/lib/util
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import styles from './SageProSubscriptionsTable.module.css';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
+import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
 // Sage Pro Subscription interface
@@ -69,23 +70,10 @@ export default function SageProSubscriptionsTable() {
       searchQuery,
     ],
     queryFn: async () => {
+      // Fetch subscriptions without join to avoid schema cache relationship error
       let query = supabase
         .from('sage_pro_subscriptions')
-        .select(
-          `
-          *,
-          user:user_id(id, full_name, email, avatar_url)
-        `,
-          { count: 'exact' }
-        );
-
-      // Apply search filter - search by user email or full name
-      if (searchQuery) {
-        // We need to join and filter by user fields
-        // Since we can't directly filter on joined table in Supabase, we'll fetch and filter client-side
-        // Or use a more complex query structure
-        // For now, let's use a simpler approach with email search via user_id lookup
-      }
+        .select('*', { count: 'exact' });
 
       // Apply sorting
       query = query.order(sortKey, { ascending: sortDirection === 'asc' });
@@ -99,17 +87,40 @@ export default function SageProSubscriptionsTable() {
 
       if (error) throw error;
 
-      // Flatten foreign key arrays (Supabase returns arrays for single joins)
-      const subscriptions = (data || []).map((item: any) => ({
-        ...item,
-        user: Array.isArray(item.user) ? item.user[0] : item.user,
+      const subscriptions = data || [];
+
+      // Fetch user data separately
+      const userIds = [...new Set(subscriptions.map(s => s.user_id).filter(Boolean))];
+
+      let users: Array<{ id: string; full_name: string | null; email: string; avatar_url: string | null }> = [];
+
+      if (userIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, avatar_url')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.error('Error fetching users:', usersError);
+        } else {
+          users = usersData || [];
+        }
+      }
+
+      // Create users map for efficient lookup
+      const usersMap = new Map(users.map(u => [u.id, u]));
+
+      // Join user data manually
+      const subscriptionsWithUsers = subscriptions.map(sub => ({
+        ...sub,
+        user: usersMap.get(sub.user_id) || null,
       })) as SageProSubscription[];
 
       // Client-side filtering if search query exists
-      let filteredSubscriptions = subscriptions;
+      let filteredSubscriptions = subscriptionsWithUsers;
       if (searchQuery) {
         const lowerQuery = searchQuery.toLowerCase();
-        filteredSubscriptions = subscriptions.filter((sub) => {
+        filteredSubscriptions = subscriptionsWithUsers.filter((sub) => {
           const userName = sub.user?.full_name?.toLowerCase() || '';
           const userEmail = sub.user?.email?.toLowerCase() || '';
           return userName.includes(lowerQuery) || userEmail.includes(lowerQuery);
@@ -523,7 +534,12 @@ export default function SageProSubscriptionsTable() {
       onRefresh={handleRefresh}
       autoRefreshInterval={ADMIN_TABLE_DEFAULTS.REFRESH_FAST}
       bulkActions={bulkActions}
-      emptyMessage="No Sage Pro subscriptions found"
+      emptyState={
+        <HubEmptyState
+          title="No Sage Pro Subscriptions"
+          description="No users have subscribed to Sage Pro yet. Subscriptions will appear here once users sign up."
+        />
+      }
     />
   );
 }

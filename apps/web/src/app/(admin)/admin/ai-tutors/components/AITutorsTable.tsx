@@ -269,9 +269,6 @@ export default function AITutorsTable() {
         <div className={styles.nameCell}>
           <div className={styles.nameContent}>
             <span className={styles.nameText}>{aiTutor.display_name}</span>
-            {aiTutor.is_featured && (
-              <span className={styles.featuredBadge} title="Featured on homepage">⭐</span>
-            )}
             {aiTutor.is_platform_owned && (
               <span className={styles.platformBadge}>Platform</span>
             )}
@@ -394,22 +391,6 @@ export default function AITutorsTable() {
 
                 if (error) {
                   alert('Failed to update status');
-                } else {
-                  refetch();
-                }
-              },
-            },
-            {
-              label: aiTutor.is_featured ? '⭐ Unfeature' : 'Feature',
-              onClick: async () => {
-                const response = await fetch(`/api/ai-tutors/${aiTutor.id}/featured`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ is_featured: !aiTutor.is_featured }),
-                });
-
-                if (!response.ok) {
-                  alert('Failed to update featured status');
                 } else {
                   refetch();
                 }

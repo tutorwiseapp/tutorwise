@@ -54,33 +54,60 @@
   /* No gap - HubKPIGrid has margin-bottom: 2rem built-in, sections use margin-bottom */
 }
 
-/* Sections - match HubTrendChart widget styling */
+/* Sections - match Sage admin pattern */
 .section {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+/* Plain section heading - no box container */
+.sectionHeading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+}
+
+/* Widget - matches HubTrendChart/HubCategoryBreakdownChart pattern */
+.widget {
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: box-shadow 0.2s ease-in-out;
 }
 
-/* Add spacing between sections - more reliable than flex gap */
-.section:not(:last-child) {
-  margin-bottom: 2rem;
+.widgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.section:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.sectionTitle {
+.widgetHeader h2 {
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary, #111827);
   margin: 0;
-  padding: 12px 16px;
-  background-color: #E6F0F0;
-  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Charts Section - matches Listings/Sage admin pattern */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
 }
 
 /* Distribution Grid */

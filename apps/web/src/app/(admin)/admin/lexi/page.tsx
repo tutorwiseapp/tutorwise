@@ -2,8 +2,9 @@
  * Filename: src/app/(admin)/admin/lexi/page.tsx
  * Purpose: Lexi AI Assistant Analytics Dashboard
  * Created: 2026-02-13
+ * Updated: 2026-02-25 - Refactored to use Hub architecture components
  *
- * Pattern: Follows Admin Dashboard pattern with HubPageLayout + HubTabs + 4-card sidebar
+ * Pattern: Follows Admin Dashboard pattern (Sage/Listings/Bookings)
  */
 'use client';
 
@@ -13,11 +14,14 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
+import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import Button from '@/app/components/ui/actions/Button';
-import { MessageSquare, FileText, Users, BarChart, ThumbsUp, ThumbsDown, FileCheck, Bot, Sparkles, Settings, DollarSign, TrendingUp, AlertCircle, Calendar } from 'lucide-react';
+import { MessageSquare, FileText, Users, BarChart, ThumbsUp, ThumbsDown, FileCheck, Bot, Sparkles, Settings, DollarSign, TrendingUp, AlertCircle, Calendar, Activity, Clock, RefreshCw } from 'lucide-react';
 import styles from './page.module.css';
 
 // Force dynamic rendering
@@ -25,21 +29,6 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 type TabFilter = 'overview' | 'conversations' | 'feedback' | 'providers' | 'quota';
-
-interface SummaryStats {
-  totalConversations: number;
-  totalMessages: number;
-  uniqueUsers: number;
-  avgMessagesPerConversation: number;
-  feedbackPositive: number;
-  feedbackNegative: number;
-  topIntents: Array<{ intent: string; count: number }>;
-}
-
-interface BreakdownData {
-  byPersona: Record<string, number>;
-  byProvider: Record<string, number>;
-}
 
 interface ProviderInfo {
   type: string;
@@ -57,22 +46,6 @@ interface ProviderData {
   providers: ProviderInfo[];
 }
 
-interface QuotaData {
-  freeTier: {
-    totalUsers: number;
-    dailyUsage: number;
-    limitHits: number;
-    avgConversationsPerUser: number;
-  };
-  costAnalysis: {
-    totalConversations: number;
-    geminiConversations: number;
-    rulesConversations: number;
-    totalCost: number;
-    costPerConversation: number;
-  };
-}
-
 export default function LexiAnalyticsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,55 +59,87 @@ export default function LexiAnalyticsPage() {
     } else {
       params.set('tab', tabId);
     }
-    router.push(`/admin/lexi${params.toString() ? `?${params.toString()}` : ''}`);
+    window.location.href = `/admin/lexi${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
-  // Fetch summary stats
-  const { data: summaryData, isLoading: summaryLoading } = useQuery({
-    queryKey: ['admin', 'lexi', 'summary'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/lexi/analytics?type=summary');
-      if (!response.ok) throw new Error('Failed to fetch summary');
-      const data = await response.json();
-      return data.stats as SummaryStats;
-    },
-    placeholderData: keepPreviousData,
-    staleTime: 60 * 1000, // 1 minute
-    refetchOnWindowFocus: true,
-  });
+  // Fetch historical metrics from platform_statistics_daily
+  const conversationsMetric = useAdminMetric({ metric: 'lexi_conversations_total', compareWith: 'last_month' });
+  const messagesMetric = useAdminMetric({ metric: 'lexi_messages_total', compareWith: 'last_month' });
+  const uniqueUsersMetric = useAdminMetric({ metric: 'lexi_unique_users', compareWith: 'last_month' });
+  const avgMessagesMetric = useAdminMetric({ metric: 'lexi_avg_messages_per_conversation', compareWith: 'last_month' });
 
-  // Fetch breakdown data
-  const { data: breakdownData, isLoading: breakdownLoading } = useQuery({
-    queryKey: ['admin', 'lexi', 'breakdown'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/lexi/analytics?type=breakdown');
-      if (!response.ok) throw new Error('Failed to fetch breakdown');
-      const data = await response.json();
-      return data.breakdown as BreakdownData;
-    },
-    placeholderData: keepPreviousData,
-    staleTime: 60 * 1000,
-  });
+  // Feedback metrics
+  const feedbackPositiveMetric = useAdminMetric({ metric: 'lexi_feedback_positive', compareWith: 'last_month' });
+  const feedbackNegativeMetric = useAdminMetric({ metric: 'lexi_feedback_negative', compareWith: 'last_month' });
+  const satisfactionRateMetric = useAdminMetric({ metric: 'lexi_satisfaction_rate', compareWith: 'last_month' });
 
-  // Fetch quota data
-  const { data: quotaData, isLoading: quotaLoading } = useQuery({
-    queryKey: ['admin', 'lexi', 'quota'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/lexi/analytics?type=quota');
-      if (!response.ok) throw new Error('Failed to fetch quota');
-      const data = await response.json();
-      return data as QuotaData;
-    },
-    placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000,
-    enabled: tabFilter === 'quota',
-  });
+  // Persona metrics
+  const personaStudentMetric = useAdminMetric({ metric: 'lexi_persona_student', compareWith: 'last_month' });
+  const personaTutorMetric = useAdminMetric({ metric: 'lexi_persona_tutor', compareWith: 'last_month' });
+  const personaClientMetric = useAdminMetric({ metric: 'lexi_persona_client', compareWith: 'last_month' });
+  const personaAgentMetric = useAdminMetric({ metric: 'lexi_persona_agent', compareWith: 'last_month' });
+  const personaOrganisationMetric = useAdminMetric({ metric: 'lexi_persona_organisation', compareWith: 'last_month' });
+
+  // Provider metrics
+  const providerRulesMetric = useAdminMetric({ metric: 'lexi_provider_rules', compareWith: 'last_month' });
+  const providerClaudeMetric = useAdminMetric({ metric: 'lexi_provider_claude', compareWith: 'last_month' });
+  const providerGeminiMetric = useAdminMetric({ metric: 'lexi_provider_gemini', compareWith: 'last_month' });
+
+  // Quota metrics - Free Tier
+  const dailyUsageMetric = useAdminMetric({ metric: 'lexi_daily_usage', compareWith: 'last_month' });
+  const limitHitsMetric = useAdminMetric({ metric: 'lexi_limit_hits', compareWith: 'last_month' });
+  const totalUsersMetric = useAdminMetric({ metric: 'lexi_total_users', compareWith: 'last_month' });
+  const avgConversationsPerUserMetric = useAdminMetric({ metric: 'lexi_avg_conversations_per_user', compareWith: 'last_month' });
+
+  // Quota metrics - Usage Limits
+  const dailyQuotaUsedMetric = useAdminMetric({ metric: 'lexi_daily_quota_used', compareWith: 'last_month' });
+  const dailyQuotaRemainingMetric = useAdminMetric({ metric: 'lexi_daily_quota_remaining', compareWith: 'last_month' });
+  const quotaResetRateMetric = useAdminMetric({ metric: 'lexi_quota_reset_rate', compareWith: 'last_month' });
+
+  // Cost metrics
+  const aiCostTotalMetric = useAdminMetric({ metric: 'lexi_ai_cost_total', compareWith: 'last_month' });
+  const costPerConversationMetric = useAdminMetric({ metric: 'lexi_cost_per_conversation', compareWith: 'last_month' });
+  const freeUsagePercentMetric = useAdminMetric({ metric: 'lexi_free_usage_percent', compareWith: 'last_month' });
+  const paidUsagePercentMetric = useAdminMetric({ metric: 'lexi_paid_usage_percent', compareWith: 'last_month' });
+  const monthlyProjectionMetric = useAdminMetric({ metric: 'lexi_monthly_projection', compareWith: 'last_month' });
+
+  // Fetch trend data for charts (last 7 days)
+  const conversationsTrendsQuery = useAdminTrendData({ metric: 'lexi_conversations_total', days: 7 });
+  const messagesTrendsQuery = useAdminTrendData({ metric: 'lexi_messages_total', days: 7 });
+
+  const isLoadingCharts = conversationsTrendsQuery.isLoading || messagesTrendsQuery.isLoading;
+
+  // Persona breakdown data
+  const personaBreakdownData: CategoryData[] = [
+    { label: 'Student', value: personaStudentMetric.value, color: '#3B82F6' },
+    { label: 'Tutor', value: personaTutorMetric.value, color: '#10B981' },
+    { label: 'Parent', value: personaClientMetric.value, color: '#F59E0B' },
+    { label: 'Agent', value: personaAgentMetric.value, color: '#8B5CF6' },
+    { label: 'Organisation', value: personaOrganisationMetric.value, color: '#EC4899' },
+  ];
+
+  // Provider breakdown data
+  const providerBreakdownData: CategoryData[] = [
+    { label: 'Rules', value: providerRulesMetric.value, color: '#10B981' },
+    { label: 'Claude', value: providerClaudeMetric.value, color: '#F59E0B' },
+    { label: 'Gemini', value: providerGeminiMetric.value, color: '#3B82F6' },
+  ];
 
   // Calculate feedback rate
-  const feedbackTotal = (summaryData?.feedbackPositive || 0) + (summaryData?.feedbackNegative || 0);
+  const feedbackTotal = feedbackPositiveMetric.value + feedbackNegativeMetric.value;
   const feedbackRate = feedbackTotal > 0
-    ? Math.round((summaryData?.feedbackPositive || 0) / feedbackTotal * 100)
+    ? Math.round((feedbackPositiveMetric.value / feedbackTotal) * 100)
     : 0;
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: 'GBP',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
 
   return (
     <ErrorBoundary>
@@ -168,66 +173,381 @@ export default function LexiAnalyticsPage() {
           <HubSidebar>
             <AdminStatsWidget
               title="Quick Stats"
-              stats={summaryData ? [
-                { label: 'Total Conversations', value: summaryData.totalConversations },
-                { label: 'Total Messages', value: summaryData.totalMessages },
-                { label: 'Unique Users', value: summaryData.uniqueUsers },
-                { label: 'Avg Messages/Conv', value: summaryData.avgMessagesPerConversation },
+              stats={[
+                { label: 'Total Conversations', value: conversationsMetric.value },
+                { label: 'Total Messages', value: messagesMetric.value },
+                { label: 'Unique Users', value: uniqueUsersMetric.value },
                 { label: 'Satisfaction Rate', value: `${feedbackRate}%`, valueColor: feedbackRate >= 80 ? 'green' : feedbackRate >= 50 ? 'orange' : 'default' },
-              ] : [
-                { label: 'Total Conversations', value: '...' },
-                { label: 'Total Messages', value: '...' },
-                { label: 'Unique Users', value: '...' },
-                { label: 'Avg Messages/Conv', value: '...' },
-                { label: 'Satisfaction Rate', value: '...' },
-              ]}
-            />
-            <AdminHelpWidget
-              title="About Lexi Analytics"
-              items={[
-                { question: 'What is Lexi?', answer: 'Lexi is TutorWise\'s AI assistant that helps users with tasks like booking lessons, viewing progress, and getting support.' },
-                { question: 'What are personas?', answer: 'Personas determine how Lexi responds. Each user type (student, tutor, client, etc.) gets tailored assistance.' },
               ]}
             />
             <AdminTipWidget
               title="Analytics Tips"
               tips={[
                 'Monitor feedback rates to identify areas for improvement',
-                'Check intent distribution to understand user needs',
-                'Compare provider performance for cost optimization',
-                'Review conversations with negative feedback',
+                'Track provider usage for cost optimization',
+                'Review persona distribution to understand user needs',
+                'Check limit hits to identify upgrade opportunities',
               ]}
             />
           </HubSidebar>
         }
       >
+        {/* Overview Tab */}
         {tabFilter === 'overview' && (
-          <OverviewTab
-            summaryData={summaryData}
-            breakdownData={breakdownData}
-            isLoading={summaryLoading || breakdownLoading}
-          />
+          <>
+            {/* KPI Cards Grid */}
+            <HubKPIGrid>
+              <HubKPICard
+                label="Total Conversations"
+                value={conversationsMetric.value}
+                sublabel={formatMetricChange(
+                  conversationsMetric.change,
+                  conversationsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={MessageSquare}
+                trend={conversationsMetric.trend}
+              />
+              <HubKPICard
+                label="Total Messages"
+                value={messagesMetric.value}
+                sublabel={formatMetricChange(
+                  messagesMetric.change,
+                  messagesMetric.changePercent,
+                  'last_month'
+                )}
+                icon={FileText}
+                trend={messagesMetric.trend}
+              />
+              <HubKPICard
+                label="Unique Users"
+                value={uniqueUsersMetric.value}
+                sublabel={formatMetricChange(
+                  uniqueUsersMetric.change,
+                  uniqueUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={uniqueUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Avg Messages/Conv"
+                value={avgMessagesMetric.value > 0 ? avgMessagesMetric.value.toFixed(1) : '0'}
+                sublabel={
+                  avgMessagesMetric.previousValue
+                    ? `${avgMessagesMetric.previousValue.toFixed(1)} last month`
+                    : undefined
+                }
+                icon={BarChart}
+              />
+              <HubKPICard
+                label="Satisfaction Rate"
+                value={`${satisfactionRateMetric.value.toFixed(0)}%`}
+                sublabel={formatMetricChange(
+                  satisfactionRateMetric.change,
+                  satisfactionRateMetric.changePercent,
+                  'last_month'
+                )}
+                icon={ThumbsUp}
+                trend={satisfactionRateMetric.trend}
+                variant={satisfactionRateMetric.value >= 80 ? 'success' : satisfactionRateMetric.value >= 50 ? 'info' : 'warning'}
+              />
+              <HubKPICard
+                label="Positive Feedback"
+                value={feedbackPositiveMetric.value}
+                sublabel={formatMetricChange(
+                  feedbackPositiveMetric.change,
+                  feedbackPositiveMetric.changePercent,
+                  'last_month'
+                )}
+                icon={ThumbsUp}
+                trend={feedbackPositiveMetric.trend}
+                variant="success"
+              />
+              <HubKPICard
+                label="Negative Feedback"
+                value={feedbackNegativeMetric.value}
+                sublabel={formatMetricChange(
+                  feedbackNegativeMetric.change,
+                  feedbackNegativeMetric.changePercent,
+                  'last_month'
+                )}
+                icon={ThumbsDown}
+                trend={feedbackNegativeMetric.trend}
+                variant="warning"
+              />
+              <HubKPICard
+                label="Total Users"
+                value={totalUsersMetric.value}
+                sublabel={formatMetricChange(
+                  totalUsersMetric.change,
+                  totalUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={totalUsersMetric.trend}
+              />
+            </HubKPIGrid>
+
+            {/* Charts Section */}
+            <div className={styles.chartsSection}>
+              {/* Conversation Trends Chart */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load conversation trends chart</div>}>
+                {isLoadingCharts ? (
+                  <ChartSkeleton height="320px" />
+                ) : (
+                  <HubTrendChart
+                    data={conversationsTrendsQuery.data}
+                    title="Conversation Trends"
+                    subtitle="Last 7 days"
+                    valueName="Conversations"
+                    lineColor="#3B82F6"
+                  />
+                )}
+              </ErrorBoundary>
+
+              {/* Messages Trends Chart */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load messages trends chart</div>}>
+                {isLoadingCharts ? (
+                  <ChartSkeleton height="320px" />
+                ) : (
+                  <HubTrendChart
+                    data={messagesTrendsQuery.data}
+                    title="Messages Trends"
+                    subtitle="Last 7 days"
+                    valueName="Messages"
+                    lineColor="#10B981"
+                  />
+                )}
+              </ErrorBoundary>
+
+              {/* Persona Breakdown */}
+              <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load persona breakdown chart</div>}>
+                <HubCategoryBreakdownChart
+                  data={personaBreakdownData}
+                  title="Conversations by Persona"
+                  subtitle="User type distribution"
+                />
+              </ErrorBoundary>
+            </div>
+          </>
         )}
+
+        {/* Conversations Tab - Coming Soon */}
         {tabFilter === 'conversations' && (
-          <ConversationsTab />
-        )}
-        {tabFilter === 'feedback' && (
-          <FeedbackTab
-            summaryData={summaryData}
-            isLoading={summaryLoading}
+          <HubEmptyState
+            title="Conversation Browser"
+            description="Browse and review individual conversations. Coming in next update."
+            icon={<MessageSquare size={48} />}
           />
         )}
+
+        {/* Feedback Tab */}
+        {tabFilter === 'feedback' && (
+          <>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Positive Feedback"
+                value={feedbackPositiveMetric.value}
+                sublabel={formatMetricChange(
+                  feedbackPositiveMetric.change,
+                  feedbackPositiveMetric.changePercent,
+                  'last_month'
+                )}
+                icon={ThumbsUp}
+                trend={feedbackPositiveMetric.trend}
+                variant="success"
+              />
+              <HubKPICard
+                label="Negative Feedback"
+                value={feedbackNegativeMetric.value}
+                sublabel={formatMetricChange(
+                  feedbackNegativeMetric.change,
+                  feedbackNegativeMetric.changePercent,
+                  'last_month'
+                )}
+                icon={ThumbsDown}
+                trend={feedbackNegativeMetric.trend}
+                variant="warning"
+              />
+              <HubKPICard
+                label="Satisfaction Rate"
+                value={`${satisfactionRateMetric.value.toFixed(0)}%`}
+                sublabel={formatMetricChange(
+                  satisfactionRateMetric.change,
+                  satisfactionRateMetric.changePercent,
+                  'last_month'
+                )}
+                icon={BarChart}
+                trend={satisfactionRateMetric.trend}
+                variant={satisfactionRateMetric.value >= 80 ? 'success' : satisfactionRateMetric.value >= 50 ? 'info' : 'warning'}
+              />
+            </HubKPIGrid>
+
+            {/* HubEmptyState renders directly - no section wrapper for "coming soon" features */}
+            <HubEmptyState
+              title="Feedback Review"
+              description="Detailed feedback review with comments coming soon."
+              icon={<MessageSquare size={48} />}
+            />
+          </>
+        )}
+
+        {/* Providers Tab */}
         {tabFilter === 'providers' && (
           <ProvidersTab
-            breakdownData={breakdownData}
-            isLoading={breakdownLoading}
+            providerBreakdownData={providerBreakdownData}
           />
         )}
+
+        {/* Quota & Costs Tab */}
         {tabFilter === 'quota' && (
-          <QuotaTab
-            quotaData={quotaData}
-            isLoading={quotaLoading}
-          />
+          <>
+            {/* Free Tier Analytics Section */}
+            <h2 className={styles.sectionHeading}>Free Tier Analytics</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Total Users"
+                value={totalUsersMetric.value}
+                sublabel={formatMetricChange(
+                  totalUsersMetric.change,
+                  totalUsersMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Users}
+                trend={totalUsersMetric.trend}
+              />
+              <HubKPICard
+                label="Daily Usage"
+                value={dailyUsageMetric.value}
+                sublabel={formatMetricChange(
+                  dailyUsageMetric.change,
+                  dailyUsageMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Calendar}
+                trend={dailyUsageMetric.trend}
+              />
+              <HubKPICard
+                label="Limit Hits"
+                value={limitHitsMetric.value}
+                sublabel={formatMetricChange(
+                  limitHitsMetric.change,
+                  limitHitsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={AlertCircle}
+                trend={limitHitsMetric.trend}
+                variant={limitHitsMetric.value > 0 ? 'warning' : 'neutral'}
+              />
+              <HubKPICard
+                label="Avg Conversations/User"
+                value={avgConversationsPerUserMetric.value > 0 ? avgConversationsPerUserMetric.value.toFixed(1) : '0'}
+                sublabel={
+                  avgConversationsPerUserMetric.previousValue
+                    ? `${avgConversationsPerUserMetric.previousValue.toFixed(1)} last month`
+                    : 'Conversations per user'
+                }
+                icon={TrendingUp}
+              />
+            </HubKPIGrid>
+
+            {/* Usage Limits Section */}
+            <h2 className={styles.sectionHeading}>Usage Limits</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Daily Quota Used"
+                value={dailyQuotaUsedMetric.value}
+                sublabel={formatMetricChange(
+                  dailyQuotaUsedMetric.change,
+                  dailyQuotaUsedMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Activity}
+                trend={dailyQuotaUsedMetric.trend}
+              />
+              <HubKPICard
+                label="Daily Quota Remaining"
+                value={dailyQuotaRemainingMetric.value}
+                sublabel={formatMetricChange(
+                  dailyQuotaRemainingMetric.change,
+                  dailyQuotaRemainingMetric.changePercent,
+                  'last_month'
+                )}
+                icon={Clock}
+                trend={dailyQuotaRemainingMetric.trend}
+              />
+              <HubKPICard
+                label="Limit Hits"
+                value={limitHitsMetric.value}
+                sublabel={formatMetricChange(
+                  limitHitsMetric.change,
+                  limitHitsMetric.changePercent,
+                  'last_month'
+                )}
+                icon={AlertCircle}
+                trend={limitHitsMetric.trend}
+                variant={limitHitsMetric.value > 0 ? 'warning' : 'neutral'}
+              />
+              <HubKPICard
+                label="Quota Reset Rate"
+                value={`${quotaResetRateMetric.value.toFixed(1)}%`}
+                sublabel={
+                  quotaResetRateMetric.previousValue !== null
+                    ? `${quotaResetRateMetric.previousValue.toFixed(1)}% last month`
+                    : 'Users hitting daily reset'
+                }
+                icon={RefreshCw}
+              />
+            </HubKPIGrid>
+
+            {/* Cost Analysis Section */}
+            <h2 className={styles.sectionHeading}>Cost Analysis</h2>
+            <HubKPIGrid>
+              <HubKPICard
+                label="Total AI Cost"
+                value={formatCurrency(aiCostTotalMetric.value)}
+                sublabel={formatMetricChange(
+                  aiCostTotalMetric.change,
+                  aiCostTotalMetric.changePercent,
+                  'last_month'
+                )}
+                icon={DollarSign}
+                trend={aiCostTotalMetric.trend}
+              />
+              <HubKPICard
+                label="Cost per Conversation"
+                value={costPerConversationMetric.value > 0 ? formatCurrency(costPerConversationMetric.value) : '£0.00'}
+                sublabel={
+                  costPerConversationMetric.previousValue
+                    ? `${formatCurrency(costPerConversationMetric.previousValue)} last month`
+                    : 'Average AI cost'
+                }
+                icon={DollarSign}
+              />
+              <HubKPICard
+                label="Paid Usage %"
+                value={`${paidUsagePercentMetric.value.toFixed(1)}%`}
+                sublabel={
+                  paidUsagePercentMetric.previousValue !== null
+                    ? `${paidUsagePercentMetric.previousValue.toFixed(1)}% last month`
+                    : 'AI provider usage'
+                }
+                icon={Sparkles}
+              />
+              <HubKPICard
+                label="Monthly Projection"
+                value={formatCurrency(monthlyProjectionMetric.value)}
+                sublabel={
+                  monthlyProjectionMetric.change !== null
+                    ? `${monthlyProjectionMetric.change >= 0 ? '+' : ''}${formatCurrency(monthlyProjectionMetric.change)} vs last month`
+                    : 'Estimated monthly cost'
+                }
+                icon={TrendingUp}
+                trend={monthlyProjectionMetric.trend}
+              />
+            </HubKPIGrid>
+          </>
         )}
       </HubPageLayout>
     </ErrorBoundary>
@@ -236,149 +556,11 @@ export default function LexiAnalyticsPage() {
 
 // --- Tab Components ---
 
-interface OverviewTabProps {
-  summaryData: SummaryStats | undefined;
-  breakdownData: BreakdownData | undefined;
-  isLoading: boolean;
-}
-
-function OverviewTab({ summaryData, breakdownData, isLoading }: OverviewTabProps) {
-  if (isLoading) {
-    return <div className={styles.loading}>Loading analytics...</div>;
-  }
-
-  return (
-    <div className={styles.overviewContent}>
-      {/* KPI Cards */}
-      <HubKPIGrid>
-        <HubKPICard
-          label="Total Conversations"
-          value={summaryData?.totalConversations || 0}
-          sublabel="Lexi interactions"
-          icon={MessageSquare}
-        />
-        <HubKPICard
-          label="Total Messages"
-          value={summaryData?.totalMessages || 0}
-          sublabel="All time"
-          icon={FileText}
-        />
-        <HubKPICard
-          label="Unique Users"
-          value={summaryData?.uniqueUsers || 0}
-          sublabel="Active users"
-          icon={Users}
-        />
-        <HubKPICard
-          label="Avg Messages/Conv"
-          value={summaryData?.avgMessagesPerConversation || 0}
-          sublabel="Engagement metric"
-          icon={BarChart}
-        />
-      </HubKPIGrid>
-
-      {/* Persona Distribution */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Conversations by Persona</h3>
-        <div className={styles.distributionGrid}>
-          {breakdownData?.byPersona && Object.entries(breakdownData.byPersona).map(([persona, count]) => (
-            <div key={persona} className={styles.distributionItem}>
-              <span className={`${styles.personaBadge} ${styles[`persona${capitalize(persona)}`]}`}>
-                {getPersonaLabel(persona)}
-              </span>
-              <span className={styles.distributionCount}>{count}</span>
-            </div>
-          ))}
-          {(!breakdownData?.byPersona || Object.keys(breakdownData.byPersona).length === 0) && (
-            <p className={styles.noData}>No conversation data yet</p>
-          )}
-        </div>
-      </div>
-
-      {/* Top Intents */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Top User Intents</h3>
-        <div className={styles.intentList}>
-          {summaryData?.topIntents.slice(0, 5).map(({ intent, count }) => (
-            <div key={intent} className={styles.intentItem}>
-              <span className={styles.intentName}>{formatIntent(intent)}</span>
-              <span className={styles.intentCount}>{count}</span>
-            </div>
-          ))}
-          {(!summaryData?.topIntents || summaryData.topIntents.length === 0) && (
-            <p className={styles.noData}>No intent data yet</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ConversationsTab() {
-  return (
-    <HubEmptyState
-      title="Conversation Browser"
-      description="Browse and review individual conversations. Coming in next update."
-      icon={<MessageSquare size={48} />}
-    />
-  );
-}
-
-interface FeedbackTabProps {
-  summaryData: SummaryStats | undefined;
-  isLoading: boolean;
-}
-
-function FeedbackTab({ summaryData, isLoading }: FeedbackTabProps) {
-  if (isLoading) {
-    return <div className={styles.loading}>Loading feedback data...</div>;
-  }
-
-  const total = (summaryData?.feedbackPositive || 0) + (summaryData?.feedbackNegative || 0);
-  const positiveRate = total > 0 ? Math.round((summaryData?.feedbackPositive || 0) / total * 100) : 0;
-
-  return (
-    <div className={styles.feedbackContent}>
-      <HubKPIGrid>
-        <HubKPICard
-          label="Positive"
-          value={summaryData?.feedbackPositive || 0}
-          sublabel="Thumbs up"
-          icon={ThumbsUp}
-          variant="success"
-        />
-        <HubKPICard
-          label="Negative"
-          value={summaryData?.feedbackNegative || 0}
-          sublabel="Thumbs down"
-          icon={ThumbsDown}
-          variant="warning"
-        />
-        <HubKPICard
-          label="Satisfaction Rate"
-          value={`${positiveRate}%`}
-          sublabel="Positive feedback"
-          icon={BarChart}
-          variant={positiveRate >= 80 ? 'success' : positiveRate >= 50 ? 'info' : 'warning'}
-        />
-      </HubKPIGrid>
-
-      {/* HubEmptyState renders directly - no section wrapper for "coming soon" features */}
-      <HubEmptyState
-        title="Feedback Review"
-        description="Detailed feedback review with comments coming soon."
-        icon={<MessageSquare size={48} />}
-      />
-    </div>
-  );
-}
-
 interface ProvidersTabProps {
-  breakdownData: BreakdownData | undefined;
-  isLoading: boolean;
+  providerBreakdownData: CategoryData[];
 }
 
-function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
+function ProvidersTab({ providerBreakdownData }: ProvidersTabProps) {
   const queryClient = useQueryClient();
 
   // Fetch provider configuration
@@ -411,18 +593,17 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
     },
   });
 
-  if (isLoading || providerLoading) {
+  if (providerLoading) {
     return <div className={styles.loading}>Loading provider data...</div>;
   }
 
-  const usageStats = breakdownData?.byProvider || {};
-  const total = Object.values(usageStats).reduce((sum, count) => sum + count, 0);
-
   return (
-    <div className={styles.providersContent}>
+    <div className={styles.chartsSection}>
       {/* Active Provider Selection */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Active Provider</h3>
+      <div className={styles.widget}>
+        <div className={styles.widgetHeader}>
+          <h2>Active Provider</h2>
+        </div>
 
         <div className={styles.providerCards}>
           {providerData?.providers.map((provider) => (
@@ -464,37 +645,20 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
         )}
       </div>
 
-      {/* Usage Statistics */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Usage Statistics</h3>
-        <div className={styles.providersList}>
-          {Object.entries(usageStats).map(([provider, count]) => {
-            const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-            return (
-              <div key={provider} className={styles.providerItem}>
-                <div className={styles.providerInfo}>
-                  <span className={styles.providerName}>{getProviderLabel(provider)}</span>
-                  <span className={styles.providerCount}>{count} conversations</span>
-                </div>
-                <div className={styles.providerBar}>
-                  <div
-                    className={`${styles.providerBarFill} ${styles[`provider${capitalize(provider)}`]}`}
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <span className={styles.providerPercentage}>{percentage}%</span>
-              </div>
-            );
-          })}
-          {Object.keys(usageStats).length === 0 && (
-            <p className={styles.noData}>No usage data yet</p>
-          )}
-        </div>
-      </div>
+      {/* Provider Distribution - Using Hub Chart */}
+      <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load provider breakdown chart</div>}>
+        <HubCategoryBreakdownChart
+          data={providerBreakdownData}
+          title="Provider Distribution"
+          subtitle="Messages by provider"
+        />
+      </ErrorBoundary>
 
       {/* Provider Comparison */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Provider Comparison</h3>
+      <div className={styles.widget}>
+        <div className={styles.widgetHeader}>
+          <h2>Provider Comparison</h2>
+        </div>
         <div className={styles.comparisonTable}>
           <div className={styles.comparisonHeader}>
             <span>Feature</span>
@@ -538,117 +702,10 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
   );
 }
 
-interface QuotaTabProps {
-  quotaData: QuotaData | undefined;
-  isLoading: boolean;
-}
+// --- Helpers ---
 
-function QuotaTab({ quotaData, isLoading }: QuotaTabProps) {
-  if (isLoading) {
-    return <div className={styles.loading}>Loading quota analytics...</div>;
-  }
-
-  if (!quotaData) {
-    return null;
-  }
-
-  const freeUsagePercent = quotaData.costAnalysis.totalConversations > 0
-    ? ((quotaData.costAnalysis.rulesConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
-    : '0';
-
-  const paidUsagePercent = quotaData.costAnalysis.totalConversations > 0
-    ? ((quotaData.costAnalysis.geminiConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
-    : '0';
-
-  const monthlyProjection = (quotaData.freeTier.dailyUsage * quotaData.costAnalysis.costPerConversation * 30).toFixed(2);
-
-  return (
-    <div className={styles.quotaContent}>
-      {/* All 12 KPI cards in single grid - matches Listings pattern */}
-      <HubKPIGrid>
-        {/* Free Tier Usage (4 cards) */}
-        <HubKPICard
-          label="Total Users"
-          value={quotaData.freeTier.totalUsers}
-          sublabel="Authenticated users"
-          icon={Users}
-        />
-        <HubKPICard
-          label="Daily Usage"
-          value={quotaData.freeTier.dailyUsage}
-          sublabel="Conversations today"
-          icon={Calendar}
-        />
-        <HubKPICard
-          label="Limit Hits"
-          value={quotaData.freeTier.limitHits}
-          sublabel="Users hitting daily limit"
-          icon={AlertCircle}
-          variant={quotaData.freeTier.limitHits > 0 ? 'warning' : 'neutral'}
-        />
-        <HubKPICard
-          label="Avg Usage"
-          value={quotaData.freeTier.avgConversationsPerUser.toFixed(1)}
-          sublabel="Conversations per user"
-          icon={BarChart}
-        />
-
-        {/* Cost Analysis (4 cards) */}
-        <HubKPICard
-          label="Total Conversations"
-          value={quotaData.costAnalysis.totalConversations}
-          sublabel="All time"
-          icon={MessageSquare}
-        />
-        <HubKPICard
-          label="Gemini (Paid)"
-          value={quotaData.costAnalysis.geminiConversations}
-          sublabel="Using Gemini API"
-          icon={Sparkles}
-        />
-        <HubKPICard
-          label="Rules (Free)"
-          value={quotaData.costAnalysis.rulesConversations}
-          sublabel="Zero cost fallback"
-          icon={FileCheck}
-          variant="success"
-        />
-        <HubKPICard
-          label="Total AI Cost"
-          value={`£${quotaData.costAnalysis.totalCost.toFixed(2)}`}
-          sublabel="Gemini API usage"
-          icon={DollarSign}
-        />
-
-        {/* Cost Efficiency (4 cards) */}
-        <HubKPICard
-          label="Cost per Conversation"
-          value={`£${quotaData.costAnalysis.costPerConversation.toFixed(4)}`}
-          sublabel="Average Gemini cost"
-          icon={DollarSign}
-        />
-        <HubKPICard
-          label="Free Usage %"
-          value={`${freeUsagePercent}%`}
-          sublabel="Rules provider usage"
-          icon={FileCheck}
-          variant="success"
-        />
-        <HubKPICard
-          label="Paid Usage %"
-          value={`${paidUsagePercent}%`}
-          sublabel="Gemini provider usage"
-          icon={Sparkles}
-        />
-        <HubKPICard
-          label="Monthly Projection"
-          value={`£${monthlyProjection}`}
-          sublabel="Estimated monthly cost"
-          icon={TrendingUp}
-        />
-      </HubKPIGrid>
-    </div>
-  );
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function getProviderIcon(type: string) {
@@ -658,37 +715,4 @@ function getProviderIcon(type: string) {
     case 'gemini': return Sparkles;
     default: return Settings;
   }
-}
-
-// --- Helpers ---
-
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function getPersonaLabel(persona: string): string {
-  const labels: Record<string, string> = {
-    student: 'Student',
-    tutor: 'Tutor',
-    client: 'Parent',
-    agent: 'Agent',
-    organisation: 'Organisation',
-  };
-  return labels[persona] || persona;
-}
-
-function getProviderLabel(provider: string): string {
-  const labels: Record<string, string> = {
-    rules: 'Rules-based',
-    claude: 'Claude (Anthropic)',
-    gemini: 'Gemini (Google)',
-  };
-  return labels[provider] || provider;
-}
-
-function formatIntent(intent: string): string {
-  return intent
-    .split(':')
-    .map(part => capitalize(part.replace(/_/g, ' ')))
-    .join(' → ');
 }

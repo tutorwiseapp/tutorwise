@@ -489,8 +489,8 @@ export default function HubDataTable<T extends Record<string, any>>({
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination && (
+      {/* Pagination - hidden when no data */}
+      {pagination && data.length > 0 && (
         <div className={styles.paginationWrapper}>
           {/* Page Size Selector - Left aligned */}
           {pagination.onLimitChange && (

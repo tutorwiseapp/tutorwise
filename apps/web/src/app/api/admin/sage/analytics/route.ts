@@ -50,13 +50,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('role')
+      .select('is_admin, admin_role')
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if (profileError || !profile || !profile.is_admin) {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
