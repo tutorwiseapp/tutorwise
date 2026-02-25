@@ -22,10 +22,21 @@ export interface AITutor {
   subscription_status: 'active' | 'inactive' | 'past_due' | 'canceled';
   storage_used_mb: number;
   storage_limit_mb: number;
+
+  // Phase 1: Platform ownership
+  is_platform_owned: boolean;
+
+  // Phase 2A: Featured & Priority
+  is_featured: boolean;
+  priority_rank: number;
+
+  // Metrics
   total_sessions: number;
   total_revenue: number;
   avg_rating: number | null;
   total_reviews: number;
+
+  // Timestamps
   created_at: string;
   updated_at: string;
   published_at?: string;

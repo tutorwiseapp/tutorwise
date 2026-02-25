@@ -14,8 +14,10 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import Button from '@/app/components/ui/actions/Button';
+import { MessageSquare, FileText, Users, BarChart, ThumbsUp, ThumbsDown, FileCheck, Bot, Sparkles, Settings, DollarSign, TrendingUp, AlertCircle, Calendar } from 'lucide-react';
 import styles from './page.module.css';
 
 // Force dynamic rendering
@@ -199,128 +201,34 @@ export default function LexiAnalyticsPage() {
           </HubSidebar>
         }
       >
-        <div className={styles.container}>
-          {tabFilter === 'overview' && (
-            <OverviewTab
-              summaryData={summaryData}
-              breakdownData={breakdownData}
-              isLoading={summaryLoading || breakdownLoading}
-            />
-          )}
-          {tabFilter === 'conversations' && (
-            <ConversationsTab />
-          )}
-          {tabFilter === 'feedback' && (
-            <FeedbackTab
-              summaryData={summaryData}
-              isLoading={summaryLoading}
-            />
-          )}
-          {tabFilter === 'providers' && (
-            <ProvidersTab
-              breakdownData={breakdownData}
-              isLoading={breakdownLoading}
-            />
-          )}
-          {tabFilter === 'quota' && (
-            <div className={styles.quotaTab}>
-              {quotaLoading && (
-                <div className={styles.loading}>Loading quota analytics...</div>
-              )}
-              {!quotaLoading && quotaData && (
-                <>
-                  <div className={styles.section}>
-                    <h2>Free Tier Usage (10/day limit)</h2>
-                    <div className={styles.statsGrid}>
-                      <div className={styles.statCard}>
-                        <h3>Total Users</h3>
-                        <p className={styles.statValue}>{quotaData.freeTier.totalUsers}</p>
-                        <span className={styles.statLabel}>Authenticated users</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Daily Usage</h3>
-                        <p className={styles.statValue}>{quotaData.freeTier.dailyUsage}</p>
-                        <span className={styles.statLabel}>Conversations today</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Limit Hits</h3>
-                        <p className={styles.statValue}>{quotaData.freeTier.limitHits}</p>
-                        <span className={styles.statLabel}>Users hitting daily limit</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Avg Usage</h3>
-                        <p className={styles.statValue}>{quotaData.freeTier.avgConversationsPerUser.toFixed(1)}</p>
-                        <span className={styles.statLabel}>Conversations per user</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.section}>
-                    <h2>Cost Analysis</h2>
-                    <div className={styles.statsGrid}>
-                      <div className={styles.statCard}>
-                        <h3>Total Conversations</h3>
-                        <p className={styles.statValue}>{quotaData.costAnalysis.totalConversations}</p>
-                        <span className={styles.statLabel}>All time</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Gemini (Paid)</h3>
-                        <p className={styles.statValue}>{quotaData.costAnalysis.geminiConversations}</p>
-                        <span className={styles.statLabel}>Using Gemini API</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Rules (Free)</h3>
-                        <p className={styles.statValue}>{quotaData.costAnalysis.rulesConversations}</p>
-                        <span className={styles.statLabel}>Zero cost fallback</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Total AI Cost</h3>
-                        <p className={styles.statValue}>£{quotaData.costAnalysis.totalCost.toFixed(2)}</p>
-                        <span className={styles.statLabel}>Gemini API usage</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.section}>
-                    <h2>Cost Efficiency</h2>
-                    <div className={styles.statsGrid}>
-                      <div className={styles.statCard}>
-                        <h3>Cost per Conversation</h3>
-                        <p className={styles.statValue}>£{quotaData.costAnalysis.costPerConversation.toFixed(4)}</p>
-                        <span className={styles.statLabel}>Average Gemini cost</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Free Usage %</h3>
-                        <p className={styles.statValue}>
-                          {quotaData.costAnalysis.totalConversations > 0
-                            ? ((quotaData.costAnalysis.rulesConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
-                            : 0}%
-                        </p>
-                        <span className={styles.statLabel}>Rules provider usage</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Paid Usage %</h3>
-                        <p className={styles.statValue}>
-                          {quotaData.costAnalysis.totalConversations > 0
-                            ? ((quotaData.costAnalysis.geminiConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
-                            : 0}%
-                        </p>
-                        <span className={styles.statLabel}>Gemini provider usage</span>
-                      </div>
-                      <div className={styles.statCard}>
-                        <h3>Monthly Projection</h3>
-                        <p className={styles.statValue}>
-                          £{(quotaData.freeTier.dailyUsage * quotaData.costAnalysis.costPerConversation * 30).toFixed(2)}
-                        </p>
-                        <span className={styles.statLabel}>Estimated monthly cost</span>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+        {tabFilter === 'overview' && (
+          <OverviewTab
+            summaryData={summaryData}
+            breakdownData={breakdownData}
+            isLoading={summaryLoading || breakdownLoading}
+          />
+        )}
+        {tabFilter === 'conversations' && (
+          <ConversationsTab />
+        )}
+        {tabFilter === 'feedback' && (
+          <FeedbackTab
+            summaryData={summaryData}
+            isLoading={summaryLoading}
+          />
+        )}
+        {tabFilter === 'providers' && (
+          <ProvidersTab
+            breakdownData={breakdownData}
+            isLoading={breakdownLoading}
+          />
+        )}
+        {tabFilter === 'quota' && (
+          <QuotaTab
+            quotaData={quotaData}
+            isLoading={quotaLoading}
+          />
+        )}
       </HubPageLayout>
     </ErrorBoundary>
   );
@@ -341,29 +249,33 @@ function OverviewTab({ summaryData, breakdownData, isLoading }: OverviewTabProps
 
   return (
     <div className={styles.overviewContent}>
-      {/* Stats Cards */}
-      <div className={styles.statsGrid}>
-        <StatCard
-          title="Total Conversations"
+      {/* KPI Cards */}
+      <HubKPIGrid>
+        <HubKPICard
+          label="Total Conversations"
           value={summaryData?.totalConversations || 0}
-          icon="💬"
+          sublabel="Lexi interactions"
+          icon={MessageSquare}
         />
-        <StatCard
-          title="Total Messages"
+        <HubKPICard
+          label="Total Messages"
           value={summaryData?.totalMessages || 0}
-          icon="📝"
+          sublabel="All time"
+          icon={FileText}
         />
-        <StatCard
-          title="Unique Users"
+        <HubKPICard
+          label="Unique Users"
           value={summaryData?.uniqueUsers || 0}
-          icon="👥"
+          sublabel="Active users"
+          icon={Users}
         />
-        <StatCard
-          title="Avg Messages/Conversation"
+        <HubKPICard
+          label="Avg Messages/Conv"
           value={summaryData?.avgMessagesPerConversation || 0}
-          icon="📊"
+          sublabel="Engagement metric"
+          icon={BarChart}
         />
-      </div>
+      </HubKPIGrid>
 
       {/* Persona Distribution */}
       <div className={styles.section}>
@@ -407,6 +319,7 @@ function ConversationsTab() {
     <HubEmptyState
       title="Conversation Browser"
       description="Browse and review individual conversations. Coming in next update."
+      icon={<MessageSquare size={48} />}
     />
   );
 }
@@ -426,31 +339,36 @@ function FeedbackTab({ summaryData, isLoading }: FeedbackTabProps) {
 
   return (
     <div className={styles.feedbackContent}>
-      <div className={styles.feedbackStats}>
-        <div className={styles.feedbackCard}>
-          <span className={styles.feedbackEmoji}>👍</span>
-          <span className={styles.feedbackValue}>{summaryData?.feedbackPositive || 0}</span>
-          <span className={styles.feedbackLabel}>Positive</span>
-        </div>
-        <div className={styles.feedbackCard}>
-          <span className={styles.feedbackEmoji}>👎</span>
-          <span className={styles.feedbackValue}>{summaryData?.feedbackNegative || 0}</span>
-          <span className={styles.feedbackLabel}>Negative</span>
-        </div>
-        <div className={styles.feedbackCard}>
-          <span className={styles.feedbackEmoji}>📈</span>
-          <span className={styles.feedbackValue}>{positiveRate}%</span>
-          <span className={styles.feedbackLabel}>Satisfaction Rate</span>
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Recent Feedback</h3>
-        <HubEmptyState
-          title="Feedback Review"
-          description="Detailed feedback review with comments coming soon."
+      <HubKPIGrid>
+        <HubKPICard
+          label="Positive"
+          value={summaryData?.feedbackPositive || 0}
+          sublabel="Thumbs up"
+          icon={ThumbsUp}
+          variant="success"
         />
-      </div>
+        <HubKPICard
+          label="Negative"
+          value={summaryData?.feedbackNegative || 0}
+          sublabel="Thumbs down"
+          icon={ThumbsDown}
+          variant="warning"
+        />
+        <HubKPICard
+          label="Satisfaction Rate"
+          value={`${positiveRate}%`}
+          sublabel="Positive feedback"
+          icon={BarChart}
+          variant={positiveRate >= 80 ? 'success' : positiveRate >= 50 ? 'info' : 'warning'}
+        />
+      </HubKPIGrid>
+
+      {/* HubEmptyState renders directly - no section wrapper for "coming soon" features */}
+      <HubEmptyState
+        title="Feedback Review"
+        description="Detailed feedback review with comments coming soon."
+        icon={<MessageSquare size={48} />}
+      />
     </div>
   );
 }
@@ -504,17 +422,7 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
     <div className={styles.providersContent}>
       {/* Active Provider Selection */}
       <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>Active Provider</h3>
-          {providerData && (
-            <span className={styles.currentProviderBadge}>
-              Currently: {providerData.currentName}
-            </span>
-          )}
-        </div>
-        <p className={styles.sectionDescription}>
-          Select which AI provider Lexi should use for generating responses. Changes take effect immediately for new conversations.
-        </p>
+        <h3 className={styles.sectionTitle}>Active Provider</h3>
 
         <div className={styles.providerCards}>
           {providerData?.providers.map((provider) => (
@@ -525,9 +433,9 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
               disabled={!provider.available || provider.current || changeProviderMutation.isPending}
             >
               <div className={styles.providerCardHeader}>
-                <span className={`${styles.providerIcon} ${styles[`providerIcon${capitalize(provider.type)}`]}`}>
-                  {getProviderIcon(provider.type)}
-                </span>
+                <div className={`${styles.providerIcon} ${styles[`providerIcon${capitalize(provider.type)}`]}`}>
+                  {React.createElement(getProviderIcon(provider.type), { size: 20 })}
+                </div>
                 {provider.current && (
                   <span className={styles.activeBadge}>Active</span>
                 )}
@@ -630,33 +538,126 @@ function ProvidersTab({ breakdownData, isLoading }: ProvidersTabProps) {
   );
 }
 
-function getProviderIcon(type: string): string {
-  switch (type) {
-    case 'rules': return '📋';
-    case 'claude': return '🤖';
-    case 'gemini': return '✨';
-    default: return '⚙️';
+interface QuotaTabProps {
+  quotaData: QuotaData | undefined;
+  isLoading: boolean;
+}
+
+function QuotaTab({ quotaData, isLoading }: QuotaTabProps) {
+  if (isLoading) {
+    return <div className={styles.loading}>Loading quota analytics...</div>;
   }
-}
 
-// --- Helper Components ---
+  if (!quotaData) {
+    return null;
+  }
 
-interface StatCardProps {
-  title: string;
-  value: number | string;
-  icon: string;
-}
+  const freeUsagePercent = quotaData.costAnalysis.totalConversations > 0
+    ? ((quotaData.costAnalysis.rulesConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
+    : '0';
 
-function StatCard({ title, value, icon }: StatCardProps) {
+  const paidUsagePercent = quotaData.costAnalysis.totalConversations > 0
+    ? ((quotaData.costAnalysis.geminiConversations / quotaData.costAnalysis.totalConversations) * 100).toFixed(1)
+    : '0';
+
+  const monthlyProjection = (quotaData.freeTier.dailyUsage * quotaData.costAnalysis.costPerConversation * 30).toFixed(2);
+
   return (
-    <div className={styles.statCard}>
-      <span className={styles.statIcon}>{icon}</span>
-      <div className={styles.statInfo}>
-        <span className={styles.statValue}>{typeof value === 'number' ? value.toLocaleString() : value}</span>
-        <span className={styles.statTitle}>{title}</span>
-      </div>
+    <div className={styles.quotaContent}>
+      {/* All 12 KPI cards in single grid - matches Listings pattern */}
+      <HubKPIGrid>
+        {/* Free Tier Usage (4 cards) */}
+        <HubKPICard
+          label="Total Users"
+          value={quotaData.freeTier.totalUsers}
+          sublabel="Authenticated users"
+          icon={Users}
+        />
+        <HubKPICard
+          label="Daily Usage"
+          value={quotaData.freeTier.dailyUsage}
+          sublabel="Conversations today"
+          icon={Calendar}
+        />
+        <HubKPICard
+          label="Limit Hits"
+          value={quotaData.freeTier.limitHits}
+          sublabel="Users hitting daily limit"
+          icon={AlertCircle}
+          variant={quotaData.freeTier.limitHits > 0 ? 'warning' : 'neutral'}
+        />
+        <HubKPICard
+          label="Avg Usage"
+          value={quotaData.freeTier.avgConversationsPerUser.toFixed(1)}
+          sublabel="Conversations per user"
+          icon={BarChart}
+        />
+
+        {/* Cost Analysis (4 cards) */}
+        <HubKPICard
+          label="Total Conversations"
+          value={quotaData.costAnalysis.totalConversations}
+          sublabel="All time"
+          icon={MessageSquare}
+        />
+        <HubKPICard
+          label="Gemini (Paid)"
+          value={quotaData.costAnalysis.geminiConversations}
+          sublabel="Using Gemini API"
+          icon={Sparkles}
+        />
+        <HubKPICard
+          label="Rules (Free)"
+          value={quotaData.costAnalysis.rulesConversations}
+          sublabel="Zero cost fallback"
+          icon={FileCheck}
+          variant="success"
+        />
+        <HubKPICard
+          label="Total AI Cost"
+          value={`£${quotaData.costAnalysis.totalCost.toFixed(2)}`}
+          sublabel="Gemini API usage"
+          icon={DollarSign}
+        />
+
+        {/* Cost Efficiency (4 cards) */}
+        <HubKPICard
+          label="Cost per Conversation"
+          value={`£${quotaData.costAnalysis.costPerConversation.toFixed(4)}`}
+          sublabel="Average Gemini cost"
+          icon={DollarSign}
+        />
+        <HubKPICard
+          label="Free Usage %"
+          value={`${freeUsagePercent}%`}
+          sublabel="Rules provider usage"
+          icon={FileCheck}
+          variant="success"
+        />
+        <HubKPICard
+          label="Paid Usage %"
+          value={`${paidUsagePercent}%`}
+          sublabel="Gemini provider usage"
+          icon={Sparkles}
+        />
+        <HubKPICard
+          label="Monthly Projection"
+          value={`£${monthlyProjection}`}
+          sublabel="Estimated monthly cost"
+          icon={TrendingUp}
+        />
+      </HubKPIGrid>
     </div>
   );
+}
+
+function getProviderIcon(type: string) {
+  switch (type) {
+    case 'rules': return FileCheck;
+    case 'claude': return Bot;
+    case 'gemini': return Sparkles;
+    default: return Settings;
+  }
 }
 
 // --- Helpers ---

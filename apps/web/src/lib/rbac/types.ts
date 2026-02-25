@@ -11,6 +11,7 @@ export type AdminResource =
   | 'users'
   | 'listings'
   | 'bookings'
+  | 'ai_tutors'
   | 'reviews'
   | 'referrals'
   | 'organisations'

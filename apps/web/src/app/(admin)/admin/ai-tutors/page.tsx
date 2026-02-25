@@ -7,7 +7,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
@@ -15,14 +14,15 @@ import HubHeader from '@/app/components/hub/layout/HubHeader';
 import HubTabs from '@/app/components/hub/layout/HubTabs';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import { Bot, Activity, Users, TrendingUp, DollarSign, Star } from 'lucide-react';
-import { HubKPIGrid, HubKPICard, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
-// TODO: Add AI tutor metrics and re-enable these imports
-// import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
-// import { useAdminTrendData } from '@/hooks/useAdminTrendData';
+import { Bot, Activity, Users } from 'lucide-react';
+import { usePermission } from '@/lib/rbac';
+import { HubKPIGrid, HubKPICard, HubCategoryBreakdownChart, HubTrendChart, type CategoryData } from '@/app/components/hub/charts';
+import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
+import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import AITutorsTable from './components/AITutorsTable';
 import AdminAITutorCreateTab from './components/AdminAITutorCreateTab';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
@@ -30,10 +30,7 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminAITutorsOverviewPage() {
-  const _router = useRouter();
-  // TODO: Add 'ai_tutors' to AdminResource type in lib/rbac/types.ts
-  // const _canViewAITutors = usePermission('ai_tutors', 'view');
-  // const _canManageAITutors = usePermission('ai_tutors', 'manage');
+  const canViewAITutors = usePermission('ai_tutors', 'view');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-ai-tutors' | 'create-new'>('overview');
 
   // Fetch real-time AI tutor counts from ai_tutors table
@@ -59,29 +56,38 @@ export default function AdminAITutorsOverviewPage() {
     refetchOnWindowFocus: true,
   });
 
-  // TODO: Add AI tutor metrics to platform statistics collection
-  // For now, using real-time stats from Supabase instead of historical metrics
-  // const totalAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_total', compareWith: 'last_month' });
-  // const activeAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
-  // etc...
+  // Fetch AI tutor metrics with historical comparison
+  const totalAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_total', compareWith: 'last_month' });
+  const activeAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
+  const platformAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_platform', compareWith: 'last_month' });
+  const userAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_user', compareWith: 'last_month' });
 
   // Header actions
   const getHeaderActions = () => {
     return undefined;
   };
 
-  // TODO: Add AI tutor metrics to platform_statistics_daily for trend charts
-  // const aiTutorTrendsQuery = useAdminTrendData({ metric: 'ai_tutors_total', days: 7 });
-  // const sessionsTrendsQuery = useAdminTrendData({ metric: 'ai_tutor_sessions_total', days: 7 });
-  // const revenueTrendsQuery = useAdminTrendData({ metric: 'ai_tutor_revenue_total', days: 7 });
+  // Fetch trend data from platform_statistics_daily (last 7 days)
+  const aiTutorTrendsQuery = useAdminTrendData({ metric: 'ai_tutors_total', days: 7 });
+  const sessionsTrendsQuery = useAdminTrendData({ metric: 'ai_tutor_sessions_total', days: 7 });
 
-  const isLoadingCharts = false; // Set to false until metrics are implemented
+  const isLoadingCharts = aiTutorTrendsQuery.isLoading || sessionsTrendsQuery.isLoading;
 
   // AI Tutor ownership breakdown data (using real-time counts)
   const ownershipData: CategoryData[] = [
     { label: 'Platform-Owned', value: aiTutorStats?.platform ?? 0, color: '#3B82F6' },
     { label: 'User-Created', value: aiTutorStats?.user ?? 0, color: '#10B981' },
   ];
+
+  // Authorization check (after all hooks)
+  if (!canViewAITutors) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <h2 style={{ marginBottom: '1rem' }}>Unauthorized Access</h2>
+        <p style={{ color: '#6b7280' }}>You don't have permission to view AI Tutors.</p>
+      </div>
+    );
+  }
 
   return (
     <HubPageLayout
@@ -138,37 +144,72 @@ export default function AdminAITutorsOverviewPage() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <>
-          {/* KPI Cards - Simplified without historical metrics */}
+          {/* KPI Cards - With historical metrics and trends */}
           <HubKPIGrid>
             <HubKPICard
               label="Total AI Tutors"
-              value={aiTutorStats?.total ?? 0}
-              sublabel="Current total"
+              value={totalAITutorsMetric.value}
+              sublabel={formatMetricChange(
+                totalAITutorsMetric.change,
+                totalAITutorsMetric.changePercent,
+                'last_month'
+              )}
               icon={Bot}
+              trend={totalAITutorsMetric.trend}
             />
             <HubKPICard
               label="Active"
-              value={aiTutorStats?.active ?? 0}
-              sublabel="Published AI tutors"
+              value={activeAITutorsMetric.value}
+              sublabel={formatMetricChange(
+                activeAITutorsMetric.change,
+                activeAITutorsMetric.changePercent,
+                'last_month'
+              )}
               icon={Activity}
+              trend={activeAITutorsMetric.trend}
             />
             <HubKPICard
               label="Platform-Owned"
-              value={aiTutorStats?.platform ?? 0}
-              sublabel="Admin-created"
+              value={platformAITutorsMetric.value}
+              sublabel={formatMetricChange(
+                platformAITutorsMetric.change,
+                platformAITutorsMetric.changePercent,
+                'last_month'
+              )}
               icon={Bot}
+              trend={platformAITutorsMetric.trend}
             />
             <HubKPICard
               label="User-Created"
-              value={aiTutorStats?.user ?? 0}
-              sublabel="Created by users"
+              value={userAITutorsMetric.value}
+              sublabel={formatMetricChange(
+                userAITutorsMetric.change,
+                userAITutorsMetric.changePercent,
+                'last_month'
+              )}
               icon={Users}
+              trend={userAITutorsMetric.trend}
             />
           </HubKPIGrid>
 
-          {/* Charts Section - Simplified */}
+          {/* Charts Section */}
           <div className={styles.chartsSection}>
-            {/* Ownership Breakdown - Only chart that works without historical data */}
+            {/* AI Tutor Growth Trend */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load AI tutor trends chart</div>}>
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubTrendChart
+                  data={aiTutorTrendsQuery.data}
+                  title="AI Tutor Growth"
+                  subtitle="Last 7 days"
+                  valueName="AI Tutors"
+                  lineColor="#3B82F6"
+                />
+              )}
+            </ErrorBoundary>
+
+            {/* Ownership Breakdown */}
             <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load ownership breakdown chart</div>}>
               <HubCategoryBreakdownChart
                 data={ownershipData}
@@ -177,13 +218,20 @@ export default function AdminAITutorsOverviewPage() {
               />
             </ErrorBoundary>
 
-            {/* Placeholder for future charts */}
-            <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--color-background-secondary)', borderRadius: '8px' }}>
-              <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text-secondary)' }}>Metrics Coming Soon</h3>
-              <p style={{ color: 'var(--color-text-tertiary)', fontSize: '0.9rem' }}>
-                Add AI tutor metrics to platform statistics collection to view growth trends and session analytics.
-              </p>
-            </div>
+            {/* Session Activity Trend */}
+            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load session trends chart</div>}>
+              {isLoadingCharts ? (
+                <ChartSkeleton height="320px" />
+              ) : (
+                <HubTrendChart
+                  data={sessionsTrendsQuery.data}
+                  title="Session Activity"
+                  subtitle="Last 7 days"
+                  valueName="Sessions"
+                  lineColor="#10B981"
+                />
+              )}
+            </ErrorBoundary>
           </div>
 
         </>

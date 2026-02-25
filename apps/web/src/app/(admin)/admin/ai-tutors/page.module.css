@@ -1,12 +1,12 @@
 /*
- * Filename: src/app/(admin)/admin/listings/page.module.css
- * Purpose: Styles for Listings overview page
- * Created: 2025-12-24
+ * Filename: src/app/(admin)/admin/ai-tutors/page.module.css
+ * Purpose: Styles for AI Tutors overview page
+ * Created: 2026-02-24
  * Pattern: Follows Dashboard hub layout pattern
  */
 
 /* Header */
-.listingsHeader {
+.aiTutorsHeader {
   --hub-header-margin-top: 1.5rem;
   --hub-header-margin-bottom: 0;
   --hub-header-height: 3rem;
@@ -16,19 +16,19 @@
 }
 
 @media (max-width: 767px) {
-  .listingsHeader {
+  .aiTutorsHeader {
     --hub-header-margin-top: 0rem;
   }
 }
 
 /* Tabs */
-.listingsTabs {
+.aiTutorsTabs {
   --hub-tabs-margin-top: 3rem;
   --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 @media (max-width: 767px) {
-  .listingsTabs {
+  .aiTutorsTabs {
     --hub-tabs-margin-top: 0rem;
   }
 }
@@ -76,6 +76,30 @@
 /* Table container */
 .tableContainer {
   /* Spacing handled by HubTabs margin-bottom */
+}
+
+/* Placeholder Chart */
+.placeholderChart {
+  padding: 2rem;
+  text-align: center;
+  background: var(--color-background-secondary, #f9fafb);
+  border-radius: 8px;
+  border: 2px dashed #e5e7eb;
+}
+
+.placeholderTitle {
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.placeholderText {
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

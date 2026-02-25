@@ -48,11 +48,11 @@ export async function GET(request: NextRequest) {
     // Check if user is admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('user_type')
+      .select('is_admin, admin_role')
       .eq('id', user.id)
       .single();
 
-    if (!profile || profile.user_type !== 'admin') {
+    if (!profile?.is_admin) {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required', code: 'FORBIDDEN' },
         { status: 403 }

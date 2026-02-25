@@ -16,13 +16,45 @@ import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-tutors/limits';
 
 /**
  * GET /api/ai-tutors
- * List all AI tutors owned by the current user
+ * List AI tutors (user's own OR public/featured)
+ *
+ * Query params:
+ * - featured=true: Get featured AI tutors (public)
+ * - status=published: Filter by status (public)
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const { searchParams } = new URL(request.url);
 
-    // Get authenticated user
+    const featured = searchParams.get('featured');
+    const status = searchParams.get('status');
+
+    // If requesting featured tutors (public endpoint)
+    if (featured === 'true') {
+      let query = supabase
+        .from('ai_tutors')
+        .select('*')
+        .eq('is_featured', true)
+        .eq('status', 'published')
+        .order('priority_rank', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching featured AI tutors:', error);
+        return NextResponse.json(
+          { error: 'Failed to fetch featured AI tutors' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ data }, { status: 200 });
+    }
+
+    // Otherwise, get user's own AI tutors (requires auth)
     const {
       data: { user },
       error: authError,
@@ -32,7 +64,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get AI tutors
+    // Get AI tutors owned by user
     const tutors = await listUserAITutors(user.id);
 
     return NextResponse.json(tutors, { status: 200 });

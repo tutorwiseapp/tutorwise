@@ -99,20 +99,10 @@ export default function AITutorsTable() {
       subscriptionFilter,
     ],
     queryFn: async () => {
+      // Fetch AI tutors first (without join to avoid schema cache issues)
       let query = supabase
         .from('ai_tutors')
-        .select(
-          `
-          *,
-          owner:profiles!owner_id(
-            id,
-            full_name,
-            email,
-            avatar_url
-          )
-        `,
-          { count: 'exact' }
-        );
+        .select('*', { count: 'exact' });
 
       // Apply search filter
       if (searchQuery) {
@@ -152,8 +142,30 @@ export default function AITutorsTable() {
 
       if (error) throw error;
 
+      // Fetch owner data separately (to avoid schema cache issues)
+      const aiTutors = data || [];
+      const ownerIds = [...new Set(aiTutors.map(t => t.owner_id).filter(Boolean))];
+
+      let ownersMap = new Map();
+      if (ownerIds.length > 0) {
+        const { data: owners } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, avatar_url')
+          .in('id', ownerIds);
+
+        if (owners) {
+          ownersMap = new Map(owners.map(o => [o.id, o]));
+        }
+      }
+
+      // Attach owner data to each AI tutor
+      const aiTutorsWithOwners = aiTutors.map(tutor => ({
+        ...tutor,
+        owner: ownersMap.get(tutor.owner_id) || null,
+      }));
+
       return {
-        aiTutors: (data || []) as AITutor[],
+        aiTutors: aiTutorsWithOwners as AITutor[],
         total: count || 0,
       };
     },
@@ -257,8 +269,11 @@ export default function AITutorsTable() {
         <div className={styles.nameCell}>
           <div className={styles.nameContent}>
             <span className={styles.nameText}>{aiTutor.display_name}</span>
+            {aiTutor.is_featured && (
+              <span className={styles.featuredBadge} title="Featured on homepage">⭐</span>
+            )}
             {aiTutor.is_platform_owned && (
-              <span className={styles.platformBadge}>⭐ Platform</span>
+              <span className={styles.platformBadge}>Platform</span>
             )}
             <span className={styles.slugText}>/{aiTutor.name}</span>
           </div>
@@ -348,7 +363,15 @@ export default function AITutorsTable() {
         </span>
       ),
     },
-    // Column 10: Actions
+    // Column 10: Priority (Phase 2A)
+    {
+      key: 'priority_rank',
+      label: 'Priority',
+      width: '100px',
+      sortable: true,
+      render: (aiTutor) => <PriorityCell tutor={aiTutor} onUpdate={refetch} />,
+    },
+    // Column 11: Actions
     {
       key: 'actions',
       label: 'Actions',
@@ -371,6 +394,22 @@ export default function AITutorsTable() {
 
                 if (error) {
                   alert('Failed to update status');
+                } else {
+                  refetch();
+                }
+              },
+            },
+            {
+              label: aiTutor.is_featured ? '⭐ Unfeature' : 'Feature',
+              onClick: async () => {
+                const response = await fetch(`/api/ai-tutors/${aiTutor.id}/featured`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ is_featured: !aiTutor.is_featured }),
+                });
+
+                if (!response.ok) {
+                  alert('Failed to update featured status');
                 } else {
                   refetch();
                 }
@@ -618,5 +657,102 @@ export default function AITutorsTable() {
         onAITutorUpdated={handleAITutorUpdated}
       />
     </>
+  );
+}
+
+// PriorityCell Component - Inline editable priority field (Phase 2A)
+interface PriorityCellProps {
+  tutor: any; // AITutor type
+  onUpdate: () => void;
+}
+
+function PriorityCell({ tutor, onUpdate }: PriorityCellProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState(tutor.priority_rank || 0);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (value === tutor.priority_rank) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/ai-tutors/${tutor.id}/priority`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priority_rank: value }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update priority');
+
+      onUpdate(); // Refresh table
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating priority:', error);
+      setValue(tutor.priority_rank || 0); // Revert on error
+      alert('Failed to update priority');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setValue(tutor.priority_rank || 0);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Escape') handleCancel();
+  };
+
+  if (isEditing) {
+    return (
+      <div className={styles.priorityEdit}>
+        <input
+          type="number"
+          min="0"
+          max="1000"
+          value={value}
+          onChange={(e) => setValue(parseInt(e.target.value) || 0)}
+          onKeyDown={handleKeyDown}
+          className={styles.priorityInput}
+          disabled={isSaving}
+          autoFocus
+        />
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className={styles.saveBtn}
+          title="Save"
+        >
+          {isSaving ? '...' : '✓'}
+        </button>
+        <button
+          onClick={handleCancel}
+          disabled={isSaving}
+          className={styles.cancelBtn}
+          title="Cancel"
+        >
+          ✕
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={styles.priorityDisplay}
+      onClick={() => setIsEditing(true)}
+      title="Click to edit priority (higher = appears first)"
+    >
+      {tutor.priority_rank > 0 ? (
+        <span className={styles.priorityBadge}>{tutor.priority_rank}</span>
+      ) : (
+        <span className={styles.priorityDefault}>0</span>
+      )}
+    </div>
   );
 }
