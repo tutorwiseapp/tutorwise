@@ -41,7 +41,7 @@ class ClientPersonaImpl extends BasePersona {
   config = CLIENT_CONFIG;
 
   protected getHandledCategories(): IntentCategory[] {
-    return ['learning', 'scheduling', 'progress', 'billing', 'feedback', 'support', 'general'];
+    return ['learning', 'scheduling', 'progress', 'billing', 'feedback', 'support', 'marketplace', 'general'];
   }
 
   async handleIntent(intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
@@ -60,6 +60,8 @@ class ClientPersonaImpl extends BasePersona {
         return this.handleFeedbackIntent(intent, ctx);
       case 'support':
         return this.handleSupportIntent(intent, ctx);
+      case 'marketplace':
+        return this.handleMarketplaceIntent(intent, ctx);
       default:
         return this.handleGeneralIntent(intent, ctx);
     }
@@ -157,6 +159,35 @@ class ClientPersonaImpl extends BasePersona {
           "I can help you find tutors and learning resources for your child.",
           null,
           ['Find a tutor', 'View learning materials', "Check child's homework"]
+        );
+    }
+  }
+
+  private async handleMarketplaceIntent(intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    switch (intent.action) {
+      case 'search':
+        const searchResult = await this.api.booking.searchTutors(ctx, {
+          subject: intent.entities.subject as string,
+        });
+
+        if (searchResult.success && searchResult.tutors.length > 0) {
+          return this.success(
+            `I found ${searchResult.total} tutor${searchResult.total !== 1 ? 's' : ''} for you. Here are some top-rated options:`,
+            searchResult.tutors,
+            ['View tutor profiles', 'Filter results', 'Book a trial lesson']
+          );
+        }
+        return this.success(
+          "I couldn't find tutors matching that criteria. Let's try broadening the search — what subject does your child need help with?",
+          null,
+          ['Mathematics', 'English', 'Science', 'Other subjects']
+        );
+
+      default:
+        return this.success(
+          "I can help you find the right tutor! You can search by subject, level, location, and more.",
+          null,
+          ['Search tutors', 'Browse Marketplace', 'View Wiselists']
         );
     }
   }

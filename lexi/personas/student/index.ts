@@ -41,7 +41,7 @@ class StudentPersonaImpl extends BasePersona {
   config = STUDENT_CONFIG;
 
   protected getHandledCategories(): IntentCategory[] {
-    return ['learning', 'scheduling', 'resources', 'progress', 'support', 'feedback', 'general'];
+    return ['learning', 'scheduling', 'resources', 'progress', 'support', 'feedback', 'marketplace', 'general'];
   }
 
   async handleIntent(intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
@@ -60,6 +60,8 @@ class StudentPersonaImpl extends BasePersona {
         return this.handleFeedbackIntent(intent, ctx);
       case 'support':
         return this.handleSupportIntent(intent, ctx);
+      case 'marketplace':
+        return this.handleMarketplaceIntent(intent, ctx);
       default:
         return this.handleGeneralIntent(intent, ctx);
     }
@@ -202,6 +204,35 @@ class StudentPersonaImpl extends BasePersona {
       );
     }
     return this.error("I couldn't find resources right now.");
+  }
+
+  private async handleMarketplaceIntent(intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
+    switch (intent.action) {
+      case 'search':
+        const searchResult = await this.api.booking.searchTutors(ctx, {
+          subject: intent.entities.subject as string,
+        });
+
+        if (searchResult.success && searchResult.tutors.length > 0) {
+          return this.success(
+            `I found ${searchResult.total} tutor${searchResult.total !== 1 ? 's' : ''} who can help! Here are some top-rated options:`,
+            searchResult.tutors,
+            ['View tutor profiles', 'Filter results', 'Book a trial lesson']
+          );
+        }
+        return this.success(
+          "I couldn't find tutors matching that right now. What subject do you need help with?",
+          null,
+          ['Mathematics', 'English', 'Science', 'Other subjects']
+        );
+
+      default:
+        return this.success(
+          "I can help you find a tutor! What subject are you looking for help with?",
+          null,
+          ['Search tutors', 'Browse Marketplace', 'View Wiselists']
+        );
+    }
   }
 
   private async handleFeedbackIntent(intent: DetectedIntent, ctx: AgentContext): Promise<ActionResult> {
