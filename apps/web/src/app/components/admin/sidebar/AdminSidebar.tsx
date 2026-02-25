@@ -18,6 +18,7 @@ interface NavItem {
   label: string;
   subItems?: NavItem[];
   indent?: boolean;
+  disabled?: boolean;
 }
 
 export default function AdminSidebar() {
@@ -67,6 +68,10 @@ export default function AdminSidebar() {
       ],
     },
     { href: '/admin/listings', label: 'Listings' },
+    { href: '/admin/ai-tutors', label: 'AI Tutor Studio' },
+    { href: '/admin/sage', label: 'Sage AI Tutor' },
+    { href: '/admin/lexi', label: 'Lexi AI Agent' },
+    { href: '/admin/cas', label: 'CAS AI Agents', disabled: true },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },
     {
@@ -170,6 +175,15 @@ export default function AdminSidebar() {
                       ▼
                     </span>
                   </button>
+                ) : item.disabled ? (
+                  // Disabled item - render as span (not clickable)
+                  <span
+                    className={`${styles.navItem} ${styles.navItemDisabled} ${
+                      item.indent ? styles.navItemIndent : ''
+                    }`}
+                  >
+                    <span className={styles.navItemLabel}>{item.label}</span>
+                  </span>
                 ) : (
                   // Regular link item without submenu
                   <Link

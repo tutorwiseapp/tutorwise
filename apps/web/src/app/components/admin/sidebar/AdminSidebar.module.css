@@ -92,6 +92,17 @@
   font-weight: 400;
 }
 
+.navItemDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+
+.navItemDisabled:hover {
+  background-color: transparent;
+  color: #9ca3af;
+}
+
 /* Role Indicator */
 .roleIndicator {
   padding: 1rem;
