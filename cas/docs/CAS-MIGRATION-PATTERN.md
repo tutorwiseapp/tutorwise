@@ -921,7 +921,7 @@ export default function MigrationPage() {
 **Questions about this pattern?**
 - See full CAS docs: [CAS-OPERATING-MODEL.md](./CAS-OPERATING-MODEL.md)
 - Feature delivery: [CAS-FEATURE-DELIVERY-PATTERN.md](./CAS-FEATURE-DELIVERY-PATTERN.md)
-- Real example: [LANGGRAPH_MIGRATION_PLAN.md](../LANGGRAPH_MIGRATION_PLAN.md)
+- Real example: [LANGGRAPH_MIGRATION_PLAN.md](./LANGGRAPH_MIGRATION_PLAN.md)
 
 ---
 
