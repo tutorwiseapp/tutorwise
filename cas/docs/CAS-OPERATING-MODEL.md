@@ -1389,7 +1389,7 @@ Admin → CAS → Runtime → Live Status
 - [CAS-MIGRATION-PATTERN.md](./CAS-MIGRATION-PATTERN.md) - **How to migrate any system** with phase tracking
 
 ### **Internal Documentation**
-- [LANGGRAPH_MIGRATION_PLAN.md](../LANGGRAPH_MIGRATION_PLAN.md) - Full migration plan
+- [LANGGRAPH_MIGRATION_PLAN.md](./LANGGRAPH_MIGRATION_PLAN.md) - Full migration plan
 - [RUNTIME_COMPARISON.md](../RUNTIME_COMPARISON.md) - Runtime feature comparison
 - [PHASE_1_1_COMPLETE.md](../PHASE_1_1_COMPLETE.md) - Supabase integration details
 - [DASHBOARD_IMPROVEMENTS.md](src/admin/DASHBOARD_IMPROVEMENTS.md) - Dashboard enhancements
