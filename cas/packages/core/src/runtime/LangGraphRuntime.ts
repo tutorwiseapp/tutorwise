@@ -861,7 +861,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       );
 
       // Publish workflow completed event to message bus
-      const workflowType = workflowId.split('-')[0];
       await this.messageBus.publishResult({
         taskId: workflowId,
         agentId: `workflow:${workflowType}`,
@@ -896,7 +895,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       );
 
       // Publish workflow failed event to message bus
-      const workflowType = workflowId.split('-')[0];
       await this.messageBus.publishResult({
         taskId: workflowId,
         agentId: `workflow:${workflowType}`,
@@ -1312,7 +1310,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
           status: 'running',
           last_activity_at: new Date().toISOString(),
           metadata: config
-        });
+        }, { onConflict: 'agent_id' });
 
       if (error) {
         throw new Error(`Failed to register agent: ${error.message}`);
@@ -1367,7 +1365,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         .from('cas_agent_status')
         .select('*')
         .eq('agent_id', agentId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error(`[LangGraphRuntime] Failed to get status for agent ${agentId}:`, error);
