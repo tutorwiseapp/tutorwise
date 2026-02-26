@@ -15,7 +15,7 @@
 
 import type { AgentRuntimeInterface, RuntimeType, RuntimeConfig } from './AgentRuntimeInterface';
 import { CustomAgentRuntime } from './CustomRuntime';
-// import { LangGraphAgentRuntime } from './LangGraphRuntime'; // Uncomment in Phase 3
+import { LangGraphRuntime } from './LangGraphRuntime';
 
 export class AgentRuntimeFactory {
   /**
@@ -36,11 +36,7 @@ export class AgentRuntimeFactory {
         return new CustomAgentRuntime(config);
 
       case 'langgraph':
-        // Phase 3: Uncomment when LangGraph runtime is implemented
-        // return new LangGraphAgentRuntime(config);
-        throw new Error(
-          'LangGraph runtime not yet implemented. Set CAS_RUNTIME=custom or leave unset.'
-        );
+        return new LangGraphRuntime(config);
 
       default:
         throw new Error(`Unknown runtime type: ${runtimeType}. Use 'custom' or 'langgraph'.`);
@@ -62,7 +58,7 @@ export class AgentRuntimeFactory {
       case 'custom':
         return true;
       case 'langgraph':
-        return false; // Will be true in Phase 3
+        return true; // ✅ Available as of Phase 5 completion
       default:
         return false;
     }

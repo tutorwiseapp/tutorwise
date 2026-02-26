@@ -309,9 +309,9 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       }
 
       // Check message bus health
-      const messageBusHealth = await this.messageBus.healthCheck();
-      if (!messageBusHealth.healthy) {
-        console.error('[LangGraphRuntime] Health check failed (Message Bus):', messageBusHealth.error);
+      const messageBusHealthy = await this.messageBus.healthCheck();
+      if (!messageBusHealthy) {
+        console.error('[LangGraphRuntime] Health check failed (Message Bus)');
         return false;
       }
 
