@@ -70,6 +70,8 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   private circuitBreakers: Map<string, CircuitBreaker> = new Map();
   private messageBus: MessageBusInterface;
   private retryConfig: RetryConfig;
+  private activeTasks: Map<string, { cancelled: boolean }> = new Map();
+  private streamCallbacks: Map<string, (update: any) => void> = new Map();
 
   constructor(config?: RuntimeConfig) {
     this.agentRegistry = new AgentRegistry();
@@ -257,6 +259,20 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       await this.messageBus.disconnect();
       console.log('[LangGraphRuntime] Message bus disconnected');
 
+      // Cancel all active tasks
+      for (const taskId of this.activeTasks.keys()) {
+        console.log(`[LangGraphRuntime] Cancelling active task: ${taskId}`);
+        try {
+          await this.cancelTask(taskId);
+        } catch (error) {
+          console.error(`Failed to cancel ${taskId}:`, error);
+        }
+      }
+
+      // Clear tracking maps
+      this.activeTasks.clear();
+      this.streamCallbacks.clear();
+
       // Clear workflows
       this.workflows.clear();
 
@@ -343,8 +359,21 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         agentId: 'analyst',
         input: state.input,
         state: {},
-        onProgress: (p, m) => console.log(`[Analyst] ${Math.round(p * 100)}% - ${m}`),
-        onLog: (l, m) => console.log(`[Analyst] ${l}: ${m}`),
+        onProgress: (progress: number, message: string) => {
+          console.log(`[Analyst] ${Math.round(progress * 100)}% - ${message}`);
+          const callback = this.streamCallbacks.get(state.metadata.workflowId);
+          if (callback) {
+            callback({
+              type: 'agent_progress',
+              agent: 'analyst',
+              progress,
+              message
+            });
+          }
+        },
+        onLog: (level: string, message: string) => {
+          console.log(`[Analyst] ${level}: ${message}`);
+        },
         isCancelled: () => false
       });
 
@@ -377,8 +406,21 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
           insights: state.context.insights // Pass analyst insights
         },
         state: {},
-        onProgress: (p, m) => console.log(`[Marketer] ${Math.round(p * 100)}% - ${m}`),
-        onLog: (l, m) => console.log(`[Marketer] ${l}: ${m}`),
+        onProgress: (progress: number, message: string) => {
+          console.log(`[Marketer] ${Math.round(progress * 100)}% - ${message}`);
+          const callback = this.streamCallbacks.get(state.metadata.workflowId);
+          if (callback) {
+            callback({
+              type: 'agent_progress',
+              agent: 'marketer',
+              progress,
+              message
+            });
+          }
+        },
+        onLog: (level: string, message: string) => {
+          console.log(`[Marketer] ${level}: ${message}`);
+        },
         isCancelled: () => false
       });
 
@@ -437,8 +479,21 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
             ...state.context // Pass all context from previous steps
           },
           state: {},
-          onProgress: (p, m) => console.log(`[${agentId}] ${Math.round(p * 100)}% - ${m}`),
-          onLog: (l, m) => console.log(`[${agentId}] ${l}: ${m}`),
+          onProgress: (progress: number, message: string) => {
+            console.log(`[${agentId}] ${Math.round(progress * 100)}% - ${message}`);
+            const callback = this.streamCallbacks.get(state.metadata.workflowId);
+            if (callback) {
+              callback({
+                type: 'agent_progress',
+                agent: agentId,
+                progress,
+                message
+              });
+            }
+          },
+          onLog: (level: string, message: string) => {
+            console.log(`[${agentId}] ${level}: ${message}`);
+          },
           isCancelled: () => false
         });
 
@@ -497,8 +552,21 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         agentId: 'security',
         input: state.input,
         state: {},
-        onProgress: (p, m) => console.log(`[Security] ${Math.round(p * 100)}% - ${m}`),
-        onLog: (l, m) => console.log(`[Security] ${l}: ${m}`),
+        onProgress: (progress: number, message: string) => {
+          console.log(`[Security] ${Math.round(progress * 100)}% - ${message}`);
+          const callback = this.streamCallbacks.get(state.metadata.workflowId);
+          if (callback) {
+            callback({
+              type: 'agent_progress',
+              agent: 'security',
+              progress,
+              message
+            });
+          }
+        },
+        onLog: (level: string, message: string) => {
+          console.log(`[Security] ${level}: ${message}`);
+        },
         isCancelled: () => false
       });
 
@@ -523,8 +591,21 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
           security_findings: state.context.security_findings
         },
         state: {},
-        onProgress: (p, m) => console.log(`[Engineer] ${Math.round(p * 100)}% - ${m}`),
-        onLog: (l, m) => console.log(`[Engineer] ${l}: ${m}`),
+        onProgress: (progress: number, message: string) => {
+          console.log(`[Engineer] ${Math.round(progress * 100)}% - ${message}`);
+          const callback = this.streamCallbacks.get(state.metadata.workflowId);
+          if (callback) {
+            callback({
+              type: 'agent_progress',
+              agent: 'engineer',
+              progress,
+              message
+            });
+          }
+        },
+        onLog: (level: string, message: string) => {
+          console.log(`[Engineer] ${level}: ${message}`);
+        },
         isCancelled: () => false
       });
 
@@ -993,6 +1074,9 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         metadata: task.metadata
       });
 
+      // Track task in active tasks
+      this.activeTasks.set(task.id, { cancelled: false });
+
       // Log task started event
       await this.supabaseAdapter.logAgentEvent(
         task.agentId,
@@ -1006,9 +1090,26 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         agentId: task.agentId,
         input: task.input,
         state: {},
-        onProgress: () => {},
-        onLog: () => {},
-        isCancelled: () => false
+        onProgress: (progress: number, message: string) => {
+          console.log(`[${task.agentId}] ${task.id}: ${Math.round(progress * 100)}% - ${message}`);
+          const callback = this.streamCallbacks.get(task.id);
+          if (callback) {
+            callback({ type: 'progress', progress, message });
+          }
+        },
+        onLog: (level: string, message: string, metadata?: any) => {
+          console.log(`[${task.agentId}] ${level.toUpperCase()}: ${message}`);
+          this.supabaseAdapter.saveLog({
+            workflow_id: undefined,
+            agent_id: task.agentId,
+            level: level as any,
+            message,
+            metadata: { ...metadata, task_id: task.id }
+          }).catch(err => console.error('Log save failed:', err));
+        },
+        isCancelled: () => {
+          return this.activeTasks.get(task.id)?.cancelled || false;
+        }
       });
 
       const executionTime = Date.now() - startTime;
@@ -1049,6 +1150,9 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         metadata: { task_id: task.id }
       });
 
+      // Cleanup task tracking
+      this.activeTasks.delete(task.id);
+
       return {
         taskId: task.id,
         output: result.output,
@@ -1077,19 +1181,99 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
+      // Cleanup task tracking
+      this.activeTasks.delete(task.id);
+
       throw error;
     }
   }
 
   async *streamTask(task: AgentTask): AsyncGenerator<AgentResult> {
-    // Streaming not implemented for LangGraph runtime
-    const result = await this.executeTask(task);
-    yield result;
+    console.log(`[LangGraphRuntime] Streaming task ${task.id}`);
+
+    const updates: any[] = [];
+    let completed = false;
+    let finalResult: AgentResult | null = null;
+
+    // Set up callback to collect updates
+    this.streamCallbacks.set(task.id, (update: any) => {
+      updates.push(update);
+    });
+
+    // Execute task in background
+    this.executeTask(task).then(result => {
+      finalResult = result;
+      completed = true;
+    }).catch(error => {
+      finalResult = {
+        taskId: task.id,
+        output: {},
+        status: 'error',
+        error: error.message
+      };
+      completed = true;
+    });
+
+    // Yield initial status
+    yield {
+      taskId: task.id,
+      output: { status: 'started' },
+      status: 'partial'
+    };
+
+    // Poll and stream updates
+    while (!completed) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      while (updates.length > 0) {
+        const update = updates.shift();
+        yield {
+          taskId: task.id,
+          output: update,
+          status: 'partial'
+        };
+      }
+    }
+
+    // Cleanup and yield final result
+    this.streamCallbacks.delete(task.id);
+
+    if (finalResult) {
+      yield finalResult;
+    }
   }
 
   async cancelTask(taskId: string): Promise<void> {
-    // Cancellation not implemented for LangGraph runtime
-    console.warn(`[LangGraphRuntime] Task cancellation not implemented: ${taskId}`);
+    console.log(`[LangGraphRuntime] Cancelling task ${taskId}`);
+
+    try {
+      // Mark as cancelled in memory
+      const taskState = this.activeTasks.get(taskId);
+      if (taskState) {
+        taskState.cancelled = true;
+        console.log(`[LangGraphRuntime] Task ${taskId} marked as cancelled`);
+      } else {
+        console.warn(`[LangGraphRuntime] Task ${taskId} not in active tasks`);
+      }
+
+      // Publish to message bus
+      await this.messageBus.publishCancellation(taskId);
+
+      // Update database
+      await this.supabaseAdapter.updateTaskStatus(taskId, 'cancelled');
+
+      // Log event
+      await this.supabaseAdapter.logAgentEvent(
+        'system',
+        'task_cancelled',
+        { task_id: taskId, timestamp: new Date().toISOString() }
+      );
+
+      console.log(`[LangGraphRuntime] Task ${taskId} cancelled`);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Cancel failed for ${taskId}:`, error);
+      throw error;
+    }
   }
 
   async registerAgent(agentId: string, config: AgentConfig): Promise<void> {

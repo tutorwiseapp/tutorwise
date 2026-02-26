@@ -123,44 +123,48 @@ const FEATURES: Feature[] = [
     name: 'Single Task Execution',
     description: 'executeTask() method for running one agent task directly',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 2,
     estimatedHours: 2,
-    notes: 'Bypass workflow for single task execution'
+    notes: 'Bypass workflow for single task execution',
+    completedDate: '2026-02-26'
   },
   {
     id: 'stream-task',
     name: 'Task Streaming',
     description: 'AsyncGenerator for real-time progress updates',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 2,
     estimatedHours: 2,
-    dependencies: ['execute-task']
+    dependencies: ['execute-task'],
+    completedDate: '2026-02-26'
   },
   {
     id: 'cancel-task',
     name: 'Task Cancellation',
     description: 'Cancel running tasks with cleanup',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 2,
     estimatedHours: 1,
-    dependencies: ['execute-task']
+    dependencies: ['execute-task'],
+    completedDate: '2026-02-26'
   },
   {
     id: 'progress-callbacks',
     name: 'Progress Callbacks',
     description: 'Enhanced onProgress with real-time updates',
     customRuntime: true,
-    langGraphRuntime: 'in_progress',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 2,
     estimatedHours: 1,
-    notes: 'Basic logging exists, needs enhancement'
+    notes: 'Basic logging exists, needs enhancement',
+    completedDate: '2026-02-26'
   },
 
   // Phase 3: State Management (CRITICAL)
