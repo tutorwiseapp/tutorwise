@@ -79,11 +79,14 @@ const FEATURES: Feature[] = [
     name: 'Message Bus',
     description: 'Redis/InMemory message bus for distributed execution',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 1,
     estimatedHours: 2,
-    notes: 'Port MessageBusInterface from CustomRuntime'
+    actualHours: 1.5,
+    completedDate: '2026-02-26',
+    dependencies: ['supabase-integration'],
+    notes: 'Integrated InMemoryMessageBus and RedisMessageBus into LangGraphRuntime with workflow event publishing'
   },
   {
     id: 'circuit-breaker',
