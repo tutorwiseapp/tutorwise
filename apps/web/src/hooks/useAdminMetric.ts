@@ -143,7 +143,37 @@ export type MetricName =
   | 'ai_tutors_user'
   | 'ai_tutors_draft'
   | 'ai_tutors_active_rate'
-  | 'ai_tutor_sessions_total';
+  | 'ai_tutor_sessions_total'
+  // CAS metrics
+  | 'cas_agents_active'
+  | 'cas_tasks_generated'
+  | 'cas_insights_created'
+  | 'cas_agent_executions'
+  | 'cas_feedback_processed'
+  | 'cas_feedback_to_tasks'
+  | 'cas_feedback_conversion_rate'
+  | 'cas_agent_marketer_executions'
+  | 'cas_agent_analyst_executions'
+  | 'cas_agent_planner_executions'
+  | 'cas_agent_developer_executions'
+  | 'cas_agent_tester_executions'
+  | 'cas_agent_qa_executions'
+  | 'cas_agent_engineer_executions'
+  | 'cas_agent_security_executions'
+  | 'cas_runtime_custom_usage'
+  | 'cas_runtime_langgraph_usage'
+  | 'cas_runtime_current'
+  | 'cas_avg_execution_time_ms'
+  | 'cas_success_rate'
+  | 'cas_error_rate'
+  | 'cas_uptime_percent'
+  | 'cas_vulnerabilities_found'
+  | 'cas_vulnerabilities_critical'
+  | 'cas_scans_completed'
+  | 'cas_ai_cost_total'
+  | 'cas_cost_per_task'
+  | 'cas_token_usage_total'
+  | 'cas_monthly_cost_projection';
 
 export type ComparisonPeriod = 'yesterday' | 'last_week' | 'last_month';
 

@@ -1,0 +1,595 @@
+/* Lexi Analytics Admin Page */
+
+/* Header - matches Bookings/Listings pattern */
+.lexiHeader {
+  --hub-header-margin-top: 1.5rem;
+  --hub-header-margin-bottom: 0;
+  --hub-header-height: 3rem;
+  --hub-header-padding-x: 1rem;
+  --hub-header-actions-gap: 0.5rem;
+  --hub-header-actions-margin-left: 1rem;
+}
+
+@media (max-width: 767px) {
+  .lexiHeader {
+    --hub-header-margin-top: 0rem;
+  }
+}
+
+/* Tabs - matches Bookings/Listings pattern */
+.lexiTabs {
+  --hub-tabs-margin-top: 3rem;
+  --hub-tabs-margin-bottom: 1rem;
+}
+
+@media (max-width: 767px) {
+  .lexiTabs {
+    --hub-tabs-margin-top: 0rem;
+  }
+}
+
+/* Content areas - no wrapper container, content renders directly inside HubPageLayout */
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.noData {
+  color: var(--color-text-secondary, #9ca3af);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  width: 100%;
+  margin: 0;
+}
+
+/* Overview Tab */
+.overviewContent {
+  display: flex;
+  flex-direction: column;
+  /* No gap - HubKPIGrid has margin-bottom: 2rem built-in, sections use margin-bottom */
+}
+
+/* Sections - match Sage admin pattern */
+.section {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+/* Plain section heading - no box container */
+.sectionHeading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+}
+
+/* Widget - matches HubTrendChart/HubCategoryBreakdownChart pattern */
+.widget {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.widgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.widgetHeader h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+/* Charts Section - matches Listings/Sage admin pattern */
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* Distribution Grid */
+.distributionGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.distributionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.personaBadge {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 1rem;
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.personaStudent {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.personaTutor {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.personaClient {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.personaAgent {
+  background-color: #f3e8ff;
+  color: #9333ea;
+}
+
+.personaOrganisation {
+  background-color: #ffe4e6;
+  color: #e11d48;
+}
+
+.distributionCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #374151);
+}
+
+/* Intent List */
+.intentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.intentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.intentName {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #374151);
+}
+
+.intentCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0d9488;
+}
+
+/* Feedback Tab */
+.feedbackContent {
+  display: flex;
+  flex-direction: column;
+  /* No gap - HubKPIGrid has margin-bottom: 2rem built-in, sections use margin-bottom */
+}
+
+/* Providers Tab */
+.providersContent {
+  display: flex;
+  flex-direction: column;
+  /* No gap - sections use margin-bottom for spacing */
+}
+
+/* Quota Tab */
+.quotaContent {
+  display: flex;
+  flex-direction: column;
+  /* No gap - HubKPIGrid has margin-bottom: 2rem built-in */
+}
+
+.providersList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.providerItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background-color: white;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+}
+
+.providerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 160px;
+}
+
+.providerName {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+}
+
+.providerCount {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.providerBar {
+  flex: 1;
+  height: 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.providerBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.providerRules {
+  background-color: #6b7280;
+}
+
+.providerClaude {
+  background-color: #0d9488;
+}
+
+.providerGemini {
+  background-color: #1d4ed8;
+}
+
+.providerPercentage {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #374151);
+  min-width: 48px;
+  text-align: right;
+}
+
+.providerDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.providerDetailCard {
+  padding: 1.25rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.providerDetailCard h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 0.5rem 0;
+}
+
+.providerDetailCard p {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Provider Switching UI */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.currentProviderBadge {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #0d9488;
+  background-color: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 1rem;
+}
+
+.sectionDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1.5rem 0;
+  padding: 0 1rem;
+  line-height: 1.5;
+}
+
+.providerCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Mobile: 1 column */
+@media (max-width: 640px) {
+  .providerCards {
+    gap: 1rem;
+  }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .providerCards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Desktop: 3 columns - matches HubKPIGrid standard */
+@media (min-width: 1025px) {
+  .providerCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.providerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background-color: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  position: relative;
+}
+
+.providerCard:hover:not(:disabled) {
+  border-color: #0d9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.1);
+}
+
+.providerCardActive {
+  border-color: #0d9488;
+  background-color: #f0fdfa;
+}
+
+.providerCardActive:hover {
+  cursor: default;
+}
+
+.providerCardDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.providerCardDisabled:hover {
+  border-color: var(--color-border, #e5e7eb);
+  box-shadow: none;
+}
+
+.providerCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.providerIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+}
+
+.providerIconRules {
+  background-color: #f3f4f6;
+}
+
+.providerIconClaude {
+  background-color: #f0fdfa;
+}
+
+.providerIconGemini {
+  background-color: #dbeafe;
+}
+
+.activeBadge {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #059669;
+  background-color: #d1fae5;
+  border: 1px solid #34d399;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.unavailableBadge {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  border-radius: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.providerCardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.providerCardDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.providerCardHint {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin: 0;
+  padding-top: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.switchingIndicator {
+  font-size: 0.75rem;
+  color: #0d9488;
+  font-weight: 500;
+}
+
+.errorMessage {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+}
+
+/* Comparison Table */
+.comparisonTable {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin: 1rem;
+}
+
+.comparisonHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.comparisonRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.comparisonRow span:first-child {
+  color: var(--color-text-primary, #374151);
+  font-weight: 500;
+}
+
+.featureGood {
+  color: #059669;
+  font-weight: 500;
+}
+
+.featureNeutral {
+  color: #d97706;
+}
+
+.featureBad {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .providerItem {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .providerInfo {
+    min-width: unset;
+  }
+
+  .providerPercentage {
+    text-align: left;
+  }
+}
+
+/* Agent Grid - Agents Tab */
+.agentGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 0;
+}
+
+/* Mobile: 1 column */
+@media (max-width: 640px) {
+  .agentGrid {
+    gap: 1rem;
+  }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .agentGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Desktop: 4 columns for 8 agents (2 rows of 4) */
+@media (min-width: 1025px) {
+  .agentGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Agent card styles moved to HubComplexKPICard.module.css */

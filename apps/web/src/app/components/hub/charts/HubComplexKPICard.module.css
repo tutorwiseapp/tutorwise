@@ -1,0 +1,140 @@
+/**
+ * HubComplexKPICard Styles
+ * Reusable complex KPI card component for Hub dashboards
+ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background-color: white;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  border-color: #0d9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.1);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  transform: translateY(-2px);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.iconWrapper {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0fdfa;
+  color: #0d9488;
+  border-radius: 0.5rem;
+}
+
+/* Status Badge */
+.statusBadge {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.statusSuccess {
+  color: #059669;
+  background-color: #d1fae5;
+  border: 1px solid #34d399;
+}
+
+.statusWarning {
+  color: #d97706;
+  background-color: #fef3c7;
+  border: 1px solid #fbbf24;
+}
+
+.statusError {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+}
+
+.statusNeutral {
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+}
+
+/* Title */
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+/* Description */
+.description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  line-height: 1.5;
+  min-height: 2.6em; /* Ensures consistent card height */
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border, #f3f4f6);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .card {
+    padding: 1rem;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

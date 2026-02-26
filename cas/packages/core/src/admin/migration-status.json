@@ -1,0 +1,72 @@
+{
+  "migration": {
+    "name": "CustomAgentRuntime → LangGraphRuntime",
+    "started": "2026-02-26",
+    "targetCompletion": "2026-03-12",
+    "status": "in_progress",
+    "overallProgress": 29
+  },
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Core Infrastructure",
+      "status": "in_progress",
+      "progress": 60,
+      "features": {
+        "implemented": ["agent-registry", "workflow-state-graph", "workflow-execution", "sequential-parallel", "supabase-integration", "circuit-breaker", "workflow-state-persistence"],
+        "in_progress": [],
+        "not_started": ["message-bus", "retry-logic"]
+      }
+    },
+    {
+      "phase": 2,
+      "name": "Task Management",
+      "status": "not_started",
+      "progress": 25,
+      "features": {
+        "implemented": [],
+        "in_progress": ["progress-callbacks"],
+        "not_started": ["execute-task", "stream-task", "cancel-task"]
+      }
+    },
+    {
+      "phase": 3,
+      "name": "State Management",
+      "status": "not_started",
+      "progress": 0,
+      "features": {
+        "implemented": [],
+        "in_progress": [],
+        "not_started": ["agent-state-persistence", "get-agent-state", "update-agent-state", "reset-agent-state"]
+      }
+    },
+    {
+      "phase": 4,
+      "name": "Observability",
+      "status": "not_started",
+      "progress": 0,
+      "features": {
+        "implemented": [],
+        "in_progress": [],
+        "not_started": ["event-logging", "metrics-collection", "log-persistence", "observability-methods"]
+      }
+    },
+    {
+      "phase": 5,
+      "name": "Agent Management",
+      "status": "not_started",
+      "progress": 33,
+      "features": {
+        "implemented": [],
+        "in_progress": ["agent-status-db"],
+        "not_started": ["register-agent", "deregister-agent"]
+      }
+    }
+  ],
+  "blockers": [],
+  "notes": [
+    "Supabase integration is the critical path - blocks most other features",
+    "Circuit breaker and retry logic already exist in CustomRuntime - can port directly",
+    "LangGraph StateGraph is already better than CustomRuntime workflows"
+  ]
+}

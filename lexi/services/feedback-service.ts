@@ -78,7 +78,7 @@ export class LexiFeedbackService {
     }
 
     if (this.supabase) {
-      initDatabaseTransport(this.supabase);
+      initDatabaseTransport(this.supabase as any);
       console.log(`[FeedbackService] Initialized for ${this.agentType}`);
     }
   }
