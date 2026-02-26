@@ -9,8 +9,8 @@
  *   await runtime.initialize();
  *
  * Environment Variables:
- *   CAS_RUNTIME=custom    - Use CustomAgentRuntime (default)
- *   CAS_RUNTIME=langgraph - Use LangGraphAgentRuntime
+ *   CAS_RUNTIME=langgraph - Use LangGraphRuntime (default)
+ *   CAS_RUNTIME=custom    - Use CustomAgentRuntime (fallback/legacy)
  */
 
 import type { AgentRuntimeInterface, RuntimeType, RuntimeConfig } from './AgentRuntimeInterface';
@@ -21,13 +21,13 @@ export class AgentRuntimeFactory {
   /**
    * Create an agent runtime instance based on type or environment variable
    *
-   * @param type - RuntimeType (optional, defaults to env CAS_RUNTIME or 'custom')
+   * @param type - RuntimeType (optional, defaults to env CAS_RUNTIME or 'langgraph')
    * @param config - Runtime configuration (optional)
    * @returns AgentRuntimeInterface implementation
    */
   static create(type?: RuntimeType, config?: RuntimeConfig): AgentRuntimeInterface {
     // Determine runtime type from parameter or environment
-    const runtimeType = type || (process.env.CAS_RUNTIME as RuntimeType) || 'custom';
+    const runtimeType = type || (process.env.CAS_RUNTIME as RuntimeType) || 'langgraph';
 
     console.log(`[CAS Runtime Factory] Creating runtime: ${runtimeType}`);
 

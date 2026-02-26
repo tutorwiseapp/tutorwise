@@ -89,7 +89,7 @@ async function testRuntimeFactory() {
 
     // Cleanup
     console.log('\n[Cleanup] Deregister test agent');
-    await langGraphRuntime.deregisterAgent('factory-test-agent');
+    await langGraphRuntime.unregisterAgent('factory-test-agent');
     await langGraphRuntime.shutdown();
     console.log('✅ Cleanup complete');
 

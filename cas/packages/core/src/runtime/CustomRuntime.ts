@@ -251,7 +251,7 @@ export class CustomAgentRuntime implements AgentRuntimeInterface {
           status: 'running',
           last_activity_at: new Date().toISOString(),
           metadata: config
-        });
+        }, { onConflict: 'agent_id' });
 
       if (statusError) {
         console.error(`[CustomRuntime] Failed to update agent status:`, statusError);
@@ -315,7 +315,7 @@ export class CustomAgentRuntime implements AgentRuntimeInterface {
         .from('cas_agent_status')
         .select('*')
         .eq('agent_id', agentId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error(`[CustomRuntime] Failed to get status for agent ${agentId}:`, error);

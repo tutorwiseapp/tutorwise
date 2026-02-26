@@ -278,7 +278,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       for (const agentId of this.agents.keys()) {
         console.log(`[LangGraphRuntime] Deregistering agent: ${agentId}`);
         try {
-          await this.deregisterAgent(agentId);
+          await this.unregisterAgent(agentId);
         } catch (error) {
           console.error(`Failed to deregister ${agentId}:`, error);
         }
@@ -1323,7 +1323,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
     }
   }
 
-  async deregisterAgent(agentId: string): Promise<void> {
+  async unregisterAgent(agentId: string): Promise<void> {
     console.log(`[LangGraphRuntime] Deregistering agent: ${agentId}`);
 
     try {

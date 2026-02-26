@@ -1,6 +1,6 @@
 /**
  * Phase 5 Integration Test
- * Tests: registerAgent(), deregisterAgent(), getAgentStatus()
+ * Tests: registerAgent(), unregisterAgent(), getAgentStatus()
  *
  * Run: npx tsx src/runtime/test-phase5-integration.ts
  */
@@ -113,7 +113,7 @@ async function testPhase5Integration() {
     console.log('Test 5: Deregister Agent');
     console.log('='.repeat(60));
 
-    await runtime.deregisterAgent('test-agent-1');
+    await runtime.unregisterAgent('test-agent-1');
     console.log('✅ Agent deregistered: test-agent-1');
 
     // Test 6: Verify deregistered agent status is 'stopped'
@@ -225,7 +225,7 @@ async function testPhase5Integration() {
     console.log('\nPhase 5 Integration Test Summary:');
     console.log('- ✅ registerAgent(): Works with DB persistence');
     console.log('- ✅ getAgentStatus(): Returns correct DB data');
-    console.log('- ✅ deregisterAgent(): Soft delete (UPDATE status)');
+    console.log('- ✅ unregisterAgent(): Soft delete (UPDATE status)');
     console.log('- ✅ UPSERT: Re-registration updates existing records');
     console.log('- ✅ Error handling: Throws for non-existent agents');
     console.log('- ✅ shutdown(): Deregisters all agents');
@@ -248,7 +248,7 @@ async function testPhase5Integration() {
         console.log('\nCleaning up test agents...');
         for (const agentId of testAgentIds) {
           try {
-            await runtime.deregisterAgent(agentId);
+            await runtime.unregisterAgent(agentId);
             console.log(`Cleaned up: ${agentId}`);
           } catch (e) {
             // Ignore cleanup errors
