@@ -71,7 +71,7 @@ export default function AdminSidebar() {
     { href: '/admin/ai-tutors', label: 'AI Tutor Studio' },
     { href: '/admin/sage', label: 'Sage AI Tutor' },
     { href: '/admin/lexi', label: 'Lexi AI Agent' },
-    { href: '/admin/cas', label: 'CAS AI Agents', disabled: true },
+    { href: '/admin/cas', label: 'CAS AI Agents' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },
     {

@@ -30,6 +30,9 @@ export type { HubKPICardProps } from './HubKPICard';
 
 export { default as HubKPIGrid } from './HubKPIGrid';
 
+export { default as HubComplexKPICard } from './HubComplexKPICard';
+export type { HubComplexKPICardProps, HubComplexKPICardStat } from './HubComplexKPICard';
+
 // ============================================
 // Other Chart Components
 // ============================================

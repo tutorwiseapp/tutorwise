@@ -4,19 +4,10 @@
   "description": "CAS - Contextual Autonomous System Platform",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
     "start": "ts-node index.ts",
-    "dev": "npm run dev --workspace=@cas/web",
-    "dev:web": "npm run dev --workspace=@cas/web",
-    "dev:api": "npm run dev --workspace=@cas/api",
-    "dev:docs": "npm run dev --workspace=@cas/docs",
-    "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
-    "build": "npm run build --workspaces",
-    "build:web": "npm run build --workspace=@cas/web",
-    "build:api": "npm run build --workspace=@cas/api",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "cas:update-plan": "bash scripts/update-dev-plan.sh",
@@ -41,5 +32,16 @@
   "license": "MIT",
   "devDependencies": {
     "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "comments": {
+    "migration": "Support for runtime abstraction layer - can switch between custom and LangGraph runtimes via CAS_RUNTIME env var",
+    "roadmap": "Phase 1: Abstraction layer, Phase 2: LangGraph POC, Phase 3: Gradual migration, Phase 4: Advanced features"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.1.28",
+    "@langchain/langgraph": "^1.1.5"
   }
 }

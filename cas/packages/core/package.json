@@ -15,6 +15,10 @@
     "devops"
   ],
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.74.0",
+    "@upstash/redis": "^1.36.2",
     "axios": "^1.6.0",
     "dotenv": "^16.6.1"
   },

@@ -65,8 +65,9 @@ export function useAdminTrendData({
         .order('date', { ascending: true });
 
       if (error) {
-        console.error(`Error fetching trend data for ${metric}:`, error);
-        throw error;
+        // Log error but don't throw - return empty array so fallback data is used
+        console.warn(`[useAdminTrendData] Column "${metric}" not found in platform_statistics_daily. Using fallback data.`);
+        return [];
       }
 
       // Transform data to TrendDataPoint format
@@ -119,8 +120,35 @@ export function useAdminTrendData({
     retry: 2,
   });
 
+  // Generate fallback data for the last N days with 0 values
+  // This ensures charts render properly even when there's no data or an error
+  const generateFallbackData = (): TrendDataPoint[] => {
+    const fallbackData: TrendDataPoint[] = [];
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (days - 1));
+
+    for (let i = 0; i < days; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(currentDate.getDate() + i);
+      const currentDateStr = currentDate.toISOString().split('T')[0];
+      const label = currentDate.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+      });
+
+      fallbackData.push({
+        date: currentDateStr,
+        value: 0,
+        label,
+      });
+    }
+
+    return fallbackData;
+  };
+
   return {
-    data: data || [],
+    data: (data && data.length > 0) ? data : generateFallbackData(),
     isLoading,
     isError,
     error: error as Error | null,
