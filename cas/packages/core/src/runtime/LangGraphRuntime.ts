@@ -1321,6 +1321,98 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   async getAgentLogs(agentId: string, filter?: any): Promise<any[]> {
     return [];
   }
+
+  async getAgentState(agentId: string): Promise<any> {
+    try {
+      return await this.supabaseAdapter.loadAgentState(agentId);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Failed to get state for agent ${agentId}:`, error);
+      return {}; // Graceful degradation
+    }
+  }
+
+  async updateAgentState(agentId: string, state: any): Promise<void> {
+    console.log(`[LangGraphRuntime] Updating state for agent ${agentId}`);
+
+    try {
+      await this.supabaseAdapter.saveAgentState(agentId, state);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Failed to update state for agent ${agentId}:`, error);
+      throw error; // Throw on update failures
+    }
+  }
+
+  async resetAgentState(agentId: string): Promise<void> {
+    console.log(`[LangGraphRuntime] Resetting state for agent ${agentId}`);
+
+    try {
+      await this.supabaseAdapter.resetAgentState(agentId);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Failed to reset state for agent ${agentId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get metrics from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param metricName - Optional metric name to filter by
+   * @param limit - Maximum number of records to return
+   * @returns Array of metric records
+   */
+  async getMetrics(
+    agentId?: string,
+    metricName?: string,
+    limit?: number
+  ): Promise<any[]> {
+    try {
+      return await this.supabaseAdapter.getMetrics(agentId, metricName, limit);
+    } catch (error: any) {
+      console.error('[LangGraphRuntime] Failed to get metrics:', error);
+      return []; // Graceful degradation
+    }
+  }
+
+  /**
+   * Get logs from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param filter - Optional filter criteria (level, time range, limit)
+   * @returns Array of log records
+   */
+  async getLogs(
+    agentId?: string,
+    filter?: {
+      level?: 'debug' | 'info' | 'warn' | 'error';
+      startTime?: Date;
+      endTime?: Date;
+      limit?: number;
+    }
+  ): Promise<any[]> {
+    try {
+      return await this.supabaseAdapter.getLogs(agentId, filter);
+    } catch (error: any) {
+      console.error('[LangGraphRuntime] Failed to get logs:', error);
+      return []; // Graceful degradation
+    }
+  }
+
+  /**
+   * Get event history from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param limit - Maximum number of records to return
+   * @returns Array of event records
+   */
+  async getEventHistory(
+    agentId?: string,
+    limit?: number
+  ): Promise<any[]> {
+    try {
+      return await this.supabaseAdapter.getEventHistory(agentId, limit);
+    } catch (error: any) {
+      console.error('[LangGraphRuntime] Failed to get event history:', error);
+      return []; // Graceful degradation
+    }
+  }
 }
 
 /**

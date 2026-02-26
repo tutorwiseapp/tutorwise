@@ -173,44 +173,48 @@ const FEATURES: Feature[] = [
     name: 'Agent State Persistence',
     description: 'Persist agent state to cas_agent_config table',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 3,
     estimatedHours: 2,
-    dependencies: ['supabase-integration']
+    dependencies: ['supabase-integration'],
+    completedDate: '2026-02-26'
   },
   {
     id: 'get-agent-state',
     name: 'Get Agent State',
     description: 'getAgentState() method to retrieve from DB',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 3,
     estimatedHours: 1,
-    dependencies: ['agent-state-persistence']
+    dependencies: ['agent-state-persistence'],
+    completedDate: '2026-02-26'
   },
   {
     id: 'update-agent-state',
     name: 'Update Agent State',
     description: 'updateAgentState() with version tracking',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 3,
     estimatedHours: 1,
-    dependencies: ['agent-state-persistence']
+    dependencies: ['agent-state-persistence'],
+    completedDate: '2026-02-26'
   },
   {
     id: 'reset-agent-state',
     name: 'Reset Agent State',
     description: 'resetAgentState() with audit trail',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 3,
     estimatedHours: 1,
-    dependencies: ['update-agent-state']
+    dependencies: ['update-agent-state'],
+    completedDate: '2026-02-26'
   },
 
   // Phase 4: Observability (CRITICAL)
@@ -219,10 +223,11 @@ const FEATURES: Feature[] = [
     name: 'Event Logging',
     description: 'Log events to cas_agent_events table',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 4,
     estimatedHours: 2,
+    completedDate: '2026-02-26',
     dependencies: ['supabase-integration'],
     notes: 'Log: workflow_started, step_completed, workflow_failed, etc.'
   },
@@ -231,10 +236,11 @@ const FEATURES: Feature[] = [
     name: 'Metrics Collection',
     description: 'Collect metrics to cas_metrics_timeseries',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 4,
     estimatedHours: 2,
+    completedDate: '2026-02-26',
     dependencies: ['supabase-integration'],
     notes: 'Track: workflow_duration_ms, agent_execution_time, etc.'
   },
@@ -243,10 +249,11 @@ const FEATURES: Feature[] = [
     name: 'Log Persistence',
     description: 'Persist logs to cas_agent_logs table',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'critical',
     phase: 4,
     estimatedHours: 1,
+    completedDate: '2026-02-26',
     dependencies: ['supabase-integration']
   },
   {
@@ -254,10 +261,11 @@ const FEATURES: Feature[] = [
     name: 'Observability Methods',
     description: 'getMetrics(), getLogs(), getEventHistory()',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 4,
     estimatedHours: 2,
+    completedDate: '2026-02-26',
     dependencies: ['event-logging', 'metrics-collection', 'log-persistence']
   },
 

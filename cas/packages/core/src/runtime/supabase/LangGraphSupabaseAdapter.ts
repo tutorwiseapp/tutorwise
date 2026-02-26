@@ -77,6 +77,13 @@ export interface CircuitBreakerStateRecord {
   updated_at: string;
 }
 
+export interface LogFilter {
+  level?: 'debug' | 'info' | 'warn' | 'error';
+  startTime?: Date;
+  endTime?: Date;
+  limit?: number;
+}
+
 /**
  * Supabase adapter for LangGraph workflow persistence
  */
@@ -555,6 +562,302 @@ export class LangGraphSupabaseAdapter {
     } catch (error) {
       console.error('[LangGraphSupabaseAdapter] Health check failed:', error);
       return false;
+    }
+  }
+
+  /**
+   * Load agent state from database
+   */
+  async loadAgentState(agentId: string): Promise<any> {
+    try {
+      const { data, error } = await this.supabase
+        .from('cas_agent_config')
+        .select('config')
+        .eq('agent_id', agentId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) {
+        // PGRST116 = no rows found (graceful degradation)
+        if (error.code === 'PGRST116') {
+          return {};
+        }
+        console.error(`[LangGraphSupabaseAdapter] Failed to load state for ${agentId}:`, error);
+        return {};
+      }
+
+      return data?.config || {};
+    } catch (error: any) {
+      console.error(`[LangGraphSupabaseAdapter] Error loading agent state:`, error);
+      return {}; // Never throw - return empty state
+    }
+  }
+
+  /**
+   * Save agent state to database with version tracking
+   */
+  async saveAgentState(agentId: string, state: any): Promise<void> {
+    try {
+      // Check if config exists
+      const { data: existing } = await this.supabase
+        .from('cas_agent_config')
+        .select('id')
+        .eq('agent_id', agentId)
+        .eq('is_active', true)
+        .single();
+
+      if (existing) {
+        // Update existing - get current version first
+        const { data: currentConfig } = await this.supabase
+          .from('cas_agent_config')
+          .select('version')
+          .eq('agent_id', agentId)
+          .eq('is_active', true)
+          .single();
+
+        const newVersion = (currentConfig?.version || 1) + 1;
+
+        const { error } = await this.supabase
+          .from('cas_agent_config')
+          .update({
+            config: state,
+            version: newVersion
+          })
+          .eq('agent_id', agentId)
+          .eq('is_active', true);
+
+        if (error) {
+          throw new Error(`Failed to update agent state: ${error.message}`);
+        }
+      } else {
+        // Insert new config
+        const { error } = await this.supabase
+          .from('cas_agent_config')
+          .insert({
+            agent_id: agentId,
+            config: state
+          });
+
+        if (error) {
+          throw new Error(`Failed to insert agent state: ${error.message}`);
+        }
+      }
+
+      // Fire-and-forget event logging (don't await)
+      this.logAgentEvent(agentId, 'state_updated', {
+        state,
+        timestamp: new Date().toISOString()
+      }).catch(err =>
+        console.error(`[LangGraphSupabaseAdapter] Event log failed:`, err)
+      );
+
+      console.log(`[LangGraphSupabaseAdapter] State updated for agent ${agentId}`);
+    } catch (error: any) {
+      console.error(`[LangGraphSupabaseAdapter] Error saving agent state:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reset agent state (soft delete for audit trail)
+   */
+  async resetAgentState(agentId: string): Promise<void> {
+    console.log(`[LangGraphSupabaseAdapter] Resetting state for agent ${agentId}`);
+
+    try {
+      // Soft delete (mark as inactive) for audit trail
+      const { error } = await this.supabase
+        .from('cas_agent_config')
+        .update({ is_active: false })
+        .eq('agent_id', agentId)
+        .eq('is_active', true);
+
+      if (error) {
+        throw new Error(`Failed to reset agent state: ${error.message}`);
+      }
+
+      // Fire-and-forget event logging
+      this.logAgentEvent(agentId, 'state_reset', {
+        timestamp: new Date().toISOString()
+      }).catch(err =>
+        console.error(`[LangGraphSupabaseAdapter] Event log failed:`, err)
+      );
+
+      console.log(`[LangGraphSupabaseAdapter] State reset for agent ${agentId}`);
+    } catch (error: any) {
+      console.error(`[LangGraphSupabaseAdapter] Error resetting agent state:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get agent state history (all versions)
+   */
+  async getAgentStateHistory(agentId: string, limit: number = 100): Promise<any[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('cas_agent_config')
+        .select('*')
+        .eq('agent_id', agentId)
+        .order('version', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+
+      return (data || []).map(record => ({
+        version: record.version,
+        config: record.config,
+        created_at: record.created_at,
+        is_active: record.is_active
+      }));
+    } catch (error: any) {
+      console.error(`[LangGraphSupabaseAdapter] Failed to get state history:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get metrics from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param metricName - Optional metric name to filter by
+   * @param limit - Maximum number of records to return (default: 100)
+   * @returns Array of metric records
+   */
+  async getMetrics(
+    agentId?: string,
+    metricName?: string,
+    limit: number = 100
+  ): Promise<any[]> {
+    try {
+      let query = this.supabase
+        .from('cas_metrics_timeseries')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(limit);
+
+      if (metricName) {
+        query = query.eq('metric_name', metricName);
+      }
+
+      if (agentId) {
+        // Filter by agent_id in labels JSONB column
+        query = query.contains('labels', { agent_id: agentId });
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('[LangGraphSupabaseAdapter] Failed to get metrics:', error);
+        return [];
+      }
+
+      return (data || []).map(record => ({
+        metric_name: record.metric_name,
+        metric_value: record.metric_value,
+        labels: record.labels,
+        timestamp: record.timestamp
+      }));
+    } catch (error: any) {
+      console.error('[LangGraphSupabaseAdapter] Error getting metrics:', error);
+      return []; // Graceful degradation
+    }
+  }
+
+  /**
+   * Get logs from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param filter - Optional filter criteria (level, time range, limit)
+   * @returns Array of log records
+   */
+  async getLogs(
+    agentId?: string,
+    filter?: LogFilter
+  ): Promise<any[]> {
+    try {
+      const limit = filter?.limit || 100;
+
+      let query = this.supabase
+        .from('cas_agent_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (agentId) {
+        query = query.eq('agent_id', agentId);
+      }
+
+      if (filter?.level) {
+        query = query.eq('level', filter.level);
+      }
+
+      if (filter?.startTime) {
+        query = query.gte('created_at', filter.startTime.toISOString());
+      }
+
+      if (filter?.endTime) {
+        query = query.lte('created_at', filter.endTime.toISOString());
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('[LangGraphSupabaseAdapter] Failed to get logs:', error);
+        return [];
+      }
+
+      return (data || []).map(record => ({
+        id: record.id,
+        workflow_id: record.workflow_id,
+        agent_id: record.agent_id,
+        level: record.level,
+        message: record.message,
+        metadata: record.metadata,
+        created_at: record.created_at
+      }));
+    } catch (error: any) {
+      console.error('[LangGraphSupabaseAdapter] Error getting logs:', error);
+      return []; // Graceful degradation
+    }
+  }
+
+  /**
+   * Get event history from the database
+   * @param agentId - Optional agent ID to filter by
+   * @param limit - Maximum number of records to return (default: 100)
+   * @returns Array of event records
+   */
+  async getEventHistory(
+    agentId?: string,
+    limit: number = 100
+  ): Promise<any[]> {
+    try {
+      let query = this.supabase
+        .from('cas_agent_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (agentId) {
+        query = query.eq('agent_id', agentId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('[LangGraphSupabaseAdapter] Failed to get event history:', error);
+        return [];
+      }
+
+      return (data || []).map(record => ({
+        id: record.id,
+        agent_id: record.agent_id,
+        event_type: record.event_type,
+        event_data: record.event_data,
+        created_at: record.created_at
+      }));
+    } catch (error: any) {
+      console.error('[LangGraphSupabaseAdapter] Error getting event history:', error);
+      return []; // Graceful degradation
     }
   }
 }
