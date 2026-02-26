@@ -65,6 +65,7 @@ export interface WorkflowState {
 export class LangGraphRuntime implements AgentRuntimeInterface {
   private initialized = false;
   private agentRegistry: AgentRegistry;
+  private agents: Map<string, AgentConfig> = new Map();
   private workflows: Map<string, StateGraph<WorkflowState>> = new Map();
   private supabaseAdapter: LangGraphSupabaseAdapter;
   private circuitBreakers: Map<string, CircuitBreaker> = new Map();
@@ -272,6 +273,16 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       // Clear tracking maps
       this.activeTasks.clear();
       this.streamCallbacks.clear();
+
+      // Deregister all agents
+      for (const agentId of this.agents.keys()) {
+        console.log(`[LangGraphRuntime] Deregistering agent: ${agentId}`);
+        try {
+          await this.deregisterAgent(agentId);
+        } catch (error) {
+          console.error(`Failed to deregister ${agentId}:`, error);
+        }
+      }
 
       // Clear workflows
       this.workflows.clear();
@@ -1277,27 +1288,108 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   }
 
   async registerAgent(agentId: string, config: AgentConfig): Promise<void> {
-    console.log(`[LangGraphRuntime] Agent registration handled by AgentRegistry: ${agentId}`);
+    console.log(`[LangGraphRuntime] Registering agent: ${agentId}`);
+
+    try {
+      // 1. Store in memory map
+      this.agents.set(agentId, config);
+
+      // 2. Log registration event to cas_agent_events
+      await this.supabaseAdapter.logAgentEvent(
+        agentId,
+        'agent_registered',
+        {
+          config,
+          timestamp: new Date().toISOString()
+        }
+      );
+
+      // 3. Upsert agent status to cas_agent_status
+      const { error } = await (this.supabaseAdapter as any).supabase
+        .from('cas_agent_status')
+        .upsert({
+          agent_id: agentId,
+          status: 'running',
+          last_activity_at: new Date().toISOString(),
+          metadata: config
+        });
+
+      if (error) {
+        throw new Error(`Failed to register agent: ${error.message}`);
+      }
+
+      console.log(`[LangGraphRuntime] Agent ${agentId} registered successfully`);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Error registering agent:`, error);
+      throw error;
+    }
   }
 
   async deregisterAgent(agentId: string): Promise<void> {
-    console.log(`[LangGraphRuntime] Agent deregistration handled by AgentRegistry: ${agentId}`);
+    console.log(`[LangGraphRuntime] Deregistering agent: ${agentId}`);
+
+    try {
+      // 1. Remove from memory map
+      this.agents.delete(agentId);
+
+      // 2. Log unregistration event
+      await this.supabaseAdapter.logAgentEvent(
+        agentId,
+        'agent_unregistered',
+        {
+          timestamp: new Date().toISOString()
+        }
+      );
+
+      // 3. Update agent status to 'stopped'
+      const { error } = await (this.supabaseAdapter as any).supabase
+        .from('cas_agent_status')
+        .update({
+          status: 'stopped',
+          last_activity_at: new Date().toISOString()
+        })
+        .eq('agent_id', agentId);
+
+      if (error) {
+        throw new Error(`Failed to deregister agent: ${error.message}`);
+      }
+
+      console.log(`[LangGraphRuntime] Agent ${agentId} deregistered successfully`);
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Error deregistering agent:`, error);
+      throw error;
+    }
   }
 
-  async getAgentStatus(agentId: string): Promise<any> {
-    const agent = this.agentRegistry.getAgent(agentId);
-    if (!agent) {
-      throw new Error(`Agent ${agentId} not found`);
-    }
+  async getAgentStatus(agentId: string): Promise<AgentStatus> {
+    try {
+      const { data, error } = await (this.supabaseAdapter as any).supabase
+        .from('cas_agent_status')
+        .select('*')
+        .eq('agent_id', agentId)
+        .single();
 
-    const health = await agent.getHealth();
-    return {
-      agent_id: agentId,
-      status: health.healthy ? 'running' : 'error',
-      uptime_seconds: 0,
-      last_activity_at: new Date().toISOString(),
-      metadata: {}
-    };
+      if (error) {
+        console.error(`[LangGraphRuntime] Failed to get status for agent ${agentId}:`, error);
+        throw new Error(`Failed to get agent status: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error(`Agent ${agentId} not found`);
+      }
+
+      return {
+        agent_id: data.agent_id,
+        status: data.status as 'running' | 'paused' | 'stopped' | 'error',
+        uptime_seconds: 0, // DB doesn't have this column - default to 0
+        last_activity_at: new Date(data.last_activity_at),
+        error_message: undefined, // DB doesn't have this column
+        metadata: data.metadata || {}
+      };
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Error getting agent status:`, error);
+      throw error;
+    }
   }
 
   async *streamWorkflow(workflowId: string, input: any): AsyncGenerator<any> {

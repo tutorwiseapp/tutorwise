@@ -275,10 +275,11 @@ const FEATURES: Feature[] = [
     name: 'Register Agent',
     description: 'registerAgent() for dynamic agent registration',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 5,
     estimatedHours: 1,
+    completedDate: '2026-02-26',
     dependencies: ['supabase-integration']
   },
   {
@@ -286,10 +287,11 @@ const FEATURES: Feature[] = [
     name: 'Deregister Agent',
     description: 'deregisterAgent() with cleanup',
     customRuntime: true,
-    langGraphRuntime: 'not_started',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 5,
     estimatedHours: 1,
+    completedDate: '2026-02-26',
     dependencies: ['register-agent']
   },
   {
@@ -297,10 +299,11 @@ const FEATURES: Feature[] = [
     name: 'Agent Status (DB)',
     description: 'getAgentStatus() from cas_agent_status table',
     customRuntime: true,
-    langGraphRuntime: 'in_progress',
+    langGraphRuntime: 'implemented',
     priority: 'important',
     phase: 5,
     estimatedHours: 1,
+    completedDate: '2026-02-26',
     dependencies: ['supabase-integration'],
     notes: 'Basic health check exists, needs DB persistence'
   },
