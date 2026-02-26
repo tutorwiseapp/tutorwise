@@ -459,6 +459,20 @@
   white-space: nowrap;
 }
 
+.fallbackBadge {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #2563eb;
+  background-color: #dbeafe;
+  border: 1px solid #60a5fa;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
 .providerCardTitle {
   font-size: 1rem;
   font-weight: 600;

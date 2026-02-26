@@ -157,8 +157,8 @@ export default function CASAnalyticsPage() {
 
   // Runtime breakdown data
   const runtimeBreakdownData: CategoryData[] = [
-    { label: 'Custom Runtime', value: runtimeCustomMetric.value, color: '#10B981' },
     { label: 'LangGraph', value: runtimeLangGraphMetric.value, color: '#3B82F6' },
+    { label: 'Custom Runtime', value: runtimeCustomMetric.value, color: '#10B981' },
   ];
 
   // Calculate feedback conversion rate
@@ -702,8 +702,8 @@ interface RuntimeTabProps {
 }
 
 function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
-  // CAS Runtime: Custom or LangGraph (switched via CAS_RUNTIME env var)
-  const currentRuntime = process.env.NEXT_PUBLIC_CAS_RUNTIME || 'custom';
+  // CAS Runtime: LangGraph (primary) or Custom (fallback) - switched via CAS_RUNTIME env var
+  const currentRuntime = process.env.NEXT_PUBLIC_CAS_RUNTIME || 'langgraph';
   const [runtimeSubTab, setRuntimeSubTab] = React.useState<'status' | 'migration'>('status');
 
   return (
@@ -754,7 +754,23 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
             </div>
 
             <div className={styles.providerCards}>
-              {/* Custom Runtime Card */}
+              {/* LangGraph Runtime - PRIMARY */}
+              <div className={`${styles.providerCard} ${currentRuntime === 'langgraph' ? styles.providerCardActive : ''}`}>
+                <div className={styles.providerCardHeader}>
+                  <div className={styles.providerIcon}>
+                    {React.createElement(Cpu, { size: 20 })}
+                  </div>
+                  {currentRuntime === 'langgraph' && (
+                    <span className={styles.activeBadge}>Active</span>
+                  )}
+                </div>
+                <h4 className={styles.providerCardTitle}>LangGraph</h4>
+                <p className={styles.providerCardDescription}>
+                  Production-grade multi-agent orchestration with LangSmith observability. Default runtime.
+                </p>
+              </div>
+
+              {/* Custom Runtime - FALLBACK */}
               <div className={`${styles.providerCard} ${currentRuntime === 'custom' ? styles.providerCardActive : ''}`}>
                 <div className={styles.providerCardHeader}>
                   <div className={styles.providerIcon}>
@@ -763,27 +779,16 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
                   {currentRuntime === 'custom' && (
                     <span className={styles.activeBadge}>Active</span>
                   )}
+                  {currentRuntime !== 'custom' && (
+                    <span className={styles.fallbackBadge}>Fallback</span>
+                  )}
                 </div>
                 <h4 className={styles.providerCardTitle}>Custom Runtime</h4>
                 <p className={styles.providerCardDescription}>
-                  Current CAS implementation using message bus and Edge Functions. Phase 1-2.
-                </p>
-              </div>
-
-              {/* LangGraph Runtime - Coming Soon */}
-              <div className={`${styles.providerCard} ${styles.providerCardDisabled}`}>
-                <div className={styles.providerCardHeader}>
-                  <div className={styles.providerIcon}>
-                    {React.createElement(Cpu, { size: 20 })}
-                  </div>
-                  <span className={styles.unavailableBadge}>Unavailable</span>
-                </div>
-                <h4 className={styles.providerCardTitle}>LangGraph</h4>
-                <p className={styles.providerCardDescription}>
-                  Production-grade multi-agent orchestration with LangSmith observability. Phase 3-4.
+                  Legacy CAS implementation using message bus and Edge Functions. Available as fallback.
                 </p>
                 <p className={styles.providerCardHint}>
-                  Set CAS_RUNTIME=langgraph to enable
+                  Set CAS_RUNTIME=custom to enable
                 </p>
               </div>
             </div>
