@@ -222,4 +222,10 @@ export interface RuntimeConfig {
   langsmithApiKey?: string;
   enableTracing?: boolean;
   enableCheckpointing?: boolean;
+  retryConfig?: {
+    maxAttempts?: number; // Default: 3
+    initialDelayMs?: number; // Default: 1000
+    maxDelayMs?: number; // Default: 30000
+    backoffMultiplier?: number; // Default: 2
+  };
 }

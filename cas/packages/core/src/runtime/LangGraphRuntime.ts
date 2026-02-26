@@ -32,6 +32,7 @@ import { CircuitBreaker, CircuitState, createAICircuitBreaker } from './CircuitB
 import type { MessageBusInterface } from '../messaging/MessageBusInterface';
 import { InMemoryMessageBus } from '../messaging/InMemoryMessageBus';
 import { RedisMessageBus } from '../messaging/RedisMessageBus';
+import { RetryUtility, type RetryConfig } from './RetryUtility';
 
 /**
  * State shared across agent executions in a workflow
@@ -68,10 +69,26 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   private supabaseAdapter: LangGraphSupabaseAdapter;
   private circuitBreakers: Map<string, CircuitBreaker> = new Map();
   private messageBus: MessageBusInterface;
+  private retryConfig: RetryConfig;
 
   constructor(config?: RuntimeConfig) {
     this.agentRegistry = new AgentRegistry();
     this.supabaseAdapter = new LangGraphSupabaseAdapter();
+
+    // Initialize retry configuration
+    this.retryConfig = {
+      maxAttempts: config?.retryConfig?.maxAttempts || 3,
+      initialDelayMs: config?.retryConfig?.initialDelayMs || 1000,
+      maxDelayMs: config?.retryConfig?.maxDelayMs || 30000,
+      backoffMultiplier: config?.retryConfig?.backoffMultiplier || 2,
+      onRetry: (attempt, error, delayMs) => {
+        console.log(
+          `[LangGraphRuntime] Retry attempt ${attempt}: ${error.message}. ` +
+          `Waiting ${Math.round(delayMs)}ms before retry...`
+        );
+      }
+    };
+    console.log('[LangGraphRuntime] Retry logic enabled:', this.retryConfig);
 
     // Initialize message bus based on configuration
     const messageBusType = config?.messageBus || 'memory';
@@ -153,7 +170,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   }
 
   /**
-   * Execute an agent with circuit breaker protection
+   * Execute an agent with circuit breaker protection and retry logic
    */
   private async executeAgentWithCircuitBreaker(
     agentId: string,
@@ -161,14 +178,39 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   ): Promise<any> {
     const circuitBreaker = this.getCircuitBreaker(agentId);
 
-    return circuitBreaker.execute(async () => {
-      const agent = this.agentRegistry.getAgent(agentId);
-      if (!agent) {
-        throw new Error(`${agentId} agent not found`);
-      }
+    // Wrap circuit breaker execution with retry logic
+    const retryResult = await RetryUtility.withRetry(
+      async () => {
+        return circuitBreaker.execute(async () => {
+          const agent = this.agentRegistry.getAgent(agentId);
+          if (!agent) {
+            throw new Error(`${agentId} agent not found`);
+          }
 
-      return agent.execute(context);
-    });
+          return agent.execute(context);
+        });
+      },
+      this.retryConfig
+    );
+
+    // If retry failed, throw the error
+    if (!retryResult.success) {
+      console.error(
+        `[LangGraphRuntime] Agent ${agentId} failed after ${retryResult.attempts} attempts ` +
+        `(total delay: ${retryResult.totalDelayMs}ms)`
+      );
+      throw retryResult.error;
+    }
+
+    // Log successful execution with retry stats
+    if (retryResult.attempts > 1) {
+      console.log(
+        `[LangGraphRuntime] Agent ${agentId} succeeded on attempt ${retryResult.attempts} ` +
+        `(total delay: ${retryResult.totalDelayMs}ms)`
+      );
+    }
+
+    return retryResult.result;
   }
 
   // ============================================================================
@@ -558,8 +600,25 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       // Save initial checkpoint
       await this.supabaseAdapter.saveCheckpoint(executionId, initialState);
 
-      // Execute workflow
-      const result = await workflow.invoke(initialState);
+      // Execute workflow with retry logic
+      const retryResult = await RetryUtility.withRetry(
+        async () => workflow.invoke(initialState),
+        this.retryConfig
+      );
+
+      if (!retryResult.success) {
+        throw retryResult.error;
+      }
+
+      const result = retryResult.result!;
+
+      // Log retry statistics if applicable
+      if (retryResult.attempts > 1) {
+        console.log(
+          `[LangGraphRuntime] Workflow ${workflowId} succeeded on attempt ${retryResult.attempts} ` +
+          `(total delay: ${retryResult.totalDelayMs}ms)`
+        );
+      }
 
       // Save final checkpoint
       await this.supabaseAdapter.saveCheckpoint(executionId, result);
@@ -676,8 +735,25 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         timestamp: new Date()
       });
 
-      // Resume workflow from checkpoint state
-      const result = await workflow.invoke(checkpoint.state);
+      // Resume workflow from checkpoint state with retry logic
+      const retryResult = await RetryUtility.withRetry(
+        async () => workflow.invoke(checkpoint.state),
+        this.retryConfig
+      );
+
+      if (!retryResult.success) {
+        throw retryResult.error;
+      }
+
+      const result = retryResult.result!;
+
+      // Log retry statistics if applicable
+      if (retryResult.attempts > 1) {
+        console.log(
+          `[LangGraphRuntime] Resume workflow ${workflowId} succeeded on attempt ${retryResult.attempts} ` +
+          `(total delay: ${retryResult.totalDelayMs}ms)`
+        );
+      }
 
       // Save final checkpoint
       await this.supabaseAdapter.saveCheckpoint(workflowId, result);
@@ -792,8 +868,25 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         timestamp: new Date()
       });
 
-      // Resume workflow from rolled-back state
-      const result = await workflow.invoke(checkpoint.state);
+      // Resume workflow from rolled-back state with retry logic
+      const retryResult = await RetryUtility.withRetry(
+        async () => workflow.invoke(checkpoint.state),
+        this.retryConfig
+      );
+
+      if (!retryResult.success) {
+        throw retryResult.error;
+      }
+
+      const result = retryResult.result!;
+
+      // Log retry statistics if applicable
+      if (retryResult.attempts > 1) {
+        console.log(
+          `[LangGraphRuntime] Rollback workflow ${workflowId} succeeded on attempt ${retryResult.attempts} ` +
+          `(total delay: ${retryResult.totalDelayMs}ms)`
+        );
+      }
 
       // Save final checkpoint (will be a new version)
       await this.supabaseAdapter.saveCheckpoint(workflowId, result);
