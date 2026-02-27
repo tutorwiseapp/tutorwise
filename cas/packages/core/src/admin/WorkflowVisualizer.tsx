@@ -28,7 +28,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 // Agent configuration with colors, descriptions, roles, and responsibilities
-const AGENTS = [
+export const AGENTS = [
   {
     id: 'start',
     label: 'START',
@@ -356,12 +356,12 @@ const createInitialEdges = (): Edge[] => {
       type: 'smoothstep',
       animated: false,
       style: {
-        stroke: currentAgent.color,
+        stroke: '#374151',
         strokeWidth: 3,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: currentAgent.color,
+        color: '#374151',
         width: 25,
         height: 25,
       },
@@ -510,10 +510,10 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
             ...params,
             type: 'smoothstep',
             animated: false,
-            style: { stroke: '#6366f1', strokeWidth: 3 },
+            style: { stroke: '#374151', strokeWidth: 3 },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#6366f1',
+              color: '#374151',
             },
           },
           eds
