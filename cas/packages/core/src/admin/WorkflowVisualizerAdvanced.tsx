@@ -285,7 +285,8 @@ export const WorkflowVisualizerAdvanced: React.FC<WorkflowVisualizerAdvancedProp
 
         if (data && !error) {
           setNodes(data.nodes || createInitialNodes());
-          setEdges(data.edges || createInitialEdges());
+          // Always use fresh edges to pick up latest styling updates
+          setEdges(createInitialEdges());
           console.log('[WorkflowVisualizer] Loaded layout from Supabase');
           return;
         }
@@ -300,7 +301,8 @@ export const WorkflowVisualizerAdvanced: React.FC<WorkflowVisualizerAdvancedProp
       if (saved) {
         const layout = JSON.parse(saved);
         setNodes(layout.nodes || createInitialNodes());
-        setEdges(layout.edges || createInitialEdges());
+        // Always use fresh edges to pick up latest styling updates
+        setEdges(createInitialEdges());
         console.log('[WorkflowVisualizer] Loaded layout from localStorage');
         return;
       }
@@ -494,10 +496,12 @@ export const WorkflowVisualizerAdvanced: React.FC<WorkflowVisualizerAdvancedProp
             ...params,
             type: 'smoothstep',
             animated: false,
-            style: { stroke: '#374151', strokeWidth: 3 },
+            style: { stroke: '#9ca3af', strokeWidth: 3 },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#374151',
+              color: '#9ca3af',
+              width: 15,
+              height: 15,
             },
           },
           eds
@@ -508,7 +512,7 @@ export const WorkflowVisualizerAdvanced: React.FC<WorkflowVisualizerAdvancedProp
   );
 
   return (
-    <div ref={reactFlowWrapper} style={{ width: '100%', height: '800px', position: 'relative' }}>
+    <div ref={reactFlowWrapper} style={{ width: '100%', height: '100%', position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -661,12 +665,12 @@ function createInitialEdges(): Edge[] {
       target: nextAgent.id,
       type: 'smoothstep',
       animated: false,
-      style: { stroke: '#374151', strokeWidth: 3 },
+      style: { stroke: '#9ca3af', strokeWidth: 3 },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: '#374151',
-        width: 25,
-        height: 25,
+        color: '#9ca3af',
+        width: 15,
+        height: 15,
       },
       label: currentAgent.id === 'security' ? 'if no critical issues' : undefined,
     });

@@ -55,8 +55,8 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
     }
   };
 
-  const handleSignOut = () => {
-    performLogout('/');
+  const handleSignOut = async () => {
+    await performLogout('/');
   };
 
   const handleLinkClick = () => {

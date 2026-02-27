@@ -51,8 +51,8 @@ const NavMenu = () => {
     }
   };
 
-  const handleSignOut = () => {
-    performLogout('/');
+  const handleSignOut = async () => {
+    await performLogout('/');
   };
 
   // CRITICAL: Always show the menu icon, never hide it

@@ -97,34 +97,27 @@ export function clearUserData(): void {
 /**
  * Performs a complete logout:
  * 1. Clears user data (synchronous, instant)
- * 2. Starts Supabase signOut (non-blocking, happens in background)
- * 3. Redirects to homepage (instant)
+ * 2. Signs out from Supabase (waits for completion)
+ * 3. Redirects to homepage
  *
- * This function does NOT await the signOut network call, making logout feel instant.
- * The session cookies are cleared synchronously by Supabase before the network call.
+ * This function waits for signOut to complete to ensure session cookies are fully cleared
+ * before redirecting to prevent seeing stale user data on the redirect page.
  *
  * @param redirectUrl - URL to redirect to after logout (default: '/')
  */
-export function performLogout(redirectUrl: string = '/'): void {
+export async function performLogout(redirectUrl: string = '/'): Promise<void> {
   // 1. Clear all user-specific data immediately (synchronous)
   clearUserData();
 
-  // 2. Start Supabase signOut (non-blocking)
-  // The signOut method:
-  // - Clears cookies synchronously (immediate)
-  // - Clears Supabase localStorage items synchronously (immediate)
-  // - Makes network call to revoke tokens (async, we don't wait)
+  // 2. Sign out from Supabase and wait for completion
   try {
     const supabase = createClient();
-    supabase.auth.signOut({ scope: 'global' }).catch(error => {
-      // Log but don't block - user is already logged out locally
-      console.error('Logout network error (non-blocking):', error);
-    });
+    await supabase.auth.signOut({ scope: 'global' });
   } catch (error) {
-    // Supabase client creation failed - still redirect
+    // Log error but continue with redirect
     console.error('Logout error:', error);
   }
 
-  // 3. Redirect immediately - don't wait for network round-trip
+  // 3. Redirect after signOut is complete
   window.location.href = redirectUrl;
 }

@@ -40,6 +40,22 @@ export const AGENTS = [
     responsibilities: ['Set up workflow parameters', 'Validate input requirements', 'Initialize state'],
   },
   {
+    id: 'planner',
+    label: 'Planner',
+    color: '#14b8a6',
+    description: 'Strategic decision: ITERATE/SUCCESS/REMOVE',
+    type: 'agent' as const,
+    purpose: 'Make strategic decisions based on production data',
+    role: 'Strategic Decision Making',
+    responsibilities: [
+      'Evaluate feature performance',
+      'Recommend: ITERATE, SUCCESS, or REMOVE',
+      'Update Jira with decisions',
+      'Plan next iteration if needed',
+      'Close workflow with final recommendation',
+    ],
+  },
+  {
     id: 'analyst',
     label: 'Analyst',
     color: '#3b82f6',
@@ -149,22 +165,6 @@ export const AGENTS = [
       'Measure feature adoption',
       'Track performance KPIs',
       'Generate insights for iteration',
-    ],
-  },
-  {
-    id: 'planner',
-    label: 'Planner',
-    color: '#14b8a6',
-    description: 'Strategic decision: ITERATE/SUCCESS/REMOVE',
-    type: 'agent' as const,
-    purpose: 'Make strategic decisions based on production data',
-    role: 'Strategic Decision Making',
-    responsibilities: [
-      'Evaluate feature performance',
-      'Recommend: ITERATE, SUCCESS, or REMOVE',
-      'Update Jira with decisions',
-      'Plan next iteration if needed',
-      'Close workflow with final recommendation',
     ],
   },
   {
@@ -356,14 +356,14 @@ const createInitialEdges = (): Edge[] => {
       type: 'smoothstep',
       animated: false,
       style: {
-        stroke: '#374151',
+        stroke: '#9ca3af',
         strokeWidth: 3,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: '#374151',
-        width: 25,
-        height: 25,
+        color: '#9ca3af',
+        width: 15,
+        height: 15,
       },
       label: currentAgent.id === 'security' ? 'if no critical issues' : undefined,
       labelStyle:
@@ -399,7 +399,8 @@ const loadLayout = (): { nodes: Node[]; edges: Edge[] } | null => {
         const savedNode = layout.nodes?.find((n: Node) => n.id === defaultNode.id);
         return savedNode ? { ...defaultNode, position: savedNode.position } : defaultNode;
       });
-      return { nodes: mergedNodes, edges: layout.edges || createInitialEdges() };
+      // Always use fresh edges to pick up latest styling updates
+      return { nodes: mergedNodes, edges: createInitialEdges() };
     }
   } catch (error) {
     console.error('Failed to load layout:', error);
@@ -510,10 +511,12 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
             ...params,
             type: 'smoothstep',
             animated: false,
-            style: { stroke: '#374151', strokeWidth: 3 },
+            style: { stroke: '#9ca3af', strokeWidth: 3 },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#374151',
+              color: '#9ca3af',
+              width: 15,
+              height: 15,
             },
           },
           eds
@@ -594,7 +597,7 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
   }, [setNodes, setEdges]);
 
   return (
-    <div style={{ width: '100%', height: '800px', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

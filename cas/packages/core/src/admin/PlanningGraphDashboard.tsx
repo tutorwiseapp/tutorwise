@@ -185,7 +185,9 @@ export const PlanningGraphDashboard: React.FC = () => {
             )}
           </div>
         </div>
-        <WorkflowVisualizer executionState={demoState} />
+        <div style={{ height: '800px' }}>
+          <WorkflowVisualizer executionState={demoState} />
+        </div>
       </div>
 
       {/* Agent Details */}

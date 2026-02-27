@@ -31,8 +31,8 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
   const { profile } = useUserProfile();
   const { profile: adminProfile } = useAdminProfile();
 
-  const handleSignOut = () => {
-    performLogout('/');
+  const handleSignOut = async () => {
+    await performLogout('/');
   };
 
   const handleLinkClick = () => {
