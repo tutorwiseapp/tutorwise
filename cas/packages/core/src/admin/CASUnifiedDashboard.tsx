@@ -11,9 +11,10 @@
 import React from 'react';
 import { CASRuntimeDashboard } from './CASRuntimeDashboard';
 import { MigrationStatusDashboard } from './MigrationStatusDashboard';
+import { PlanningGraphDashboard } from './PlanningGraphDashboard';
 
 export const CASUnifiedDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'runtime' | 'migration'>('runtime');
+  const [activeTab, setActiveTab] = React.useState<'runtime' | 'migration' | 'planning'>('planning');
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -33,7 +34,7 @@ export const CASUnifiedDashboard: React.FC = () => {
                 CAS Control Center
               </h1>
               <p style={{ fontSize: '14px', color: '#666' }}>
-                Runtime Status • Migration Progress • Feature Comparison
+                Runtime Status • Migration Progress • Planning Workflows
               </p>
             </div>
 
@@ -76,6 +77,26 @@ export const CASUnifiedDashboard: React.FC = () => {
               >
                 <span style={{ fontSize: '20px' }}>📊</span>
                 <span>Migration Progress</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('planning')}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: `2px solid ${activeTab === 'planning' ? '#3b82f6' : '#e5e7eb'}`,
+                  background: activeTab === 'planning' ? '#eff6ff' : 'white',
+                  color: activeTab === 'planning' ? '#1e40af' : '#374151',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <span style={{ fontSize: '20px' }}>🎯</span>
+                <span>Planning Workflows</span>
               </button>
             </div>
           </div>
@@ -150,6 +171,10 @@ export const CASUnifiedDashboard: React.FC = () => {
 
             <MigrationStatusDashboard />
           </div>
+        )}
+
+        {activeTab === 'planning' && (
+          <PlanningGraphDashboard />
         )}
       </div>
 

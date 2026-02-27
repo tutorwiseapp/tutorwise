@@ -64,6 +64,8 @@ class PlannerAgent {
   }
 }
 
+export const planner = new PlannerAgent();
+
 export const runPlanner = async (): Promise<void> => {
   console.log('▶️ Running Planner Agent...');
   const planner = new PlannerAgent();

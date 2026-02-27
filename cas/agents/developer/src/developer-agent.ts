@@ -52,4 +52,7 @@ class DeveloperAgent {
   }
 }
 
-export default new DeveloperAgent();
+const developerAgentInstance = new DeveloperAgent();
+
+export const developer = developerAgentInstance;
+export default developerAgentInstance;
