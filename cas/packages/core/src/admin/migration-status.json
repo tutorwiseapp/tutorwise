@@ -94,10 +94,26 @@
         "in_progress": [],
         "not_started": []
       }
+    },
+    {
+      "phase": 9,
+      "name": "Message Bus Removal",
+      "status": "completed",
+      "progress": 100,
+      "features": {
+        "implemented": ["removed-6-publish-calls", "removed-bus-initialization", "removed-bus-lifecycle", "removed-bus-imports", "removed-bus-property", "updated-scheduler-no-bus", "deleted-messaging-folder"],
+        "in_progress": [],
+        "not_started": []
+      }
     }
   ],
   "blockers": [],
   "notes": [
+    "Phase 9 COMPLETE: Message Bus fully removed from LangGraphRuntime (2026-02-27)",
+    "Removed 6 message bus publish calls (events now tracked via Supabase + LangSmith)",
+    "Deleted /cas/packages/core/src/messaging/ folder (~25KB removed)",
+    "Scheduler updated to use direct logging instead of bus notifications",
+    "Pure LangGraph architecture: direct execution, no pub/sub layer!",
     "Phase 8 COMPLETE: CustomRuntime fully removed from codebase (2026-02-27)",
     "Git tag created: custom-runtime-last-working for recovery",
     "Backup branch: backup/custom-runtime available for rollback",

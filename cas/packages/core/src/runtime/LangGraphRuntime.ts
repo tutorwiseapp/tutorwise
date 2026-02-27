@@ -30,9 +30,6 @@ import { AgentRegistry } from '../agents/AgentRegistry';
 import type { AgentExecutionContext } from '../agents/AgentExecutorInterface';
 import { LangGraphSupabaseAdapter } from './supabase/LangGraphSupabaseAdapter';
 import { CircuitBreaker, CircuitState, createAICircuitBreaker } from './CircuitBreaker';
-import type { MessageBusInterface } from '../messaging/MessageBusInterface';
-import { InMemoryMessageBus } from '../messaging/InMemoryMessageBus';
-import { RedisMessageBus } from '../messaging/RedisMessageBus';
 import { RetryUtility, type RetryConfig } from './RetryUtility';
 
 /**
@@ -70,7 +67,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   private workflows: Map<string, StateGraph<WorkflowState>> = new Map();
   private supabaseAdapter: LangGraphSupabaseAdapter;
   private circuitBreakers: Map<string, CircuitBreaker> = new Map();
-  private messageBus: MessageBusInterface;
   private retryConfig: RetryConfig;
   private activeTasks: Map<string, { cancelled: boolean }> = new Map();
   private streamCallbacks: Map<string, (update: any) => void> = new Map();
@@ -94,23 +90,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       }
     };
     console.log('[LangGraphRuntime] Retry logic enabled:', this.retryConfig);
-
-    // Initialize message bus based on configuration
-    const messageBusType = config?.messageBus || 'memory';
-
-    if (messageBusType === 'redis') {
-      if (!config?.redisUrl || !config?.redisToken) {
-        throw new Error('Redis URL and token are required for Redis message bus');
-      }
-      this.messageBus = new RedisMessageBus({
-        url: config.redisUrl,
-        token: config.redisToken
-      });
-      console.log('[LangGraphRuntime] Using Redis message bus');
-    } else {
-      this.messageBus = new InMemoryMessageBus();
-      console.log('[LangGraphRuntime] Using in-memory message bus');
-    }
   }
 
   // ============================================================================
@@ -230,10 +209,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       await this.supabaseAdapter.initialize();
       console.log('[LangGraphRuntime] Supabase adapter initialized');
 
-      // Initialize message bus
-      await this.messageBus.connect();
-      console.log('[LangGraphRuntime] Message bus connected');
-
       // Initialize agent registry
       await this.agentRegistry.initialize();
       console.log('[LangGraphRuntime] Agent registry initialized');
@@ -273,10 +248,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
     try {
       // Cleanup agent registry
       await this.agentRegistry.cleanup();
-
-      // Disconnect message bus
-      await this.messageBus.disconnect();
-      console.log('[LangGraphRuntime] Message bus disconnected');
 
       // Cancel all active tasks
       for (const taskId of this.activeTasks.keys()) {
@@ -327,12 +298,6 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       }
 
       // Check message bus health
-      const messageBusHealthy = await this.messageBus.healthCheck();
-      if (!messageBusHealthy) {
-        console.error('[LangGraphRuntime] Health check failed (Message Bus)');
-        return false;
-      }
-
       // Check agent health
       const agentsHealth = await this.agentRegistry.getAllAgentsHealth();
       const unhealthyAgents = Object.entries(agentsHealth).filter(([_, health]) => !health.healthy);
@@ -814,19 +779,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow resumed event to message bus
-      await this.messageBus.publishTask({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        input: {
-          event: 'workflow_resumed',
-          workflow_type: workflowType,
-          resumed_from_version: checkpoint.version,
-          resumed_from_step: checkpoint.state.currentStep
-        },
-        metadata: { event_type: 'workflow_resumed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       // Prepare config with LangSmith tracing
       const resumeConfig: any = {
@@ -876,18 +829,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow completed event to message bus
-      await this.messageBus.publishResult({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        result: {
-          status: 'completed',
-          completed_steps: result.metadata.completedSteps,
-          resumed: true
-        },
-        metadata: { event_type: 'workflow_completed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       return {
         workflow_id: workflowId,
@@ -910,18 +852,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow failed event to message bus
-      await this.messageBus.publishResult({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        result: {
-          status: 'failed',
-          error: error.message,
-          resume_attempt: true
-        },
-        metadata: { event_type: 'workflow_failed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       throw error;
     }
@@ -960,19 +891,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow rollback event to message bus
-      await this.messageBus.publishTask({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        input: {
-          event: 'workflow_rolled_back',
-          workflow_type: workflowType,
-          rolled_back_to_version: toVersion,
-          rolled_back_from_step: checkpoint.state.currentStep
-        },
-        metadata: { event_type: 'workflow_rolled_back', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       // Prepare config with LangSmith tracing
       const rollbackConfig: any = {
@@ -1022,18 +941,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow completed event to message bus
-      await this.messageBus.publishResult({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        result: {
-          status: 'completed',
-          completed_steps: result.metadata.completedSteps,
-          rolled_back_from_version: toVersion
-        },
-        metadata: { event_type: 'workflow_completed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       return {
         workflow_id: workflowId,
@@ -1057,19 +965,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         }
       );
 
-      // Publish workflow failed event to message bus
-      await this.messageBus.publishResult({
-        taskId: workflowId,
-        agentId: `workflow:${workflowType}`,
-        result: {
-          status: 'failed',
-          error: error.message,
-          rollback_attempt: true,
-          target_version: toVersion
-        },
-        metadata: { event_type: 'workflow_failed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      // Event tracking handled by Supabase checkpoint + LangSmith tracing
 
       throw error;
     }

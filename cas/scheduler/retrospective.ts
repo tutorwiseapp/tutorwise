@@ -8,7 +8,6 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { publish, createTaskEnvelope } from '../messages';
 import { metricsCollector } from '../dashboard';
 
 // --- Types ---
@@ -376,22 +375,16 @@ export class RetrospectiveScheduler {
 
   /**
    * Notify recipients
+   * Report is stored in Supabase and can be queried by agents/dashboard
    */
   private async notifyRecipients(report: RetrospectiveReport): Promise<void> {
-    for (const recipient of this.config.recipients) {
-      const envelope = createTaskEnvelope(
-        'cas:planner',
-        `cas:${recipient}`,
-        {
-          action: 'retrospective_complete',
-          reportId: report.id,
-          insights: report.insights,
-          actionItems: report.actionItems.length,
-        }
-      );
-
-      await publish(envelope);
-    }
+    // Report is already stored in Supabase (via storeReport)
+    // Agents/dashboard can query for new reports when needed
+    console.log(
+      `[Retrospective] Report ${report.id} stored. ` +
+      `Recipients can query: ${this.config.recipients.join(', ')}`
+    );
+    console.log(`[Retrospective] Insights: ${report.insights.length}, Action items: ${report.actionItems.length}`);
   }
 
   /**
