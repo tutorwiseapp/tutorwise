@@ -17,7 +17,7 @@ import type { AIAgentType } from '@sage/agents';
 import HubForm from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
-import SkillSelector, { Skill } from '@/app/components/feature/ai-tutors/SkillSelector';
+import SkillSelector, { Skill } from '@/app/components/feature/ai-agents/SkillSelector';
 import AgentTypeSelector, { getAgentTypeMetadata } from './AgentTypeSelector';
 import styles from './AIAgentBuilderForm.module.css';
 
@@ -98,7 +98,7 @@ export default function AIAgentBuilderForm({
   // Fetch templates
   const { data: templates } = useQuery({
     queryKey: ['ai-tutor-templates'],
-    queryFn: () => fetch('/api/ai-tutors/templates').then((r) => r.json()),
+    queryFn: () => fetch('/api/ai-agents/templates').then((r) => r.json()),
   });
 
   // Auto-generate name from display_name

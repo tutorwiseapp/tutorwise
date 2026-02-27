@@ -140,9 +140,9 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
             <input
               type="radio"
               name="entity_type"
-              value="ai-tutors"
-              checked={filters.entity_type === 'ai-tutors'}
-              onChange={() => handleEntityTypeChange('ai-tutors')}
+              value="ai-agents"
+              checked={filters.entity_type === 'ai-agents'}
+              onChange={() => handleEntityTypeChange('ai-agents')}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
             />
             <span className="ml-2 text-sm text-gray-700">🤖 AI Tutors</span>

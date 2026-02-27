@@ -46,7 +46,7 @@ export async function getFeaturedItems(limit = 10, offset = 0): Promise<Featured
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
-    fetch(`/api/marketplace/ai-tutors?limit=${Math.floor(limit / 2)}&offset=${offset}`, {
+    fetch(`/api/marketplace/ai-agents?limit=${Math.floor(limit / 2)}&offset=${offset}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
@@ -132,7 +132,7 @@ export async function searchMarketplace(filters: SearchFilters & { query?: strin
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),
-    fetch(`/api/marketplace/ai-tutors?${params.toString()}`, {
+    fetch(`/api/marketplace/ai-agents?${params.toString()}`, {
       cache: 'no-store',
       headers: { 'Cache-Control': 'no-cache' },
     }),

@@ -47,7 +47,7 @@ export default function AITutorMarketplaceCard({ aiTutor }: AITutorMarketplaceCa
 
   return (
     <MarketplaceCard
-      href={`/marketplace/ai-tutors/${aiTutor.name}`}
+      href={`/marketplace/ai-agents/${aiTutor.name}`}
       imageUrl={aiTutor.avatar_url}
       imageFallback={
         <div

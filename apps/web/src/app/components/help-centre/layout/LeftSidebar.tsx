@@ -61,7 +61,7 @@ const CATEGORIES: Category[] = [
       { title: 'My Students', slug: 'my-students' },
       { title: 'Integrations', slug: 'integrations' },
       { title: 'Advanced Agents Guide', slug: 'agents-guide' },
-      { title: 'AI Tutor Studio', slug: 'ai-tutor-studio' },
+      { title: 'AI Studio', slug: 'ai-studio' },
       { title: 'AI Tutor (Sage)', slug: 'sage' },
       { title: 'AI Assistant (Lexi)', slug: 'lexi' },
     ],

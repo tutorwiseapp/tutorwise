@@ -16,7 +16,7 @@ import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import { getFeaturedItems, searchMarketplace, toMarketplaceItems } from '@/lib/api/marketplace';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import BetaBanner from '@/app/components/feature/marketing/BetaBanner';
-import FeaturedAITutorsSection from '@/app/components/feature/ai-tutors/FeaturedAITutorsSection';
+import FeaturedAITutorsSection from '@/app/components/feature/ai-agents/FeaturedAITutorsSection';
 import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
 import AdvancedFilters from '@/app/components/feature/marketplace/AdvancedFilters';
 import type { SearchFilters } from '@/lib/services/savedSearches';
@@ -55,12 +55,12 @@ export default function HomePage() {
       // Map marketplace_type to entity_type for API
       const apiFilters = { ...searchFilters };
       if (searchFilters.marketplace_type) {
-        // Map: 'tutors' → 'humans', 'ai-tutors' → 'ai-tutors', 'all' → 'all'
-        let entityType: 'humans' | 'ai-tutors' | 'all' = 'all';
+        // Map: 'tutors' → 'humans', 'ai-agents' → 'ai-agents', 'all' → 'all'
+        let entityType: 'humans' | 'ai-agents' | 'all' = 'all';
         if (searchFilters.marketplace_type === 'tutors') {
           entityType = 'humans';
-        } else if (searchFilters.marketplace_type === 'ai-tutors') {
-          entityType = 'ai-tutors';
+        } else if (searchFilters.marketplace_type === 'ai-agents') {
+          entityType = 'ai-agents';
         } else if (searchFilters.marketplace_type === 'organisations') {
           entityType = 'humans'; // Organisations are part of humans search
         } else {
@@ -86,13 +86,13 @@ export default function HomePage() {
     ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [], featuredData.aiTutors || [])
     : [];
 
-  // Filter by marketplace type (tutors/organisations/ai-tutors/all)
+  // Filter by marketplace type (tutors/organisations/ai-agents/all)
   const marketplaceType = searchFilters.marketplace_type || 'all';
   const items = allItems.filter(item => {
     if (marketplaceType === 'all') return true;
     if (marketplaceType === 'tutors') return item.type === 'profile' || item.type === 'listing';
     if (marketplaceType === 'organisations') return item.type === 'organisation';
-    if (marketplaceType === 'ai-tutors') return item.type === 'ai_tutor';
+    if (marketplaceType === 'ai-agents') return item.type === 'ai_tutor';
     return true;
   });
 

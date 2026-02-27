@@ -245,8 +245,8 @@ export default function AdvancedFilters({
                 <input
                   type="radio"
                   name="marketplace_type"
-                  value="ai-tutors"
-                  checked={localFilters.marketplace_type === 'ai-tutors'}
+                  value="ai-agents"
+                  checked={localFilters.marketplace_type === 'ai-agents'}
                   onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
                 />
                 <span>🤖 AI Tutors</span>

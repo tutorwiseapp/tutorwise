@@ -14,8 +14,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { AI_TUTOR_TEMPLATES } from '@/lib/ai-tutors/templates';
-import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-tutors/limits';
+import { AI_TUTOR_TEMPLATES } from '@/lib/ai-agents/templates';
+import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-agents/limits';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

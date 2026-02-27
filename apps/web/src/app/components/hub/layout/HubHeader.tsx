@@ -21,7 +21,7 @@ import React, { ReactNode } from 'react';
 import styles from './HubHeader.module.css';
 
 interface HubHeaderProps {
-  title: string;
+  title: string | ReactNode;
   subtitle?: string; // Optional subtitle below title
   filters?: ReactNode; // Optional centered filters row (search/sort)
   actions?: ReactNode; // Right slot (buttons/menu)

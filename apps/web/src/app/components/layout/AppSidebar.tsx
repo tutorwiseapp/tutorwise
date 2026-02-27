@@ -62,12 +62,12 @@ export default function AppSidebar() {
     },
     { href: '/sage', label: 'AI Tutor', roles: ['student', 'client', 'tutor', 'agent'] },
     {
-      href: '/ai-tutors',
-      label: 'AI Tutor Studio',
+      href: '/ai-agents',
+      label: 'AI Studio',
       roles: ['tutor', 'agent'],
       subItems: [
-        { href: '/ai-tutors', label: 'My AI Tutors', indent: true },
-        { href: '/ai-tutors/new', label: 'Create AI Tutor', indent: true },
+        { href: '/ai-agents', label: 'My AI Agents', indent: true },
+        { href: '/ai-agents/create', label: 'Create AI Agent', indent: true },
       ],
     },
     { href: '/referrals', label: 'Referrals' },

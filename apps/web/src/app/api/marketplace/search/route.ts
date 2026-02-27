@@ -104,7 +104,7 @@ async function hybridSearch(
   // Determine which entity types to search based on filter
   const entityType = filters.entity_type || 'all';
   const searchHumans = entityType === 'all' || entityType === 'humans';
-  const searchAITutors = entityType === 'all' || entityType === 'ai-tutors';
+  const searchAITutors = entityType === 'all' || entityType === 'ai-agents';
 
   // Build search promises conditionally
   const searchPromises = [];
@@ -214,7 +214,7 @@ async function hybridSearch(
 function parseFilters(searchParams: URLSearchParams): any {
   const filters: any = {};
 
-  // Entity type filter: 'all', 'humans', 'ai-tutors'
+  // Entity type filter: 'all', 'humans', 'ai-agents'
   const entityType = searchParams.get('entity_type');
   if (entityType) {
     filters.entity_type = entityType;
