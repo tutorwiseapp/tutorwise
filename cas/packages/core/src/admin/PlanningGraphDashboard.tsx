@@ -124,7 +124,7 @@ export const PlanningGraphDashboard: React.FC = () => {
           </h3>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
-              onClick={() => window.open('/admin/cas/workflow-fullscreen', '_blank')}
+              onClick={() => window.open('/workflow-fullscreen', '_blank')}
               style={{
                 padding: '8px 16px',
                 background: '#6366f1',
