@@ -33,6 +33,9 @@ export class AgentRuntimeFactory {
 
     switch (runtimeType) {
       case 'custom':
+        console.warn('⚠️  WARNING: CustomAgentRuntime is DEPRECATED (Phase 7)');
+        console.warn('   Use LangGraphRuntime instead (CAS_RUNTIME=langgraph)');
+        console.warn('   CustomRuntime will be removed in Phase 8 (March 2026)');
         return new CustomAgentRuntime(config);
 
       case 'langgraph':
@@ -47,7 +50,7 @@ export class AgentRuntimeFactory {
    * Get current runtime type from environment
    */
   static getCurrentRuntimeType(): RuntimeType {
-    return (process.env.CAS_RUNTIME as RuntimeType) || 'custom';
+    return (process.env.CAS_RUNTIME as RuntimeType) || 'langgraph';
   }
 
   /**

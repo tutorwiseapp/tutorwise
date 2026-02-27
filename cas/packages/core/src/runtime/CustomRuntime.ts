@@ -1,11 +1,19 @@
 /**
  * Custom Agent Runtime
  *
- * Implementation of AgentRuntimeInterface using the current CAS custom runtime.
+ * @deprecated This runtime is DEPRECATED as of 2026-02-27 (Phase 7).
+ * Use LangGraphRuntime instead for all new implementations.
+ *
+ * CustomRuntime will be removed in Phase 8 (scheduled for March 2026).
+ *
+ * Migration: LangGraphRuntime is now the PRIMARY runtime with full feature parity.
+ * Set CAS_RUNTIME=langgraph (default) to use the new runtime.
+ *
+ * Implementation of AgentRuntimeInterface using the legacy CAS custom runtime.
  * This wraps the existing message bus, agent registry, and Edge Functions.
  *
- * Phase: 1-2 (Current implementation)
- * Migration: Will be replaced by LangGraph in Phase 3-4
+ * Phase: 1-2 (Legacy implementation - DEPRECATED)
+ * Replaced by: LangGraphRuntime (Phase 6 complete)
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -42,6 +50,23 @@ export class CustomAgentRuntime implements AgentRuntimeInterface {
   private circuitBreakers: Map<string, CircuitBreaker> = new Map();
 
   constructor(config?: RuntimeConfig) {
+    // ⚠️ DEPRECATION WARNING
+    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.warn('⚠️  DEPRECATION WARNING: CustomAgentRuntime is DEPRECATED');
+    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.warn('');
+    console.warn('CustomRuntime is deprecated as of 2026-02-27 (Phase 7).');
+    console.warn('This runtime will be REMOVED in Phase 8 (March 2026).');
+    console.warn('');
+    console.warn('✅ RECOMMENDED: Use LangGraphRuntime instead');
+    console.warn('   - Full feature parity (Phase 6 complete)');
+    console.warn('   - Better observability (LangSmith tracing)');
+    console.warn('   - Simpler architecture (no message bus)');
+    console.warn('   - Set CAS_RUNTIME=langgraph (default)');
+    console.warn('');
+    console.warn('📚 Migration Guide: cas/docs/LANGGRAPH_MIGRATION_PLAN.md');
+    console.warn('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
     this.config = config;
 
     // Initialize message bus based on config or environment

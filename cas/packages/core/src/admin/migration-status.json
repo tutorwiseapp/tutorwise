@@ -72,13 +72,24 @@
         "in_progress": [],
         "not_started": []
       }
+    },
+    {
+      "phase": 7,
+      "name": "CustomRuntime Deprecation",
+      "status": "completed",
+      "progress": 100,
+      "features": {
+        "implemented": ["deprecation-warnings", "runtime-factory-warnings", "dashboard-updates", "backup-branch-created"],
+        "in_progress": [],
+        "not_started": []
+      }
     }
   ],
   "blockers": [],
   "notes": [
-    "Phase 6 focused on LangGraph-native features, not CustomRuntime legacy patterns",
-    "Message bus removed from LangGraphRuntime - uses direct execution instead",
-    "LangSmith integration deferred - can add later if needed",
-    "CustomRuntime will be deprecated and removed in future phases"
+    "Phase 7: CustomRuntime marked as DEPRECATED - will be removed in Phase 8",
+    "Backup branch created: backup/custom-runtime for recovery if needed",
+    "LangGraph is now the PRIMARY and ONLY recommended runtime",
+    "CustomRuntime removal scheduled for Phase 8 (March 2026)"
   ]
 }

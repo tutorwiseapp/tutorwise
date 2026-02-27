@@ -776,19 +776,17 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
                   <div className={styles.providerIcon}>
                     {React.createElement(Settings, { size: 20 })}
                   </div>
-                  {currentRuntime === 'custom' && (
-                    <span className={styles.activeBadge}>Active</span>
-                  )}
-                  {currentRuntime !== 'custom' && (
-                    <span className={styles.fallbackBadge}>Fallback</span>
-                  )}
+                  <span className={styles.fallbackBadge} style={{ background: '#f59e0b', color: '#fff' }}>
+                    ⚠️ DEPRECATED
+                  </span>
                 </div>
-                <h4 className={styles.providerCardTitle}>Custom Runtime</h4>
+                <h4 className={styles.providerCardTitle}>Custom Runtime (Legacy)</h4>
                 <p className={styles.providerCardDescription}>
-                  Legacy CAS implementation using message bus and Edge Functions. Available as fallback.
+                  ⚠️ DEPRECATED: This runtime will be removed in Phase 8 (March 2026).
+                  Use LangGraphRuntime instead - full feature parity with better observability.
                 </p>
-                <p className={styles.providerCardHint}>
-                  Set CAS_RUNTIME=custom to enable
+                <p className={styles.providerCardHint} style={{ color: '#f59e0b' }}>
+                  Migration: Set CAS_RUNTIME=langgraph (default)
                 </p>
               </div>
             </div>
