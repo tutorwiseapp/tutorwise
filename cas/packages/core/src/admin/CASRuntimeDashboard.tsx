@@ -223,6 +223,13 @@ const FEATURE_TESTS: FeatureStatus[] = [
     langGraphRuntime: 'available',
     description: 'Runtime and agent health monitoring - ✅ COMPLETED 2026-02-26'
   },
+  {
+    name: 'LangSmith Tracing',
+    category: 'Observability',
+    customRuntime: 'unavailable',
+    langGraphRuntime: 'available',
+    description: 'Full trace visibility with LangSmith integration - ✅ COMPLETED 2026-02-27'
+  },
 ];
 
 // ============================================================================

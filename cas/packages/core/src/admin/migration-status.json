@@ -61,12 +61,24 @@
         "in_progress": [],
         "not_started": []
       }
+    },
+    {
+      "phase": 6,
+      "name": "LangGraph-Native Architecture",
+      "status": "completed",
+      "progress": 100,
+      "features": {
+        "implemented": ["task-execution", "native-streaming", "workflow-streaming", "message-bus-removal", "dashboard-updates", "langsmith-integration"],
+        "in_progress": [],
+        "not_started": []
+      }
     }
   ],
   "blockers": [],
   "notes": [
-    "Supabase integration is the critical path - blocks most other features",
-    "Circuit breaker and retry logic already exist in CustomRuntime - can port directly",
-    "LangGraph StateGraph is already better than CustomRuntime workflows"
+    "Phase 6 focused on LangGraph-native features, not CustomRuntime legacy patterns",
+    "Message bus removed from LangGraphRuntime - uses direct execution instead",
+    "LangSmith integration deferred - can add later if needed",
+    "CustomRuntime will be deprecated and removed in future phases"
   ]
 }

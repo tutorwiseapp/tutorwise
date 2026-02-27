@@ -18,6 +18,7 @@
 
 import { StateGraph, END, START } from '@langchain/langgraph';
 import { BaseMessage } from '@langchain/core/messages';
+import { Client } from 'langsmith';
 import type {
   AgentRuntimeInterface,
   AgentTask,
@@ -73,6 +74,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   private retryConfig: RetryConfig;
   private activeTasks: Map<string, { cancelled: boolean }> = new Map();
   private streamCallbacks: Map<string, (update: any) => void> = new Map();
+  private langsmithClient?: Client;
 
   constructor(config?: RuntimeConfig) {
     this.agentRegistry = new AgentRegistry();
@@ -235,6 +237,22 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       // Initialize agent registry
       await this.agentRegistry.initialize();
       console.log('[LangGraphRuntime] Agent registry initialized');
+
+      // Initialize LangSmith if API key exists
+      if (process.env.LANGCHAIN_API_KEY) {
+        try {
+          this.langsmithClient = new Client({
+            apiKey: process.env.LANGCHAIN_API_KEY,
+            apiUrl: process.env.LANGCHAIN_ENDPOINT || 'https://api.smith.langchain.com'
+          });
+          console.log('[LangGraphRuntime] LangSmith tracing enabled');
+        } catch (error: any) {
+          console.warn('[LangGraphRuntime] LangSmith initialization failed:', error.message);
+          // Non-blocking - continue without tracing
+        }
+      } else {
+        console.log('[LangGraphRuntime] LangSmith tracing disabled (no API key)');
+      }
 
       // Create default workflows
       this.createContentStrategyWorkflow();
@@ -683,9 +701,24 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       // Save initial checkpoint
       await this.supabaseAdapter.saveCheckpoint(executionId, initialState);
 
+      // Prepare config with LangSmith tracing
+      const config: any = {
+        configurable: {
+          thread_id: executionId
+        }
+      };
+
+      if (this.langsmithClient) {
+        config.callbacks = [{
+          name: 'langsmith',
+          client: this.langsmithClient,
+          projectName: process.env.LANGCHAIN_PROJECT || 'cas-runtime'
+        }];
+      }
+
       // Execute workflow with retry logic
       const retryResult = await RetryUtility.withRetry(
-        async () => workflow.invoke(initialState),
+        async () => workflow.invoke(initialState, config),
         this.retryConfig
       );
 
@@ -795,9 +828,24 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         timestamp: new Date()
       });
 
+      // Prepare config with LangSmith tracing
+      const resumeConfig: any = {
+        configurable: {
+          thread_id: workflowId
+        }
+      };
+
+      if (this.langsmithClient) {
+        resumeConfig.callbacks = [{
+          name: 'langsmith',
+          client: this.langsmithClient,
+          projectName: process.env.LANGCHAIN_PROJECT || 'cas-runtime'
+        }];
+      }
+
       // Resume workflow from checkpoint state with retry logic
       const retryResult = await RetryUtility.withRetry(
-        async () => workflow.invoke(checkpoint.state),
+        async () => workflow.invoke(checkpoint.state, resumeConfig),
         this.retryConfig
       );
 
@@ -926,9 +974,24 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         timestamp: new Date()
       });
 
+      // Prepare config with LangSmith tracing
+      const rollbackConfig: any = {
+        configurable: {
+          thread_id: workflowId
+        }
+      };
+
+      if (this.langsmithClient) {
+        rollbackConfig.callbacks = [{
+          name: 'langsmith',
+          client: this.langsmithClient,
+          projectName: process.env.LANGCHAIN_PROJECT || 'cas-runtime'
+        }];
+      }
+
       // Resume workflow from rolled-back state with retry logic
       const retryResult = await RetryUtility.withRetry(
-        async () => workflow.invoke(checkpoint.state),
+        async () => workflow.invoke(checkpoint.state, rollbackConfig),
         this.retryConfig
       );
 
@@ -1401,11 +1464,20 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       };
 
       // Stream events from LangGraph
-      const config = {
+      const config: any = {
         configurable: {
           thread_id: executionId
         }
       };
+
+      // Add LangSmith tracing if enabled
+      if (this.langsmithClient) {
+        config.callbacks = [{
+          name: 'langsmith',
+          client: this.langsmithClient,
+          projectName: process.env.LANGCHAIN_PROJECT || 'cas-runtime'
+        }];
+      }
 
       // Use LangGraph's native streaming
       for await (const event of workflow.stream(initialState, config)) {
