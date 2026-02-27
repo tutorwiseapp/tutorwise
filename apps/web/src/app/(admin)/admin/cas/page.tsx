@@ -769,27 +769,10 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
                   Production-grade multi-agent orchestration with LangSmith observability. Default runtime.
                 </p>
               </div>
-
-              {/* Custom Runtime - FALLBACK */}
-              <div className={`${styles.providerCard} ${currentRuntime === 'custom' ? styles.providerCardActive : ''}`}>
-                <div className={styles.providerCardHeader}>
-                  <div className={styles.providerIcon}>
-                    {React.createElement(Settings, { size: 20 })}
-                  </div>
-                  <span className={styles.fallbackBadge} style={{ background: '#f59e0b', color: '#fff' }}>
-                    ⚠️ DEPRECATED
-                  </span>
-                </div>
-                <h4 className={styles.providerCardTitle}>Custom Runtime (Legacy)</h4>
-                <p className={styles.providerCardDescription}>
-                  ⚠️ DEPRECATED: This runtime will be removed in Phase 8 (March 2026).
-                  Use LangGraphRuntime instead - full feature parity with better observability.
-                </p>
-                <p className={styles.providerCardHint} style={{ color: '#f59e0b' }}>
-                  Migration: Set CAS_RUNTIME=langgraph (default)
-                </p>
-              </div>
             </div>
+
+            {/* Note: CustomRuntime was removed in Phase 8 (2026-02-27) */}
+            {/* Recovery: git checkout custom-runtime-last-working */}
           </div>
 
           {/* Runtime Distribution - Using Hub Chart */}

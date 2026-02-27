@@ -1,21 +1,21 @@
 /**
- * Test script for CustomRuntime Supabase integration
+ * Test script for LangGraphRuntime Supabase integration
  * Run with: tsx src/runtime/test-runtime.ts
  */
 
 import * as dotenv from 'dotenv';
-import { CustomAgentRuntime } from './CustomRuntime';
+import { LangGraphRuntime } from './LangGraphRuntime';
 
 // Load environment variables from apps/web/.env.local (use absolute path for reliability)
 dotenv.config({ path: '/Users/michaelquan/projects/tutorwise/apps/web/.env.local' });
 
-async function testCustomRuntime() {
-  console.log('\n=== Testing CustomRuntime Supabase Integration ===\n');
+async function testLangGraphRuntime() {
+  console.log('\n=== Testing LangGraphRuntime Supabase Integration ===\n');
 
   try {
     // 1. Initialize runtime
-    console.log('1. Creating CustomRuntime instance...');
-    const runtime = new CustomAgentRuntime();
+    console.log('1. Creating LangGraphRuntime instance...');
+    const runtime = new LangGraphRuntime();
 
     console.log('2. Initializing runtime...');
     await runtime.initialize();
@@ -101,4 +101,4 @@ async function testCustomRuntime() {
 }
 
 // Run tests
-testCustomRuntime();
+testLangGraphRuntime();

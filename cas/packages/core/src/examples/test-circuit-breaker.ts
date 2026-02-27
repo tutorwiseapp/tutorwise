@@ -1,18 +1,18 @@
 /**
  * Circuit Breaker Test Example
  *
- * Demonstrates circuit breaker pattern with CustomAgentRuntime
+ * Demonstrates circuit breaker pattern with LangGraphRuntime
  */
 
-import { CustomAgentRuntime } from '../runtime/CustomRuntime';
+import { LangGraphRuntime } from '../runtime/LangGraphRuntime';
 import type { AgentTask } from '../runtime/AgentRuntimeInterface';
 
 async function testCircuitBreaker() {
   console.log('='.repeat(80));
-  console.log('Circuit Breaker Test - CustomAgentRuntime');
+  console.log('Circuit Breaker Test - LangGraphRuntime');
   console.log('='.repeat(80));
 
-  const runtime = new CustomAgentRuntime();
+  const runtime = new LangGraphRuntime();
 
   try {
     // Initialize runtime

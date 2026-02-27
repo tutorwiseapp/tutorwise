@@ -11,7 +11,7 @@
  */
 
 import * as dotenv from 'dotenv';
-import { CustomAgentRuntime } from './CustomRuntime';
+import { LangGraphRuntime } from './LangGraphRuntime';
 
 // Load environment variables
 dotenv.config({ path: '/Users/michaelquan/projects/tutorwise/apps/web/.env.local' });
@@ -19,7 +19,7 @@ dotenv.config({ path: '/Users/michaelquan/projects/tutorwise/apps/web/.env.local
 async function testPhase3And4() {
   console.log('\n=== Phase 3 & 4 Comprehensive Test Suite ===\n');
 
-  const runtime = new CustomAgentRuntime();
+  const runtime = new LangGraphRuntime();
 
   try {
     // ========================================

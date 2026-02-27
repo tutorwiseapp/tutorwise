@@ -2,28 +2,28 @@
  * Runtime Factory
  *
  * Factory pattern for creating agent runtime instances.
- * Enables runtime switching via CAS_RUNTIME environment variable.
  *
  * Usage:
  *   const runtime = AgentRuntimeFactory.create();
  *   await runtime.initialize();
  *
  * Environment Variables:
- *   CAS_RUNTIME=langgraph - Use LangGraphRuntime (default)
- *   CAS_RUNTIME=custom    - Use CustomAgentRuntime (fallback/legacy)
+ *   CAS_RUNTIME=langgraph - Use LangGraphRuntime (default and only option)
+ *
+ * Note: CustomAgentRuntime was removed in Phase 8 (2026-02-27).
+ * Recovery: git checkout custom-runtime-last-working
  */
 
 import type { AgentRuntimeInterface, RuntimeType, RuntimeConfig } from './AgentRuntimeInterface';
-import { CustomAgentRuntime } from './CustomRuntime';
 import { LangGraphRuntime } from './LangGraphRuntime';
 
 export class AgentRuntimeFactory {
   /**
-   * Create an agent runtime instance based on type or environment variable
+   * Create an agent runtime instance
    *
    * @param type - RuntimeType (optional, defaults to env CAS_RUNTIME or 'langgraph')
    * @param config - Runtime configuration (optional)
-   * @returns AgentRuntimeInterface implementation
+   * @returns AgentRuntimeInterface implementation (LangGraphRuntime)
    */
   static create(type?: RuntimeType, config?: RuntimeConfig): AgentRuntimeInterface {
     // Determine runtime type from parameter or environment
@@ -31,19 +31,17 @@ export class AgentRuntimeFactory {
 
     console.log(`[CAS Runtime Factory] Creating runtime: ${runtimeType}`);
 
-    switch (runtimeType) {
-      case 'custom':
-        console.warn('⚠️  WARNING: CustomAgentRuntime is DEPRECATED (Phase 7)');
-        console.warn('   Use LangGraphRuntime instead (CAS_RUNTIME=langgraph)');
-        console.warn('   CustomRuntime will be removed in Phase 8 (March 2026)');
-        return new CustomAgentRuntime(config);
-
-      case 'langgraph':
-        return new LangGraphRuntime(config);
-
-      default:
-        throw new Error(`Unknown runtime type: ${runtimeType}. Use 'custom' or 'langgraph'.`);
+    // Only LangGraph is supported (CustomRuntime removed in Phase 8)
+    if (runtimeType !== 'langgraph') {
+      throw new Error(
+        `Invalid runtime type: ${runtimeType}. ` +
+        `Only 'langgraph' is supported. ` +
+        `CustomRuntime was removed in Phase 8 (2026-02-27). ` +
+        `Recovery: git checkout custom-runtime-last-working`
+      );
     }
+
+    return new LangGraphRuntime(config);
   }
 
   /**
@@ -57,13 +55,7 @@ export class AgentRuntimeFactory {
    * Check if a runtime type is available
    */
   static isRuntimeAvailable(type: RuntimeType): boolean {
-    switch (type) {
-      case 'custom':
-        return true;
-      case 'langgraph':
-        return true; // ✅ Available as of Phase 5 completion
-      default:
-        return false;
-    }
+    // Only LangGraph is available (CustomRuntime removed in Phase 8)
+    return type === 'langgraph';
   }
 }

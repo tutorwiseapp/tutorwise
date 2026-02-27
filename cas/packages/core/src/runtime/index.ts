@@ -4,8 +4,11 @@
  * Exports:
  * - AgentRuntimeInterface: Core interface for all runtimes
  * - AgentRuntimeFactory: Factory for creating runtime instances
- * - CustomAgentRuntime: Current custom implementation
+ * - LangGraphRuntime: LangGraph-based runtime implementation
  * - RuntimeType: Enum for runtime types
+ *
+ * Note: CustomAgentRuntime was removed in Phase 8 (2026-02-27)
+ * Recovery: git checkout custom-runtime-last-working
  *
  * Usage:
  *   import { AgentRuntimeFactory } from '@cas/core/runtime';
@@ -16,5 +19,5 @@
 
 export * from './AgentRuntimeInterface';
 export * from './RuntimeFactory';
-export * from './CustomRuntime';
+export * from './LangGraphRuntime';
 export { AgentRuntimeFactory } from './RuntimeFactory';

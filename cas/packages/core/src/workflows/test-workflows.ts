@@ -5,7 +5,7 @@
  */
 
 import * as dotenv from 'dotenv';
-import { CustomAgentRuntime } from '../runtime/CustomRuntime';
+import { LangGraphRuntime } from '../runtime/LangGraphRuntime';
 import { listWorkflows } from './TutorWiseWorkflows';
 
 // Load environment variables
@@ -29,8 +29,8 @@ async function testWorkflows() {
   });
 
   // Initialize runtime
-  console.log('Initializing CustomAgentRuntime...');
-  const runtime = new CustomAgentRuntime();
+  console.log('Initializing LangGraphRuntime...');
+  const runtime = new LangGraphRuntime();
 
   try {
     await runtime.initialize();
