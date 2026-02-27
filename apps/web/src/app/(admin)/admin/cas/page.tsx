@@ -24,7 +24,7 @@ import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import Button from '@/app/components/ui/actions/Button';
 import { Bot, Cpu, Activity, Shield, TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock, Zap, BarChart, BarChart3, Settings, ThumbsUp, ThumbsDown, Users, Calendar, AlertCircle, RefreshCw, DollarSign, Sparkles, MessageSquare, FileCheck } from 'lucide-react';
-import { CASRuntimeDashboard, MigrationStatusDashboard } from '@cas/packages/core/src/admin';
+import { CASRuntimeDashboard, MigrationStatusDashboard, PlanningGraphDashboard } from '@cas/packages/core/src/admin';
 import styles from './page.module.css';
 
 // Force dynamic rendering
@@ -704,7 +704,7 @@ interface RuntimeTabProps {
 function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
   // CAS Runtime: LangGraph (primary) or Custom (fallback) - switched via CAS_RUNTIME env var
   const currentRuntime = process.env.NEXT_PUBLIC_CAS_RUNTIME || 'langgraph';
-  const [runtimeSubTab, setRuntimeSubTab] = React.useState<'status' | 'migration'>('status');
+  const [runtimeSubTab, setRuntimeSubTab] = React.useState<'status' | 'migration' | 'planning'>('status');
 
   return (
     <div className={styles.chartsSection}>
@@ -741,6 +741,22 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
           }}
         >
           📊 Migration Progress
+        </button>
+        <button
+          onClick={() => setRuntimeSubTab('planning')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            border: 'none',
+            background: 'transparent',
+            borderBottom: `3px solid ${runtimeSubTab === 'planning' ? '#3B82F6' : 'transparent'}`,
+            color: runtimeSubTab === 'planning' ? '#3B82F6' : '#6b7280',
+            fontWeight: runtimeSubTab === 'planning' ? 'bold' : 'normal',
+            cursor: 'pointer',
+            fontSize: '14px',
+            marginBottom: '-2px'
+          }}
+        >
+          🎯 Planning Workflows
         </button>
       </div>
 
@@ -807,6 +823,19 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
             </p>
           </div>
           <MigrationStatusDashboard />
+        </div>
+      )}
+
+      {/* Planning Workflows Sub-Tab */}
+      {runtimeSubTab === 'planning' && (
+        <div className={styles.widget}>
+          <div className={styles.widgetHeader}>
+            <h2>Planning Workflows</h2>
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '0.5rem' }}>
+              8-agent LangGraph orchestration workflow for feature planning and delivery
+            </p>
+          </div>
+          <PlanningGraphDashboard />
         </div>
       )}
     </div>

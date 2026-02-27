@@ -6,13 +6,51 @@
  */
 
 import React from 'react';
+import { WorkflowVisualizer } from './WorkflowVisualizer';
 
 export const PlanningGraphDashboard: React.FC = () => {
   const [executionHistory, setExecutionHistory] = React.useState<any[]>([]);
   const [selectedExecution, setSelectedExecution] = React.useState<any | null>(null);
 
+  // Demo execution state for live tracking
+  const [demoRunning, setDemoRunning] = React.useState(false);
+  const [demoState, setDemoState] = React.useState<{
+    currentStep?: string;
+    completedSteps?: string[];
+  }>({});
+
+  // Simulate workflow execution
+  const runDemoExecution = React.useCallback(() => {
+    const steps = ['analyst', 'developer', 'tester', 'qa', 'security', 'engineer', 'marketer', 'planner'];
+    let currentIndex = 0;
+
+    setDemoRunning(true);
+    setDemoState({ currentStep: steps[0], completedSteps: [] });
+
+    const interval = setInterval(() => {
+      if (currentIndex >= steps.length) {
+        clearInterval(interval);
+        setDemoRunning(false);
+        setDemoState({ completedSteps: steps });
+        return;
+      }
+
+      setDemoState({
+        currentStep: steps[currentIndex],
+        completedSteps: steps.slice(0, currentIndex),
+      });
+
+      currentIndex++;
+    }, 1500); // Progress every 1.5 seconds
+  }, []);
+
+  const stopDemo = React.useCallback(() => {
+    setDemoRunning(false);
+    setDemoState({});
+  }, []);
+
   return (
-    <div>
+    <div style={{ padding: '24px' }}>
       {/* Hero Section */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -80,38 +118,74 @@ export const PlanningGraphDashboard: React.FC = () => {
 
       {/* Workflow Visualization */}
       <div style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>
-          Workflow Flow
-        </h3>
-        <div style={{
-          background: '#f9fafb',
-          padding: '24px',
-          borderRadius: '8px',
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          lineHeight: '1.8',
-          overflowX: 'auto'
-        }}>
-          <div>START</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>Analyst</span> (Generate feature brief + Three Amigos kickoff)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>Developer</span> (Create development plan)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#10b981', fontWeight: 'bold' }}>Tester</span> (Run tests - 95% coverage)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>QA</span> (Quality review)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>Security</span> (Vulnerability scan - allows warnings ⚠️)</div>
-          <div>  ↓  <span style={{ fontSize: '12px', color: '#666' }}>(if no critical issues)</span></div>
-          <div>  <span style={{ color: '#6366f1', fontWeight: 'bold' }}>Engineer</span> (Deploy to production)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#ec4899', fontWeight: 'bold' }}>Marketer</span> (Analyze production metrics)</div>
-          <div>  ↓</div>
-          <div>  <span style={{ color: '#14b8a6', fontWeight: 'bold' }}>Planner</span> (Strategic decision: ITERATE/SUCCESS/REMOVE)</div>
-          <div>  ↓</div>
-          <div>END</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 'bold' }}>
+            Interactive Workflow Visualization
+          </h3>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={() => window.open('/admin/cas/workflow-fullscreen', '_blank')}
+              style={{
+                padding: '8px 16px',
+                background: '#6366f1',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>🔲</span>
+              <span>Open Fullscreen</span>
+            </button>
+            {!demoRunning ? (
+              <button
+                onClick={runDemoExecution}
+                style={{
+                  padding: '8px 16px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <span>▶️</span>
+                <span>Run Demo</span>
+              </button>
+            ) : (
+              <button
+                onClick={stopDemo}
+                style={{
+                  padding: '8px 16px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <span>⏹️</span>
+                <span>Stop Demo</span>
+              </button>
+            )}
+          </div>
         </div>
+        <WorkflowVisualizer executionState={demoState} />
       </div>
 
       {/* Agent Details */}

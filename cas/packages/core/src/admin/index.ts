@@ -5,6 +5,8 @@
 export { CASRuntimeDashboard } from './CASRuntimeDashboard';
 export { MigrationStatusDashboard } from './MigrationStatusDashboard';
 export { CASUnifiedDashboard } from './CASUnifiedDashboard';
+export { PlanningGraphDashboard } from './PlanningGraphDashboard';
+export { WorkflowVisualizer } from './WorkflowVisualizer';
 
 export type {
   FeatureStatus,
