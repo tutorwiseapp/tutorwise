@@ -9,6 +9,7 @@
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { documentEmbedder } from '../upload/embedder';
+import { retrieveSageLinks } from '../links';
 import type {
   KnowledgeSearchRequest,
   KnowledgeSearchResult,
@@ -16,6 +17,7 @@ import type {
   KnowledgeNamespace,
 } from './types';
 import type { KnowledgeSource } from '../context';
+import type { SageLink } from '../links';
 
 // --- Retriever Class ---
 
@@ -67,12 +69,26 @@ export class KnowledgeRetriever {
     const allResults: ScoredChunk[] = [];
 
     for (const source of sources) {
-      const sourceResults = await this.searchNamespace(
-        queryEmbedding,
-        source.namespace,
-        request,
-        source.priority
-      );
+      let sourceResults: ScoredChunk[] = [];
+
+      // Use appropriate search method based on source type
+      if (source.namespace === 'links' || source.namespace === 'sage_links') {
+        // Links use keyword-based search (no embeddings needed)
+        sourceResults = await this.searchLinks(
+          request.query,
+          request,
+          source.priority
+        );
+      } else {
+        // Vector-based search for uploaded materials and chunks
+        sourceResults = await this.searchNamespace(
+          queryEmbedding,
+          source.namespace,
+          request,
+          source.priority
+        );
+      }
+
       allResults.push(...sourceResults);
     }
 
@@ -92,6 +108,81 @@ export class KnowledgeRetriever {
       totalResults: allResults.length,
       searchTime: Date.now() - startTime,
     };
+  }
+
+  /**
+   * Search Links (curated external resources).
+   * Uses keyword matching instead of vector search.
+   */
+  private async searchLinks(
+    query: string,
+    request: KnowledgeSearchRequest,
+    priorityBoost: number
+  ): Promise<ScoredChunk[]> {
+    try {
+      // Extract keywords from query
+      const keywords = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+
+      // Retrieve Links filtered by subject/level/skills
+      const links = await retrieveSageLinks({
+        subject: request.subject,
+        level: request.level,
+        skills: keywords,
+        status: 'active',
+        limit: request.topK || 5,
+      });
+
+      if (!links || links.length === 0) {
+        return [];
+      }
+
+      // Calculate relevance score based on keyword matches
+      const priorityFactor = 1 + (0.1 * (4 - priorityBoost));
+
+      return links.map((link: SageLink) => {
+        // Score based on keyword matches in title/description
+        let matchCount = 0;
+        const searchText = `${link.title} ${link.description || ''} ${(link.skills || []).join(' ')}`.toLowerCase();
+
+        keywords.forEach(keyword => {
+          if (searchText.includes(keyword)) {
+            matchCount++;
+          }
+        });
+
+        // Normalize score (0-1) based on matches and priority
+        const baseScore = Math.min(matchCount / Math.max(keywords.length, 1), 1);
+        const adjustedScore = baseScore * priorityFactor * 0.85; // Links score slightly lower than perfect vector matches
+
+        return {
+          id: link.id,
+          documentId: `link-${link.id}`,
+          content: `${link.title}\n${link.description || ''}\nURL: ${link.url}`,
+          metadata: {
+            type: 'link',
+            url: link.url,
+            title: link.title,
+            skills: link.skills,
+            subject: link.subject,
+            level: link.level,
+            priority: link.priority,
+          },
+          position: 0,
+          pageNumber: null,
+          score: adjustedScore,
+          document: {
+            id: `link-${link.id}`,
+            filename: link.title,
+            ownerId: 'system',
+            subject: link.subject,
+            level: link.level,
+          },
+        };
+      });
+    } catch (error) {
+      console.error('[KnowledgeRetriever] searchLinks error:', error);
+      return [];
+    }
   }
 
   /**
@@ -204,29 +295,64 @@ export class KnowledgeRetriever {
 
   /**
    * Format retrieved chunks into context for LLM.
+   * Separates Links from text chunks for better LLM context.
    */
   formatForContext(chunks: ScoredChunk[], maxTokens: number = 2000): string {
-    const parts: string[] = [];
+    const textParts: string[] = [];
+    const linkParts: string[] = [];
     let totalLength = 0;
     const avgTokensPerChar = 0.25;  // Rough estimate
 
     for (const chunk of chunks) {
-      const chunkText = `[Source: ${chunk.document.filename}]\n${chunk.content}`;
+      // Format differently based on chunk type
+      const isLink = chunk.metadata?.type === 'link';
+
+      let chunkText: string;
+      if (isLink) {
+        // Format Links as external resources with URLs
+        chunkText = `[${chunk.metadata.title}](${chunk.metadata.url})`;
+        if (chunk.metadata.skills && chunk.metadata.skills.length > 0) {
+          chunkText += `\nTopics: ${chunk.metadata.skills.join(', ')}`;
+        }
+        const description = chunk.content.split('\nURL:')[0].split('\n').slice(1).join('\n').trim();
+        if (description) {
+          chunkText += `\nDescription: ${description}`;
+        }
+      } else {
+        // Format text chunks normally
+        chunkText = `[Source: ${chunk.document.filename}]\n${chunk.content}`;
+      }
+
       const estimatedTokens = chunkText.length * avgTokensPerChar;
 
       if (totalLength + estimatedTokens > maxTokens) {
         break;
       }
 
-      parts.push(chunkText);
+      if (isLink) {
+        linkParts.push(chunkText);
+      } else {
+        textParts.push(chunkText);
+      }
       totalLength += estimatedTokens;
     }
 
-    if (parts.length === 0) {
+    if (textParts.length === 0 && linkParts.length === 0) {
       return '';
     }
 
-    return `Relevant context from teaching materials:\n\n${parts.join('\n\n---\n\n')}`;
+    // Build context with sections
+    const sections: string[] = [];
+
+    if (textParts.length > 0) {
+      sections.push(`Relevant context from teaching materials:\n\n${textParts.join('\n\n---\n\n')}`);
+    }
+
+    if (linkParts.length > 0) {
+      sections.push(`Recommended external resources:\n\n${linkParts.join('\n\n')}`);
+    }
+
+    return sections.join('\n\n---\n\n');
   }
 }
 

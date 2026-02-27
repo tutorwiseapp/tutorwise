@@ -303,6 +303,12 @@ export class ContextResolver {
   /**
    * Determine knowledge sources and their priority.
    * Lower priority number = higher precedence.
+   *
+   * 3-Tier RAG Hierarchy:
+   * 1. User uploads (personalized materials)
+   * 2. Shared from tutors (collaborative materials)
+   * 3. Links (curated external resources)
+   * 4. Global (platform-wide knowledge base)
    */
   private resolveKnowledgeSources(
     session: SessionContext,
@@ -310,7 +316,7 @@ export class ContextResolver {
   ): KnowledgeSource[] {
     const sources: KnowledgeSource[] = [];
 
-    // Priority 1: User's own uploads (highest)
+    // Priority 1: User's own uploads (highest - most personalized)
     if (permissions.canAccessUserKnowledge) {
       sources.push({
         type: 'user_upload',
@@ -332,12 +338,21 @@ export class ContextResolver {
       }
     }
 
-    // Priority 3: Global platform resources (lowest)
+    // Priority 3: Curated Links (external resources like BBC Bitesize, Khan Academy)
+    if (permissions.canAccessGlobalKnowledge) {
+      sources.push({
+        type: 'global',
+        namespace: 'links',
+        priority: 3,
+      });
+    }
+
+    // Priority 4: Global platform resources (lowest - general knowledge base)
     if (permissions.canAccessGlobalKnowledge) {
       sources.push({
         type: 'global',
         namespace: 'global',
-        priority: 3,
+        priority: 4,
       });
     }
 

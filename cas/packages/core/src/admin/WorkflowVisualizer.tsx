@@ -26,9 +26,33 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { useQuery } from '@tanstack/react-query';
 
-// Agent configuration with colors, descriptions, roles, and responsibilities
-export const AGENTS = [
+// ============================================================================
+// Dynamic Workflow Fetching
+// ============================================================================
+
+/**
+ * Fetch workflow structure from API
+ * Single source of truth: PlanningGraph.ts
+ */
+async function fetchWorkflowStructure() {
+  const res = await fetch('/api/cas/workflow/structure');
+  if (!res.ok) {
+    throw new Error(`Failed to fetch workflow structure: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+// ============================================================================
+// Legacy AGENTS Array (for fallback only)
+// ============================================================================
+
+/**
+ * @deprecated This is kept only as fallback if API fails
+ * Dynamic fetching from PlanningGraph.ts is now the primary source
+ */
+const LEGACY_AGENTS = [
   {
     id: 'start',
     label: 'START',
@@ -40,19 +64,35 @@ export const AGENTS = [
     responsibilities: ['Set up workflow parameters', 'Validate input requirements', 'Initialize state'],
   },
   {
+    id: 'director',
+    label: 'Director',
+    color: '#7c3aed',
+    description: 'Strategic alignment: PROCEED/ITERATE/DEFER',
+    type: 'agent' as const,
+    purpose: 'Evaluate feature alignment with organizational vision, values, and strategic goals',
+    role: 'Strategic Alignment & Vision',
+    responsibilities: [
+      'Read organizational vision from .ai/0-tutorwise.md',
+      'Read strategic roadmap from .ai/1-roadmap.md',
+      'Evaluate feature alignment with core values',
+      'Assess resource priority based on roadmap status',
+      'Make GO/NO-GO decision: PROCEED, ITERATE, or DEFER',
+    ],
+  },
+  {
     id: 'planner',
     label: 'Planner',
     color: '#14b8a6',
-    description: 'Strategic decision: ITERATE/SUCCESS/REMOVE',
+    description: 'Sprint planning and roadmap alignment',
     type: 'agent' as const,
-    purpose: 'Make strategic decisions based on production data',
-    role: 'Strategic Decision Making',
+    purpose: 'Plan sprint and align with roadmap based on Director decision',
+    role: 'Sprint Planning & Roadmap Management',
     responsibilities: [
-      'Evaluate feature performance',
-      'Recommend: ITERATE, SUCCESS, or REMOVE',
-      'Update Jira with decisions',
-      'Plan next iteration if needed',
-      'Close workflow with final recommendation',
+      'Create sprint plan based on Director decision',
+      'Allocate resources according to priority',
+      'Align with strategic roadmap and timeline',
+      'Identify dependencies and risks',
+      'Set sprint goals and success metrics',
     ],
   },
   {
@@ -315,12 +355,15 @@ const nodeTypes: NodeTypes = {
   agent: AgentNode,
 };
 
-// Calculate initial layout
+/**
+ * @deprecated Use createNodesFromAgents() instead
+ * Kept for backward compatibility with saved layouts
+ */
 const createInitialNodes = (): Node[] => {
   const verticalSpacing = 150;
   const centerX = 400;
 
-  return AGENTS.map((agent, index) => ({
+  return LEGACY_AGENTS.map((agent, index) => ({
     id: agent.id,
     type: 'agent',
     position: {
@@ -335,19 +378,22 @@ const createInitialNodes = (): Node[] => {
       purpose: agent.purpose,
       role: agent.role,
       responsibilities: agent.responsibilities,
-      editable: false, // Agent nodes are not editable (defined in LangGraph)
+      editable: false,
     },
     draggable: true,
   }));
 };
 
-// Create initial edges
+/**
+ * @deprecated Use createEdgesFromWorkflow() instead
+ * Kept for backward compatibility with saved layouts
+ */
 const createInitialEdges = (): Edge[] => {
   const edges: Edge[] = [];
 
-  for (let i = 0; i < AGENTS.length - 1; i++) {
-    const currentAgent = AGENTS[i];
-    const nextAgent = AGENTS[i + 1];
+  for (let i = 0; i < LEGACY_AGENTS.length - 1; i++) {
+    const currentAgent = LEGACY_AGENTS[i];
+    const nextAgent = LEGACY_AGENTS[i + 1];
 
     edges.push({
       id: `${currentAgent.id}-${nextAgent.id}`,
@@ -436,10 +482,78 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
   executionState,
   editable = false,
 }) => {
+  // Fetch workflow structure dynamically
+  const {
+    data: workflowData,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ['workflow-structure'],
+    queryFn: fetchWorkflowStructure,
+    staleTime: 60 * 1000, // 60 seconds
+    refetchInterval: 90 * 1000, // Refetch every 90 seconds
+    refetchOnWindowFocus: true, // Auto-refresh when tab becomes active
+    retry: 2,
+  });
+
+  // Get agents from API or fallback to legacy
+  const agents = workflowData?.data?.nodes || LEGACY_AGENTS;
+  const workflowEdges = workflowData?.data?.edges || [];
+
+  // Helper to create nodes from current agents
+  const createNodesFromAgents = (agentList: any[]) => {
+    const verticalSpacing = 150;
+    const centerX = 400;
+
+    return agentList.map((agent: any, index: number) => ({
+      id: agent.id,
+      type: 'agent',
+      position: { x: centerX, y: index * verticalSpacing },
+      data: {
+        label: agent.label,
+        color: agent.color,
+        description: agent.description,
+        type: agent.type,
+        purpose: agent.purpose,
+        role: agent.role,
+        responsibilities: agent.responsibilities,
+        editable: false,
+      },
+      draggable: true,
+    }));
+  };
+
+  // Helper to create edges from workflow
+  const createEdgesFromWorkflow = (edgeList: any[]) => {
+    return edgeList.map((edge: any) => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      type: 'smoothstep',
+      animated: false,
+      style: { stroke: '#9ca3af', strokeWidth: 3 },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        color: '#9ca3af',
+        width: 15,
+        height: 15,
+      },
+      label: edge.label,
+      labelStyle: edge.label
+        ? { fill: '#ef4444', fontSize: 11, fontWeight: 600 }
+        : undefined,
+      labelBgStyle: edge.label
+        ? { fill: '#fee2e2', fillOpacity: 0.9 }
+        : undefined,
+    }));
+  };
+
   // Load saved layout or use defaults
   const savedLayout = loadLayout();
-  const initialNodes = savedLayout?.nodes || createInitialNodes();
-  const initialEdges = savedLayout?.edges || createInitialEdges();
+  const initialNodes = savedLayout?.nodes || createNodesFromAgents(agents);
+  const initialEdges = savedLayout?.edges || createEdgesFromWorkflow(workflowEdges);
 
   // Use ReactFlow hooks for state management
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -452,6 +566,28 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
   // Edit mode state
   const [editLabel, setEditLabel] = useState('');
   const [editDescription, setEditDescription] = useState('');
+
+  // Update nodes/edges when workflow data changes (dynamic sync)
+  useEffect(() => {
+    if (workflowData?.data) {
+      const newNodes = createNodesFromAgents(workflowData.data.nodes);
+      const newEdges = createEdgesFromWorkflow(workflowData.data.edges);
+
+      // Preserve saved positions if they exist
+      const savedLayout = loadLayout();
+      if (savedLayout?.nodes) {
+        const mergedNodes = newNodes.map(newNode => {
+          const savedNode = savedLayout.nodes.find((n: Node) => n.id === newNode.id);
+          return savedNode ? { ...newNode, position: savedNode.position } : newNode;
+        });
+        setNodes(mergedNodes);
+      } else {
+        setNodes(newNodes);
+      }
+
+      setEdges(newEdges);
+    }
+  }, [workflowData, setNodes, setEdges]);
 
   // Auto-save layout when nodes/edges change
   useEffect(() => {
@@ -534,6 +670,11 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
     setIsDrawerOpen(true);
   }, []);
 
+  // Manual sync workflow structure
+  const handleManualSync = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
   // Add annotation node
   const addAnnotationNode = useCallback(() => {
     const newNode: Node = {
@@ -591,10 +732,10 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
   const resetLayout = useCallback(() => {
     if (confirm('Reset to default layout? This will restore original positions.')) {
       localStorage.removeItem('cas-workflow-layout');
-      setNodes(createInitialNodes());
-      setEdges(createInitialEdges());
+      setNodes(createNodesFromAgents(agents));
+      setEdges(createEdgesFromWorkflow(workflowEdges));
     }
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, agents, workflowEdges]);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -625,7 +766,7 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
         <Controls showInteractive={false} />
         <MiniMap
           nodeColor={(node) => {
-            const agent = AGENTS.find((a) => a.id === node.id);
+            const agent = agents.find((a: any) => a.id === node.id);
             return agent?.color || node.data?.color || '#94a3b8';
           }}
           maskColor="rgba(0,0,0,0.1)"
@@ -638,7 +779,31 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
         {/* Toolbar */}
         <Panel position="top-left">
           <div style={{ background: 'white', borderRadius: '8px', padding: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {/* Manual Sync Button */}
+              <button
+                onClick={handleManualSync}
+                disabled={isFetching}
+                style={{
+                  padding: '8px 16px',
+                  background: isFetching ? '#9ca3af' : '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: isFetching ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>{isFetching ? '⏳' : '🔄'}</span>
+                <span>{isFetching ? 'Syncing...' : 'Sync Workflow'}</span>
+              </button>
+
+              {/* Add Note Button */}
               <button
                 onClick={addAnnotationNode}
                 style={{
@@ -658,6 +823,8 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
                 <span>📝</span>
                 <span>Add Note</span>
               </button>
+
+              {/* Reset Layout Button */}
               <button
                 onClick={resetLayout}
                 style={{
@@ -674,6 +841,40 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
                 Reset Layout
               </button>
             </div>
+
+            {/* Last Sync Indicator */}
+            {workflowData?.timestamp && !isLoading && (
+              <div style={{
+                marginTop: '8px',
+                fontSize: '11px',
+                color: '#6b7280',
+                textAlign: 'center',
+              }}>
+                Last synced: {new Date(workflowData.timestamp).toLocaleTimeString()}
+              </div>
+            )}
+
+            {/* Loading/Error States */}
+            {isLoading && (
+              <div style={{
+                marginTop: '8px',
+                fontSize: '11px',
+                color: '#f59e0b',
+                textAlign: 'center',
+              }}>
+                Loading workflow...
+              </div>
+            )}
+            {error && (
+              <div style={{
+                marginTop: '8px',
+                fontSize: '11px',
+                color: '#ef4444',
+                textAlign: 'center',
+              }}>
+                Failed to load workflow (using fallback)
+              </div>
+            )}
           </div>
         </Panel>
 
@@ -696,6 +897,8 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
             <div>• Click nodes to inspect</div>
             <div>• Add notes for annotations</div>
             <div>• Layout auto-saves</div>
+            <div>• Auto-syncs every 90 seconds</div>
+            <div>• Click "Sync Workflow" for instant update</div>
           </div>
         </Panel>
       </ReactFlow>
@@ -979,3 +1182,7 @@ export const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
     </div>
   );
 };
+
+// Export for backward compatibility
+export { LEGACY_AGENTS as AGENTS };
+export default WorkflowVisualizer;

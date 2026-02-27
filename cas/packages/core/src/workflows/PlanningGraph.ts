@@ -4,7 +4,7 @@
  * Orchestrates multi-agent feature development workflow using LangGraph.
  * Replaces legacy PlannerOrchestrator with state-driven routing.
  *
- * Workflow: Analyst → Developer → Tester → QA → Security → Engineer → Marketer → Planner
+ * Workflow: Director → Planner → Analyst → Developer → Tester → QA → Security → Engineer → Marketer
  *
  * Features:
  * - Conditional routing based on agent outcomes
@@ -26,6 +26,179 @@ import { security } from '../../../../agents/security/src/index';
 import { engineer } from '../../../../agents/engineer/src/engineer-agent';
 import { marketer } from '../../../../agents/marketer/src/index';
 import { planner } from '../../../../agents/planner/src/index';
+import { director } from '../../../../agents/director/src/index';
+
+// ============================================================================
+// Agent Metadata (for visualization and documentation)
+// ============================================================================
+
+/**
+ * Agent metadata for WorkflowVisualizer
+ * This is the SINGLE SOURCE OF TRUTH for agent properties
+ */
+export const AGENT_METADATA: Record<string, {
+  label: string;
+  color: string;
+  description: string;
+  type: 'trigger' | 'agent' | 'end';
+  purpose: string;
+  role: string;
+  responsibilities: string[];
+}> = {
+  start: {
+    label: 'START',
+    color: '#94a3b8',
+    description: 'Workflow initialization',
+    type: 'trigger',
+    purpose: 'Initialize the workflow and prepare the execution context',
+    role: 'Entry Point',
+    responsibilities: ['Set up workflow parameters', 'Validate input requirements', 'Initialize state'],
+  },
+  director: {
+    label: 'Director',
+    color: '#7c3aed',
+    description: 'Strategic alignment: PROCEED/ITERATE/DEFER',
+    type: 'agent',
+    purpose: 'Evaluate feature alignment with organizational vision, values, and strategic goals',
+    role: 'Strategic Alignment & Vision',
+    responsibilities: [
+      'Read organizational vision from .ai/0-tutorwise.md',
+      'Read strategic roadmap from .ai/1-roadmap.md',
+      'Evaluate feature alignment with core values',
+      'Assess resource priority based on roadmap status',
+      'Make GO/NO-GO decision: PROCEED, ITERATE, or DEFER',
+    ],
+  },
+  planner: {
+    label: 'Planner',
+    color: '#14b8a6',
+    description: 'Sprint planning and roadmap alignment',
+    type: 'agent',
+    purpose: 'Plan sprint and align with roadmap based on Director decision',
+    role: 'Sprint Planning & Roadmap Management',
+    responsibilities: [
+      'Create sprint plan based on Director decision',
+      'Allocate resources according to priority',
+      'Align with strategic roadmap and timeline',
+      'Identify dependencies and risks',
+      'Set sprint goals and success metrics',
+    ],
+  },
+  analyst: {
+    label: 'Analyst',
+    color: '#3b82f6',
+    description: 'Generate feature brief + Three Amigos kickoff',
+    type: 'agent',
+    purpose: 'Analyze requirements and create comprehensive feature specifications',
+    role: 'Requirements Analysis & Documentation',
+    responsibilities: [
+      'Generate detailed feature briefs',
+      'Conduct Three Amigos meetings (BA, Dev, QA)',
+      'Extract user stories and acceptance criteria',
+      'Define success metrics',
+      'Identify edge cases and constraints',
+    ],
+  },
+  developer: {
+    label: 'Developer',
+    color: '#8b5cf6',
+    description: 'Create development plan',
+    type: 'agent',
+    purpose: 'Design technical implementation and create development roadmap',
+    role: 'Technical Planning & Architecture',
+    responsibilities: [
+      'Create detailed development plans',
+      'Design system architecture',
+      'Identify technical dependencies',
+      'Estimate implementation complexity',
+      'Review technical feasibility',
+    ],
+  },
+  tester: {
+    label: 'Tester',
+    color: '#10b981',
+    description: 'Run tests - 95% coverage',
+    type: 'agent',
+    purpose: 'Execute automated tests and ensure quality standards',
+    role: 'Test Execution & Coverage',
+    responsibilities: [
+      'Run unit tests',
+      'Execute integration tests',
+      'Measure code coverage (target: 95%)',
+      'Generate test reports',
+      'Identify test failures and regressions',
+    ],
+  },
+  qa: {
+    label: 'QA',
+    color: '#f59e0b',
+    description: 'Quality review',
+    type: 'agent',
+    purpose: 'Perform comprehensive quality assurance and validation',
+    role: 'Quality Assurance & Validation',
+    responsibilities: [
+      'Review test results',
+      'Analyze code coverage metrics',
+      'Validate against acceptance criteria',
+      'Perform regression analysis',
+      'Approve or reject based on quality gates',
+    ],
+  },
+  security: {
+    label: 'Security',
+    color: '#ef4444',
+    description: 'Vulnerability scan (allows warnings ⚠️)',
+    type: 'agent',
+    purpose: 'Identify security vulnerabilities and ensure compliance',
+    role: 'Security Analysis & Compliance',
+    responsibilities: [
+      'Scan for security vulnerabilities',
+      'Check for code security issues',
+      'Validate authentication/authorization',
+      'Review data protection measures',
+      'Allow warnings, block only critical issues',
+    ],
+  },
+  engineer: {
+    label: 'Engineer',
+    color: '#6366f1',
+    description: 'Deploy to production',
+    type: 'agent',
+    purpose: 'Deploy to production environment and manage infrastructure',
+    role: 'Deployment & Infrastructure',
+    responsibilities: [
+      'Deploy to production environment',
+      'Manage infrastructure provisioning',
+      'Configure deployment pipelines',
+      'Monitor deployment health',
+      'Implement rollback capabilities',
+    ],
+  },
+  marketer: {
+    label: 'Marketer',
+    color: '#ec4899',
+    description: 'Analyze production metrics',
+    type: 'agent',
+    purpose: 'Monitor production performance and gather user feedback',
+    role: 'Analytics & Performance Monitoring',
+    responsibilities: [
+      'Collect production metrics',
+      'Analyze user behavior and feedback',
+      'Measure feature adoption',
+      'Track performance KPIs',
+      'Generate insights for iteration',
+    ],
+  },
+  end: {
+    label: 'END',
+    color: '#94a3b8',
+    description: 'Workflow complete',
+    type: 'end',
+    purpose: 'Finalize workflow execution and cleanup',
+    role: 'Exit Point',
+    responsibilities: ['Save final state', 'Generate completion report', 'Cleanup resources'],
+  },
+};
 
 // ============================================================================
 // State Definition
@@ -45,6 +218,7 @@ export const PlanningState = Annotation.Root({
   completedSteps: Annotation<string[]>,
 
   // Agent outputs
+  directorDecision: Annotation<any | null>,
   featureBrief: Annotation<string | null>,
   developmentPlan: Annotation<any | null>,
   testResults: Annotation<any | null>,
@@ -70,6 +244,24 @@ export type PlanningStateType = typeof PlanningState.State;
 // ============================================================================
 // Agent Tool Wrappers
 // ============================================================================
+
+/**
+ * Director Agent Tool - Makes strategic decision on feature alignment
+ */
+const directorTool = new DynamicStructuredTool({
+  name: 'director_strategic_decision',
+  description: 'Evaluates feature alignment with organizational vision, values, and strategic goals',
+  schema: z.object({
+    featureName: z.string(),
+    featureQuery: z.string(),
+    featureType: z.enum(['core-system', 'enhancement', 'innovation', 'polish']),
+  }),
+  func: async ({ featureName, featureQuery, featureType }) => {
+    console.log('[PlanningGraph] Director: Making strategic decision...');
+    const decision = director.makeStrategicDecision(featureQuery, featureType);
+    return decision;
+  },
+});
 
 /**
  * Analyst Agent Tool - Generates feature brief with contextual analysis
@@ -204,38 +396,40 @@ const engineerTool = new DynamicStructuredTool({
 });
 
 /**
- * Planner Agent Tool - Makes strategic decision
+ * Planner Agent Tool - Sprint planning and roadmap alignment
  */
 const plannerTool = new DynamicStructuredTool({
-  name: 'planner_decide',
-  description: 'Makes strategic decision based on production metrics',
+  name: 'planner_sprint_plan',
+  description: 'Plans sprint and aligns with roadmap based on Director decision',
   schema: z.object({
     featureName: z.string(),
-    productionMetrics: z.any(),
+    directorDecision: z.any(),
   }),
-  func: async ({ featureName, productionMetrics }) => {
-    console.log('[PlanningGraph] Planner: Making strategic decision...');
-    // Simulate strategic decision based on metrics
-    const adoption = productionMetrics?.metrics?.adoption || 0;
-    const errorRate = productionMetrics?.metrics?.errorRate || 0;
+  func: async ({ featureName, directorDecision }) => {
+    console.log('[PlanningGraph] Planner: Creating sprint plan...');
 
-    let recommendation;
-    if (adoption >= 80 && errorRate < 1) {
-      recommendation = 'SUCCESS - Feature is performing well';
-    } else if (adoption >= 50) {
-      recommendation = 'ITERATE - Feature needs improvement';
-    } else {
-      recommendation = 'REMOVE - Feature is not gaining traction';
-    }
+    const decision = directorDecision?.decision || 'PROCEED';
+    const priority = directorDecision?.priority?.priority || 'medium';
 
     return {
-      decision: recommendation,
-      confidence: adoption >= 80 ? 'high' : adoption >= 50 ? 'medium' : 'low',
-      nextSteps: adoption >= 80
-        ? ['Archive learnings', 'Celebrate success']
-        : adoption >= 50
-        ? ['Create iteration tasks', 'Address user feedback']
-        : ['Plan deprecation', 'Notify users'],
+      sprintPlan: {
+        featureName,
+        priority,
+        estimatedSprints: priority === 'critical' ? 1 : priority === 'high' ? 2 : 3,
+        resourceAllocation: priority === 'critical' ? 'full-team' : 'standard',
+        dependencies: [],
+        risks: directorDecision?.directives || [],
+      },
+      roadmapAlignment: {
+        strategicGoals: directorDecision?.alignment?.strategicGoalAlignment || [],
+        coreValues: directorDecision?.alignment?.coreValueAlignment || [],
+        alignmentScore: directorDecision?.alignment?.alignmentScore || 0,
+      },
+      nextSteps: [
+        'Proceed to Analyst for feature brief generation',
+        'Ensure patterns align with proven architecture',
+        'Track progress against sprint plan',
+      ],
     };
   },
 });
@@ -243,6 +437,43 @@ const plannerTool = new DynamicStructuredTool({
 // ============================================================================
 // Graph Node Functions
 // ============================================================================
+
+/**
+ * Director Node - Strategic decision on feature alignment
+ */
+async function directorNode(state: PlanningStateType): Promise<Partial<PlanningStateType>> {
+  console.log('[PlanningGraph] Executing Director Node...');
+
+  try {
+    // Infer feature type from context or default to 'enhancement'
+    const featureType = state.context?.featureType || 'enhancement';
+
+    const directorDecision = await directorTool.invoke({
+      featureName: state.featureName,
+      featureQuery: state.featureQuery,
+      featureType,
+    });
+
+    return {
+      currentStep: directorDecision.decision === 'DEFER' ? 'director_deferred' : 'director_approved',
+      directorDecision,
+      completedSteps: [...state.completedSteps, 'director'],
+      context: {
+        ...state.context,
+        directorDecision,
+      },
+    };
+  } catch (error: any) {
+    console.error('[PlanningGraph] Director node failed:', error);
+    return {
+      currentStep: 'director_failed',
+      metadata: {
+        ...state.metadata,
+        errors: [...state.metadata.errors, { step: 'director', error: error.message }],
+      },
+    };
+  }
+}
 
 /**
  * Analyst Node - Generate feature brief
@@ -477,24 +708,23 @@ async function engineerNode(state: PlanningStateType): Promise<Partial<PlanningS
 }
 
 /**
- * Planner Node - Make strategic decision
+ * Planner Node - Sprint planning and roadmap alignment
  */
 async function plannerNode(state: PlanningStateType): Promise<Partial<PlanningStateType>> {
   console.log('[PlanningGraph] Executing Planner Node...');
 
   try {
-    const finalRecommendation = await plannerTool.invoke({
+    const sprintPlan = await plannerTool.invoke({
       featureName: state.featureName,
-      productionMetrics: state.productionMetrics,
+      directorDecision: state.directorDecision,
     });
 
     return {
       currentStep: 'planner_complete',
-      finalRecommendation: JSON.stringify(finalRecommendation),
       completedSteps: [...state.completedSteps, 'planner'],
       context: {
         ...state.context,
-        finalRecommendation,
+        sprintPlan,
       },
     };
   } catch (error: any) {
@@ -512,6 +742,38 @@ async function plannerNode(state: PlanningStateType): Promise<Partial<PlanningSt
 // ============================================================================
 // Conditional Edge Functions
 // ============================================================================
+
+/**
+ * Route from Director based on strategic decision
+ */
+function routeFromDirector(state: PlanningStateType): string {
+  if (state.currentStep === 'director_failed') {
+    return END;
+  }
+
+  // Check director's decision
+  const decision = state.directorDecision?.decision;
+
+  if (decision === 'DEFER') {
+    console.log('[PlanningGraph] Director DEFERRED feature. Ending workflow.');
+    return END;
+  }
+
+  // PROCEED or ITERATE - go to Planner for sprint planning
+  return 'planner';
+}
+
+/**
+ * Route from Planner to Analyst
+ */
+function routeFromPlanner(state: PlanningStateType): string {
+  if (state.currentStep === 'planner_failed') {
+    return END;
+  }
+
+  // After planning, proceed to analysis
+  return 'analyst';
+}
 
 /**
  * Route from Analyst based on brief generation success
@@ -592,15 +854,15 @@ function routeFromSecurity(state: PlanningStateType): string {
 }
 
 /**
- * Route from Marketer to Planner
+ * Route from Marketer - final step
  */
 function routeFromMarketer(state: PlanningStateType): string {
   if (state.currentStep === 'marketer_failed') {
     return END;
   }
 
-  // Proceed to strategic decision
-  return 'planner';
+  // Marketer is the final step - workflow complete
+  return END;
 }
 
 /**
@@ -615,14 +877,6 @@ function routeFromEngineer(state: PlanningStateType): string {
   return 'marketer';
 }
 
-/**
- * Route from Planner - final step
- */
-function routeFromPlanner(state: PlanningStateType): string {
-  // Planner is the final step - workflow complete
-  return END;
-}
-
 // ============================================================================
 // Graph Builder
 // ============================================================================
@@ -635,7 +889,9 @@ export function buildPlanningGraph() {
   console.log('[PlanningGraph] Building planning graph...');
 
   const graph = new StateGraph(PlanningState)
-    // Add nodes - Phase 2: Full 8-agent workflow
+    // Add nodes - Phase 2: Full 9-agent workflow (added Director)
+    .addNode('director', directorNode)
+    .addNode('planner', plannerNode)
     .addNode('analyst', analystNode)
     .addNode('developer', developerNode)
     .addNode('tester', testerNode)
@@ -643,20 +899,20 @@ export function buildPlanningGraph() {
     .addNode('security', securityNode)
     .addNode('engineer', engineerNode)
     .addNode('marketer', marketerNode)
-    .addNode('planner', plannerNode)
 
-    // Define edges
-    .addEdge(START, 'analyst')
+    // Define edges - Top-down workflow
+    .addEdge(START, 'director')
+    .addConditionalEdges('director', routeFromDirector)
+    .addConditionalEdges('planner', routeFromPlanner)
     .addConditionalEdges('analyst', routeFromAnalyst)
     .addConditionalEdges('developer', routeFromDeveloper)
     .addConditionalEdges('tester', routeFromTester)
     .addConditionalEdges('qa', routeFromQA)
     .addConditionalEdges('security', routeFromSecurity)
     .addConditionalEdges('engineer', routeFromEngineer)
-    .addConditionalEdges('marketer', routeFromMarketer)
-    .addConditionalEdges('planner', routeFromPlanner);
+    .addConditionalEdges('marketer', routeFromMarketer);
 
-  console.log('[PlanningGraph] Graph built successfully with 8 agents');
+  console.log('[PlanningGraph] Graph built successfully with 9 agents (Director added)');
   return graph;
 }
 
@@ -677,6 +933,7 @@ export async function executePlanningWorkflow(input: {
     featureQuery: input.featureQuery,
     currentStep: 'started',
     completedSteps: [],
+    directorDecision: null,
     featureBrief: null,
     developmentPlan: null,
     testResults: null,
@@ -791,3 +1048,65 @@ export async function executePlanningWorkflow(input: {
  * // ['analyst', 'developer', 'tester', 'qa', 'security', 'engineer', 'marketer', 'planner']
  * ```
  */
+
+// ============================================================================
+// Workflow Introspection (for WorkflowVisualizer)
+// ============================================================================
+
+/**
+ * Get workflow structure for dynamic visualization
+ * This is the SINGLE SOURCE OF TRUTH for workflow structure
+ *
+ * Returns:
+ * - nodes: Array of agent nodes with metadata
+ * - edges: Array of edges between nodes
+ * - workflow: Ordered list of agent IDs
+ */
+export function getWorkflowStructure() {
+  // Define the workflow order (matches the actual graph structure)
+  const workflowOrder = [
+    'start',
+    'director',
+    'planner',
+    'analyst',
+    'developer',
+    'tester',
+    'qa',
+    'security',
+    'engineer',
+    'marketer',
+    'end',
+  ];
+
+  // Create nodes with metadata
+  const nodes = workflowOrder.map(nodeId => ({
+    id: nodeId,
+    ...AGENT_METADATA[nodeId],
+  }));
+
+  // Create edges based on workflow order
+  const edges = [];
+  for (let i = 0; i < workflowOrder.length - 1; i++) {
+    const source = workflowOrder[i];
+    const target = workflowOrder[i + 1];
+
+    edges.push({
+      id: `${source}-${target}`,
+      source,
+      target,
+      // Add special label for security edge
+      label: source === 'security' ? 'if no critical issues' : undefined,
+    });
+  }
+
+  return {
+    nodes,
+    edges,
+    workflow: workflowOrder,
+    metadata: {
+      totalAgents: workflowOrder.length - 2, // Exclude START and END
+      version: '2.0.0', // Director added
+      lastUpdated: new Date().toISOString(),
+    },
+  };
+}

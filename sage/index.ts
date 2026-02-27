@@ -109,6 +109,19 @@ export type {
   KnowledgeAccess,
 } from './knowledge';
 
+// --- Links (External Resources) ---
+export {
+  retrieveSageLinks,
+  addSageLink,
+  updateSageLink,
+  deleteSageLink,
+  getAllSageLinks,
+} from './links';
+
+export type {
+  SageLink,
+} from './links';
+
 // --- Upload ---
 export {
   DocumentProcessor,
@@ -154,6 +167,30 @@ export {
   type SageExtension,
   type ExtensionRegistry,
 } from './extensions';
+
+// --- Unified AI Agents ---
+export {
+  BaseAgent,
+  PlatformAIAgent,
+  MarketplaceAIAgent,
+  createAgent,
+  createSageAgent,
+  createPlatformAgent,
+} from './agents';
+
+export type {
+  AIAgent,
+  AIAgentType,
+  AIAgentContext,
+  AIAgentStatus,
+  AgentSession,
+  AgentMessage,
+  AgentCapability,
+  KnowledgeSource as AgentKnowledgeSource,
+  CreateAIAgentInput,
+  UpdateAIAgentInput,
+  AgentConfig,
+} from './agents/base/types';
 
 // --- CAS Integration ---
 export {
