@@ -59,7 +59,7 @@ const FEATURE_TESTS: FeatureStatus[] = [
     category: 'Infrastructure',
     customRuntime: 'available',
     langGraphRuntime: 'unavailable',
-    description: 'Redis/InMemory message bus for distributed execution'
+    description: 'N/A - LangGraph uses direct execution instead of pub/sub'
   },
   {
     name: 'Circuit Breaker',
@@ -72,8 +72,8 @@ const FEATURE_TESTS: FeatureStatus[] = [
     name: 'Retry Logic',
     category: 'Infrastructure',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Exponential backoff for transient errors'
+    langGraphRuntime: 'available',
+    description: 'Exponential backoff via RetryUtility - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Agent Registry',
@@ -88,29 +88,29 @@ const FEATURE_TESTS: FeatureStatus[] = [
     name: 'Single Task Execution',
     category: 'Task Execution',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Execute one agent task directly'
+    langGraphRuntime: 'available',
+    description: 'Execute one agent task directly - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Task Streaming',
     category: 'Task Execution',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Real-time progress updates via AsyncGenerator'
+    langGraphRuntime: 'available',
+    description: 'Real-time progress updates via AsyncGenerator - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Task Cancellation',
     category: 'Task Execution',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Cancel running tasks with cleanup'
+    langGraphRuntime: 'available',
+    description: 'Cancel running tasks with cleanup - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Progress Callbacks',
     category: 'Task Execution',
     customRuntime: 'available',
-    langGraphRuntime: 'partial',
-    description: 'Real-time progress reporting'
+    langGraphRuntime: 'available',
+    description: 'Real-time progress reporting - ✅ COMPLETED 2026-02-27'
   },
 
   // Workflow Orchestration
@@ -139,8 +139,8 @@ const FEATURE_TESTS: FeatureStatus[] = [
     name: 'Workflow Streaming',
     category: 'Workflow Orchestration',
     customRuntime: 'available',
-    langGraphRuntime: 'partial',
-    description: 'Stream workflow execution progress'
+    langGraphRuntime: 'available',
+    description: 'Stream workflow execution via LangGraph.stream() - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Conditional Routing',
@@ -163,7 +163,7 @@ const FEATURE_TESTS: FeatureStatus[] = [
     category: 'State Management',
     customRuntime: 'available',
     langGraphRuntime: 'unavailable',
-    description: 'Persist agent state to database'
+    description: 'N/A - LangGraph uses workflow checkpoints instead of custom agent state'
   },
   {
     name: 'Workflow State',
@@ -184,7 +184,7 @@ const FEATURE_TESTS: FeatureStatus[] = [
     category: 'State Management',
     customRuntime: 'available',
     langGraphRuntime: 'unavailable',
-    description: 'Reset agent state with audit trail'
+    description: 'N/A - LangGraph uses checkpoint versioning for state rollback'
   },
 
   // Observability
@@ -192,36 +192,36 @@ const FEATURE_TESTS: FeatureStatus[] = [
     name: 'Event Logging (DB)',
     category: 'Observability',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Persist events to cas_agent_events table'
+    langGraphRuntime: 'available',
+    description: 'Persist events to cas_agent_events & cas_workflow_events - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Metrics Collection',
     category: 'Observability',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Collect metrics to cas_metrics_timeseries'
+    langGraphRuntime: 'available',
+    description: 'Collect metrics to cas_metrics_timeseries - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Log Persistence',
     category: 'Observability',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Save logs to cas_agent_logs table'
+    langGraphRuntime: 'available',
+    description: 'Save logs to cas_agent_logs via onLog callbacks - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Event History',
     category: 'Observability',
     customRuntime: 'available',
-    langGraphRuntime: 'unavailable',
-    description: 'Query historical events with filtering'
+    langGraphRuntime: 'available',
+    description: 'Query historical events via SupabaseAdapter - ✅ COMPLETED 2026-02-27'
   },
   {
     name: 'Health Checks',
     category: 'Observability',
     customRuntime: 'available',
-    langGraphRuntime: 'partial',
-    description: 'Runtime and agent health monitoring'
+    langGraphRuntime: 'available',
+    description: 'Runtime and agent health monitoring - ✅ COMPLETED 2026-02-26'
   },
 ];
 

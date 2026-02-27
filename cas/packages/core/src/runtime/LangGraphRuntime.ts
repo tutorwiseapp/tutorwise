@@ -678,16 +678,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         executionId,
         'started',
         { workflow_type: workflowId, input }
-      );
-
-      // Publish workflow started event to message bus
-      await this.messageBus.publishTask({
-        taskId: executionId,
-        agentId: `workflow:${workflowId}`,
-        input: { event: 'workflow_started', workflow_type: workflowId, input },
-        metadata: { event_type: 'workflow_started', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      ).catch(err => console.error('Log failed:', err));
 
       // Save initial checkpoint
       await this.supabaseAdapter.saveCheckpoint(executionId, initialState);
@@ -715,29 +706,18 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
       // Save final checkpoint
       await this.supabaseAdapter.saveCheckpoint(executionId, result);
 
+      // Calculate execution time
+      const executionTimeMs = Date.now() - result.metadata.startedAt.getTime();
+
       // Log workflow completed event
       await this.supabaseAdapter.logWorkflowEvent(
         executionId,
         'completed',
         {
           completed_steps: result.metadata.completedSteps,
-          execution_time_ms: Date.now() - result.metadata.startedAt.getTime()
-        }
-      );
-
-      // Publish workflow completed event to message bus
-      const executionTimeMs = Date.now() - result.metadata.startedAt.getTime();
-      await this.messageBus.publishResult({
-        taskId: executionId,
-        agentId: `workflow:${workflowId}`,
-        result: {
-          status: 'completed',
-          completed_steps: result.metadata.completedSteps,
           execution_time_ms: executionTimeMs
-        },
-        metadata: { event_type: 'workflow_completed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+        }
+      ).catch(err => console.error('Log failed:', err));
 
       // Save metrics
       await this.supabaseAdapter.saveMetrics({
@@ -762,19 +742,7 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         executionId,
         'failed',
         { error: error.message }
-      );
-
-      // Publish workflow failed event to message bus
-      await this.messageBus.publishResult({
-        taskId: executionId,
-        agentId: `workflow:${workflowId}`,
-        result: {
-          status: 'failed',
-          error: error.message
-        },
-        metadata: { event_type: 'workflow_failed', timestamp: new Date() },
-        timestamp: new Date()
-      });
+      ).catch(err => console.error('Log failed:', err));
 
       throw error;
     }
@@ -1265,18 +1233,15 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
         console.warn(`[LangGraphRuntime] Task ${taskId} not in active tasks`);
       }
 
-      // Publish to message bus
-      await this.messageBus.publishCancellation(taskId);
-
       // Update database
       await this.supabaseAdapter.updateTaskStatus(taskId, 'cancelled');
 
-      // Log event
+      // Log event (non-blocking)
       await this.supabaseAdapter.logAgentEvent(
         'system',
         'task_cancelled',
         { task_id: taskId, timestamp: new Date().toISOString() }
-      );
+      ).catch(err => console.error('Log failed:', err));
 
       console.log(`[LangGraphRuntime] Task ${taskId} cancelled`);
     } catch (error: any) {
@@ -1391,9 +1356,127 @@ export class LangGraphRuntime implements AgentRuntimeInterface {
   }
 
   async *streamWorkflow(workflowId: string, input: any): AsyncGenerator<any> {
-    // Streaming not fully implemented - yield final result
-    const result = await this.executeWorkflow(workflowId, input);
-    yield { type: 'workflow_completed', result };
+    console.log(`[LangGraphRuntime] Streaming workflow: ${workflowId}`);
+
+    const workflow = this.workflows.get(workflowId);
+    if (!workflow) {
+      throw new Error(`Workflow not found: ${workflowId}`);
+    }
+
+    // Generate unique execution ID
+    const executionId = `${workflowId}-${Date.now()}`;
+
+    // Initialize workflow state
+    const initialState: WorkflowState = {
+      currentStep: START,
+      input,
+      agentResults: {},
+      context: {},
+      metadata: {
+        workflowId: executionId,
+        startedAt: new Date(),
+        completedSteps: [],
+        errors: []
+      }
+    };
+
+    try {
+      // Log workflow started event
+      await this.supabaseAdapter.logWorkflowEvent(
+        executionId,
+        'started',
+        { workflow_type: workflowId, input }
+      ).catch(err => console.error('Log failed:', err));
+
+      // Save initial checkpoint
+      await this.supabaseAdapter.saveCheckpoint(executionId, initialState)
+        .catch(err => console.error('Checkpoint save failed:', err));
+
+      // Yield workflow started event
+      yield {
+        type: 'workflow_started',
+        workflow_id: executionId,
+        workflow_type: workflowId,
+        timestamp: new Date()
+      };
+
+      // Stream events from LangGraph
+      const config = {
+        configurable: {
+          thread_id: executionId
+        }
+      };
+
+      // Use LangGraph's native streaming
+      for await (const event of workflow.stream(initialState, config)) {
+        // Save checkpoint for each state update
+        await this.supabaseAdapter.saveCheckpoint(executionId, event)
+          .catch(err => console.error('Checkpoint save failed:', err));
+
+        // Yield workflow update
+        yield {
+          type: 'workflow_update',
+          workflow_id: executionId,
+          current_step: event.currentStep,
+          agent_results: event.agentResults,
+          completed_steps: event.metadata?.completedSteps || [],
+          timestamp: new Date()
+        };
+      }
+
+      // Load final checkpoint
+      const finalCheckpoint = await this.supabaseAdapter.loadCheckpoint(executionId);
+      const finalState = finalCheckpoint?.state || initialState;
+
+      // Log workflow completed event
+      const executionTimeMs = Date.now() - finalState.metadata.startedAt.getTime();
+      await this.supabaseAdapter.logWorkflowEvent(
+        executionId,
+        'completed',
+        {
+          completed_steps: finalState.metadata.completedSteps,
+          execution_time_ms: executionTimeMs
+        }
+      ).catch(err => console.error('Log failed:', err));
+
+      // Save metrics
+      await this.supabaseAdapter.saveMetrics({
+        workflow_id: executionId,
+        metric_name: 'workflow_execution_time_ms',
+        metric_value: executionTimeMs,
+        metadata: { workflow_type: workflowId }
+      }).catch(err => console.error('Metrics save failed:', err));
+
+      // Yield final result
+      yield {
+        type: 'workflow_completed',
+        workflow_id: executionId,
+        status: 'completed',
+        agent_results: finalState.agentResults,
+        final_context: finalState.context,
+        execution_time_ms: executionTimeMs,
+        timestamp: new Date()
+      };
+    } catch (error: any) {
+      console.error(`[LangGraphRuntime] Workflow streaming failed:`, error);
+
+      // Log workflow failed event
+      await this.supabaseAdapter.logWorkflowEvent(
+        executionId,
+        'failed',
+        { error: error.message }
+      ).catch(err => console.error('Log failed:', err));
+
+      // Yield error event
+      yield {
+        type: 'workflow_failed',
+        workflow_id: executionId,
+        error: error.message,
+        timestamp: new Date()
+      };
+
+      throw error;
+    }
   }
 
   async getWorkflowStatus(workflowId: string): Promise<any> {
