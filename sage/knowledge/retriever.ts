@@ -18,6 +18,7 @@ import type {
 } from './types';
 import type { KnowledgeSource } from '../context';
 import type { SageLink } from '../links';
+import type { SageSubject, SageLevel } from '../types';
 
 // --- Retriever Class ---
 
@@ -123,13 +124,12 @@ export class KnowledgeRetriever {
       // Extract keywords from query
       const keywords = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
 
-      // Retrieve Links filtered by subject/level/skills
+      // Retrieve Links filtered by subject/level/query
       const links = await retrieveSageLinks({
+        query: query,
         subject: request.subject,
         level: request.level,
-        skills: keywords,
-        status: 'active',
-        limit: request.topK || 5,
+        topK: request.topK || 5,
       });
 
       if (!links || links.length === 0) {
@@ -159,23 +159,19 @@ export class KnowledgeRetriever {
           documentId: `link-${link.id}`,
           content: `${link.title}\n${link.description || ''}\nURL: ${link.url}`,
           metadata: {
-            type: 'link',
-            url: link.url,
-            title: link.title,
-            skills: link.skills,
-            subject: link.subject,
-            level: link.level,
-            priority: link.priority,
+            type: 'text',
+            heading: link.title,
+            topics: link.skills,
           },
           position: 0,
-          pageNumber: null,
+          pageNumber: undefined,
           score: adjustedScore,
           document: {
             id: `link-${link.id}`,
             filename: link.title,
             ownerId: 'system',
-            subject: link.subject,
-            level: link.level,
+            subject: link.subject as SageSubject | undefined,
+            level: link.level as SageLevel | undefined,
           },
         };
       });
@@ -304,17 +300,23 @@ export class KnowledgeRetriever {
     const avgTokensPerChar = 0.25;  // Rough estimate
 
     for (const chunk of chunks) {
-      // Format differently based on chunk type
-      const isLink = chunk.metadata?.type === 'link';
+      // Format differently based on chunk type (links have documentId starting with 'link-')
+      const isLink = chunk.documentId.startsWith('link-');
 
       let chunkText: string;
       if (isLink) {
         // Format Links as external resources with URLs
-        chunkText = `[${chunk.metadata.title}](${chunk.metadata.url})`;
-        if (chunk.metadata.skills && chunk.metadata.skills.length > 0) {
-          chunkText += `\nTopics: ${chunk.metadata.skills.join(', ')}`;
+        // Extract URL from content which has format: "Title\nDescription\nURL: <url>"
+        const urlMatch = chunk.content.match(/URL:\s*(.+)$/m);
+        const url = urlMatch ? urlMatch[1] : '';
+        const title = chunk.metadata.heading || chunk.document.filename;
+
+        chunkText = `[${title}](${url})`;
+        if (chunk.metadata.topics && chunk.metadata.topics.length > 0) {
+          chunkText += `\nTopics: ${chunk.metadata.topics.join(', ')}`;
         }
-        const description = chunk.content.split('\nURL:')[0].split('\n').slice(1).join('\n').trim();
+        const lines = chunk.content.split('\n');
+        const description = lines.slice(1, lines.length - 1).join('\n').trim();
         if (description) {
           chunkText += `\nDescription: ${description}`;
         }

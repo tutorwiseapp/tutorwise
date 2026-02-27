@@ -302,7 +302,7 @@ export class SageOrchestrator {
     const combinedContext = [ragContext, signaturePrompt].filter(Boolean).join('\n') || undefined;
 
     // Generate response using LLM provider with fallback chain
-    let responseContent: string;
+    let responseContent: string = '';
     let suggestions: string[] = [];
 
     const completionRequest = {
