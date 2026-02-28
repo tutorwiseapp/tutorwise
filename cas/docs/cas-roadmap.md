@@ -1,14 +1,14 @@
 # CAS Roadmap 2026-2030
-**Contextual Autonomous System** – AI-powered continuous delivery platform
-**Last updated**: February 15, 2026
-**Owner**: Michael Quan
-**Current Phase**: Phase 2 (Partial Automation & Intelligence)
+
+**Last Updated:** February 28, 2026
+**Owner:** Michael Quan
+**Current Phase:** Phase 3 (Reliability & Visibility)
 
 ---
 
 ## Vision
 
-Transform CAS from a TutorWise development tool into an AI-powered autonomous development environment that eliminates manual DevOps overhead, enabling developers to focus purely on building products while CAS handles orchestration, monitoring, and self-healing autonomously.
+Transform CAS from a TutorWise internal development tool into an AI-powered autonomous development environment that eliminates manual DevOps overhead, enabling developers to focus on building products while CAS handles orchestration, monitoring, and self-healing.
 
 **CAS** = Contextual intelligence + Autonomous execution + System-wide integration
 
@@ -16,444 +16,349 @@ Transform CAS from a TutorWise development tool into an AI-powered autonomous de
 
 ## Current Status (February 2026)
 
-### Autonomy Level: 45%
-- All 8 agents active (Security & Marketer activated Feb 13, 2026)
-- Hybrid mode fully operational
-- Documentation restructured & centralised paths
-- Sage fork from Lexi initiated – role-aware structure (Tutor/Agent/Client/Student) planned
-- Project detection, service orchestration, and basic health monitoring complete
+### What's Built
 
-### Active Agents
-| Agent | Status | Primary Function |
-|-------|--------|------------------|
-| Planner | Active | Task breakdown, sprint planning |
-| Analyst | Active | Requirements analysis, research |
-| Developer | Active | Code generation, implementation |
-| Tester | Active | Test creation, quality assurance |
-| QA | Active | Integration testing, bug verification |
-| Engineer | Active | Infrastructure, DevOps |
-| Security | Active | Vulnerability scanning, compliance |
-| Marketer | Active | Beta traction, analytics |
+- 9 autonomous agents with LangGraph StateGraph workflow
+- Admin dashboard at `/admin/cas` with 5 tabs (Overview, Agents, Feedback, Runtime, Metrics)
+- LangGraph runtime with circuit breaker and retry with backoff
+- Workflow visualizer with fullscreen demo execution
+- Integration bridges for Sage and Lexi feedback
+- Message bus with JSON envelope format
+- Event sourcing via `cas_agent_events`
+- 5 core database tables + 4 specialized agent tables
+- DSPy optimization pipeline (implemented, not yet executed)
 
-### Key Metrics
-- **Projects Managed:** 1 (TutorWise)
-- **Services Managed:** 18+ types
-- **AI Assistants:** 2 (Lexi, Sage)
-- **Platform Status:** Internal tool (production)
+### Agent Maturity
 
----
+| Level | Agents | Status |
+|-------|--------|--------|
+| **High** | Director, Planner, Analyst, Security, Marketer | Real data integration, production-ready |
+| **Medium** | Developer | Functional with some hardcoded outputs |
+| **Low** | Tester, QA, Engineer | Simulated/hardcoded results |
 
-## 2026 Roadmap
+### What's Not Built
 
-### Q1 2026 – Phase 2: Partial Automation & Intelligence
-**Target Autonomy:** 60%
-
-#### Core Infrastructure
-- [ ] Git commit auto-plan updater (real-time plan syncing)
-- [x] Lightweight message bus with standardised JSON envelope (shared with Sage/Lexi)
-- [x] Version/protocol field on message bus for future A2A/MCP compatibility
-- [x] Capability manifests for all 8 agents
-
-#### AI Integration
-- [x] OpenAI-compatible tool calling interface for internal actions
-- [ ] DSPy framework integration (optimised prompting for Lexi & Sage)
-- [ ] One-time ingestion pipeline for tutor/agent PowerPoint materials → Sage knowledge layer (pgvector)
-
-#### Intelligence Features
-- [ ] Predictive failure prevention using historical data (including role-specific student errors)
-- [ ] Weekly self-optimisation retrospective task
-- [ ] Pattern recognition in agent logs
-
-**Next Milestone (End Feb 2026):**
-- First auto-plan update from git commit
-- Standardised message envelope implementation
-- PowerPoint → pgvector seeding complete
+- CAS API service (runtime used directly)
+- Human approval gate + `cas_approval_requests` table
+- Reflection node (self-critique loop)
+- Real test execution (Tester returns simulated results)
+- Real CI/CD integration (Engineer returns simulated deploys)
+- DSPy scheduled execution
+- RBAC permission system for CAS
 
 ---
 
-### Q2 2026 – Phase 3: Reliability & Visibility
-**Target Autonomy:** 70%
+## Improvement Priorities
 
-#### Monitoring & Dashboards
-- [ ] CAS monitoring dashboard (real-time agent status, message history)
-- [ ] Lexi + Sage metrics by role (Tutor/Agent/Client/Student)
-- [ ] Service dependency graph visualisation
-- [ ] Alert management & routing
+### P1: Agent Hardening (High Impact)
 
-#### Guardrails & Security
-- [ ] Full predictive guardrails across all agents
-- [ ] Tutoring accuracy validation per role
-- [ ] Automated security gating in deployment pipeline
-- [ ] Compliance audit logging
+#### Tester Agent — Real Test Execution
 
-#### Analytics
-- [ ] Expanded analytics for Marketer agent:
-  - Beta traction metrics
-  - Referral/conversion tracking
-  - Sage usage by Tutor/Agent/Client/Student roles
-- [ ] Time-series data collection (InfluxDB integration)
-- [ ] Centralised provider cost dashboard (Lexi + Sage token usage)
-- [ ] AI accuracy monitoring (Lexi resolution rate + Sage curriculum accuracy)
+**Current:** Returns simulated results (`totalTests: 12, passedTests: 12, coverage: 95`)
+**Target:** Execute actual Jest/Vitest tests programmatically
+
+**Files:** `cas/agents/tester/src/tester-agent.ts`
+**Dependencies:** Jest (already in devDeps)
+
+```typescript
+async runTests(featureName: string, options?: { testPath?: string }): Promise<TestResults> {
+  const testPath = options?.testPath || `apps/web/src/**/*.test.{ts,tsx}`;
+  const { stdout, exitCode } = await execAsync(
+    `npx jest ${testPath} --coverage --coverageReporters=json-summary --json --forceExit`,
+    { cwd: this.projectRoot, timeout: 120_000 }
+  );
+  const jestResult = JSON.parse(stdout);
+  return {
+    passed: jestResult.success,
+    totalTests: jestResult.numTotalTests,
+    passedTests: jestResult.numPassedTests,
+    failedTests: jestResult.numFailedTests,
+    coverage: coverageSummary.total.lines.pct,
+    failures: jestResult.testResults.filter(r => r.status === 'failed'),
+  };
+}
+```
+
+#### QA Agent — Acceptance Criteria Validation
+
+**Current:** Threshold-based report (coverage >= 90 => approved)
+**Target:** Validate against acceptance criteria from Analyst's feature brief + regression detection
+
+**Files:** `cas/agents/qa/src/qa-agent.ts`
+**Dependencies:** `cas_agent_events` table for historical test data
+
+```typescript
+async performQAReview(featureName: string, testResults: TestResults, acceptanceCriteria?: string[]): Promise<QAReport> {
+  const previousRun = await this.getPreviousTestRun(featureName);
+  const regressions = this.detectRegressions(testResults, previousRun);
+  const criteriaGaps = this.validateAcceptanceCriteria(testResults, acceptanceCriteria);
+  return {
+    decision: regressions.length === 0 && criteriaGaps.length === 0 ? 'APPROVED' : 'REJECTED',
+    regressions, criteriaGaps, coverageReport: { ... },
+  };
+}
+```
+
+### P2: Workflow Intelligence (High Impact)
+
+#### Reflection Node
+
+**Purpose:** Post-agent self-critique loop. After Developer, Tester, or QA executes, evaluate output quality and optionally trigger re-execution.
+
+**Flow:**
+```
+Developer → reflectionNode → (quality < 0.7 && retries < 2) → Developer (retry)
+                            → (quality >= 0.7) → Tester
+```
+
+**Files:** New `cas/packages/core/src/workflows/reflection.ts`, update `PlanningGraph.ts`
+
+#### Human Approval Gate
+
+**Purpose:** Pause workflow between Security and Engineer for human approval.
+
+**Flow:**
+```
+Security → humanApprovalGate → (approved) → Engineer
+                              → (rejected/timeout) → END
+```
+
+**Requires:**
+- New `cas_approval_requests` table (migration)
+- Admin UI at `/admin/cas/approvals/` (approve/reject buttons)
+- Supabase Realtime subscription for live updates
+- Notification system (Slack webhook or email)
+
+**Files:** New `cas/packages/core/src/workflows/approval-gate.ts`, migration, update `PlanningGraph.ts`
+
+#### Engineer Agent — Build Verification
+
+**Current:** Simulated deploy with `setTimeout`
+**Target:** At minimum verify `npm run build` succeeds before "deploying"
+
+**Files:** `cas/agents/engineer/src/engineer-agent.ts`
+
+### P3: Intelligence & Optimization (Medium Impact)
+
+#### Developer Agent — LLM-Powered Planning
+
+**Current:** String-matching feasibility review, hardcoded task list
+**Target:** Use Gemini to generate implementation plans from feature briefs
+
+**Files:** `cas/agents/developer/src/index.ts`, update PlanningGraph `developerTool`
+**Dependencies:** `GOOGLE_AI_API_KEY` (already available)
+
+#### Admin Approval UI
+
+**Purpose:** Allow admins to approve/reject deployment requests from the CAS dashboard.
+
+**Location:** `apps/web/src/app/(admin)/admin/cas/approvals/`
+**Components:** ApprovalRequestCard, ApprovalRequestList, ApprovalHistory
+
+#### DSPy Scheduling
+
+**Current gaps:**
+- `output/` is empty — no optimization has ever been run
+- Only 3 of 6 Sage session goal signatures exist (missing: practice, review, homework_help)
+- No Lexi signatures
+- No automated scheduling
+
+**Action items:**
+1. Create GitHub Actions workflow for weekly DSPy runs
+2. Seed `ai_feedback` table with minimum 10 examples per signature
+3. Create missing DSPy signatures in `cas/optimization/signatures/`
+4. Run initial optimization: `python cas/optimization/run_dspy.py --agent sage --all --dry-run`
+
+### P4: Full Automation (Lower Priority)
+
+#### Engineer — Full CI/CD Integration
+
+Trigger actual Vercel deployments or GitHub Actions workflows instead of simulated deploys.
+
+**Dependencies:** `VERCEL_TOKEN` or GitHub Actions API token
+
+#### Missing DSPy Signatures
+
+Create `PracticeModule`, `ReviewModule`, `HomeworkHelpModule` for Sage and `HelpArticleModule`, `TroubleshootModule` for Lexi.
 
 ---
 
-### Q3-Q4 2026 – Phase 4: Full Autonomy & Ecosystem
+## Priority Summary
+
+| Priority | Item | Effort | Impact |
+|----------|------|--------|--------|
+| **P1** | Tester: Real test execution | Medium | High — stops fake results flowing through pipeline |
+| **P1** | QA: Acceptance criteria validation | Medium | High — real quality gates |
+| **P2** | Engineer: Build verification | Low | Medium — at least verify builds |
+| **P2** | Reflection node (Developer + Tester) | Medium | High — self-improving output quality |
+| **P2** | Human approval gate + DB migration | Medium | High — production safety |
+| **P3** | Admin approval UI | Medium | Medium — needed for human gate |
+| **P3** | Developer: LLM-powered planning | Medium | Medium — better plans |
+| **P3** | DSPy GitHub Actions scheduling | Low | Medium — automated optimization |
+| **P4** | Engineer: Full Vercel/GH Actions integration | High | Medium — deployment automation |
+| **P4** | DSPy: Missing signatures | Medium | Low — needs training data first |
+
+---
+
+## Cross-Agent Coordination
+
+### Current Data Flow
+
+```
+Director → reads .ai/ docs → PROCEED/ITERATE/DEFER
+    ↓
+Planner → Director decision → sprint plan
+    ↓
+Analyst → feature brief → brief + Three Amigos
+    ↓
+Developer → brief → feasibility + plan
+    ↓
+Tester → feature name → test results (SIMULATED)
+    ↓
+QA → test results → quality report (BASIC)
+    ↓
+Security → independent scan → vulnerability report (REAL)
+    ↓
+Engineer → security approval → deploy status (SIMULATED)
+    ↓
+Marketer → feature name → production report (PARTIALLY REAL)
+```
+
+### Planned Coordination Improvements
+
+| From | To | Data to Share | Purpose |
+|------|-----|---------------|---------|
+| Analyst | Tester | Acceptance criteria | Generate test cases from criteria |
+| Developer | Tester | File paths, changed components | Focus test scope |
+| Marketer | Director | Production metrics, feedback | Director reviews for CONTINUE/ITERATE/DEPRECATE |
+| Director | Planner | Strategic decision | Planner adjusts sprint from Director feedback |
+
+---
+
+## Quarterly Roadmap
+
+### Q1 2026 — Completed
+
+- [x] 9 agents active with LangGraph workflow
+- [x] Admin dashboard with 5 tabs
+- [x] Runtime abstraction (LangGraph only, CustomRuntime removed)
+- [x] Circuit breaker and retry with backoff
+- [x] Workflow visualizer with fullscreen mode
+- [x] Integration bridges (Sage + Lexi)
+- [x] Message bus with JSON envelope
+- [x] Event sourcing database schema
+- [x] DSPy pipeline implemented (not yet executed)
+- [ ] Git commit auto-plan updater
+- [ ] DSPy first optimization run
+
+### Q2 2026 — Phase 3: Reliability & Visibility
+
+**Target:** Agent hardening + real test/QA pipeline
+
+- [ ] Tester: Real Jest/Vitest execution (P1)
+- [ ] QA: Acceptance criteria validation + regression detection (P1)
+- [ ] Engineer: Build verification (P2)
+- [ ] Reflection node for Developer + Tester (P2)
+- [ ] Human approval gate with `cas_approval_requests` table (P2)
+- [ ] Admin approval UI at `/admin/cas/approvals/` (P3)
+- [ ] DSPy first optimization run with seeded data (P3)
+- [ ] Expanded Marketer analytics (referral/conversion tracking)
+- [ ] Role-based Sage/Lexi metrics
+
+### Q3-Q4 2026 — Phase 4: Full Autonomy
+
 **Target Autonomy:** 85%
 
-#### Autonomous Operations
+- [ ] Developer: LLM-powered planning with Gemini (P3)
+- [ ] DSPy GitHub Actions weekly scheduling (P3)
+- [ ] Missing DSPy signatures (practice, review, homework_help) (P4)
+- [ ] Engineer: Full Vercel/GitHub Actions CI/CD (P4)
+- [ ] Predictive failure prevention using historical data
+- [ ] Self-healing workflows (auto-fix recurring patterns)
+- [ ] Intelligent retry with exponential backoff (circuit breaker exists, expand coverage)
 - [ ] Near-zero human orchestration (agents self-assign and execute)
-- [ ] Self-healing workflows (auto-fix recurring blocker patterns)
-- [ ] Tutoring pattern auto-correction by role
-- [ ] Intelligent retry with exponential backoff
-- [ ] Auto-restart failed services
 
-#### Ecosystem & Extensibility
-- [ ] Public plugin system for community/third-party agents
-- [ ] Sage role/subject extensions API
-- [ ] Integration marketplace foundation
+### 2027 — Phase 5: AI-Powered Platform
 
-#### Advanced Features
-- [ ] Multimodal monitoring (voice summaries, visual dashboards)
-- [ ] AI-powered root cause analysis (Claude API integration)
-- [ ] Natural language error explanations
-- [ ] Prepare for external A2A protocols (MCP/A2A spec compatibility)
-
----
-
-## 2027+ Vision
-
-### Phase 5: AI-Powered Platform (2027)
 **Target Autonomy:** 95%
 
-#### Advanced AI Capabilities
-- Natural language interface: "CAS, optimise my API for traffic spike"
-- Automatic performance tuning (cache strategies, query optimisation)
-- Security vulnerability auto-patching
-- Cost optimisation (auto-scale, resource right-sizing)
-- Predictive development workflow (detect issues pre-deploy)
+- [ ] Natural language interface: "CAS, optimise my API for traffic spike"
+- [ ] Automatic performance tuning (cache strategies, query optimisation)
+- [ ] Security vulnerability auto-patching
+- [ ] Multi-environment orchestration (dev/staging/prod)
+- [ ] Configuration drift detection
+- [ ] Reinforcement learning for optimal strategies
+- [ ] RBAC permission system (`cas.view`, `cas.control`, `cas.configure`, `cas.admin`)
+- [ ] CAS API service (Express + TypeScript) if needed
 
-#### Multi-Environment Orchestration
-- Manage dev/staging/prod environments
-- Configuration drift detection
-- Safe deployment pipelines with automatic rollback
-- Environment parity enforcement
+### 2028+ — Phase 6: Platform Evolution
 
-#### Self-Learning System
-- Reinforcement learning loop for optimal strategies
-- Auto-tune monitoring thresholds
-- A/B test recovery strategies
-- Learn from entire TutorWise usage patterns
-
----
-
-### Phase 6: Platform Evolution (2028+)
 **Target Autonomy:** 99%
 
-#### Platform Options
 If CAS proves valuable beyond TutorWise:
 - **Option A:** Open-source CAS Agent (community tool)
 - **Option B:** CAS Cloud Dashboard (SaaS offering)
 - **Option C:** Plugin marketplace with revenue sharing
 
-#### Advanced Platform Features (if pursued)
-- Multi-tenant architecture
-- Team collaboration features
-- REST & GraphQL APIs
-- SSO/SAML authentication
-- Multi-cloud orchestration (AWS/GCP/Azure abstraction)
+Features if pursued: multi-tenant architecture, REST/GraphQL APIs, SSO/SAML, multi-cloud orchestration.
 
 ---
 
-## Fuschia-Inspired Features
-
-Patterns from the [Fuschia](https://github.com/fuschiaapp123/fuschia) enterprise automation platform that could enhance CAS, Lexi, and Sage.
-
-### LangGraph State Machines (Q3 2026)
-**Source:** Fuschia's workflow orchestration
-
-Replace file-based agent coordination with explicit state machines:
-
-```python
-# Target: CAS agent workflow as LangGraph
-class DevWorkflow(StateGraph):
-    nodes: [planner, developer, tester, reviewer]
-    edges: planner → developer → tester → reviewer
-    conditionals: retry on failure, escalate on block
-```
-
-**Benefits:**
-- [ ] Explicit state transitions (vs implicit file-based)
-- [ ] Built-in retry/fallback logic
-- [ ] Visual debugging of agent workflows
-- [ ] Easier to add new agents to pipeline
-
-**Effort:** Medium (Python addition to TypeScript CAS)
-
----
-
-### MCP Tool Protocol (Q1 2026)
-**Source:** Fuschia's ServiceNow MCP integration
-
-Standardised tool calling for school management systems:
-
-```typescript
-const schoolTools = {
-  "get_student_timetable": (studentId) => { ... },
-  "check_homework_deadline": (classId) => { ... },
-  "notify_parent": (studentId, message) => { ... },
-  "log_intervention": (studentId, topic, action) => { ... }
-};
-```
-
-**Benefits:**
-- [ ] Standard protocol (OpenAI-compatible)
-- [ ] Easy to add new integrations
-- [ ] Aligns with A2A/MCP roadmap items
-
-**Effort:** Low (already in Q1 roadmap)
-
----
-
-### Neo4j Hybrid Knowledge Graph (2027+)
-**Source:** Fuschia's graph-based knowledge management
-**Decision:** Use existing `profile_graph` table instead of Neo4j
-
-TutorWise already has relationship capabilities via `profile_graph`:
-
-```typescript
-// Existing profile_graph usage (sage/services/access-control.ts)
-const relationships = await supabase
-  .from('profile_graph')
-  .select('source_profile_id, target_profile_id, relationship_type')
-  .or(`source_profile_id.eq.${userId},target_profile_id.eq.${userId}`)
-  .eq('status', 'ACTIVE');
-
-// Relationship types: TUTOR, AGENT, GUARDIAN, STUDENT
-```
-
-**Mapping Neo4j patterns → profile_graph:**
-| Neo4j Pattern | profile_graph Implementation |
-|---------------|------------------------------|
-| `(Student)-[:LEARNS_FROM]->(Tutor)` | `relationship_type: 'TUTOR'` ✅ |
-| `(Student)-[:HAS_ACCESS_TO]->(Material)` | AccessControlService ✅ |
-| `(Tutor)-[:TEACHES]->(Subject)` | Extend `tutor_profiles.subjects` |
-| `(Student)-[:STRUGGLES_WITH]->(Topic)` | Add to `student_learning_progress` |
-
-**Benefits:**
-- [ ] Traverse relationships for recommendations
-- [ ] "Students who struggled with X also struggled with Y"
-- [ ] Tutor network effects
-- [ ] Knowledge gap pattern detection
-
-**Effort:** Low (extend existing tables, no new DB)
-
----
-
-### Visual Workflow Builder (Q2 2026 - Sage)
-**Source:** Fuschia's ReactFlow drag-and-drop designer
-
-Enable tutors to build visual lesson flows:
-
-```
-[Warm-up Quiz] → [Concept Explanation] → [Practice] → [Assessment]
-      ↓                   ↓                  ↓              ↓
-  Sage: generate     Sage: explain     Sage: problems   Sage: mark
-```
-
-**Benefits:**
-- [ ] No-code lesson design for tutors
-- [ ] Reusable lesson templates
-- [ ] Visual progress tracking
-- [ ] Shareable workflows
-
-**Effort:** Medium (ReactFlow + Sage orchestrator)
-
----
-
-### Integration Priority
-
-| Feature | Target | Value | Effort | Priority |
-|---------|--------|-------|--------|----------|
-| MCP Tool Protocol | Q1 2026 | High | Low | **Now** |
-| Visual Lesson Builder | Q2 2026 | High | Medium | **Next** |
-| LangGraph State Machines | Q3 2026 | Medium | Medium | Planned |
-| profile_graph Extensions | Q2 2026 | Medium | Low | **Next** |
-
----
-
-### Shared Architecture Pattern
-#### Recommended Hybrid:
-
-┌─────────────────────────────────────────────────────────────────┐
-│                    TutorWise + Fuschia Patterns                  │
-├─────────────────────────────────────────────────────────────────┤
-│  FROM FUSCHIA:                                                   │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │ ReactFlow   │  │  LangGraph  │  │    MCP      │              │
-│  │ (Lessons)   │  │  (CAS Dev)  │  │  (Schools)  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│         ↓                ↓                ↓                      │
-├─────────────────────────────────────────────────────────────────┤
-│  TUTORWISE CORE (Keep):                                          │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │ Role-Aware  │  │  Knowledge  │  │    DSPy     │              │
-│  │  Personas   │  │ Partitions  │  │ Optimisation│              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │ Lexi↔Sage   │  │  pgvector   │  │  Message    │              │
-│  │  Handoff    │  │    RAG      │  │    Bus      │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-└─────────────────────────────────────────────────────────────────┘
-
----
-
-### Decision: Extend existing profile_graph rather than adding Neo4j
-
-Aspect	Neo4j Approach	profile_graph Approach
-Effort	High (new DB)	Low (extend existing)
-Complexity	Migration required	Already integrated
-Timeline	2027+	Q2 2026
-Dependencies	Supabase + Neo4j	Supabase only
-What's already working:
-
-TUTOR relationship → LEARNS_FROM pattern
-AccessControlService → HAS_ACCESS_TO pattern
-Relationship queries in sage/services/access-control.ts
-Extensions needed:
-
-Add TEACHES via tutor_profiles.subjects
-Add STRUGGLES_WITH via student_learning_progress table
-Pattern detection queries for recommendations
-Pushed to GitHub: 2fc91e18
-
----
-
-
-1. **Single source of truth:** Markdown plans in `/cas/agents/*/planning/`
-2. **Continuous flow:** No sprints – weekly milestones only
-3. **Human-in-the-loop:** Only for strategy & final approval
-4. **Leverage TutorWise stack:** Supabase, Ably, pgvector, DSPy
-5. **Light future-proofing:** Standardised messages, capability manifests, OpenAI tool interface
-6. **Iterative approach:** Start simple, add complexity only when proven necessary
-
----
-
-## Technical Stack Evolution
+## Technical Stack
 
 ### Current (2026)
+
 | Layer | Technology |
 |-------|------------|
-| Language | TypeScript, Bash |
-| Storage | JSON files, Supabase (PostgreSQL) |
+| Language | TypeScript (primary), Python (DSPy) |
+| Database | Supabase (PostgreSQL) |
 | Vectors | pgvector |
-| Real-time | Ably |
-| AI | Claude API, Gemini API |
-| Monitoring | Custom health checks |
+| Real-time | Supabase Realtime |
+| AI | Gemini API, Claude API, DeepSeek |
+| Workflow | LangGraph (StateGraph) |
+| Resilience | CircuitBreaker, RetryUtility |
+| Monitoring | Admin dashboard, event sourcing |
 
 ### Target (2027)
+
 | Layer | Technology |
 |-------|------------|
-| Language | TypeScript (primary), Python (ML/DSPy) |
-| Storage | Supabase, InfluxDB (metrics) |
-| Vectors | pgvector (with DSPy optimisation) |
-| Real-time | Ably, WebSockets |
-| AI | Claude API, DSPy pipelines |
-| Monitoring | Prometheus, custom dashboard |
+| Metrics | InfluxDB or Prometheus (time-series) |
+| Observability | LangSmith (already integrated) |
+| Optimization | DSPy pipelines (weekly automated) |
+| CI/CD | Vercel API + GitHub Actions |
 
 ---
 
 ## Key Performance Indicators
 
 ### Technical KPIs
+
 | Metric | Current | Q2 2026 | Q4 2026 | 2027 |
 |--------|---------|---------|---------|------|
-| Autonomy Level | 45% | 60% | 85% | 95% |
-| MTTR (Mean Time To Recovery) | 15 min | 5 min | 1 min | 10 sec |
-| Uptime SLA | 95% | 99% | 99.5% | 99.9% |
-| Issues Prevented | 10% | 50% | 80% | 95% |
-| Manual Interventions/Week | 8 | 3 | 1 | 0.1 |
+| Autonomy Level | 55% | 70% | 85% | 95% |
+| Agent uptime | 95% | 99% | 99.5% | 99.9% |
+| Manual interventions/week | 5 | 2 | 1 | 0.1 |
+| Feedback → task conversion | 60% | 80% | 90% | 95% |
 
 ### Agent Performance KPIs
+
 | Metric | Current | Target |
 |--------|---------|--------|
 | Plan accuracy | 70% | 95% |
 | Task completion rate | 80% | 98% |
 | Self-healing success | 30% | 90% |
-| Cross-agent coordination | Manual | Autonomous |
+| Cross-agent coordination | Partial | Autonomous |
+| Real test execution | 0% (simulated) | 100% |
 
 ---
 
-## Architecture Overview
+## Related Documents
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CAS Platform                              │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │   Planner   │  │   Analyst   │  │  Developer  │              │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘              │
-│         │                │                │                      │
-│  ┌──────┴────────────────┴────────────────┴──────┐              │
-│  │              Message Bus (JSON Envelope)       │              │
-│  │         + Capability Manifests + A2A Ready     │              │
-│  └──────┬────────────────┬────────────────┬──────┘              │
-│         │                │                │                      │
-│  ┌──────┴──────┐  ┌──────┴──────┐  ┌──────┴──────┐              │
-│  │   Tester    │  │   Engineer  │  │   Security  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│                                                                  │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │     QA      │  │  Marketer   │  │  Dashboard  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-├─────────────────────────────────────────────────────────────────┤
-│                    AI Assistants                                 │
-│  ┌─────────────────────────┐  ┌─────────────────────────┐       │
-│  │         Lexi            │  │          Sage           │       │
-│  │   (General Assistant)   │  │    (AI Tutor - Roles)   │       │
-│  │                         │  │  Tutor/Agent/Client/    │       │
-│  │                         │  │       Student           │       │
-│  └─────────────────────────┘  └─────────────────────────┘       │
-├─────────────────────────────────────────────────────────────────┤
-│                    Infrastructure                                │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │ Supabase │  │ pgvector │  │   Ably   │  │   DSPy   │        │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
-└─────────────────────────────────────────────────────────────────┘
-```
+- [CAS Architecture](cas-solution-design.md) — Current architecture reference
+- [Intent-Based Development](intent-based-development.md) — How CAS implements autonomous development
+- [LangGraph Migration Plan](LANGGRAPH_MIGRATION_PLAN.md) — Migration details (completed)
 
 ---
 
-## Appendix: Feature Checklist
-
-### Q1 2026 Features
-- [ ] Git commit auto-plan updater
-- [x] Message bus JSON envelope
-- [x] Capability manifests (8 agents)
-- [x] OpenAI-compatible tool interface
-- [ ] DSPy framework integration
-- [ ] PowerPoint → pgvector pipeline
-- [ ] Predictive failure prevention
-- [ ] Weekly self-optimisation task
-- [x] A2A/MCP protocol fields
-
-### Q2 2026 Features
-- [ ] CAS monitoring dashboard
-- [ ] Role-based Sage/Lexi metrics
-- [ ] Predictive guardrails
-- [ ] Automated security gating
-- [ ] Marketer analytics expansion
-- [ ] Time-series data collection
-
-### Q3-Q4 2026 Features
-- [ ] Agent self-assignment
-- [ ] Self-healing workflows
-- [ ] Plugin system foundation
-- [ ] Multimodal monitoring
-- [ ] AI root cause analysis
-- [ ] A2A protocol compatibility
-
----
-
-**Document Version:** 2.0.0
-**Supersedes:** cas/docs/guides/cas-roadmap.md, docs/project-management/autonomous-ai-system-summary.md
-**Next Review:** April 2026
+**END OF DOCUMENT**
