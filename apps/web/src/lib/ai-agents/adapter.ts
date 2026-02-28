@@ -109,7 +109,7 @@ export async function createAIAgent(
 
   if (!isPlatformOwned) {
     const { data: canCreate, error: limitError } = await supabase
-      .rpc('check_ai_tutor_limit', { p_user_id: userId })
+      .rpc('check_ai_agent_limit', { p_user_id: userId })
       .single();
 
     if (limitError) {
@@ -145,7 +145,7 @@ export async function createAIAgent(
   if (error) throw error;
 
   if (input.skills && input.skills.length > 0) {
-    const { error: skillsError } = await supabase.from('ai_tutor_skills').insert(
+    const { error: skillsError } = await supabase.from('ai_agent_skills').insert(
       input.skills.map((skill: string) => ({
         agent_id: agent.id,
         skill_name: skill,
@@ -290,7 +290,7 @@ export async function getAIAgentSkills(agentId: string): Promise<Skill[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutor_skills')
+    .from('ai_agent_skills')
     .select('skill_name, is_custom')
     .eq('agent_id', agentId);
 

@@ -162,7 +162,7 @@ async function hybridSearch(
   if (searchAITutors) {
     // AI Tutors
     searchPromises.push(
-      supabase.rpc('search_ai_tutors_hybrid', {
+      supabase.rpc('search_ai_agents_hybrid', {
         query_embedding: embeddingParam,
         filter_subjects: filters.subjects?.length ? filters.subjects : null,
         filter_min_price: filters.min_price || null,

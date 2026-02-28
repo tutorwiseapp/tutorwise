@@ -510,16 +510,16 @@ export async function POST(req: NextRequest) {
 
           // Upsert ai_tutor_subscriptions record
           const { error: upsertError } = await supabase
-            .from('ai_tutor_subscriptions')
+            .from('ai_agent_subscriptions')
             .upsert({
-              ai_tutor_id: aiTutorId,
+              agent_id: aiTutorId,
               owner_id: ownerId,
               stripe_subscription_id: subscription.id,
               stripe_customer_id: subscription.customer as string,
               status: subscription.status,
               current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
               current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-            }, { onConflict: 'ai_tutor_id' });
+            }, { onConflict: 'agent_id' });
 
           if (upsertError) {
             console.error('[WEBHOOK:SUBSCRIPTION] Failed to upsert AI Tutor subscription:', upsertError);
@@ -639,7 +639,7 @@ export async function POST(req: NextRequest) {
           const aiTutorId = subscription.metadata?.ai_tutor_id;
 
           const { error: updateError } = await supabase
-            .from('ai_tutor_subscriptions')
+            .from('ai_agent_subscriptions')
             .update({
               ...updateData,
               cancel_at: (subscription as any).cancel_at
@@ -712,7 +712,7 @@ export async function POST(req: NextRequest) {
           const aiTutorId = subscription.metadata?.ai_tutor_id;
 
           const { error: updateError } = await supabase
-            .from('ai_tutor_subscriptions')
+            .from('ai_agent_subscriptions')
             .update(cancelData)
             .eq('stripe_subscription_id', subscription.id);
 
@@ -794,7 +794,7 @@ export async function POST(req: NextRequest) {
           if (orgError) {
             // Try AI Tutor subscription
             await supabase
-              .from('ai_tutor_subscriptions')
+              .from('ai_agent_subscriptions')
               .update({ status: 'active', updated_at: new Date().toISOString() })
               .eq('stripe_subscription_id', subscriptionId)
               .in('status', ['past_due', 'unpaid']);
@@ -834,7 +834,7 @@ export async function POST(req: NextRequest) {
           if (orgError) {
             // Try AI Tutor subscription
             const { error: aiTutorError } = await supabase
-              .from('ai_tutor_subscriptions')
+              .from('ai_agent_subscriptions')
               .update({ status: 'past_due', updated_at: new Date().toISOString() })
               .eq('stripe_subscription_id', subscriptionId);
 

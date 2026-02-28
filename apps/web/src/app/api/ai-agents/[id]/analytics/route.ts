@@ -43,7 +43,7 @@ export async function GET(
 
     // Get sessions within period
     const { data: sessions } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('started_at, price_paid, platform_fee, owner_earnings, rating, reviewed, fallback_to_sage_count')
       .eq('agent_id', id)
       .gte('started_at', startDate.toISOString())
@@ -84,7 +84,7 @@ export async function GET(
     }
 
     // Get skill performance analytics
-    const { data: skillStats } = await supabase.rpc('get_ai_tutor_skill_analytics', {
+    const { data: skillStats } = await supabase.rpc('get_ai_agent_skill_analytics', {
       p_agent_id: id,
       p_start_date: startDate.toISOString(),
     });
@@ -94,7 +94,7 @@ export async function GET(
     heatmapStartDate.setDate(heatmapStartDate.getDate() - 90);
 
     const { data: heatmapSessions } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('started_at')
       .eq('agent_id', id)
       .gte('started_at', heatmapStartDate.toISOString());

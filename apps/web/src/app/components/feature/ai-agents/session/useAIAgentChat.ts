@@ -32,7 +32,7 @@ export interface AIAgentMessage {
 
 export interface AIAgentSession {
   id: string;
-  ai_tutor_id: string;
+  agent_id: string;
   client_id: string;
   status: 'active' | 'completed' | 'escalated';
   started_at: string;

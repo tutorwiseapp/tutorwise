@@ -54,8 +54,8 @@ export async function POST(
 
     // 4. Fetch bundle purchase to verify ownership
     const { data: purchase, error: fetchError } = await supabase
-      .from('ai_tutor_bundle_purchases')
-      .select('*, bundle:ai_tutor_bundles!bundle_id(bundle_name)')
+      .from('ai_agent_bundle_purchases')
+      .select('*, bundle:ai_agent_bundles!bundle_id(bundle_name)')
       .eq('id', purchaseId)
       .single();
 
@@ -94,7 +94,7 @@ export async function POST(
     // 8. If session_id provided, link it to bundle purchase
     if (session_id && session_type === 'ai') {
       await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({ bundle_purchase_id: purchaseId })
         .eq('id', session_id);
     }

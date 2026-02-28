@@ -31,7 +31,7 @@ export async function PATCH(
 
     // Get session
     const { data: session, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('*')
       .eq('id', sessionId)
       .single();
@@ -62,7 +62,7 @@ export async function PATCH(
 
     // Update session
     await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         ended_at: endedAt.toISOString(),
         duration_minutes: durationMinutes,
@@ -71,7 +71,7 @@ export async function PATCH(
       .eq('id', sessionId);
 
     // Update AI tutor stats (increment session count and revenue)
-    await supabase.rpc('ai_tutor_increment_session_stats', {
+    await supabase.rpc('ai_agent_increment_session_stats', {
       p_agent_id: session.agent_id,
       p_revenue: session.owner_earnings,
     });

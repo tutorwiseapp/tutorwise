@@ -31,14 +31,14 @@ export async function GET(request: NextRequest) {
 
     // 2. Parse query parameters
     const { searchParams } = new URL(request.url);
-    const aiAgentId = searchParams.get('ai_tutor_id');
+    const aiAgentId = searchParams.get('agent_id');
 
     // 3. Build query
     let query = supabase
-      .from('ai_tutor_bundle_purchases')
+      .from('ai_agent_bundle_purchases')
       .select(`
         *,
-        bundle:ai_tutor_bundles!bundle_id(
+        bundle:ai_agent_bundles!bundle_id(
           id,
           bundle_name,
           description,

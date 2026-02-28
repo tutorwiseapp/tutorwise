@@ -86,9 +86,9 @@ export class MarketplaceAIAgent extends BaseAgent {
 
     // Create session in database
     const { data: session, error } = await this.supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .insert({
-        ai_tutor_id: this.agent.id,
+        agent_id: this.agent.id,
         user_id: user.id,
         subject: options?.subject || this.agent.subject,
         level: options?.level || this.agent.level,
@@ -135,7 +135,7 @@ export class MarketplaceAIAgent extends BaseAgent {
     try {
       // Get session context
       const { data: session } = await this.supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .select('*')
         .eq('id', sessionId)
         .single();
@@ -157,7 +157,7 @@ export class MarketplaceAIAgent extends BaseAgent {
 
       // Save message to database
       const { data: savedMessage } = await this.supabase
-        .from('ai_tutor_messages')
+        .from('ai_agent_messages')
         .insert({
           session_id: sessionId,
           role: 'assistant',
@@ -169,7 +169,7 @@ export class MarketplaceAIAgent extends BaseAgent {
 
       // Update session message count
       await this.supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           message_count: session.message_count + 1,
           last_message_at: new Date().toISOString(),
@@ -208,7 +208,7 @@ export class MarketplaceAIAgent extends BaseAgent {
 
     // Get session to calculate duration
     const { data: session } = await this.supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('started_at')
       .eq('id', sessionId)
       .single();
@@ -220,7 +220,7 @@ export class MarketplaceAIAgent extends BaseAgent {
 
       // Update session
       await this.supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'ended',
           ended_at: endTime.toISOString(),
@@ -230,7 +230,7 @@ export class MarketplaceAIAgent extends BaseAgent {
 
       // Update agent metrics
       await this.supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           total_sessions: this.agent.total_sessions + 1,
           last_session_at: endTime.toISOString(),
@@ -257,7 +257,7 @@ export class MarketplaceAIAgent extends BaseAgent {
     // Priority 2: Agent's custom links
     sources.push({
       type: 'link',
-      namespace: `ai_tutor_links/${this.agent.id}`,
+      namespace: `ai_agent_links/${this.agent.id}`,
       priority: 2,
       owner_id: this.agent.owner_id,
     });
@@ -282,16 +282,16 @@ export class MarketplaceAIAgent extends BaseAgent {
 
     // Load custom materials count
     const { count: materialsCount } = await this.supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .select('*', { count: 'exact', head: true })
-      .eq('ai_tutor_id', this.agent.id)
+      .eq('agent_id', this.agent.id)
       .eq('embedding_status', 'completed');
 
     // Load custom links count
     const { count: linksCount } = await this.supabase
-      .from('ai_tutor_links')
+      .from('ai_agent_links')
       .select('*', { count: 'exact', head: true })
-      .eq('ai_tutor_id', this.agent.id)
+      .eq('agent_id', this.agent.id)
       .eq('status', 'active');
 
     console.log(`[${this.agent.name}] Loaded: ${materialsCount || 0} materials, ${linksCount || 0} links`);
@@ -305,9 +305,9 @@ export class MarketplaceAIAgent extends BaseAgent {
 
     // Check if user has active subscription
     const { data: subscription } = await this.supabase
-      .from('ai_tutor_subscriptions')
+      .from('ai_agent_subscriptions')
       .select('status')
-      .eq('ai_tutor_id', this.agent.id)
+      .eq('agent_id', this.agent.id)
       .eq('user_id', userId)
       .eq('status', 'active')
       .single();

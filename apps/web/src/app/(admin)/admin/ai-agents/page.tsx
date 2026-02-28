@@ -57,13 +57,13 @@ export default function AdminAIAgentsOverviewPage() {
   });
 
   // Fetch AI tutor metrics with historical comparison
-  const totalAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_total', compareWith: 'last_month' });
-  const activeAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
-  const platformAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_platform', compareWith: 'last_month' });
-  const userAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_user', compareWith: 'last_month' });
-  const draftAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_draft', compareWith: 'last_month' });
-  const totalSessionsMetric = useAdminMetric({ metric: 'ai_tutor_sessions_total', compareWith: 'last_month' });
-  const activeRateMetric = useAdminMetric({ metric: 'ai_tutors_active_rate', compareWith: 'last_month' });
+  const totalAIAgentsMetric = useAdminMetric({ metric: 'ai_agents_total', compareWith: 'last_month' });
+  const activeAIAgentsMetric = useAdminMetric({ metric: 'ai_agents_active', compareWith: 'last_month' });
+  const platformAIAgentsMetric = useAdminMetric({ metric: 'ai_agents_platform', compareWith: 'last_month' });
+  const userAIAgentsMetric = useAdminMetric({ metric: 'ai_agents_user', compareWith: 'last_month' });
+  const draftAIAgentsMetric = useAdminMetric({ metric: 'ai_agents_draft', compareWith: 'last_month' });
+  const totalSessionsMetric = useAdminMetric({ metric: 'ai_agent_sessions_total', compareWith: 'last_month' });
+  const activeRateMetric = useAdminMetric({ metric: 'ai_agents_active_rate', compareWith: 'last_month' });
 
   // Header actions
   const getHeaderActions = () => {
@@ -71,8 +71,8 @@ export default function AdminAIAgentsOverviewPage() {
   };
 
   // Fetch trend data from platform_statistics_daily (last 7 days)
-  const aiTutorTrendsQuery = useAdminTrendData({ metric: 'ai_tutors_total', days: 7 });
-  const sessionsTrendsQuery = useAdminTrendData({ metric: 'ai_tutor_sessions_total', days: 7 });
+  const aiTutorTrendsQuery = useAdminTrendData({ metric: 'ai_agents_total', days: 7 });
+  const sessionsTrendsQuery = useAdminTrendData({ metric: 'ai_agent_sessions_total', days: 7 });
 
   const isLoadingCharts = aiTutorTrendsQuery.isLoading || sessionsTrendsQuery.isLoading;
 

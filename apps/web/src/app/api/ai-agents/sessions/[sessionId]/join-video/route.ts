@@ -43,7 +43,7 @@ export async function POST(
 
     // 3. Fetch AI tutor session
     const { data: aiSession, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select(`
         *,
         ai_agent:ai_agents!agent_id(
@@ -99,9 +99,9 @@ export async function POST(
         session_type: 'ai_tutor',
         status: 'active',
         metadata: {
-          ai_tutor_session_id: sessionId,
+          session_id: sessionId,
           agent_id: aiSession.agent_id,
-          ai_tutor_name: aiTutor?.name
+          agent_name: aiTutor?.name
         }
       })
       .select()
@@ -114,7 +114,7 @@ export async function POST(
 
     // 8. Link VirtualSpace session to AI tutor session
     const { error: updateError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         virtualspace_session_id: vsSession.id,
         session_mode: 'video',
@@ -134,9 +134,9 @@ export async function POST(
 
     // 9. Log event
     await supabase
-      .from('ai_tutor_virtualspace_events')
+      .from('ai_agent_virtualspace_events')
       .insert({
-        ai_tutor_session_id: sessionId,
+        session_id: sessionId,
         virtualspace_session_id: vsSession.id,
         event_type: 'ai_joined',
         event_data: {

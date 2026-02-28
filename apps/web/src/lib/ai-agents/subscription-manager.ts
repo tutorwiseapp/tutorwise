@@ -11,7 +11,7 @@ import type Stripe from 'stripe';
 
 export interface AIAgentSubscription {
   id: string;
-  ai_tutor_id: string;
+  agent_id: string;
   owner_id: string;
   stripe_subscription_id?: string;
   stripe_customer_id?: string;
@@ -35,9 +35,9 @@ export async function getAIAgentSubscription(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutor_subscriptions')
+    .from('ai_agent_subscriptions')
     .select('*')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .single();
 
   if (error) {
@@ -92,13 +92,13 @@ export async function createSubscriptionCheckout(
     subscription_data: {
       metadata: {
         user_id: userId,
-        ai_tutor_id: aiAgentId,
+        agent_id: aiAgentId,
         subscription_type: 'ai_tutor',
       },
     },
     metadata: {
       user_id: userId,
-      ai_tutor_id: aiAgentId,
+      agent_id: aiAgentId,
       subscription_type: 'ai_tutor',
     },
     success_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}?subscription=success`,
@@ -119,9 +119,9 @@ export async function createBillingPortalSession(
 
   // Get subscription
   const { data: subscription } = await supabase
-    .from('ai_tutor_subscriptions')
+    .from('ai_agent_subscriptions')
     .select('stripe_customer_id, owner_id')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {
@@ -152,9 +152,9 @@ export async function cancelSubscription(
 
   // Get subscription
   const { data: subscription } = await supabase
-    .from('ai_tutor_subscriptions')
+    .from('ai_agent_subscriptions')
     .select('stripe_subscription_id, owner_id')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {
@@ -182,9 +182,9 @@ export async function reactivateSubscription(
 
   // Get subscription
   const { data: subscription } = await supabase
-    .from('ai_tutor_subscriptions')
+    .from('ai_agent_subscriptions')
     .select('stripe_subscription_id, owner_id')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {

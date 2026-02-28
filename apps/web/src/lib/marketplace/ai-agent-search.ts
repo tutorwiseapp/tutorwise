@@ -58,7 +58,7 @@ export async function searchAIAgents(
   try {
     // First, try using the RPC function if it exists
     try {
-      const { data, error } = await supabase.rpc('search_ai_tutors_hybrid', {
+      const { data, error } = await supabase.rpc('search_ai_agents_hybrid', {
         query_embedding: null, // Will be added when we have proper embedding generation
         filter_subjects: subjects || null,
         filter_min_price: minPrice || null,

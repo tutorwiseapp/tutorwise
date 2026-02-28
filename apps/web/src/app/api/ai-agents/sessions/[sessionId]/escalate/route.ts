@@ -31,7 +31,7 @@ export async function POST(
 
     // Get session
     const { data: session, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select(
         `
         *,
@@ -71,7 +71,7 @@ export async function POST(
 
     // Update session status to escalated
     const { data: updatedSession, error: updateError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         status: 'escalated',
         ended_at: endedAt.toISOString(),

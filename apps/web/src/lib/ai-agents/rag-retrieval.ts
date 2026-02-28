@@ -70,9 +70,9 @@ export async function retrieveContext(
 
   // Priority 1: Search AI tutor material chunks via vector similarity
   try {
-    const { data: materialChunks, error } = await supabase.rpc('match_ai_tutor_chunks', {
+    const { data: materialChunks, error } = await supabase.rpc('match_ai_agent_chunks', {
       query_embedding: JSON.stringify(queryEmbedding),
-      p_ai_tutor_id: aiAgentId,
+      p_agent_id: aiAgentId,
       match_threshold: 0.65,
       match_count: topK,
     });
@@ -99,9 +99,9 @@ export async function retrieveContext(
   // Priority 2: AI tutor links (ordered by priority)
   try {
     const { data: links } = await supabase
-      .from('ai_tutor_links')
+      .from('ai_agent_links')
       .select('*')
-      .eq('ai_tutor_id', aiAgentId)
+      .eq('agent_id', aiAgentId)
       .eq('status', 'active')
       .order('priority', { ascending: true })
       .limit(topK);

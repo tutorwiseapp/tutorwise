@@ -49,7 +49,7 @@ export async function POST(
 
     // 3. Fetch AI tutor session with VirtualSpace details
     const { data: aiSession, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select(`
         *,
         ai_agent:ai_agents!agent_id(
@@ -142,7 +142,7 @@ export async function POST(
         status: 'pending',
         message: message || 'Client has requested assistance from AI tutor session',
         metadata: {
-          ai_tutor_session_id: sessionId,
+          session_id: sessionId,
           handoff_requested: true,
           keep_ai: keep_ai
         }
@@ -159,7 +159,7 @@ export async function POST(
     const newMode = keep_ai ? 'hybrid' : 'video'; // Will transition to hybrid when human joins
 
     const { error: updateError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         session_mode: newMode,
         updated_at: new Date().toISOString()
@@ -173,9 +173,9 @@ export async function POST(
 
     // 11. Log handoff event
     await supabase
-      .from('ai_tutor_virtualspace_events')
+      .from('ai_agent_virtualspace_events')
       .insert({
-        ai_tutor_session_id: sessionId,
+        session_id: sessionId,
         virtualspace_session_id: aiSession.virtualspace_session_id,
         event_type: 'handoff_requested',
         event_data: {

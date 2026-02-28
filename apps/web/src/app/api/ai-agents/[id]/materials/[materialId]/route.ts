@@ -54,7 +54,7 @@ export async function PATCH(
 
     // Verify material belongs to this AI tutor
     const { data: material } = await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .select('id')
       .eq('id', materialId)
       .eq('agent_id', id)
@@ -81,7 +81,7 @@ export async function PATCH(
 
     // Update material skills
     const { error: updateError } = await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .update({ skills: skills || [] })
       .eq('id', materialId);
 
@@ -129,7 +129,7 @@ export async function DELETE(
 
     // Verify material belongs to this AI tutor
     const { data: material } = await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .select('id')
       .eq('id', materialId)
       .eq('agent_id', id)

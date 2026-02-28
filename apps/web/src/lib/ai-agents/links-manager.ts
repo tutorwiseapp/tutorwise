@@ -9,7 +9,7 @@ import { createClient } from '@/utils/supabase/server';
 
 export interface AIAgentLink {
   id: string;
-  ai_tutor_id: string;
+  agent_id: string;
   url: string;
   title?: string;
   description?: string;
@@ -37,9 +37,9 @@ export async function listAIAgentLinks(aiAgentId: string): Promise<AIAgentLink[]
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutor_links')
+    .from('ai_agent_links')
     .select('*')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .eq('status', 'active')
     .order('priority', { ascending: true })
     .order('added_at', { ascending: false });
@@ -73,9 +73,9 @@ export async function createAIAgentLink(
 
   // Create link
   const { data, error } = await supabase
-    .from('ai_tutor_links')
+    .from('ai_agent_links')
     .insert({
-      ai_tutor_id: aiAgentId,
+      agent_id: aiAgentId,
       url: input.url,
       title: input.title,
       description: input.description,
@@ -104,8 +104,8 @@ export async function updateAIAgentLink(
 
   // Verify ownership via AI tutor
   const { data: link } = await supabase
-    .from('ai_tutor_links')
-    .select('ai_tutor_id, ai_tutors!inner(owner_id)')
+    .from('ai_agent_links')
+    .select('agent_id, ai_tutors!inner(owner_id)')
     .eq('id', linkId)
     .single();
 
@@ -115,7 +115,7 @@ export async function updateAIAgentLink(
 
   // Update link
   const { data, error } = await supabase
-    .from('ai_tutor_links')
+    .from('ai_agent_links')
     .update(input)
     .eq('id', linkId)
     .select()
@@ -134,8 +134,8 @@ export async function deleteAIAgentLink(linkId: string, userId: string): Promise
 
   // Verify ownership via AI tutor
   const { data: link } = await supabase
-    .from('ai_tutor_links')
-    .select('ai_tutor_id, ai_tutors!inner(owner_id)')
+    .from('ai_agent_links')
+    .select('agent_id, ai_tutors!inner(owner_id)')
     .eq('id', linkId)
     .single();
 
@@ -145,7 +145,7 @@ export async function deleteAIAgentLink(linkId: string, userId: string): Promise
 
   // Soft delete (mark as removed)
   const { error } = await supabase
-    .from('ai_tutor_links')
+    .from('ai_agent_links')
     .update({ status: 'removed' })
     .eq('id', linkId);
 

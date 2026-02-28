@@ -69,9 +69,9 @@ export async function GET(request: NextRequest) {
     const tutorsWithSkills = await Promise.all(
       (aiTutors || []).map(async (tutor) => {
         const { data: skills } = await supabase
-          .from('ai_tutor_skills')
+          .from('ai_agent_skills')
           .select('skill_name')
-          .eq('ai_tutor_id', tutor.id);
+          .eq('agent_id', tutor.id);
 
         return {
           ...tutor,

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Create session
     const { data: session, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .insert({
         agent_id,
         client_id: user.id,

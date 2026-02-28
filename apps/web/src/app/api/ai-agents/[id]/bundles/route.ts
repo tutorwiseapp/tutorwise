@@ -37,7 +37,7 @@ export async function GET(
   try {
     // Fetch active bundles
     const { data: bundles, error } = await supabase
-      .from('ai_tutor_bundles')
+      .from('ai_agent_bundles')
       .select('*')
       .eq('agent_id', aiAgentId)
       .eq('is_active', true)
@@ -140,7 +140,7 @@ export async function POST(
 
     // 7. Get max display_order for ordering
     const { data: maxOrder } = await supabase
-      .from('ai_tutor_bundles')
+      .from('ai_agent_bundles')
       .select('display_order')
       .eq('agent_id', aiAgentId)
       .order('display_order', { ascending: false })
@@ -151,7 +151,7 @@ export async function POST(
 
     // 8. Create bundle
     const { data: bundle, error: createError } = await supabase
-      .from('ai_tutor_bundles')
+      .from('ai_agent_bundles')
       .insert({
         agent_id: aiAgentId,
         bundle_name,

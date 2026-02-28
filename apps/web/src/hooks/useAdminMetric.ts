@@ -136,14 +136,14 @@ export type MetricName =
   | 'lexi_free_usage_percent'
   | 'lexi_paid_usage_percent'
   | 'lexi_monthly_projection'
-  // AI Tutors metrics
-  | 'ai_tutors_total'
-  | 'ai_tutors_active'
-  | 'ai_tutors_platform'
-  | 'ai_tutors_user'
-  | 'ai_tutors_draft'
-  | 'ai_tutors_active_rate'
-  | 'ai_tutor_sessions_total'
+  // AI Agents metrics
+  | 'ai_agents_total'
+  | 'ai_agents_active'
+  | 'ai_agents_platform'
+  | 'ai_agents_user'
+  | 'ai_agents_draft'
+  | 'ai_agents_active_rate'
+  | 'ai_agent_sessions_total'
   // CAS metrics
   | 'cas_agents_active'
   | 'cas_tasks_generated'

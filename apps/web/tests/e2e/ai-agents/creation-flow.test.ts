@@ -48,9 +48,9 @@ async function createTestTutor(caasScore: number) {
 
 // Helper: Clean up test data
 async function cleanupTestUser(userId: string) {
-  await supabase.from('ai_tutor_sessions').delete().match({ client_id: userId });
-  await supabase.from('ai_tutor_links').delete().match({ ai_tutor_id: userId });
-  await supabase.from('ai_tutor_materials').delete().match({ ai_tutor_id: userId });
+  await supabase.from('ai_agent_sessions').delete().match({ client_id: userId });
+  await supabase.from('ai_tutor_links').delete().match({ agent_id: userId });
+  await supabase.from('ai_tutor_materials').delete().match({ agent_id: userId });
   await supabase.from('ai_tutors').delete().eq('owner_id', userId);
   await supabase.from('profiles').delete().eq('id', userId);
   await supabase.auth.admin.deleteUser(userId);

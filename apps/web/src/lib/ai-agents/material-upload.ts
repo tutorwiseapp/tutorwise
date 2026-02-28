@@ -12,7 +12,7 @@ import { DocumentProcessor } from '@sage/upload/processor';
 
 export interface Material {
   id: string;
-  ai_tutor_id: string;
+  agent_id: string;
   file_name: string;
   file_type: string;
   file_size_mb: number;
@@ -33,9 +33,9 @@ export async function listMaterials(aiAgentId: string): Promise<Material[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutor_materials')
+    .from('ai_agent_materials')
     .select('*')
-    .eq('ai_tutor_id', aiAgentId)
+    .eq('agent_id', aiAgentId)
     .order('uploaded_at', { ascending: false });
 
   if (error) throw error;
@@ -105,9 +105,9 @@ export async function uploadMaterial(
 
   // Create material record (status: processing)
   const { data: material, error: insertError } = await supabase
-    .from('ai_tutor_materials')
+    .from('ai_agent_materials')
     .insert({
-      ai_tutor_id: aiAgentId,
+      agent_id: aiAgentId,
       file_name: file.name,
       file_type: ext,
       file_size_mb: fileSizeMB,
@@ -150,7 +150,7 @@ async function processAndEmbedMaterial(
 
     if (processed.chunks.length === 0) {
       await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .update({ status: 'failed', error_message: 'No text content extracted' })
         .eq('id', materialId);
       return;
@@ -181,10 +181,10 @@ async function processAndEmbedMaterial(
           const embedding = result.embedding.values;
 
           await supabase
-            .from('ai_tutor_material_chunks')
+            .from('ai_agent_material_chunks')
             .insert({
               material_id: materialId,
-              ai_tutor_id: aiAgentId,
+              agent_id: aiAgentId,
               chunk_text: chunk.content,
               chunk_index: chunk.position,
               page_number: chunk.pageNumber || null,
@@ -200,7 +200,7 @@ async function processAndEmbedMaterial(
 
     // 4. Update material status
     await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .update({
         status: chunksStored > 0 ? 'ready' : 'failed',
         error_message: chunksStored === 0 ? 'No chunks could be embedded' : null,
@@ -213,9 +213,9 @@ async function processAndEmbedMaterial(
 
     // 5. Update storage usage
     const { data: totalStorage } = await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .select('file_size_mb')
-      .eq('ai_tutor_id', aiAgentId);
+      .eq('agent_id', aiAgentId);
 
     const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
 
@@ -229,7 +229,7 @@ async function processAndEmbedMaterial(
     console.error('[MaterialUpload] Processing failed:', error);
 
     await supabase
-      .from('ai_tutor_materials')
+      .from('ai_agent_materials')
       .update({
         status: 'failed',
         error_message: (error as Error).message,
@@ -249,8 +249,8 @@ export async function deleteMaterial(
 
   // Verify ownership via AI tutor
   const { data: material } = await supabase
-    .from('ai_tutor_materials')
-    .select('ai_tutor_id, file_url, file_size_mb, ai_tutors!inner(owner_id)')
+    .from('ai_agent_materials')
+    .select('agent_id, file_url, file_size_mb, ai_tutors!inner(owner_id)')
     .eq('id', materialId)
     .single();
 
@@ -269,7 +269,7 @@ export async function deleteMaterial(
 
   // Delete material (cascades to chunks)
   const { error } = await supabase
-    .from('ai_tutor_materials')
+    .from('ai_agent_materials')
     .delete()
     .eq('id', materialId);
 
@@ -277,16 +277,16 @@ export async function deleteMaterial(
 
   // Update storage usage
   const { data: totalStorage } = await supabase
-    .from('ai_tutor_materials')
+    .from('ai_agent_materials')
     .select('file_size_mb')
-    .eq('ai_tutor_id', material.ai_tutor_id);
+    .eq('agent_id', material.agent_id);
 
   const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
 
   await supabase
     .from('ai_tutors')
     .update({ storage_used_mb: Math.ceil(totalUsed) })
-    .eq('id', material.ai_tutor_id);
+    .eq('id', material.agent_id);
 }
 
 /**

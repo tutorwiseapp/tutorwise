@@ -39,7 +39,7 @@ export async function GET(
 
     // Get skills using RPC function
     const { data: skills, error: skillsError } = await supabase.rpc(
-      'get_ai_tutor_skills',
+      'get_ai_agent_skills',
       { tutor_id: id }
     );
 

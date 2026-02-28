@@ -49,9 +49,9 @@ async function bulkCleanup(tutorIds: string[]) {
     const batch = tutorIds.slice(i, i + batchSize);
 
     // Delete related data
-    await supabase.from('ai_tutor_sessions').delete().in('ai_tutor_id', batch);
-    await supabase.from('ai_tutor_links').delete().in('ai_tutor_id', batch);
-    await supabase.from('ai_tutor_materials').delete().in('ai_tutor_id', batch);
+    await supabase.from('ai_agent_sessions').delete().in('agent_id', batch);
+    await supabase.from('ai_tutor_links').delete().in('agent_id', batch);
+    await supabase.from('ai_tutor_materials').delete().in('agent_id', batch);
     await supabase.from('ai_tutors').delete().in('owner_id', batch);
     await supabase.from('profiles').delete().in('id', batch);
 
@@ -199,9 +199,9 @@ describe.skip('AI Tutor Load Testing', () => {
           Array.from({ length: 10 }, (_, sessionIndex) => {
             const aiTutorIndex = (clientIndex * 10 + sessionIndex) % aiTutors.length;
             return supabase
-              .from('ai_tutor_sessions')
+              .from('ai_agent_sessions')
               .insert({
-                ai_tutor_id: aiTutors[aiTutorIndex].data!.id,
+                agent_id: aiTutors[aiTutorIndex].data!.id,
                 client_id: clientId,
                 status: 'active',
                 started_at: new Date().toISOString(),
@@ -259,9 +259,9 @@ describe.skip('AI Tutor Load Testing', () => {
             tutorIds.push(client.user.id);
 
             const { data } = await supabase
-              .from('ai_tutor_sessions')
+              .from('ai_agent_sessions')
               .insert({
-                ai_tutor_id: aiTutor!.id,
+                agent_id: aiTutor!.id,
                 client_id: client.user.id,
                 status: 'active',
                 started_at: new Date().toISOString(),
@@ -276,7 +276,7 @@ describe.skip('AI Tutor Load Testing', () => {
         // Update all sessions concurrently
         const updatePromises = sessions.map((session) =>
           supabase
-            .from('ai_tutor_sessions')
+            .from('ai_agent_sessions')
             .update({
               status: 'completed',
               ended_at: new Date().toISOString(),
@@ -324,7 +324,7 @@ describe.skip('AI Tutor Load Testing', () => {
 
         const queries = Array.from({ length: 100 }, () => ({
           query_embedding: Array(768).fill(0.1), // Mock embedding
-          ai_tutor_id: aiTutor!.id,
+          agent_id: aiTutor!.id,
           match_threshold: 0.3,
           match_count: 5,
         }));
@@ -430,9 +430,9 @@ describe.skip('AI Tutor Load Testing', () => {
           tutorIds.push(client.user.id);
 
           return supabase
-            .from('ai_tutor_sessions')
+            .from('ai_agent_sessions')
             .insert({
-              ai_tutor_id: aiTutor!.id,
+              agent_id: aiTutor!.id,
               client_id: client.user.id,
               status: 'active',
               started_at: new Date().toISOString(),
@@ -448,7 +448,7 @@ describe.skip('AI Tutor Load Testing', () => {
         const startTime = Date.now();
 
         const { error } = await supabase
-          .from('ai_tutor_sessions')
+          .from('ai_agent_sessions')
           .update({ status: 'completed' })
           .in('id', sessionIds);
 
@@ -503,9 +503,9 @@ describe.skip('AI Tutor Load Testing', () => {
             tutorIds.push(client.user.id);
 
             return supabase
-              .from('ai_tutor_sessions')
+              .from('ai_agent_sessions')
               .insert({
-                ai_tutor_id: aiTutor!.id,
+                agent_id: aiTutor!.id,
                 client_id: client.user.id,
                 status: 'active',
                 started_at: new Date().toISOString(),

@@ -42,7 +42,7 @@ export async function POST(
 
     // Get session
     const { data: session, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select(
         `
         *,
@@ -131,7 +131,7 @@ ${ragResult.usedFallback ? 'Note: Using general knowledge fallback (custom mater
 
     // Update session
     await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         messages: updatedMessages,
         fallback_to_sage_count: ragResult.usedFallback

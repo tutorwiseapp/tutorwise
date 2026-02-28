@@ -23,7 +23,7 @@ export async function GET(
     // Get reviews from sessions (reviewed = true)
     // Strip client_id from response - this endpoint is public
     const { data: reviews, error, count } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('id, rating, review_text, reviewed_at, started_at', { count: 'exact' })
       .eq('agent_id', id)
       .eq('reviewed', true)
@@ -71,7 +71,7 @@ export async function POST(
 
     // Verify session belongs to this user and AI tutor
     const { data: session, error: sessionError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select('id, client_id, reviewed')
       .eq('id', session_id)
       .eq('agent_id', id)
@@ -88,7 +88,7 @@ export async function POST(
 
     // Update session with review
     const { error: updateError } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .update({
         reviewed: true,
         rating,
@@ -100,7 +100,7 @@ export async function POST(
     if (updateError) throw updateError;
 
     // Update AI tutor avg_rating via RPC
-    await supabase.rpc('ai_tutor_update_rating', { p_agent_id: id });
+    await supabase.rpc('ai_agent_update_rating', { p_agent_id: id });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -68,7 +68,7 @@ async function createTestSession() {
 
 // Helper: Clean up test data
 async function cleanupTestSession(tutorId: string, aiAgentId: string, clientId: string) {
-  await supabase.from('ai_tutor_sessions').delete().match({ ai_tutor_id: aiAgentId });
+  await supabase.from('ai_agent_sessions').delete().match({ agent_id: aiAgentId });
   await supabase.from('ai_tutors').delete().eq('id', aiAgentId);
   await supabase.from('profiles').delete().eq('id', tutorId);
   await supabase.from('profiles').delete().eq('id', clientId);
@@ -92,9 +92,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
   describe('Session Start', () => {
     it('should create new session when client starts chat', async () => {
       const { data: session, error } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -104,16 +104,16 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       expect(error).toBeNull();
       expect(session?.status).toBe('active');
-      expect(session?.ai_tutor_id).toBe(testData.aiAgentId);
+      expect(session?.agent_id).toBe(testData.aiAgentId);
       expect(session?.client_id).toBe(testData.clientId);
       expect(session?.started_at).toBeDefined();
     });
 
     it('should initialize session with empty conversation history', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -128,9 +128,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
     it('should prevent multiple active sessions for same AI tutor', async () => {
       // Create first session
       await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -138,9 +138,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Try to create second active session (should fail)
       const { error } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -155,9 +155,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
   describe('Chat Interaction', () => {
     it('should store conversation history in JSONB', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -180,7 +180,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       ];
 
       const { data: updated } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({ conversation_history: conversationHistory })
         .eq('id', session!.id)
         .select()
@@ -193,9 +193,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
     it('should track message count', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -214,12 +214,12 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       }
 
       await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({ conversation_history: messages })
         .eq('id', session!.id);
 
       const { data: updated } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .select()
         .eq('id', session!.id)
         .single();
@@ -234,9 +234,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // +1 hour
 
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: startTime.toISOString(),
@@ -246,7 +246,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // End session
       const { data: ended } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'completed',
           ended_at: endTime.toISOString(),
@@ -266,9 +266,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       const endTime = new Date('2024-01-01T10:45:00Z'); // 45 minutes
 
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: startTime.toISOString(),
@@ -281,7 +281,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       );
 
       await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'completed',
           ended_at: endTime.toISOString(),
@@ -290,7 +290,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
         .eq('id', session!.id);
 
       const { data: ended } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .select()
         .eq('id', session!.id)
         .single();
@@ -300,9 +300,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
     it('should calculate cost as £10 per session', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -312,7 +312,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // End session with cost
       const { data: ended } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'completed',
           ended_at: new Date().toISOString(),
@@ -331,9 +331,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       const endTime = new Date(startTime.getTime() + 15 * 60 * 1000); // 15 minutes
 
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: startTime.toISOString(),
@@ -343,7 +343,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // End early
       const { data: ended } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'completed',
           ended_at: endTime.toISOString(),
@@ -362,9 +362,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
   describe('Escalation to Human Tutor', () => {
     it('should escalate session to human tutor', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -374,7 +374,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Escalate
       const { data: escalated } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'escalated',
           escalated_to_human: true,
@@ -397,9 +397,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
       ];
 
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'active',
           started_at: new Date().toISOString(),
@@ -410,7 +410,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Escalate
       await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .update({
           status: 'escalated',
           escalated_to_human: true,
@@ -418,7 +418,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
         .eq('id', session!.id);
 
       const { data: escalated } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .select()
         .eq('id', session!.id)
         .single();
@@ -432,9 +432,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
     it('should submit review after session ends', async () => {
       // Create and end session
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'completed',
           started_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
@@ -447,9 +447,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Submit review
       const { data: review, error } = await supabase
-        .from('ai_tutor_reviews')
+        .from('ai_agent_reviews')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           session_id: session!.id,
           reviewer_id: testData.clientId,
           rating: 5,
@@ -465,9 +465,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
     it('should validate rating is 1-5', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'completed',
           started_at: new Date().toISOString(),
@@ -478,9 +478,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Try invalid rating
       const { error } = await supabase
-        .from('ai_tutor_reviews')
+        .from('ai_agent_reviews')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           session_id: session!.id,
           reviewer_id: testData.clientId,
           rating: 6, // Invalid
@@ -491,9 +491,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
     it('should allow review without text (rating only)', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'completed',
           started_at: new Date().toISOString(),
@@ -503,9 +503,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
         .single();
 
       const { data: review, error } = await supabase
-        .from('ai_tutor_reviews')
+        .from('ai_agent_reviews')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           session_id: session!.id,
           reviewer_id: testData.clientId,
           rating: 4,
@@ -521,9 +521,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
     it('should prevent duplicate reviews for same session', async () => {
       const { data: session } = await supabase
-        .from('ai_tutor_sessions')
+        .from('ai_agent_sessions')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           client_id: testData.clientId,
           status: 'completed',
           started_at: new Date().toISOString(),
@@ -534,9 +534,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // First review
       await supabase
-        .from('ai_tutor_reviews')
+        .from('ai_agent_reviews')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           session_id: session!.id,
           reviewer_id: testData.clientId,
           rating: 5,
@@ -544,9 +544,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       // Try duplicate
       const { error } = await supabase
-        .from('ai_tutor_reviews')
+        .from('ai_agent_reviews')
         .insert({
-          ai_tutor_id: testData.aiAgentId,
+          agent_id: testData.aiAgentId,
           session_id: session!.id,
           reviewer_id: testData.clientId,
           rating: 4,
@@ -562,9 +562,9 @@ describe.skip('AI Tutor Session Lifecycle', () => {
 
       for (const status of statuses) {
         const { data: session, error } = await supabase
-          .from('ai_tutor_sessions')
+          .from('ai_agent_sessions')
           .insert({
-            ai_tutor_id: testData.aiAgentId,
+            agent_id: testData.aiAgentId,
             client_id: testData.clientId,
             status,
             started_at: new Date().toISOString(),
@@ -576,7 +576,7 @@ describe.skip('AI Tutor Session Lifecycle', () => {
         expect(session?.status).toBe(status);
 
         // Clean up
-        await supabase.from('ai_tutor_sessions').delete().eq('id', session!.id);
+        await supabase.from('ai_agent_sessions').delete().eq('id', session!.id);
       }
     });
   });

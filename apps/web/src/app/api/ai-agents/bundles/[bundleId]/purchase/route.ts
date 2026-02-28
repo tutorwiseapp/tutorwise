@@ -55,7 +55,7 @@ export async function POST(
 
     // 3. Fetch bundle details
     const { data: bundle, error: bundleError } = await supabase
-      .from('ai_tutor_bundles')
+      .from('ai_agent_bundles')
       .select('*, ai_agent:ai_agents!agent_id(id, name, owner_id)')
       .eq('id', bundleId)
       .single();
@@ -74,10 +74,10 @@ export async function POST(
 
     // 5. Check if client already has active bundle for this AI tutor
     const { data: existingPurchase } = await supabase
-      .from('ai_tutor_bundle_purchases')
+      .from('ai_agent_bundle_purchases')
       .select('id')
       .eq('client_id', user.id)
-      .eq('agent_id', bundle.ai_tutor_id)
+      .eq('agent_id', bundle.agent_id)
       .eq('status', 'active')
       .single();
 
@@ -103,7 +103,7 @@ export async function POST(
 
     // 8. Create bundle purchase
     const { data: purchase, error: purchaseError } = await supabase
-      .from('ai_tutor_bundle_purchases')
+      .from('ai_agent_bundle_purchases')
       .insert({
         bundle_id: bundleId,
         agent_id: bundle.agent_id,

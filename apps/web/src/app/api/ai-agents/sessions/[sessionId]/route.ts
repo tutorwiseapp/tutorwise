@@ -31,7 +31,7 @@ export async function GET(
 
     // Get session
     const { data: session, error } = await supabase
-      .from('ai_tutor_sessions')
+      .from('ai_agent_sessions')
       .select(
         `
         *,

@@ -163,7 +163,7 @@ export async function POST(
     }
 
     // Recalculate quality score
-    const { data: newScore, error: calcError } = await supabase.rpc('calculate_ai_tutor_quality_score', {
+    const { data: newScore, error: calcError } = await supabase.rpc('calculate_ai_agent_quality_score', {
       tutor_id: id,
     });
 

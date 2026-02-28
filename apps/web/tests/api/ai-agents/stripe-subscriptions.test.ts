@@ -56,7 +56,7 @@ async function createTestAITutorForSubscription() {
 
 // Helper: Clean up test data
 async function cleanupSubscriptionTest(ownerId: string) {
-  await supabase.from('ai_tutor_sessions').delete().match({ client_id: ownerId });
+  await supabase.from('ai_agent_sessions').delete().match({ client_id: ownerId });
   await supabase.from('ai_tutors').delete().eq('owner_id', ownerId);
   await supabase.from('profiles').delete().eq('id', ownerId);
   await supabase.auth.admin.deleteUser(ownerId);

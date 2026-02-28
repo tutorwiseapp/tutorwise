@@ -46,7 +46,7 @@ export async function PATCH(
 
     // Verify link belongs to this AI tutor
     const { data: existingLink } = await supabase
-      .from('ai_tutor_links')
+      .from('ai_agent_links')
       .select('id')
       .eq('id', linkId)
       .eq('agent_id', id)
@@ -127,7 +127,7 @@ export async function DELETE(
 
     // Verify link belongs to this AI tutor
     const { data: linkRecord } = await supabase
-      .from('ai_tutor_links')
+      .from('ai_agent_links')
       .select('id')
       .eq('id', linkId)
       .eq('agent_id', id)
