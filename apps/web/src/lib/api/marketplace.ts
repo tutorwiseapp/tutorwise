@@ -248,7 +248,7 @@ export function toMarketplaceItems(
   }));
 
   const aiTutorItems: MarketplaceItem[] = aiTutors.map((aiTutor) => ({
-    type: 'ai_tutor' as const,
+    type: 'ai_agent' as const,
     data: aiTutor,
   }));
 

@@ -30,19 +30,19 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export default function AdminAIAgentsOverviewPage() {
-  const canViewAIAgents = usePermission('ai_tutors', 'view');
+  const canViewAIAgents = usePermission('ai_agents', 'view');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-ai-agents' | 'create-new'>('overview');
 
-  // Fetch real-time AI tutor counts from ai_tutors table
+  // Fetch real-time AI tutor counts from ai_agents table
   const supabase = createClient();
   const { data: aiTutorStats } = useQuery({
     queryKey: ['admin-ai-tutor-stats'],
     queryFn: async () => {
       const [totalRes, activeRes, platformRes, userRes] = await Promise.all([
-        supabase.from('ai_tutors').select('id', { count: 'exact', head: true }),
-        supabase.from('ai_tutors').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-        supabase.from('ai_tutors').select('id', { count: 'exact', head: true }).eq('is_platform_owned', true),
-        supabase.from('ai_tutors').select('id', { count: 'exact', head: true }).eq('is_platform_owned', false),
+        supabase.from('ai_agents').select('id', { count: 'exact', head: true }),
+        supabase.from('ai_agents').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('ai_agents').select('id', { count: 'exact', head: true }).eq('is_platform_owned', true),
+        supabase.from('ai_agents').select('id', { count: 'exact', head: true }).eq('is_platform_owned', false),
       ]);
       return {
         total: totalRes.count || 0,

@@ -134,7 +134,7 @@ export async function POST(
     }
 
     // Add skill using RPC function
-    const { error: addError } = await supabase.rpc('add_skill_to_ai_tutor', {
+    const { error: addError } = await supabase.rpc('add_skill_to_ai_agent', {
       tutor_id: id,
       skill: skill_name,
       custom: is_custom || false,
@@ -222,7 +222,7 @@ export async function DELETE(
     }
 
     // Remove skill using RPC function
-    const { error: removeError } = await supabase.rpc('remove_skill_from_ai_tutor', {
+    const { error: removeError } = await supabase.rpc('remove_skill_from_ai_agent', {
       tutor_id: id,
       skill: skill_name,
     });

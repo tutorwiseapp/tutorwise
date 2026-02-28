@@ -25,13 +25,13 @@ export class GeminiProvider {
   private model: string;
 
   constructor() {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY not configured');
+      throw new Error('Google AI API key not configured');
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = 'gemini-2.0-flash-exp';
+    this.model = 'gemini-2.0-flash';
   }
 
   /**

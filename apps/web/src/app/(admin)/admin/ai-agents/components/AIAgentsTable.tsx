@@ -101,7 +101,7 @@ export default function AIAgentsTable() {
     queryFn: async () => {
       // Fetch AI tutors first (without join to avoid schema cache issues)
       let query = supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .select('*', { count: 'exact' });
 
       // Apply search filter
@@ -382,7 +382,7 @@ export default function AIAgentsTable() {
               onClick: async () => {
                 const newStatus = aiTutor.status === 'published' ? 'unpublished' : 'published';
                 const { error } = await supabase
-                  .from('ai_tutors')
+                  .from('ai_agents')
                   .update({
                     status: newStatus,
                     published_at: newStatus === 'published' ? new Date().toISOString() : null
@@ -401,7 +401,7 @@ export default function AIAgentsTable() {
               variant: 'danger' as const,
               onClick: async () => {
                 if (confirm('Delete this AI tutor? This action cannot be undone.')) {
-                  const { error } = await supabase.from('ai_tutors').delete().eq('id', aiTutor.id);
+                  const { error } = await supabase.from('ai_agents').delete().eq('id', aiTutor.id);
                   if (error) {
                     alert('Failed to delete AI tutor');
                   } else {
@@ -479,7 +479,7 @@ export default function AIAgentsTable() {
         if (!confirm(`Publish ${selectedIds.length} AI tutor(s)?`)) return;
 
         const { error } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .update({
             status: 'published',
             published_at: new Date().toISOString()
@@ -503,7 +503,7 @@ export default function AIAgentsTable() {
         if (!confirm(`Unpublish ${selectedIds.length} AI tutor(s)?`)) return;
 
         const { error } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .update({ status: 'unpublished' })
           .in('id', selectedIds);
 
@@ -524,7 +524,7 @@ export default function AIAgentsTable() {
         if (!confirm(`Delete ${selectedIds.length} AI tutor(s)? This action cannot be undone.`)) return;
 
         const { error } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .delete()
           .in('id', selectedIds);
 

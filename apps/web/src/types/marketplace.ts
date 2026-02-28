@@ -59,7 +59,7 @@ export interface AITutorProfile {
   owner_avatar?: string;
 }
 
-export type MarketplaceItemType = 'profile' | 'listing' | 'organisation' | 'ai_tutor';
+export type MarketplaceItemType = 'profile' | 'listing' | 'organisation' | 'ai_agent';
 
 export interface MarketplaceItem {
   type: MarketplaceItemType;
@@ -80,5 +80,5 @@ export function isOrganisation(item: MarketplaceItem): item is MarketplaceItem &
 }
 
 export function isAITutor(item: MarketplaceItem): item is MarketplaceItem & { data: AITutorProfile } {
-  return item.type === 'ai_tutor';
+  return item.type === 'ai_agent';
 }

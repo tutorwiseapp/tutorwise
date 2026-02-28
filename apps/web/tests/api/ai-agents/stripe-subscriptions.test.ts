@@ -34,7 +34,7 @@ async function createTestAITutorForSubscription() {
     .eq('id', authUser.user.id);
 
   const { data: aiTutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .insert({
       owner_id: authUser.user.id,
       display_name: 'Subscription Test Tutor',
@@ -57,7 +57,7 @@ async function createTestAITutorForSubscription() {
 // Helper: Clean up test data
 async function cleanupSubscriptionTest(ownerId: string) {
   await supabase.from('ai_agent_sessions').delete().match({ client_id: ownerId });
-  await supabase.from('ai_tutors').delete().eq('owner_id', ownerId);
+  await supabase.from('ai_agents').delete().eq('owner_id', ownerId);
   await supabase.from('profiles').delete().eq('id', ownerId);
   await supabase.auth.admin.deleteUser(ownerId);
 }
@@ -79,7 +79,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should create subscription when AI tutor is published', async () => {
       // Publish AI tutor (should trigger subscription requirement)
       const { data: published } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({ status: 'published' })
         .eq('id', testData.aiAgentId)
         .select()
@@ -95,7 +95,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       const mockSubscriptionId = `sub_test_${Date.now()}`;
 
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: mockSubscriptionId,
           subscription_status: 'active',
@@ -125,7 +125,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate webhook processing
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: mockSubscriptionId,
           subscription_status: 'active',
@@ -142,7 +142,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should handle subscription.updated webhook', async () => {
       // Set up existing subscription
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -152,7 +152,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate update webhook
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'past_due',
         })
@@ -166,7 +166,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should handle subscription.deleted webhook', async () => {
       // Set up existing subscription
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -176,7 +176,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate deletion webhook
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'canceled',
           status: 'unpublished',
@@ -194,7 +194,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Update subscription status on successful payment
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'active',
           last_payment_date: new Date().toISOString(),
@@ -210,7 +210,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should handle invoice.payment_failed webhook', async () => {
       // Set up active subscription
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -220,7 +220,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate payment failure
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'past_due',
           status: 'unpublished',
@@ -238,7 +238,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should cancel subscription when AI tutor is unpublished', async () => {
       // Set up published AI tutor with subscription
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -248,7 +248,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Unpublish (should cancel subscription)
       const { data: unpublished } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           status: 'unpublished',
           subscription_status: 'canceled',
@@ -264,7 +264,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should cancel subscription when AI tutor is deleted', async () => {
       // Set up published AI tutor
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -274,7 +274,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Delete AI tutor (should cancel subscription first)
       const { error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .delete()
         .eq('id', testData.aiAgentId);
 
@@ -282,7 +282,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Verify deleted
       const { data } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .select()
         .eq('id', testData.aiAgentId)
         .single();
@@ -293,7 +293,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should handle immediate vs end-of-period cancellation', async () => {
       // Set up active subscription
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -306,7 +306,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       periodEnd.setDate(periodEnd.getDate() + 30);
 
       const { data: updated } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'active',
           subscription_cancel_at: periodEnd.toISOString(),
@@ -324,7 +324,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should suspend AI tutor on payment failure', async () => {
       // Set up published AI tutor
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_test',
           subscription_status: 'active',
@@ -334,7 +334,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate payment failure
       const { data: suspended } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'past_due',
           status: 'unpublished',
@@ -350,7 +350,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should block new sessions when subscription inactive', async () => {
       // Suspend AI tutor
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'past_due',
           status: 'unpublished',
@@ -367,7 +367,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // In production, this should be blocked by application logic
       const { data: aiTutor } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .select('status, subscription_status')
         .eq('id', testData.aiAgentId)
         .single();
@@ -381,7 +381,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
     it('should restore AI tutor on payment recovery', async () => {
       // Set up suspended AI tutor
       await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'past_due',
           status: 'unpublished',
@@ -390,7 +390,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Simulate successful payment
       const { data: restored } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           subscription_status: 'active',
           status: 'published',
@@ -410,7 +410,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       const aiTutors = await Promise.all(
         [1, 2, 3].map((i) =>
           supabase
-            .from('ai_tutors')
+            .from('ai_agents')
             .insert({
               owner_id: testData.ownerId,
               display_name: `Multi Billing Test ${i}`,
@@ -428,7 +428,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       // Each should have separate subscription
       for (const tutor of aiTutors) {
         await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .update({
             stripe_subscription_id: `sub_${tutor.data!.id}`,
             subscription_status: 'active',
@@ -439,7 +439,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       // Verify all have subscriptions
       const { data: allTutors } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .select('id, subscription_status')
         .eq('owner_id', testData.ownerId)
         .neq('id', testData.aiAgentId); // Exclude the original test tutor
@@ -459,7 +459,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
 
       for (const state of states) {
         const { data: updated } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .update({ subscription_status: state })
           .eq('id', testData.aiAgentId)
           .select()
@@ -475,7 +475,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       trialEnd.setDate(trialEnd.getDate() + 7);
 
       const { data: trial } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({
           stripe_subscription_id: 'sub_trial',
           subscription_status: 'trialing',

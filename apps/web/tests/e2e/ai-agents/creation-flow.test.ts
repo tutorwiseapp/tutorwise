@@ -49,9 +49,9 @@ async function createTestTutor(caasScore: number) {
 // Helper: Clean up test data
 async function cleanupTestUser(userId: string) {
   await supabase.from('ai_agent_sessions').delete().match({ client_id: userId });
-  await supabase.from('ai_tutor_links').delete().match({ agent_id: userId });
-  await supabase.from('ai_tutor_materials').delete().match({ agent_id: userId });
-  await supabase.from('ai_tutors').delete().eq('owner_id', userId);
+  await supabase.from('ai_agent_links').delete().match({ agent_id: userId });
+  await supabase.from('ai_agent_materials').delete().match({ agent_id: userId });
+  await supabase.from('ai_agents').delete().eq('owner_id', userId);
   await supabase.from('profiles').delete().eq('id', userId);
   await supabase.auth.admin.deleteUser(userId);
 }
@@ -75,7 +75,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'gcse-maths')!;
 
       const { data: aiTutor, error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           template_id: template.id,
@@ -101,7 +101,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'alevel-physics')!;
 
       const { data: aiTutor, error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           template_id: template.id,
@@ -124,7 +124,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'english-essay')!;
 
       const { data: aiTutor, error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           template_id: template.id,
@@ -147,7 +147,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'homework-buddy')!;
 
       const { data: aiTutor, error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           template_id: template.id,
@@ -170,7 +170,7 @@ describe.skip('AI Tutor Creation Flow', () => {
   describe('Custom AI Tutor Creation', () => {
     it('should create custom AI tutor without template', async () => {
       const { data: aiTutor, error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           template_id: null,
@@ -192,7 +192,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
     it('should require all mandatory fields', async () => {
       const { error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           // Missing display_name, subject, description
@@ -216,7 +216,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       // Create 5 AI tutors (should succeed)
       for (let i = 0; i < 5; i++) {
         const { error } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: testTutor.id,
             display_name: `Test Tutor ${i + 1}`,
@@ -232,7 +232,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
       // Verify count
       const { count } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .select('*', { count: 'exact', head: true })
         .eq('owner_id', testTutor.id);
 
@@ -247,7 +247,7 @@ describe.skip('AI Tutor Creation Flow', () => {
       try {
         // Create first AI tutor (should succeed)
         const { error: error1 } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: lowScoreTutor.id,
             display_name: 'First Tutor',
@@ -262,7 +262,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
         // Verify at limit
         const { count } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .select('*', { count: 'exact', head: true })
           .eq('owner_id', lowScoreTutor.id);
 
@@ -290,7 +290,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     it('should transition from draft to published', async () => {
       // Create draft AI tutor
       const { data: aiTutor } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           display_name: 'Test Tutor',
@@ -307,7 +307,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
       // Publish
       const { data: published } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({ status: 'published' })
         .eq('id', aiTutor!.id)
         .select()
@@ -319,7 +319,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     it('should transition from published to unpublished', async () => {
       // Create published AI tutor
       const { data: aiTutor } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           display_name: 'Test Tutor',
@@ -334,7 +334,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
       // Unpublish
       const { data: unpublished } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .update({ status: 'unpublished' })
         .eq('id', aiTutor!.id)
         .select()
@@ -347,7 +347,7 @@ describe.skip('AI Tutor Creation Flow', () => {
   describe('Data Validation', () => {
     it('should validate price is positive', async () => {
       const { error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           display_name: 'Test Tutor',
@@ -363,7 +363,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
     it('should validate subject is not empty', async () => {
       const { error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           display_name: 'Test Tutor',
@@ -379,7 +379,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
     it('should validate display_name length', async () => {
       const { error } = await supabase
-        .from('ai_tutors')
+        .from('ai_agents')
         .insert({
           owner_id: testTutor.id,
           display_name: 'A'.repeat(201), // Too long

@@ -73,7 +73,7 @@ export async function listUserAIAgents(userId: string): Promise<AITutor[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('*')
     .eq('owner_id', userId)
     .order('created_at', { ascending: false });
@@ -89,7 +89,7 @@ export async function listUserAIAgents(userId: string): Promise<AITutor[]> {
 export async function getAIAgent(id: string, userId?: string): Promise<AITutor | null> {
   const supabase = await createClient();
 
-  let query = supabase.from('ai_tutors').select('*').eq('id', id);
+  let query = supabase.from('ai_agents').select('*').eq('id', id);
 
   // If userId provided, ensure they own it or it's published
   if (userId) {
@@ -139,7 +139,7 @@ export async function createAIAgent(
 
   // Create AI tutor
   const { data: tutor, error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .insert({
       owner_id: userId,
       name: input.name,
@@ -187,7 +187,7 @@ export async function updateAIAgent(
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .update({
       ...input,
       updated_at: new Date().toISOString(),
@@ -209,7 +209,7 @@ export async function deleteAIAgent(id: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .delete()
     .eq('id', id)
     .eq('owner_id', userId);
@@ -226,7 +226,7 @@ export async function publishAIAgent(id: string, userId: string): Promise<void> 
 
   // Check subscription status
   const { data: tutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('subscription_status')
     .eq('id', id)
     .eq('owner_id', userId)
@@ -242,7 +242,7 @@ export async function publishAIAgent(id: string, userId: string): Promise<void> 
 
   // Publish
   const { error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .update({
       status: 'published',
       published_at: new Date().toISOString(),
@@ -260,7 +260,7 @@ export async function unpublishAIAgent(id: string, userId: string): Promise<void
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .update({
       status: 'unpublished',
     })
@@ -294,7 +294,7 @@ export async function getAIAgentLimits(userId: string): Promise<{
 
   // Count active AI tutors
   const { data: tutors } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('id')
     .eq('owner_id', userId)
     .neq('status', 'suspended');

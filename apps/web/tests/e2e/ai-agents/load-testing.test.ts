@@ -50,9 +50,9 @@ async function bulkCleanup(tutorIds: string[]) {
 
     // Delete related data
     await supabase.from('ai_agent_sessions').delete().in('agent_id', batch);
-    await supabase.from('ai_tutor_links').delete().in('agent_id', batch);
-    await supabase.from('ai_tutor_materials').delete().in('agent_id', batch);
-    await supabase.from('ai_tutors').delete().in('owner_id', batch);
+    await supabase.from('ai_agent_links').delete().in('agent_id', batch);
+    await supabase.from('ai_agent_materials').delete().in('agent_id', batch);
+    await supabase.from('ai_agents').delete().in('owner_id', batch);
     await supabase.from('profiles').delete().in('id', batch);
 
     for (const id of batch) {
@@ -84,7 +84,7 @@ describe.skip('AI Tutor Load Testing', () => {
         const aiTutorPromises = tutors.flatMap((tutor, tutorIndex) =>
           Array.from({ length: 10 }, (_, aiIndex) =>
             supabase
-              .from('ai_tutors')
+              .from('ai_agents')
               .insert({
                 owner_id: tutor.id,
                 display_name: `Load Test Tutor ${tutorIndex * 10 + aiIndex + 1}`,
@@ -122,7 +122,7 @@ describe.skip('AI Tutor Load Testing', () => {
         // Create 20 AI tutors simultaneously
         const promises = Array.from({ length: 20 }, (_, i) =>
           supabase
-            .from('ai_tutors')
+            .from('ai_agents')
             .insert({
               owner_id: tutor.id,
               display_name: `Concurrent Test ${i + 1}`,
@@ -162,7 +162,7 @@ describe.skip('AI Tutor Load Testing', () => {
         const aiTutors = await Promise.all(
           tutors.map((tutor) =>
             supabase
-              .from('ai_tutors')
+              .from('ai_agents')
               .insert({
                 owner_id: tutor.id,
                 display_name: 'Session Load Test Tutor',
@@ -234,7 +234,7 @@ describe.skip('AI Tutor Load Testing', () => {
         tutorIds.push(tutor.id);
 
         const { data: aiTutor } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: tutor.id,
             display_name: 'Update Test Tutor',
@@ -305,7 +305,7 @@ describe.skip('AI Tutor Load Testing', () => {
         tutorIds.push(tutor.id);
 
         const { data: aiTutor } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: tutor.id,
             display_name: 'RAG Load Test Tutor',
@@ -360,7 +360,7 @@ describe.skip('AI Tutor Load Testing', () => {
         await Promise.all(
           Array.from({ length: 50 }, (_, i) =>
             supabase
-              .from('ai_tutors')
+              .from('ai_agents')
               .insert({
                 owner_id: tutor.id,
                 display_name: `Pagination Test ${i + 1}`,
@@ -379,7 +379,7 @@ describe.skip('AI Tutor Load Testing', () => {
 
         for (let page = 0; page < 5; page++) {
           const { data } = await supabase
-            .from('ai_tutors')
+            .from('ai_agents')
             .select('*')
             .eq('owner_id', tutor.id)
             .range(page * 10, page * 10 + 9);
@@ -406,7 +406,7 @@ describe.skip('AI Tutor Load Testing', () => {
         tutorIds.push(tutor.id);
 
         const { data: aiTutor } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: tutor.id,
             display_name: 'Bulk Update Test',
@@ -473,7 +473,7 @@ describe.skip('AI Tutor Load Testing', () => {
         tutorIds.push(tutor.id);
 
         const { data: aiTutor } = await supabase
-          .from('ai_tutors')
+          .from('ai_agents')
           .insert({
             owner_id: tutor.id,
             display_name: 'Stress Test Tutor',

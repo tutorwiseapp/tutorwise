@@ -88,7 +88,7 @@ export async function POST(
     }
 
     // 7. Create VirtualSpace session
-    const aiTutor = (aiSession.ai_tutor as any)?.[0];
+    const aiTutor = (aiSession.ai_agent as any);
     const vsTitle = session_title || `AI Tutor: ${aiTutor?.name || 'Session'}`;
 
     const { data: vsSession, error: vsError } = await supabase
@@ -96,7 +96,7 @@ export async function POST(
       .insert({
         title: vsTitle,
         host_id: user.id,
-        session_type: 'ai_tutor',
+        session_type: 'ai_agent',
         status: 'active',
         metadata: {
           session_id: sessionId,

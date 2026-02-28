@@ -35,7 +35,7 @@ export async function POST(
       .select(
         `
         *,
-        ai_tutors (
+        ai_agent:ai_agents!agent_id (
           id,
           display_name,
           subject,
@@ -83,7 +83,7 @@ export async function POST(
       .select(
         `
         *,
-        ai_tutors (
+        ai_agent:ai_agents!agent_id (
           id,
           display_name,
           subject,

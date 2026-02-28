@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // Build query
     let query = supabase
-      .from('ai_tutors')
+      .from('ai_agents')
       .select(
         `
         id,

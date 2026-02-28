@@ -37,7 +37,7 @@ async function createTestAITutor() {
     .eq('id', authUser.user.id);
 
   const { data: aiTutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .insert({
       owner_id: authUser.user.id,
       display_name: 'Test RAG Tutor',
@@ -71,9 +71,9 @@ async function generateEmbedding(text: string): Promise<number[]> {
 // Helper: Clean up test data
 async function cleanupTestData(ownerId: string, aiAgentId: string) {
   await supabase.from('ai_agent_sessions').delete().match({ agent_id: aiAgentId });
-  await supabase.from('ai_tutor_links').delete().match({ agent_id: aiAgentId });
-  await supabase.from('ai_tutor_materials').delete().match({ agent_id: aiAgentId });
-  await supabase.from('ai_tutors').delete().eq('id', aiAgentId);
+  await supabase.from('ai_agent_links').delete().match({ agent_id: aiAgentId });
+  await supabase.from('ai_agent_materials').delete().match({ agent_id: aiAgentId });
+  await supabase.from('ai_agents').delete().eq('id', aiAgentId);
   await supabase.from('profiles').delete().eq('id', ownerId);
   await supabase.auth.admin.deleteUser(ownerId);
 }
@@ -97,7 +97,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const embedding = await generateEmbedding(materialContent);
 
       const { data: material, error } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .insert({
           agent_id: testData.aiAgentId,
           file_name: 'quadratic-equations.pdf',
@@ -137,7 +137,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       for (const mat of materials) {
         const embedding = await generateEmbedding(mat.content_text);
         const { error } = await supabase
-          .from('ai_tutor_materials')
+          .from('ai_agent_materials')
           .insert({
             agent_id: testData.aiAgentId,
             file_name: mat.file_name,
@@ -154,7 +154,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Verify all materials created
       const { count } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .select('*', { count: 'exact', head: true })
         .eq('agent_id', testData.aiAgentId);
 
@@ -163,7 +163,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
     it('should handle material upload failure', async () => {
       const { data: material, error } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .insert({
           agent_id: testData.aiAgentId,
           file_name: 'failed-upload.pdf',
@@ -186,7 +186,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
     it('should track material processing status', async () => {
       // Create processing material
       const { data: material } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .insert({
           agent_id: testData.aiAgentId,
           file_name: 'processing.pdf',
@@ -202,7 +202,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Update to ready
       const { data: updated } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .update({
           content_text: 'Processed content',
           embedding: await generateEmbedding('Processed content'),
@@ -219,7 +219,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
   describe('URL Links', () => {
     it('should add URL link to AI tutor', async () => {
       const { data: link, error } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .insert({
           agent_id: testData.aiAgentId,
           url: 'https://www.khanacademy.org/math/algebra',
@@ -252,7 +252,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       for (const link of links) {
         const { error } = await supabase
-          .from('ai_tutor_links')
+          .from('ai_agent_links')
           .insert({
             agent_id: testData.aiAgentId,
             url: link.url,
@@ -264,7 +264,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Verify all links created
       const { count } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .select('*', { count: 'exact', head: true })
         .eq('agent_id', testData.aiAgentId);
 
@@ -276,7 +276,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Add first link
       await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .insert({
           agent_id: testData.aiAgentId,
           url,
@@ -285,7 +285,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Try to add duplicate
       const { error } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .insert({
           agent_id: testData.aiAgentId,
           url, // Duplicate URL
@@ -298,7 +298,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
     it('should delete link', async () => {
       const { data: link } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .insert({
           agent_id: testData.aiAgentId,
           url: 'https://example.com/to-delete',
@@ -309,7 +309,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Delete
       const { error } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .delete()
         .eq('id', link!.id);
 
@@ -317,7 +317,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Verify deleted
       const { data: deleted } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .select()
         .eq('id', link!.id)
         .single();
@@ -337,7 +337,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       for (const content of materials) {
         const embedding = await generateEmbedding(content);
-        await supabase.from('ai_tutor_materials').insert({
+        await supabase.from('ai_agent_materials').insert({
           agent_id: testData.aiAgentId,
           file_name: `${content.substring(0, 10)}.pdf`,
           file_url: `https://example.com/${content.substring(0, 10)}.pdf`,
@@ -370,7 +370,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       for (let i = 0; i < 10; i++) {
         const content = `Mathematics topic ${i}: Various formulas and concepts`;
         const embedding = await generateEmbedding(content);
-        await supabase.from('ai_tutor_materials').insert({
+        await supabase.from('ai_agent_materials').insert({
           agent_id: testData.aiAgentId,
           file_name: `topic-${i}.pdf`,
           file_url: `https://example.com/topic-${i}.pdf`,
@@ -398,7 +398,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
     it('should filter out materials with low similarity', async () => {
       // Upload completely unrelated material
       const embedding = await generateEmbedding('Recipe for chocolate cake with butter and sugar');
-      await supabase.from('ai_tutor_materials').insert({
+      await supabase.from('ai_agent_materials').insert({
         agent_id: testData.aiAgentId,
         file_name: 'cake-recipe.pdf',
         file_url: 'https://example.com/cake.pdf',
@@ -427,7 +427,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
   describe('RAG Retrieval - Tier 2: Links', () => {
     it('should fall back to links when no materials match', async () => {
       // Add links (no materials)
-      await supabase.from('ai_tutor_links').insert([
+      await supabase.from('ai_agent_links').insert([
         {
           agent_id: testData.aiAgentId,
           url: 'https://www.khanacademy.org/math/algebra',
@@ -444,7 +444,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Verify links exist
       const { count } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .select('*', { count: 'exact', head: true })
         .eq('agent_id', testData.aiAgentId);
 
@@ -452,7 +452,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
     });
 
     it('should return links for AI tutor', async () => {
-      await supabase.from('ai_tutor_links').insert([
+      await supabase.from('ai_agent_links').insert([
         {
           agent_id: testData.aiAgentId,
           url: 'https://example.com/link1',
@@ -466,7 +466,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       ]);
 
       const { data: links } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .select('*')
         .eq('agent_id', testData.aiAgentId);
 
@@ -478,12 +478,12 @@ describe.skip('AI Tutor Materials and RAG', () => {
     it('should use Sage knowledge when no materials or links match', async () => {
       // No materials or links for this AI tutor
       const { count: materialCount } = await supabase
-        .from('ai_tutor_materials')
+        .from('ai_agent_materials')
         .select('*', { count: 'exact', head: true })
         .eq('agent_id', testData.aiAgentId);
 
       const { count: linkCount } = await supabase
-        .from('ai_tutor_links')
+        .from('ai_agent_links')
         .select('*', { count: 'exact', head: true })
         .eq('agent_id', testData.aiAgentId);
 

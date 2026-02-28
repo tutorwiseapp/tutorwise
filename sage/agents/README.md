@@ -181,7 +181,7 @@ export class MarketplaceAIAgent extends BaseAgent {
     }
 
     // Create session in database
-    const session = await this.supabase.from('ai_tutor_sessions').insert({...});
+    const session = await this.supabase.from('ai_agent_sessions').insert({...});
     return session;
   }
 
@@ -197,8 +197,8 @@ export class MarketplaceAIAgent extends BaseAgent {
   async getKnowledgeSources(userId: string): Promise<AgentKnowledgeSource[]> {
     // 3-tier RAG: materials → links → Sage fallback
     return [
-      { type: 'upload', namespace: `ai_tutor/${this.agent.id}`, priority: 1 },
-      { type: 'link', namespace: `ai_tutor_links/${this.agent.id}`, priority: 2 },
+      { type: 'upload', namespace: `ai_agent/${this.agent.id}`, priority: 1 },
+      { type: 'link', namespace: `ai_agent_links/${this.agent.id}`, priority: 2 },
       { type: 'global', namespace: 'sage/global', priority: 3 },
     ];
   }
@@ -245,7 +245,7 @@ import type { BaseAIAgent, AgentConfig } from 'sage';
 
 // Load agent from database
 const { data: agentData } = await supabase
-  .from('ai_tutors')
+  .from('ai_agents')
   .select('*')
   .eq('id', tutorId)
   .single();
@@ -299,7 +299,7 @@ const response = await tutor.processMessage(session.id, 'Can you help with my es
 | **Materials** | Shared platform materials | Custom uploaded materials |
 | **Links** | Platform curated links | Custom agent links |
 | **Implementation** | Delegates to sageOrchestrator | Custom session/message management |
-| **Database Tables** | `sage_sessions`, `sage_messages` | `ai_tutor_sessions`, `ai_tutor_messages` |
+| **Database Tables** | `sage_sessions`, `sage_messages` | `ai_agent_sessions` (messages stored as JSONB) |
 | **Subjects** | Maths, English, Science, General | Any subject (user-defined) |
 | **Levels** | GCSE, A-Level | Any level (user-defined) |
 
@@ -397,10 +397,10 @@ export interface AgentConfig {
 
 ## Next Steps
 
-### Phase 2: Update Naming Conventions
-- Rename `ai_tutors` table → `ai_agents` table
-- Update all references to use unified naming
-- Migrate existing data
+### Phase 2: Update Naming Conventions (**DONE**)
+- ~~Rename `ai_tutors` table → `ai_agents` table~~ (Migration 319)
+- ~~Update all references to use unified naming~~
+- ~~Migrate existing data~~
 
 ### Phase 3: Database Migration
 - Add `agent_type` column to support all types

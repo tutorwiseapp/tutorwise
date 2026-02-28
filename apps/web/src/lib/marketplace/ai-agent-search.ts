@@ -78,7 +78,7 @@ export async function searchAIAgents(
 
     // Fallback: Standard SQL query
     let queryBuilder = supabase
-      .from('ai_tutors')
+      .from('ai_agents')
       .select(
         `
         id,
@@ -150,7 +150,7 @@ export async function getFeaturedAIAgents(limit: number = 6): Promise<AIAgentSea
 
   try {
     const { data, error } = await supabase
-      .from('ai_tutors')
+      .from('ai_agents')
       .select(
         `
         id,

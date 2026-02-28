@@ -92,7 +92,7 @@ export default function HomePage() {
     if (marketplaceType === 'all') return true;
     if (marketplaceType === 'tutors') return item.type === 'profile' || item.type === 'listing';
     if (marketplaceType === 'organisations') return item.type === 'organisation';
-    if (marketplaceType === 'ai-agents') return item.type === 'ai_tutor';
+    if (marketplaceType === 'ai-agents') return item.type === 'ai_agent';
     return true;
   });
 

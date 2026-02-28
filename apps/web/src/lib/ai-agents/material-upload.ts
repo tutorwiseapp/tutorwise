@@ -62,7 +62,7 @@ export async function uploadMaterial(
 
   // Verify ownership
   const { data: tutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('owner_id, storage_used_mb, storage_limit_mb')
     .eq('id', aiAgentId)
     .eq('owner_id', userId)
@@ -220,7 +220,7 @@ async function processAndEmbedMaterial(
     const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
 
     await supabase
-      .from('ai_tutors')
+      .from('ai_agents')
       .update({ storage_used_mb: Math.ceil(totalUsed) })
       .eq('id', aiAgentId);
 
@@ -250,11 +250,11 @@ export async function deleteMaterial(
   // Verify ownership via AI tutor
   const { data: material } = await supabase
     .from('ai_agent_materials')
-    .select('agent_id, file_url, file_size_mb, ai_tutors!inner(owner_id)')
+    .select('agent_id, file_url, file_size_mb, ai_agent:ai_agents!agent_id(owner_id)')
     .eq('id', materialId)
     .single();
 
-  if (!material || (material as any).ai_tutors.owner_id !== userId) {
+  if (!material || (material as any).ai_agent.owner_id !== userId) {
     throw new Error('Material not found or access denied');
   }
 
@@ -284,7 +284,7 @@ export async function deleteMaterial(
   const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
 
   await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .update({ storage_used_mb: Math.ceil(totalUsed) })
     .eq('id', material.agent_id);
 }
@@ -304,7 +304,7 @@ export async function checkStorageQuota(
   const supabase = await createClient();
 
   const { data: tutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('storage_used_mb, storage_limit_mb')
     .eq('id', aiAgentId)
     .single();

@@ -101,7 +101,7 @@ export async function POST(
 
     // If no specific tutor requested, use AI tutor's owner as default
     if (!tutorId) {
-      const aiTutor = (aiSession.ai_tutor as any)?.[0];
+      const aiTutor = (aiSession.ai_agent as any);
       tutorId = aiTutor?.owner_id;
 
       if (!tutorId) {

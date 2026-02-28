@@ -61,7 +61,7 @@ export async function createAIAgentLink(
 
   // Verify ownership
   const { data: tutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('owner_id')
     .eq('id', aiAgentId)
     .eq('owner_id', userId)
@@ -105,11 +105,11 @@ export async function updateAIAgentLink(
   // Verify ownership via AI tutor
   const { data: link } = await supabase
     .from('ai_agent_links')
-    .select('agent_id, ai_tutors!inner(owner_id)')
+    .select('agent_id, ai_agent:ai_agents!agent_id(owner_id)')
     .eq('id', linkId)
     .single();
 
-  if (!link || (link as any).ai_tutors.owner_id !== userId) {
+  if (!link || (link as any).ai_agent.owner_id !== userId) {
     throw new Error('Link not found or access denied');
   }
 
@@ -135,11 +135,11 @@ export async function deleteAIAgentLink(linkId: string, userId: string): Promise
   // Verify ownership via AI tutor
   const { data: link } = await supabase
     .from('ai_agent_links')
-    .select('agent_id, ai_tutors!inner(owner_id)')
+    .select('agent_id, ai_agent:ai_agents!agent_id(owner_id)')
     .eq('id', linkId)
     .single();
 
-  if (!link || (link as any).ai_tutors.owner_id !== userId) {
+  if (!link || (link as any).ai_agent.owner_id !== userId) {
     throw new Error('Link not found or access denied');
   }
 

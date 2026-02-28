@@ -30,7 +30,7 @@ interface BundlePurchase {
     human_sessions_count: number;
     badge_text?: string;
   };
-  ai_tutor: {
+  ai_agent: {
     id: string;
     name: string;
     avatar_url?: string;
@@ -125,7 +125,7 @@ function BundleCard({ purchase }: BundleCardProps) {
       <div className={styles.cardHeader}>
         <div>
           <h3 className={styles.cardTitle}>{purchase.bundle.bundle_name}</h3>
-          <p className={styles.tutorName}>{purchase.ai_tutor.name}</p>
+          <p className={styles.tutorName}>{purchase.ai_agent.name}</p>
         </div>
         {purchase.bundle.badge_text && (
           <div className={styles.badge}>{purchase.bundle.badge_text}</div>
@@ -172,7 +172,7 @@ function BundleCard({ purchase }: BundleCardProps) {
       {/* Actions */}
       <div className={styles.actions}>
         <a
-          href={`/ai-agents/${purchase.ai_tutor.id}`}
+          href={`/ai-agents/${purchase.ai_agent.id}`}
           className={styles.actionButton}
         >
           Start Session

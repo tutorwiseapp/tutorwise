@@ -499,16 +499,16 @@ export async function POST(req: NextRequest) {
         const subscriptionType = subscription.metadata?.subscription_type;
 
         // Handle AI Tutor subscriptions
-        if (subscriptionType === 'ai_tutor') {
-          const aiTutorId = subscription.metadata?.ai_tutor_id;
+        if (subscriptionType === 'ai_agent') {
+          const aiTutorId = subscription.metadata?.agent_id;
           const ownerId = subscription.metadata?.owner_id;
 
           if (!aiTutorId || !ownerId) {
-            console.error('[WEBHOOK:SUBSCRIPTION] Missing ai_tutor_id or owner_id in AI Tutor subscription metadata');
-            throw new Error('Missing ai_tutor_id or owner_id in AI Tutor subscription metadata');
+            console.error('[WEBHOOK:SUBSCRIPTION] Missing agent_id or owner_id in AI Agent subscription metadata');
+            throw new Error('Missing agent_id or owner_id in AI Agent subscription metadata');
           }
 
-          // Upsert ai_tutor_subscriptions record
+          // Upsert ai_agent_subscriptions record
           const { error: upsertError } = await supabase
             .from('ai_agent_subscriptions')
             .upsert({
@@ -528,7 +528,7 @@ export async function POST(req: NextRequest) {
 
           // Update AI tutor subscription_status
           await supabase
-            .from('ai_tutors')
+            .from('ai_agents')
             .update({ subscription_status: subscription.status })
             .eq('id', aiTutorId);
 
@@ -635,8 +635,8 @@ export async function POST(req: NextRequest) {
         };
 
         // Update AI Tutor subscription
-        if (subscriptionType === 'ai_tutor') {
-          const aiTutorId = subscription.metadata?.ai_tutor_id;
+        if (subscriptionType === 'ai_agent') {
+          const aiTutorId = subscription.metadata?.agent_id;
 
           const { error: updateError } = await supabase
             .from('ai_agent_subscriptions')
@@ -653,10 +653,10 @@ export async function POST(req: NextRequest) {
             throw updateError;
           }
 
-          // Sync subscription_status to ai_tutors table
+          // Sync subscription_status to ai_agents table
           if (aiTutorId) {
             await supabase
-              .from('ai_tutors')
+              .from('ai_agents')
               .update({ subscription_status: subscription.status })
               .eq('id', aiTutorId);
           }
@@ -708,8 +708,8 @@ export async function POST(req: NextRequest) {
         };
 
         // Delete AI Tutor subscription
-        if (subscriptionType === 'ai_tutor') {
-          const aiTutorId = subscription.metadata?.ai_tutor_id;
+        if (subscriptionType === 'ai_agent') {
+          const aiTutorId = subscription.metadata?.agent_id;
 
           const { error: updateError } = await supabase
             .from('ai_agent_subscriptions')
@@ -724,7 +724,7 @@ export async function POST(req: NextRequest) {
           // Unpublish AI tutor and set subscription_status to canceled
           if (aiTutorId) {
             await supabase
-              .from('ai_tutors')
+              .from('ai_agents')
               .update({ subscription_status: 'canceled', status: 'unpublished' })
               .eq('id', aiTutorId);
           }

@@ -70,7 +70,7 @@ export async function createSubscriptionCheckout(
 
   // Get AI tutor details
   const { data: tutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .select('display_name, owner_id')
     .eq('id', aiAgentId)
     .single();
@@ -93,13 +93,13 @@ export async function createSubscriptionCheckout(
       metadata: {
         user_id: userId,
         agent_id: aiAgentId,
-        subscription_type: 'ai_tutor',
+        subscription_type: 'ai_agent',
       },
     },
     metadata: {
       user_id: userId,
       agent_id: aiAgentId,
-      subscription_type: 'ai_tutor',
+      subscription_type: 'ai_agent',
     },
     success_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}?subscription=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}?subscription=canceled`,

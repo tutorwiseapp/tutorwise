@@ -145,8 +145,8 @@ export default function AIAgentSessionPage({ params }: PageProps) {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerInfo}>
-          <h1 className={styles.title}>{session.ai_tutors.display_name}</h1>
-          <span className={styles.subtitle}>{session.ai_tutors.subject}</span>
+          <h1 className={styles.title}>{session.ai_agent.display_name}</h1>
+          <span className={styles.subtitle}>{session.ai_agent.subject}</span>
         </div>
 
         {isSessionActive && timeRemaining !== null && (
@@ -179,8 +179,8 @@ export default function AIAgentSessionPage({ params }: PageProps) {
         {messages.length === 0 ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>🤖</div>
-            <p className={styles.emptyText}>Start chatting with {session.ai_tutors.display_name}</p>
-            <p className={styles.emptySubtext}>Ask any questions about {session.ai_tutors.subject}</p>
+            <p className={styles.emptyText}>Start chatting with {session.ai_agent.display_name}</p>
+            <p className={styles.emptySubtext}>Ask any questions about {session.ai_agent.subject}</p>
           </div>
         ) : (
           <div className={styles.messagesList}>
@@ -258,7 +258,7 @@ export default function AIAgentSessionPage({ params }: PageProps) {
       {/* Review Modal */}
       {showReviewModal && (
         <ReviewModal
-          tutorName={session.ai_tutors.display_name}
+          tutorName={session.ai_agent.display_name}
           onSubmit={handleReviewSubmit}
           onSkip={handleSkipReview}
         />

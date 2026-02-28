@@ -1,11 +1,13 @@
--- Migration 318: ai_agents table consolidation
--- The ai_agents table already exists (created in Phase 2) with proper schema.
--- The ai_tutors table has 0 rows and is now redundant.
--- All API routes should query ai_agents going forward.
--- No schema changes needed - this migration is documentation only.
-
--- NOTE: ai_tutors table is kept for now as a safety net.
--- Child tables (ai_tutor_links, ai_tutor_sessions, etc.) have FKs to both tables:
---   - agent_id -> ai_agents(id) (new, used by unified adapter)
---   - ai_tutor_id -> ai_tutors(id) (legacy, unused since ai_tutors has 0 rows)
--- Future: Drop ai_tutors table and legacy FKs once all code uses ai_agents.
+-- Migration 318: ai_agents table consolidation (SUPERSEDED)
+--
+-- STATUS: This migration was documentation-only. The actual rename was
+-- completed in migration 319_rename_ai_tutor_tables_to_ai_agent.sql which:
+--
+--   1. Dropped the empty ai_tutors table
+--   2. Renamed all 12 child tables: ai_tutor_* → ai_agent_*
+--   3. Renamed/dropped columns: ai_tutor_id → agent_id
+--   4. Renamed all indexes, functions, triggers, RLS policies
+--   5. Created backward-compat wrapper for check_ai_tutor_limit
+--
+-- All code now uses ai_agent_* table names and agent_id column.
+-- See migration 319 for the complete rename implementation.

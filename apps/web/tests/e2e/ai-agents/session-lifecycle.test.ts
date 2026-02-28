@@ -38,7 +38,7 @@ async function createTestSession() {
 
   // Create AI tutor
   const { data: aiTutor } = await supabase
-    .from('ai_tutors')
+    .from('ai_agents')
     .insert({
       owner_id: tutor.user.id,
       display_name: 'Test Session Tutor',
@@ -69,7 +69,7 @@ async function createTestSession() {
 // Helper: Clean up test data
 async function cleanupTestSession(tutorId: string, aiAgentId: string, clientId: string) {
   await supabase.from('ai_agent_sessions').delete().match({ agent_id: aiAgentId });
-  await supabase.from('ai_tutors').delete().eq('id', aiAgentId);
+  await supabase.from('ai_agents').delete().eq('id', aiAgentId);
   await supabase.from('profiles').delete().eq('id', tutorId);
   await supabase.from('profiles').delete().eq('id', clientId);
   await supabase.auth.admin.deleteUser(tutorId);
