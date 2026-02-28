@@ -18,10 +18,10 @@ import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
-import AITutorStatsWidget from '@/app/components/feature/ai-agents/AITutorStatsWidget';
-import AITutorLimitsWidget from '@/app/components/feature/ai-agents/AITutorLimitsWidget';
-import AITutorHelpWidget from '@/app/components/feature/ai-agents/AITutorHelpWidget';
-import AITutorTipsWidget from '@/app/components/feature/ai-agents/AITutorTipsWidget';
+import AIAgentStatsWidget from '@/app/components/feature/ai-agents/AIAgentStatsWidget';
+import AIAgentLimitsWidget from '@/app/components/feature/ai-agents/AIAgentLimitsWidget';
+import AIAgentHelpWidget from '@/app/components/feature/ai-agents/AIAgentHelpWidget';
+import AIAgentTipsWidget from '@/app/components/feature/ai-agents/AIAgentTipsWidget';
 import AIAgentCard from './AIAgentCard';
 import AIAgentSkeleton from './AIAgentSkeleton';
 import toast from 'react-hot-toast';
@@ -56,7 +56,7 @@ interface AITutor {
   agent_type?: AgentType;
 }
 
-export default function AITutorsPage() {
+export default function AIAgentsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -183,7 +183,7 @@ export default function AITutorsPage() {
   });
 
   // Filter AI tutors by created_as_role - each role sees ONLY AI tutors they created in that role
-  const roleFilteredTutors = useMemo(() => {
+  const roleFilteredAgents = useMemo(() => {
     return aiTutors.filter((tutor) => {
       // Show only AI tutors created while in the current active role
       // This creates separate AI tutor inventories per role:
@@ -195,16 +195,16 @@ export default function AITutorsPage() {
   }, [aiTutors, activeRole]);
 
   const tabCounts = useMemo(() => ({
-    all: roleFilteredTutors.length,
-    published: roleFilteredTutors.filter(t => t.status === 'published').length,
-    draft: roleFilteredTutors.filter(t => t.status === 'draft').length,
-    unpublished: roleFilteredTutors.filter(t => t.status === 'unpublished').length,
-    archived: roleFilteredTutors.filter(t => t.status === 'archived').length,
-  }), [roleFilteredTutors]);
+    all: roleFilteredAgents.length,
+    published: roleFilteredAgents.filter(t => t.status === 'published').length,
+    draft: roleFilteredAgents.filter(t => t.status === 'draft').length,
+    unpublished: roleFilteredAgents.filter(t => t.status === 'unpublished').length,
+    archived: roleFilteredAgents.filter(t => t.status === 'archived').length,
+  }), [roleFilteredAgents]);
 
   // Filter AI tutors based on tab, search (comprehensive search across all relevant fields)
-  const filteredTutors = useMemo(() => {
-    let result = roleFilteredTutors;
+  const filteredAgents = useMemo(() => {
+    let result = roleFilteredAgents;
     if (filter !== 'all') {
       result = result.filter(t => t.status === filter);
     }
@@ -232,11 +232,11 @@ export default function AITutorsPage() {
       });
     }
     return result;
-  }, [roleFilteredTutors, filter, searchQuery, agentTypeFilter]);
+  }, [roleFilteredAgents, filter, searchQuery, agentTypeFilter]);
 
   // Sort AI tutors
   const sortedTutors = useMemo(() => {
-    const sorted = [...filteredTutors];
+    const sorted = [...filteredAgents];
     switch (sortBy) {
       case 'newest': return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       case 'oldest': return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
@@ -246,11 +246,11 @@ export default function AITutorsPage() {
       case 'sessions-high': return sorted.sort((a, b) => (b.total_sessions || 0) - (a.total_sessions || 0));
       default: return sorted;
     }
-  }, [filteredTutors, sortBy]);
+  }, [filteredAgents, sortBy]);
 
   const totalItems = sortedTutors.length;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedTutors = sortedTutors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedAgents = sortedTutors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   React.useEffect(() => { setCurrentPage(1); }, [filter, searchQuery, sortBy, agentTypeFilter]);
 
@@ -368,7 +368,7 @@ export default function AITutorsPage() {
     return (
       <HubPageLayout
         header={<HubHeader title="AI Studio" />}
-        sidebar={<HubSidebar><AITutorHelpWidget /></HubSidebar>}
+        sidebar={<HubSidebar><AIAgentHelpWidget /></HubSidebar>}
       >
         <HubEmptyState
           title="Error loading AI tutors"
@@ -463,10 +463,10 @@ export default function AITutorsPage() {
       }
       sidebar={
         <HubSidebar>
-          <AITutorStatsWidget aiTutors={aiTutors} isLoading={isLoading} />
-          <AITutorLimitsWidget />
-          <AITutorHelpWidget />
-          <AITutorTipsWidget />
+          <AIAgentStatsWidget aiTutors={aiTutors} isLoading={isLoading} />
+          <AIAgentLimitsWidget />
+          <AIAgentHelpWidget />
+          <AIAgentTipsWidget />
         </HubSidebar>
       }
     >
@@ -505,7 +505,7 @@ export default function AITutorsPage() {
         </div>
       )}
 
-      {!isLoading && paginatedTutors.length === 0 && !searchQuery && (
+      {!isLoading && paginatedAgents.length === 0 && !searchQuery && (
         <HubEmptyState
           title="No AI tutors found"
           description={
@@ -518,16 +518,16 @@ export default function AITutorsPage() {
         />
       )}
 
-      {!isLoading && paginatedTutors.length === 0 && searchQuery && (
+      {!isLoading && paginatedAgents.length === 0 && searchQuery && (
         <HubEmptyState
           title="No results found"
           description={`No AI tutors match "${searchQuery}".`}
         />
       )}
 
-      {!isLoading && paginatedTutors.length > 0 && (
+      {!isLoading && paginatedAgents.length > 0 && (
         <div className={styles.tutorsList}>
-          {paginatedTutors.map((tutor) => (
+          {paginatedAgents.map((tutor) => (
             <AIAgentCard
               key={tutor.id}
               aiTutor={tutor}

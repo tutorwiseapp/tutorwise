@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorHelpWidget.tsx
+ * Filename: AIAgentHelpWidget.tsx
  * Purpose: AI Tutor Help Widget - explains how AI tutors work
  * Created: 2026-02-23
  * Pattern: Uses HubComplexCard (matches BookingHelpWidget)
@@ -9,9 +9,9 @@
 
 import React from 'react';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
-import styles from './AITutorHelpWidget.module.css';
+import styles from './AIAgentHelpWidget.module.css';
 
-export default function AITutorHelpWidget() {
+export default function AIAgentHelpWidget() {
   return (
     <HubComplexCard>
       <h3 className={styles.title}>How AI Tutors Work</h3>

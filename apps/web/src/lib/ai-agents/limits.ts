@@ -10,7 +10,7 @@
 export interface CaaSLimitTier {
   minScore: number;
   maxScore: number;
-  maxAITutors: number;
+  maxAIAgents: number;
   tierName: string;
   tierColor: string;
   description: string;
@@ -25,7 +25,7 @@ export const CAAS_LIMIT_TIERS: CaaSLimitTier[] = [
   {
     minScore: 0,
     maxScore: 49,
-    maxAITutors: 0,
+    maxAIAgents: 0,
     tierName: 'No Access',
     tierColor: '#ef4444',
     description: 'Complete your profile and verification to unlock AI Studio',
@@ -33,7 +33,7 @@ export const CAAS_LIMIT_TIERS: CaaSLimitTier[] = [
   {
     minScore: 50,
     maxScore: 69,
-    maxAITutors: 1,
+    maxAIAgents: 1,
     tierName: 'Starter',
     tierColor: '#f59e0b',
     description: 'Create your first AI tutor to get started',
@@ -41,7 +41,7 @@ export const CAAS_LIMIT_TIERS: CaaSLimitTier[] = [
   {
     minScore: 70,
     maxScore: 79,
-    maxAITutors: 3,
+    maxAIAgents: 3,
     tierName: 'Growing',
     tierColor: '#3b82f6',
     description: 'Expand with up to 3 specialized AI tutors',
@@ -49,7 +49,7 @@ export const CAAS_LIMIT_TIERS: CaaSLimitTier[] = [
   {
     minScore: 80,
     maxScore: 89,
-    maxAITutors: 10,
+    maxAIAgents: 10,
     tierName: 'Professional',
     tierColor: '#8b5cf6',
     description: 'Scale your tutoring with up to 10 AI tutors',
@@ -57,7 +57,7 @@ export const CAAS_LIMIT_TIERS: CaaSLimitTier[] = [
   {
     minScore: 90,
     maxScore: 100,
-    maxAITutors: 50,
+    maxAIAgents: 50,
     tierName: 'Elite',
     tierColor: '#10b981',
     description: 'Maximum capacity: 50 AI tutors for top-tier educators',
@@ -103,13 +103,13 @@ export function getRemainingSlots(
   currentCount: number
 ): number {
   const tier = getLimitTierForScore(caasScore);
-  return Math.max(0, tier.maxAITutors - currentCount);
+  return Math.max(0, tier.maxAIAgents - currentCount);
 }
 
 /**
  * Check if user can create another AI tutor
  */
-export function canCreateAITutor(
+export function canCreateAIAgent(
   caasScore: number | null | undefined,
   currentCount: number
 ): boolean {

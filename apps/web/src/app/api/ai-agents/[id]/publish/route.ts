@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { publishAITutor } from '@/lib/ai-agents/manager';
+import { publishAIAgent } from '@/lib/ai-agents/adapter';
 
 /**
  * POST /api/ai-agents/[id]/publish
@@ -30,7 +30,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await publishAITutor(id, user.id);
+    await publishAIAgent(id, user.id);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

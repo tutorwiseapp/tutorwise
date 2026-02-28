@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorLimitsWidget.tsx
+ * Filename: AIAgentLimitsWidget.tsx
  * Purpose: AI Tutor Limits Widget - shows creation limits based on CaaS score
  * Created: 2026-02-23
  * Pattern: Uses HubComplexCard (matches BookingHelpWidget)
@@ -10,9 +10,9 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
-import styles from './AITutorLimitsWidget.module.css';
+import styles from './AIAgentLimitsWidget.module.css';
 
-export default function AITutorLimitsWidget() {
+export default function AIAgentLimitsWidget() {
   const { data: limits } = useQuery({
     queryKey: ['ai-tutor-limits'],
     queryFn: async () => {

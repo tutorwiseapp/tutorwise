@@ -33,11 +33,11 @@ interface LinkFormData {
 }
 
 interface LinksTabProps {
-  aiTutorId: string;
+  aiAgentId: string;
   hasSubscription: boolean;
 }
 
-export default function LinksTab({ aiTutorId, hasSubscription }: LinksTabProps) {
+export default function LinksTab({ aiAgentId, hasSubscription }: LinksTabProps) {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,9 +51,9 @@ export default function LinksTab({ aiTutorId, hasSubscription }: LinksTabProps) 
 
   // Fetch links
   const { data: links = [], isLoading } = useQuery<Link[]>({
-    queryKey: ['ai-tutor-links', aiTutorId],
+    queryKey: ['ai-tutor-links', aiAgentId],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-agents/${aiTutorId}/links`);
+      const response = await fetch(`/api/ai-agents/${aiAgentId}/links`);
       if (!response.ok) throw new Error('Failed to fetch links');
       return response.json();
     },
@@ -63,8 +63,8 @@ export default function LinksTab({ aiTutorId, hasSubscription }: LinksTabProps) 
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<LinkFormData> & { id?: string }) => {
       const url = data.id
-        ? `/api/ai-agents/${aiTutorId}/links/${data.id}`
-        : `/api/ai-agents/${aiTutorId}/links`;
+        ? `/api/ai-agents/${aiAgentId}/links/${data.id}`
+        : `/api/ai-agents/${aiAgentId}/links`;
 
       const response = await fetch(url, {
         method: data.id ? 'PATCH' : 'POST',
@@ -80,7 +80,7 @@ export default function LinksTab({ aiTutorId, hasSubscription }: LinksTabProps) 
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-links', aiTutorId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-links', aiAgentId] });
       toast.success(editingId ? 'Link updated' : 'Link added successfully');
       resetForm();
     },
@@ -93,14 +93,14 @@ export default function LinksTab({ aiTutorId, hasSubscription }: LinksTabProps) 
   const deleteMutation = useMutation({
     mutationFn: async (linkId: string) => {
       const response = await fetch(
-        `/api/ai-agents/${aiTutorId}/links/${linkId}`,
+        `/api/ai-agents/${aiAgentId}/links/${linkId}`,
         { method: 'DELETE' }
       );
 
       if (!response.ok) throw new Error('Failed to delete link');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-links', aiTutorId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-links', aiAgentId] });
       toast.success('Link deleted');
     },
     onError: () => {

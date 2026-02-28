@@ -39,22 +39,22 @@ interface AdminAIAgentDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   aiTutor: AITutor | null;
-  onAITutorUpdated: () => void;
+  onAIAgentUpdated: () => void;
 }
 
 export default function AdminAIAgentDetailModal({
   isOpen,
   onClose,
   aiTutor,
-  onAITutorUpdated,
+  onAIAgentUpdated,
 }: AdminAIAgentDetailModalProps) {
   if (!aiTutor) return null;
 
-  const handleViewAITutor = () => {
+  const handleViewAIAgent = () => {
     window.open(`/ai-agents/${aiTutor.id}`, '_blank');
   };
 
-  const handleEditAITutor = () => {
+  const handleEditAIAgent = () => {
     window.open(`/ai-agents/${aiTutor.id}/edit`, '_blank');
   };
 
@@ -155,10 +155,10 @@ export default function AdminAIAgentDetailModal({
 
         {/* Actions */}
         <div className={styles.actions}>
-          <Button variant="secondary" onClick={handleViewAITutor}>
+          <Button variant="secondary" onClick={handleViewAIAgent}>
             View AI Tutor
           </Button>
-          <Button variant="secondary" onClick={handleEditAITutor}>
+          <Button variant="secondary" onClick={handleEditAIAgent}>
             Edit AI Tutor
           </Button>
           <Button variant="secondary" onClick={onClose}>

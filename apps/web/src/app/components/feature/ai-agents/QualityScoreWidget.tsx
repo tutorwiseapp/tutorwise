@@ -40,17 +40,17 @@ interface QualityData {
 }
 
 interface QualityScoreWidgetProps {
-  aiTutorId: string;
+  aiAgentId: string;
 }
 
-export default function QualityScoreWidget({ aiTutorId }: QualityScoreWidgetProps) {
+export default function QualityScoreWidget({ aiAgentId }: QualityScoreWidgetProps) {
   const { data: quality, isLoading, refetch } = useQuery<QualityData>({
-    queryKey: ['ai-tutor-quality', aiTutorId],
-    queryFn: () => fetch(`/api/ai-agents/${aiTutorId}/quality`).then((r) => r.json()),
+    queryKey: ['ai-tutor-quality', aiAgentId],
+    queryFn: () => fetch(`/api/ai-agents/${aiAgentId}/quality`).then((r) => r.json()),
   });
 
   const handleRecalculate = async () => {
-    await fetch(`/api/ai-agents/${aiTutorId}/quality/recalculate`, {
+    await fetch(`/api/ai-agents/${aiAgentId}/quality/recalculate`, {
       method: 'POST',
     });
     refetch();

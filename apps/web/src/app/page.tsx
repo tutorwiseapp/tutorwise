@@ -16,7 +16,7 @@ import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import { getFeaturedItems, searchMarketplace, toMarketplaceItems } from '@/lib/api/marketplace';
 import HeroSection from '@/app/components/feature/marketplace/HeroSection';
 import BetaBanner from '@/app/components/feature/marketing/BetaBanner';
-import FeaturedAITutorsSection from '@/app/components/feature/ai-agents/FeaturedAITutorsSection';
+import FeaturedAIAgentsSection from '@/app/components/feature/ai-agents/FeaturedAIAgentsSection';
 import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
 import AdvancedFilters from '@/app/components/feature/marketplace/AdvancedFilters';
 import type { SearchFilters } from '@/lib/services/savedSearches';
@@ -160,7 +160,7 @@ export default function HomePage() {
       <BetaBanner />
 
       {/* Featured AI Tutors - Phase 2A */}
-      {!hasSearched && <FeaturedAITutorsSection />}
+      {!hasSearched && <FeaturedAIAgentsSection />}
 
       {/* Advanced Filters Drawer */}
       <AdvancedFilters

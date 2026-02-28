@@ -50,7 +50,7 @@ async function generateQueryEmbedding(query: string): Promise<number[]> {
  */
 export async function retrieveContext(
   query: string,
-  aiTutorId: string,
+  aiAgentId: string,
   topK: number = 5
 ): Promise<{
   chunks: RetrievedChunk[];
@@ -72,7 +72,7 @@ export async function retrieveContext(
   try {
     const { data: materialChunks, error } = await supabase.rpc('match_ai_tutor_chunks', {
       query_embedding: JSON.stringify(queryEmbedding),
-      p_ai_tutor_id: aiTutorId,
+      p_ai_tutor_id: aiAgentId,
       match_threshold: 0.65,
       match_count: topK,
     });
@@ -101,7 +101,7 @@ export async function retrieveContext(
     const { data: links } = await supabase
       .from('ai_tutor_links')
       .select('*')
-      .eq('ai_tutor_id', aiTutorId)
+      .eq('ai_tutor_id', aiAgentId)
       .eq('status', 'active')
       .order('priority', { ascending: true })
       .limit(topK);

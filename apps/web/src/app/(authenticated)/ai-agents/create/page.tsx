@@ -16,12 +16,12 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AITutorBuilderForm from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
-import type { AITutorFormData } from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
-import AITutorStatsWidget from '@/app/components/feature/ai-agents/AITutorStatsWidget';
-import AITutorLimitsWidget from '@/app/components/feature/ai-agents/AITutorLimitsWidget';
-import AITutorHelpWidget from '@/app/components/feature/ai-agents/AITutorHelpWidget';
-import AITutorTipsWidget from '@/app/components/feature/ai-agents/AITutorTipsWidget';
+import AIAgentBuilderForm from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import type { AIAgentFormData } from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import AIAgentStatsWidget from '@/app/components/feature/ai-agents/AIAgentStatsWidget';
+import AIAgentLimitsWidget from '@/app/components/feature/ai-agents/AIAgentLimitsWidget';
+import AIAgentHelpWidget from '@/app/components/feature/ai-agents/AIAgentHelpWidget';
+import AIAgentTipsWidget from '@/app/components/feature/ai-agents/AIAgentTipsWidget';
 import toast from 'react-hot-toast';
 
 interface AITutor {
@@ -38,7 +38,7 @@ interface AITutor {
   price_per_hour: number;
 }
 
-export default function NewAITutorPage() {
+export default function NewAIAgentPage() {
   const router = useRouter();
   const { profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
@@ -58,7 +58,7 @@ export default function NewAITutorPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const handleSubmit = async (data: AITutorFormData, shouldPublish: boolean) => {
+  const handleSubmit = async (data: AIAgentFormData, shouldPublish: boolean) => {
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/ai-agents', {
@@ -134,14 +134,14 @@ export default function NewAITutorPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AITutorStatsWidget aiTutors={aiTutors} isLoading={aiTutorsLoading} />
-          <AITutorLimitsWidget />
-          <AITutorHelpWidget />
-          <AITutorTipsWidget />
+          <AIAgentStatsWidget aiTutors={aiTutors} isLoading={aiTutorsLoading} />
+          <AIAgentLimitsWidget />
+          <AIAgentHelpWidget />
+          <AIAgentTipsWidget />
         </HubSidebar>
       }
     >
-      <AITutorBuilderForm
+      <AIAgentBuilderForm
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
       />

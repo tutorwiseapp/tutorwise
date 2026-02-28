@@ -13,11 +13,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import {
-  getAITutorById,
-  updateAITutor,
-  deleteAITutor,
-  getAITutorSkills,
-} from '@/lib/ai-agents/manager';
+  getAIAgentById,
+  updateAIAgent,
+  deleteAIAgent,
+  getAIAgentSkills,
+} from '@/lib/ai-agents/adapter';
 
 /**
  * GET /api/ai-agents/[id]
@@ -42,14 +42,14 @@ export async function GET(
     }
 
     // Get AI tutor
-    const tutor = await getAITutorById(id, user.id);
+    const tutor = await getAIAgentById(id, user.id);
 
     if (!tutor) {
       return NextResponse.json({ error: 'AI tutor not found' }, { status: 404 });
     }
 
     // Get skills
-    const skills = await getAITutorSkills(id);
+    const skills = await getAIAgentSkills(id);
 
     return NextResponse.json({ ...tutor, skills }, { status: 200 });
   } catch (error) {
@@ -106,7 +106,7 @@ export async function PATCH(
     }
 
     // Update AI tutor
-    const tutor = await updateAITutor(id, body, user.id);
+    const tutor = await updateAIAgent(id, body, user.id);
 
     return NextResponse.json(tutor, { status: 200 });
   } catch (error) {
@@ -141,7 +141,7 @@ export async function DELETE(
     }
 
     // Delete AI tutor
-    await deleteAITutor(id, user.id);
+    await deleteAIAgent(id, user.id);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

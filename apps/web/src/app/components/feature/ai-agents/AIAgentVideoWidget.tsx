@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorVideoWidget.tsx
+ * Filename: AIAgentVideoWidget.tsx
  * Purpose: AI Tutor Video Widget - links to tutorial video
  * Created: 2026-02-23
  * Pattern: Uses HubComplexCard (matches BookingVideoWidget)
@@ -9,9 +9,9 @@
 
 import React from 'react';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
-import styles from './AITutorVideoWidget.module.css';
+import styles from './AIAgentVideoWidget.module.css';
 
-export default function AITutorVideoWidget() {
+export default function AIAgentVideoWidget() {
   return (
     <HubComplexCard>
       <h3 className={styles.title}>Getting Started Video</h3>

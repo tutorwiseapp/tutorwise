@@ -48,7 +48,7 @@ export interface Skill {
   is_custom: boolean;
 }
 
-export interface AITutorCreateInput {
+export interface AIAgentCreateInput {
   name: string;
   display_name: string;
   description?: string;
@@ -58,7 +58,7 @@ export interface AITutorCreateInput {
   price_per_hour: number;
 }
 
-export interface AITutorUpdateInput {
+export interface AIAgentUpdateInput {
   display_name?: string;
   description?: string;
   avatar_url?: string;
@@ -69,7 +69,7 @@ export interface AITutorUpdateInput {
 /**
  * List all AI tutors owned by a user
  */
-export async function listUserAITutors(userId: string): Promise<AITutor[]> {
+export async function listUserAIAgents(userId: string): Promise<AITutor[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -86,7 +86,7 @@ export async function listUserAITutors(userId: string): Promise<AITutor[]> {
 /**
  * Get AI tutor by ID
  */
-export async function getAITutor(id: string, userId?: string): Promise<AITutor | null> {
+export async function getAIAgent(id: string, userId?: string): Promise<AITutor | null> {
   const supabase = await createClient();
 
   let query = supabase.from('ai_tutors').select('*').eq('id', id);
@@ -112,8 +112,8 @@ export async function getAITutor(id: string, userId?: string): Promise<AITutor |
  * Create new AI tutor (draft status)
  * Checks graduated limits before creation (unless platform-owned)
  */
-export async function createAITutor(
-  input: AITutorCreateInput,
+export async function createAIAgent(
+  input: AIAgentCreateInput,
   userId: string,
   activeRole?: string,
   isPlatformOwned: boolean = false
@@ -179,9 +179,9 @@ export async function createAITutor(
 /**
  * Update AI tutor
  */
-export async function updateAITutor(
+export async function updateAIAgent(
   id: string,
-  input: AITutorUpdateInput,
+  input: AIAgentUpdateInput,
   userId: string
 ): Promise<AITutor> {
   const supabase = await createClient();
@@ -205,7 +205,7 @@ export async function updateAITutor(
 /**
  * Delete AI tutor
  */
-export async function deleteAITutor(id: string, userId: string): Promise<void> {
+export async function deleteAIAgent(id: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -221,7 +221,7 @@ export async function deleteAITutor(id: string, userId: string): Promise<void> {
  * Publish AI tutor
  * Requires active subscription
  */
-export async function publishAITutor(id: string, userId: string): Promise<void> {
+export async function publishAIAgent(id: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
   // Check subscription status
@@ -256,7 +256,7 @@ export async function publishAITutor(id: string, userId: string): Promise<void> 
 /**
  * Unpublish AI tutor
  */
-export async function unpublishAITutor(id: string, userId: string): Promise<void> {
+export async function unpublishAIAgent(id: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -273,7 +273,7 @@ export async function unpublishAITutor(id: string, userId: string): Promise<void
 /**
  * Get AI tutor limits for user
  */
-export async function getAITutorLimits(userId: string): Promise<{
+export async function getAIAgentLimits(userId: string): Promise<{
   current: number;
   limit: number;
   caas_score: number;
@@ -311,13 +311,13 @@ export async function getAITutorLimits(userId: string): Promise<{
 /**
  * Get AI tutor skills with custom flag
  */
-export async function getAITutorSkills(aiTutorId: string): Promise<Skill[]> {
+export async function getAIAgentSkills(aiAgentId: string): Promise<Skill[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('ai_tutor_skills')
     .select('skill_name, is_custom')
-    .eq('ai_tutor_id', aiTutorId);
+    .eq('ai_tutor_id', aiAgentId);
 
   if (error) throw error;
 
@@ -325,5 +325,5 @@ export async function getAITutorSkills(aiTutorId: string): Promise<Skill[]> {
 }
 
 // Export aliases for backward compatibility
-export { getAITutor as getAITutorById };
-export { getAITutorLimits as checkCreationLimit };
+export { getAIAgent as getAIAgentById };
+export { getAIAgentLimits as checkCreationLimit };

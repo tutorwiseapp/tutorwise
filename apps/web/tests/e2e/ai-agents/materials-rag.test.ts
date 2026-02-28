@@ -52,7 +52,7 @@ async function createTestAITutor() {
 
   return {
     ownerId: authUser.user.id,
-    aiTutorId: aiTutor!.id,
+    aiAgentId: aiTutor!.id,
     email,
   };
 }
@@ -69,11 +69,11 @@ async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 // Helper: Clean up test data
-async function cleanupTestData(ownerId: string, aiTutorId: string) {
-  await supabase.from('ai_tutor_sessions').delete().match({ ai_tutor_id: aiTutorId });
-  await supabase.from('ai_tutor_links').delete().match({ ai_tutor_id: aiTutorId });
-  await supabase.from('ai_tutor_materials').delete().match({ ai_tutor_id: aiTutorId });
-  await supabase.from('ai_tutors').delete().eq('id', aiTutorId);
+async function cleanupTestData(ownerId: string, aiAgentId: string) {
+  await supabase.from('ai_tutor_sessions').delete().match({ ai_tutor_id: aiAgentId });
+  await supabase.from('ai_tutor_links').delete().match({ ai_tutor_id: aiAgentId });
+  await supabase.from('ai_tutor_materials').delete().match({ ai_tutor_id: aiAgentId });
+  await supabase.from('ai_tutors').delete().eq('id', aiAgentId);
   await supabase.from('profiles').delete().eq('id', ownerId);
   await supabase.auth.admin.deleteUser(ownerId);
 }
@@ -88,7 +88,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
   });
 
   afterEach(async () => {
-    await cleanupTestData(testData.ownerId, testData.aiTutorId);
+    await cleanupTestData(testData.ownerId, testData.aiAgentId);
   });
 
   describe('Material Uploads', () => {
@@ -99,7 +99,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: material, error } = await supabase
         .from('ai_tutor_materials')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           file_name: 'quadratic-equations.pdf',
           file_url: 'https://example.com/test.pdf',
           file_size: 1024,
@@ -139,7 +139,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
         const { error } = await supabase
           .from('ai_tutor_materials')
           .insert({
-            ai_tutor_id: testData.aiTutorId,
+            ai_tutor_id: testData.aiAgentId,
             file_name: mat.file_name,
             file_url: `https://example.com/${mat.file_name}`,
             file_size: 1024,
@@ -156,7 +156,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { count } = await supabase
         .from('ai_tutor_materials')
         .select('*', { count: 'exact', head: true })
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       expect(count).toBe(3);
     });
@@ -165,7 +165,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: material, error } = await supabase
         .from('ai_tutor_materials')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           file_name: 'failed-upload.pdf',
           file_url: 'https://example.com/failed.pdf',
           file_size: 1024,
@@ -188,7 +188,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: material } = await supabase
         .from('ai_tutor_materials')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           file_name: 'processing.pdf',
           file_url: 'https://example.com/processing.pdf',
           file_size: 1024,
@@ -221,7 +221,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: link, error } = await supabase
         .from('ai_tutor_links')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://www.khanacademy.org/math/algebra',
           title: 'Khan Academy Algebra',
           description: 'Comprehensive algebra course',
@@ -254,7 +254,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
         const { error } = await supabase
           .from('ai_tutor_links')
           .insert({
-            ai_tutor_id: testData.aiTutorId,
+            ai_tutor_id: testData.aiAgentId,
             url: link.url,
             title: link.title,
           });
@@ -266,7 +266,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { count } = await supabase
         .from('ai_tutor_links')
         .select('*', { count: 'exact', head: true })
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       expect(count).toBe(3);
     });
@@ -278,7 +278,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       await supabase
         .from('ai_tutor_links')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url,
           title: 'First Link',
         });
@@ -287,7 +287,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { error } = await supabase
         .from('ai_tutor_links')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url, // Duplicate URL
           title: 'Duplicate Link',
         });
@@ -300,7 +300,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: link } = await supabase
         .from('ai_tutor_links')
         .insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://example.com/to-delete',
           title: 'To Delete',
         })
@@ -338,7 +338,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       for (const content of materials) {
         const embedding = await generateEmbedding(content);
         await supabase.from('ai_tutor_materials').insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           file_name: `${content.substring(0, 10)}.pdf`,
           file_url: `https://example.com/${content.substring(0, 10)}.pdf`,
           file_size: 1024,
@@ -354,7 +354,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
 
       // Perform vector similarity search
       const { data: results } = await supabase.rpc('match_ai_tutor_materials', {
-        ai_tutor_id: testData.aiTutorId,
+        ai_tutor_id: testData.aiAgentId,
         query_embedding: queryEmbedding,
         match_threshold: 0.3,
         match_count: 3,
@@ -371,7 +371,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
         const content = `Mathematics topic ${i}: Various formulas and concepts`;
         const embedding = await generateEmbedding(content);
         await supabase.from('ai_tutor_materials').insert({
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           file_name: `topic-${i}.pdf`,
           file_url: `https://example.com/topic-${i}.pdf`,
           file_size: 1024,
@@ -386,7 +386,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const queryEmbedding = await generateEmbedding('Mathematics formulas');
 
       const { data: results } = await supabase.rpc('match_ai_tutor_materials', {
-        ai_tutor_id: testData.aiTutorId,
+        ai_tutor_id: testData.aiAgentId,
         query_embedding: queryEmbedding,
         match_threshold: 0.3,
         match_count: 5,
@@ -399,7 +399,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       // Upload completely unrelated material
       const embedding = await generateEmbedding('Recipe for chocolate cake with butter and sugar');
       await supabase.from('ai_tutor_materials').insert({
-        ai_tutor_id: testData.aiTutorId,
+        ai_tutor_id: testData.aiAgentId,
         file_name: 'cake-recipe.pdf',
         file_url: 'https://example.com/cake.pdf',
         file_size: 1024,
@@ -413,7 +413,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const queryEmbedding = await generateEmbedding('Quadratic equations');
 
       const { data: results } = await supabase.rpc('match_ai_tutor_materials', {
-        ai_tutor_id: testData.aiTutorId,
+        ai_tutor_id: testData.aiAgentId,
         query_embedding: queryEmbedding,
         match_threshold: 0.5, // Higher threshold
         match_count: 5,
@@ -429,13 +429,13 @@ describe.skip('AI Tutor Materials and RAG', () => {
       // Add links (no materials)
       await supabase.from('ai_tutor_links').insert([
         {
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://www.khanacademy.org/math/algebra',
           title: 'Khan Academy Algebra',
           description: 'Comprehensive algebra course with quadratic equations',
         },
         {
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://www.mathsisfun.com/algebra/quadratic-equation.html',
           title: 'Quadratic Equation - Maths Is Fun',
           description: 'Learn about quadratic equations',
@@ -446,7 +446,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { count } = await supabase
         .from('ai_tutor_links')
         .select('*', { count: 'exact', head: true })
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       expect(count).toBe(2);
     });
@@ -454,12 +454,12 @@ describe.skip('AI Tutor Materials and RAG', () => {
     it('should return links for AI tutor', async () => {
       await supabase.from('ai_tutor_links').insert([
         {
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://example.com/link1',
           title: 'Link 1',
         },
         {
-          ai_tutor_id: testData.aiTutorId,
+          ai_tutor_id: testData.aiAgentId,
           url: 'https://example.com/link2',
           title: 'Link 2',
         },
@@ -468,7 +468,7 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { data: links } = await supabase
         .from('ai_tutor_links')
         .select('*')
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       expect(links?.length).toBe(2);
     });
@@ -480,12 +480,12 @@ describe.skip('AI Tutor Materials and RAG', () => {
       const { count: materialCount } = await supabase
         .from('ai_tutor_materials')
         .select('*', { count: 'exact', head: true })
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       const { count: linkCount } = await supabase
         .from('ai_tutor_links')
         .select('*', { count: 'exact', head: true })
-        .eq('ai_tutor_id', testData.aiTutorId);
+        .eq('ai_tutor_id', testData.aiAgentId);
 
       expect(materialCount).toBe(0);
       expect(linkCount).toBe(0);

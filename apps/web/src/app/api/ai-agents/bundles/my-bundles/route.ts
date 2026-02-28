@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Parse query parameters
     const { searchParams } = new URL(request.url);
-    const aiTutorId = searchParams.get('ai_tutor_id');
+    const aiAgentId = searchParams.get('ai_tutor_id');
 
     // 3. Build query
     let query = supabase
@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
       .eq('status', 'active');
 
     // Filter by AI tutor if specified
-    if (aiTutorId) {
-      query = query.eq('agent_id', aiTutorId);
+    if (aiAgentId) {
+      query = query.eq('agent_id', aiAgentId);
     }
 
     const { data: purchases, error } = await query

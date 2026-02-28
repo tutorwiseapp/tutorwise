@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorStatsWidget.tsx
+ * Filename: AIAgentStatsWidget.tsx
  * Purpose: AI Tutor Stats Widget - shows key metrics
  * Created: 2026-02-23
  * Pattern: Uses HubStatsCard (matches ListingStatsWidget)
@@ -10,24 +10,24 @@
 import React from 'react';
 import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
 
-interface AITutorStatsWidgetProps {
+interface AIAgentStatsWidgetProps {
   aiTutors?: any[];
   isLoading?: boolean;
 }
 
-export default function AITutorStatsWidget({
+export default function AIAgentStatsWidget({
   aiTutors = [],
   isLoading = false,
-}: AITutorStatsWidgetProps) {
-  const activeTutors = aiTutors.filter(t => t.status === 'published').length;
+}: AIAgentStatsWidgetProps) {
+  const activeAgents = aiTutors.filter(t => t.status === 'published').length;
   const totalSessions = aiTutors.reduce((sum, t) => sum + (t.total_sessions || 0), 0);
   const totalRevenue = aiTutors.reduce((sum, t) => sum + (t.total_revenue || 0), 0);
 
   const stats: StatRow[] = [
     {
       label: 'Active AI Tutors',
-      value: isLoading ? '-' : activeTutors,
-      valueColor: activeTutors > 0 ? 'green' : 'default',
+      value: isLoading ? '-' : activeAgents,
+      valueColor: activeAgents > 0 ? 'green' : 'default',
     },
     {
       label: 'Total Sessions',

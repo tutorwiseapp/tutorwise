@@ -14,8 +14,8 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { AI_TUTOR_TEMPLATES } from '@/lib/ai-agents/templates';
-import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-agents/limits';
+import { AI_AGENT_TEMPLATES } from '@/lib/ai-agents/templates';
+import { canCreateAIAgent, getLimitTierForScore } from '@/lib/ai-agents/limits';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,7 +72,7 @@ describe.skip('AI Tutor Creation Flow', () => {
 
   describe('Template Selection', () => {
     it('should create AI tutor from GCSE Maths template', async () => {
-      const template = AI_TUTOR_TEMPLATES.find((t) => t.id === 'gcse-maths')!;
+      const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'gcse-maths')!;
 
       const { data: aiTutor, error } = await supabase
         .from('ai_tutors')
@@ -98,7 +98,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     });
 
     it('should create AI tutor from A-Level Physics template', async () => {
-      const template = AI_TUTOR_TEMPLATES.find((t) => t.id === 'alevel-physics')!;
+      const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'alevel-physics')!;
 
       const { data: aiTutor, error } = await supabase
         .from('ai_tutors')
@@ -121,7 +121,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     });
 
     it('should create AI tutor from English Essay template', async () => {
-      const template = AI_TUTOR_TEMPLATES.find((t) => t.id === 'english-essay')!;
+      const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'english-essay')!;
 
       const { data: aiTutor, error } = await supabase
         .from('ai_tutors')
@@ -144,7 +144,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     });
 
     it('should create AI tutor from Homework Buddy template', async () => {
-      const template = AI_TUTOR_TEMPLATES.find((t) => t.id === 'homework-buddy')!;
+      const template = AI_AGENT_TEMPLATES.find((t) => t.id === 'homework-buddy')!;
 
       const { data: aiTutor, error } = await supabase
         .from('ai_tutors')
@@ -211,7 +211,7 @@ describe.skip('AI Tutor Creation Flow', () => {
     it('should allow creation within CaaS limit (Professional tier = 10)', async () => {
       // Professional tier (score 80) allows 10 AI tutors
       const tier = getLimitTierForScore(testTutor.caasScore);
-      expect(tier.maxAITutors).toBe(10);
+      expect(tier.maxAIAgents).toBe(10);
 
       // Create 5 AI tutors (should succeed)
       for (let i = 0; i < 5; i++) {
@@ -237,7 +237,7 @@ describe.skip('AI Tutor Creation Flow', () => {
         .eq('owner_id', testTutor.id);
 
       expect(count).toBe(5);
-      expect(canCreateAITutor(testTutor.caasScore, count || 0)).toBe(true);
+      expect(canCreateAIAgent(testTutor.caasScore, count || 0)).toBe(true);
     });
 
     it('should block creation when limit reached', async () => {
@@ -266,7 +266,7 @@ describe.skip('AI Tutor Creation Flow', () => {
           .select('*', { count: 'exact', head: true })
           .eq('owner_id', lowScoreTutor.id);
 
-        expect(canCreateAITutor(50, count || 0)).toBe(false);
+        expect(canCreateAIAgent(50, count || 0)).toBe(false);
       } finally {
         await cleanupTestUser(lowScoreTutor.id);
       }
@@ -278,8 +278,8 @@ describe.skip('AI Tutor Creation Flow', () => {
       try {
         const tier = getLimitTierForScore(30);
         expect(tier.tierName).toBe('No Access');
-        expect(tier.maxAITutors).toBe(0);
-        expect(canCreateAITutor(30, 0)).toBe(false);
+        expect(tier.maxAIAgents).toBe(0);
+        expect(canCreateAIAgent(30, 0)).toBe(false);
       } finally {
         await cleanupTestUser(noAccessTutor.id);
       }

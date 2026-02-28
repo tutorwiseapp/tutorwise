@@ -33,15 +33,15 @@ interface SessionStats {
 }
 
 interface SessionsTabProps {
-  aiTutorId: string;
+  aiAgentId: string;
 }
 
-export default function SessionsTab({ aiTutorId }: SessionsTabProps) {
+export default function SessionsTab({ aiAgentId }: SessionsTabProps) {
   // Fetch sessions
   const { data: sessions = [], isLoading } = useQuery<Session[]>({
-    queryKey: ['ai-tutor-sessions', aiTutorId],
+    queryKey: ['ai-tutor-sessions', aiAgentId],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-agents/${aiTutorId}/sessions`);
+      const response = await fetch(`/api/ai-agents/${aiAgentId}/sessions`);
       if (!response.ok) throw new Error('Failed to fetch sessions');
       return response.json();
     },

@@ -29,8 +29,8 @@ import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-export default function AdminAITutorsOverviewPage() {
-  const canViewAITutors = usePermission('ai_tutors', 'view');
+export default function AdminAIAgentsOverviewPage() {
+  const canViewAIAgents = usePermission('ai_tutors', 'view');
   const [activeTab, setActiveTab] = useState<'overview' | 'all-ai-agents' | 'create-new'>('overview');
 
   // Fetch real-time AI tutor counts from ai_tutors table
@@ -57,11 +57,11 @@ export default function AdminAITutorsOverviewPage() {
   });
 
   // Fetch AI tutor metrics with historical comparison
-  const totalAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_total', compareWith: 'last_month' });
-  const activeAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
-  const platformAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_platform', compareWith: 'last_month' });
-  const userAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_user', compareWith: 'last_month' });
-  const draftAITutorsMetric = useAdminMetric({ metric: 'ai_tutors_draft', compareWith: 'last_month' });
+  const totalAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_total', compareWith: 'last_month' });
+  const activeAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_active', compareWith: 'last_month' });
+  const platformAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_platform', compareWith: 'last_month' });
+  const userAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_user', compareWith: 'last_month' });
+  const draftAIAgentsMetric = useAdminMetric({ metric: 'ai_tutors_draft', compareWith: 'last_month' });
   const totalSessionsMetric = useAdminMetric({ metric: 'ai_tutor_sessions_total', compareWith: 'last_month' });
   const activeRateMetric = useAdminMetric({ metric: 'ai_tutors_active_rate', compareWith: 'last_month' });
 
@@ -83,7 +83,7 @@ export default function AdminAITutorsOverviewPage() {
   ];
 
   // Authorization check (after all hooks)
-  if (!canViewAITutors) {
+  if (!canViewAIAgents) {
     return (
       <div style={{ padding: '3rem', textAlign: 'center' }}>
         <h2 style={{ marginBottom: '1rem' }}>Unauthorized Access</h2>
@@ -151,58 +151,58 @@ export default function AdminAITutorsOverviewPage() {
           <HubKPIGrid>
             <HubKPICard
               label="Total AI Tutors"
-              value={totalAITutorsMetric.value}
+              value={totalAIAgentsMetric.value}
               sublabel={formatMetricChange(
-                totalAITutorsMetric.change,
-                totalAITutorsMetric.changePercent,
+                totalAIAgentsMetric.change,
+                totalAIAgentsMetric.changePercent,
                 'last_month'
               )}
               icon={Bot}
-              trend={totalAITutorsMetric.trend}
+              trend={totalAIAgentsMetric.trend}
             />
             <HubKPICard
               label="Active"
-              value={activeAITutorsMetric.value}
+              value={activeAIAgentsMetric.value}
               sublabel={formatMetricChange(
-                activeAITutorsMetric.change,
-                activeAITutorsMetric.changePercent,
+                activeAIAgentsMetric.change,
+                activeAIAgentsMetric.changePercent,
                 'last_month'
               )}
               icon={Activity}
-              trend={activeAITutorsMetric.trend}
+              trend={activeAIAgentsMetric.trend}
             />
             <HubKPICard
               label="Platform-Owned"
-              value={platformAITutorsMetric.value}
+              value={platformAIAgentsMetric.value}
               sublabel={formatMetricChange(
-                platformAITutorsMetric.change,
-                platformAITutorsMetric.changePercent,
+                platformAIAgentsMetric.change,
+                platformAIAgentsMetric.changePercent,
                 'last_month'
               )}
               icon={Bot}
-              trend={platformAITutorsMetric.trend}
+              trend={platformAIAgentsMetric.trend}
             />
             <HubKPICard
               label="User-Created"
-              value={userAITutorsMetric.value}
+              value={userAIAgentsMetric.value}
               sublabel={formatMetricChange(
-                userAITutorsMetric.change,
-                userAITutorsMetric.changePercent,
+                userAIAgentsMetric.change,
+                userAIAgentsMetric.changePercent,
                 'last_month'
               )}
               icon={Users}
-              trend={userAITutorsMetric.trend}
+              trend={userAIAgentsMetric.trend}
             />
             <HubKPICard
               label="Draft"
-              value={draftAITutorsMetric.value}
+              value={draftAIAgentsMetric.value}
               sublabel={formatMetricChange(
-                draftAITutorsMetric.change,
-                draftAITutorsMetric.changePercent,
+                draftAIAgentsMetric.change,
+                draftAIAgentsMetric.changePercent,
                 'last_month'
               )}
               icon={FileEdit}
-              trend={draftAITutorsMetric.trend}
+              trend={draftAIAgentsMetric.trend}
             />
             <HubKPICard
               label="Total Sessions"
@@ -218,13 +218,13 @@ export default function AdminAITutorsOverviewPage() {
             <HubKPICard
               label="Avg Sessions/Tutor"
               value={
-                totalAITutorsMetric.value > 0
-                  ? (totalSessionsMetric.value / totalAITutorsMetric.value).toFixed(1)
+                totalAIAgentsMetric.value > 0
+                  ? (totalSessionsMetric.value / totalAIAgentsMetric.value).toFixed(1)
                   : '0'
               }
               sublabel={
-                totalAITutorsMetric.previousValue && totalAITutorsMetric.previousValue > 0
-                  ? `${(totalSessionsMetric.previousValue! / totalAITutorsMetric.previousValue!).toFixed(1)} last month`
+                totalAIAgentsMetric.previousValue && totalAIAgentsMetric.previousValue > 0
+                  ? `${(totalSessionsMetric.previousValue! / totalAIAgentsMetric.previousValue!).toFixed(1)} last month`
                   : undefined
               }
               icon={TrendingUp}

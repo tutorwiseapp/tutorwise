@@ -56,7 +56,7 @@ interface AITutor {
 }
 
 // Helper function to map AI tutor status to StatusBadge variant
-function getAITutorStatusVariant(status: string) {
+function getAIAgentStatusVariant(status: string) {
   const statusLower = status?.toLowerCase();
   if (statusLower === 'published') return 'published' as const;
   if (statusLower === 'draft') return 'pending' as const;
@@ -81,7 +81,7 @@ export default function AIAgentsTable() {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   // Modal state
-  const [selectedAITutor, setSelectedAITutor] = useState<AITutor | null>(null);
+  const [selectedAIAgent, setSelectedAIAgent] = useState<AITutor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch AI tutors data with React Query
@@ -177,12 +177,12 @@ export default function AIAgentsTable() {
 
   // Handle row click
   const handleRowClick = (aiTutor: AITutor) => {
-    setSelectedAITutor(aiTutor);
+    setSelectedAIAgent(aiTutor);
     setIsModalOpen(true);
   };
 
   // Handle AI tutor updated (callback from modal)
-  const handleAITutorUpdated = () => {
+  const handleAIAgentUpdated = () => {
     refetch();
   };
 
@@ -325,7 +325,7 @@ export default function AIAgentsTable() {
       width: '120px',
       sortable: true,
       render: (aiTutor) => (
-        <StatusBadge variant={getAITutorStatusVariant(aiTutor.status)} label={aiTutor.status} />
+        <StatusBadge variant={getAIAgentStatusVariant(aiTutor.status)} label={aiTutor.status} />
       ),
     },
     // Column 7: Sessions
@@ -546,7 +546,7 @@ export default function AIAgentsTable() {
         <div className={styles.mobileCardTitle}>
           <h3>{aiTutor.display_name}</h3>
           {aiTutor.is_platform_owned && <span className={styles.platformBadge}>⭐</span>}
-          <StatusBadge variant={getAITutorStatusVariant(aiTutor.status)} label={aiTutor.status} />
+          <StatusBadge variant={getAIAgentStatusVariant(aiTutor.status)} label={aiTutor.status} />
         </div>
         <div className={styles.mobileCardSubtitle}>
           <span>#{aiTutor.id.slice(0, 8)}</span>
@@ -632,10 +632,10 @@ export default function AIAgentsTable() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setSelectedAITutor(null);
+          setSelectedAIAgent(null);
         }}
-        aiTutor={selectedAITutor}
-        onAITutorUpdated={handleAITutorUpdated}
+        aiTutor={selectedAIAgent}
+        onAIAgentUpdated={handleAIAgentUpdated}
       />
     </>
   );

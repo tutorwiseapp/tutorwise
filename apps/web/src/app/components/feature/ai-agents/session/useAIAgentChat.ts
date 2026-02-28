@@ -6,14 +6,14 @@
  * Custom hook for managing AI tutor chat sessions.
  * Similar to useLexiChat but adapted for AI tutor sessions.
  *
- * @module components/feature/ai-agents/session/useAITutorChat
+ * @module components/feature/ai-agents/session/useAIAgentChat
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 // --- Types ---
 
-export interface AITutorMessage {
+export interface AIAgentMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -30,7 +30,7 @@ export interface AITutorMessage {
   };
 }
 
-export interface AITutorSession {
+export interface AIAgentSession {
   id: string;
   ai_tutor_id: string;
   client_id: string;
@@ -52,16 +52,16 @@ export interface AITutorSession {
   };
 }
 
-export interface UseAITutorChatOptions {
+export interface UseAIAgentChatOptions {
   sessionId: string;
   onSessionEnd?: () => void;
   onError?: (error: string) => void;
 }
 
-export interface UseAITutorChatReturn {
+export interface UseAIAgentChatReturn {
   // State
-  messages: AITutorMessage[];
-  session: AITutorSession | null;
+  messages: AIAgentMessage[];
+  session: AIAgentSession | null;
   isLoading: boolean;
   isSending: boolean;
   error: string | null;
@@ -76,17 +76,17 @@ export interface UseAITutorChatReturn {
 
 // --- Hook Implementation ---
 
-export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatReturn {
+export function useAIAgentChat(options: UseAIAgentChatOptions): UseAIAgentChatReturn {
   const { sessionId, onSessionEnd, onError } = options;
 
-  const [messages, setMessages] = useState<AITutorMessage[]>([]);
-  const [session, setSession] = useState<AITutorSession | null>(null);
+  const [messages, setMessages] = useState<AIAgentMessage[]>([]);
+  const [session, setSession] = useState<AIAgentSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
-  const sessionRef = useRef<AITutorSession | null>(null);
+  const sessionRef = useRef<AIAgentSession | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keep session ref in sync
@@ -143,8 +143,8 @@ export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatRe
       const data = await response.json();
       setSession(data.session);
 
-      // Convert stored messages to AITutorMessage format
-      const convertedMessages: AITutorMessage[] = (data.session.messages || []).map((msg: any, idx: number) => ({
+      // Convert stored messages to AIAgentMessage format
+      const convertedMessages: AIAgentMessage[] = (data.session.messages || []).map((msg: any, idx: number) => ({
         id: `msg_${idx}`,
         role: msg.role,
         content: msg.content,
@@ -173,7 +173,7 @@ export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatRe
     setError(null);
 
     // Add user message immediately
-    const userMessage: AITutorMessage = {
+    const userMessage: AIAgentMessage = {
       id: `msg_user_${Date.now()}`,
       role: 'user',
       content: trimmedMessage,
@@ -182,7 +182,7 @@ export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatRe
 
     // Add loading message for assistant
     const streamingMsgId = `msg_streaming_${Date.now()}`;
-    const streamingMessage: AITutorMessage = {
+    const streamingMessage: AIAgentMessage = {
       id: streamingMsgId,
       role: 'assistant',
       content: '',
@@ -213,7 +213,7 @@ export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatRe
       const data = await response.json();
 
       // Replace loading message with actual response
-      const assistantMessage: AITutorMessage = {
+      const assistantMessage: AIAgentMessage = {
         id: data.response.id,
         role: 'assistant',
         content: data.response.content,
@@ -312,4 +312,4 @@ export function useAITutorChat(options: UseAITutorChatOptions): UseAITutorChatRe
   };
 }
 
-export default useAITutorChat;
+export default useAIAgentChat;

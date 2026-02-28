@@ -5,7 +5,7 @@
  * Version: v1.0
  */
 
-export interface AITutorTemplate {
+export interface AIAgentTemplate {
   id: string;
   name: string;
   description: string;
@@ -18,7 +18,7 @@ export interface AITutorTemplate {
   color: string;
 }
 
-export const AI_TUTOR_TEMPLATES: AITutorTemplate[] = [
+export const AI_AGENT_TEMPLATES: AIAgentTemplate[] = [
   {
     id: 'gcse-maths',
     name: 'GCSE Maths Tutor',
@@ -112,14 +112,14 @@ export const AI_TUTOR_TEMPLATES: AITutorTemplate[] = [
 /**
  * Get all available templates
  */
-export async function getTemplates(): Promise<AITutorTemplate[]> {
-  return AI_TUTOR_TEMPLATES;
+export async function getTemplates(): Promise<AIAgentTemplate[]> {
+  return AI_AGENT_TEMPLATES;
 }
 
 /**
  * Get template by ID
  */
-export async function getTemplate(templateId: string): Promise<AITutorTemplate | null> {
-  const template = AI_TUTOR_TEMPLATES.find((t) => t.id === templateId);
+export async function getTemplate(templateId: string): Promise<AIAgentTemplate | null> {
+  const template = AI_AGENT_TEMPLATES.find((t) => t.id === templateId);
   return template || null;
 }

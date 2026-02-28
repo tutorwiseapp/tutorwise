@@ -49,7 +49,7 @@ async function createTestAITutorForSubscription() {
 
   return {
     ownerId: authUser.user.id,
-    aiTutorId: aiTutor!.id,
+    aiAgentId: aiTutor!.id,
     email,
   };
 }
@@ -81,7 +81,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       const { data: published } = await supabase
         .from('ai_tutors')
         .update({ status: 'published' })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -101,7 +101,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -131,7 +131,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -148,7 +148,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Simulate update webhook
       const { data: updated } = await supabase
@@ -156,7 +156,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
         .update({
           subscription_status: 'past_due',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -172,7 +172,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Simulate deletion webhook
       const { data: updated } = await supabase
@@ -181,7 +181,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'canceled',
           status: 'unpublished',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -199,7 +199,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           last_payment_date: new Date().toISOString(),
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -216,7 +216,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Simulate payment failure
       const { data: updated } = await supabase
@@ -225,7 +225,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'past_due',
           status: 'unpublished',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -244,7 +244,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Unpublish (should cancel subscription)
       const { data: unpublished } = await supabase
@@ -253,7 +253,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           status: 'unpublished',
           subscription_status: 'canceled',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -270,13 +270,13 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Delete AI tutor (should cancel subscription first)
       const { error } = await supabase
         .from('ai_tutors')
         .delete()
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       expect(error).toBeNull();
 
@@ -284,7 +284,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       const { data } = await supabase
         .from('ai_tutors')
         .select()
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .single();
 
       expect(data).toBeNull();
@@ -299,7 +299,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Cancel at end of period (keeps active until period ends)
       const periodEnd = new Date();
@@ -311,7 +311,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           subscription_cancel_at: periodEnd.toISOString(),
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -330,7 +330,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Simulate payment failure
       const { data: suspended } = await supabase
@@ -339,7 +339,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'past_due',
           status: 'unpublished',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -355,7 +355,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'past_due',
           status: 'unpublished',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Try to create session
       const clientEmail = `client-${Date.now()}@test.com`;
@@ -369,7 +369,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       const { data: aiTutor } = await supabase
         .from('ai_tutors')
         .select('status, subscription_status')
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .single();
 
       expect(aiTutor?.status).toBe('unpublished');
@@ -386,7 +386,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'past_due',
           status: 'unpublished',
         })
-        .eq('id', testData.aiTutorId);
+        .eq('id', testData.aiAgentId);
 
       // Simulate successful payment
       const { data: restored } = await supabase
@@ -395,7 +395,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_status: 'active',
           status: 'published',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 
@@ -442,7 +442,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
         .from('ai_tutors')
         .select('id, subscription_status')
         .eq('owner_id', testData.ownerId)
-        .neq('id', testData.aiTutorId); // Exclude the original test tutor
+        .neq('id', testData.aiAgentId); // Exclude the original test tutor
 
       expect(allTutors?.length).toBe(3);
       expect(allTutors?.every((t) => t.subscription_status === 'active')).toBe(true);
@@ -461,7 +461,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
         const { data: updated } = await supabase
           .from('ai_tutors')
           .update({ subscription_status: state })
-          .eq('id', testData.aiTutorId)
+          .eq('id', testData.aiAgentId)
           .select()
           .single();
 
@@ -482,7 +482,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
           subscription_trial_end: trialEnd.toISOString(),
           status: 'published',
         })
-        .eq('id', testData.aiTutorId)
+        .eq('id', testData.aiAgentId)
         .select()
         .single();
 

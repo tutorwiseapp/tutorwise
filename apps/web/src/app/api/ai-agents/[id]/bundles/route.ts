@@ -32,14 +32,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
-  const { id: aiTutorId } = await params;
+  const { id: aiAgentId } = await params;
 
   try {
     // Fetch active bundles
     const { data: bundles, error } = await supabase
       .from('ai_tutor_bundles')
       .select('*')
-      .eq('agent_id', aiTutorId)
+      .eq('agent_id', aiAgentId)
       .eq('is_active', true)
       .order('display_order', { ascending: true });
 
@@ -75,7 +75,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
-  const { id: aiTutorId } = await params;
+  const { id: aiAgentId } = await params;
 
   try {
     // 1. Authenticate user
@@ -88,7 +88,7 @@ export async function POST(
     const { data: aiTutor, error: tutorError } = await supabase
       .from('ai_agents')
       .select('id, owner_id')
-      .eq('id', aiTutorId)
+      .eq('id', aiAgentId)
       .single();
 
     if (tutorError || !aiTutor) {
@@ -142,7 +142,7 @@ export async function POST(
     const { data: maxOrder } = await supabase
       .from('ai_tutor_bundles')
       .select('display_order')
-      .eq('agent_id', aiTutorId)
+      .eq('agent_id', aiAgentId)
       .order('display_order', { ascending: false })
       .limit(1)
       .single();
@@ -153,7 +153,7 @@ export async function POST(
     const { data: bundle, error: createError } = await supabase
       .from('ai_tutor_bundles')
       .insert({
-        agent_id: aiTutorId,
+        agent_id: aiAgentId,
         bundle_name,
         ai_sessions_count,
         human_sessions_count,
@@ -173,7 +173,7 @@ export async function POST(
 
     console.log('[Create Bundle] Bundle created:', {
       bundleId: bundle.id,
-      aiTutorId,
+      aiAgentId,
       ownerId: user.id
     });
 

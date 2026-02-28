@@ -126,7 +126,7 @@ export async function POST(
       purchaseId: purchase.id,
       bundleId,
       clientId: user.id,
-      aiTutorId: bundle.agent_id,
+      aiAgentId: bundle.agent_id,
       totalPaid: bundle.total_price_pence
     });
 

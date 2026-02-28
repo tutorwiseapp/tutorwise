@@ -16,18 +16,18 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import type { HubTab } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AITutorBuilderForm from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
-import type { AITutorFormData } from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
-import AITutorHelpWidget from '@/app/components/feature/ai-agents/AITutorHelpWidget';
+import AIAgentBuilderForm from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import type { AIAgentFormData } from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import AIAgentHelpWidget from '@/app/components/feature/ai-agents/AIAgentHelpWidget';
 import toast from 'react-hot-toast';
 
-interface EditAITutorPageProps {
+interface EditAIAgentPageProps {
   params: Promise<{
     id: string;
   }>;
 }
 
-export default function EditAITutorPage({ params }: EditAITutorPageProps) {
+export default function EditAIAgentPage({ params }: EditAIAgentPageProps) {
   const router = useRouter();
   const { profile, isLoading: userLoading } = useUserProfile();
   const { isAllowed, isLoading: roleLoading } = useRoleGuard(['tutor', 'agent']);
@@ -56,7 +56,7 @@ export default function EditAITutorPage({ params }: EditAITutorPageProps) {
     staleTime: 5 * 60 * 1000,
   });
 
-  const handleSubmit = async (data: AITutorFormData, shouldPublish: boolean) => {
+  const handleSubmit = async (data: AIAgentFormData, shouldPublish: boolean) => {
     if (!tutorId) return;
 
     setIsSubmitting(true);
@@ -156,7 +156,7 @@ export default function EditAITutorPage({ params }: EditAITutorPageProps) {
       <HubPageLayout
         header={<HubHeader title="AI Studio" />}
         tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
-        sidebar={<HubSidebar><AITutorHelpWidget /></HubSidebar>}
+        sidebar={<HubSidebar><AIAgentHelpWidget /></HubSidebar>}
       >
         <div style={{ padding: '2rem', textAlign: 'center' }}>
           <h2>Error Loading AI Tutor</h2>
@@ -173,11 +173,11 @@ export default function EditAITutorPage({ params }: EditAITutorPageProps) {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AITutorHelpWidget />
+          <AIAgentHelpWidget />
         </HubSidebar>
       }
     >
-      <AITutorBuilderForm
+      <AIAgentBuilderForm
         initialData={aiTutor}
         onSubmit={handleSubmit}
         onCancel={handleCancel}

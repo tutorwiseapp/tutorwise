@@ -29,13 +29,13 @@ export interface Material {
 /**
  * List materials for AI tutor
  */
-export async function listMaterials(aiTutorId: string): Promise<Material[]> {
+export async function listMaterials(aiAgentId: string): Promise<Material[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('ai_tutor_materials')
     .select('*')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .order('uploaded_at', { ascending: false });
 
   if (error) throw error;
@@ -55,7 +55,7 @@ export async function listMaterials(aiTutorId: string): Promise<Material[]> {
  */
 export async function uploadMaterial(
   file: File,
-  aiTutorId: string,
+  aiAgentId: string,
   userId: string
 ): Promise<Material> {
   const supabase = await createClient();
@@ -64,7 +64,7 @@ export async function uploadMaterial(
   const { data: tutor } = await supabase
     .from('ai_tutors')
     .select('owner_id, storage_used_mb, storage_limit_mb')
-    .eq('id', aiTutorId)
+    .eq('id', aiAgentId)
     .eq('owner_id', userId)
     .single();
 
@@ -84,7 +84,7 @@ export async function uploadMaterial(
   // Upload file to Supabase Storage
   const fileId = crypto.randomUUID();
   const ext = file.name.split('.').pop() || 'bin';
-  const storagePath = `ai-agents/${aiTutorId}/${fileId}.${ext}`;
+  const storagePath = `ai-agents/${aiAgentId}/${fileId}.${ext}`;
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
 
@@ -107,7 +107,7 @@ export async function uploadMaterial(
   const { data: material, error: insertError } = await supabase
     .from('ai_tutor_materials')
     .insert({
-      ai_tutor_id: aiTutorId,
+      ai_tutor_id: aiAgentId,
       file_name: file.name,
       file_type: ext,
       file_size_mb: fileSizeMB,
@@ -120,7 +120,7 @@ export async function uploadMaterial(
   if (insertError) throw insertError;
 
   // Process document asynchronously (don't await in request handler)
-  processAndEmbedMaterial(material.id, aiTutorId, fileBuffer, file.name, fileSizeMB)
+  processAndEmbedMaterial(material.id, aiAgentId, fileBuffer, file.name, fileSizeMB)
     .catch(err => console.error('[MaterialUpload] Background processing failed:', err));
 
   return material;
@@ -132,7 +132,7 @@ export async function uploadMaterial(
  */
 async function processAndEmbedMaterial(
   materialId: string,
-  aiTutorId: string,
+  aiAgentId: string,
   buffer: Buffer,
   filename: string,
   _fileSizeMB: number
@@ -184,7 +184,7 @@ async function processAndEmbedMaterial(
             .from('ai_tutor_material_chunks')
             .insert({
               material_id: materialId,
-              ai_tutor_id: aiTutorId,
+              ai_tutor_id: aiAgentId,
               chunk_text: chunk.content,
               chunk_index: chunk.position,
               page_number: chunk.pageNumber || null,
@@ -215,14 +215,14 @@ async function processAndEmbedMaterial(
     const { data: totalStorage } = await supabase
       .from('ai_tutor_materials')
       .select('file_size_mb')
-      .eq('ai_tutor_id', aiTutorId);
+      .eq('ai_tutor_id', aiAgentId);
 
     const totalUsed = (totalStorage || []).reduce((sum, m) => sum + (m.file_size_mb || 0), 0);
 
     await supabase
       .from('ai_tutors')
       .update({ storage_used_mb: Math.ceil(totalUsed) })
-      .eq('id', aiTutorId);
+      .eq('id', aiAgentId);
 
     console.log(`[MaterialUpload] Processed ${filename}: ${chunksStored}/${processed.chunks.length} chunks embedded`);
   } catch (error) {
@@ -293,7 +293,7 @@ export async function deleteMaterial(
  * Check storage quota for AI tutor
  */
 export async function checkStorageQuota(
-  aiTutorId: string,
+  aiAgentId: string,
   newFileSizeMB: number
 ): Promise<{
   allowed: boolean;
@@ -306,7 +306,7 @@ export async function checkStorageQuota(
   const { data: tutor } = await supabase
     .from('ai_tutors')
     .select('storage_used_mb, storage_limit_mb')
-    .eq('id', aiTutorId)
+    .eq('id', aiAgentId)
     .single();
 
   if (!tutor) {

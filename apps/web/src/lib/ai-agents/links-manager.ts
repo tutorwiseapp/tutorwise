@@ -7,7 +7,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 
-export interface AITutorLink {
+export interface AIAgentLink {
   id: string;
   ai_tutor_id: string;
   url: string;
@@ -21,7 +21,7 @@ export interface AITutorLink {
   last_accessed_at?: string;
 }
 
-export interface AITutorLinkCreateInput {
+export interface AIAgentLinkCreateInput {
   url: string;
   title?: string;
   description?: string;
@@ -33,13 +33,13 @@ export interface AITutorLinkCreateInput {
 /**
  * List all links for an AI tutor
  */
-export async function listAITutorLinks(aiTutorId: string): Promise<AITutorLink[]> {
+export async function listAIAgentLinks(aiAgentId: string): Promise<AIAgentLink[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('ai_tutor_links')
     .select('*')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .eq('status', 'active')
     .order('priority', { ascending: true })
     .order('added_at', { ascending: false });
@@ -52,18 +52,18 @@ export async function listAITutorLinks(aiTutorId: string): Promise<AITutorLink[]
 /**
  * Create new link for AI tutor
  */
-export async function createAITutorLink(
-  aiTutorId: string,
-  input: AITutorLinkCreateInput,
+export async function createAIAgentLink(
+  aiAgentId: string,
+  input: AIAgentLinkCreateInput,
   userId: string
-): Promise<AITutorLink> {
+): Promise<AIAgentLink> {
   const supabase = await createClient();
 
   // Verify ownership
   const { data: tutor } = await supabase
     .from('ai_tutors')
     .select('owner_id')
-    .eq('id', aiTutorId)
+    .eq('id', aiAgentId)
     .eq('owner_id', userId)
     .single();
 
@@ -75,7 +75,7 @@ export async function createAITutorLink(
   const { data, error } = await supabase
     .from('ai_tutor_links')
     .insert({
-      ai_tutor_id: aiTutorId,
+      ai_tutor_id: aiAgentId,
       url: input.url,
       title: input.title,
       description: input.description,
@@ -95,11 +95,11 @@ export async function createAITutorLink(
 /**
  * Update link
  */
-export async function updateAITutorLink(
+export async function updateAIAgentLink(
   linkId: string,
-  input: Partial<AITutorLinkCreateInput>,
+  input: Partial<AIAgentLinkCreateInput>,
   userId: string
-): Promise<AITutorLink> {
+): Promise<AIAgentLink> {
   const supabase = await createClient();
 
   // Verify ownership via AI tutor
@@ -129,7 +129,7 @@ export async function updateAITutorLink(
 /**
  * Delete link
  */
-export async function deleteAITutorLink(linkId: string, userId: string): Promise<void> {
+export async function deleteAIAgentLink(linkId: string, userId: string): Promise<void> {
   const supabase = await createClient();
 
   // Verify ownership via AI tutor
@@ -153,7 +153,7 @@ export async function deleteAITutorLink(linkId: string, userId: string): Promise
 }
 
 // Export aliases for backward compatibility
-export { listAITutorLinks as listLinks };
-export { createAITutorLink as addLink };
-export { updateAITutorLink as updateLink };
-export { deleteAITutorLink as deleteLink };
+export { listAIAgentLinks as listLinks };
+export { createAIAgentLink as addLink };
+export { updateAIAgentLink as updateLink };
+export { deleteAIAgentLink as deleteLink };

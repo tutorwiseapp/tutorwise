@@ -11,8 +11,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { createAITutor, listUserAITutors } from '@/lib/ai-agents/manager';
-import { canCreateAITutor, getLimitTierForScore } from '@/lib/ai-agents/limits';
+import { createAIAgent, listUserAIAgents } from '@/lib/ai-agents/adapter';
+import { canCreateAIAgent, getLimitTierForScore } from '@/lib/ai-agents/limits';
 
 /**
  * GET /api/ai-agents
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get AI tutors owned by user
-    const tutors = await listUserAITutors(user.id);
+    const tutors = await listUserAIAgents(user.id);
 
     return NextResponse.json(tutors, { status: 200 });
   } catch (error) {
@@ -174,13 +174,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user can create another AI tutor
-    if (!canCreateAITutor(caasScore, currentCount || 0)) {
+    if (!canCreateAIAgent(caasScore, currentCount || 0)) {
       const tier = getLimitTierForScore(caasScore);
       return NextResponse.json(
         {
-          error: `AI Tutor limit reached. Your current tier (${tier.tierName}) allows ${tier.maxAITutors} AI tutor${tier.maxAITutors !== 1 ? 's' : ''}. Increase your CaaS score to unlock more slots.`,
+          error: `AI Tutor limit reached. Your current tier (${tier.tierName}) allows ${tier.maxAIAgents} AI tutor${tier.maxAIAgents !== 1 ? 's' : ''}. Increase your CaaS score to unlock more slots.`,
           currentTier: tier.tierName,
-          maxAITutors: tier.maxAITutors,
+          maxAIAgents: tier.maxAIAgents,
           currentCount: currentCount || 0,
           caasScore,
         },
@@ -207,8 +207,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create AI tutor
-    const tutor = await createAITutor(
+    // Create AI agent
+    const tutor = await createAIAgent(
       {
         name: body.name,
         display_name: body.display_name,
@@ -217,6 +217,8 @@ export async function POST(request: NextRequest) {
         subject: body.subject,
         skills: body.skills || [],
         price_per_hour: body.price_per_hour,
+        agent_type: body.agent_type || 'tutor',
+        agent_context: body.agent_context || 'marketplace',
       },
       user.id,
       activeRole,

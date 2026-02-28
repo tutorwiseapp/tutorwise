@@ -16,11 +16,11 @@
 
 import { use, useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAITutorChat } from '@/app/components/feature/ai-agents/session/useAITutorChat';
+import { useAIAgentChat } from '@/app/components/feature/ai-agents/session/useAIAgentChat';
 import LexiMarkdown from '@/components/feature/lexi/LexiMarkdown';
 import SessionTimer from '@/app/components/feature/ai-agents/session/SessionTimer';
 import ReviewModal from '@/app/components/feature/ai-agents/session/ReviewModal';
-import styles from './AITutorSession.module.css';
+import styles from './AIAgentSession.module.css';
 
 interface PageProps {
   params: Promise<{
@@ -29,8 +29,8 @@ interface PageProps {
   }>;
 }
 
-export default function AITutorSessionPage({ params }: PageProps) {
-  const { id: aiTutorId, sessionId } = use(params);
+export default function AIAgentSessionPage({ params }: PageProps) {
+  const { id: aiAgentId, sessionId } = use(params);
   const router = useRouter();
 
   const [inputValue, setInputValue] = useState('');
@@ -51,13 +51,13 @@ export default function AITutorSessionPage({ params }: PageProps) {
     endSession,
     escalateToHuman,
     clearError,
-  } = useAITutorChat({
+  } = useAIAgentChat({
     sessionId,
     onSessionEnd: () => {
       // Show review modal when session ends
       setShowReviewModal(true);
     },
-    onError: (err) => console.error('[AITutorSession] Error:', err),
+    onError: (err) => console.error('[AIAgentSession] Error:', err),
   });
 
   // Auto-scroll to bottom when messages change
@@ -94,7 +94,7 @@ export default function AITutorSessionPage({ params }: PageProps) {
   // Handle review submission
   const handleReviewSubmit = useCallback(async (rating: number, reviewText: string) => {
     try {
-      await fetch(`/api/ai-agents/${aiTutorId}/reviews`, {
+      await fetch(`/api/ai-agents/${aiAgentId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,17 +105,17 @@ export default function AITutorSessionPage({ params }: PageProps) {
       });
 
       setShowReviewModal(false);
-      router.push(`/ai-agents/${aiTutorId}`);
+      router.push(`/ai-agents/${aiAgentId}`);
     } catch (err) {
       console.error('Failed to submit review:', err);
     }
-  }, [aiTutorId, sessionId, router]);
+  }, [aiAgentId, sessionId, router]);
 
   // Handle skip review
   const handleSkipReview = useCallback(() => {
     setShowReviewModal(false);
-    router.push(`/ai-agents/${aiTutorId}`);
-  }, [aiTutorId, router]);
+    router.push(`/ai-agents/${aiAgentId}`);
+  }, [aiAgentId, router]);
 
   if (isLoading) {
     return (
@@ -248,7 +248,7 @@ export default function AITutorSessionPage({ params }: PageProps) {
           </p>
           <button
             className={styles.backButton}
-            onClick={() => router.push(`/ai-agents/${aiTutorId}`)}
+            onClick={() => router.push(`/ai-agents/${aiAgentId}`)}
           >
             Back to AI Tutor
           </button>

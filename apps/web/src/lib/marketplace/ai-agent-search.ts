@@ -7,7 +7,7 @@
 
 import { createServiceRoleClient } from '@/utils/supabase/server';
 
-interface AITutorSearchParams {
+interface AIAgentSearchParams {
   query?: string;
   subjects?: string[];
   minPrice?: number;
@@ -16,7 +16,7 @@ interface AITutorSearchParams {
   offset?: number;
 }
 
-interface AITutorSearchResult {
+interface AIAgentSearchResult {
   id: string;
   name: string;
   display_name: string;
@@ -41,9 +41,9 @@ interface AITutorSearchResult {
  * Search AI tutors for marketplace
  * Fallback implementation if RPC function doesn't exist
  */
-export async function searchAITutors(
-  params: AITutorSearchParams
-): Promise<AITutorSearchResult[]> {
+export async function searchAIAgents(
+  params: AIAgentSearchParams
+): Promise<AIAgentSearchResult[]> {
   const supabase = createServiceRoleClient();
 
   const {
@@ -135,7 +135,7 @@ export async function searchAITutors(
       return [];
     }
 
-    return (data || []) as AITutorSearchResult[];
+    return (data || []) as AIAgentSearchResult[];
   } catch (error) {
     console.error('Unexpected AI tutor search error:', error);
     return [];
@@ -145,7 +145,7 @@ export async function searchAITutors(
 /**
  * Get featured AI tutors for homepage/marketplace
  */
-export async function getFeaturedAITutors(limit: number = 6): Promise<AITutorSearchResult[]> {
+export async function getFeaturedAIAgents(limit: number = 6): Promise<AIAgentSearchResult[]> {
   const supabase = createServiceRoleClient();
 
   try {
@@ -183,7 +183,7 @@ export async function getFeaturedAITutors(limit: number = 6): Promise<AITutorSea
       return [];
     }
 
-    return (data || []) as AITutorSearchResult[];
+    return (data || []) as AIAgentSearchResult[];
   } catch (error) {
     console.error('Unexpected featured AI tutors error:', error);
     return [];

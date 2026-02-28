@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import {
   createSubscriptionCheckout,
-  getAITutorSubscription,
+  getAIAgentSubscription,
   cancelSubscription,
   reactivateSubscription,
 } from '@/lib/ai-agents/subscription-manager';
@@ -111,7 +111,7 @@ export async function GET(
     }
 
     // Get subscription
-    const subscription = await getAITutorSubscription(id);
+    const subscription = await getAIAgentSubscription(id);
 
     return NextResponse.json({ subscription }, { status: 200 });
   } catch (error) {

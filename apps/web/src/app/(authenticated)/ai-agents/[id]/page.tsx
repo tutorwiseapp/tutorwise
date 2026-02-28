@@ -24,15 +24,15 @@ import SessionsTab from '@/app/components/feature/ai-agents/detail/SessionsTab';
 import AnalyticsTab from '@/app/components/feature/ai-agents/detail/AnalyticsTab';
 import SettingsTab from '@/app/components/feature/ai-agents/detail/SettingsTab';
 import AgentTypeBadge from '@/app/components/ai-agents/AgentTypeBadge';
-import AITutorStatsWidget from '@/app/components/feature/ai-agents/AITutorStatsWidget';
-import AITutorHelpWidget from '@/app/components/feature/ai-agents/AITutorHelpWidget';
-import AITutorTipsWidget from '@/app/components/feature/ai-agents/AITutorTipsWidget';
+import AIAgentStatsWidget from '@/app/components/feature/ai-agents/AIAgentStatsWidget';
+import AIAgentHelpWidget from '@/app/components/feature/ai-agents/AIAgentHelpWidget';
+import AIAgentTipsWidget from '@/app/components/feature/ai-agents/AIAgentTipsWidget';
 import toast from 'react-hot-toast';
 import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
 
 type TabId = 'overview' | 'materials' | 'links' | 'sessions' | 'analytics' | 'settings';
 
-export default function AITutorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function AIAgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -134,7 +134,7 @@ export default function AITutorDetailPage({ params }: { params: Promise<{ id: st
     return (
       <HubPageLayout
         header={<HubHeader title="AI Tutor" />}
-        sidebar={<HubSidebar><AITutorHelpWidget /></HubSidebar>}
+        sidebar={<HubSidebar><AIAgentHelpWidget /></HubSidebar>}
       >
         <HubEmptyState
           title="AI Tutor not found"
@@ -158,13 +158,13 @@ export default function AITutorDetailPage({ params }: { params: Promise<{ id: st
           />
         );
       case 'materials':
-        return <MaterialsTab aiTutorId={id} hasSubscription={subscription?.status === 'active'} />;
+        return <MaterialsTab aiAgentId={id} hasSubscription={subscription?.status === 'active'} />;
       case 'links':
-        return <LinksTab aiTutorId={id} hasSubscription={subscription?.status === 'active'} />;
+        return <LinksTab aiAgentId={id} hasSubscription={subscription?.status === 'active'} />;
       case 'sessions':
-        return <SessionsTab aiTutorId={id} />;
+        return <SessionsTab aiAgentId={id} />;
       case 'analytics':
-        return <AnalyticsTab aiTutorId={id} />;
+        return <AnalyticsTab aiAgentId={id} />;
       case 'settings':
         return (
           <SettingsTab
@@ -238,9 +238,9 @@ export default function AITutorDetailPage({ params }: { params: Promise<{ id: st
       }
       sidebar={
         <HubSidebar>
-          <AITutorStatsWidget aiTutors={[aiTutor]} isLoading={false} />
-          <AITutorHelpWidget />
-          <AITutorTipsWidget />
+          <AIAgentStatsWidget aiTutors={[aiTutor]} isLoading={false} />
+          <AIAgentHelpWidget />
+          <AIAgentTipsWidget />
         </HubSidebar>
       }
     >

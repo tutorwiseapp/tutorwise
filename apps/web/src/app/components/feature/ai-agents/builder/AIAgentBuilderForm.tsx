@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorBuilderForm.tsx
+ * Filename: AIAgentBuilderForm.tsx
  * Purpose: AI Tutor creation form - follows listing form pattern
  * Created: 2026-02-23
  * Version: v1.1 (Phase 2)
@@ -18,18 +18,18 @@ import HubForm from '@/app/components/hub/form/HubForm';
 import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import Button from '@/app/components/ui/actions/Button';
 import SkillSelector, { Skill } from '@/app/components/feature/ai-agents/SkillSelector';
-import styles from './AITutorBuilderForm.module.css';
+import styles from './AIAgentBuilderForm.module.css';
 
-interface AITutorBuilderFormProps {
-  onSubmit: (data: AITutorFormData, shouldPublish: boolean) => Promise<void>;
+interface AIAgentBuilderFormProps {
+  onSubmit: (data: AIAgentFormData, shouldPublish: boolean) => Promise<void>;
   isSubmitting: boolean;
-  initialData?: Partial<AITutorFormData>;
+  initialData?: Partial<AIAgentFormData>;
   onCancel?: () => void;
   isEditing?: boolean;
   isAdminMode?: boolean; // For admin-specific features (future use)
 }
 
-export interface AITutorFormData {
+export interface AIAgentFormData {
   name: string;
   display_name: string;
   subject: string;
@@ -56,15 +56,15 @@ const SUBJECTS = [
   { value: 'other', label: 'Other' },
 ];
 
-export default function AITutorBuilderForm({
+export default function AIAgentBuilderForm({
   onSubmit,
   isSubmitting,
   initialData,
   onCancel,
   isEditing = false,
   isAdminMode = false,
-}: AITutorBuilderFormProps) {
-  const [formData, setFormData] = useState<AITutorFormData>({
+}: AIAgentBuilderFormProps) {
+  const [formData, setFormData] = useState<AIAgentFormData>({
     name: initialData?.name || '',
     display_name: initialData?.display_name || '',
     subject: initialData?.subject || '',
@@ -74,7 +74,7 @@ export default function AITutorBuilderForm({
     price_per_hour: initialData?.price_per_hour || 0,
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof AITutorFormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof AIAgentFormData, string>>>({});
 
   // Fetch templates
   const { data: templates } = useQuery({
@@ -126,7 +126,7 @@ export default function AITutorBuilderForm({
 
   // Validate form
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof AITutorFormData, string>> = {};
+    const newErrors: Partial<Record<keyof AIAgentFormData, string>> = {};
 
     if (!formData.display_name.trim()) {
       newErrors.display_name = 'Display name is required';

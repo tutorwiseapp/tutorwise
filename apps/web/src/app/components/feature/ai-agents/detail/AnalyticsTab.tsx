@@ -37,13 +37,13 @@ interface AnalyticsData {
   heatmap: { date: string; count: number }[];
 }
 
-export default function AnalyticsTab({ aiTutorId }: { aiTutorId: string }) {
+export default function AnalyticsTab({ aiAgentId }: { aiAgentId: string }) {
   const [period, setPeriod] = useState('30d');
 
   const { data: analytics, isLoading } = useQuery<AnalyticsData>({
-    queryKey: ['ai-tutor-analytics', aiTutorId, period],
+    queryKey: ['ai-tutor-analytics', aiAgentId, period],
     queryFn: async () => {
-      const res = await fetch(`/api/ai-agents/${aiTutorId}/analytics?period=${period}`);
+      const res = await fetch(`/api/ai-agents/${aiAgentId}/analytics?period=${period}`);
       if (!res.ok) throw new Error('Failed to fetch analytics');
       return res.json();
     },

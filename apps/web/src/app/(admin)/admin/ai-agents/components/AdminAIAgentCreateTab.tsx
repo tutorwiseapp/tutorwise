@@ -2,7 +2,7 @@
  * Filename: AdminAIAgentCreateTab.tsx
  * Purpose: Admin tab for creating platform-owned AI tutors
  * Created: 2026-02-24
- * Pattern: Reuses AITutorBuilderForm with admin-specific handling
+ * Pattern: Reuses AIAgentBuilderForm with admin-specific handling
  */
 
 'use client';
@@ -10,8 +10,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import AITutorBuilderForm from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
-import type { AITutorFormData } from '@/app/components/feature/ai-agents/builder/AITutorBuilderForm';
+import AIAgentBuilderForm from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import type { AIAgentFormData } from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
 import toast from 'react-hot-toast';
 import styles from './AdminAIAgentCreateTab.module.css';
 
@@ -24,7 +24,7 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (data: AITutorFormData, shouldPublish: boolean) => {
+  const handleSubmit = async (data: AIAgentFormData, shouldPublish: boolean) => {
     setIsSubmitting(true);
     try {
       // Admin creates platform-owned AI tutor
@@ -87,7 +87,7 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
 
       <div className={styles.formContainer}>
         {/* 🔥 REUSE - Don't duplicate the form */}
-        <AITutorBuilderForm
+        <AIAgentBuilderForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           onCancel={handleCancel}

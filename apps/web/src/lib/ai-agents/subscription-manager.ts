@@ -9,7 +9,7 @@ import { createClient } from '@/utils/supabase/server';
 import { stripe } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
-export interface AITutorSubscription {
+export interface AIAgentSubscription {
   id: string;
   ai_tutor_id: string;
   owner_id: string;
@@ -29,15 +29,15 @@ export interface AITutorSubscription {
 /**
  * Get subscription for AI tutor
  */
-export async function getAITutorSubscription(
-  aiTutorId: string
-): Promise<AITutorSubscription | null> {
+export async function getAIAgentSubscription(
+  aiAgentId: string
+): Promise<AIAgentSubscription | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('ai_tutor_subscriptions')
     .select('*')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .single();
 
   if (error) {
@@ -53,11 +53,11 @@ export async function getAITutorSubscription(
  * Price: £10/month
  */
 export async function createSubscriptionCheckout(
-  aiTutorId: string,
+  aiAgentId: string,
   userId: string
 ): Promise<Stripe.Checkout.Session> {
-  if (!process.env.STRIPE_AI_TUTOR_PRICE_ID) {
-    throw new Error('STRIPE_AI_TUTOR_PRICE_ID not configured');
+  if (!process.env.STRIPE_AI_AGENT_PRICE_ID) {
+    throw new Error('STRIPE_AI_AGENT_PRICE_ID not configured');
   }
 
   const supabase = await createClient();
@@ -72,7 +72,7 @@ export async function createSubscriptionCheckout(
   const { data: tutor } = await supabase
     .from('ai_tutors')
     .select('display_name, owner_id')
-    .eq('id', aiTutorId)
+    .eq('id', aiAgentId)
     .single();
 
   if (!tutor || tutor.owner_id !== userId) {
@@ -85,24 +85,24 @@ export async function createSubscriptionCheckout(
     customer_email: user.email,
     line_items: [
       {
-        price: process.env.STRIPE_AI_TUTOR_PRICE_ID,
+        price: process.env.STRIPE_AI_AGENT_PRICE_ID,
         quantity: 1,
       },
     ],
     subscription_data: {
       metadata: {
         user_id: userId,
-        ai_tutor_id: aiTutorId,
+        ai_tutor_id: aiAgentId,
         subscription_type: 'ai_tutor',
       },
     },
     metadata: {
       user_id: userId,
-      ai_tutor_id: aiTutorId,
+      ai_tutor_id: aiAgentId,
       subscription_type: 'ai_tutor',
     },
-    success_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiTutorId}?subscription=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiTutorId}?subscription=canceled`,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}?subscription=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}?subscription=canceled`,
   });
 
   return session;
@@ -112,7 +112,7 @@ export async function createSubscriptionCheckout(
  * Create billing portal session
  */
 export async function createBillingPortalSession(
-  aiTutorId: string,
+  aiAgentId: string,
   userId: string
 ): Promise<Stripe.BillingPortal.Session> {
   const supabase = await createClient();
@@ -121,7 +121,7 @@ export async function createBillingPortalSession(
   const { data: subscription } = await supabase
     .from('ai_tutor_subscriptions')
     .select('stripe_customer_id, owner_id')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {
@@ -135,7 +135,7 @@ export async function createBillingPortalSession(
   // Create portal session
   const session = await stripe.billingPortal.sessions.create({
     customer: subscription.stripe_customer_id,
-    return_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiTutorId}`,
+    return_url: `${process.env.NEXT_PUBLIC_URL}/hub/ai-agents/${aiAgentId}`,
   });
 
   return session;
@@ -145,7 +145,7 @@ export async function createBillingPortalSession(
  * Cancel subscription
  */
 export async function cancelSubscription(
-  aiTutorId: string,
+  aiAgentId: string,
   userId: string
 ): Promise<void> {
   const supabase = await createClient();
@@ -154,7 +154,7 @@ export async function cancelSubscription(
   const { data: subscription } = await supabase
     .from('ai_tutor_subscriptions')
     .select('stripe_subscription_id, owner_id')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {
@@ -175,7 +175,7 @@ export async function cancelSubscription(
  * Reactivate canceled subscription
  */
 export async function reactivateSubscription(
-  aiTutorId: string,
+  aiAgentId: string,
   userId: string
 ): Promise<void> {
   const supabase = await createClient();
@@ -184,7 +184,7 @@ export async function reactivateSubscription(
   const { data: subscription } = await supabase
     .from('ai_tutor_subscriptions')
     .select('stripe_subscription_id, owner_id')
-    .eq('ai_tutor_id', aiTutorId)
+    .eq('ai_tutor_id', aiAgentId)
     .single();
 
   if (!subscription || subscription.owner_id !== userId) {

@@ -34,20 +34,20 @@ interface StorageQuota {
 }
 
 interface MaterialsTabProps {
-  aiTutorId: string;
+  aiAgentId: string;
   hasSubscription: boolean;
 }
 
-export default function MaterialsTab({ aiTutorId, hasSubscription }: MaterialsTabProps) {
+export default function MaterialsTab({ aiAgentId, hasSubscription }: MaterialsTabProps) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
   // Fetch materials
   const { data: materials = [], isLoading } = useQuery<Material[]>({
-    queryKey: ['ai-tutor-materials', aiTutorId],
+    queryKey: ['ai-tutor-materials', aiAgentId],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-agents/${aiTutorId}/materials`);
+      const response = await fetch(`/api/ai-agents/${aiAgentId}/materials`);
       if (!response.ok) throw new Error('Failed to fetch materials');
       return response.json();
     },
@@ -62,9 +62,9 @@ export default function MaterialsTab({ aiTutorId, hasSubscription }: MaterialsTa
 
   // Fetch storage quota
   const { data: quota } = useQuery<StorageQuota>({
-    queryKey: ['ai-tutor-quota', aiTutorId],
+    queryKey: ['ai-tutor-quota', aiAgentId],
     queryFn: async () => {
-      const response = await fetch(`/api/ai-agents/${aiTutorId}/materials`);
+      const response = await fetch(`/api/ai-agents/${aiAgentId}/materials`);
       if (!response.ok) throw new Error('Failed to fetch quota');
       const data = await response.json();
       return data.quota || { used: 0, quota: 1024, remaining: 1024, allowed: true };
@@ -77,7 +77,7 @@ export default function MaterialsTab({ aiTutorId, hasSubscription }: MaterialsTa
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`/api/ai-agents/${aiTutorId}/materials`, {
+      const response = await fetch(`/api/ai-agents/${aiAgentId}/materials`, {
         method: 'POST',
         body: formData,
       });
@@ -90,8 +90,8 @@ export default function MaterialsTab({ aiTutorId, hasSubscription }: MaterialsTa
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-materials', aiTutorId] });
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-quota', aiTutorId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-materials', aiAgentId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-quota', aiAgentId] });
       toast.success('Material uploaded successfully');
     },
     onError: (error: Error) => {
@@ -103,15 +103,15 @@ export default function MaterialsTab({ aiTutorId, hasSubscription }: MaterialsTa
   const deleteMutation = useMutation({
     mutationFn: async (materialId: string) => {
       const response = await fetch(
-        `/api/ai-agents/${aiTutorId}/materials/${materialId}`,
+        `/api/ai-agents/${aiAgentId}/materials/${materialId}`,
         { method: 'DELETE' }
       );
 
       if (!response.ok) throw new Error('Failed to delete material');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-materials', aiTutorId] });
-      queryClient.invalidateQueries({ queryKey: ['ai-tutor-quota', aiTutorId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-materials', aiAgentId] });
+      queryClient.invalidateQueries({ queryKey: ['ai-tutor-quota', aiAgentId] });
       toast.success('Material deleted');
     },
     onError: () => {

@@ -14,7 +14,7 @@ import {
   getLimitTierForScore,
   getNextTier,
   getRemainingSlots,
-  canCreateAITutor,
+  canCreateAIAgent,
   getUpgradeSuggestions,
 } from '@/lib/ai-agents/limits';
 
@@ -32,7 +32,7 @@ import {
  *   tier: {
  *     tierName: string
  *     tierColor: string
- *     maxAITutors: number
+ *     maxAIAgents: number
  *     description: string
  *   }
  *   nextTier: { ... } | null
@@ -80,14 +80,14 @@ export async function GET(_request: NextRequest) {
     const tier = getLimitTierForScore(caasScore);
     const nextTier = getNextTier(tier);
     const remaining = getRemainingSlots(caasScore, current);
-    const allowed = canCreateAITutor(caasScore, current);
+    const allowed = canCreateAIAgent(caasScore, current);
     const upgradeSuggestions = getUpgradeSuggestions(caasScore);
 
     return NextResponse.json(
       {
         allowed,
         current,
-        limit: tier.maxAITutors,
+        limit: tier.maxAIAgents,
         remaining,
         caasScore,
         tier: {
@@ -95,7 +95,7 @@ export async function GET(_request: NextRequest) {
           tierColor: tier.tierColor,
           minScore: tier.minScore,
           maxScore: tier.maxScore,
-          maxAITutors: tier.maxAITutors,
+          maxAIAgents: tier.maxAIAgents,
           description: tier.description,
         },
         nextTier: nextTier
@@ -104,7 +104,7 @@ export async function GET(_request: NextRequest) {
               tierColor: nextTier.tierColor,
               minScore: nextTier.minScore,
               maxScore: nextTier.maxScore,
-              maxAITutors: nextTier.maxAITutors,
+              maxAIAgents: nextTier.maxAIAgents,
               description: nextTier.description,
             }
           : null,

@@ -1,5 +1,5 @@
 /**
- * Filename: AITutorTipsWidget.tsx
+ * Filename: AIAgentTipsWidget.tsx
  * Purpose: AI Tutor Tips Widget - provides helpful tips for creators
  * Created: 2026-02-23
  * Pattern: Uses HubComplexCard (matches BookingTipWidget)
@@ -9,9 +9,9 @@
 
 import React from 'react';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
-import styles from './AITutorTipsWidget.module.css';
+import styles from './AIAgentTipsWidget.module.css';
 
-export default function AITutorTipsWidget() {
+export default function AIAgentTipsWidget() {
   return (
     <HubComplexCard>
       <h3 className={styles.title}>AI Tutor Tips</h3>

@@ -6,7 +6,7 @@
  *
  * Created: 2026-02-27
  * Phase: 4 - UI Updates
- * Extends: AITutorBuilderForm with agent type selection
+ * Extends: AIAgentBuilderForm with agent type selection
  */
 
 'use client';

@@ -1,5 +1,5 @@
 /*
- * Filename: FeaturedAITutorsSection.tsx
+ * Filename: FeaturedAIAgentsSection.tsx
  * Purpose: Featured AI Tutors section for homepage
  * Phase: 2A - Featured AI Tutors
  * Created: 2026-02-25
@@ -12,9 +12,9 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { ChevronRight, Star, Bot } from 'lucide-react';
-import styles from './FeaturedAITutorsSection.module.css';
+import styles from './FeaturedAIAgentsSection.module.css';
 
-interface FeaturedAITutor {
+interface FeaturedAIAgent {
   id: string;
   name: string;
   display_name: string;
@@ -28,20 +28,20 @@ interface FeaturedAITutor {
   is_platform_owned: boolean;
 }
 
-export default function FeaturedAITutorsSection() {
-  const { data: featuredTutors, isLoading, error } = useQuery({
+export default function FeaturedAIAgentsSection() {
+  const { data: featuredAgents, isLoading, error } = useQuery({
     queryKey: ['featured-ai-agents'],
     queryFn: async () => {
       const response = await fetch('/api/ai-agents?featured=true&status=published');
       if (!response.ok) throw new Error('Failed to fetch featured AI tutors');
       const data = await response.json();
-      return data.data as FeaturedAITutor[];
+      return data.data as FeaturedAIAgent[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Don't render if no featured tutors
-  if (!featuredTutors || featuredTutors.length === 0) return null;
+  if (!featuredAgents || featuredAgents.length === 0) return null;
 
   // Show loading state
   if (isLoading) {
@@ -86,7 +86,7 @@ export default function FeaturedAITutorsSection() {
 
         {/* Featured Tutors Grid */}
         <div className={styles.grid}>
-          {featuredTutors.slice(0, 6).map((tutor) => (
+          {featuredAgents.slice(0, 6).map((tutor) => (
             <Link
               key={tutor.id}
               href={`/ai-agents/${tutor.name}`}

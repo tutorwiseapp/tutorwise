@@ -23,14 +23,14 @@ interface LimitsData {
     tierColor: string;
     minScore: number;
     maxScore: number;
-    maxAITutors: number;
+    maxAIAgents: number;
     description: string;
   };
   nextTier: {
     tierName: string;
     tierColor: string;
     minScore: number;
-    maxAITutors: number;
+    maxAIAgents: number;
   } | null;
   upgradeSuggestions: string[];
 }
@@ -120,7 +120,7 @@ export default function LimitsWidget() {
           </div>
           <p className={styles.upgradeText}>
             Reach {limits.nextTier.minScore} CaaS score to unlock{' '}
-            <strong>{limits.nextTier.maxAITutors} AI tutor slots</strong>
+            <strong>{limits.nextTier.maxAIAgents} AI tutor slots</strong>
           </p>
 
           {limits.upgradeSuggestions.length > 0 && (

@@ -12,11 +12,11 @@ import type { AITutorProfile } from '@/types/marketplace';
 import MarketplaceCard from './MarketplaceCard';
 import styles from './MarketplaceCard.module.css';
 
-interface AITutorMarketplaceCardProps {
+interface AIAgentMarketplaceCardProps {
   aiTutor: AITutorProfile;
 }
 
-export default function AITutorMarketplaceCard({ aiTutor }: AITutorMarketplaceCardProps) {
+export default function AIAgentMarketplaceCard({ aiTutor }: AIAgentMarketplaceCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
