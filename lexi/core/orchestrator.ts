@@ -370,6 +370,19 @@ export class LexiOrchestrator {
     conversation.messages.push(response);
     conversation.lastActivityAt = new Date();
 
+    // Detect educational intent for Sage handoff suggestion
+    const isLearningIntent = intent.category === 'learning' && intent.confidence >= 0.7;
+    if (isLearningIntent) {
+      (response as any).metadata = {
+        ...(response as any).metadata,
+        sageHandoff: {
+          detected: true,
+          subject: intent.entities?.subject || 'general',
+          topic: intent.entities?.topic || undefined,
+        },
+      };
+    }
+
     return {
       response,
       actions: result.suggestions ? [{

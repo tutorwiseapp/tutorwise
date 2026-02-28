@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { checkRateLimit, rateLimitHeaders, rateLimitError } from '@/middleware/rateLimiting';
 
 /**
  * POST /api/ai-agents/sessions
@@ -23,6 +24,23 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit checks: hourly and daily
+    const hourlyLimit = await checkRateLimit(user.id, 'ai_agent:session_create');
+    if (!hourlyLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(hourlyLimit),
+        { status: 429, headers: { ...rateLimitHeaders(hourlyLimit.remaining, hourlyLimit.resetAt), 'Retry-After': String(Math.ceil((hourlyLimit.resetAt - Date.now()) / 1000)) } }
+      );
+    }
+
+    const dailyLimit = await checkRateLimit(user.id, 'ai_agent:session_create_daily');
+    if (!dailyLimit.allowed) {
+      return NextResponse.json(
+        rateLimitError(dailyLimit),
+        { status: 429, headers: { ...rateLimitHeaders(dailyLimit.remaining, dailyLimit.resetAt), 'Retry-After': String(Math.ceil((dailyLimit.resetAt - Date.now()) / 1000)) } }
+      );
     }
 
     const { agent_id } = await request.json();
@@ -70,7 +88,6 @@ export async function POST(request: NextRequest) {
         platform_fee: aiTutor.price_per_hour * 0.1, // 10%
         owner_earnings: aiTutor.price_per_hour * 0.9, // 90%
         status: 'active',
-        messages: [],
       })
       .select()
       .single();

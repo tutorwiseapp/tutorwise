@@ -40,13 +40,13 @@ export async function POST(
       );
     }
 
-    // Get session
+    // Get session with agent details
     const { data: session, error: sessionError } = await supabase
       .from('ai_agent_sessions')
       .select(
         `
         *,
-        ai_tutors (
+        ai_agent:ai_agents!agent_id (
           id,
           display_name,
           subject,
@@ -79,9 +79,10 @@ export async function POST(
     const ragResult = await retrieveContext(message.trim(), session.agent_id, 5);
 
     // Build system prompt
-    const systemPrompt = `You are ${session.ai_tutors.display_name}, an AI tutor specializing in ${session.ai_tutors.subject}.
+    const agent = session.ai_agent;
+    const systemPrompt = `You are ${agent.display_name}, an AI tutor specializing in ${agent.subject}.
 
-Your role: ${session.ai_tutors.description}
+Your role: ${agent.description}
 
 Context sources available:
 ${ragResult.chunks
@@ -109,36 +110,41 @@ ${ragResult.usedFallback ? 'Note: Using general knowledge fallback (custom mater
     const result = await provider.chat(message.trim(), history, systemPrompt);
     const response = result.content;
 
-    // Save messages to session transcript
-    const updatedMessages = [
-      ...(session.messages || []),
+    // Save messages to ai_agent_messages table
+    const userMsgId = `msg_${Date.now()}_user`;
+    const assistantMsgId = `msg_${Date.now()}_asst`;
+
+    await supabase.from('ai_agent_messages').insert([
       {
+        id: userMsgId,
+        session_id: sessionId,
         role: 'user',
         content: message.trim(),
-        timestamp: new Date().toISOString(),
       },
       {
+        id: assistantMsgId,
+        session_id: sessionId,
         role: 'assistant',
         content: response,
-        timestamp: new Date().toISOString(),
         sources: ragResult.chunks.map((chunk, idx) => ({
           index: idx + 1,
           source: chunk.source,
           metadata: chunk.metadata,
         })),
+        rag_tier_used: ragResult.usedFallback ? 'sage_fallback' : 'materials',
+        metadata: { provider: 'gemini', model: 'gemini-2.0-flash' },
       },
-    ];
+    ]);
 
-    // Update session
-    await supabase
-      .from('ai_agent_sessions')
-      .update({
-        messages: updatedMessages,
-        fallback_to_sage_count: ragResult.usedFallback
-          ? session.fallback_to_sage_count + 1
-          : session.fallback_to_sage_count,
-      })
-      .eq('id', sessionId);
+    // Update fallback count on session
+    if (ragResult.usedFallback) {
+      await supabase
+        .from('ai_agent_sessions')
+        .update({
+          fallback_to_sage_count: session.fallback_to_sage_count + 1,
+        })
+        .eq('id', sessionId);
+    }
 
     return NextResponse.json(
       {

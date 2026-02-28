@@ -29,18 +29,20 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get session
+    // Get session with agent details
     const { data: session, error } = await supabase
       .from('ai_agent_sessions')
       .select(
         `
         *,
-        ai_tutors (
+        ai_agent:ai_agents!agent_id (
           id,
           owner_id,
           display_name,
           subject,
-          avatar_url
+          avatar_url,
+          description,
+          price_per_hour
         )
       `
       )
@@ -51,15 +53,27 @@ export async function GET(
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    // Verify user is session owner or AI tutor owner
+    // Verify user is session owner or agent owner
     if (
       session.client_id !== user.id &&
-      session.ai_tutors.owner_id !== user.id
+      session.ai_agent.owner_id !== user.id
     ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    return NextResponse.json(session, { status: 200 });
+    // Get messages from ai_agent_messages table
+    const { data: messages } = await supabase
+      .from('ai_agent_messages')
+      .select('id, role, content, sources, rag_tier_used, metadata, created_at')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+
+    return NextResponse.json({
+      session: {
+        ...session,
+        messages: messages || [],
+      },
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching AI tutor session:', error);
     return NextResponse.json(

@@ -50,6 +50,16 @@ const LIMITS: Record<string, RateLimitConfig> = {
     window: 3600, // 1 hour
     message: 'Refund request limit exceeded. Try again in an hour.'
   },
+  'ai_agent:session_create': {
+    requests: 5,
+    window: 3600, // 1 hour
+    message: 'Session limit exceeded. Try again in an hour.'
+  },
+  'ai_agent:session_create_daily': {
+    requests: 50,
+    window: 86400, // 24 hours
+    message: 'Daily session limit exceeded. Try again tomorrow.'
+  },
 };
 
 export interface RateLimitResult {

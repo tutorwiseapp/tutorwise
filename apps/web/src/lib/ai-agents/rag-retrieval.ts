@@ -68,12 +68,13 @@ export async function retrieveContext(
     return { chunks: [], source: 'tutor_materials', usedFallback: false };
   }
 
-  // Priority 1: Search AI tutor material chunks via vector similarity
+  // Priority 1: Hybrid search AI tutor material chunks (vector + BM25)
   try {
-    const { data: materialChunks, error } = await supabase.rpc('match_ai_agent_chunks', {
+    const { data: materialChunks, error } = await supabase.rpc('search_ai_agent_materials_hybrid', {
       query_embedding: JSON.stringify(queryEmbedding),
+      query_text: query,
       p_agent_id: aiAgentId,
-      match_threshold: 0.65,
+      match_threshold: 0.5,
       match_count: topK,
     });
 
@@ -82,7 +83,7 @@ export async function retrieveContext(
         chunks: materialChunks.map((c: any) => ({
           text: c.chunk_text,
           source: 'tutor_materials',
-          similarity: c.similarity,
+          similarity: c.combined_score || c.similarity,
           metadata: {
             file_name: c.file_name,
             page_number: c.page_number,
@@ -93,11 +94,33 @@ export async function retrieveContext(
       };
     }
   } catch (err) {
-    console.warn('[RAG] Material chunk search failed, trying links:', err);
+    console.warn('[RAG] Hybrid material search failed, trying links:', err);
   }
 
-  // Priority 2: AI tutor links (ordered by priority)
+  // Priority 2: AI tutor link chunks (hybrid vector + BM25 search)
   try {
+    const { data: linkChunks, error: linkError } = await supabase.rpc('search_ai_agent_link_chunks_hybrid', {
+      query_embedding: JSON.stringify(queryEmbedding),
+      query_text: query,
+      p_agent_id: aiAgentId,
+      match_threshold: 0.5,
+      match_count: topK,
+    });
+
+    if (!linkError && linkChunks && linkChunks.length >= 1) {
+      return {
+        chunks: linkChunks.map((c: any) => ({
+          text: c.chunk_text,
+          source: 'tutor_links',
+          similarity: c.combined_score || c.similarity,
+          metadata: { url: c.link_url },
+        })),
+        source: 'tutor_links',
+        usedFallback: false,
+      };
+    }
+
+    // Fallback: keyword-filtered link metadata (for uncrawled links)
     const { data: links } = await supabase
       .from('ai_agent_links')
       .select('*')
@@ -107,7 +130,6 @@ export async function retrieveContext(
       .limit(topK);
 
     if (links && links.length > 0) {
-      // Filter links by keyword relevance
       const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
       const relevantLinks = links.filter(link => {
         const text = `${link.title || ''} ${link.description || ''} ${(link.skills || []).join(' ')}`.toLowerCase();

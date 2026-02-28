@@ -106,10 +106,18 @@ export default function LexiChat({ onClose, autoStart = true, streaming = true, 
 
   // Handle Sage handoff
   const handleSageHandoff = useCallback(() => {
-    // Close Lexi chat and navigate to Sage
+    // Close Lexi chat and navigate to Sage with subject/topic context
     onClose?.();
-    router.push('/sage');
-  }, [onClose, router]);
+    const params = new URLSearchParams();
+    if (educationalIntent?.subject && educationalIntent.subject !== 'general') {
+      params.set('subject', educationalIntent.subject);
+    }
+    if (educationalIntent?.topic) {
+      params.set('topic', educationalIntent.topic);
+    }
+    params.set('handoff', 'true');
+    router.push(`/sage?${params.toString()}`);
+  }, [onClose, router, educationalIntent]);
 
   const handleDismissHandoff = useCallback(() => {
     setHandoffDismissed(true);
