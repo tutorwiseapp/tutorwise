@@ -23,6 +23,7 @@ export type AdminResource =
   | 'audit_logs'
   | 'messages'
   | 'admins'
+  | 'cas'
   | '*'; // Wildcard for superadmin
 
 export type AdminAction =

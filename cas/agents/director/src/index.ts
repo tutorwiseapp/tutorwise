@@ -114,15 +114,15 @@ class DirectorAgent {
   /**
    * Make strategic decision on a feature proposal
    */
-  public makeStrategicDecision(
+  public async makeStrategicDecision(
     featureDescription: string,
     featureType: 'core-system' | 'enhancement' | 'innovation' | 'polish'
-  ): {
+  ): Promise<{
     decision: 'PROCEED' | 'ITERATE' | 'DEFER';
     reasoning: string;
     directives: string[];
     strategicContext: string;
-  } {
+  }> {
     console.log('\n🎯 Director Agent: Making strategic decision...');
     console.log(`Feature: "${featureDescription}"`);
     console.log(`Type: ${featureType}`);
@@ -134,7 +134,7 @@ class DirectorAgent {
     }
 
     // Make decision using Strategic Decision Maker
-    const result = this.decisionMaker.makeStrategicDecision(
+    const result = await this.decisionMaker.makeStrategicDecision(
       featureDescription,
       featureType,
       this.vision.vision,
@@ -269,7 +269,7 @@ export const runDirector = async (): Promise<void> => {
 
   // Example 1: Evaluate a new innovation feature
   console.log('\n📌 Example 1: New AI-powered tutor matching feature');
-  const decision1 = director.makeStrategicDecision(
+  const decision1 = await director.makeStrategicDecision(
     'AI-powered tutor matching using machine learning to recommend tutors based on student learning style, preferences, and past booking history',
     'innovation'
   );
@@ -277,7 +277,7 @@ export const runDirector = async (): Promise<void> => {
 
   // Example 2: Evaluate a polish feature
   console.log('\n📌 Example 2: Mobile responsiveness polish');
-  const decision2 = director.makeStrategicDecision(
+  const decision2 = await director.makeStrategicDecision(
     'Polish mobile responsiveness across all pages with touch-optimized interactions',
     'polish'
   );

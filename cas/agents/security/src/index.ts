@@ -1,12 +1,16 @@
 /**
- * Security Agent - AI Security Engineer & Vulnerability Specialist
+ * Security Agent - Security Engineer + Compliance Officer
  *
  * Responsibilities:
  * - Security validation and code review
  * - Vulnerability scanning (npm audit, code analysis)
  * - Authentication testing
  * - OWASP Top 10 compliance checks
- * - Integration with QA workflow for security gate
+ * - LLM-powered false positive filtering
+ * - Pre-deployment security gate
+ *
+ * Execute with tools: Deterministic scanning, thresholds, rules.
+ * LLM used only for false positive filtering (augmentation, not replacement).
  *
  * @agent Security Agent
  */
@@ -15,6 +19,9 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { casGenerate } from '../../../packages/core/src/services/cas-ai';
+import { persistEvent } from '../../../packages/core/src/services/cas-events';
 
 const execAsync = promisify(exec);
 
@@ -34,11 +41,12 @@ export interface VulnerabilityReport {
 }
 
 export interface CodeSecurityIssue {
-  type: 'xss' | 'sql-injection' | 'auth' | 'secrets' | 'csrf' | 'other';
+  type: 'xss' | 'sql-injection' | 'auth' | 'secrets' | 'csrf' | 'ssrf' | 'path-traversal' | 'other';
   file: string;
   line?: number;
   description: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
+  falsePositive?: boolean;
 }
 
 export interface AuthTestResult {
@@ -49,21 +57,32 @@ export interface AuthTestResult {
 
 class SecurityAgent {
   private projectRoot: string;
+  private supabase: SupabaseClient | null = null;
 
   constructor() {
-    // Navigate up from cas/agents/security/src to project root
     this.projectRoot = path.resolve(__dirname, '../../../../');
+    this.initSupabase();
+  }
+
+  private initSupabase(): void {
+    const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+    if (url && key) {
+      this.supabase = createClient(url, key);
+    }
   }
 
   /**
    * Performs a comprehensive security scan of the codebase.
-   * This is called as part of the QA workflow before deployment.
    */
   public async runSecurityScan(): Promise<SecurityScanResult> {
     console.log('▶️ Security Agent: Starting comprehensive security scan...');
 
     const vulnerabilities = await this.runDependencyScan();
-    const codeIssues = await this.runCodeSecurityScan();
+    const rawCodeIssues = await this.runCodeSecurityScan();
+
+    // Filter false positives using LLM
+    const codeIssues = await this.filterFalsePositives(rawCodeIssues);
     const recommendations = this.generateRecommendations(vulnerabilities, codeIssues);
 
     const criticalOrHigh = vulnerabilities.filter(
@@ -78,6 +97,9 @@ class SecurityAgent {
       timestamp: new Date().toISOString(),
     };
 
+    // Persist scan results
+    await this.persistScanResults(result);
+
     console.log(`✅ Security scan complete. Passed: ${result.passed}`);
     return result;
   }
@@ -91,8 +113,19 @@ class SecurityAgent {
     try {
       const webAppPath = path.join(this.projectRoot, 'apps/web');
       const { stdout } = await execAsync('npm audit --json', { cwd: webAppPath });
-      const auditResult = JSON.parse(stdout);
+      return this.parseAuditOutput(stdout);
+    } catch (error: any) {
+      if (error.stdout) {
+        return this.parseAuditOutput(error.stdout);
+      }
+      console.log('✅ No dependency vulnerabilities found or npm audit not available.');
+      return [];
+    }
+  }
 
+  private parseAuditOutput(stdout: string): VulnerabilityReport[] {
+    try {
+      const auditResult = JSON.parse(stdout);
       const vulnerabilities: VulnerabilityReport[] = [];
 
       if (auditResult.vulnerabilities) {
@@ -109,45 +142,21 @@ class SecurityAgent {
 
       console.log(`✅ Dependency scan complete. Found ${vulnerabilities.length} issues.`);
       return vulnerabilities;
-    } catch (error: any) {
-      // npm audit returns non-zero exit code when vulnerabilities found
-      if (error.stdout) {
-        try {
-          const auditResult = JSON.parse(error.stdout);
-          const vulnerabilities: VulnerabilityReport[] = [];
-
-          if (auditResult.vulnerabilities) {
-            for (const [pkgName, data] of Object.entries(auditResult.vulnerabilities)) {
-              const vuln = data as any;
-              vulnerabilities.push({
-                severity: vuln.severity || 'moderate',
-                package: pkgName,
-                description: vuln.via?.[0]?.title || 'Unknown vulnerability',
-                fixAvailable: vuln.fixAvailable === true,
-              });
-            }
-          }
-
-          console.log(`✅ Dependency scan complete. Found ${vulnerabilities.length} issues.`);
-          return vulnerabilities;
-        } catch {
-          console.warn('⚠️ Could not parse npm audit output');
-        }
-      }
-      console.log('✅ No dependency vulnerabilities found or npm audit not available.');
+    } catch {
+      console.warn('⚠️ Could not parse npm audit output');
       return [];
     }
   }
 
   /**
    * Scans code for common security issues.
+   * Expanded patterns: XSS, secrets, eval, SSRF, path traversal, client-side env vars.
    */
   public async runCodeSecurityScan(): Promise<CodeSecurityIssue[]> {
     console.log('▶️ Security Agent: Scanning code for security issues...');
 
     const issues: CodeSecurityIssue[] = [];
 
-    // Check for common security patterns in TypeScript/JavaScript files
     const patterns = [
       {
         regex: /dangerouslySetInnerHTML/g,
@@ -179,16 +188,58 @@ class SecurityAgent {
         description: 'Use of document.write can lead to XSS',
         severity: 'high' as const,
       },
+      // New patterns
+      {
+        regex: /process\.env\.(?!NEXT_PUBLIC_)/g,
+        type: 'secrets' as const,
+        description: 'Server-side env var accessed — ensure not in client component',
+        severity: 'medium' as const,
+      },
+      {
+        regex: /new\s+Function\s*\(/g,
+        type: 'xss' as const,
+        description: 'new Function() is equivalent to eval() — security risk',
+        severity: 'high' as const,
+      },
+      {
+        regex: /\.\.\//g,
+        type: 'path-traversal' as const,
+        description: 'Potential path traversal pattern detected',
+        severity: 'low' as const,
+      },
+      {
+        regex: /fetch\s*\(\s*(?:req|request|params|query|body|input)/gi,
+        type: 'ssrf' as const,
+        description: 'User-controlled URL in fetch — potential SSRF',
+        severity: 'medium' as const,
+      },
+      {
+        regex: /JSON\.parse\s*\(\s*(?:req|request|params|query|body|input)/gi,
+        type: 'other' as const,
+        description: 'Unsafe deserialization of user input',
+        severity: 'medium' as const,
+      },
+      {
+        regex: /Math\.random\s*\(\)/g,
+        type: 'other' as const,
+        description: 'Math.random() is not cryptographically secure — use crypto.randomUUID() for IDs',
+        severity: 'low' as const,
+      },
     ];
 
     try {
       const srcPath = path.join(this.projectRoot, 'apps/web/src');
       const files = await this.getTypeScriptFiles(srcPath);
 
-      for (const file of files.slice(0, 100)) { // Limit for performance
+      // No file limit — scan all files
+      for (const file of files) {
         try {
           const content = await fs.promises.readFile(file, 'utf-8');
-          const lines = content.split('\n');
+
+          // Skip test files and generated files
+          if (file.includes('.test.') || file.includes('.spec.') || file.includes('__generated__')) {
+            continue;
+          }
 
           for (const pattern of patterns) {
             const matches = content.matchAll(pattern.regex);
@@ -216,47 +267,76 @@ class SecurityAgent {
   }
 
   /**
-   * Performs authentication testing for a feature.
+   * Filter false positives using LLM analysis.
+   * Sends high-severity issues with surrounding code context for assessment.
+   * Falls back to keeping all findings if LLM unavailable.
    */
-  public async runAuthenticationTests(feature: string): Promise<AuthTestResult[]> {
-    console.log(`▶️ Security Agent: Running authentication tests for ${feature}...`);
+  private async filterFalsePositives(issues: CodeSecurityIssue[]): Promise<CodeSecurityIssue[]> {
+    const highSeverity = issues.filter(i => i.severity === 'critical' || i.severity === 'high');
 
-    const results: AuthTestResult[] = [
-      {
-        testName: 'JWT Token Validation',
-        passed: true,
-        details: 'Verified JWT tokens are properly validated with correct signature',
-      },
-      {
-        testName: 'Token Expiration',
-        passed: true,
-        details: 'Confirmed tokens expire correctly after configured TTL',
-      },
-      {
-        testName: 'Unauthorized Access Prevention',
-        passed: true,
-        details: 'Protected routes correctly reject unauthenticated requests',
-      },
-      {
-        testName: 'Role-Based Access Control',
-        passed: true,
-        details: 'RBAC rules properly enforced for user roles',
-      },
-    ];
+    if (highSeverity.length === 0 || highSeverity.length > 20) {
+      // Too many to analyze or none to filter
+      return issues;
+    }
 
-    console.log('✅ Authentication tests complete.');
-    return results;
+    // Get code context for each issue
+    const issueContexts = await Promise.all(
+      highSeverity.slice(0, 10).map(async (issue) => {
+        try {
+          const filePath = path.join(this.projectRoot, issue.file);
+          const content = await fs.promises.readFile(filePath, 'utf-8');
+          const lines = content.split('\n');
+          const lineNum = (issue.line || 1) - 1;
+          const contextStart = Math.max(0, lineNum - 3);
+          const contextEnd = Math.min(lines.length, lineNum + 4);
+          const context = lines.slice(contextStart, contextEnd).join('\n');
+          return `File: ${issue.file}:${issue.line}\nType: ${issue.type}\nDescription: ${issue.description}\nCode:\n${context}`;
+        } catch {
+          return `File: ${issue.file}:${issue.line}\nType: ${issue.type}\nDescription: ${issue.description}`;
+        }
+      })
+    );
+
+    const analysis = await casGenerate({
+      systemPrompt: `You are a security expert. Analyze these potential security issues and determine which are real vulnerabilities and which are false positives. Consider the surrounding code context.`,
+      userPrompt: `Analyze these security findings. For each, state if it's a REAL vulnerability or FALSE POSITIVE, with brief reasoning.
+
+${issueContexts.join('\n\n---\n\n')}
+
+List each finding number and whether it is REAL or FALSE POSITIVE:`,
+      maxOutputTokens: 1000,
+    });
+
+    if (!analysis) return issues;
+
+    // Parse LLM response to identify false positives
+    const falsePositiveIndices = new Set<number>();
+    const lines = analysis.split('\n');
+    for (const line of lines) {
+      const match = line.match(/(?:finding\s*)?#?(\d+).*false\s*positive/i);
+      if (match) {
+        falsePositiveIndices.add(parseInt(match[1]) - 1);
+      }
+    }
+
+    // Mark false positives
+    return issues.map((issue) => {
+      const idx = highSeverity.indexOf(issue);
+      if (idx >= 0 && falsePositiveIndices.has(idx)) {
+        return { ...issue, falsePositive: true, severity: 'low' as const };
+      }
+      return issue;
+    });
   }
 
   /**
-   * Reviews a feature for security concerns as part of the Three Amigos kick-off.
+   * Reviews a feature for security concerns (Three Amigos input).
    */
   public reviewFeatureBrief(featureBrief: string): string {
     console.log('▶️ Security Agent: Performing Security Review...');
 
     let report = `## Security Review\n\n`;
 
-    // Check for security-sensitive keywords
     const hasAuthMentioned = /auth|login|password|token|session/i.test(featureBrief);
     const hasDataMentioned = /user data|personal|pii|sensitive/i.test(featureBrief);
     const hasApiMentioned = /api|endpoint|request/i.test(featureBrief);
@@ -298,8 +378,7 @@ class SecurityAgent {
   }
 
   /**
-   * Performs pre-deployment security check.
-   * Called by the Engineer Agent before deploying to production.
+   * Pre-deployment security check.
    */
   public async preDeploymentSecurityCheck(): Promise<{
     approved: boolean;
@@ -311,14 +390,12 @@ class SecurityAgent {
     const scanResult = await this.runSecurityScan();
     const blockers: string[] = [];
 
-    // Check for critical vulnerabilities
     const criticalVulns = scanResult.vulnerabilities.filter(v => v.severity === 'critical');
     if (criticalVulns.length > 0) {
       blockers.push(`${criticalVulns.length} critical dependency vulnerabilities found`);
     }
 
-    // Check for critical code issues
-    const criticalCodeIssues = scanResult.codeIssues.filter(i => i.severity === 'critical');
+    const criticalCodeIssues = scanResult.codeIssues.filter(i => i.severity === 'critical' && !i.falsePositive);
     if (criticalCodeIssues.length > 0) {
       blockers.push(`${criticalCodeIssues.length} critical code security issues found`);
     }
@@ -339,15 +416,16 @@ class SecurityAgent {
     }
 
     report += `## Code Security Issues\n`;
-    if (scanResult.codeIssues.length === 0) {
+    const realIssues = scanResult.codeIssues.filter(i => !i.falsePositive);
+    if (realIssues.length === 0) {
       report += `✅ No issues found\n\n`;
     } else {
-      for (const issue of scanResult.codeIssues.slice(0, 10)) { // Limit output
+      for (const issue of realIssues.slice(0, 10)) {
         const icon = issue.severity === 'critical' ? '🔴' : issue.severity === 'high' ? '🟠' : '🟡';
         report += `- ${icon} **${issue.type}** in ${issue.file}:${issue.line || '?'}: ${issue.description}\n`;
       }
-      if (scanResult.codeIssues.length > 10) {
-        report += `  ... and ${scanResult.codeIssues.length - 10} more\n`;
+      if (realIssues.length > 10) {
+        report += `  ... and ${realIssues.length - 10} more\n`;
       }
       report += '\n';
     }
@@ -366,12 +444,36 @@ class SecurityAgent {
     }
 
     console.log(`✅ Pre-deployment check complete. Approved: ${blockers.length === 0}`);
+    return { approved: blockers.length === 0, report, blockers };
+  }
 
-    return {
-      approved: blockers.length === 0,
-      report,
-      blockers,
-    };
+  /**
+   * Persist scan results to cas_security_scans table.
+   */
+  private async persistScanResults(result: SecurityScanResult): Promise<void> {
+    if (!this.supabase) return;
+
+    try {
+      await this.supabase.from('cas_security_scans').insert({
+        scan_type: 'comprehensive',
+        passed: result.passed,
+        critical_count: result.vulnerabilities.filter(v => v.severity === 'critical').length +
+          result.codeIssues.filter(i => i.severity === 'critical').length,
+        details: {
+          vulnerabilityCount: result.vulnerabilities.length,
+          codeIssueCount: result.codeIssues.length,
+          recommendations: result.recommendations,
+        },
+      });
+    } catch (err: any) {
+      console.warn(`⚠️ Failed to persist scan results: ${err.message}`);
+    }
+
+    await persistEvent('security', 'scan_complete', {
+      passed: result.passed,
+      vulnerabilities: result.vulnerabilities.length,
+      codeIssues: result.codeIssues.length,
+    });
   }
 
   private generateRecommendations(
@@ -383,19 +485,18 @@ class SecurityAgent {
     if (vulnerabilities.some(v => v.fixAvailable)) {
       recommendations.push('Run `npm audit fix` to automatically fix available dependency vulnerabilities');
     }
-
     if (vulnerabilities.some(v => v.severity === 'critical')) {
       recommendations.push('Review critical vulnerabilities immediately and update affected packages');
     }
-
     if (codeIssues.some(i => i.type === 'xss')) {
       recommendations.push('Review XSS-prone patterns and ensure proper input sanitization');
     }
-
     if (codeIssues.some(i => i.type === 'secrets')) {
       recommendations.push('Move hardcoded secrets to environment variables');
     }
-
+    if (codeIssues.some(i => i.type === 'ssrf')) {
+      recommendations.push('Validate and whitelist URLs in fetch calls to prevent SSRF');
+    }
     if (recommendations.length === 0) {
       recommendations.push('Continue following security best practices');
       recommendations.push('Schedule regular dependency updates');
@@ -432,10 +533,7 @@ export const security = new SecurityAgent();
 
 export const runSecurity = async (): Promise<void> => {
   console.log('▶️ Running Security Agent Full Workflow...');
-
   const securityAgent = new SecurityAgent();
-
-  // Run comprehensive security scan
   const scanResult = await securityAgent.runSecurityScan();
 
   console.log('\n--- Security Scan Results ---\n');

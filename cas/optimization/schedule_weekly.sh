@@ -3,9 +3,8 @@
 #
 # Runs DSPy optimization weekly using accumulated user feedback.
 # Designed to be triggered by:
-#   - GitHub Actions (cron schedule)
-#   - Vercel Cron Jobs
-#   - System crontab
+#   - Supabase pg_cron (primary — via /api/cron/cas-dspy-optimize route)
+#   - System crontab (fallback)
 #
 # Usage:
 #   ./schedule_weekly.sh                    # Optimize all agents

@@ -1,8 +1,8 @@
 # TutorWise AI Stack vs Fuschia: Competitive Analysis
 
-**Version:** 1.0
+**Version:** 2.0
 **Date:** February 28, 2026
-**Scope:** Full AI stack comparison assuming CAS P1-P4 improvements complete
+**Scope:** Full AI stack comparison with CAS AI-Native upgrade complete
 
 ---
 
@@ -24,6 +24,7 @@ TutorWise and Fuschia are fundamentally different platforms with different archi
 | AI Focus | Teaching methodology + RAG | Workflow automation + chat |
 | Multi-tenancy | Single tenant | Multi-tenant (organizations) |
 | Agent purpose | Internal dev ops (CAS) + user-facing tutors | Enterprise process automation |
+| Agent architecture | Two-loop product team (9 agents, AI-native) | Dynamic template-based orchestrator |
 
 ---
 
@@ -39,7 +40,7 @@ User Request → Next.js Server Components → AI Adapter
                                             ├── Lexi (Help Bot) — Platform support
                                             └── AI Agents (Marketplace) — User-created tutors
 
-CAS (Internal) → LangGraph PlanningGraph → 9 Agents → Autonomous development
+CAS (Internal) → LangGraph PlanningGraph → Two-Loop Workflow → 9 AI-Native Agents
 ```
 
 - **Server-side rendering** with React Server Components
@@ -72,41 +73,58 @@ TutorWise has a more modern architecture (SSR, server components, monorepo). Fus
 
 ## 2. Agent Architecture
 
-### TutorWise CAS (with P1-P4 Complete)
+### TutorWise CAS (AI-Native)
 
-**9 agents** orchestrated by a LangGraph StateGraph (`PlanningGraph.ts`, 1,113 lines):
+**9 AI-native agents** orchestrated by a LangGraph StateGraph with **two-loop architecture**:
 
-| Agent | Maturity | Real Capabilities |
-|-------|----------|-------------------|
-| Director | High | Reads `.ai/` vision docs, PROCEED/ITERATE/DEFER decisions |
-| Planner | High | Sprint planning, resource allocation, roadmap alignment |
-| Analyst | High | Feature briefs, Three Amigos, codebase pattern extraction |
-| Developer | Medium → High (P3) | LLM-powered planning via Gemini |
-| Tester | Low → High (P1) | Real Jest/Vitest execution |
-| QA | Low → High (P1) | Acceptance criteria validation, regression detection |
-| Security | High | npm audit, regex code scanning, pre-deployment gate |
-| Engineer | Low → Medium (P2) | Build verification (`npm run build`) |
-| Marketer | High | Supabase-connected feedback analysis, production reports |
+| Agent | Roles | Maturity | AI Method | Key Capabilities |
+|-------|-------|----------|-----------|------------------|
+| Director | PM + Strategist + CTO + Cofounder | High | Reason with AI | Dynamic `.ai/` doc parsing, LLM semantic alignment scoring, PROCEED/ITERATE/DEFER |
+| Analyst | BA + Three Amigos Facilitator | High | Reason with AI | LLM-powered feature briefs, Three Amigos synthesis (Business/Technical/Quality) |
+| Planner | Scrum Master + Flow Manager | High | Reason + Rules | Kanban board via `cas_planner_tasks`, WIP limits (max 3), LLM backlog prioritisation |
+| Developer | Tech Lead + Architect | High | Reason with AI | LLM-powered feasibility review, structured implementation plans |
+| Tester | QA + Test Automation Engineer | High | Execute with tools | Real Jest execution (`npx jest --json`), real build verification |
+| QA | Release Manager + Quality Gate | High | Reason + Rules | Structured APPROVE/REWORK/BLOCK, LLM semantic criteria validation, regression detection |
+| Security | Security + Compliance | High | Execute + AI | 10+ scan patterns, npm audit, LLM false positive filtering |
+| Engineer | DevOps + SRE + Build Engineer | High | Execute + AI | Real `npm run build`, LLM failure analysis, pre-deployment checklist |
+| Marketer | Analytics + Growth + Feedback | High | Reason with AI | Real metrics from `cas_metrics_timeseries`, LLM feedback analysis, backlog generation |
 
-**Workflow flow:**
+**Two-loop workflow:**
 ```
-Director → Planner → Analyst → Developer → [Reflection Node] → Tester → QA → Security → [Human Approval Gate] → Engineer → Marketer
+OUTER LOOP (Strategy):
+  Director → Three Amigos (Analyst facilitates) → Planner
+
+INNER LOOP (CI/CD):
+  Developer → Engineer Build → Tester → QA → Security → Engineer Deploy → Marketer
+                                         ↑                                    │
+                                         └── REWORK ──────────────────────────┘
+FEEDBACK LOOP:
+  Marketer → cas_planner_tasks → next workflow → Director
 ```
 
-**P1-P4 Additions:**
-- Real test execution (Jest/Vitest) — no more simulated results
-- Acceptance criteria validation with regression detection
-- Build verification before deployment
-- Reflection node for self-critique (quality < 0.7 triggers retry)
-- Human approval gate with `cas_approval_requests` table and admin UI
-- Developer uses Gemini for LLM-powered implementation plans
-- DSPy optimization scheduled via GitHub Actions
+**AI-Native Design Principle:**
+- **Reason with AI:** LLM for judgements, synthesis, analysis (6 agents)
+- **Execute with tools:** Deterministic for build, test, scan (3 agents)
+- **Validate with rules:** Thresholds and gates (QA, Security, Planner)
+- **Graceful degradation:** Every LLM call returns `null` on failure → rules-based fallback
+
+**Three Amigos Methodology:**
+- Analyst facilitates, gets Developer + Tester perspectives
+- Single LLM synthesis produces structured report: acceptance criteria, technical constraints, edge cases, test strategy, definition of done
+- Mirrors a real meeting — one conversation, three viewpoints
+
+**Kanban Continuous Delivery:**
+- Planner manages Kanban board via `cas_planner_tasks`
+- WIP limit: max 3 in-progress tasks
+- LLM-powered backlog prioritisation and bottleneck detection
+- No sprints — continuous flow
 
 **Resilience:**
 - CircuitBreaker (225 lines) — CLOSED/OPEN/HALF_OPEN state machine
 - RetryUtility (251 lines) — Exponential backoff with jitter
 - Supabase checkpointing for state persistence
 - LangSmith tracing for observability
+- Event persistence at every workflow node
 
 ### Fuschia Agents
 
@@ -123,17 +141,22 @@ Director → Planner → Analyst → Developer → [Reflection Node] → Tester 
 
 | Feature | TutorWise CAS | Fuschia |
 |---------|---------------|---------|
-| Agent count | 9 fixed, purpose-built | Dynamic, template-based |
-| Orchestration | LangGraph StateGraph | Custom Python orchestrator |
-| Routing | Conditional (deterministic rules) | LLM-powered (dynamic) |
-| Purpose | Software development lifecycle | Enterprise task routing |
+| Agent count | 9 fixed, multi-role, AI-native | Dynamic, template-based |
+| Orchestration | LangGraph StateGraph (two-loop) | Custom Python orchestrator |
+| Agent AI | Shared CAS AI Client (Gemini) | Per-agent LLM calls |
+| Routing | Conditional (deterministic + QA loop) | LLM-powered (dynamic) |
+| Methodology | Three Amigos + Kanban | None (generic routing) |
+| Execution | Real (Jest, npm build, scans) | Simulated/chat-based |
 | State management | LangGraph + Supabase checkpointing | Per-session state |
 | Resilience | CircuitBreaker + RetryUtility | Basic try/catch |
-| Self-improvement | DSPy optimization + reflection node | DSPy evaluation panel (UI) |
+| Self-improvement | DSPy optimization + QA rework loop | DSPy evaluation panel (UI) |
+| Feedback loop | Marketer → cas_planner_tasks → Director | None |
+| Event persistence | Every node via cas-events.ts | None |
+| Graceful degradation | LLM → rules-based fallback | None |
 
 ### Verdict
 
-TutorWise CAS is more mature for its specific domain (SDLC automation) with production-grade resilience. Fuschia's dynamic agent system is more flexible — agents can be created, modified, and organized visually by users. CAS is an opinionated pipeline; Fuschia is a configurable platform.
+TutorWise CAS is significantly more mature for its specific domain (SDLC automation) with AI-native agents, real execution, production-grade resilience, and a structured two-loop workflow. Fuschia's dynamic agent system is more flexible — agents can be created, modified, and organized visually by users. CAS is an opinionated, high-performance pipeline; Fuschia is a configurable platform.
 
 ---
 
@@ -190,10 +213,14 @@ TutorWise has superior RAG and semantic search capabilities — critical for edu
 
 ### TutorWise CAS
 
-**LangGraph StateGraph** — programmatic, fixed pipeline:
+**LangGraph StateGraph** — two-loop architecture:
 
-- Single `PlanningGraph.ts` (1,113 lines) defining the 9-agent workflow
-- Conditional routing: `routeFromDirector()`, `routeFromSecurity()`, `routeFromTester()`
+- `PlanningGraph.ts` defining the 9-agent two-loop workflow
+- **Outer loop:** Director → Three Amigos → Planner (strategy and refinement)
+- **Inner loop:** Developer → Engineer Build → Tester → QA → Security → Engineer Deploy → Marketer (CI/CD)
+- **QA rework loop:** QA REWORK routes back to Developer
+- **Feedback loop:** Marketer writes backlog items to `cas_planner_tasks` for next workflow
+- Conditional routing: `routeFromDirector()`, `routeFromQA()`, `routeFromSecurity()`, `routeFromEngineerBuild()`
 - DynamicStructuredTool wrappers for each agent
 - `executePlanningWorkflow(featureQuery)` — single entry point
 - `getWorkflowStructure()` — returns graph for visualization
@@ -219,17 +246,20 @@ TutorWise has superior RAG and semantic search capabilities — critical for edu
 
 | Feature | TutorWise CAS | Fuschia |
 |---------|---------------|---------|
+| Architecture | Two-loop (strategy + CI/CD) | Linear workflows |
 | Definition | Code (LangGraph StateGraph) | Visual (ReactFlow builder) |
 | User-facing | Admin visualization only | Full designer + templates |
 | Customization | Requires code changes | Drag-and-drop by users |
 | Execution | LangGraph runtime | Custom execution service |
+| Quality gates | QA APPROVE/REWORK/BLOCK loop | None |
+| Feedback loop | Marketer → backlog → Director | None |
 | Templates | 3 pre-built | Database-stored, user-created |
 | Import/Export | None | YAML/JSON files |
-| Node types | 9 agent nodes | 4 generic types |
+| Node types | 12 specialized agent nodes | 4 generic types |
 
 ### Verdict
 
-Fuschia's workflow system is far more user-friendly and flexible — users can design, save, share, and execute custom workflows visually. TutorWise CAS is more powerful for its specific pipeline but requires developer intervention to modify. For an enterprise SaaS product, Fuschia's approach is better. For an internal development tool, CAS's approach is appropriate.
+Fuschia's workflow system is far more user-friendly and flexible — users can design, save, share, and execute custom workflows visually. TutorWise CAS is more powerful for its specific pipeline with two-loop architecture, quality gates, rework loops, and feedback mechanisms — but requires developer intervention to modify. For an enterprise SaaS product, Fuschia's approach is better. For an internal development tool, CAS's approach is superior.
 
 ---
 
@@ -241,11 +271,12 @@ Fuschia's workflow system is far more user-friendly and flexible — users can d
 
 | Provider | Use Case | Models |
 |----------|----------|--------|
-| Gemini (default) | Sage, Lexi, Embeddings | gemini-2.0-flash, gemini-embedding-001 |
+| Gemini (default) | Sage, Lexi, Embeddings, CAS agents | gemini-2.0-flash, gemini-embedding-001 |
 | DeepSeek (fallback 1) | Sage, Lexi | deepseek-chat |
 | Claude (fallback 2) | Sage, Lexi | claude-3.5-sonnet |
 
 - Graceful provider fallback: Gemini → DeepSeek → Claude → Rules-based
+- **CAS AI Client** uses `gemini-2.0-flash` at temperature 0.3 for agent reasoning
 - `gemini-embedding-001` for all embeddings (768 dimensions)
 - Streaming support for real-time responses
 - No OpenAI dependency
@@ -269,7 +300,7 @@ Fuschia's workflow system is far more user-friendly and flexible — users can d
 
 ### Verdict
 
-TutorWise has better resilience with automatic fallback chains. Fuschia offers more user choice and model diversity. TutorWise avoids OpenAI dependency; Fuschia defaults to it. Both approaches are valid for their domains.
+TutorWise has better resilience with automatic fallback chains and graceful degradation in CAS agents (LLM → rules-based). Fuschia offers more user choice and model diversity. TutorWise avoids OpenAI dependency; Fuschia defaults to it. Both approaches are valid for their domains.
 
 ---
 
@@ -350,8 +381,8 @@ Fuschia has a significantly more mature auth system with real multi-tenancy, sub
 
 ### TutorWise
 
-- **Admin dashboard** (`/admin/cas`) — 5 tabs, 859 lines
-- **Workflow visualizer** — read-only graph of agent pipeline + fullscreen demo
+- **Admin dashboard** (`/admin/cas`) — 5 tabs
+- **Workflow visualizer** — read-only graph of two-loop agent pipeline + fullscreen demo
 - **No visual builder** for workflows
 - **CSS Modules** with custom design system
 - **Next.js 16** with server components
@@ -400,15 +431,15 @@ Fuschia has full MCP integration; TutorWise has none. MCP is valuable for enterp
 
 ## 10. DSPy / Self-Improvement
 
-### TutorWise CAS (with P4 complete)
+### TutorWise CAS
 
 - **Python DSPy pipeline** (`cas/optimization/run_dspy.py`)
 - **Prompt loader** (`prompt-loader.ts`, 323 lines) — loads optimized prompts from JSON
 - **3 signatures** implemented: Maths, Explain, Diagnose
 - **Integration:** Base Provider and Marketplace Agent check for recent optimization
-- **Scheduling:** GitHub Actions weekly runs (P4)
 - **Subject-specific signatures** for Maths, English, Science, General
 - **Feedback-driven:** `ai_feedback` table feeds optimization
+- **AI-Native agents:** All 9 agents use `casGenerate()` with graceful degradation — prompts are candidates for DSPy optimization
 
 ### Fuschia
 
@@ -432,7 +463,7 @@ Fuschia has a more user-friendly DSPy integration with a full UI for managing ex
 ### TutorWise
 
 - **Supabase** (database, auth, real-time, storage)
-- **Google AI** (Gemini, embeddings)
+- **Google AI** (Gemini, embeddings, CAS AI Client)
 - **Anthropic** (Claude)
 - **DeepSeek** (fallback LLM)
 - **LangSmith** (observability)
@@ -457,15 +488,17 @@ Different integration priorities reflecting different domains. TutorWise integra
 
 ## 12. Testing & Quality
 
-### TutorWise (with P1-P2 complete)
+### TutorWise
 
-- **Jest/Vitest** test suite (runs via CAS Tester agent)
+- **Real Jest execution** via CAS Tester agent (`npx jest --json --coverage --forceExit`)
+- **Real build verification** via CAS Engineer agent (`npm run build`)
 - **Pre-commit hooks** running tests, lint, full build
-- **Real test execution** (P1) — CAS Tester runs actual tests
-- **Acceptance criteria validation** (P1) — QA validates against feature brief
-- **Regression detection** — QA compares against previous test runs
-- **Build verification** (P2) — Engineer verifies `npm run build` succeeds
-- **Security scanning** — npm audit + regex code scanning
+- **Structured QA verdicts** — APPROVE/REWORK/BLOCK with LLM semantic criteria validation
+- **QA rework loop** — REWORK routes back to Developer for re-planning
+- **Regression detection** — QA compares against previous test runs via `cas_agent_events`
+- **Acceptance criteria validation** — QA validates against Three Amigos output
+- **Security scanning** — npm audit + 10+ regex patterns + LLM false positive filtering
+- **Build failure analysis** — LLM-powered root cause identification
 
 ### Fuschia
 
@@ -479,7 +512,7 @@ Different integration priorities reflecting different domains. TutorWise integra
 
 ### Verdict
 
-TutorWise has significantly stronger testing and quality gates, especially with CAS P1-P2 providing automated test execution and regression detection. Fuschia has minimal testing infrastructure.
+TutorWise has significantly stronger testing and quality gates with real test execution, build verification, structured QA verdicts with rework loops, regression detection, and LLM-powered analysis. Fuschia has minimal testing infrastructure.
 
 ---
 
@@ -490,7 +523,7 @@ TutorWise has significantly stronger testing and quality gates, especially with 
 - **Supabase Realtime** (Postgres CDC) for live dashboard updates
 - **Streaming LLM responses** for Sage and Lexi
 - **CAS Message Bus** with JSON envelope format
-- **Event sourcing** via `cas_agent_events`
+- **Event sourcing** via `cas_agent_events` with persistence at every workflow node
 
 ### Fuschia
 
@@ -500,32 +533,36 @@ TutorWise has significantly stronger testing and quality gates, especially with 
 
 ### Verdict
 
-TutorWise has more robust real-time infrastructure with Supabase Realtime and event sourcing. Fuschia's Socket.IO is simpler but functional for chat-style updates.
+TutorWise has more robust real-time infrastructure with Supabase Realtime, event sourcing, and comprehensive audit trail at every workflow node. Fuschia's Socket.IO is simpler but functional for chat-style updates.
 
 ---
 
 ## 14. Summary Comparison Matrix
 
-| Capability | TutorWise (with P1-P4) | Fuschia | Winner |
+| Capability | TutorWise (AI-Native) | Fuschia | Winner |
 |-----------|----------------------|---------|--------|
 | **Teaching AI** | 4 modes, adaptive learning, spaced repetition | Generic chat | TutorWise |
 | **RAG / Knowledge Retrieval** | Multi-tier hybrid search, quality scoring | None (graph queries) | TutorWise |
 | **Knowledge Visualization** | None | ReactFlow graph browser | Fuschia |
-| **Agent Orchestration** | LangGraph 9-agent pipeline with resilience | Dynamic orchestrator with routing | Tie (different domains) |
+| **Agent Architecture** | 9 AI-native agents, two-loop, Three Amigos, Kanban | Dynamic orchestrator with routing | TutorWise (depth) / Fuschia (flexibility) |
+| **Agent Maturity** | All 9 High (real execution, LLM reasoning) | Template-based | TutorWise |
+| **Workflow Architecture** | Two-loop with QA rework + feedback loop | Linear visual workflows | TutorWise |
 | **Visual Workflow Builder** | Read-only visualizer | Full ReactFlow designer | Fuschia |
 | **Multi-Tenancy** | Single tenant | Full org-based isolation | Fuschia |
 | **RBAC** | Basic admin/user | Module-level, role-based | Fuschia |
 | **MCP Integration** | None | Full client with UI | Fuschia |
 | **DSPy Optimization** | Backend pipeline + prompt loader | Full UI with per-task config | Fuschia (UX) / TutorWise (depth) |
-| **Testing / QA** | Automated via CAS agents + pre-commit | Minimal test files | TutorWise |
-| **Resilience** | CircuitBreaker, RetryUtility, checkpointing | Basic error handling | TutorWise |
-| **Event Sourcing / Audit** | Full via `cas_agent_events` | None | TutorWise |
+| **Testing / QA** | Real Jest + structured QA verdicts + rework loop | Minimal test files | TutorWise |
+| **Build Verification** | Real npm build + LLM failure analysis | None | TutorWise |
+| **Resilience** | CircuitBreaker, RetryUtility, checkpointing, graceful degradation | Basic error handling | TutorWise |
+| **Event Sourcing / Audit** | Full via `cas_agent_events` at every node | None | TutorWise |
 | **Enterprise Integrations** | Education-focused | ServiceNow, Slack, MCP | Fuschia |
-| **Provider Fallback** | Automatic chain (Gemini → DeepSeek → Claude) | User selection only | TutorWise |
+| **Provider Fallback** | Automatic chain (Gemini → DeepSeek → Claude → rules) | User selection only | TutorWise |
 | **Process Mining** | None | Full module (discovery, conformance) | Fuschia |
 | **User-Created Agents** | 5 types with marketplace | Template-based agent design | TutorWise (depth) |
 | **Real-time** | Supabase Realtime + event sourcing | Socket.IO | TutorWise |
-| **CI/CD** | Pre-commit hooks + CAS Engineer | None visible | TutorWise |
+| **CI/CD** | Pre-commit hooks + CAS Engineer (real builds) | None visible | TutorWise |
+| **Feedback Loop** | Marketer → backlog → Director (closed loop) | None | TutorWise |
 
 ---
 
@@ -535,9 +572,11 @@ TutorWise has more robust real-time infrastructure with Supabase Realtime and ev
 
 1. **Domain expertise** — Teaching methodology (Socratic, adaptive, spaced repetition) is deeply embedded and cannot be replicated by a generic platform
 2. **RAG quality** — Multi-tier hybrid search with quality scoring delivers more relevant educational content
-3. **Production resilience** — CircuitBreaker, RetryUtility, and event sourcing provide enterprise-grade reliability
-4. **Automated QA pipeline** — CAS agents run real tests, validate criteria, detect regressions, and verify builds
-5. **Provider resilience** — Automatic fallback ensures AI never goes down
+3. **AI-native agent pipeline** — Two-loop architecture with Three Amigos methodology, Kanban delivery, QA rework loops, and feedback mechanisms models a real high-performance product team
+4. **Production resilience** — CircuitBreaker, RetryUtility, graceful degradation (LLM → rules-based), and event sourcing at every node provide enterprise-grade reliability
+5. **Automated QA pipeline** — Real Jest tests, structured QA verdicts, regression detection, LLM-powered criteria validation, and build failure analysis
+6. **Closed feedback loop** — Marketer insights feed back to Planner/Director for continuous improvement across workflow runs
+7. **Provider resilience** — Automatic fallback ensures AI never goes down
 
 ### What Fuschia Does Better
 
@@ -563,7 +602,9 @@ TutorWise has more robust real-time infrastructure with Supabase Realtime and ev
 | Teaching methodology | Agent prompts | Domain-specific AI behaviors |
 | CircuitBreaker/RetryUtility | Agent execution | Production-grade resilience |
 | Event sourcing | Workflow execution | Full audit trail |
-| Automated QA pipeline | Workflow testing | Quality gates for workflow execution |
+| Two-loop architecture | Workflow system | Quality gates and feedback loops |
+| Three Amigos methodology | Agent coordination | Structured multi-perspective analysis |
+| Graceful degradation | Agent resilience | LLM → rules-based fallback pattern |
 
 ---
 

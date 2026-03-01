@@ -1,13 +1,16 @@
 /**
- * Marketer Agent - AI Growth Manager & Analytics Specialist
+ * Marketer Agent - Product Analytics + Growth Analyst + Feedback Analyst
  *
  * Responsibilities:
  * - Usage analytics and tracking
  * - User behavior analysis
- * - A/B testing coordination
- * - Production metrics review
+ * - Production metrics review (real data from cas_metrics_timeseries)
  * - Feature impact assessment
- * - AI feedback analysis (Sage/Lexi)
+ * - AI feedback analysis (Sage/Lexi) with LLM-powered theme extraction
+ * - Backlog item generation (closes the feedback loop to Planner)
+ *
+ * AI-Native: Uses LLM for feedback synthesis and insight generation.
+ * Falls back to threshold-based analysis if LLM unavailable.
  *
  * @agent Marketer Agent
  */
@@ -17,6 +20,8 @@ import * as path from 'path';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { analyst } from '../../analyst/src';
 import { developer } from '../../developer/src';
+import { casGenerate, casGenerateStructured } from '../../../packages/core/src/services/cas-ai';
+import { persistEvent } from '../../../packages/core/src/services/cas-events';
 
 // --- AI Feedback Types ---
 
@@ -298,7 +303,10 @@ class MarketerAgent {
   ): Promise<ProductionReport> {
     console.log(`▶️ Marketer Agent: Gathering production data for ${featureName}...`);
 
-    // Default metrics (would come from analytics APIs in production)
+    // Try to fetch real metrics from cas_metrics_timeseries
+    const realMetrics = await this.fetchRealMetrics(featureName);
+
+    // Default metrics as fallback
     const defaultMetrics: FeatureMetrics['metrics'] = {
       adoption: 75,
       completion: 90,
@@ -307,7 +315,7 @@ class MarketerAgent {
       userSatisfaction: 4.2,
     };
 
-    const finalMetrics = { ...defaultMetrics, ...metrics };
+    const finalMetrics = { ...defaultMetrics, ...realMetrics, ...metrics };
 
     // Calculate trends
     const trends: MetricTrend[] = [
@@ -411,8 +419,8 @@ class MarketerAgent {
 
     // Step 2: Get reviews from other agents
     const originalBrief = `# Feature Brief: ${featureName}\n\n- Success Metric: ${successMetrics.adoption}% Adoption`;
-    const impactReview = analyst.reviewProductionMetrics(formattedReport, originalBrief);
-    const healthReview = developer.reviewProductionMetrics(formattedReport);
+    const impactReview = await analyst.reviewProductionMetrics(formattedReport, originalBrief);
+    const healthReview = await developer.reviewProductionMetrics(formattedReport);
 
     // Step 3: Determine recommendation
     const adoptionMet = productionReport.metrics.adoption >= successMetrics.adoption;
@@ -516,28 +524,163 @@ class MarketerAgent {
   /**
    * Reviews user feedback trends across features.
    */
-  public analyzeFeedbackTrends(features: string[]): string {
+  public async analyzeFeedbackTrends(features: string[]): Promise<string> {
     console.log(`▶️ Marketer Agent: Analyzing feedback trends across ${features.length} features...`);
 
+    // Gather real feedback data
+    const feedbackSummary = await this.analyzeAIFeedback({ days: 30 });
+
+    // Try LLM-powered trend analysis
+    const llmAnalysis = await casGenerate({
+      systemPrompt: `You are the Marketer Agent for TutorWise, acting as Product Analytics and Feedback Analyst.
+Analyze user feedback data and extract meaningful themes, trends, and actionable insights.
+Focus on patterns that inform product decisions.`,
+      userPrompt: `Analyze these feedback trends and produce a structured report:
+
+Features being analyzed: ${features.join(', ')}
+
+Feedback Summary (last 30 days):
+- Total feedback: ${feedbackSummary.totalFeedback}
+- Satisfaction rate: ${feedbackSummary.satisfactionRate}%
+- Positive: ${feedbackSummary.positiveCount}, Negative: ${feedbackSummary.negativeCount}
+${feedbackSummary.topComplaints.length > 0 ? `- Top complaints: ${feedbackSummary.topComplaints.join('; ')}` : ''}
+${feedbackSummary.topPraise.length > 0 ? `- Top praise: ${feedbackSummary.topPraise.join('; ')}` : ''}
+
+By role: ${JSON.stringify(feedbackSummary.byRole)}
+By subject: ${JSON.stringify(feedbackSummary.bySubject)}
+
+Produce a trends report with:
+1. Common themes (table with Theme, Sentiment, Frequency)
+2. Key insights (what the data tells us)
+3. Actionable recommendations (what to do next)`,
+      maxOutputTokens: 1000,
+    });
+
+    if (llmAnalysis) {
+      console.log('✅ Feedback trends analysis complete (AI-powered).');
+      return `## Feedback Trends Analysis\n\n**Features:** ${features.join(', ')}\n**Date:** ${new Date().toLocaleDateString()}\n\n${llmAnalysis}`;
+    }
+
+    // Fallback: static report
     let report = `## Feedback Trends Analysis\n\n`;
     report += `**Features Analyzed:** ${features.join(', ')}\n`;
     report += `**Analysis Date:** ${new Date().toLocaleDateString()}\n\n`;
-
-    report += `### Common Themes\n\n`;
-    report += `| Theme | Sentiment | Frequency |\n`;
-    report += `|-------|-----------|------------|\n`;
-    report += `| Performance | Mixed | High |\n`;
-    report += `| Usability | Positive | High |\n`;
-    report += `| Error Handling | Negative | Medium |\n`;
-    report += `| Feature Requests | Neutral | Medium |\n\n`;
-
+    report += `### Summary\n\n`;
+    report += `- Total feedback: ${feedbackSummary.totalFeedback}\n`;
+    report += `- Satisfaction: ${feedbackSummary.satisfactionRate}%\n\n`;
     report += `### Recommendations\n\n`;
-    report += `1. **Performance**: Users frequently mention load times - consider optimization sprint\n`;
-    report += `2. **Error Handling**: Improve error messages and recovery flows\n`;
-    report += `3. **Usability**: Continue current UX patterns - they are well-received\n`;
+    report += `1. Monitor feedback trends for emerging patterns\n`;
+    report += `2. Address any declining satisfaction metrics\n`;
+    report += `3. Continue patterns that receive positive feedback\n`;
 
-    console.log('✅ Feedback trends analysis complete.');
+    console.log('✅ Feedback trends analysis complete (rules-based).');
     return report;
+  }
+
+  /**
+   * Generate backlog items from production insights.
+   * Closes the feedback loop: Marketer → Planner (via cas_planner_tasks).
+   */
+  public async generateBacklogItems(
+    productionReport: ProductionReport,
+    impactSummary: FeatureImpactSummary
+  ): Promise<Array<{ title: string; priority: string }>> {
+    console.log('▶️ Marketer Agent: Generating backlog items from insights...');
+
+    const items = await casGenerateStructured<{ items: Array<{ title: string; priority: string; description: string }> }>({
+      systemPrompt: `You are the Marketer Agent. Based on production data and feedback, generate specific, actionable backlog items for the development team.
+Each item should have a clear title, priority (critical/high/medium/low), and brief description.`,
+      userPrompt: `Generate backlog items based on these production insights:
+
+Feature: ${productionReport.feature}
+Metrics: adoption ${productionReport.metrics.adoption}%, errors ${productionReport.metrics.errorRate}%, satisfaction ${productionReport.metrics.userSatisfaction}/5
+Recommendation: ${impactSummary.recommendation}
+Action Items: ${impactSummary.actionItems.join(', ')}
+User Feedback: ${productionReport.userFeedback.map(f => `${f.type}: "${f.content}" (${f.count}x)`).join('; ')}`,
+      jsonSchema: `{ "items": [{ "title": "string", "priority": "critical|high|medium|low", "description": "string" }] }`,
+      maxOutputTokens: 800,
+    });
+
+    const backlogItems = items?.items || impactSummary.actionItems.map(a => ({
+      title: a,
+      priority: 'medium',
+      description: a,
+    }));
+
+    // Write to cas_planner_tasks
+    if (this.supabase) {
+      for (const item of backlogItems) {
+        try {
+          await this.supabase.from('cas_planner_tasks').insert({
+            title: item.title,
+            description: item.description || item.title,
+            task_type: 'feedback',
+            priority: item.priority,
+            source: 'marketer_insights',
+            status: 'pending',
+          });
+        } catch {
+          // Continue even if one insert fails
+        }
+      }
+      console.log(`✅ ${backlogItems.length} backlog items written to cas_planner_tasks.`);
+    }
+
+    // Write insight to cas_marketer_insights
+    if (this.supabase) {
+      try {
+        await this.supabase.from('cas_marketer_insights').insert({
+          type: 'backlog_generation',
+          priority: impactSummary.recommendation === 'REMOVE' ? 'high' : 'medium',
+          message: `Generated ${backlogItems.length} backlog items for ${productionReport.feature}`,
+          data: { items: backlogItems, feature: productionReport.feature },
+          recommended_action: impactSummary.recommendation,
+          status: 'active',
+        });
+      } catch {
+        // Non-critical
+      }
+    }
+
+    await persistEvent('marketer', 'backlog_generated', {
+      feature: productionReport.feature,
+      itemCount: backlogItems.length,
+    });
+
+    return backlogItems.map(i => ({ title: i.title, priority: i.priority }));
+  }
+
+  /**
+   * Fetch real metrics from cas_metrics_timeseries for a feature.
+   */
+  private async fetchRealMetrics(featureName: string): Promise<Partial<FeatureMetrics['metrics']>> {
+    if (!this.supabase) return {};
+
+    try {
+      const { data } = await this.supabase
+        .from('cas_metrics_timeseries')
+        .select('metric_name, metric_value')
+        .eq('labels->>feature', featureName)
+        .order('timestamp', { ascending: false })
+        .limit(10);
+
+      if (!data || data.length === 0) return {};
+
+      const metrics: Partial<FeatureMetrics['metrics']> = {};
+      for (const row of data) {
+        switch (row.metric_name) {
+          case 'adoption_rate': metrics.adoption = row.metric_value; break;
+          case 'completion_rate': metrics.completion = row.metric_value; break;
+          case 'error_rate': metrics.errorRate = row.metric_value; break;
+          case 'avg_session_duration': metrics.avgSessionDuration = row.metric_value; break;
+          case 'user_satisfaction': metrics.userSatisfaction = row.metric_value; break;
+        }
+      }
+
+      return metrics;
+    } catch {
+      return {};
+    }
   }
 
   /**

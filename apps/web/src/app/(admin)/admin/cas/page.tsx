@@ -25,13 +25,14 @@ import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
 import Button from '@/app/components/ui/actions/Button';
 import { Bot, Cpu, Activity, Shield, TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock, Zap, BarChart, BarChart3, Settings, ThumbsUp, ThumbsDown, Users, Calendar, AlertCircle, RefreshCw, DollarSign, Sparkles, MessageSquare, FileCheck } from 'lucide-react';
 import { CASRuntimeDashboard, MigrationStatusDashboard, PlanningGraphDashboard } from '@cas/packages/core/src/admin';
+import { usePermission } from '@/lib/rbac/hooks';
 import styles from './page.module.css';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type TabFilter = 'overview' | 'agents' | 'feedback' | 'runtime' | 'metrics';
+type TabFilter = 'overview' | 'agents' | 'feedback' | 'runtime' | 'metrics' | 'approvals';
 
 interface RuntimeInfo {
   type: string;
@@ -205,6 +206,7 @@ export default function CASAnalyticsPage() {
               { id: 'feedback', label: 'Feedback', active: tabFilter === 'feedback' },
               { id: 'runtime', label: 'Runtime', active: tabFilter === 'runtime' },
               { id: 'metrics', label: 'Metrics & Costs', active: tabFilter === 'metrics' },
+              { id: 'approvals', label: 'Approvals', active: tabFilter === 'approvals' },
             ]}
             onTabChange={handleTabChange}
             className={styles.casTabs}
@@ -690,6 +692,11 @@ export default function CASAnalyticsPage() {
             </HubKPIGrid>
           </>
         )}
+
+        {/* Approvals Tab */}
+        {tabFilter === 'approvals' && (
+          <ApprovalsTab />
+        )}
       </HubPageLayout>
     </ErrorBoundary>
   );
@@ -836,6 +843,224 @@ function RuntimeTab({ runtimeBreakdownData }: RuntimeTabProps) {
             </p>
           </div>
           <PlanningGraphDashboard />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- Approvals Tab ---
+
+interface ApprovalRequest {
+  id: string;
+  workflow_id: string;
+  feature_name: string;
+  approval_type: string;
+  status: string;
+  requester_agent: string;
+  context: any;
+  approved_by: string | null;
+  comments: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+  expires_at: string | null;
+}
+
+function ApprovalsTab() {
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+  const [commentText, setCommentText] = React.useState<Record<string, string>>({});
+  const { hasAccess: canApprove } = usePermission('cas', 'approve');
+
+  const { data: approvals, isLoading } = useQuery({
+    queryKey: ['cas-approvals'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cas_approval_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Failed to fetch approvals:', error);
+        return [];
+      }
+      return (data || []) as ApprovalRequest[];
+    },
+    staleTime: 10000,
+    refetchInterval: 15000,
+  });
+
+  const updateApproval = useMutation({
+    mutationFn: async ({ id, status, comments }: { id: string; status: string; comments?: string }) => {
+      // Call resume-workflow API to update approval AND resume the paused workflow
+      const response = await fetch('/api/admin/cas/resume-workflow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          approvalId: id,
+          decision: status,
+          comments: comments || undefined,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process approval');
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cas-approvals'] });
+    },
+  });
+
+  // Subscribe to realtime updates
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('cas-approvals-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'cas_approval_requests',
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: ['cas-approvals'] });
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [supabase, queryClient]);
+
+  const pending = approvals?.filter(a => a.status === 'pending') || [];
+  const history = approvals?.filter(a => a.status !== 'pending') || [];
+
+  if (isLoading) {
+    return <ChartSkeleton />;
+  }
+
+  return (
+    <div className={styles.chartsSection}>
+      {/* Pending Approvals */}
+      <h2 className={styles.sectionHeading}>
+        Pending Approvals ({pending.length})
+      </h2>
+
+      {pending.length === 0 ? (
+        <HubEmptyState
+          icon={<CheckCircle size={48} />}
+          title="No Pending Approvals"
+          description="All deployment approvals have been reviewed. New requests will appear here when a workflow reaches the approval gate."
+        />
+      ) : (
+        <div className={styles.approvalList}>
+          {pending.map(request => (
+            <div key={request.id} className={styles.approvalCard}>
+              <div className={styles.approvalHeader}>
+                <div>
+                  <h3 className={styles.approvalTitle}>{request.feature_name}</h3>
+                  <p className={styles.approvalMeta}>
+                    {request.approval_type} &middot; Workflow: {request.workflow_id} &middot; {new Date(request.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <span className={styles.approvalBadgePending}>Pending</span>
+              </div>
+
+              {/* Context Summary */}
+              {request.context && (
+                <div className={styles.approvalContext}>
+                  <div className={styles.approvalContextItem}>
+                    <span>QA:</span> <strong>{request.context.qaDecision || 'N/A'}</strong>
+                  </div>
+                  <div className={styles.approvalContextItem}>
+                    <span>Build:</span> <strong>{request.context.buildSuccess ? 'Passed' : 'Failed'}</strong>
+                  </div>
+                  <div className={styles.approvalContextItem}>
+                    <span>Security:</span> <strong>{request.context.securityPassed ? 'Passed' : 'Failed'}</strong>
+                  </div>
+                  <div className={styles.approvalContextItem}>
+                    <span>Tests:</span> <strong>{request.context.testsPassed ? 'Passed' : 'Failed'} ({request.context.totalTests || 0} tests, {request.context.coverage || 0}% coverage)</strong>
+                  </div>
+                  {request.context.criticalVulns > 0 && (
+                    <div className={styles.approvalContextItem}>
+                      <span style={{ color: '#ef4444' }}>Critical Vulns:</span> <strong style={{ color: '#ef4444' }}>{request.context.criticalVulns}</strong>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Comment + Actions */}
+              <div className={styles.approvalActions}>
+                <input
+                  type="text"
+                  placeholder="Optional comment..."
+                  value={commentText[request.id] || ''}
+                  onChange={(e) => setCommentText(prev => ({ ...prev, [request.id]: e.target.value }))}
+                  className={styles.approvalCommentInput}
+                />
+                <Button
+                  onClick={() => updateApproval.mutate({
+                    id: request.id,
+                    status: 'approved',
+                    comments: commentText[request.id],
+                  })}
+                  variant="primary"
+                  size="sm"
+                  disabled={updateApproval.isPending || !canApprove}
+                  title={!canApprove ? 'You need cas:approve permission' : undefined}
+                >
+                  Approve
+                </Button>
+                <Button
+                  onClick={() => updateApproval.mutate({
+                    id: request.id,
+                    status: 'rejected',
+                    comments: commentText[request.id],
+                  })}
+                  variant="secondary"
+                  size="sm"
+                  disabled={updateApproval.isPending || !canApprove}
+                  title={!canApprove ? 'You need cas:approve permission' : undefined}
+                >
+                  Reject
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* History */}
+      <h2 className={styles.sectionHeading} style={{ marginTop: '2rem' }}>
+        Approval History ({history.length})
+      </h2>
+
+      {history.length === 0 ? (
+        <p style={{ color: '#6b7280', fontSize: '14px', padding: '1rem' }}>No approval history yet.</p>
+      ) : (
+        <div className={styles.approvalList}>
+          {history.map(request => (
+            <div key={request.id} className={styles.approvalCard} style={{ opacity: 0.85 }}>
+              <div className={styles.approvalHeader}>
+                <div>
+                  <h3 className={styles.approvalTitle}>{request.feature_name}</h3>
+                  <p className={styles.approvalMeta}>
+                    {request.approval_type} &middot; {new Date(request.created_at).toLocaleString()}
+                    {request.reviewed_at && ` &middot; Reviewed: ${new Date(request.reviewed_at).toLocaleString()}`}
+                  </p>
+                </div>
+                <span className={
+                  request.status === 'approved' ? styles.approvalBadgeApproved :
+                  request.status === 'rejected' ? styles.approvalBadgeRejected :
+                  styles.approvalBadgeExpired
+                }>
+                  {capitalize(request.status)}
+                </span>
+              </div>
+              {request.comments && (
+                <p className={styles.approvalComment}>{request.comments}</p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

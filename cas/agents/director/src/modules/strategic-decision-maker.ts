@@ -1,91 +1,94 @@
 /**
  * Strategic Decision Maker Module
  * Makes high-level strategic decisions based on organizational vision,
- * values, business metrics, and roadmap status
+ * values, business metrics, and roadmap status.
+ *
+ * AI-Native: Uses LLM for semantic alignment analysis.
+ * Falls back to keyword-matching rules if LLM unavailable.
  */
+
+import { casGenerateStructured } from '../../../../packages/core/src/services/cas-ai';
+
+const DIRECTOR_SYSTEM_PROMPT = `You are the Director of TutorWise, acting as Product Manager, Strategist, CTO, and Cofounder.
+You make strategic decisions about which features to build and when.
+You evaluate features against organizational vision, core values, and strategic goals.
+You balance innovation with execution discipline and timeline constraints.
+Be decisive and provide clear reasoning for your decisions.`;
+
+interface AlignmentResult {
+  isAligned: boolean;
+  alignmentScore: number;
+  coreValueAlignment: string[];
+  strategicGoalAlignment: string[];
+  reasoning: string;
+}
+
 export class StrategicDecisionMaker {
   /**
-   * Evaluate if a feature aligns with organizational vision and strategic goals
+   * Evaluate if a feature aligns with organizational vision and strategic goals.
+   * Uses LLM for semantic reasoning. Falls back to keyword matching.
    */
-  public evaluateFeatureAlignment(
+  public async evaluateFeatureAlignment(
     featureDescription: string,
     vision: string,
     coreValues: string[],
     strategicGoals: string[]
-  ): {
+  ): Promise<{
     isAligned: boolean;
     alignmentScore: number;
     recommendations: string[];
     coreValueAlignment: string[];
     strategicGoalAlignment: string[];
-  } {
-    const featureLower = featureDescription.toLowerCase();
+  }> {
+    // Try LLM-powered alignment analysis
+    const llmResult = await casGenerateStructured<AlignmentResult>({
+      systemPrompt: DIRECTOR_SYSTEM_PROMPT,
+      userPrompt: `Evaluate how well this feature aligns with our organizational vision and goals.
 
-    // Check alignment with core values
-    const coreValueAlignment: string[] = [];
-    if (featureLower.includes('user') || featureLower.includes('experience')) {
-      coreValueAlignment.push('Focus on the User-centric Experience');
-    }
-    if (featureLower.includes('community') || featureLower.includes('network')) {
-      coreValueAlignment.push('Build Thriving Communities');
-    }
-    if (featureLower.includes('quality') || featureLower.includes('excellence')) {
-      coreValueAlignment.push('Commit to Excellence');
-    }
-    if (featureLower.includes('ai') || featureLower.includes('innovation') || featureLower.includes('automat')) {
-      coreValueAlignment.push('Champion Innovation');
-    }
-    if (featureLower.includes('cost') || featureLower.includes('efficient') || featureLower.includes('optimize')) {
-      coreValueAlignment.push('Embrace Frugality');
-    }
+Feature: "${featureDescription}"
 
-    // Check alignment with strategic goals
-    const strategicGoalAlignment: string[] = [];
-    if (featureLower.includes('scale') || featureLower.includes('growth') || featureLower.includes('automat')) {
-      strategicGoalAlignment.push('Scalability');
-    }
-    if (featureLower.includes('trust') || featureLower.includes('credibility') || featureLower.includes('verification')) {
-      strategicGoalAlignment.push('Trust');
-    }
-    if (featureLower.includes('transparent') || featureLower.includes('visibility')) {
-      strategicGoalAlignment.push('Transparency');
-    }
-    if (featureLower.includes('sustain') || featureLower.includes('revenue') || featureLower.includes('financial')) {
-      strategicGoalAlignment.push('Sustainability');
-    }
-    if (featureLower.includes('ai') || featureLower.includes('innovation') || featureLower.includes('emerging')) {
-      strategicGoalAlignment.push('Innovation');
-    }
+Vision: ${vision}
 
-    // Calculate alignment score
-    const alignmentScore =
-      (coreValueAlignment.length / coreValues.length) * 50 +
-      (strategicGoalAlignment.length / strategicGoals.length) * 50;
+Core Values:
+${coreValues.map((v, i) => `${i + 1}. ${v}`).join('\n')}
 
-    const isAligned = alignmentScore >= 30; // At least 30% alignment
+Strategic Goals:
+${strategicGoals.map((g, i) => `${i + 1}. ${g}`).join('\n')}
 
-    // Generate recommendations
-    const recommendations: string[] = [];
-    if (!isAligned) {
-      recommendations.push('⚠️ Low strategic alignment. Consider revisiting feature scope.');
-    }
-    if (coreValueAlignment.length === 0) {
-      recommendations.push('💡 Strengthen connection to Tutorwise core values.');
-    }
-    if (strategicGoalAlignment.length === 0) {
-      recommendations.push('💡 Clarify how this feature advances strategic goals.');
-    }
-    if (isAligned) {
-      recommendations.push('✅ Strong strategic alignment. Proceed with confidence.');
+Score alignment 0-100%. List which core values and strategic goals are supported.`,
+      jsonSchema: `{
+  "isAligned": true,
+  "alignmentScore": 75,
+  "coreValueAlignment": ["value names that are supported"],
+  "strategicGoalAlignment": ["goal names that are supported"],
+  "reasoning": "string explaining the alignment assessment"
+}`,
+      maxOutputTokens: 800,
+    });
+
+    if (llmResult) {
+      const recommendations: string[] = [];
+      if (!llmResult.isAligned) {
+        recommendations.push('⚠️ Low strategic alignment. Consider revisiting feature scope.');
+      }
+      if (llmResult.coreValueAlignment.length === 0) {
+        recommendations.push('💡 Strengthen connection to Tutorwise core values.');
+      }
+      if (llmResult.isAligned) {
+        recommendations.push('✅ Strong strategic alignment. Proceed with confidence.');
+      }
+
+      return {
+        isAligned: llmResult.isAligned,
+        alignmentScore: llmResult.alignmentScore,
+        recommendations,
+        coreValueAlignment: llmResult.coreValueAlignment,
+        strategicGoalAlignment: llmResult.strategicGoalAlignment,
+      };
     }
 
-    return {
-      isAligned,
-      alignmentScore: Math.round(alignmentScore),
-      recommendations,
-      coreValueAlignment,
-      strategicGoalAlignment,
-    };
+    // Fallback: keyword-based alignment
+    return this.keywordBasedAlignment(featureDescription, coreValues, strategicGoals);
   }
 
   /**
@@ -104,9 +107,7 @@ export class StrategicDecisionMaker {
     const betaDate = new Date(betaReleaseDate);
     const daysUntilBeta = Math.ceil((betaDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    // Decision logic based on roadmap completion and timeline
     if (roadmapCompletion >= 90) {
-      // Final stretch before beta
       if (featureType === 'polish' || featureType === 'core-system') {
         return {
           priority: 'critical',
@@ -123,11 +124,10 @@ export class StrategicDecisionMaker {
         return {
           priority: 'deferred',
           reasoning: `Innovation features should wait until after beta launch (${betaReleaseDate}).`,
-          recommendation: 'Defer to post-beta roadmap (Q2 2026).',
+          recommendation: 'Defer to post-beta roadmap.',
         };
       }
     } else if (roadmapCompletion >= 80) {
-      // Late development phase
       if (featureType === 'core-system') {
         return {
           priority: 'critical',
@@ -138,7 +138,7 @@ export class StrategicDecisionMaker {
         return {
           priority: 'high',
           reasoning: `Polish phase begins at 90% completion. Plan for ${betaReleaseDate}.`,
-          recommendation: 'Schedule for polish phase (next 2 weeks).',
+          recommendation: 'Schedule for polish phase.',
         };
       } else {
         return {
@@ -148,7 +148,6 @@ export class StrategicDecisionMaker {
         };
       }
     } else {
-      // Early/mid development phase
       if (featureType === 'core-system') {
         return {
           priority: 'high',
@@ -173,8 +172,9 @@ export class StrategicDecisionMaker {
 
   /**
    * Make strategic decision: PROCEED, ITERATE, or DEFER
+   * Combines alignment evaluation with resource priority assessment.
    */
-  public makeStrategicDecision(
+  public async makeStrategicDecision(
     featureDescription: string,
     featureType: 'core-system' | 'enhancement' | 'innovation' | 'polish',
     vision: string,
@@ -182,27 +182,24 @@ export class StrategicDecisionMaker {
     strategicGoals: string[],
     roadmapCompletion: number,
     betaReleaseDate: string
-  ): {
+  ): Promise<{
     decision: 'PROCEED' | 'ITERATE' | 'DEFER';
     reasoning: string;
     directives: string[];
     alignment: any;
     priority: any;
-  } {
+  }> {
     console.log('🎯 Director: Evaluating strategic alignment and resource priority...');
 
-    // Evaluate alignment
-    const alignment = this.evaluateFeatureAlignment(
+    const alignment = await this.evaluateFeatureAlignment(
       featureDescription,
       vision,
       coreValues,
       strategicGoals
     );
 
-    // Assess priority
     const priority = this.assessResourcePriority(featureType, roadmapCompletion, betaReleaseDate);
 
-    // Make decision
     let decision: 'PROCEED' | 'ITERATE' | 'DEFER';
     let reasoning: string;
     const directives: string[] = [];
@@ -221,21 +218,91 @@ export class StrategicDecisionMaker {
       decision = 'PROCEED';
       reasoning = `Strong alignment (${alignment.alignmentScore}%) and ${priority.priority} priority.`;
       directives.push(priority.recommendation);
-      directives.push('✅ Align with Planner for sprint planning and resource allocation.');
+      directives.push('✅ Align with Planner for task creation and WIP management.');
       directives.push(`📈 Ensure success metrics align with strategic goals: ${alignment.strategicGoalAlignment.join(', ')}`);
     } else {
       decision = 'PROCEED';
       reasoning = `Moderate alignment (${alignment.alignmentScore}%) and ${priority.priority} priority.`;
       directives.push(priority.recommendation);
-      directives.push('⚖️ Balance this feature against other priorities in sprint planning.');
+      directives.push('⚖️ Balance this feature against other priorities in backlog.');
+    }
+
+    return { decision, reasoning, directives, alignment, priority };
+  }
+
+  /**
+   * Fallback: keyword-based alignment (used when LLM unavailable)
+   */
+  private keywordBasedAlignment(
+    featureDescription: string,
+    coreValues: string[],
+    strategicGoals: string[]
+  ): {
+    isAligned: boolean;
+    alignmentScore: number;
+    recommendations: string[];
+    coreValueAlignment: string[];
+    strategicGoalAlignment: string[];
+  } {
+    const featureLower = featureDescription.toLowerCase();
+
+    const coreValueAlignment: string[] = [];
+    if (featureLower.includes('user') || featureLower.includes('experience')) {
+      coreValueAlignment.push('Focus on the User-centric Experience');
+    }
+    if (featureLower.includes('community') || featureLower.includes('network')) {
+      coreValueAlignment.push('Build Thriving Communities');
+    }
+    if (featureLower.includes('quality') || featureLower.includes('excellence')) {
+      coreValueAlignment.push('Commit to Excellence');
+    }
+    if (featureLower.includes('ai') || featureLower.includes('innovation') || featureLower.includes('automat')) {
+      coreValueAlignment.push('Champion Innovation');
+    }
+    if (featureLower.includes('cost') || featureLower.includes('efficient') || featureLower.includes('optimize')) {
+      coreValueAlignment.push('Embrace Frugality');
+    }
+
+    const strategicGoalAlignment: string[] = [];
+    if (featureLower.includes('scale') || featureLower.includes('growth') || featureLower.includes('automat')) {
+      strategicGoalAlignment.push('Scalability');
+    }
+    if (featureLower.includes('trust') || featureLower.includes('credibility') || featureLower.includes('verification')) {
+      strategicGoalAlignment.push('Trust');
+    }
+    if (featureLower.includes('transparent') || featureLower.includes('visibility')) {
+      strategicGoalAlignment.push('Transparency');
+    }
+    if (featureLower.includes('sustain') || featureLower.includes('revenue') || featureLower.includes('financial')) {
+      strategicGoalAlignment.push('Sustainability');
+    }
+    if (featureLower.includes('ai') || featureLower.includes('innovation') || featureLower.includes('emerging')) {
+      strategicGoalAlignment.push('Innovation');
+    }
+
+    const alignmentScore =
+      (coreValueAlignment.length / coreValues.length) * 50 +
+      (strategicGoalAlignment.length / strategicGoals.length) * 50;
+
+    const isAligned = alignmentScore >= 30;
+
+    const recommendations: string[] = [];
+    if (!isAligned) {
+      recommendations.push('⚠️ Low strategic alignment. Consider revisiting feature scope.');
+    }
+    if (coreValueAlignment.length === 0) {
+      recommendations.push('💡 Strengthen connection to Tutorwise core values.');
+    }
+    if (isAligned) {
+      recommendations.push('✅ Strong strategic alignment. Proceed with confidence.');
     }
 
     return {
-      decision,
-      reasoning,
-      directives,
-      alignment,
-      priority,
+      isAligned,
+      alignmentScore: Math.round(alignmentScore),
+      recommendations,
+      coreValueAlignment,
+      strategicGoalAlignment,
     };
   }
 }
