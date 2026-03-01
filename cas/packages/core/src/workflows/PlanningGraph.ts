@@ -325,9 +325,10 @@ const directorTool = new DynamicStructuredTool({
     featureQuery: z.string(),
     featureType: z.enum(['core-system', 'enhancement', 'innovation', 'polish']),
   }),
-  func: async ({ featureName, featureQuery, featureType }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Director: Making strategic decision...');
-    const decision = await director.makeStrategicDecision(featureQuery, featureType);
+    const decision = await director.makeStrategicDecision(input.featureQuery, input.featureType);
     return decision;
   },
 });
@@ -341,12 +342,13 @@ const developerTool = new DynamicStructuredTool({
     acceptanceCriteria: z.array(z.string()).optional(),
     technicalConstraints: z.array(z.string()).optional(),
   }),
-  func: async ({ featureName, featureBrief, acceptanceCriteria, technicalConstraints }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Developer: Creating implementation plan...');
     const plan = await developer.createImplementationPlan(
-      featureBrief,
-      acceptanceCriteria,
-      technicalConstraints
+      input.featureBrief,
+      input.acceptanceCriteria,
+      input.technicalConstraints
     );
     return plan;
   },
@@ -358,9 +360,10 @@ const testerTool = new DynamicStructuredTool({
   schema: z.object({
     featureName: z.string(),
   }),
-  func: async ({ featureName }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Tester: Running tests...');
-    return await tester.runTests(featureName);
+    return await tester.runTests(input.featureName);
   },
 });
 
@@ -372,9 +375,10 @@ const qaTool = new DynamicStructuredTool({
     testResults: z.any(),
     acceptanceCriteria: z.array(z.string()).optional(),
   }),
-  func: async ({ featureName, testResults, acceptanceCriteria }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] QA: Reviewing quality...');
-    return await qa.performQAReview(featureName, testResults, acceptanceCriteria);
+    return await qa.performQAReview(input.featureName, input.testResults, input.acceptanceCriteria);
   },
 });
 
@@ -396,9 +400,10 @@ const marketerTool = new DynamicStructuredTool({
   schema: z.object({
     featureName: z.string(),
   }),
-  func: async ({ featureName }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Marketer: Analyzing production metrics...');
-    return await marketer.generateProductionReport(featureName);
+    return await marketer.generateProductionReport(input.featureName);
   },
 });
 
@@ -410,9 +415,10 @@ const plannerTool = new DynamicStructuredTool({
     directorDecision: z.any(),
     threeAmigosReport: z.any().optional(),
   }),
-  func: async ({ featureName, directorDecision, threeAmigosReport }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Planner: Planning work...');
-    return await planner.planWork(directorDecision, threeAmigosReport, featureName);
+    return await planner.planWork(input.directorDecision, input.threeAmigosReport, input.featureName);
   },
 });
 
@@ -435,12 +441,13 @@ const engineerDeployTool = new DynamicStructuredTool({
     qaApproved: z.boolean(),
     buildPassed: z.boolean(),
   }),
-  func: async ({ featureName, securityApproved, qaApproved, buildPassed }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  func: async (input: any) => {
     console.log('[PlanningGraph] Engineer: Deploying...');
-    return await engineer.deploy(featureName, {
-      securityApproved,
-      qaApproved,
-      buildPassed,
+    return await engineer.deploy(input.featureName, {
+      securityApproved: input.securityApproved,
+      qaApproved: input.qaApproved,
+      buildPassed: input.buildPassed,
     });
   },
 });
