@@ -20,7 +20,10 @@
     "@supabase/supabase-js": "^2.74.0",
     "@upstash/redis": "^1.36.2",
     "axios": "^1.6.0",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "@langchain/core": "^1.1.28",
+    "@langchain/langgraph": "^1.1.5",
+    "@langchain/langgraph-checkpoint-postgres": "^1.0.1"
   },
   "author": "CAS Platform Team",
   "license": "MIT"
