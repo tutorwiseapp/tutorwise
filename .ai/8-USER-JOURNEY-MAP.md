@@ -1,6 +1,6 @@
 # TutorWise User Journey Map
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-03-01
 **Status:** Production
 
 ---
@@ -16,6 +16,7 @@ Complete journey maps for developers and end-users (Tutors, Students/Clients, Ag
 - Free Help Now (immediate tutoring)
 - Organisation management (Premium subscriptions)
 - Hierarchical referral system
+- Process Studio (visual workflow design for admins)
 
 ---
 
@@ -608,6 +609,171 @@ HIGH CAAS SCORE BENEFITS
 
 ---
 
+## 🛠️ Admin Journey
+
+### 1. Admin Dashboard
+
+```
+ADMIN DASHBOARD → /admin
+├─ Overview: Platform stats, KPIs, recent activity
+├─ 13 Admin Hubs:
+│   ├─ Users          ├─ Bookings
+│   ├─ Listings       ├─ Reviews
+│   ├─ Organisations  ├─ Referrals
+│   ├─ CaaS           ├─ Payments
+│   ├─ Help Centre    ├─ Resources
+│   ├─ Analytics      ├─ CAS (Agent Orchestration)
+│   └─> Process Studio (NEW)
+└─> RBAC: superadmin, admin, systemadmin, viewer
+```
+
+### 2. Process Studio — Visual Workflow Design
+
+```
+PROCESS STUDIO → /admin/process-studio
+├─ HubPageLayout wrapper (header, tabs, content)
+├─ Tabs:
+│   ├─ Design (3-column workspace)
+│   └─ Templates (template library)
+└─> RBAC: Requires 'process-studio:view' permission
+
+DESIGN TAB (3-column workspace)
+┌──────────────────────────────────────────────────────────┐
+│ Toolbar: Save | Export PDF | Import | Clear | Undo | Redo│
+│ [Process Name]                   3 steps · 2 connections │
+├────────────┬──────────────────────────┬──────────────────┤
+│ ChatPanel  │ ProcessStudioCanvas      │ PropertiesDrawer │
+│ (320px)    │ (ReactFlow)              │ (400px)          │
+│            │                          │                  │
+│ AI chat    │ Visual node/edge editing │ Selected node    │
+│ for NL     │ with drag, connect,      │ detail editing   │
+│ editing    │ auto-layout              │                  │
+└────────────┴──────────────────────────┴──────────────────┘
+```
+
+### 3. Process Studio — Create New Workflow
+
+```
+CREATE WORKFLOW (5 input methods)
+
+METHOD 1: AI Auto-Visualize (R1)
+├─ Describe process in natural language
+│   └─> "Create an onboarding process for software engineers"
+├─ AI (Gemini 2.0 Flash) parses text into nodes + edges
+├─ Supabase Realtime streams nodes to canvas progressively
+├─ Auto-layout via Dagre arranges in top-to-bottom flow
+└─> Canvas renders complete workflow
+
+METHOD 2: Template Selection
+├─ Open template selector modal
+├─ Browse templates by category:
+│   ├─ Booking Workflow
+│   ├─ Listing Workflow
+│   ├─ Referral Workflow
+│   ├─ User Onboarding
+│   └─ Tutor Onboarding
+├─ Preview step count, complexity
+└─> Load → Canvas renders template
+
+METHOD 3: Manual Canvas Building (R3)
+├─ Add nodes from toolbar (6 types):
+│   ├─ Trigger (start)
+│   ├─ Action (task step)
+│   ├─ Condition (decision/branch)
+│   ├─ Approval (human gate)
+│   ├─ Notification (email/push)
+│   └─ End (completion)
+├─ Drag to position, connect with edges
+├─ Click node → PropertiesDrawer opens
+│   ├─ Label, Type, Description
+│   ├─ Objective, Completion Criteria
+│   ├─ Expected Outputs
+│   ├─ Assignee, Estimated Duration
+│   └─> Auto-saves on field blur
+└─> Build workflow step by step
+
+METHOD 4: Chat-Based Editing (R2)
+├─ Type natural language in ChatPanel
+│   └─> "Add an IT setup step after orientation"
+├─ AI interprets intent (add/remove/modify/reorder/connect)
+├─ AI returns updated nodes + edges
+├─ Canvas updates in real-time via Supabase Realtime
+├─ Mutation stored for undo support
+└─> Suggestion chips for common actions
+
+METHOD 5: JSON Import
+├─ Click Import in toolbar
+├─ Upload .json file with nodes + edges
+└─> Canvas renders imported workflow
+```
+
+### 4. Process Studio — Edit & Iterate
+
+```
+EDITING WORKFLOW
+├─ Visual editing: Drag nodes, reconnect edges
+├─ Chat editing: "Move IT setup before paperwork"
+├─ Properties editing: Click node → edit in drawer
+├─ Undo/Redo: Ctrl+Z / Ctrl+Shift+Z (50-step history)
+└─> All edits tracked with snapshots for undo
+
+SAVE & PERSISTENCE
+├─ Auto-save to localStorage (1000ms debounce)
+├─ Manual save to Supabase (Ctrl+S)
+├─ Save status indicator: Saved / Unsaved / Saving...
+└─> RLS: Users own their workflows, admins see all
+```
+
+### 5. Process Studio — Export & Share
+
+```
+PDF EXPORT
+├─ Click Export PDF in toolbar
+├─ Page 1: Title page
+│   ├─ Process name, description
+│   ├─ Created/modified dates
+│   ├─ Step count, author
+│   └─ Full canvas screenshot
+├─ Page 2+: Step details
+│   ├─ Each step with full metadata
+│   ├─ Description, objective
+│   ├─ Completion criteria, outputs
+│   └─ Assignee, duration
+└─> Download as formatted PDF
+
+JSON EXPORT
+├─ Export raw nodes + edges as .json
+└─> Importable into another Process Studio instance
+```
+
+### 6. Process Studio — Fullscreen Mode
+
+```
+FULLSCREEN → /process-studio-fullscreen
+├─ Auth-only layout (no admin nav)
+├─ Canvas fills viewport
+├─ Toolbar remains visible
+└─> Toggle via F11 or fullscreen button
+```
+
+### Admin Testing Checklist
+
+**Process Studio Journey:**
+1. ☐ Navigate to /admin/process-studio → Page loads with HubPageLayout
+2. ☐ Empty state shown with CTA buttons (create or pick template)
+3. ☐ Select template → Canvas renders workflow
+4. ☐ AI auto-visualize → Describe process → Nodes stream onto canvas
+5. ☐ Manual building → Add nodes, drag, connect, edit properties
+6. ☐ Chat editing → Type command → AI mutates canvas
+7. ☐ Undo/Redo → Ctrl+Z reverts, Ctrl+Shift+Z re-applies
+8. ☐ Save → Ctrl+S persists to Supabase
+9. ☐ Export PDF → Downloads formatted document
+10. ☐ Import JSON → Loads workflow from file
+11. ☐ Fullscreen → F11 toggles fullscreen mode
+12. ☐ RBAC → Non-admin cannot access /admin/process-studio
+
+---
+
 ## 📱 Navigation Structure
 
 ### Global Sidebar (All Roles)
@@ -630,6 +796,27 @@ SIDEBAR MENU
         ├─ Settings
         ├─ Help Centre
         └─ Log Out
+```
+
+### Admin Sidebar
+
+```
+ADMIN MENU → /admin
+├─ Dashboard (Overview)
+├─ Users
+├─ Listings
+├─ Bookings
+├─ Reviews
+├─ Organisations
+├─ Referrals
+├─ CaaS
+├─ Payments
+├─ Help Centre
+├─ Resources
+├─ Analytics
+├─ CAS (Agent Orchestration)
+├─ Process Studio (NEW)
+└─ Settings
 ```
 
 ### Organisation Sidebar (Premium)
@@ -724,9 +911,10 @@ AUTOMATED EMAILS (Resend)
 - **CaaS Triggers:** `docs/feature/caas/CAAS_TRIGGER_OPTIMIZATION_2026.md`
 - **CaaS Summary:** `docs/feature/caas/IMPLEMENTATION_SUMMARY.md`
 - **Quick Reference:** `.ai/CAAS-V6-UPDATE.md`
+- **Process Studio:** `fuchsia/process-studio-solution-design.md`
 
 ---
 
-**Document Version:** 2.1
-**Last Updated:** 2026-02-12
+**Document Version:** 3.0
+**Last Updated:** 2026-03-01
 **Status:** Production - Reflects Current Implementation

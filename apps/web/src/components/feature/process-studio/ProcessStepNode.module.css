@@ -1,0 +1,123 @@
+/* ProcessStepNode — Custom ReactFlow node for Process Studio */
+
+.node {
+  width: 240px;
+  background: var(--color-white, #fff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-2, 16px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: grab;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.node:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.selected {
+  border-width: 3px;
+  box-shadow: 0 0 0 2px var(--color-primary, #006C67);
+}
+
+/* Node type colors */
+.trigger {
+  border-color: var(--color-success-600, #34a853);
+}
+
+.action {
+  border-color: var(--color-info-500, #3b82f6);
+}
+
+.condition {
+  border-color: var(--color-warning-500, #b06000);
+}
+
+.approval {
+  border-color: #8b5cf6;
+}
+
+.notification {
+  border-color: #06b6d4;
+}
+
+.end {
+  border-color: var(--color-gray-500, #6b7280);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 8px);
+  margin-bottom: var(--space-1, 8px);
+}
+
+.icon {
+  font-size: var(--font-size-base, 16px);
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #111827);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Description */
+.description {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  border-top: 1px solid var(--color-border-light, #f3f4f6);
+  padding-top: var(--space-1, 8px);
+}
+
+/* Meta (assignee + duration) */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  margin-top: var(--space-1, 8px);
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Handles */
+.handle {
+  width: 8px;
+  height: 8px;
+  background: var(--color-gray-400, #9ca3af);
+  border: 2px solid var(--color-white, #fff);
+}
+
+/* Condition node labels */
+.conditionLabels {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 20px 0;
+  font-size: 10px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.conditionYes {
+  color: var(--color-success-600, #34a853);
+}
+
+.conditionNo {
+  color: var(--color-error-600, #d93025);
+}

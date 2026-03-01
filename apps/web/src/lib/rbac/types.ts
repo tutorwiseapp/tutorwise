@@ -24,6 +24,7 @@ export type AdminResource =
   | 'messages'
   | 'admins'
   | 'cas'
+  | 'process-studio'
   | '*'; // Wildcard for superadmin
 
 export type AdminAction =

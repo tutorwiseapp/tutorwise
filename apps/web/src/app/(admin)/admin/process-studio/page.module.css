@@ -1,0 +1,6 @@
+/* Process Studio page layout */
+
+.canvasContainer {
+  height: calc(100vh - 160px);
+  min-height: 500px;
+}
