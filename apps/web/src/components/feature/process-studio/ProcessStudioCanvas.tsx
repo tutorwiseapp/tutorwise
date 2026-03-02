@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -25,9 +25,17 @@ import { Toolbar } from './Toolbar';
 import { PropertiesDrawer } from './PropertiesDrawer';
 import { ProcessInput } from './ProcessInput';
 import { TemplateSelector } from './TemplateSelector';
+import { ChatPanel } from './ChatPanel';
 import { useUndoRedo } from './useUndoRedo';
 import { autoLayout } from './layout';
-import type { ProcessNode, ProcessEdge, ProcessStepData, ProcessStepType } from './types';
+import { exportWorkflowPDF } from './PDFExporter';
+import type {
+  ProcessNode,
+  ProcessEdge,
+  ProcessStepData,
+  ProcessStepType,
+  WorkflowProcess,
+} from './types';
 import styles from './ProcessStudioCanvas.module.css';
 
 const NODE_TYPES = {
@@ -69,17 +77,25 @@ export function ProcessStudioCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(DEFAULT_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const {
+    processId,
+    setProcessId,
     setSelectedNode,
     selectedNodeId,
     isDrawerOpen,
     markDirty,
+    markSaved,
     setProcessName,
     setProcessDescription,
+    processName,
+    processDescription,
+    isChatOpen,
+    resetStore,
   } = useProcessStudioStore();
 
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo(
@@ -159,12 +175,89 @@ export function ProcessStudioCanvas() {
     [setNodes, setEdges, pushSnapshot, markDirty]
   );
 
-  const handleSave = useCallback(() => {
-    // TODO: Wire to API save
-    // eslint-disable-next-line no-console
-    console.log('Save:', { nodes, edges });
-  }, [nodes, edges]);
+  // --- Save Handler (POST for new, PATCH for existing) ---
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const payload = {
+        name: processName || 'Untitled Process',
+        description: processDescription || null,
+        category: 'general',
+        nodes,
+        edges,
+      };
 
+      let res: Response;
+      if (processId) {
+        res = await fetch(`/api/admin/process-studio/processes/${processId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch('/api/admin/process-studio/processes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        if (!processId && data.data?.id) {
+          setProcessId(data.data.id);
+        }
+        markSaved();
+      } else {
+        alert(data.error || 'Failed to save process');
+      }
+    } catch {
+      alert('Failed to save. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [processId, processName, processDescription, nodes, edges, setProcessId, markSaved]);
+
+  // --- New Process Handler ---
+  const handleNew = useCallback(() => {
+    const confirmed = !useProcessStudioStore.getState().isDirty ||
+      window.confirm('You have unsaved changes. Start a new process?');
+    if (confirmed) {
+      resetStore();
+      setNodes(DEFAULT_NODES);
+      setEdges([]);
+      setTimeout(() => {
+        reactFlowInstance.current?.fitView({ padding: 0.2 });
+      }, 100);
+    }
+  }, [resetStore, setNodes, setEdges]);
+
+  // --- Load Process Handler ---
+  const handleLoadProcess = useCallback(
+    (process: WorkflowProcess) => {
+      const confirmed = !useProcessStudioStore.getState().isDirty ||
+        window.confirm('You have unsaved changes. Load a different process?');
+      if (!confirmed) return;
+
+      const loadedNodes = (process.nodes || []) as ProcessNode[];
+      const loadedEdges = (process.edges || []) as ProcessEdge[];
+
+      pushSnapshot('Load process');
+      setNodes(loadedNodes);
+      setEdges(loadedEdges);
+      setProcessId(process.id);
+      setProcessName(process.name);
+      setProcessDescription(process.description || '');
+      markSaved();
+
+      setTimeout(() => {
+        reactFlowInstance.current?.fitView({ padding: 0.2 });
+      }, 100);
+    },
+    [setNodes, setEdges, pushSnapshot, setProcessId, setProcessName, setProcessDescription, markSaved]
+  );
+
+  // --- Clear Handler ---
   const handleClear = useCallback(() => {
     const confirmed = window.confirm(
       'Clear the entire canvas? This cannot be undone.'
@@ -251,7 +344,6 @@ export function ProcessStudioCanvas() {
         setProcessDescription(workflow.description);
         markDirty();
 
-        // Fit view after layout
         setTimeout(() => {
           reactFlowInstance.current?.fitView({ padding: 0.2 });
         }, 100);
@@ -288,20 +380,140 @@ export function ProcessStudioCanvas() {
     [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription]
   );
 
+  // --- Chat Mutation Handler ---
+  const handleChatMutation = useCallback(
+    (mutatedNodes: ProcessNode[], mutatedEdges: ProcessEdge[], description: string) => {
+      const layoutNodes = autoLayout(mutatedNodes, mutatedEdges);
+      pushSnapshot(description);
+      setNodes(layoutNodes);
+      setEdges(mutatedEdges);
+      markDirty();
+
+      setTimeout(() => {
+        reactFlowInstance.current?.fitView({ padding: 0.2 });
+      }, 100);
+    },
+    [setNodes, setEdges, pushSnapshot, markDirty]
+  );
+
+  // --- Global Keyboard Shortcuts ---
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      } else if (mod && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        redo();
+      } else if (mod && e.key === 'z') {
+        e.preventDefault();
+        undo();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleSave, undo, redo]);
+
+  // --- Export JSON Handler ---
+  const handleExportJSON = useCallback(() => {
+    const data = {
+      name: processName || 'Untitled Process',
+      description: processDescription || '',
+      nodes,
+      edges,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const fileName = (processName || 'process')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    a.download = `${fileName}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [processName, processDescription, nodes, edges]);
+
+  // --- Import JSON Handler ---
+  const handleImportJSON = useCallback(
+    (file: File) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          if (!data.nodes || !Array.isArray(data.nodes)) {
+            alert('Invalid process file: missing nodes array.');
+            return;
+          }
+          const confirmed = !useProcessStudioStore.getState().isDirty ||
+            window.confirm('You have unsaved changes. Import this process?');
+          if (!confirmed) return;
+
+          const importedNodes = data.nodes as ProcessNode[];
+          const importedEdges = (data.edges || []) as ProcessEdge[];
+          const layoutNodes = autoLayout(importedNodes, importedEdges);
+
+          pushSnapshot('Import JSON');
+          setNodes(layoutNodes);
+          setEdges(importedEdges);
+          if (data.name) setProcessName(data.name);
+          if (data.description) setProcessDescription(data.description);
+          setProcessId(null);
+          markDirty();
+
+          setTimeout(() => {
+            reactFlowInstance.current?.fitView({ padding: 0.2 });
+          }, 100);
+        } catch {
+          alert('Failed to parse JSON file. Please check the file format.');
+        }
+      };
+      reader.readAsText(file);
+    },
+    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription, setProcessId]
+  );
+
+  // --- Export PDF Handler ---
+  const handleExportPDF = useCallback(async () => {
+    const canvasEl = reactFlowWrapper.current?.querySelector('.react-flow') as HTMLElement | null;
+    if (!canvasEl) return;
+    await exportWorkflowPDF({
+      processName,
+      processDescription,
+      nodes: nodes as ProcessNode[],
+      canvasElement: canvasEl,
+    });
+  }, [processName, processDescription, nodes]);
+
   return (
     <div className={styles.container}>
       <Toolbar
         onSave={handleSave}
         onClear={handleClear}
+        onNew={handleNew}
+        onExportPDF={handleExportPDF}
+        onExportJSON={handleExportJSON}
+        onImportJSON={handleImportJSON}
+        onLoadProcess={handleLoadProcess}
         onUndo={undo}
         onRedo={redo}
         canUndo={canUndo}
         canRedo={canRedo}
-        isSaving={false}
+        isSaving={isSaving}
         nodeCount={nodes.length}
         edgeCount={edges.length}
       />
       <div className={styles.canvasRow}>
+        {isChatOpen && (
+          <ChatPanel
+            nodes={nodes}
+            edges={edges}
+            onApplyMutation={handleChatMutation}
+          />
+        )}
         <div
           className={styles.canvasWrapper}
           ref={reactFlowWrapper}

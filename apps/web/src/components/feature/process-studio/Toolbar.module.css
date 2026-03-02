@@ -98,3 +98,24 @@
 .unsaved {
   color: var(--color-warning-500, #b06000);
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .metadata {
+    width: 100%;
+  }
+
+  .nameInput {
+    min-width: 140px;
+  }
+}

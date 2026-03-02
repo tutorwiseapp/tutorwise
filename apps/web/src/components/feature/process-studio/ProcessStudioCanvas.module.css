@@ -46,3 +46,20 @@
   box-shadow: var(--shadow-sm);
   pointer-events: none;
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .panelActions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .hint {
+    display: none;
+  }
+
+  .minimap {
+    display: none;
+  }
+}

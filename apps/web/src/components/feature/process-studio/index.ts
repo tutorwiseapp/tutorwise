@@ -4,6 +4,8 @@ export { Toolbar } from './Toolbar';
 export { PropertiesDrawer } from './PropertiesDrawer';
 export { ProcessInput } from './ProcessInput';
 export { TemplateSelector } from './TemplateSelector';
+export { ProcessBrowser } from './ProcessBrowser';
+export { ChatPanel } from './ChatPanel';
 export { useProcessStudioStore } from './store';
 export { useUndoRedo } from './useUndoRedo';
 export { autoLayout } from './layout';

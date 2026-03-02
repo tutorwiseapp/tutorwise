@@ -1,13 +1,20 @@
 'use client';
 
-import { useCallback } from 'react';
-import { Save, Undo2, Redo2, Trash2 } from 'lucide-react';
+import { useCallback, useRef } from 'react';
+import { Save, Undo2, Redo2, Trash2, FilePlus, FileDown, FileUp } from 'lucide-react';
+import { ProcessBrowser } from './ProcessBrowser';
+import type { WorkflowProcess } from './types';
 import { useProcessStudioStore } from './store';
 import styles from './Toolbar.module.css';
 
 interface ToolbarProps {
   onSave: () => void;
   onClear: () => void;
+  onNew: () => void;
+  onExportPDF: () => void;
+  onExportJSON: () => void;
+  onImportJSON: (file: File) => void;
+  onLoadProcess: (process: WorkflowProcess) => void;
   onUndo: () => void;
   onRedo: () => void;
   canUndo: boolean;
@@ -20,6 +27,11 @@ interface ToolbarProps {
 export function Toolbar({
   onSave,
   onClear,
+  onNew,
+  onExportPDF,
+  onExportJSON,
+  onImportJSON,
+  onLoadProcess,
   onUndo,
   onRedo,
   canUndo,
@@ -28,8 +40,21 @@ export function Toolbar({
   nodeCount,
   edgeCount,
 }: ToolbarProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { processName, setProcessName, isDirty, lastSavedAt } =
     useProcessStudioStore();
+
+  const handleFileImport = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        onImportJSON(file);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    },
+    [onImportJSON]
+  );
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,12 +94,48 @@ export function Toolbar({
       <div className={styles.actions}>
         <button
           className={styles.button}
+          onClick={onNew}
+          title="New process"
+        >
+          <FilePlus size={14} /> New
+        </button>
+        <ProcessBrowser onLoad={onLoadProcess} />
+        <button
+          className={styles.button}
           onClick={onSave}
           disabled={isSaving}
           title="Save (Ctrl+S)"
         >
           <Save size={14} /> Save
         </button>
+        <button
+          className={styles.button}
+          onClick={onExportPDF}
+          title="Export as PDF"
+        >
+          <FileDown size={14} /> PDF
+        </button>
+        <button
+          className={styles.button}
+          onClick={onExportJSON}
+          title="Export as JSON"
+        >
+          <FileDown size={14} /> JSON
+        </button>
+        <button
+          className={styles.button}
+          onClick={() => fileInputRef.current?.click()}
+          title="Import JSON file"
+        >
+          <FileUp size={14} /> Import
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleFileImport}
+          style={{ display: 'none' }}
+        />
         <button
           className={styles.button}
           onClick={onUndo}

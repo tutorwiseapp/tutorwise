@@ -71,6 +71,7 @@
     "html2canvas": "^1.4.1",
     "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^4.2.0",
     "lucide-react": "^0.544.0",
     "nanoid": "^5.1.6",
     "next": "^16.1.6",

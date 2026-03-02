@@ -1,0 +1,198 @@
+/* ProcessBrowser — Saved process list modal */
+
+.triggerButton {
+  height: var(--button-height-compact, 32px);
+  padding: 0 var(--space-2, 16px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-white, #fff);
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.triggerButton:hover {
+  background: var(--color-bg-light, #f9fafb);
+  border-color: var(--color-border-medium, #d1d5db);
+}
+
+.triggerButton:focus-visible {
+  outline: 2px solid var(--color-primary, #006C67);
+  outline-offset: 2px;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* Modal */
+.modal {
+  background: var(--color-white, #fff);
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: var(--shadow-lg);
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: var(--space-3, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-size: var(--font-size-lg, 18px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #111827);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.closeButton:hover {
+  background: var(--color-bg-light, #f9fafb);
+  color: var(--color-text-primary, #111827);
+}
+
+/* Process List */
+.processList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 8px);
+}
+
+.processCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 16px);
+  padding: var(--space-2, 16px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-white, #fff);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.processCard:hover {
+  border-color: var(--color-primary, #006C67);
+  box-shadow: var(--shadow-sm);
+}
+
+.processInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.processName {
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #111827);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.processDescription {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.processMeta {
+  font-size: 10px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.deleteButton {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.deleteButton:hover {
+  background: var(--color-error-50, #fef2f2);
+  color: var(--color-error-600, #dc2626);
+}
+
+/* States */
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--space-3, 24px);
+  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--font-size-sm, 14px);
+}
+
+.retryButton {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-primary, #006C67);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
