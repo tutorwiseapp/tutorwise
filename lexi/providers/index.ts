@@ -6,10 +6,12 @@
  * @module lexi/providers
  */
 
-import { RulesProvider } from './rules-provider';
-import { ClaudeProvider } from './claude-provider';
+import { XAIProvider } from './xai-provider';
 import { GeminiProvider } from './gemini-provider';
 import { DeepSeekProvider } from './deepseek-provider';
+import { ClaudeProvider } from './claude-provider';
+import { OpenAILLMProvider } from './openai-provider';
+import { RulesProvider } from './rules-provider';
 import type {
   LLMProvider,
   LLMProviderType,
@@ -20,10 +22,12 @@ import type {
 // --- Provider Registry ---
 
 const PROVIDER_REGISTRY: Record<LLMProviderType, new (config: LLMProviderConfig) => LLMProvider> = {
-  rules: RulesProvider,
-  claude: ClaudeProvider,
+  xai: XAIProvider,
   gemini: GeminiProvider,
   deepseek: DeepSeekProvider,
+  claude: ClaudeProvider,
+  openai: OpenAILLMProvider,
+  rules: RulesProvider,
 };
 
 // --- Factory Implementation ---
@@ -50,14 +54,20 @@ export const providerFactory: LLMProviderFactory = {
     available.push('rules');
 
     // Check for API keys
+    if (process.env.XAI_AI_API_KEY || process.env.XAI_API_KEY) {
+      available.push('xai');
+    }
     if (process.env.GOOGLE_AI_API_KEY) {
       available.push('gemini');
     }
-    if (process.env.DEEPSEEK_API_KEY) {
+    if (process.env.DEEPSEEK_AI_API_KEY || process.env.DEEPSEEK_API_KEY) {
       available.push('deepseek');
     }
-    if (process.env.ANTHROPIC_API_KEY) {
+    if (process.env.ANTHROPIC_AI_API_KEY || process.env.ANTHROPIC_API_KEY) {
       available.push('claude');
+    }
+    if (process.env.OPENAI_AI_API_KEY || process.env.OPENAI_API_KEY) {
+      available.push('openai');
     }
 
     return available;
@@ -78,15 +88,21 @@ export function getDefaultProvider(): LLMProvider {
     }
   }
 
-  // Fallback order: Gemini > DeepSeek > Claude > Rules
+  // Fallback order: xAI > Gemini > DeepSeek > Claude > OpenAI > Rules
+  if (process.env.XAI_AI_API_KEY || process.env.XAI_API_KEY) {
+    return providerFactory.create({ type: 'xai' });
+  }
   if (process.env.GOOGLE_AI_API_KEY) {
     return providerFactory.create({ type: 'gemini' });
   }
-  if (process.env.DEEPSEEK_API_KEY) {
+  if (process.env.DEEPSEEK_AI_API_KEY || process.env.DEEPSEEK_API_KEY) {
     return providerFactory.create({ type: 'deepseek' });
   }
-  if (process.env.ANTHROPIC_API_KEY) {
+  if (process.env.ANTHROPIC_AI_API_KEY || process.env.ANTHROPIC_API_KEY) {
     return providerFactory.create({ type: 'claude' });
+  }
+  if (process.env.OPENAI_AI_API_KEY || process.env.OPENAI_API_KEY) {
+    return providerFactory.create({ type: 'openai' });
   }
 
   // Default to rules-based
@@ -108,13 +124,20 @@ export function getProviderInfo(type: LLMProviderType): {
     requiresApiKey: boolean;
     envVar?: string;
   }> = {
-    rules: {
-      name: 'Rules-Based (Offline)',
-      description: 'Pattern matching and predefined responses. No API calls. Always available.',
-      requiresApiKey: false,
+    xai: {
+      name: 'xAI Grok 4 Fast',
+      description: 'Fast, cost-effective AI. Primary provider. Requires xAI API key.',
+      requiresApiKey: true,
+      envVar: 'XAI_API_KEY',
+    },
+    gemini: {
+      name: 'Gemini (Google)',
+      description: 'Intelligent AI responses using Gemini. Requires Google AI API key.',
+      requiresApiKey: true,
+      envVar: 'GOOGLE_AI_API_KEY',
     },
     deepseek: {
-      name: 'DeepSeek V3',
+      name: 'DeepSeek R1',
       description: 'Strong reasoning at low cost. OpenAI-compatible API. Requires DeepSeek API key.',
       requiresApiKey: true,
       envVar: 'DEEPSEEK_API_KEY',
@@ -125,11 +148,16 @@ export function getProviderInfo(type: LLMProviderType): {
       requiresApiKey: true,
       envVar: 'ANTHROPIC_API_KEY',
     },
-    gemini: {
-      name: 'Gemini (Google)',
-      description: 'Intelligent AI responses using Gemini. Requires Google AI API key.',
+    openai: {
+      name: 'OpenAI GPT-4o',
+      description: 'Quality AI responses using GPT-4o. Requires OpenAI API key.',
       requiresApiKey: true,
-      envVar: 'GOOGLE_AI_API_KEY',
+      envVar: 'OPENAI_API_KEY',
+    },
+    rules: {
+      name: 'Rules-Based (Offline)',
+      description: 'Pattern matching and predefined responses. No API calls. Always available.',
+      requiresApiKey: false,
     },
   };
 
@@ -138,9 +166,11 @@ export function getProviderInfo(type: LLMProviderType): {
 
 // --- Re-exports ---
 
-export { RulesProvider } from './rules-provider';
-export { ClaudeProvider } from './claude-provider';
+export { XAIProvider } from './xai-provider';
 export { GeminiProvider } from './gemini-provider';
 export { DeepSeekProvider } from './deepseek-provider';
+export { ClaudeProvider } from './claude-provider';
+export { OpenAILLMProvider } from './openai-provider';
+export { RulesProvider } from './rules-provider';
 export { BaseLLMProvider, PERSONA_PROMPTS } from './base-provider';
 export * from './types';

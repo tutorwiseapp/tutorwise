@@ -9,7 +9,7 @@ import type { SagePersona, SageSubject, SageLevel, SageDetectedIntent } from '..
 
 // --- Provider Types ---
 
-export type LLMProviderType = 'deepseek' | 'gemini' | 'claude' | 'rules';
+export type LLMProviderType = 'xai' | 'gemini' | 'deepseek' | 'claude' | 'openai' | 'rules';
 
 export interface LLMProviderConfig {
   type: LLMProviderType;

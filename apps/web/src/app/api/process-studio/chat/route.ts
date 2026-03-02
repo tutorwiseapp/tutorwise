@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
+import { getAIService } from '@/lib/ai';
 
 export const dynamic = 'force-dynamic';
-
-const genAI = process.env.GOOGLE_AI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY)
-  : null;
 
 const SYSTEM_PROMPT = `You are a process workflow editing assistant. You help users modify workflow process diagrams through natural language instructions.
 
@@ -104,17 +100,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!genAI) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'AI service not configured',
-          code: 'AI_NOT_CONFIGURED',
-        },
-        { status: 503 }
-      );
-    }
-
     const sanitizedMessage = message.trim().slice(0, 2000);
 
     // Build conversation context (last 10 messages)
@@ -128,24 +113,16 @@ export async function POST(request: NextRequest) {
       edges: currentWorkflow.edges,
     });
 
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const result = await model.generateContent([
-      { text: SYSTEM_PROMPT },
-      { text: `Current workflow state:\n${workflowContext}${historyContext}\n\nUser request: ${sanitizedMessage}` },
-    ]);
-
-    const responseText = result.response.text();
+    const aiService = getAIService();
     let parsed: ChatResponse;
 
     try {
-      parsed = JSON.parse(responseText);
+      const { data } = await aiService.generateJSON<ChatResponse>({
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt: `Current workflow state:\n${workflowContext}${historyContext}\n\nUser request: ${sanitizedMessage}`,
+        temperature: 0.3,
+      });
+      parsed = data;
     } catch {
       return NextResponse.json(
         {

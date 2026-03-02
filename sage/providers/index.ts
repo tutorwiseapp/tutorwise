@@ -3,19 +3,23 @@
  *
  * Factory and registry for LLM providers with automatic fallback.
  *
- * Fallback order: Gemini > DeepSeek > Claude > Rules
- * - Gemini: Fast, cheap, reliable (primary)
- * - DeepSeek: Strong reasoning at low cost
- * - Claude: Best for tutoring (excellent explanations)
+ * Fallback order: xAI > Gemini > DeepSeek > Claude > OpenAI > Rules
+ * - xAI Grok 4 Fast: Primary provider (fast, cheap)
+ * - Gemini: Proven JSON, education (fallback 1)
+ * - DeepSeek: Strong reasoning at low cost (fallback 2)
+ * - Claude: Quality explanations (fallback 3)
+ * - OpenAI: Quality fallback (fallback 4)
  * - Rules: Offline fallback, always available
  *
  * @module sage/providers
  */
 
-import { SageRulesProvider } from './rules-provider';
-import { SageClaudeProvider } from './claude-provider';
+import { SageXAIProvider } from './xai-provider';
 import { SageGeminiProvider } from './gemini-provider';
 import { SageDeepSeekProvider } from './deepseek-provider';
+import { SageClaudeProvider } from './claude-provider';
+import { SageOpenAIProvider } from './openai-provider';
+import { SageRulesProvider } from './rules-provider';
 import type {
   LLMProvider,
   LLMProviderType,
@@ -25,10 +29,12 @@ import type {
 // --- Provider Registry ---
 
 const PROVIDER_REGISTRY: Record<LLMProviderType, new (config: LLMProviderConfig) => LLMProvider> = {
-  rules: SageRulesProvider,
-  claude: SageClaudeProvider,
+  xai: SageXAIProvider,
   gemini: SageGeminiProvider,
   deepseek: SageDeepSeekProvider,
+  claude: SageClaudeProvider,
+  openai: SageOpenAIProvider,
+  rules: SageRulesProvider,
 };
 
 // --- Provider Factory ---
@@ -60,14 +66,20 @@ export const providerFactory: SageProviderFactory = {
     available.push('rules');
 
     // Check for API keys
-    if (process.env.DEEPSEEK_API_KEY) {
-      available.push('deepseek');
-    }
-    if (process.env.ANTHROPIC_API_KEY) {
-      available.push('claude');
+    if (process.env.XAI_AI_API_KEY || process.env.XAI_API_KEY) {
+      available.push('xai');
     }
     if (process.env.GOOGLE_AI_API_KEY) {
       available.push('gemini');
+    }
+    if (process.env.DEEPSEEK_AI_API_KEY || process.env.DEEPSEEK_API_KEY) {
+      available.push('deepseek');
+    }
+    if (process.env.ANTHROPIC_AI_API_KEY || process.env.ANTHROPIC_API_KEY) {
+      available.push('claude');
+    }
+    if (process.env.OPENAI_AI_API_KEY || process.env.OPENAI_API_KEY) {
+      available.push('openai');
     }
 
     return available;
@@ -98,18 +110,26 @@ export function getDefaultSageProvider(): LLMProvider {
     console.warn(`[Sage] Preferred provider ${preferred} not available, using fallback`);
   }
 
-  // Fallback order: Gemini > DeepSeek > Claude > Rules
+  // Fallback order: xAI > Gemini > DeepSeek > Claude > OpenAI > Rules
+  if (process.env.XAI_AI_API_KEY || process.env.XAI_API_KEY) {
+    console.log('[Sage] Using xAI Grok 4 Fast provider');
+    return providerFactory.create({ type: 'xai' });
+  }
   if (process.env.GOOGLE_AI_API_KEY) {
     console.log('[Sage] Using Gemini provider');
     return providerFactory.create({ type: 'gemini' });
   }
-  if (process.env.DEEPSEEK_API_KEY) {
+  if (process.env.DEEPSEEK_AI_API_KEY || process.env.DEEPSEEK_API_KEY) {
     console.log('[Sage] Using DeepSeek provider');
     return providerFactory.create({ type: 'deepseek' });
   }
-  if (process.env.ANTHROPIC_API_KEY) {
+  if (process.env.ANTHROPIC_AI_API_KEY || process.env.ANTHROPIC_API_KEY) {
     console.log('[Sage] Using Claude provider');
     return providerFactory.create({ type: 'claude' });
+  }
+  if (process.env.OPENAI_AI_API_KEY || process.env.OPENAI_API_KEY) {
+    console.log('[Sage] Using OpenAI provider');
+    return providerFactory.create({ type: 'openai' });
   }
 
   // Default to rules-based (always available)
@@ -132,13 +152,20 @@ export function getProviderInfo(type: LLMProviderType): {
     requiresApiKey: boolean;
     envVar?: string;
   }> = {
-    rules: {
-      name: 'Rules-Based (Offline)',
-      description: 'Pattern matching and guided responses. No API calls. Always available.',
-      requiresApiKey: false,
+    xai: {
+      name: 'xAI Grok 4 Fast',
+      description: 'Fast, cost-effective AI. Primary provider. Requires xAI API key.',
+      requiresApiKey: true,
+      envVar: 'XAI_API_KEY',
+    },
+    gemini: {
+      name: 'Gemini (Google)',
+      description: 'Fast, capable tutoring responses. Requires Google AI API key.',
+      requiresApiKey: true,
+      envVar: 'GOOGLE_AI_API_KEY',
     },
     deepseek: {
-      name: 'DeepSeek V3',
+      name: 'DeepSeek R1',
       description: 'Excellent reasoning at low cost. OpenAI-compatible API. Requires DeepSeek API key.',
       requiresApiKey: true,
       envVar: 'DEEPSEEK_API_KEY',
@@ -149,11 +176,16 @@ export function getProviderInfo(type: LLMProviderType): {
       requiresApiKey: true,
       envVar: 'ANTHROPIC_API_KEY',
     },
-    gemini: {
-      name: 'Gemini (Google)',
-      description: 'Fast, capable tutoring responses. Requires Google AI API key.',
+    openai: {
+      name: 'OpenAI GPT-4o',
+      description: 'Quality AI responses using GPT-4o. Requires OpenAI API key.',
       requiresApiKey: true,
-      envVar: 'GOOGLE_AI_API_KEY',
+      envVar: 'OPENAI_API_KEY',
+    },
+    rules: {
+      name: 'Rules-Based (Offline)',
+      description: 'Pattern matching and guided responses. No API calls. Always available.',
+      requiresApiKey: false,
     },
   };
 
@@ -190,7 +222,9 @@ export {
   PERSONA_PROMPTS,
 } from './base-provider';
 
-export { SageRulesProvider } from './rules-provider';
-export { SageClaudeProvider } from './claude-provider';
+export { SageXAIProvider } from './xai-provider';
 export { SageGeminiProvider } from './gemini-provider';
 export { SageDeepSeekProvider } from './deepseek-provider';
+export { SageClaudeProvider } from './claude-provider';
+export { SageOpenAIProvider } from './openai-provider';
+export { SageRulesProvider } from './rules-provider';

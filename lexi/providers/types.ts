@@ -13,7 +13,7 @@ import type { Tool, ToolCall } from '../tools/types';
 
 // --- Provider Types ---
 
-export type LLMProviderType = 'rules' | 'claude' | 'gemini' | 'deepseek';
+export type LLMProviderType = 'xai' | 'gemini' | 'deepseek' | 'claude' | 'openai' | 'rules';
 
 export interface LLMProviderConfig {
   type: LLMProviderType;

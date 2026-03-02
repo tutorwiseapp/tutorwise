@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
+import { getAIService } from '@/lib/ai';
 import {
   validateWorkflow,
   toReactFlowFormat,
@@ -8,10 +8,6 @@ import {
 } from '@/lib/process-studio/validation';
 
 export const dynamic = 'force-dynamic';
-
-const genAI = process.env.GOOGLE_AI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY)
-  : null;
 
 const SYSTEM_PROMPT = `You are a process mapping expert. Given a description of a business or educational process, extract the steps, decisions, and connections into a structured workflow graph.
 
@@ -95,37 +91,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!genAI) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'AI service not configured',
-          code: 'AI_NOT_CONFIGURED',
-        },
-        { status: 503 }
-      );
-    }
-
     const sanitizedInput = input.trim().slice(0, 5000);
 
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json',
-      },
-    });
-
-    const result = await model.generateContent([
-      { text: SYSTEM_PROMPT },
-      { text: `Process description:\n\n${sanitizedInput}` },
-    ]);
-
-    const responseText = result.response.text();
+    const aiService = getAIService();
     let parsed: ParsedWorkflow;
 
     try {
-      parsed = JSON.parse(responseText);
+      const { data } = await aiService.generateJSON<ParsedWorkflow>({
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt: `Process description:\n\n${sanitizedInput}`,
+        temperature: 0.2,
+      });
+      parsed = data;
     } catch {
       return NextResponse.json(
         {
