@@ -6,7 +6,9 @@ export { ProcessInput } from './ProcessInput';
 export { TemplateSelector } from './TemplateSelector';
 export { ProcessBrowser } from './ProcessBrowser';
 export { ChatPanel } from './ChatPanel';
+export { default as DiscoveryPanel } from './DiscoveryPanel';
 export { useProcessStudioStore } from './store';
+export { useDiscoveryStore } from './discovery-store';
 export { useUndoRedo } from './useUndoRedo';
 export { autoLayout } from './layout';
 export type {

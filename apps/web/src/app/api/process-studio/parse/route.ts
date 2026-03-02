@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/utils/supabase/server';
+import {
+  validateWorkflow,
+  toReactFlowFormat,
+  type ParsedWorkflow,
+} from '@/lib/process-studio/validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,99 +61,6 @@ Return a JSON object with this exact structure:
     }
   ]
 }`;
-
-interface ParsedNode {
-  id: string;
-  label: string;
-  type: string;
-  description: string;
-  objective?: string | null;
-  completionCriteria?: string[] | null;
-  expectedOutputs?: string[] | null;
-  assignee?: string | null;
-  estimatedDuration?: string | null;
-}
-
-interface ParsedEdge {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle?: string | null;
-}
-
-interface ParsedWorkflow {
-  name: string;
-  description: string;
-  nodes: ParsedNode[];
-  edges: ParsedEdge[];
-}
-
-const VALID_TYPES = new Set(['trigger', 'action', 'condition', 'approval', 'notification', 'end']);
-
-function validateWorkflow(data: ParsedWorkflow): string | null {
-  if (!data.nodes || !Array.isArray(data.nodes) || data.nodes.length === 0) {
-    return 'No nodes found in AI response';
-  }
-  if (!data.edges || !Array.isArray(data.edges)) {
-    return 'No edges found in AI response';
-  }
-
-  const nodeIds = new Set(data.nodes.map((n) => n.id));
-
-  for (const node of data.nodes) {
-    if (!node.id || !node.label || !node.type) {
-      return `Node missing required fields: ${JSON.stringify(node)}`;
-    }
-    if (!VALID_TYPES.has(node.type)) {
-      return `Invalid node type "${node.type}" for node "${node.label}"`;
-    }
-  }
-
-  for (const edge of data.edges) {
-    if (!nodeIds.has(edge.source)) {
-      return `Edge references unknown source node "${edge.source}"`;
-    }
-    if (!nodeIds.has(edge.target)) {
-      return `Edge references unknown target node "${edge.target}"`;
-    }
-  }
-
-  const hasTrigger = data.nodes.some((n) => n.type === 'trigger');
-  const hasEnd = data.nodes.some((n) => n.type === 'end');
-  if (!hasTrigger) return 'Workflow must have a trigger node';
-  if (!hasEnd) return 'Workflow must have an end node';
-
-  return null;
-}
-
-function toReactFlowFormat(data: ParsedWorkflow) {
-  const nodes = data.nodes.map((n) => ({
-    id: n.id,
-    type: 'processStep',
-    position: { x: 0, y: 0 },
-    data: {
-      label: n.label,
-      type: n.type,
-      description: n.description || '',
-      objective: n.objective || undefined,
-      completionCriteria: n.completionCriteria || undefined,
-      expectedOutputs: n.expectedOutputs || undefined,
-      assignee: n.assignee || undefined,
-      estimatedDuration: n.estimatedDuration || undefined,
-      editable: n.type !== 'trigger' && n.type !== 'end',
-    },
-  }));
-
-  const edges = data.edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    sourceHandle: e.sourceHandle || undefined,
-    animated: true,
-  }));
-
-  return { nodes, edges };
-}
 
 /**
  * POST /api/process-studio/parse
