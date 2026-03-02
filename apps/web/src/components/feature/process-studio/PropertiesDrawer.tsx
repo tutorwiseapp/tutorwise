@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { X, Plus, Minus, Trash2, MousePointerClick } from 'lucide-react';
+import { X, Plus, Minus, Trash2, MousePointerClick, ExternalLink } from 'lucide-react';
 import { useProcessStudioStore } from './store';
 import { PROCESS_STEP_TYPES, NODE_TYPE_CONFIG } from './types';
 import type { ProcessStepData, ProcessStepType, ProcessNode } from './types';
@@ -30,11 +30,11 @@ export function PropertiesDrawer({
   }, [node]);
 
   const handleFieldChange = useCallback(
-    (field: keyof ProcessStepData, value: string | string[] | ProcessStepType) => {
+    (field: keyof ProcessStepData, value: string | string[] | ProcessStepType | number | undefined) => {
       if (!node || !localData) return;
       const updated = { ...localData, [field]: value };
-      setLocalData(updated);
-      onUpdateNode(node.id, { [field]: value });
+      setLocalData(updated as ProcessStepData);
+      onUpdateNode(node.id, { [field]: value } as Partial<ProcessStepData>);
     },
     [node, localData, onUpdateNode]
   );
@@ -223,6 +223,72 @@ export function PropertiesDrawer({
               handleFieldChange('estimatedDuration', e.target.value)
             }
             placeholder="e.g., 2 hours"
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="ps-status">
+            Status
+          </label>
+          <select
+            id="ps-status"
+            className={styles.select}
+            value={localData.status || ''}
+            onChange={(e) => {
+              const v = e.target.value;
+              handleFieldChange('status', v === '' ? undefined : v as ProcessStepData['status']);
+            }}
+          >
+            <option value="">— None —</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="skipped">Skipped</option>
+          </select>
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="ps-url">
+            <ExternalLink size={12} style={{ display: 'inline', marginRight: 4 }} />
+            External URL
+          </label>
+          <input
+            id="ps-url"
+            className={styles.input}
+            value={localData.externalUrl || ''}
+            onChange={(e) => handleFieldChange('externalUrl', e.target.value)}
+            placeholder="https://..."
+            type="url"
+          />
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="ps-template-name">
+            Linked Template
+          </label>
+          <input
+            id="ps-template-name"
+            className={styles.input}
+            value={localData.templateName || ''}
+            onChange={(e) => handleFieldChange('templateName', e.target.value)}
+            placeholder="Template name to drill into"
+          />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="ps-step-count">
+            Step Count
+          </label>
+          <input
+            id="ps-step-count"
+            className={styles.input}
+            value={localData.stepCount ?? ''}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              handleFieldChange('stepCount', isNaN(v) ? undefined : v);
+            }}
+            placeholder="Number of steps"
+            type="number"
+            min={1}
           />
         </div>
       </div>

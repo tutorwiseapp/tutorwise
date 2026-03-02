@@ -17,6 +17,9 @@ export interface ParsedNode {
   expectedOutputs?: string[] | null;
   assignee?: string | null;
   estimatedDuration?: string | null;
+  stepCount?: number | null;
+  templateId?: string | null;
+  templateName?: string | null;
 }
 
 export interface ParsedEdge {
@@ -42,6 +45,7 @@ export const VALID_NODE_TYPES = new Set<string>([
   'approval',
   'notification',
   'end',
+  'subprocess',
 ]);
 
 /**
@@ -109,6 +113,9 @@ export function toReactFlowFormat(data: ParsedWorkflow) {
       assignee: n.assignee || undefined,
       estimatedDuration: n.estimatedDuration || undefined,
       editable: n.type !== 'trigger' && n.type !== 'end',
+      stepCount: n.stepCount ?? undefined,
+      templateId: n.templateId ?? undefined,
+      templateName: n.templateName ?? undefined,
     },
   }));
 

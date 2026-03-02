@@ -8,7 +8,8 @@ const SYSTEM_PROMPT = `You are a process workflow editing assistant. You help us
 
 The workflow is represented as nodes and edges:
 - Each node has: id, type (processStep), position ({x,y}), data ({label, type, description, objective?, completionCriteria?, expectedOutputs?, assignee?, estimatedDuration?, editable})
-- Node data.type is one of: trigger | action | condition | approval | notification | end
+- Node data.type is one of: trigger | action | condition | approval | notification | end | subprocess
+- subprocess nodes also have: stepCount (number, estimated child steps), templateName (string, child workflow name)
 - Each edge has: id, source (node id), target (node id), sourceHandle? ("yes"|"no" for conditions), animated (boolean)
 
 Given the current workflow state and the user's request, return a JSON object with:

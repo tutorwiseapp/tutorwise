@@ -14,19 +14,22 @@ const SYSTEM_PROMPT = `You are a process mapping expert. Given a description of 
 For each step, identify:
 - id: A unique identifier (e.g., "step-1", "step-2")
 - label: Short name (3-5 words)
-- type: One of: trigger | action | condition | approval | notification | end
+- type: One of: trigger | action | condition | approval | notification | end | subprocess
 - description: What happens in this step (1-2 sentences)
 - objective: The goal of this step (optional)
 - completionCriteria: Array of criteria for when this step is complete (optional)
 - expectedOutputs: Array of outputs this step produces (optional)
 - assignee: Who is responsible (optional)
 - estimatedDuration: How long it takes, e.g. "30 minutes", "2 hours" (optional)
+- stepCount: For subprocess nodes only — estimated number of child steps (optional integer)
+- templateName: For subprocess nodes only — display name of the child workflow (optional)
 
 Rules:
 - Every workflow MUST start with exactly one "trigger" node and end with exactly one "end" node
 - Use "condition" type for decision points (yes/no branches)
 - Use "approval" type for steps requiring human sign-off
 - Use "notification" type for email/alert steps
+- Use "subprocess" type for self-contained child workflows (e.g. onboarding, payment, booking phases)
 - Edges connect nodes via source and target IDs
 - For condition nodes, edges should have sourceHandle "yes" or "no"
 - Aim for 4-12 nodes total for most processes
@@ -39,13 +42,15 @@ Return a JSON object with this exact structure:
     {
       "id": "string",
       "label": "string",
-      "type": "trigger|action|condition|approval|notification|end",
+      "type": "trigger|action|condition|approval|notification|end|subprocess",
       "description": "string",
       "objective": "string or null",
       "completionCriteria": ["string"] or null,
       "expectedOutputs": ["string"] or null,
       "assignee": "string or null",
-      "estimatedDuration": "string or null"
+      "estimatedDuration": "string or null",
+      "stepCount": number or null,
+      "templateName": "string or null"
     }
   ],
   "edges": [

@@ -7,6 +7,7 @@ import {
   CheckCircle,
   Bell,
   Square,
+  Layers,
 } from 'lucide-react';
 
 // --- Node Types ---
@@ -18,6 +19,7 @@ export const PROCESS_STEP_TYPES = [
   'approval',
   'notification',
   'end',
+  'subprocess',
 ] as const;
 
 export type ProcessStepType = (typeof PROCESS_STEP_TYPES)[number];
@@ -33,6 +35,11 @@ export interface ProcessStepData {
   estimatedDuration?: string;
   status?: 'pending' | 'active' | 'completed' | 'skipped';
   editable: boolean;
+  externalUrl?: string;
+  // Subprocess-specific fields
+  stepCount?: number;
+  templateId?: string;
+  templateName?: string;
 }
 
 export type ProcessNode = Node<ProcessStepData>;
@@ -53,6 +60,7 @@ export const NODE_TYPE_CONFIG: Record<ProcessStepType, NodeTypeConfig> = {
   approval: { icon: CheckCircle, label: 'Approval', cssClass: 'approval' },
   notification: { icon: Bell, label: 'Notification', cssClass: 'notification' },
   end: { icon: Square, label: 'End', cssClass: 'end' },
+  subprocess: { icon: Layers, label: 'Subprocess', cssClass: 'subprocess' },
 };
 
 // --- Chat Types ---

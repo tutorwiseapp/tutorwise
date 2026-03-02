@@ -81,6 +81,31 @@
   color: var(--color-white, #fff);
 }
 
+/* Back navigation panel */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--color-white, #fff);
+  border: 1.5px solid var(--color-primary, #006C67);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-primary, #006C67);
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.backButton:hover {
+  background: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+}
+
 .hint {
   font-size: var(--font-size-xs, 12px);
   color: var(--color-text-tertiary, #9ca3af);

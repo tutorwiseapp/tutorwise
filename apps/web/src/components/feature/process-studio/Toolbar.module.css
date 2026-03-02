@@ -90,13 +90,42 @@
 }
 
 .saveStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: var(--font-size-xs, 12px);
   color: var(--color-success-600, #34a853);
   white-space: nowrap;
 }
 
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.statusSaved {
+  color: var(--color-success-600, #34a853);
+}
+
+.statusSaving {
+  color: var(--color-info-500, #3b82f6);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.statusError {
+  color: var(--color-error-600, #dc2626);
+}
+
 .unsaved {
   color: var(--color-warning-500, #b06000);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* Responsive */

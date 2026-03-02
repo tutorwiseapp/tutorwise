@@ -20,7 +20,7 @@ import type {
   ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { MessageSquare, Settings2 } from 'lucide-react';
+import { MessageSquare, Settings2, ArrowLeft } from 'lucide-react';
 import { useProcessStudioStore } from './store';
 import type { RightPanelMode } from './store';
 import { ProcessStepNode } from './ProcessStepNode';
@@ -80,6 +80,7 @@ export function ProcessStudioCanvas() {
   const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -100,6 +101,13 @@ export function ProcessStudioCanvas() {
     rightPanelMode,
     setRightPanelMode,
     resetStore,
+    setAutoSaveStatus,
+    drillDownTarget,
+    clearDrillDown,
+    navigationHistory,
+    pushHistory,
+    popHistory,
+    clearHistory,
   } = useProcessStudioStore();
 
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo(
@@ -117,7 +125,7 @@ export function ProcessStudioCanvas() {
   const onConnect = useCallback(
     (connection: Connection) => {
       pushSnapshot('Connect nodes');
-      setEdges((eds) => addEdge({ ...connection, animated: true }, eds));
+      setEdges((eds) => addEdge({ ...connection, type: 'smoothstep', animated: true }, eds));
       markDirty();
     },
     [setEdges, pushSnapshot, markDirty]
@@ -180,8 +188,9 @@ export function ProcessStudioCanvas() {
   );
 
   // --- Save Handler (POST for new, PATCH for existing) ---
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (silent = false) => {
     setIsSaving(true);
+    setAutoSaveStatus('saving');
     try {
       const payload = {
         name: processName || 'Untitled Process',
@@ -212,21 +221,60 @@ export function ProcessStudioCanvas() {
           setProcessId(data.data.id);
         }
         markSaved();
+        setAutoSaveStatus('saved');
       } else {
-        alert(data.error || 'Failed to save process');
+        setAutoSaveStatus('error');
+        if (!silent) alert(data.error || 'Failed to save process');
       }
     } catch {
-      alert('Failed to save. Please try again.');
+      setAutoSaveStatus('error');
+      if (!silent) alert('Failed to save. Please try again.');
     } finally {
       setIsSaving(false);
     }
-  }, [processId, processName, processDescription, nodes, edges, setProcessId, markSaved]);
+  }, [processId, processName, processDescription, nodes, edges, setProcessId, markSaved, setAutoSaveStatus]);
+
+  // Keep a ref so the autosave timer always calls the latest version
+  const handleSaveRef = useRef(handleSave);
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+
+  // --- Autosave: debounced 2s after any nodes/edges change (only if already saved) ---
+  useEffect(() => {
+    const state = useProcessStudioStore.getState();
+    if (!state.isDirty || !state.processId) return;
+
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      handleSaveRef.current(true);
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [nodes, edges]);
+
+  // --- Go Back Handler ---
+  const handleGoBack = useCallback(() => {
+    const entry = popHistory();
+    if (!entry) return;
+    pushSnapshot('Navigate back');
+    setNodes(entry.nodes);
+    setEdges(entry.edges);
+    setProcessName(entry.name);
+    setProcessDescription(entry.description);
+    setProcessId(entry.processId);
+    markSaved();
+    setTimeout(() => {
+      reactFlowInstance.current?.fitView({ padding: 0.2 });
+    }, 100);
+  }, [popHistory, pushSnapshot, setNodes, setEdges, setProcessName, setProcessDescription, setProcessId, markSaved]);
 
   // --- New Process Handler ---
   const handleNew = useCallback(() => {
     const confirmed = !useProcessStudioStore.getState().isDirty ||
       window.confirm('You have unsaved changes. Start a new process?');
     if (confirmed) {
+      clearHistory();
       resetStore();
       setNodes(DEFAULT_NODES);
       setEdges([]);
@@ -419,6 +467,55 @@ export function ProcessStudioCanvas() {
     return () => window.removeEventListener('keydown', handler);
   }, [handleSave, undo, redo]);
 
+  // --- Subprocess Drill-Down Handler ---
+  useEffect(() => {
+    if (!drillDownTarget) return;
+
+    const target = drillDownTarget;
+    clearDrillDown();
+
+    (async () => {
+      try {
+        // Auto-save silently if we have a saved process with unsaved changes
+        const state = useProcessStudioStore.getState();
+        if (state.isDirty && state.processId) {
+          await handleSaveRef.current(true);
+        }
+
+        const res = await fetch('/api/admin/process-studio/templates');
+        const data = await res.json();
+        if (!data.success) return;
+
+        const match = (data.data as { name: string; nodes: ProcessNode[]; edges: ProcessEdge[]; description: string | null }[])
+          .find((t) => t.name.toLowerCase() === target.toLowerCase());
+
+        if (!match) {
+          alert(`No template found for "${target}". You can create it from the Templates panel.`);
+          return;
+        }
+
+        // Push current state to history so Back button can restore it
+        const currentState = useProcessStudioStore.getState();
+        pushHistory({
+          nodes: nodes as ProcessNode[],
+          edges: edges as ProcessEdge[],
+          name: currentState.processName,
+          description: currentState.processDescription,
+          processId: currentState.processId,
+        });
+
+        handleTemplateSelect(
+          match.nodes as ProcessNode[],
+          match.edges as ProcessEdge[],
+          match.name,
+          match.description || ''
+        );
+      } catch {
+        alert('Failed to load subprocess template. Please try again.');
+      }
+    })();
+  }, [drillDownTarget, clearDrillDown, handleTemplateSelect]);
+
   // --- Export JSON Handler ---
   const handleExportJSON = useCallback(() => {
     const data = {
@@ -535,6 +632,7 @@ export function ProcessStudioCanvas() {
             onInit={onInit}
             onNodeDragStop={handleNodeDragStop}
             nodeTypes={NODE_TYPES}
+            defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
             fitView
             deleteKeyCode="Delete"
             proOptions={{ hideAttribution: true }}
@@ -547,6 +645,14 @@ export function ProcessStudioCanvas() {
               zoomable
               pannable
             />
+            {navigationHistory.length > 0 && (
+              <Panel position="top-left" className={styles.backPanel}>
+                <button className={styles.backButton} onClick={handleGoBack} title="Back to previous process">
+                  <ArrowLeft size={14} />
+                  <span>Back to {navigationHistory[navigationHistory.length - 1].name}</span>
+                </button>
+              </Panel>
+            )}
             <Panel position="top-right" className={styles.panelActions}>
               <ProcessInput onParse={handleAIParse} isParsing={isParsing} />
               <TemplateSelector

@@ -1,7 +1,16 @@
 import { create } from 'zustand';
 import type { ChatMessage } from './types';
+import type { ProcessNode, ProcessEdge } from './types';
 
 export type RightPanelMode = 'properties' | 'chat';
+
+export interface NavHistoryEntry {
+  nodes: ProcessNode[];
+  edges: ProcessEdge[];
+  name: string;
+  description: string;
+  processId: string | null;
+}
 
 interface ProcessStudioStore {
   // Process metadata
@@ -38,6 +47,21 @@ interface ProcessStudioStore {
   setChatLoading: (loading: boolean) => void;
   clearChat: () => void;
 
+  // Autosave status
+  autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  setAutoSaveStatus: (status: 'idle' | 'saving' | 'saved' | 'error') => void;
+
+  // Subprocess drill-down
+  drillDownTarget: string | null;
+  requestDrillDown: (templateName: string) => void;
+  clearDrillDown: () => void;
+
+  // Navigation history (for back button after drill-down)
+  navigationHistory: NavHistoryEntry[];
+  pushHistory: (entry: NavHistoryEntry) => void;
+  popHistory: () => NavHistoryEntry | null;
+  clearHistory: () => void;
+
   // Actions — reset
   resetStore: () => void;
 }
@@ -53,9 +77,12 @@ const initialState = {
   lastSavedAt: null as Date | null,
   chatMessages: [] as ChatMessage[],
   isChatLoading: false,
+  autoSaveStatus: 'idle' as 'idle' | 'saving' | 'saved' | 'error',
+  drillDownTarget: null as string | null,
+  navigationHistory: [] as NavHistoryEntry[],
 };
 
-export const useProcessStudioStore = create<ProcessStudioStore>((set) => ({
+export const useProcessStudioStore = create<ProcessStudioStore>((set, get) => ({
   ...initialState,
 
   // Metadata
@@ -79,6 +106,25 @@ export const useProcessStudioStore = create<ProcessStudioStore>((set) => ({
   setChatLoading: (loading) => set({ isChatLoading: loading }),
   clearChat: () => set({ chatMessages: [] }),
 
+  // Autosave
+  setAutoSaveStatus: (status) => set({ autoSaveStatus: status }),
+
+  // Subprocess drill-down
+  requestDrillDown: (templateName) => set({ drillDownTarget: templateName }),
+  clearDrillDown: () => set({ drillDownTarget: null }),
+
+  // Navigation history
+  pushHistory: (entry) =>
+    set((s) => ({ navigationHistory: [...s.navigationHistory, entry] })),
+  popHistory: () => {
+    const history = get().navigationHistory;
+    if (history.length === 0) return null;
+    const entry = history[history.length - 1];
+    set({ navigationHistory: history.slice(0, -1) });
+    return entry;
+  },
+  clearHistory: () => set({ navigationHistory: [] }),
+
   // Reset
-  resetStore: () => set(initialState),
+  resetStore: () => set({ ...initialState, navigationHistory: [] }),
 }));

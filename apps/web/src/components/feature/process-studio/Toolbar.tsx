@@ -44,7 +44,7 @@ export function Toolbar({
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { processName, setProcessName, isDirty, lastSavedAt } =
+  const { processName, setProcessName, isDirty, lastSavedAt, autoSaveStatus } =
     useProcessStudioStore();
 
   const handleFileImport = useCallback(
@@ -83,13 +83,23 @@ export function Toolbar({
     [onSave, onUndo, onRedo]
   );
 
-  const saveStatusText = isSaving
+  const saveStatusText = autoSaveStatus === 'saving' || isSaving
     ? 'Saving...'
-    : isDirty
-      ? 'Unsaved changes'
-      : lastSavedAt
-        ? `Saved ${lastSavedAt.toLocaleTimeString()}`
-        : '';
+    : autoSaveStatus === 'error'
+      ? 'Save failed'
+      : isDirty
+        ? 'Unsaved changes'
+        : lastSavedAt
+          ? `Saved ${lastSavedAt.toLocaleTimeString()}`
+          : '';
+
+  const saveStatusClass = autoSaveStatus === 'saving' || isSaving
+    ? styles.statusSaving
+    : autoSaveStatus === 'error'
+      ? styles.statusError
+      : isDirty
+        ? styles.unsaved
+        : styles.statusSaved;
 
   return (
     <div className={styles.toolbar} onKeyDown={handleKeyDown}>
@@ -184,9 +194,8 @@ export function Toolbar({
           {nodeCount} steps · {edgeCount} connections
         </span>
         {saveStatusText && (
-          <span
-            className={`${styles.saveStatus} ${isDirty ? styles.unsaved : ''}`}
-          >
+          <span className={`${styles.saveStatus} ${saveStatusClass}`}>
+            <span className={styles.statusDot} />
             {saveStatusText}
           </span>
         )}
