@@ -171,6 +171,7 @@
   text-align: left;
   font-family: var(--font-primary, 'Inter', sans-serif);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
 }
 
 .templateCard:hover {
@@ -295,6 +296,7 @@
 /* Template card wrapper with actions */
 .templateCardWrapper {
   position: relative;
+  width: 100%;
 }
 
 .cardActions {

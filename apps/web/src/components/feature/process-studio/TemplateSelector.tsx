@@ -33,6 +33,16 @@ const COMPLEXITY_LABELS: Record<string, string> = {
   advanced: 'Advanced',
 };
 
+/** Category display order — lower number appears first */
+const CATEGORY_ORDER: Record<string, number> = {
+  onboarding: 0,
+  listings: 1,
+  bookings: 2,
+  referrals: 3,
+  financials: 4,
+  reviews: 5,
+};
+
 interface TemplateFormData {
   name: string;
   description: string;
@@ -73,7 +83,13 @@ export function TemplateSelector({
       const res = await fetch('/api/admin/process-studio/templates');
       const data = await res.json();
       if (data.success) {
-        setTemplates(data.data);
+        const sorted = (data.data as WorkflowProcessTemplate[]).sort((a, b) => {
+          const orderA = CATEGORY_ORDER[a.category] ?? 99;
+          const orderB = CATEGORY_ORDER[b.category] ?? 99;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.name.localeCompare(b.name);
+        });
+        setTemplates(sorted);
       } else {
         setError(data.error || 'Failed to load templates');
       }
