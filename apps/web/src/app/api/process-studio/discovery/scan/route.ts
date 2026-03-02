@@ -110,18 +110,28 @@ export async function POST(request: NextRequest) {
           overlap && overlap.state !== 'no_template' ? overlap.matchScore : null,
       };
 
-      // Upsert by source_type + source_identifier (update if exists)
-      const { error: upsertError } = await supabase
+      // Manual upsert: the unique index is partial (WHERE status <> 'dismissed'),
+      // so ON CONFLICT targeting is not supported by Postgres for partial indexes.
+      // Instead: find the existing non-dismissed record and update, or insert new.
+      const { data: existing } = await supabase
         .from('workflow_discovery_results')
-        .upsert(record, {
-          onConflict: 'source_type,source_identifier',
-          ignoreDuplicates: false,
-        });
+        .select('id')
+        .eq('source_type', discovery.sourceType)
+        .eq('source_identifier', discovery.sourceIdentifier)
+        .neq('status', 'dismissed')
+        .maybeSingle();
 
-      if (upsertError) {
+      const { error: writeError } = existing
+        ? await supabase
+            .from('workflow_discovery_results')
+            .update(record)
+            .eq('id', existing.id)
+        : await supabase.from('workflow_discovery_results').insert(record);
+
+      if (writeError) {
         console.error(
-          `Failed to upsert discovery ${discovery.sourceIdentifier}:`,
-          upsertError
+          `Failed to save discovery ${discovery.sourceIdentifier}:`,
+          writeError
         );
       } else {
         upsertedCount++;
