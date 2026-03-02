@@ -3,30 +3,21 @@ import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { supabase, user: null, error: 'Unauthorized' as const };
-  }
-
-  return { supabase, user, error: null };
-}
-
 /**
  * GET /api/admin/process-studio/templates
  * Fetch all workflow process templates
  */
 export async function GET() {
   try {
-    const { supabase, error: authErr } = await requireAdmin();
-    if (authErr) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
       return NextResponse.json(
-        { success: false, error: authErr, code: 'AUTH_REQUIRED' },
+        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
         { status: 401 }
       );
     }
@@ -38,14 +29,16 @@ export async function GET() {
       .order('complexity', { ascending: true });
 
     if (error) {
+      console.error('[templates GET] DB error:', JSON.stringify(error));
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch templates', code: 'DB_ERROR' },
+        { success: false, error: 'Failed to fetch templates', code: 'DB_ERROR', details: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, data });
-  } catch {
+  } catch (err) {
+    console.error('[templates GET] Unexpected error:', err);
     return NextResponse.json(
       { success: false, error: 'Internal server error', code: 'INTERNAL_ERROR' },
       { status: 500 }
@@ -59,10 +52,15 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    const { supabase, error: authErr } = await requireAdmin();
-    if (authErr) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
       return NextResponse.json(
-        { success: false, error: authErr, code: 'AUTH_REQUIRED' },
+        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
         { status: 401 }
       );
     }
