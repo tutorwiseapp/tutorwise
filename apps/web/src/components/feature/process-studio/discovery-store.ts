@@ -15,6 +15,7 @@ interface DiscoveryStore {
   // Discovery results
   results: DiscoveryResult[];
   setResults: (results: DiscoveryResult[]) => void;
+  updateResult: (id: string, patch: Partial<DiscoveryResult>) => void;
 
   // Scanning state
   isScanning: boolean;
@@ -57,6 +58,11 @@ export const useDiscoveryStore = create<DiscoveryStore>((set, get) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
 
   setResults: (results) => set({ results }),
+
+  updateResult: (id, patch) =>
+    set((state) => ({
+      results: state.results.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    })),
 
   setScanning: (scanning) => set({ isScanning: scanning }),
   setScanProgress: (completed, total) =>

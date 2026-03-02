@@ -15,10 +15,13 @@ import {
   Eye,
   Trash2,
   ArrowRight,
+  Sparkles,
+  RefreshCcw,
 } from 'lucide-react';
 import { useDiscoveryStore } from './discovery-store';
 import type {
   SourceType,
+  ConfidenceLevel,
   DiscoveryResult,
 } from '@/lib/process-studio/scanner/types';
 import type { ProcessNode, ProcessEdge } from './types';
@@ -43,6 +46,22 @@ const SOURCE_OPTIONS: { value: SourceType | 'all'; label: string }[] = [
   { value: 'db_trigger', label: 'DB Triggers' },
 ];
 
+const CONFIDENCE_OPTIONS: { value: ConfidenceLevel | 'all'; label: string }[] = [
+  { value: 'all', label: 'All Confidence' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' },
+];
+
+// All source types scanned (Phase 2: +cron_job, +api_route)
+const SCAN_SOURCE_TYPES: SourceType[] = [
+  'cas_workflow',
+  'status_enum',
+  'onboarding',
+  'cron_job',
+  'api_route',
+];
+
 interface DiscoveryPanelProps {
   onImportToCanvas?: (
     nodes: ProcessNode[],
@@ -52,7 +71,6 @@ interface DiscoveryPanelProps {
   ) => void;
 }
 
-/** Group results by category (business domain) */
 function groupByCategory(
   results: DiscoveryResult[]
 ): Record<string, DiscoveryResult[]> {
@@ -73,6 +91,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   const {
     results,
     setResults,
+    updateResult,
     isScanning,
     setScanning,
     scanProgress,
@@ -81,6 +100,8 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     setLastScannedAt,
     sourceFilter,
     setSourceFilter,
+    confidenceFilter,
+    setConfidenceFilter,
     selectedIds,
     toggleSelected,
     selectAll,
@@ -89,8 +110,9 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [analysingIds, setAnalysingIds] = useState<Set<string>>(new Set());
+  const [isAnalysingAll, setIsAnalysingAll] = useState(false);
 
-  // Fetch existing results on mount
   useEffect(() => {
     fetchResults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,8 +124,9 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
       const json = await res.json();
       if (json.success) {
         setResults(json.data);
-        // Expand all groups by default
-        const cats = new Set<string>(json.data.map((r: DiscoveryResult) => r.category || 'other'));
+        const cats = new Set<string>(
+          json.data.map((r: DiscoveryResult) => r.category || 'other')
+        );
         setExpandedGroups(cats);
       }
     } catch (err) {
@@ -114,13 +137,11 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   const handleScan = useCallback(async () => {
     setScanning(true);
     setError(null);
-    const sourceTypes: SourceType[] = ['cas_workflow', 'status_enum', 'onboarding'];
-    setScanProgress(0, sourceTypes.length);
+    setScanProgress(0, SCAN_SOURCE_TYPES.length);
 
     let completed = 0;
 
-    // Scan each source type in parallel
-    const scanPromises = sourceTypes.map(async (sourceType) => {
+    const scanPromises = SCAN_SOURCE_TYPES.map(async (sourceType) => {
       try {
         const res = await fetch('/api/process-studio/discovery/scan', {
           method: 'POST',
@@ -129,11 +150,11 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         });
         const json = await res.json();
         completed++;
-        setScanProgress(completed, sourceTypes.length);
+        setScanProgress(completed, SCAN_SOURCE_TYPES.length);
         return json;
       } catch (err) {
         completed++;
-        setScanProgress(completed, sourceTypes.length);
+        setScanProgress(completed, SCAN_SOURCE_TYPES.length);
         console.error(`Scan failed for ${sourceType}:`, err);
         return null;
       }
@@ -143,8 +164,6 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
 
     setScanning(false);
     setLastScannedAt(new Date());
-
-    // Refresh the results
     await fetchResults();
   }, [setScanning, setScanProgress, setLastScannedAt, fetchResults]);
 
@@ -165,7 +184,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   );
 
   const handleImportSingle = useCallback(
-    async (discovery: DiscoveryResult) => {
+    (discovery: DiscoveryResult) => {
       if (onImportToCanvas && discovery.nodes?.length) {
         onImportToCanvas(
           discovery.nodes,
@@ -200,6 +219,112 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     }
   }, [selectedIds, deselectAll, fetchResults]);
 
+  // Pass 2: Analyse a single preview result
+  const handleAnalyse = useCallback(
+    async (id: string) => {
+      setAnalysingIds((prev) => new Set(prev).add(id));
+      setError(null);
+      try {
+        const res = await fetch(`/api/process-studio/discovery/${id}/analyse`, {
+          method: 'POST',
+        });
+        const json = await res.json();
+        if (json.success) {
+          updateResult(id, {
+            nodes: json.data.nodes,
+            edges: json.data.edges,
+            preview_steps: json.data.previewSteps,
+            confidence: json.data.confidence,
+            confidence_reason: json.data.confidenceReason,
+            analysis_state: 'analysed',
+            matched_template_id:
+              json.data.templateOverlap?.state !== 'no_template'
+                ? json.data.templateOverlap?.templateId ?? null
+                : null,
+            template_match_state:
+              json.data.templateOverlap?.state !== 'no_template'
+                ? json.data.templateOverlap?.state ?? null
+                : null,
+            template_match_score: json.data.templateOverlap?.matchScore ?? null,
+          });
+        } else {
+          setError(`Analysis failed: ${json.error}`);
+        }
+      } catch (err) {
+        console.error('Analyse failed:', err);
+        setError('Analysis failed — check connection');
+      } finally {
+        setAnalysingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }
+    },
+    [updateResult]
+  );
+
+  // Pass 2 batch: Analyse all preview results
+  const handleAnalyseAll = useCallback(async () => {
+    const previewIds = results
+      .filter((r) => r.analysis_state === 'preview' && r.raw_content)
+      .map((r) => r.id);
+
+    if (previewIds.length === 0) return;
+
+    setIsAnalysingAll(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/process-studio/discovery/analyse-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: previewIds }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        await fetchResults();
+      } else {
+        setError(json.error || 'Analyse All failed');
+      }
+    } catch (err) {
+      console.error('Analyse All failed:', err);
+      setError('Analyse All failed');
+    } finally {
+      setIsAnalysingAll(false);
+    }
+  }, [results, fetchResults]);
+
+  // Update Template (auto-sync integration — user-confirmed)
+  const handleUpdateTemplate = useCallback(
+    async (discoveryId: string, discoveryName: string) => {
+      const confirmed = window.confirm(
+        `Replace the matched template with the discovered "${discoveryName}" workflow? This updates the template for all users.`
+      );
+      if (!confirmed) return;
+
+      try {
+        const res = await fetch(
+          `/api/process-studio/discovery/${discoveryId}/update-template`,
+          { method: 'POST' }
+        );
+        const json = await res.json();
+        if (json.success) {
+          updateResult(discoveryId, {
+            template_match_state: 'matches',
+            template_match_score: 1.0,
+          });
+        } else {
+          setError(json.error || 'Template update failed');
+        }
+      } catch (err) {
+        console.error('Update template failed:', err);
+        setError('Template update failed');
+      }
+    },
+    [updateResult]
+  );
+
   const toggleGroup = (cat: string) => {
     const next = new Set(expandedGroups);
     if (next.has(cat)) next.delete(cat);
@@ -207,11 +332,14 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     setExpandedGroups(next);
   };
 
-  // Filter results
-  const filtered =
-    sourceFilter === 'all'
-      ? results
-      : results.filter((r) => r.source_type === sourceFilter);
+  // Apply source + confidence filters
+  let filtered = results;
+  if (sourceFilter !== 'all') {
+    filtered = filtered.filter((r) => r.source_type === sourceFilter);
+  }
+  if (confidenceFilter !== 'all') {
+    filtered = filtered.filter((r) => r.confidence === confidenceFilter);
+  }
 
   const groups = groupByCategory(filtered);
   const sortedCategories = Object.keys(groups).sort();
@@ -220,6 +348,10 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     const r = results.find((d) => d.id === id);
     return r && r.analysis_state !== 'preview' && (r.nodes?.length ?? 0) > 0;
   });
+
+  const previewCount = results.filter(
+    (r) => r.analysis_state === 'preview' && r.raw_content
+  ).length;
 
   return (
     <div className={styles.panel}>
@@ -240,12 +372,41 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
             : 'Scan'}
         </button>
 
+        {previewCount > 0 && (
+          <button
+            className={styles.analyseAllBtn}
+            onClick={handleAnalyseAll}
+            disabled={isAnalysingAll}
+          >
+            {isAnalysingAll ? (
+              <Loader2 size={16} className={styles.spinning} />
+            ) : (
+              <Sparkles size={16} />
+            )}
+            {isAnalysingAll ? 'Analysing...' : `Analyse All (${previewCount})`}
+          </button>
+        )}
+
         <select
           className={styles.filterSelect}
           value={sourceFilter}
           onChange={(e) => setSourceFilter(e.target.value as SourceType | 'all')}
         >
           {SOURCE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className={styles.filterSelect}
+          value={confidenceFilter}
+          onChange={(e) =>
+            setConfidenceFilter(e.target.value as ConfidenceLevel | 'all')
+          }
+        >
+          {CONFIDENCE_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -289,9 +450,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
               <span className={styles.groupName}>
                 {humanizeCategory(cat)} workflows
               </span>
-              <span className={styles.groupCount}>
-                ({groups[cat].length})
-              </span>
+              <span className={styles.groupCount}>({groups[cat].length})</span>
             </button>
 
             {expandedGroups.has(cat) && (
@@ -301,8 +460,13 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
                     key={discovery.id}
                     discovery={discovery}
                     isSelected={selectedIds.has(discovery.id)}
+                    isAnalysing={analysingIds.has(discovery.id)}
                     onToggleSelect={() => toggleSelected(discovery.id)}
                     onImport={() => handleImportSingle(discovery)}
+                    onAnalyse={() => handleAnalyse(discovery.id)}
+                    onUpdateTemplate={() =>
+                      handleUpdateTemplate(discovery.id, discovery.name)
+                    }
                     onDismiss={() => handleDismiss(discovery.id)}
                   />
                 ))}
@@ -312,13 +476,16 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         ))}
       </div>
 
-      {/* Batch actions */}
+      {/* Batch actions bar */}
       {filtered.length > 0 && (
         <div className={styles.batchBar}>
-          <button className={styles.selectToggle} onClick={() => {
-            if (selectedIds.size > 0) deselectAll();
-            else selectAll();
-          }}>
+          <button
+            className={styles.selectToggle}
+            onClick={() => {
+              if (selectedIds.size > 0) deselectAll();
+              else selectAll();
+            }}
+          >
             {selectedIds.size > 0 ? (
               <CheckSquare size={14} />
             ) : (
@@ -345,25 +512,33 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   );
 }
 
-// --- DiscoveryCard sub-component ---
+// --- DiscoveryCard ---
 
 interface DiscoveryCardProps {
   discovery: DiscoveryResult;
   isSelected: boolean;
+  isAnalysing: boolean;
   onToggleSelect: () => void;
   onImport: () => void;
+  onAnalyse: () => void;
+  onUpdateTemplate: () => void;
   onDismiss: () => void;
 }
 
 function DiscoveryCard({
   discovery,
   isSelected,
+  isAnalysing,
   onToggleSelect,
   onImport,
+  onAnalyse,
+  onUpdateTemplate,
   onDismiss,
 }: DiscoveryCardProps) {
   const canImport =
     discovery.analysis_state !== 'preview' && (discovery.nodes?.length ?? 0) > 0;
+  const isPreview = discovery.analysis_state === 'preview';
+  const isTemplateOutdated = discovery.template_match_state === 'outdated';
 
   return (
     <div className={`${styles.card} ${isSelected ? styles.cardSelected : ''}`}>
@@ -375,10 +550,14 @@ function DiscoveryCard({
         <div className={styles.cardTitle}>
           <span className={styles.cardName}>{discovery.name}</span>
           <div className={styles.badges}>
-            <span className={`${styles.badge} ${styles[`badge_${discovery.source_type}`]}`}>
+            <span
+              className={`${styles.badge} ${styles[`badge_${discovery.source_type}`]}`}
+            >
               {SOURCE_LABELS[discovery.source_type] || discovery.source_type}
             </span>
-            <span className={`${styles.badge} ${styles[`state_${discovery.analysis_state}`]}`}>
+            <span
+              className={`${styles.badge} ${styles[`state_${discovery.analysis_state}`]}`}
+            >
               {discovery.analysis_state === 'direct_mapped'
                 ? 'Mapped'
                 : discovery.analysis_state === 'analysed'
@@ -386,7 +565,9 @@ function DiscoveryCard({
                   : 'Preview'}
             </span>
             {discovery.confidence && discovery.analysis_state !== 'preview' && (
-              <span className={`${styles.badge} ${styles[`confidence_${discovery.confidence}`]}`}>
+              <span
+                className={`${styles.badge} ${styles[`confidence_${discovery.confidence}`]}`}
+              >
                 {discovery.confidence}
               </span>
             )}
@@ -395,7 +576,7 @@ function DiscoveryCard({
                 <CheckCircle size={10} /> Up to date
               </span>
             )}
-            {discovery.template_match_state === 'outdated' && (
+            {isTemplateOutdated && (
               <span className={`${styles.badge} ${styles.templateOutdated}`}>
                 <AlertTriangle size={10} /> Template outdated
               </span>
@@ -408,7 +589,6 @@ function DiscoveryCard({
         <p className={styles.cardDescription}>{discovery.description}</p>
       )}
 
-      {/* Preview steps */}
       {(discovery.preview_steps || discovery.step_names) && (
         <div className={styles.previewSteps}>
           {(discovery.preview_steps || discovery.step_names || [])
@@ -430,11 +610,36 @@ function DiscoveryCard({
       )}
 
       <div className={styles.cardActions}>
+        {isPreview && (
+          <button
+            className={styles.analyseBtn}
+            onClick={onAnalyse}
+            disabled={isAnalysing}
+          >
+            {isAnalysing ? (
+              <Loader2 size={12} className={styles.spinning} />
+            ) : (
+              <Sparkles size={12} />
+            )}
+            {isAnalysing ? 'Analysing...' : 'Analyse'}
+          </button>
+        )}
+
         {canImport && (
           <button className={styles.importBtn} onClick={onImport}>
             <Eye size={14} /> Import to Canvas
           </button>
         )}
+
+        {isTemplateOutdated && canImport && (
+          <button
+            className={styles.updateTemplateBtn}
+            onClick={() => onUpdateTemplate()}
+          >
+            <RefreshCcw size={12} /> Update Template
+          </button>
+        )}
+
         <button className={styles.dismissBtn} onClick={onDismiss}>
           <Trash2 size={14} />
         </button>
