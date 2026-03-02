@@ -39,11 +39,13 @@ export default function ProcessStudioPage() {
         </div>
       )}
 
-      {activeTab === 'discovery' && (
-        <div className={styles.discoveryContainer}>
-          <DiscoveryPanel />
-        </div>
-      )}
+      {/* Always mounted so background auto-scan fires on page load (Phase 4) */}
+      <div
+        className={styles.discoveryContainer}
+        style={{ display: activeTab === 'discovery' ? undefined : 'none' }}
+      >
+        <DiscoveryPanel />
+      </div>
     </HubPageLayout>
   );
 }

@@ -481,6 +481,40 @@
   gap: 4px;
 }
 
+/* Per-source scan status dots */
+.sourceStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sourceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+.sourceDot_scanning {
+  background: var(--color-border, #e5e7eb);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.sourceDot_done {
+  background: #22c55e;
+}
+
+.sourceDot_error {
+  background: #ef4444;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 /* History button */
 .historyBtn {
   height: 32px;

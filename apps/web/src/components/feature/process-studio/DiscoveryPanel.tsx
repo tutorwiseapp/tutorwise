@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   RefreshCw,
   Search,
@@ -20,6 +20,7 @@ import {
   History,
 } from 'lucide-react';
 import { useDiscoveryStore } from './discovery-store';
+import { useDiscoveryRealtime } from '@/app/hooks/useDiscoveryRealtime';
 import type {
   SourceType,
   ConfidenceLevel,
@@ -27,6 +28,8 @@ import type {
 } from '@/lib/process-studio/scanner/types';
 import type { ProcessNode, ProcessEdge } from './types';
 import styles from './DiscoveryPanel.module.css';
+
+type SourceScanStatus = 'pending' | 'scanning' | 'done' | 'error';
 
 const SOURCE_LABELS: Record<string, string> = {
   status_enum: 'STATUS',
@@ -124,6 +127,22 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     completed_at: string | null;
     created_at: string;
   }>>([]);
+  const [sourceStatus, setSourceStatus] = useState<Record<string, SourceScanStatus>>({});
+
+  // Auto-scan guard — only fires once per mount when the panel has no results
+  const autoScannedRef = useRef(false);
+
+  // Realtime: append new discoveries and update existing ones as scans stream in
+  useDiscoveryRealtime({
+    onNewResult: useCallback((result: DiscoveryResult) => {
+      setResults([...results, result]);
+      setExpandedGroups((prev) => new Set([...prev, result.category || 'other']));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [results, setResults]),
+    onResultUpdated: useCallback((result: DiscoveryResult) => {
+      updateResult(result.id, result);
+    }, [updateResult]),
+  });
 
   useEffect(() => {
     fetchResults();
@@ -162,6 +181,11 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     setError(null);
     setScanProgress(0, SCAN_SOURCE_TYPES.length);
 
+    // Initialise per-source status
+    const initialStatus: Record<string, SourceScanStatus> = {};
+    for (const s of SCAN_SOURCE_TYPES) initialStatus[s] = 'scanning';
+    setSourceStatus(initialStatus);
+
     let completed = 0;
 
     const scanPromises = SCAN_SOURCE_TYPES.map(async (sourceType) => {
@@ -174,10 +198,12 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         const json = await res.json();
         completed++;
         setScanProgress(completed, SCAN_SOURCE_TYPES.length);
+        setSourceStatus((prev) => ({ ...prev, [sourceType]: 'done' }));
         return json;
       } catch (err) {
         completed++;
         setScanProgress(completed, SCAN_SOURCE_TYPES.length);
+        setSourceStatus((prev) => ({ ...prev, [sourceType]: 'error' }));
         console.error(`Scan failed for ${sourceType}:`, err);
         return null;
       }
@@ -189,6 +215,15 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     setLastScannedAt(new Date());
     await Promise.all([fetchResults(), fetchScanHistory()]);
   }, [setScanning, setScanProgress, setLastScannedAt, fetchResults, fetchScanHistory]);
+
+  // Auto-scan: trigger once on mount when the panel has no cached results
+  useEffect(() => {
+    if (!autoScannedRef.current && !isScanning && !lastScannedAt && results.length === 0) {
+      autoScannedRef.current = true;
+      handleScan();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results.length, isScanning, lastScannedAt]);
 
   const handleDismiss = useCallback(
     async (id: string) => {
@@ -394,6 +429,19 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
             ? `Scanning... (${scanProgress.completed}/${scanProgress.total})`
             : 'Scan'}
         </button>
+
+        {/* Per-source scan status indicators */}
+        {isScanning && Object.keys(sourceStatus).length > 0 && (
+          <div className={styles.sourceStatusRow} aria-live="polite">
+            {SCAN_SOURCE_TYPES.map((src) => (
+              <span
+                key={src}
+                className={`${styles.sourceDot} ${styles[`sourceDot_${sourceStatus[src] ?? 'scanning'}`]}`}
+                title={`${SOURCE_LABELS[src]}: ${sourceStatus[src] ?? 'scanning'}`}
+              />
+            ))}
+          </div>
+        )}
 
         {previewCount > 0 && (
           <button
