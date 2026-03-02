@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Sparkles,
   RefreshCcw,
+  History,
 } from 'lucide-react';
 import { useDiscoveryStore } from './discovery-store';
 import type {
@@ -53,13 +54,14 @@ const CONFIDENCE_OPTIONS: { value: ConfidenceLevel | 'all'; label: string }[] = 
   { value: 'low', label: 'Low' },
 ];
 
-// All source types scanned (Phase 2: +cron_job, +api_route)
+// All source types scanned (Phase 2: +cron_job, +api_route; Phase 3: +db_trigger)
 const SCAN_SOURCE_TYPES: SourceType[] = [
   'cas_workflow',
   'status_enum',
   'onboarding',
   'cron_job',
   'api_route',
+  'db_trigger',
 ];
 
 interface DiscoveryPanelProps {
@@ -112,10 +114,31 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   const [error, setError] = useState<string | null>(null);
   const [analysingIds, setAnalysingIds] = useState<Set<string>>(new Set());
   const [isAnalysingAll, setIsAnalysingAll] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [scanHistory, setScanHistory] = useState<Array<{
+    id: string;
+    source_types: string[];
+    status: string;
+    results_count: number | null;
+    duration_ms: number | null;
+    completed_at: string | null;
+    created_at: string;
+  }>>([]);
 
   useEffect(() => {
     fetchResults();
+    fetchScanHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchScanHistory = useCallback(async () => {
+    try {
+      const res = await fetch('/api/process-studio/discovery/scans');
+      const json = await res.json();
+      if (json.success) setScanHistory(json.data.scans);
+    } catch {
+      // Non-fatal — history panel just stays empty
+    }
   }, []);
 
   const fetchResults = useCallback(async () => {
@@ -164,8 +187,8 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
 
     setScanning(false);
     setLastScannedAt(new Date());
-    await fetchResults();
-  }, [setScanning, setScanProgress, setLastScannedAt, fetchResults]);
+    await Promise.all([fetchResults(), fetchScanHistory()]);
+  }, [setScanning, setScanProgress, setLastScannedAt, fetchResults, fetchScanHistory]);
 
   const handleDismiss = useCallback(
     async (id: string) => {
@@ -418,7 +441,53 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
             Last scan: {lastScannedAt.toLocaleTimeString()}
           </span>
         )}
+
+        <button
+          className={styles.historyBtn}
+          onClick={() => setShowHistory((v) => !v)}
+          title="Scan history"
+        >
+          <History size={14} />
+        </button>
       </div>
+
+      {showHistory && (
+        <div className={styles.historyPanel}>
+          <div className={styles.historyTitle}>Recent Scans</div>
+          {scanHistory.length === 0 ? (
+            <p className={styles.historyEmpty}>No scans recorded yet.</p>
+          ) : (
+            <table className={styles.historyTable}>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Sources</th>
+                  <th>Results</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scanHistory.map((scan) => (
+                  <tr key={scan.id}>
+                    <td>
+                      {scan.completed_at
+                        ? new Date(scan.completed_at).toLocaleTimeString()
+                        : new Date(scan.created_at).toLocaleTimeString()}
+                    </td>
+                    <td>{scan.source_types.join(', ')}</td>
+                    <td>{scan.results_count ?? '—'}</td>
+                    <td>
+                      {scan.duration_ms != null
+                        ? `${(scan.duration_ms / 1000).toFixed(1)}s`
+                        : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className={styles.errorBanner}>

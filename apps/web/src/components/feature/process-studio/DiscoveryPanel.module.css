@@ -480,3 +480,69 @@
   align-items: center;
   gap: 4px;
 }
+
+/* History button */
+.historyBtn {
+  height: 32px;
+  width: 32px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-white, #fff);
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.historyBtn:hover {
+  color: var(--color-primary, #006C67);
+  border-color: var(--color-primary, #006C67);
+}
+
+/* Scan history panel */
+.historyPanel {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-light, #f9fafb);
+  flex-shrink: 0;
+}
+
+.historyTitle {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.historyEmpty {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-tertiary, #9ca3af);
+  margin: 0;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs, 12px);
+}
+
+.historyTable th {
+  text-align: left;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-weight: var(--font-weight-medium, 500);
+  padding: 0 8px 4px 0;
+}
+
+.historyTable td {
+  padding: 3px 8px 3px 0;
+  color: var(--color-text-secondary, #6b7280);
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

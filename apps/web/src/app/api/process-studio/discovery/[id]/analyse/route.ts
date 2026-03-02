@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { analyzeToWorkflow } from '@/lib/process-studio/scanner/ai-analyzer';
 import { detectOverlap } from '@/lib/process-studio/scanner/overlap-detector';
-import type { ConfidenceLevel } from '@/lib/process-studio/scanner/types';
+import type { ConfidenceLevel, SourceType } from '@/lib/process-studio/scanner/types';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -80,7 +80,8 @@ export async function POST(
     const analysis = await analyzeToWorkflow(
       discovery.raw_content,
       context,
-      (discovery.confidence as ConfidenceLevel) || 'medium'
+      (discovery.confidence as ConfidenceLevel) || 'medium',
+      discovery.source_type as SourceType
     );
 
     // Re-run template overlap detection with the full graph now available

@@ -10,6 +10,7 @@ import { StatusEnumScanner } from './sources/status-enum-scanner';
 import { OnboardingScanner } from './sources/onboarding-scanner';
 import { CronJobScanner } from './sources/cron-job-scanner';
 import { APIRouteScanner } from './sources/api-route-scanner';
+import { DBTriggerScanner } from './sources/db-trigger-scanner';
 import type {
   SourceType,
   SourceScanner,
@@ -23,7 +24,7 @@ const SCANNERS: Record<string, SourceScanner> = {
   onboarding: new OnboardingScanner(),
   cron_job: new CronJobScanner(),
   api_route: new APIRouteScanner(),
-  // Phase 3: db_trigger
+  db_trigger: new DBTriggerScanner(),
 };
 
 /**
