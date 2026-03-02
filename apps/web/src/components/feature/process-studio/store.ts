@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { ChatMessage } from './types';
 
+export type RightPanelMode = 'properties' | 'chat';
+
 interface ProcessStudioStore {
   // Process metadata
   processId: string | null;
@@ -10,7 +12,7 @@ interface ProcessStudioStore {
   // UI state
   selectedNodeId: string | null;
   isDrawerOpen: boolean;
-  isChatOpen: boolean;
+  rightPanelMode: RightPanelMode;
   isDirty: boolean;
   lastSavedAt: Date | null;
 
@@ -27,7 +29,7 @@ interface ProcessStudioStore {
   setSelectedNode: (id: string | null) => void;
   openDrawer: () => void;
   closeDrawer: () => void;
-  toggleChat: () => void;
+  setRightPanelMode: (mode: RightPanelMode) => void;
   markDirty: () => void;
   markSaved: () => void;
 
@@ -41,15 +43,15 @@ interface ProcessStudioStore {
 }
 
 const initialState = {
-  processId: null,
+  processId: null as string | null,
   processName: 'Untitled Process',
   processDescription: '',
-  selectedNodeId: null,
+  selectedNodeId: null as string | null,
   isDrawerOpen: false,
-  isChatOpen: true,
+  rightPanelMode: 'properties' as RightPanelMode,
   isDirty: false,
-  lastSavedAt: null,
-  chatMessages: [],
+  lastSavedAt: null as Date | null,
+  chatMessages: [] as ChatMessage[],
   isChatLoading: false,
 };
 
@@ -67,7 +69,7 @@ export const useProcessStudioStore = create<ProcessStudioStore>((set) => ({
     set({ selectedNodeId: id, isDrawerOpen: id !== null }),
   openDrawer: () => set({ isDrawerOpen: true }),
   closeDrawer: () => set({ isDrawerOpen: false, selectedNodeId: null }),
-  toggleChat: () => set((s) => ({ isChatOpen: !s.isChatOpen })),
+  setRightPanelMode: (mode) => set({ rightPanelMode: mode }),
   markDirty: () => set({ isDirty: true }),
   markSaved: () => set({ isDirty: false, lastSavedAt: new Date() }),
 

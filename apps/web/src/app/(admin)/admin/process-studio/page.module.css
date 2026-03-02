@@ -1,6 +1,8 @@
 /* Process Studio page layout */
 
 .canvasContainer {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 136px);
   min-height: 500px;
+  margin-left: -1rem; /* Negate contentContainerBoard left padding for flush canvas */
+  margin-bottom: -5rem; /* Negate contentContainerBoard bottom padding */
 }

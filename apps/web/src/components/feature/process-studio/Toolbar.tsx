@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef } from 'react';
-import { Save, Undo2, Redo2, Trash2, FilePlus, FileDown, FileUp } from 'lucide-react';
+import { Save, Undo2, Redo2, Trash2, FilePlus, FileDown, FileUp, Maximize2 } from 'lucide-react';
 import { ProcessBrowser } from './ProcessBrowser';
 import type { WorkflowProcess } from './types';
 import { useProcessStudioStore } from './store';
@@ -17,6 +17,7 @@ interface ToolbarProps {
   onLoadProcess: (process: WorkflowProcess) => void;
   onUndo: () => void;
   onRedo: () => void;
+  onFullscreen?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   isSaving: boolean;
@@ -34,6 +35,7 @@ export function Toolbar({
   onLoadProcess,
   onUndo,
   onRedo,
+  onFullscreen,
   canUndo,
   canRedo,
   isSaving,
@@ -159,6 +161,15 @@ export function Toolbar({
         >
           <Trash2 size={14} /> Clear
         </button>
+        {onFullscreen && (
+          <button
+            className={styles.button}
+            onClick={onFullscreen}
+            title="Fullscreen mode"
+          >
+            <Maximize2 size={14} /> Fullscreen
+          </button>
+        )}
       </div>
 
       <div className={styles.metadata}>

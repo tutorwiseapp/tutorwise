@@ -1,14 +1,52 @@
 /* ChatPanel — Side panel for natural language workflow editing */
 
 .panel {
-  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--color-border, #e5e7eb);
   background: var(--color-white, #fff);
   height: 100%;
   overflow: hidden;
+  position: relative;
+}
+
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary, #9ca3af);
+  z-index: 10;
+  border-left: 1px solid var(--color-border, #e5e7eb);
+  transition: background-color 0.15s ease;
+}
+
+.resizeHandle:hover {
+  background: var(--color-bg-light, #f9fafb);
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.resetButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.resetButton:hover {
+  background: var(--color-bg-light, #f9fafb);
+  color: var(--color-text-primary, #111827);
 }
 
 .header {

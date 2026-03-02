@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { X, Plus, Minus, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, Trash2, MousePointerClick } from 'lucide-react';
 import { useProcessStudioStore } from './store';
 import { PROCESS_STEP_TYPES, NODE_TYPE_CONFIG } from './types';
 import type { ProcessStepData, ProcessStepType, ProcessNode } from './types';
@@ -18,12 +18,14 @@ export function PropertiesDrawer({
   onUpdateNode,
   onDeleteNode,
 }: PropertiesDrawerProps) {
-  const { isDrawerOpen, closeDrawer } = useProcessStudioStore();
+  const { closeDrawer } = useProcessStudioStore();
   const [localData, setLocalData] = useState<ProcessStepData | null>(null);
 
   useEffect(() => {
     if (node) {
       setLocalData({ ...node.data });
+    } else {
+      setLocalData(null);
     }
   }, [node]);
 
@@ -76,7 +78,22 @@ export function PropertiesDrawer({
     [localData, handleFieldChange]
   );
 
-  if (!isDrawerOpen || !node || !localData) return null;
+  if (!node || !localData) {
+    return (
+      <div className={styles.drawer} role="complementary" aria-label="Node properties">
+        <div className={styles.header}>
+          <h3 className={styles.title}>Properties</h3>
+        </div>
+        <div className={styles.emptyState}>
+          <MousePointerClick size={28} style={{ color: 'var(--color-text-tertiary)' }} />
+          <div className={styles.emptyTitle}>No node selected</div>
+          <div className={styles.emptyDescription}>
+            Click on a node in the canvas to view and edit its properties.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const canDelete =
     node.data.type !== 'trigger' && node.data.type !== 'end';
@@ -90,8 +107,9 @@ export function PropertiesDrawer({
         </h3>
         <button
           className={styles.closeButton}
-          onClick={closeDrawer}
-          aria-label="Close properties"
+          onClick={() => { closeDrawer(); }}
+          aria-label="Deselect node"
+          title="Deselect node"
         >
           <X size={18} />
         </button>

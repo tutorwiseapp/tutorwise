@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageSquare, X, Send, Zap } from 'lucide-react';
+import { MessageSquare, Send, Zap, GripVertical, RotateCcw } from 'lucide-react';
 import { useProcessStudioStore } from './store';
 import type { ChatMessage, ProcessNode, ProcessEdge } from './types';
 import styles from './ChatPanel.module.css';
@@ -24,18 +24,23 @@ const SUGGESTIONS = [
   'Describe this workflow',
 ];
 
+const DEFAULT_WIDTH = 320;
+const MIN_WIDTH = 240;
+const MAX_WIDTH = 500;
+
 export function ChatPanel({ nodes, edges, onApplyMutation }: ChatPanelProps) {
   const {
     chatMessages,
     addChatMessage,
     isChatLoading,
     setChatLoading,
-    toggleChat,
   } = useProcessStudioStore();
 
   const [input, setInput] = useState('');
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const isResizing = useRef(false);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -149,22 +154,61 @@ export function ChatPanel({ nodes, edges, onApplyMutation }: ChatPanelProps) {
     [sendMessage]
   );
 
+  // Resize handler
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizing.current) return;
+      // Dragging left edge: moving left = wider panel
+      const delta = startX - moveEvent.clientX;
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta));
+      setPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      isResizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [panelWidth]);
+
   const hasMessages = chatMessages.length > 0;
 
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} style={{ width: panelWidth }}>
+      <div
+        className={styles.resizeHandle}
+        onMouseDown={handleResizeStart}
+        title="Drag to resize"
+      >
+        <GripVertical size={12} />
+      </div>
       <div className={styles.header}>
         <div className={styles.headerTitle}>
           <MessageSquare size={14} />
           Process Assistant
         </div>
-        <button
-          className={styles.closeButton}
-          onClick={toggleChat}
-          aria-label="Close chat"
-        >
-          <X size={16} />
-        </button>
+        {panelWidth !== DEFAULT_WIDTH && (
+          <button
+            className={styles.resetButton}
+            onClick={() => setPanelWidth(DEFAULT_WIDTH)}
+            aria-label="Reset panel width"
+            title="Reset width"
+          >
+            <RotateCcw size={14} />
+          </button>
+        )}
       </div>
 
       {!hasMessages ? (

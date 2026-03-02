@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -19,7 +20,9 @@ import type {
   ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { MessageSquare, Settings2 } from 'lucide-react';
 import { useProcessStudioStore } from './store';
+import type { RightPanelMode } from './store';
 import { ProcessStepNode } from './ProcessStepNode';
 import { Toolbar } from './Toolbar';
 import { PropertiesDrawer } from './PropertiesDrawer';
@@ -74,6 +77,7 @@ function generateNodeId(): string {
 }
 
 export function ProcessStudioCanvas() {
+  const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const [isParsing, setIsParsing] = useState(false);
@@ -87,14 +91,14 @@ export function ProcessStudioCanvas() {
     setProcessId,
     setSelectedNode,
     selectedNodeId,
-    isDrawerOpen,
     markDirty,
     markSaved,
     setProcessName,
     setProcessDescription,
     processName,
     processDescription,
-    isChatOpen,
+    rightPanelMode,
+    setRightPanelMode,
     resetStore,
   } = useProcessStudioStore();
 
@@ -488,6 +492,10 @@ export function ProcessStudioCanvas() {
     });
   }, [processName, processDescription, nodes]);
 
+  const handleFullscreen = useCallback(() => {
+    router.push('/admin/process-studio/fullscreen');
+  }, [router]);
+
   return (
     <div className={styles.container}>
       <Toolbar
@@ -500,6 +508,7 @@ export function ProcessStudioCanvas() {
         onLoadProcess={handleLoadProcess}
         onUndo={undo}
         onRedo={redo}
+        onFullscreen={handleFullscreen}
         canUndo={canUndo}
         canRedo={canRedo}
         isSaving={isSaving}
@@ -507,13 +516,6 @@ export function ProcessStudioCanvas() {
         edgeCount={edges.length}
       />
       <div className={styles.canvasRow}>
-        {isChatOpen && (
-          <ChatPanel
-            nodes={nodes}
-            edges={edges}
-            onApplyMutation={handleChatMutation}
-          />
-        )}
         <div
           className={styles.canvasWrapper}
           ref={reactFlowWrapper}
@@ -547,20 +549,50 @@ export function ProcessStudioCanvas() {
             />
             <Panel position="top-right" className={styles.panelActions}>
               <ProcessInput onParse={handleAIParse} isParsing={isParsing} />
-              <TemplateSelector onSelect={handleTemplateSelect} />
+              <TemplateSelector
+                onSelect={handleTemplateSelect}
+                currentNodes={nodes as ProcessNode[]}
+                currentEdges={edges as ProcessEdge[]}
+                currentName={processName}
+                currentDescription={processDescription}
+              />
+              <div className={styles.panelToggle}>
+                <button
+                  className={`${styles.toggleButton} ${rightPanelMode === 'properties' ? styles.toggleActive : ''}`}
+                  onClick={() => setRightPanelMode('properties')}
+                  title="Properties panel"
+                >
+                  <Settings2 size={14} />
+                </button>
+                <button
+                  className={`${styles.toggleButton} ${rightPanelMode === 'chat' ? styles.toggleActive : ''}`}
+                  onClick={() => setRightPanelMode('chat')}
+                  title="Process Assistant"
+                >
+                  <MessageSquare size={14} />
+                </button>
+              </div>
             </Panel>
             <Panel position="bottom-center" className={styles.hint}>
               Drag node types from the sidebar or connect handles to build your process
             </Panel>
           </ReactFlow>
         </div>
-        {isDrawerOpen && (
-          <PropertiesDrawer
-            node={selectedNode}
-            onUpdateNode={handleUpdateNode}
-            onDeleteNode={handleDeleteNode}
-          />
-        )}
+        <div className={styles.rightPanel}>
+          {rightPanelMode === 'chat' ? (
+            <ChatPanel
+              nodes={nodes}
+              edges={edges}
+              onApplyMutation={handleChatMutation}
+            />
+          ) : (
+            <PropertiesDrawer
+              node={selectedNode}
+              onUpdateNode={handleUpdateNode}
+              onDeleteNode={handleDeleteNode}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

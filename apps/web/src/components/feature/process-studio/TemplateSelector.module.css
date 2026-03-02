@@ -86,6 +86,66 @@
   color: var(--color-text-primary, #111827);
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manageButton {
+  height: var(--button-height-compact, 32px);
+  padding: 0 12px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 4px);
+  background: var(--color-white, #fff);
+  font-size: var(--font-size-xs, 12px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.manageButton:hover {
+  background: var(--color-bg-light, #f9fafb);
+}
+
+.manageActive {
+  background: var(--color-primary, #006C67);
+  border-color: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+}
+
+.manageActive:hover {
+  background: var(--color-primary-hover, #005a55);
+}
+
+.manageActions {
+  display: flex;
+  gap: 8px;
+}
+
+.createButton {
+  height: var(--button-height-compact, 32px);
+  padding: 0 12px;
+  border: 1px dashed var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-bg-light, #f9fafb);
+  font-size: var(--font-size-xs, 12px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.createButton:hover {
+  border-color: var(--color-primary, #006C67);
+  color: var(--color-primary, #006C67);
+}
+
 .modalSubtitle {
   font-size: var(--font-size-sm, 14px);
   color: var(--color-text-secondary, #6b7280);
@@ -230,4 +290,132 @@
 
 .spinner {
   animation: spin 1s linear infinite;
+}
+
+/* Template card wrapper with actions */
+.templateCardWrapper {
+  position: relative;
+}
+
+.cardActions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.cardActionButton {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 4px);
+  background: var(--color-white, #fff);
+  color: var(--color-text-tertiary, #9ca3af);
+  cursor: pointer;
+}
+
+.cardActionButton:hover {
+  background: var(--color-bg-light, #f9fafb);
+  color: var(--color-text-primary, #111827);
+}
+
+.cardActionDanger:hover {
+  background: var(--color-error-50, #fef2f2);
+  border-color: var(--color-error-500, #d93025);
+  color: var(--color-error-600, #dc2626);
+}
+
+/* Inline form */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--space-2, 16px);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-bg-light, #f9fafb);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.formRow {
+  display: flex;
+  gap: 12px;
+}
+
+.formLabel {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.formInput,
+.formSelect {
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-primary, #111827);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 4px);
+  padding: 6px 10px;
+  background: var(--color-white, #fff);
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+}
+
+.formActions {
+  display: flex;
+  gap: 8px;
+}
+
+.formSaveButton {
+  height: var(--button-height-compact, 32px);
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.formSaveButton:hover:not(:disabled) {
+  background: var(--color-primary-hover, #005a55);
+}
+
+.formSaveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.formCancelButton {
+  height: var(--button-height-compact, 32px);
+  padding: 0 16px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-white, #fff);
+  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: pointer;
+}
+
+.formCancelButton:hover {
+  background: var(--color-bg-light, #f9fafb);
 }

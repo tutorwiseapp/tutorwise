@@ -52,6 +52,30 @@
   outline-offset: 2px;
 }
 
+/* Empty state */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1, 8px);
+  padding: var(--space-3, 24px);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary, #111827);
+}
+
+.emptyDescription {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.5;
+}
+
 /* Content */
 .content {
   flex: 1;
