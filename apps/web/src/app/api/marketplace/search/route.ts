@@ -17,7 +17,7 @@ interface HybridSearchResult {
   listings: any[];
   profiles: any[];
   organisations: any[];
-  aiTutors: any[];
+  aiAgents: any[];
   total: number;
 }
 
@@ -104,7 +104,7 @@ async function hybridSearch(
   // Determine which entity types to search based on filter
   const entityType = filters.entity_type || 'all';
   const searchHumans = entityType === 'all' || entityType === 'humans';
-  const searchAITutors = entityType === 'all' || entityType === 'ai-agents';
+  const searchAIAgents = entityType === 'all' || entityType === 'ai-agents';
 
   // Build search promises conditionally
   const searchPromises = [];
@@ -159,7 +159,7 @@ async function hybridSearch(
     searchPromises.push(Promise.resolve({ data: [], error: null }));
   }
 
-  if (searchAITutors) {
+  if (searchAIAgents) {
     // AI Tutors
     searchPromises.push(
       supabase.rpc('search_ai_agents_hybrid', {
@@ -174,11 +174,11 @@ async function hybridSearch(
       })
     );
   } else {
-    // Push empty result if not searching AI tutors
+    // Push empty result if not searching AI agents
     searchPromises.push(Promise.resolve({ data: [], error: null }));
   }
 
-  const [listingsResult, profilesResult, organisationsResult, aiTutorsResult] = await Promise.all(searchPromises);
+  const [listingsResult, profilesResult, organisationsResult, aiAgentsResult] = await Promise.all(searchPromises);
 
   if (listingsResult.error) {
     console.error('Listings hybrid search error:', listingsResult.error);
@@ -189,21 +189,21 @@ async function hybridSearch(
   if (organisationsResult.error) {
     console.error('Organisations hybrid search error:', organisationsResult.error);
   }
-  if (aiTutorsResult.error) {
-    console.error('AI Tutors hybrid search error:', aiTutorsResult.error);
+  if (aiAgentsResult.error) {
+    console.error('AI Agents hybrid search error:', aiAgentsResult.error);
   }
 
   const listings = listingsResult.data || [];
   const profiles = profilesResult.data || [];
   const organisations = organisationsResult.data || [];
-  const aiTutors = aiTutorsResult.data || [];
+  const aiAgents = aiAgentsResult.data || [];
 
   return {
     listings,
     profiles,
     organisations,
-    aiTutors,
-    total: listings.length + profiles.length + organisations.length + aiTutors.length,
+    aiAgents,
+    total: listings.length + profiles.length + organisations.length + aiAgents.length,
   };
 }
 

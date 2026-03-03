@@ -249,7 +249,7 @@ export default function AdvancedFilters({
                   checked={localFilters.marketplace_type === 'ai-agents'}
                   onChange={(e) => setLocalFilters({ ...localFilters, marketplace_type: e.target.value as any })}
                 />
-                <span>🤖 AI Tutors</span>
+                <span>🤖 AI Agents</span>
               </label>
               <label className={styles.radioLabel}>
                 <input

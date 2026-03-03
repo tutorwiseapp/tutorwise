@@ -1,6 +1,6 @@
 /**
- * Filename: api/marketplace/ai-tutors/route.ts
- * Purpose: Marketplace API for AI tutors
+ * Filename: api/marketplace/ai-agents/route.ts
+ * Purpose: Marketplace API for AI agents
  * Created: 2026-02-23
  * Version: v1.0
  */
@@ -9,8 +9,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 /**
- * GET /api/marketplace/ai-tutors
- * Fetch published AI tutors for marketplace
+ * GET /api/marketplace/ai-agents
+ * Fetch published AI agents for marketplace
  */
 export async function GET(request: NextRequest) {
   try {
@@ -59,22 +59,22 @@ export async function GET(request: NextRequest) {
     }
 
     // Execute with pagination
-    const { data: aiTutors, error, count } = await query
+    const { data: aiAgents, error, count } = await query
       .order('total_sessions', { ascending: false }) // Popular first
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
-    // Fetch skills for each AI tutor
-    const tutorsWithSkills = await Promise.all(
-      (aiTutors || []).map(async (tutor) => {
+    // Fetch skills for each AI agent
+    const agentsWithSkills = await Promise.all(
+      (aiAgents || []).map(async (agent) => {
         const { data: skills } = await supabase
           .from('ai_agent_skills')
           .select('skill_name')
-          .eq('agent_id', tutor.id);
+          .eq('agent_id', agent.id);
 
         return {
-          ...tutor,
+          ...agent,
           skills: skills?.map((s) => s.skill_name) || [],
         };
       })
@@ -82,15 +82,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        aiTutors: tutorsWithSkills,
+        aiAgents: agentsWithSkills,
         total: count || 0,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching marketplace AI tutors:', error);
+    console.error('Error fetching marketplace AI agents:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch AI tutors', aiTutors: [], total: 0 },
+      { error: 'Failed to fetch AI agents', aiAgents: [], total: 0 },
       { status: 500 }
     );
   }

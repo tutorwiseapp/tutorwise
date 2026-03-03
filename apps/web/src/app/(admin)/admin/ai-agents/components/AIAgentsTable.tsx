@@ -1,11 +1,11 @@
 /**
  * Filename: AIAgentsTable.tsx
- * Purpose: AI Tutors-specific instance of HubDataTable
+ * Purpose: AI Agents-specific instance of HubDataTable
  * Created: 2026-02-24
- * Pattern: Mirrors ListingsTable structure for AI tutor management
+ * Pattern: Mirrors ListingsTable structure for AI agent management
  *
  * Features:
- * - 10 columns optimized for admin AI tutor management
+ * - 10 columns optimized for admin AI agent management
  * - Universal column order: ID → Created → Name → Owner → Subject → Status → Sessions → Revenue → Rating → Actions
  * - Status, subject, ownership, subscription filters
  * - CSV export functionality

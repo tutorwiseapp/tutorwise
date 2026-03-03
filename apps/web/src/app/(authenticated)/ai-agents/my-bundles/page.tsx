@@ -91,7 +91,7 @@ export default function MyBundlesPage() {
           <h2>No Active Bundles</h2>
           <p>You haven't purchased any session bundles yet.</p>
           <a href="/marketplace" className={styles.browseLink}>
-            Browse AI Tutors
+            Browse AI Agents
           </a>
         </div>
       ) : (

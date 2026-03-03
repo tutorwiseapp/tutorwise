@@ -41,7 +41,7 @@ export interface OrganisationProfile {
   total_reviews?: number;
 }
 
-export interface AITutorProfile {
+export interface AIAgentProfile {
   id: string;
   name: string; // URL slug
   display_name: string;
@@ -63,7 +63,7 @@ export type MarketplaceItemType = 'profile' | 'listing' | 'organisation' | 'ai_a
 
 export interface MarketplaceItem {
   type: MarketplaceItemType;
-  data: TutorProfile | Listing | OrganisationProfile | AITutorProfile;
+  data: TutorProfile | Listing | OrganisationProfile | AIAgentProfile;
 }
 
 // Type guards
@@ -79,6 +79,6 @@ export function isOrganisation(item: MarketplaceItem): item is MarketplaceItem &
   return item.type === 'organisation';
 }
 
-export function isAITutor(item: MarketplaceItem): item is MarketplaceItem & { data: AITutorProfile } {
+export function isAIAgent(item: MarketplaceItem): item is MarketplaceItem & { data: AIAgentProfile } {
   return item.type === 'ai_agent';
 }

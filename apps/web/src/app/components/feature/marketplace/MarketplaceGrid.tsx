@@ -1,7 +1,7 @@
 'use client';
 
 import type { MarketplaceItem } from '@/types/marketplace';
-import { isProfile, isListing, isOrganisation, isAITutor } from '@/types/marketplace';
+import { isProfile, isListing, isOrganisation, isAIAgent } from '@/types/marketplace';
 import MarketplaceListingCard from './MarketplaceListingCard';
 import TutorProfileCard from './TutorProfileCard';
 import MarketplaceOrganisationCard from './MarketplaceOrganisationCard';
@@ -87,8 +87,8 @@ export default function MarketplaceGrid({
             return <MarketplaceListingCard key={`listing-${item.data.id}`} listing={item.data} />;
           } else if (isOrganisation(item)) {
             return <MarketplaceOrganisationCard key={`organisation-${item.data.id}`} organisation={item.data} />;
-          } else if (isAITutor(item)) {
-            return <AIAgentMarketplaceCard key={`ai-tutor-${item.data.id}`} aiTutor={item.data} />;
+          } else if (isAIAgent(item)) {
+            return <AIAgentMarketplaceCard key={`ai-tutor-${item.data.id}`} aiAgent={item.data} />;
           }
           return null;
         })}

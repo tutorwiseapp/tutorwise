@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/ai-agents/[id]/page.tsx
- * Purpose: AI Tutor detail page - manage individual AI tutor
+ * Purpose: AI Agent detail page - manage individual AI tutor
  * Route: /ai-agents/[id]
  * Created: 2026-02-23
  * Architecture: Hub Layout pattern with HubPageLayout + HubTabs
@@ -120,7 +120,7 @@ export default function AIAgentDetailPage({ params }: { params: Promise<{ id: st
   if (userLoading || roleLoading || isLoading) {
     return (
       <HubPageLayout
-        header={<HubHeader title="AI Tutor" />}
+        header={<HubHeader title="AI Agent" />}
         sidebar={<HubSidebar><div style={{ height: 200 }} /></HubSidebar>}
       >
         <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
@@ -133,13 +133,13 @@ export default function AIAgentDetailPage({ params }: { params: Promise<{ id: st
   if (error || !aiTutor) {
     return (
       <HubPageLayout
-        header={<HubHeader title="AI Tutor" />}
+        header={<HubHeader title="AI Agent" />}
         sidebar={<HubSidebar><AIAgentHelpWidget /></HubSidebar>}
       >
         <HubEmptyState
-          title="AI Tutor not found"
+          title="AI Agent not found"
           description="This AI tutor could not be loaded."
-          actionLabel="Back to AI Tutors"
+          actionLabel="Back to AI Agents"
           onAction={() => router.push('/ai-agents')}
         />
       </HubPageLayout>
@@ -213,7 +213,7 @@ export default function AIAgentDetailPage({ params }: { params: Promise<{ id: st
                         Refresh
                       </button>
                       <button onClick={() => { handleDelete(); setShowActionsMenu(false); }} className={actionStyles.menuButton}>
-                        Delete AI Tutor
+                        Delete AI Agent
                       </button>
                     </div>
                   </>
@@ -238,7 +238,7 @@ export default function AIAgentDetailPage({ params }: { params: Promise<{ id: st
       }
       sidebar={
         <HubSidebar>
-          <AIAgentStatsWidget aiTutors={[aiTutor]} isLoading={false} />
+          <AIAgentStatsWidget aiAgents={[aiTutor]} isLoading={false} />
           <AIAgentHelpWidget />
           <AIAgentTipsWidget />
         </HubSidebar>

@@ -145,7 +145,7 @@ export default function SearchFilters({ filters, onFilterChange }: SearchFilters
               onChange={() => handleEntityTypeChange('ai-agents')}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
             />
-            <span className="ml-2 text-sm text-gray-700">🤖 AI Tutors</span>
+            <span className="ml-2 text-sm text-gray-700">🤖 AI Agents</span>
           </label>
         </div>
       </div>

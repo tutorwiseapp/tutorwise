@@ -1,8 +1,8 @@
 /*
  * Filename: src/app/(admin)/admin/ai-agents/page.tsx
- * Purpose: Admin AI Tutors overview page - manage platform and user AI tutors
+ * Purpose: Admin AI Agents overview page - manage platform and user AI agents
  * Created: 2026-02-24
- * Pattern: Follows Admin Listings pattern with 3 tabs (Overview + All AI Tutors + Create New)
+ * Pattern: Follows Admin Listings pattern with 3 tabs (Overview + All AI Agents + Create New)
  */
 'use client';
 
@@ -87,7 +87,7 @@ export default function AdminAIAgentsOverviewPage() {
     return (
       <div style={{ padding: '3rem', textAlign: 'center' }}>
         <h2 style={{ marginBottom: '1rem' }}>Unauthorized Access</h2>
-        <p style={{ color: '#6b7280' }}>You don't have permission to view AI Tutors.</p>
+        <p style={{ color: '#6b7280' }}>You don't have permission to view AI Agents.</p>
       </div>
     );
   }
@@ -96,10 +96,10 @@ export default function AdminAIAgentsOverviewPage() {
     <HubPageLayout
       header={
         <HubHeader
-          title="AI Tutors"
-          subtitle="Manage platform and user AI tutors"
+          title="AI Agents"
+          subtitle="Manage platform and user AI agents"
           actions={getHeaderActions()}
-          className={styles.aiTutorsHeader}
+          className={styles.aiAgentsHeader}
         />
       }
       tabs={
@@ -110,7 +110,7 @@ export default function AdminAIAgentsOverviewPage() {
             { id: 'create-new', label: 'Create New', active: activeTab === 'create-new' }
           ]}
           onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-ai-agents' | 'create-new')}
-          className={styles.aiTutorsTabs}
+          className={styles.aiAgentsTabs}
         />
       }
       sidebar={
@@ -118,26 +118,26 @@ export default function AdminAIAgentsOverviewPage() {
           <AdminStatsWidget
             title="AI Tutor Breakdown"
             stats={[
-              { label: 'Total AI Tutors', value: aiTutorStats?.total ?? 0 },
+              { label: 'Total AI Agents', value: aiTutorStats?.total ?? 0 },
               { label: 'Active', value: aiTutorStats?.active ?? 0 },
               { label: 'Platform-Owned', value: aiTutorStats?.platform ?? 0 },
               { label: 'User-Created', value: aiTutorStats?.user ?? 0 },
             ]}
           />
           <AdminHelpWidget
-            title="AI Tutors Help"
+            title="AI Agents Help"
             items={[
-              { question: 'What is a platform AI tutor?', answer: 'AI tutors created and owned by the platform, available to all users in the marketplace.' },
-              { question: 'Why create platform AI tutors?', answer: 'Fill market gaps, showcase platform capabilities, and generate direct revenue.' },
+              { question: 'What is a platform AI tutor?', answer: 'AI agents created and owned by the platform, available to all users in the marketplace.' },
+              { question: 'Why create platform AI agents?', answer: 'Fill market gaps, showcase platform capabilities, and generate direct revenue.' },
               { question: 'How do platform tutors differ?', answer: 'Platform tutors have special badges, can be featured, and platform keeps 100% revenue.' },
             ]}
           />
           <AdminTipWidget
             title="AI Tutor Tips"
             tips={[
-              'Create platform AI tutors for high-demand subjects',
-              'Monitor user-created AI tutors for quality and compliance',
-              'Platform AI tutors can be featured in marketplace',
+              'Create platform AI agents for high-demand subjects',
+              'Monitor user-created AI agents for quality and compliance',
+              'Platform AI agents can be featured in marketplace',
               'Track session metrics to optimize pricing',
             ]}
           />
@@ -150,7 +150,7 @@ export default function AdminAIAgentsOverviewPage() {
           {/* KPI Cards - With historical metrics and trends */}
           <HubKPIGrid>
             <HubKPICard
-              label="Total AI Tutors"
+              label="Total AI Agents"
               value={totalAIAgentsMetric.value}
               sublabel={formatMetricChange(
                 totalAIAgentsMetric.change,
@@ -253,7 +253,7 @@ export default function AdminAIAgentsOverviewPage() {
                   data={aiTutorTrendsQuery.data}
                   title="AI Tutor Growth"
                   subtitle="Last 7 days"
-                  valueName="AI Tutors"
+                  valueName="AI Agents"
                   lineColor="#3B82F6"
                 />
               )}
@@ -287,7 +287,7 @@ export default function AdminAIAgentsOverviewPage() {
         </>
       )}
 
-      {/* All AI Tutors Tab */}
+      {/* All AI Agents Tab */}
       {activeTab === 'all-ai-agents' && (
         <AIAgentsTable />
       )}

@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/ai-agents/create/page.tsx
- * Purpose: AI Tutor Builder - create new AI tutor
+ * Purpose: AI Agent Builder - create new AI agent
  * Route: /ai-agents/create
  * Created: 2026-02-23
  * Architecture: Hub Layout pattern with HubPageLayout
@@ -45,13 +45,13 @@ export default function NewAIAgentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
-    data: aiTutors = [],
-    isLoading: aiTutorsLoading,
+    data: aiAgents = [],
+    isLoading: aiAgentsLoading,
   } = useQuery<AITutor[]>({
     queryKey: ['ai-agents'],
     queryFn: async () => {
       const res = await fetch('/api/ai-agents');
-      if (!res.ok) throw new Error('Failed to fetch AI tutors');
+      if (!res.ok) throw new Error('Failed to fetch AI agents');
       return res.json();
     },
     enabled: !!profile?.id,
@@ -69,11 +69,11 @@ export default function NewAIAgentPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create AI tutor');
+        throw new Error(error.error || 'Failed to create AI agent');
       }
 
       const aiTutor = await response.json();
-      toast.success('AI tutor created successfully!');
+      toast.success('AI agent created successfully!');
 
       if (shouldPublish) {
         // Redirect to subscription checkout for publishing
@@ -91,7 +91,7 @@ export default function NewAIAgentPage() {
           window.location.href = url; // Redirect to Stripe Checkout
         } catch (subError) {
           console.error('Subscription error:', subError);
-          toast.error('Failed to start subscription. Redirecting to AI Tutor list...');
+          toast.error('Failed to start subscription. Redirecting to AI Agent list...');
           router.push('/ai-agents');
         }
       } else {
@@ -99,7 +99,7 @@ export default function NewAIAgentPage() {
         router.push('/ai-agents');
       }
     } catch (error) {
-      console.error('Error creating AI tutor:', error);
+      console.error('Error creating AI agent:', error);
       toast.error((error as Error).message);
     } finally {
       setIsSubmitting(false);
@@ -107,7 +107,7 @@ export default function NewAIAgentPage() {
   };
 
   const tabs: HubTab[] = [
-    { id: 'create', label: 'Create AI Tutor', active: true },
+    { id: 'create', label: 'Create AI Agent', active: true },
   ];
 
   const handleTabChange = (tabId: string) => {
@@ -134,7 +134,7 @@ export default function NewAIAgentPage() {
       tabs={<HubTabs tabs={tabs} onTabChange={handleTabChange} />}
       sidebar={
         <HubSidebar>
-          <AIAgentStatsWidget aiTutors={aiTutors} isLoading={aiTutorsLoading} />
+          <AIAgentStatsWidget aiAgents={aiAgents} isLoading={aiAgentsLoading} />
           <AIAgentLimitsWidget />
           <AIAgentHelpWidget />
           <AIAgentTipsWidget />

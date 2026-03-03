@@ -81,9 +81,9 @@ export default function HomePage() {
 
   // Combine data based on search state
   let allItems = hasSearched && searchData
-    ? toMarketplaceItems(searchData.profiles || [], searchData.listings, searchData.organisations || [], searchData.aiTutors || [])
+    ? toMarketplaceItems(searchData.profiles || [], searchData.listings, searchData.organisations || [], searchData.aiAgents || [])
     : featuredData
-    ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [], featuredData.aiTutors || [])
+    ? toMarketplaceItems(featuredData.profiles, featuredData.listings, featuredData.organisations || [], featuredData.aiAgents || [])
     : [];
 
   // Filter by marketplace type (tutors/organisations/ai-agents/all)

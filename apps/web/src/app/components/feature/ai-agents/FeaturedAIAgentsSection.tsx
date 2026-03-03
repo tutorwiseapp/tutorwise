@@ -1,9 +1,9 @@
 /*
  * Filename: FeaturedAIAgentsSection.tsx
- * Purpose: Featured AI Tutors section for homepage
- * Phase: 2A - Featured AI Tutors
+ * Purpose: Featured AI Agents section for homepage
+ * Phase: 2A - Featured AI Agents
  * Created: 2026-02-25
- * Displays: 4-6 featured AI tutors in a grid
+ * Displays: 4-6 featured AI agents in a grid
  */
 
 'use client';
@@ -33,7 +33,7 @@ export default function FeaturedAIAgentsSection() {
     queryKey: ['featured-ai-agents'],
     queryFn: async () => {
       const response = await fetch('/api/ai-agents?featured=true&status=published');
-      if (!response.ok) throw new Error('Failed to fetch featured AI tutors');
+      if (!response.ok) throw new Error('Failed to fetch featured AI agents');
       const data = await response.json();
       return data.data as FeaturedAIAgent[];
     },
@@ -49,7 +49,7 @@ export default function FeaturedAIAgentsSection() {
       <section className={styles.featuredSection}>
         <div className={styles.container}>
           <div className={styles.header}>
-            <h2 className={styles.title}>Featured AI Tutors</h2>
+            <h2 className={styles.title}>Featured AI Agents</h2>
           </div>
           <div className={styles.grid}>
             {[1, 2, 3, 4].map((i) => (
@@ -63,7 +63,7 @@ export default function FeaturedAIAgentsSection() {
 
   // Show error state (fallback - don't block homepage)
   if (error) {
-    console.error('Error loading featured AI tutors:', error);
+    console.error('Error loading featured AI agents:', error);
     return null;
   }
 
@@ -73,9 +73,9 @@ export default function FeaturedAIAgentsSection() {
         {/* Section Header */}
         <div className={styles.header}>
           <div>
-            <h2 className={styles.title}>Featured AI Tutors</h2>
+            <h2 className={styles.title}>Featured AI Agents</h2>
             <p className={styles.subtitle}>
-              Discover our handpicked AI tutors, ready to help you learn
+              Discover our handpicked AI agents, ready to help you learn
             </p>
           </div>
           <Link href="/ai-agents" className={styles.viewAllLink}>
@@ -132,7 +132,7 @@ export default function FeaturedAIAgentsSection() {
                     </div>
                   ) : (
                     <div className={styles.rating}>
-                      <span className={styles.noReviews}>New tutor</span>
+                      <span className={styles.noReviews}>New agent</span>
                     </div>
                   )}
 

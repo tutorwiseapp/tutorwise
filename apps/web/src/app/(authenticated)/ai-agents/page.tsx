@@ -1,6 +1,6 @@
 /**
  * Filename: apps/web/src/app/(authenticated)/ai-agents/page.tsx
- * Purpose: AI Studio dashboard - lists user's AI tutors
+ * Purpose: AI Studio dashboard - lists user's AI agents
  * Route: /ai-tutors
  * Created: 2026-02-23
  * Architecture: Hub Layout pattern with HubPageLayout
@@ -70,9 +70,9 @@ export default function AIAgentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
 
-  // React Query: Fetch AI tutors with automatic retry, caching, and background refetch
+  // React Query: Fetch AI agents with automatic retry, caching, and background refetch
   const {
-    data: aiTutors = [],
+    data: aiAgents = [],
     isLoading,
     isFetching,
     error,
@@ -81,11 +81,11 @@ export default function AIAgentsPage() {
     queryKey: ['ai-agents', profile?.id],
     queryFn: async () => {
       const res = await fetch('/api/ai-agents');
-      if (!res.ok) throw new Error('Failed to fetch AI tutors');
+      if (!res.ok) throw new Error('Failed to fetch AI agents');
       return res.json();
     },
     enabled: !!profile?.id, // Wait for profile to load before fetching
-    staleTime: 3 * 60 * 1000, // 3 minutes (AI tutors change frequently with sessions)
+    staleTime: 3 * 60 * 1000, // 3 minutes (AI agents change frequently with sessions)
     gcTime: 6 * 60 * 1000, // 6 minutes
     placeholderData: keepPreviousData, // Show cached data instantly while refetching
     refetchOnMount: 'always', // Always refetch when component mounts (page is clicked)
@@ -117,10 +117,10 @@ export default function AIAgentsPage() {
     onError: (_err, _id, context) => {
       // Rollback on error
       queryClient.setQueryData(['ai-agents', profile?.id], context?.previousTutors);
-      toast.error('Failed to delete AI tutor');
+      toast.error('Failed to delete AI agent');
     },
     onSuccess: () => {
-      toast.success('AI tutor deleted successfully');
+      toast.success('AI agent deleted successfully');
     },
     onSettled: () => {
       // Always refetch to ensure sync with server
@@ -138,7 +138,7 @@ export default function AIAgentsPage() {
       }
     },
     onSuccess: () => {
-      toast.success('AI tutor published successfully!');
+      toast.success('AI agent published successfully!');
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -155,10 +155,10 @@ export default function AIAgentsPage() {
       if (!res.ok) throw new Error('Failed to unpublish');
     },
     onSuccess: () => {
-      toast.success('AI tutor unpublished');
+      toast.success('AI agent unpublished');
     },
     onError: () => {
-      toast.error('Failed to unpublish AI tutor');
+      toast.error('Failed to unpublish AI agent');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-agents', profile?.id] });
@@ -172,27 +172,27 @@ export default function AIAgentsPage() {
       if (!res.ok) throw new Error('Failed to archive');
     },
     onSuccess: () => {
-      toast.success('AI tutor archived');
+      toast.success('AI agent archived');
     },
     onError: () => {
-      toast.error('Failed to archive AI tutor');
+      toast.error('Failed to archive AI agent');
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['ai-agents', profile?.id] });
     },
   });
 
-  // Filter AI tutors by created_as_role - each role sees ONLY AI tutors they created in that role
+  // Filter AI agents by created_as_role - each role sees ONLY AI agents they created in that role
   const roleFilteredAgents = useMemo(() => {
-    return aiTutors.filter((tutor) => {
-      // Show only AI tutors created while in the current active role
-      // This creates separate AI tutor inventories per role:
-      // - AI tutors created as "client" only visible in client role
-      // - AI tutors created as "tutor" only visible in tutor role
-      // - AI tutors created as "agent" only visible in agent role
+    return aiAgents.filter((tutor) => {
+      // Show only AI agents created while in the current active role
+      // This creates separate AI agent inventories per role:
+      // - AI agents created as "client" only visible in client role
+      // - AI agents created as "tutor" only visible in tutor role
+      // - AI agents created as "agent" only visible in agent role
       return tutor.created_as_role === activeRole;
     });
-  }, [aiTutors, activeRole]);
+  }, [aiAgents, activeRole]);
 
   const tabCounts = useMemo(() => ({
     all: roleFilteredAgents.length,
@@ -202,7 +202,7 @@ export default function AIAgentsPage() {
     archived: roleFilteredAgents.filter(t => t.status === 'archived').length,
   }), [roleFilteredAgents]);
 
-  // Filter AI tutors based on tab, search (comprehensive search across all relevant fields)
+  // Filter AI agents based on tab, search (comprehensive search across all relevant fields)
   const filteredAgents = useMemo(() => {
     let result = roleFilteredAgents;
     if (filter !== 'all') {
@@ -234,7 +234,7 @@ export default function AIAgentsPage() {
     return result;
   }, [roleFilteredAgents, filter, searchQuery, agentTypeFilter]);
 
-  // Sort AI tutors
+  // Sort AI agents
   const sortedTutors = useMemo(() => {
     const sorted = [...filteredAgents];
     switch (sortBy) {
@@ -265,8 +265,8 @@ export default function AIAgentsPage() {
   };
 
   const handlePublish = async (id: string) => {
-    // Check if AI tutor has subscription
-    const tutor = aiTutors.find(t => t.id === id);
+    // Check if AI agent has subscription
+    const tutor = aiAgents.find(t => t.id === id);
     if (!tutor) return;
 
     if (tutor.subscription_status !== 'active') {
@@ -297,10 +297,10 @@ export default function AIAgentsPage() {
     archiveMutation.mutate(id);
   };
 
-  // Export AI tutors to CSV
+  // Export AI agents to CSV
   const handleExportCSV = () => {
     const headers = ['Name', 'Subject', 'Status', 'Subscription', 'Price/Hour', 'Sessions', 'Revenue', 'Rating', 'Created'];
-    const rows = aiTutors.map(t => [
+    const rows = aiAgents.map(t => [
       t.display_name,
       t.subject,
       t.status,
@@ -326,7 +326,7 @@ export default function AIAgentsPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('AI tutors exported to CSV');
+    toast.success('AI agents exported to CSV');
     setShowActionsMenu(false);
   };
 
@@ -371,7 +371,7 @@ export default function AIAgentsPage() {
         sidebar={<HubSidebar><AIAgentHelpWidget /></HubSidebar>}
       >
         <HubEmptyState
-          title="Error loading AI tutors"
+          title="Error loading AI agents"
           description={(error as Error).message}
           actionLabel="Retry"
           onAction={() => refetch()}
@@ -389,7 +389,7 @@ export default function AIAgentsPage() {
             <div className={filterStyles.filtersContainer}>
               <input
                 type="search"
-                placeholder="Search AI tutors..."
+                placeholder="Search AI agents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={filterStyles.searchInput}
@@ -425,7 +425,7 @@ export default function AIAgentsPage() {
           actions={
             <>
               <Button variant="primary" size="sm" onClick={() => router.push('/ai-agents/create')}>
-                Create AI Tutor
+                Create AI Agent
               </Button>
               <div className={actionStyles.dropdownContainer}>
                 <Button variant="secondary" size="sm" square onClick={() => setShowActionsMenu(!showActionsMenu)}>
@@ -463,7 +463,7 @@ export default function AIAgentsPage() {
       }
       sidebar={
         <HubSidebar>
-          <AIAgentStatsWidget aiTutors={aiTutors} isLoading={isLoading} />
+          <AIAgentStatsWidget aiAgents={aiAgents} isLoading={isLoading} />
           <AIAgentLimitsWidget />
           <AIAgentHelpWidget />
           <AIAgentTipsWidget />
@@ -507,13 +507,13 @@ export default function AIAgentsPage() {
 
       {!isLoading && paginatedAgents.length === 0 && !searchQuery && (
         <HubEmptyState
-          title="No AI tutors found"
+          title="No AI agents found"
           description={
             filter === 'all'
-              ? 'Create your first AI tutor to start earning passive income.'
-              : `No ${filter} AI tutors found.`
+              ? 'Create your first AI agent to start earning passive income.'
+              : `No ${filter} AI agents found.`
           }
-          actionLabel={filter === 'all' ? 'Create Your First AI Tutor' : undefined}
+          actionLabel={filter === 'all' ? 'Create Your First AI Agent' : undefined}
           onAction={filter === 'all' ? () => router.push('/ai-agents/create') : undefined}
         />
       )}
@@ -521,7 +521,7 @@ export default function AIAgentsPage() {
       {!isLoading && paginatedAgents.length === 0 && searchQuery && (
         <HubEmptyState
           title="No results found"
-          description={`No AI tutors match "${searchQuery}".`}
+          description={`No AI agents match "${searchQuery}".`}
         />
       )}
 

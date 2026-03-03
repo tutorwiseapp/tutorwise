@@ -6,7 +6,7 @@
  */
 
 /* Header */
-.aiTutorsHeader {
+.aiAgentsHeader {
   --hub-header-margin-top: 1.5rem;
   --hub-header-margin-bottom: 0;
   --hub-header-height: 3rem;
@@ -16,19 +16,19 @@
 }
 
 @media (max-width: 767px) {
-  .aiTutorsHeader {
+  .aiAgentsHeader {
     --hub-header-margin-top: 0rem;
   }
 }
 
 /* Tabs */
-.aiTutorsTabs {
+.aiAgentsTabs {
   --hub-tabs-margin-top: 3rem;
   --hub-tabs-margin-bottom: 1rem; /* 1rem tab margin + 1rem content padding = 2rem total */
 }
 
 @media (max-width: 767px) {
-  .aiTutorsTabs {
+  .aiAgentsTabs {
     --hub-tabs-margin-top: 0rem;
   }
 }

@@ -11,21 +11,21 @@ import React from 'react';
 import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
 
 interface AIAgentStatsWidgetProps {
-  aiTutors?: any[];
+  aiAgents?: any[];
   isLoading?: boolean;
 }
 
 export default function AIAgentStatsWidget({
-  aiTutors = [],
+  aiAgents = [],
   isLoading = false,
 }: AIAgentStatsWidgetProps) {
-  const activeAgents = aiTutors.filter(t => t.status === 'published').length;
-  const totalSessions = aiTutors.reduce((sum, t) => sum + (t.total_sessions || 0), 0);
-  const totalRevenue = aiTutors.reduce((sum, t) => sum + (t.total_revenue || 0), 0);
+  const activeAgents = aiAgents.filter(t => t.status === 'published').length;
+  const totalSessions = aiAgents.reduce((sum, t) => sum + (t.total_sessions || 0), 0);
+  const totalRevenue = aiAgents.reduce((sum, t) => sum + (t.total_revenue || 0), 0);
 
   const stats: StatRow[] = [
     {
-      label: 'Active AI Tutors',
+      label: 'Active AI Agents',
       value: isLoading ? '-' : activeAgents,
       valueColor: activeAgents > 0 ? 'green' : 'default',
     },
@@ -40,11 +40,11 @@ export default function AIAgentStatsWidget({
       valueColor: totalRevenue > 0 ? 'green' : 'default',
     },
     {
-      label: 'Total AI Tutors',
-      value: isLoading ? '-' : aiTutors.length,
+      label: 'Total AI Agents',
+      value: isLoading ? '-' : aiAgents.length,
       valueColor: 'default',
     },
   ];
 
-  return <HubStatsCard title="AI Tutor Stats" stats={stats} />;
+  return <HubStatsCard title="AI Agent Stats" stats={stats} />;
 }
