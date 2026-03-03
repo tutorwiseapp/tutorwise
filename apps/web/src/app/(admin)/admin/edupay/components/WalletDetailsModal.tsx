@@ -8,11 +8,13 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
+import getProfileImageUrl from '@/lib/utils/image';
 import { Wallet, User, Calendar, TrendingUp, TrendingDown, Clock, CheckCircle2 } from 'lucide-react';
 import styles from './WalletDetailsModal.module.css';
 
@@ -107,12 +109,6 @@ export default function WalletDetailsModal({
     });
   };
 
-  // Get user initials
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return '?';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
   // Get activity icon
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -152,9 +148,13 @@ export default function WalletDetailsModal({
       <div className={styles.content}>
         {/* User Section */}
         <div className={styles.userSection}>
-          <div className={styles.userAvatar}>
-            {getInitials(wallet.profiles?.full_name)}
-          </div>
+          <Image
+            src={getProfileImageUrl({ id: wallet.user_id, avatar_url: wallet.profiles?.avatar_url, full_name: wallet.profiles?.full_name })}
+            width={48}
+            height={48}
+            alt={wallet.profiles?.full_name || 'User'}
+            className={styles.userAvatar}
+          />
           <div className={styles.userInfo}>
             <h3 className={styles.userName}>{wallet.profiles?.full_name || 'Unknown User'}</h3>
             <p className={styles.userEmail}>{wallet.profiles?.email || 'No email'}</p>

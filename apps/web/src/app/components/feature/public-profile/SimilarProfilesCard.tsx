@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Card from '@/app/components/ui/data-display/Card';
 import { MapPin, Star } from 'lucide-react';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './SimilarProfilesCard.module.css';
 
 interface SimilarProfilesCardProps {
@@ -84,19 +85,13 @@ export function SimilarProfilesCard({ profiles = [] }: SimilarProfilesCardProps)
                 >
                   {/* Avatar */}
                   <div className={styles.avatarContainer}>
-                    {profile.avatar_url ? (
-                      <Image
-                        src={profile.avatar_url}
-                        width={48}
-                        height={48}
-                        alt={profile.full_name}
-                        className={styles.avatar}
-                      />
-                    ) : (
-                      <div className={styles.avatarPlaceholder}>
-                        {profile.full_name?.[0]?.toUpperCase() || '?'}
-                      </div>
-                    )}
+                    <Image
+                      src={getProfileImageUrl({ id: profile.id, avatar_url: profile.avatar_url, full_name: profile.full_name })}
+                      width={48}
+                      height={48}
+                      alt={profile.full_name}
+                      className={styles.avatar}
+                    />
                   </div>
 
                   {/* Profile Info */}

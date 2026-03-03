@@ -8,12 +8,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
 import HubKanbanBoard from '@/app/components/hub/kanban/HubKanbanBoard';
 import type { KanbanColumn } from '@/app/components/hub/kanban/HubKanbanBoard';
 import { Inbox, ListTodo, PlayCircle, CheckCircle, CheckCircle2 } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
 import toast from 'react-hot-toast';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './TaskPipeline.module.css';
 
 interface Task {
@@ -98,15 +100,6 @@ function DraggableCard({
     return PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS] || PRIORITY_COLORS.medium;
   };
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-  };
-
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
@@ -151,13 +144,24 @@ function DraggableCard({
           >
             {task.priority.toUpperCase()}
           </span>
-          <div
-            className={styles.assigneeAvatar}
-            title={task.assigned?.full_name || 'Unassigned'}
-            style={{ background: task.assigned ? '#3b82f6' : '#9ca3af' }}
-          >
-            {task.assigned ? getInitials(task.assigned.full_name) : '?'}
-          </div>
+          {task.assigned ? (
+            <Image
+              src={getProfileImageUrl({ id: task.assigned.id, avatar_url: undefined, full_name: task.assigned.full_name })}
+              width={28}
+              height={28}
+              alt={task.assigned.full_name}
+              className={styles.assigneeAvatar}
+              title={task.assigned.full_name}
+            />
+          ) : (
+            <div
+              className={styles.assigneeAvatar}
+              title="Unassigned"
+              style={{ background: '#9ca3af' }}
+            >
+              ?
+            </div>
+          )}
         </div>
       </div>
     </div>

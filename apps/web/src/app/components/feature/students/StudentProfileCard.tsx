@@ -5,6 +5,8 @@
  */
 
 import React from 'react';
+import Image from 'next/image';
+import getProfileImageUrl from '@/lib/utils/image';
 import { calculateAge } from '@/lib/utils/dateUtils';
 import styles from './StudentProfileCard.module.css';
 
@@ -26,13 +28,13 @@ export default function StudentProfileCard({
   return (
     <div className={styles.card}>
       <div className={styles.avatar}>
-        {avatarUrl ? (
-          <img src={avatarUrl} alt={studentName} className={styles.avatarImage} />
-        ) : (
-          <div className={styles.avatarPlaceholder}>
-            {studentName.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <Image
+          src={getProfileImageUrl({ id: studentName, avatar_url: avatarUrl, full_name: studentName })}
+          alt={studentName}
+          width={64}
+          height={64}
+          className={styles.avatarImage}
+        />
       </div>
 
       <div className={styles.info}>

@@ -25,7 +25,6 @@ import MarketplaceCard, {
   CardName,
   CardRating,
   CardSubject,
-  CardLevel,
   CardLocation,
   CardDeliveryMode,
   CardPrice,
@@ -169,14 +168,12 @@ export default function TutorProfileCard({ profile }: TutorProfileCardProps) {
             <>
               {profile.subjects.slice(0, 2).join(', ')}
               {profile.subjects.length > 2 && ` +${profile.subjects.length - 2}`}
+              {profile.levels && profile.levels.length > 0 && ` · ${profile.levels[0]}`}
             </>
           ) : (
             profile.bio?.substring(0, 50) || 'Experienced tutor'
           )}
         </CardSubject>
-        {profile.levels && profile.levels.length > 0 && (
-          <CardLevel>{profile.levels[0]}</CardLevel>
-        )}
       </CardRow>
 
       {/* Line 3: Delivery Modes & Service Count */}

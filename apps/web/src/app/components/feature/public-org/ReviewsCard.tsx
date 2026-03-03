@@ -11,7 +11,7 @@ import type { Profile } from '@/types';
 import Image from 'next/image';
 import Card from '@/app/components/ui/data-display/Card';
 import { Star } from 'lucide-react';
-import { getInitials } from '@/lib/utils/initials';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ReviewsCard.module.css';
 
 interface ReviewsCardProps {
@@ -63,19 +63,13 @@ export function ReviewsCard({ profile, reviews = [] }: ReviewsCardProps) {
             <div className={styles.reviewHeader}>
               <div className={styles.reviewerInfo}>
                 {/* Avatar */}
-                {review.reviewer_avatar_url ? (
-                  <Image
-                    src={review.reviewer_avatar_url}
-                    width={48}
-                    height={48}
-                    alt={review.reviewer_name}
-                    className={styles.avatar}
-                  />
-                ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {getInitials(review.reviewer_name, false)}
-                  </div>
-                )}
+                <Image
+                  src={getProfileImageUrl({ id: review.reviewer_id, avatar_url: review.reviewer_avatar_url, full_name: review.reviewer_name })}
+                  width={48}
+                  height={48}
+                  alt={review.reviewer_name}
+                  className={styles.avatar}
+                />
 
                 {/* Name and Date */}
                 <div className={styles.reviewerDetails}>

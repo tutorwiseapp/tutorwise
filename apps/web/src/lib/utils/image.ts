@@ -16,26 +16,35 @@
  * instead of academic pattern avatars. Custom uploaded avatars are still prioritized.
  * Dependencies: "@/types", "./tealAvatar".
  */
-import type { Profile } from '@/types';
-import { getTealAvatarUrl } from './tealAvatar';
+import { getTealAvatarUrl, type AvatarVariant } from './tealAvatar';
+
+/** Accepts any object with optional nullable avatar fields — permissive for DB rows */
+type AvatarUser = {
+  id?: string | null;
+  avatar_url?: string | null;
+  full_name?: string | null;
+  referral_id?: string | null;
+};
 
 /**
  * Returns the appropriate profile image URL for a user.
  * It prioritizes a custom picture URL and falls back to gradient initials avatars.
  *
- * @param user - Partial profile object with avatar_url, full_name, etc.
+ * @param user - Object with optional avatar_url, full_name, id (nullable values accepted)
  * @param isListing - If true, use first 2 characters (for listing titles)
  * @param subject - Subject for color mapping (only used when isListing=true)
+ * @param variant - Avatar variant: 'profile' (teal), 'ai-agent' (blue), 'listing' (subject-based)
  */
 const getProfileImageUrl = (
-  user: Partial<Profile>,
+  user: AvatarUser,
   isListing: boolean = false,
-  subject?: string
+  subject?: string,
+  variant?: AvatarVariant
 ): string => {
   // Use getTealAvatarUrl which handles both custom avatars and gradient initials fallback
-  // Prioritizes: 1) Custom avatar, 2) Gradient initials based on name/subject
+  // Prioritizes: 1) Custom avatar, 2) Gradient initials based on name/subject/variant
   const name = user.full_name || user.id || user.referral_id || 'default';
-  return getTealAvatarUrl(user.avatar_url, name, isListing, subject);
+  return getTealAvatarUrl(user.avatar_url, name, isListing, subject, variant);
 };
 
 export default getProfileImageUrl;

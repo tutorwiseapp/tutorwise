@@ -39,11 +39,12 @@ export async function GET(request: NextRequest) {
         avg_rating,
         total_reviews,
         total_sessions,
-        total_revenue
+        total_revenue,
+        is_platform_owned
       `
       )
       .eq('status', 'published')
-      .eq('subscription_status', 'active');
+      .or('subscription_status.eq.active,is_platform_owned.eq.true');
 
     // Apply filters
     if (subject) {

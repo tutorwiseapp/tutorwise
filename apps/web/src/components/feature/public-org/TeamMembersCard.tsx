@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Star, Shield } from 'lucide-react';
-import { getInitials } from '@/lib/utils/initials';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './TeamMembersCard.module.css';
 
 interface TeamMember {
@@ -97,7 +97,6 @@ export function TeamMembersCard({ members, organisation: _organisation }: TeamMe
           {/* Members Grid */}
           <div className={styles.grid}>
               {displayMembers.map((member) => {
-                const initials = getInitials(member.full_name);
                 const primarySubject = getPrimarySubject(member);
                 const rating = getMemberRating(member);
 
@@ -110,19 +109,13 @@ export function TeamMembersCard({ members, organisation: _organisation }: TeamMe
                   >
                     {/* Avatar */}
                     <div className={styles.avatarWrapper}>
-                      {member.avatar_url ? (
-                        <Image
-                          src={member.avatar_url}
-                          alt={member.full_name}
-                          width={80}
-                          height={80}
-                          className={styles.avatar}
-                        />
-                      ) : (
-                        <div className={styles.avatarFallback}>
-                          <span>{initials}</span>
-                        </div>
-                      )}
+                      <Image
+                        src={getProfileImageUrl({ id: member.id, avatar_url: member.avatar_url, full_name: member.full_name })}
+                        alt={member.full_name}
+                        width={80}
+                        height={80}
+                        className={styles.avatar}
+                      />
 
                       {/* Verification Badges */}
                       {(member.dbs_verified || member.identity_verified) && (

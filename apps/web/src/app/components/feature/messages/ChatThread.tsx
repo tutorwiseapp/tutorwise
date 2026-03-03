@@ -16,7 +16,6 @@ import { getChatClient, AblyChannels, MessageType, DeliveryStatus } from '@/lib/
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import { useAblyTyping } from '@/app/hooks/useAblyTyping';
 import getProfileImageUrl from '@/lib/utils/image';
-import { getInitials } from '@/lib/utils/initials';
 import styles from './ChatThread.module.css';
 
 interface ChatThreadProps {
@@ -273,13 +272,11 @@ export default function ChatThread({
   };
 
   // Get avatar URL
-  const avatarUrl = otherUser.avatar_url
-    ? getProfileImageUrl({
-        id: otherUser.id,
-        avatar_url: otherUser.avatar_url,
-        full_name: otherUser.full_name || undefined // Use other user name for initials
-      })
-    : null;
+  const avatarUrl = getProfileImageUrl({
+    id: otherUser.id,
+    avatar_url: otherUser.avatar_url,
+    full_name: otherUser.full_name || undefined,
+  });
 
   return (
     <div className={styles.thread}>
@@ -291,19 +288,13 @@ export default function ChatThread({
           </button>
         )}
         <Link href={`/public-profile/${otherUser.id}`} className={styles.headerLink}>
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={otherUser.full_name || 'User'}
-              className={styles.headerAvatar}
-              width={40}
-              height={40}
-            />
-          ) : (
-            <div className={styles.headerAvatarFallback}>
-              {getInitials(otherUser.full_name, false) || 'U'}
-            </div>
-          )}
+          <Image
+            src={avatarUrl}
+            alt={otherUser.full_name || 'User'}
+            className={styles.headerAvatar}
+            width={40}
+            height={40}
+          />
         </Link>
         <div className={styles.headerInfo}>
           <h2 className={styles.title}>{otherUser.full_name || 'Unknown User'}</h2>

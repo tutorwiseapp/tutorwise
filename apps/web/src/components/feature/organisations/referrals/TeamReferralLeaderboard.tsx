@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Trophy, TrendingUp, Users, DollarSign, Award } from 'lucide-react';
 import Image from 'next/image';
-import { getInitials } from '@/lib/utils/initials';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './TeamReferralLeaderboard.module.css';
 
 interface MemberStats {
@@ -148,7 +148,6 @@ export function TeamReferralLeaderboard({
         {stats.map((member, index) => {
           const rank = index + 1;
           const badge = getRankBadge(rank);
-          const initials = getInitials(member.profile?.full_name || 'Unknown');
           const earnings = period === 'month' ? member.earnings_this_month : member.total_earnings;
           const conversions = period === 'month' ? member.conversions_this_month : member.converted_count;
           const referrals = period === 'month' ? member.referrals_this_month : member.total_referrals;
@@ -171,19 +170,13 @@ export function TeamReferralLeaderboard({
 
               {/* Avatar */}
               <div className={styles.avatarWrapper}>
-                {member.profile?.avatar_url ? (
-                  <Image
-                    src={member.profile.avatar_url}
-                    alt={member.profile.full_name}
-                    width={48}
-                    height={48}
-                    className={styles.avatar}
-                  />
-                ) : (
-                  <div className={styles.avatarFallback}>
-                    {initials}
-                  </div>
-                )}
+                <Image
+                  src={getProfileImageUrl({ id: member.member_id, avatar_url: member.profile?.avatar_url, full_name: member.profile?.full_name || 'Unknown' })}
+                  alt={member.profile?.full_name || 'Unknown'}
+                  width={48}
+                  height={48}
+                  className={styles.avatar}
+                />
               </div>
 
               {/* Member Info */}

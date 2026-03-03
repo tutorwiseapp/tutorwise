@@ -7,9 +7,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/utils/supabase/server';
 import ArticleStructuredData from '@/app/components/resources/ArticleStructuredData';
 import SaveArticleButton from '@/app/components/resources/SaveArticleButton';
+import { generateTealAvatar } from '@/lib/utils/tealAvatar';
 import styles from './page.module.css';
 
 interface BlogArticle {
@@ -180,9 +182,13 @@ export default async function BlogArticlePage(props: { params: Promise<{ slug: s
         <div className={styles.meta}>
           <div className={styles.author}>
             <div className={styles.authorAvatar}>
-              <div className={styles.avatarPlaceholder}>
-                {article.author_name.charAt(0).toUpperCase()}
-              </div>
+              <Image
+                src={generateTealAvatar(article.author_name)}
+                width={40}
+                height={40}
+                alt={article.author_name}
+                className={styles.avatarPlaceholder}
+              />
             </div>
             <div className={styles.authorInfo}>
               <div className={styles.authorName}>{article.author_name}</div>

@@ -15,6 +15,8 @@ import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import Image from 'next/image';
+import getProfileImageUrl from '@/lib/utils/image';
 import WalletDetailsModal from './WalletDetailsModal';
 import WalletLedgerModal from './WalletLedgerModal';
 import styles from './WalletsTable.module.css';
@@ -114,12 +116,6 @@ export default function WalletsTable() {
     return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  // Get user initials for avatar
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return '?';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
   // Action handlers
   const handleViewDetails = (wallet: WalletWithUser) => {
     setSelectedWallet(wallet);
@@ -164,9 +160,13 @@ export default function WalletsTable() {
       width: '200px',
       render: (wallet) => (
         <div className={styles.userCell}>
-          <div className={styles.userAvatar}>
-            {getInitials(wallet.profiles?.full_name)}
-          </div>
+          <Image
+            src={getProfileImageUrl({ id: wallet.user_id, avatar_url: wallet.profiles?.avatar_url, full_name: wallet.profiles?.full_name })}
+            width={32}
+            height={32}
+            alt={wallet.profiles?.full_name || 'User'}
+            className={styles.userAvatar}
+          />
           <div className={styles.userInfo}>
             <span className={styles.userName}>
               {wallet.profiles?.full_name || 'Unknown User'}

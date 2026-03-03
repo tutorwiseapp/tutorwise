@@ -30,8 +30,7 @@ import MarketplaceCard, {
   CardName,
   CardRating,
   CardSubject,
-  CardLevel,
-    CardDeliveryMode,
+  CardDeliveryMode,
   CardPrice,
   CardBookLink,
   FreeHelpBadge,
@@ -164,10 +163,8 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
         <CardSubject>
           {listing.subjects?.slice(0, 2).join(', ')}
           {listing.subjects && listing.subjects.length > 2 && ` +${listing.subjects.length - 2}`}
+          {listing.levels && listing.levels.length > 0 && ` · ${listing.levels[0]}`}
         </CardSubject>
-        {listing.levels && listing.levels.length > 0 && (
-          <CardLevel>{listing.levels[0]}</CardLevel>
-        )}
       </CardRow>
 
       {/* Line 3: Tutor Name & Delivery Mode */}

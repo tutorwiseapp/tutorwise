@@ -19,7 +19,7 @@ import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
-import { getInitials } from '@/lib/utils/initials';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ProfileHeroSection.module.css';
 
 interface ProfileHeroSectionProps {
@@ -222,19 +222,13 @@ export function ProfileHeroSection({ profile, isOwnProfile }: ProfileHeroSection
 
         {/* Avatar on left */}
         <div className={styles.avatarContainer}>
-          {profile.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={profile.full_name || 'User avatar'}
-              className={styles.avatar}
-              width={128}
-              height={128}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {getInitials(profile.full_name || profile.email)}
-            </div>
-          )}
+          <Image
+            src={getProfileImageUrl({ id: profile.id, avatar_url: profile.avatar_url, full_name: profile.full_name })}
+            alt={profile.full_name || 'User avatar'}
+            className={styles.avatar}
+            width={128}
+            height={128}
+          />
 
           {/* Video Play Badge - Always visible (grey when empty) */}
           <button

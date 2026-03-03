@@ -1,16 +1,26 @@
 /**
- * Filename: AITutorMarketplaceCard.tsx
- * Purpose: Marketplace card for AI tutors
+ * Filename: AIAgentMarketplaceCard.tsx
+ * Purpose: Marketplace card for AI agents
  * Created: 2026-02-23
- * Version: v1.0
+ * Version: v2.0 — rewritten to use MarketplaceCard helper components
  */
 
 'use client';
 
 import { useState } from 'react';
+import getProfileImageUrl from '@/lib/utils/image';
 import type { AIAgentProfile } from '@/types/marketplace';
-import MarketplaceCard from './MarketplaceCard';
-import styles from './MarketplaceCard.module.css';
+import MarketplaceCard, {
+  CardRow,
+  CardName,
+  CardRating,
+  CardSubject,
+  CardLocation,
+  CardDeliveryMode,
+  CardPrice,
+  CardBookLink,
+  TrustBadge,
+} from './MarketplaceCard';
 
 interface AIAgentMarketplaceCardProps {
   aiAgent: AIAgentProfile;
@@ -19,6 +29,17 @@ interface AIAgentMarketplaceCardProps {
 export default function AIAgentMarketplaceCard({ aiAgent }: AIAgentMarketplaceCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const imageUrl = getProfileImageUrl(
+    {
+      id: aiAgent.id,
+      avatar_url: aiAgent.avatar_url || undefined,
+      full_name: aiAgent.display_name,
+    },
+    false,
+    undefined,
+    'ai-agent'
+  );
 
   const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -34,87 +55,53 @@ export default function AIAgentMarketplaceCard({ aiAgent }: AIAgentMarketplaceCa
   };
 
   const badges = [
-    // AI Badge (top-left)
-    <div key="ai-badge" className={styles.topLeftBadge}>
-      <div className={styles.aiBadge}>🤖 AI Agent</div>
-    </div>,
-
-    // Available Badge (top-right)
-    <div key="available-badge" className={styles.topRightBadge}>
-      <div className={styles.instantBadge}>⚡ Instant</div>
-    </div>,
+    <TrustBadge key="ai-agent" label="AI Agent" color="#006c67" />,
   ];
 
   return (
     <MarketplaceCard
       href={`/marketplace/ai-agents/${aiAgent.name}`}
-      imageUrl={aiAgent.avatar_url}
-      imageFallback={
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#006c67',
-            fontSize: '3rem',
-          }}
-        >
-          🤖
-        </div>
-      }
+      imageUrl={imageUrl}
       badges={badges}
       onSave={handleSave}
       isSaved={isSaved}
       isLoading={isLoading}
     >
-      {/* Line 1: Name and Rating */}
-      <div className={styles.infoLine}>
-        <span className={styles.tutorName}>{aiAgent.display_name}</span>
+      {/* Line 1: Name + Rating */}
+      <CardRow>
+        <CardName>{aiAgent.display_name}</CardName>
         {aiAgent.avg_rating && (aiAgent.total_reviews ?? 0) > 0 && (
-          <div className={styles.rating}>
-            <span className={styles.star}>⭐</span>
-            <span className={styles.ratingValue}>
-              {aiAgent.avg_rating.toFixed(1)}
-            </span>
-            <span className={styles.reviewCount}>
-              ({aiAgent.total_reviews})
-            </span>
-          </div>
+          <CardRating value={aiAgent.avg_rating} />
         )}
-      </div>
+      </CardRow>
 
-      {/* Line 2: Subject and Primary Skills */}
-      <div className={styles.infoLine}>
-        <span className={styles.subjects}>
+      {/* Line 2: Subject + Skills */}
+      <CardRow>
+        <CardSubject>
           {aiAgent.subject}
           {aiAgent.skills && aiAgent.skills.length > 0 && (
-            <> • {aiAgent.skills.slice(0, 2).join(', ')}</>
+            <> · {aiAgent.skills.slice(0, 2).join(', ')}</>
           )}
-        </span>
-      </div>
+        </CardSubject>
+      </CardRow>
 
-      {/* Line 3: Sessions and Availability */}
-      <div className={styles.infoLine}>
-        <span className={styles.location}>
+      {/* Line 3: Availability + Session count */}
+      <CardRow>
+        <CardLocation>Available 24/7</CardLocation>
+        <CardDeliveryMode>
           {(aiAgent.total_sessions ?? 0) > 0
-            ? `${aiAgent.total_sessions} sessions completed`
-            : 'New AI agent'}
-        </span>
-        <span className={styles.separator}>•</span>
-        <span className={styles.availability}>Available 24/7</span>
-      </div>
+            ? `${aiAgent.total_sessions} sessions`
+            : 'New agent'}
+        </CardDeliveryMode>
+      </CardRow>
 
-      {/* Line 4: Price */}
-      <div className={styles.infoLine}>
-        <div className={styles.price}>
-          <span className={styles.priceAmount}>
-            £{aiAgent.price_per_hour}
-          </span>
-          <span className={styles.priceUnit}> / hour</span>
-        </div>
-      </div>
+      {/* Line 4: Price + CTA */}
+      <CardRow>
+        <CardPrice>£{aiAgent.price_per_hour}/hr</CardPrice>
+        <CardBookLink href={`/marketplace/ai-agents/${aiAgent.name}`}>
+          Start Session
+        </CardBookLink>
+      </CardRow>
     </MarketplaceCard>
   );
 }

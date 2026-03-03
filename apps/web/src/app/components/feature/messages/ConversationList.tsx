@@ -11,7 +11,6 @@ import React from 'react';
 import Image from 'next/image';
 import type { Conversation } from '@/lib/api/messages';
 import getProfileImageUrl from '@/lib/utils/image';
-import { getInitials } from '@/lib/utils/initials';
 import { useAblyPresence } from '@/app/hooks/useAblyPresence';
 import styles from './ConversationList.module.css';
 
@@ -95,13 +94,11 @@ function ConversationItem({
   };
 
   // Get image properties
-  const avatarUrl = otherUser.avatar_url
-    ? getProfileImageUrl({
-        id: otherUser.id,
-        avatar_url: otherUser.avatar_url,
-        full_name: otherUser.full_name || undefined, // Use other user name for initials
-      })
-    : null;
+  const avatarUrl = getProfileImageUrl({
+    id: otherUser.id,
+    avatar_url: otherUser.avatar_url,
+    full_name: otherUser.full_name || undefined,
+  });
 
   const userName = otherUser.full_name || 'Unknown User';
   const lastMessagePreview = conversation.lastMessage?.content || 'No messages yet';
@@ -116,19 +113,13 @@ function ConversationItem({
     >
       {/* Avatar with online indicator */}
       <div className={styles.avatarContainer}>
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt={userName}
-            className={styles.avatar}
-            width={48}
-            height={48}
-          />
-        ) : (
-          <div className={styles.avatarFallback}>
-            {getInitials(userName)}
-          </div>
-        )}
+        <Image
+          src={avatarUrl}
+          alt={userName}
+          className={styles.avatar}
+          width={48}
+          height={48}
+        />
         {isOnline && <div className={styles.onlineIndicator} />}
       </div>
 

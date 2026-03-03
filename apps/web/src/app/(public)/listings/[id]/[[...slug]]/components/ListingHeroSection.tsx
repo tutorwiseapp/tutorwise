@@ -21,7 +21,7 @@ import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
 import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
-import { getInitials } from '@/lib/utils/initials';
+import getProfileImageUrl from '@/lib/utils/image';
 import styles from './ListingHeroSection.module.css';
 
 interface ListingHeroSectionProps {
@@ -186,19 +186,13 @@ export default function ListingHeroSection({ listing, tutorProfile, tutorStats, 
 
         {/* Tutor Avatar on left */}
         <div className={styles.avatarContainer}>
-          {tutorProfile.avatar_url ? (
-            <Image
-              src={tutorProfile.avatar_url}
-              alt={tutorProfile.full_name || 'Tutor avatar'}
-              className={styles.avatar}
-              width={192}
-              height={192}
-            />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {getInitials(listing.title, true)}
-            </div>
-          )}
+          <Image
+            src={getProfileImageUrl({ id: tutorProfile.id, avatar_url: tutorProfile.avatar_url, full_name: tutorProfile.full_name })}
+            alt={tutorProfile.full_name || 'Tutor avatar'}
+            className={styles.avatar}
+            width={192}
+            height={192}
+          />
 
           {/* Video Play Badge - Always visible (grey when empty) */}
           <button

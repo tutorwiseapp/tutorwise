@@ -3,8 +3,9 @@
  * Purpose: Generate gradient avatars with initials
  * Created: 2025-12-09
  *
- * Design:
- * - Profiles: Tutorwise branded teal gradient (#66b2b2 → #99cccc)
+ * Design — 3-tier avatar color system:
+ * - Profiles (human tutors/clients): Tutorwise brand teal (#006c67 → #00a89d)
+ * - AI Agents: Educational blue (#1e40af → #3b82f6) — approachable, trustworthy, "learning"
  * - Listings: Subject-based gradient colors
  *   - Science: Orange (#ff8c42 → #ffb366)
  *   - Humanities: Yellow (#ffd700 → #ffe14d)
@@ -19,6 +20,9 @@
  */
 
 import { getInitials } from './initials';
+
+/** Avatar variant — determines the color scheme used */
+export type AvatarVariant = 'profile' | 'ai-agent' | 'listing';
 
 /**
  * Subject category type for color mapping
@@ -126,21 +130,25 @@ function getGradientColors(category: SubjectCategory): { gradientStart: string; 
  * @param size - Size of the avatar in pixels (default: 150)
  * @param isListing - If true, use first 2 characters for listing titles
  * @param subject - Subject for color mapping (only used when isListing=true)
+ * @param variant - Avatar variant: 'profile' (teal), 'ai-agent' (blue), 'listing' (subject-based)
  * @returns Data URL of the generated SVG avatar
  *
  * @example
- * // Profile avatars (teal gradient)
+ * // Human profile avatars (brand teal)
  * generateTealAvatar("Michael Quan")  // Teal avatar with "MQ"
+ *
+ * // AI agent avatars (educational blue)
+ * generateTealAvatar("Sage Maths", 150, false, undefined, 'ai-agent')  // Blue avatar with "SM"
  *
  * // Listing avatars (subject-based gradients)
  * generateTealAvatar("AI Tutor Study Support", 150, true, "Mathematics")  // Green avatar with "AI"
- * generateTealAvatar("Physics Tutoring", 150, true, "Physics")  // Orange avatar with "PH"
  */
 export function generateTealAvatar(
   name: string | null | undefined,
   size: number = 150,
   isListing: boolean = false,
-  subject?: string
+  subject?: string,
+  variant?: AvatarVariant
 ): string {
   const initials = getInitials(name, isListing);
 
@@ -149,16 +157,21 @@ export function generateTealAvatar(
   let gradientId: string;
 
   if (isListing) {
-    // Listings: Use subject-based gradient colors
+    // Listings: subject-based gradient colors
     const category = getSubjectCategory(subject);
     const colors = getGradientColors(category);
     gradientStart = colors.gradientStart;
     gradientEnd = colors.gradientEnd;
     gradientId = `${category.toLowerCase()}-gradient`;
+  } else if (variant === 'ai-agent') {
+    // AI Agents: educational blue — approachable, trustworthy for children's education context
+    gradientStart = '#1e40af'; // Deep blue (blue-800)
+    gradientEnd = '#3b82f6';   // Clear blue (blue-500)
+    gradientId = 'ai-agent-gradient';
   } else {
-    // Profiles: Use Tutorwise teal gradient
-    gradientStart = '#26B0B9'; // Teal (start)
-    gradientEnd = '#5cc9d1';   // Lighter teal (end)
+    // Human profiles: Tutorwise brand teal (consistent across all people)
+    gradientStart = '#006c67';
+    gradientEnd = '#00a89d';
     gradientId = 'teal-gradient';
   }
 
@@ -205,13 +218,15 @@ export function generateTealAvatar(
  * @param name - User's name or listing title for generating initials
  * @param isListing - If true, use first 2 characters (for listing titles)
  * @param subject - Subject for color mapping (only used when isListing=true)
+ * @param variant - Avatar variant for color scheme selection
  * @returns Avatar URL (either custom or generated gradient avatar)
  */
 export function getTealAvatarUrl(
   avatarUrl: string | null | undefined,
   name: string | null | undefined,
   isListing: boolean = false,
-  subject?: string
+  subject?: string,
+  variant?: AvatarVariant
 ): string {
   // 1. Use custom avatar if available
   if (avatarUrl) {
@@ -219,5 +234,5 @@ export function getTealAvatarUrl(
   }
 
   // 2. Fallback to gradient initials avatar
-  return generateTealAvatar(name, 150, isListing, subject);
+  return generateTealAvatar(name, 150, isListing, subject, variant);
 }
