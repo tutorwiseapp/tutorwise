@@ -157,23 +157,27 @@ export function ExecutionPanel() {
               <div className={styles.loadingRow}>Loading…</div>
             )}
             {processes.map((proc) => (
-              <button
+              <div
                 key={proc.id}
                 className={`${styles.processRow} ${selectedProcessId === proc.id ? styles.processRowActive : ''}`}
-                onClick={() => {
-                  setSelectedProcessId(proc.id);
-                  setSelectedExecution(null);
-                }}
               >
-                <Layers size={13} className={styles.processIcon} />
-                <span className={styles.processRowName}>{proc.name}</span>
+                <button
+                  className={styles.processRowClickable}
+                  onClick={() => {
+                    setSelectedProcessId(proc.id);
+                    setSelectedExecution(null);
+                  }}
+                >
+                  <Layers size={13} className={styles.processIcon} />
+                  <span className={styles.processRowName}>{proc.name}</span>
+                </button>
                 <ExecutionModeToggle
                   processId={proc.id}
                   processName={proc.name}
                   currentMode={proc.execution_mode ?? 'design'}
                   onModeChanged={(m) => handleProcessModeChanged(proc.id, m)}
                 />
-              </button>
+              </div>
             ))}
           </div>
 

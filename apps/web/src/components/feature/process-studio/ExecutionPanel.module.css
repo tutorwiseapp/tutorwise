@@ -79,20 +79,28 @@
 .processRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: none;
   border-bottom: 1px solid var(--color-border-light, #f3f4f6);
   background: var(--color-white, #fff);
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  font-family: var(--font-primary, 'Inter', sans-serif);
 }
 
 .processRow:hover { background: var(--color-bg-light, #f9fafb); }
 
 .processRowActive { background: var(--color-primary-50, #f0fdf4) !important; }
+
+/* Inner clickable area (name + icon) — separate from the mode toggle button */
+.processRowClickable {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+}
 
 .processIcon {
   color: var(--color-text-tertiary, #9ca3af);
