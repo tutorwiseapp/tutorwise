@@ -1,0 +1,67 @@
+/* ShadowDivergencePanel */
+
+.container {
+  background: var(--color-warning-50, #fffbeb);
+  border: 1px solid var(--color-warning-200, #fde68a);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-warning-800, #92400e);
+}
+
+.summary {
+  font-size: 11px;
+  color: var(--color-warning-700, #b45309);
+}
+
+.clean {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-success-700, #15803d);
+}
+
+.divergences {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.divergenceRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.warnIcon {
+  color: var(--color-warning-600, #d97706);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.runId {
+  font-family: var(--font-mono, monospace);
+  color: var(--color-text-secondary, #6b7280);
+  flex-shrink: 0;
+}
+
+.divergenceDetail {
+  color: var(--color-text-primary, #111827);
+  word-break: break-all;
+}

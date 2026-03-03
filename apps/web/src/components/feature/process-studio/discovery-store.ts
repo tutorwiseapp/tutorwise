@@ -5,7 +5,7 @@ import type {
   DiscoveryResult,
 } from '@/lib/process-studio/scanner/types';
 
-export type DiscoveryTab = 'design' | 'discovery';
+export type DiscoveryTab = 'design' | 'discovery' | 'execution';
 
 interface DiscoveryStore {
   // Active tab

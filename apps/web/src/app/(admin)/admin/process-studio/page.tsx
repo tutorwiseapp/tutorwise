@@ -6,6 +6,7 @@ import {
   DiscoveryPanel,
   useDiscoveryStore,
 } from '@/components/feature/process-studio';
+import { ExecutionPanel } from '@/components/feature/process-studio/ExecutionPanel';
 import type { DiscoveryTab } from '@/components/feature/process-studio/discovery-store';
 import styles from './page.module.css';
 
@@ -16,6 +17,7 @@ export default function ProcessStudioPage() {
   const tabs = [
     { id: 'design', label: 'Design', active: activeTab === 'design' },
     { id: 'discovery', label: 'Discovery', active: activeTab === 'discovery' },
+    { id: 'execution', label: 'Execution', active: activeTab === 'execution' },
   ];
 
   return (
@@ -46,6 +48,12 @@ export default function ProcessStudioPage() {
       >
         <DiscoveryPanel />
       </div>
+
+      {activeTab === 'execution' && (
+        <div className={styles.executionContainer}>
+          <ExecutionPanel />
+        </div>
+      )}
     </HubPageLayout>
   );
 }

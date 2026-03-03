@@ -1,0 +1,137 @@
+/* ExecutionCanvas — read-only ReactFlow with task status colouring */
+
+.canvasWrapper {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+/* Base node */
+.node {
+  background: var(--color-white, #fff);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 8px 12px;
+  min-width: 140px;
+  max-width: 200px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nodeIcon {
+  color: var(--color-text-tertiary, #9ca3af);
+  flex-shrink: 0;
+}
+
+.nodeLabel {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #111827);
+  flex: 1;
+}
+
+.nodeDesc {
+  font-size: 10px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.handle {
+  background: var(--color-border-medium, #d1d5db);
+  border: none;
+  width: 8px;
+  height: 8px;
+}
+
+.handleSide {
+  background: var(--color-border-medium, #d1d5db);
+  border: none;
+  width: 8px;
+  height: 8px;
+}
+
+/* Node type colours (base) */
+.trigger  { border-color: #10b981; }
+.action   { border-color: #3b82f6; }
+.condition { border-color: #8b5cf6; }
+.approval  { border-color: #f59e0b; }
+.notification { border-color: #06b6d4; }
+.subprocess { border-color: #14b8a6; }
+.end      { border-color: #6b7280; }
+
+/* Execution status overrides */
+.statusPending { opacity: 0.5; }
+
+@keyframes blink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(59,130,246,0); }
+}
+
+.statusRunning {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.statusPaused {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
+}
+
+.statusCompleted {
+  border-color: #10b981 !important;
+  background: #f0fdf4;
+}
+
+.statusFailed {
+  border-color: #ef4444 !important;
+  background: #fef2f2;
+}
+
+.statusSkipped { opacity: 0.35; }
+
+/* Legend dots */
+.statusRunningDot  { background: #3b82f6; }
+.statusPausedDot   { background: #f59e0b; }
+.statusCompletedDot { background: #10b981; }
+.statusFailedDot   { background: #ef4444; }
+
+/* Legend bar */
+.legend {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--color-text-secondary, #6b7280);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.legendDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
