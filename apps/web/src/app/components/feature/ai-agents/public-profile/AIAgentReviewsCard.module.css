@@ -1,0 +1,88 @@
+/* Copied from ReviewsCard.module.css, no changes needed */
+
+.reviewsCard { padding: 0 !important; }
+
+.cardHeader {
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0;
+}
+
+.cardTitle { font-size: 16px; font-weight: 600; color: #1f2937; margin: 0; line-height: 1.4; }
+
+.cardContent { padding: 16px; }
+
+.emptyState { padding: 48px 16px; text-align: center; }
+
+.emptyStateText { font-size: 1rem; color: #6b7280; margin: 0; }
+
+.reviewsContainer { display: flex; flex-direction: column; gap: 40px; }
+
+.reviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reviewItem:last-child { border-bottom: none; padding-bottom: 0; }
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.reviewerInfo { display: flex; gap: 12px; align-items: flex-start; flex: 1; }
+
+.avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+.avatarPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #006c67 0%, #4CAEAD 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.reviewerDetails { display: flex; flex-direction: column; gap: 4px; }
+
+.reviewerName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verifiedBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.reviewDate { font-size: 0.875rem; color: #6b7280; }
+
+.starRating { display: flex; gap: 4px; flex-shrink: 0; }
+
+.reviewComment {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #374151;
+  margin: 0;
+  white-space: pre-wrap;
+}

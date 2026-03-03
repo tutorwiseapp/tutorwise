@@ -156,18 +156,19 @@ export function generateTealAvatar(
   let gradientEnd: string;
   let gradientId: string;
 
-  if (isListing) {
+  if (variant === 'ai-agent') {
+    // AI Agents: educational blue — approachable, trustworthy for children's education context
+    // Color takes priority over isListing so AI agents always get blue even with listing-style initials
+    gradientStart = '#1e40af'; // Deep blue (blue-800)
+    gradientEnd = '#3b82f6';   // Clear blue (blue-500)
+    gradientId = 'ai-agent-gradient';
+  } else if (isListing) {
     // Listings: subject-based gradient colors
     const category = getSubjectCategory(subject);
     const colors = getGradientColors(category);
     gradientStart = colors.gradientStart;
     gradientEnd = colors.gradientEnd;
     gradientId = `${category.toLowerCase()}-gradient`;
-  } else if (variant === 'ai-agent') {
-    // AI Agents: educational blue — approachable, trustworthy for children's education context
-    gradientStart = '#1e40af'; // Deep blue (blue-800)
-    gradientEnd = '#3b82f6';   // Clear blue (blue-500)
-    gradientId = 'ai-agent-gradient';
   } else {
     // Human profiles: Tutorwise brand teal (consistent across all people)
     gradientStart = '#006c67';

@@ -1,0 +1,62 @@
+/* Copied from GetInTouchCard.module.css, simplified for AI session flow */
+
+.card { padding: 0 !important; }
+
+.cardHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
+  border-radius: 8px 8px 0 0;
+}
+
+.cardTitle { font-size: 16px; font-weight: 600; color: #1f2937; margin: 0; line-height: 1.4; }
+
+.cardContent { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.priceLabel { font-size: 13px; color: #6b7280; }
+
+.priceValue { font-size: 20px; font-weight: 700; color: #111827; }
+
+.availabilityRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: #E6F0F0;
+  border-radius: 6px;
+}
+
+.availabilityIcon { color: #006c67; flex-shrink: 0; }
+
+.availabilityText { font-size: 13px; color: #006c67; font-weight: 500; }
+
+.primaryButton {
+  width: 100%;
+  background-color: #006c67 !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease-in-out !important;
+  min-height: 44px !important;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: #005550 !important;
+}
+
+.trustNote {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 0;
+}

@@ -1,0 +1,43 @@
+/* Copied from VerificationCard.module.css, amber colour added for 3rd-party */
+
+.trustCard { padding: 0 !important; }
+
+.cardHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
+  border-radius: 8px 8px 0 0;
+}
+
+.cardTitle { font-size: 16px; font-weight: 600; color: #1f2937; margin: 0; line-height: 1.4; }
+
+.itemsContainer { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
+
+.item { display: flex; justify-content: space-between; align-items: center; }
+
+.label { font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5; }
+
+.statusContainer { display: flex; align-items: center; gap: 8px; }
+
+.statusIcon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusIcon.verified { background: #d1fae5; color: #059669; }
+.statusIcon.thirdParty { background: #fef3c7; color: #d97706; }
+
+.statusText {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusText.verified { color: #059669; }
+.statusText.thirdParty { color: #d97706; }

@@ -1,0 +1,32 @@
+.aboutCard { padding: 0 !important; }
+
+.cardHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #E6F0F0;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle { font-size: 16px; font-weight: 600; color: #1f2937; margin: 0; }
+
+.poweredBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, #E6F0F0 0%, #f0faf9 100%);
+  color: #006c67;
+  border: 1px solid #b2d8d6;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.bioContent { padding: 16px; }
+.bioText { font-size: 14px; color: #374151; line-height: 1.7; margin: 0; white-space: pre-wrap; }
+
+.emptyState { padding: 16px; }
+.emptyStateText { font-size: 14px; color: #9ca3af; font-style: italic; margin: 0; }

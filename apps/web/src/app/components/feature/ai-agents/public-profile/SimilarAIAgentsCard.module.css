@@ -1,0 +1,72 @@
+/* Adapted from SimilarProfilesCard.module.css */
+
+.card { padding: 0 !important; }
+
+.cardHeader {
+  padding: 12px 16px;
+  background-color: #E6F0F0;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0;
+}
+
+.cardTitle { font-size: 16px; font-weight: 600; color: #1f2937; margin: 0; }
+
+.emptyMessage { padding: 24px 16px; font-size: 14px; color: #6b7280; margin: 0; text-align: center; }
+
+.cardContent { padding: 16px; }
+
+.agentsGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+@media (max-width: 640px) {
+  .agentsGrid { grid-template-columns: 1fr; }
+}
+
+.agentCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.agentCard:hover {
+  border-color: #b2d8d6;
+  box-shadow: 0 2px 8px rgba(0, 108, 103, 0.08);
+}
+
+.avatarContainer { flex-shrink: 0; }
+
+.avatar { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
+
+.agentInfo { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+
+.agentName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agentSubject { font-size: 12px; color: #6b7280; margin: 0; }
+
+.agentMeta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.price { font-size: 12px; font-weight: 600; color: #006c67; }

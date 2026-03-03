@@ -36,9 +36,9 @@ export default function AIAgentMarketplaceCard({ aiAgent }: AIAgentMarketplaceCa
       avatar_url: aiAgent.avatar_url || undefined,
       full_name: aiAgent.display_name,
     },
-    false,
+    true,        // use first-2-chars initials (listing style) to avoid "S-" from hyphenated names
     undefined,
-    'ai-agent'
+    'ai-agent'   // still use AI agent blue color (takes priority over isListing color)
   );
 
   const handleSave = async (e: React.MouseEvent) => {
@@ -55,7 +55,7 @@ export default function AIAgentMarketplaceCard({ aiAgent }: AIAgentMarketplaceCa
   };
 
   const badges = [
-    <TrustBadge key="ai-agent" label="AI Agent" color="#006c67" />,
+    <TrustBadge key="ai-agent" label="AI Tutor" color="#006c67" />,
   ];
 
   return (
@@ -91,7 +91,7 @@ export default function AIAgentMarketplaceCard({ aiAgent }: AIAgentMarketplaceCa
         <CardDeliveryMode>
           {(aiAgent.total_sessions ?? 0) > 0
             ? `${aiAgent.total_sessions} sessions`
-            : 'New agent'}
+            : 'New AI tutor'}
         </CardDeliveryMode>
       </CardRow>
 
