@@ -1,16 +1,23 @@
 /**
- * Handler: commission.query_available
- * Queries transactions with status='available' grouped by profile_id.
- * Filters to the minimum payout threshold per creator.
+ * Commission handlers:
  *
- * handler_config: { min?: number }  — minimum balance to include (default £25)
+ * commission.query_available
+ *   Queries transactions with status='available' grouped by profile_id.
+ *   handler_config: { min?: number }  — minimum balance (default £25)
+ *   Context inputs:  (none required — reads from DB)
+ *   Context outputs: { creators: [...], payout_count, total_payout_amount }
  *
- * Context inputs:  (none required — reads from DB)
- * Context outputs: {
- *   creators: Array<{ profile_id, stripe_account_id, email, full_name, balance, transaction_ids }>,
- *   payout_count: number,      — number of creators above threshold (for rules.evaluate)
- *   total_payout_amount: number
- * }
+ * commission.create
+ *   Calls the handle_successful_payment Supabase RPC for a booking.
+ *   Creates clearing transactions (7-day hold) for all commission splits.
+ *   This is the Booking Lifecycle version — does NOT pay out, just records commission.
+ *   Context inputs:  { booking_id: string, checkout_session_id?: string }
+ *   Context outputs: { transaction_id, commission_created }
+ *
+ * commission.void
+ *   Voids all clearing transactions for a booking (cancellation path).
+ *   Context inputs:  { booking_id: string }
+ *   Context outputs: { voided_count, voided }
  */
 
 import { createServiceRoleClient } from '@/utils/supabase/server';
@@ -98,4 +105,86 @@ export async function handleCommissionQueryAvailable(
     payout_count: creators.length,
     total_payout_amount: totalAmount,
   };
+}
+
+// ---------------------------------------------------------------------------
+// commission.create
+// Calls handle_successful_payment RPC to create clearing transactions for all
+// commission splits (platform 10%, agent 20%, referrer 10%, tutor remainder).
+// This creates 'clearing' status transactions — NOT the payout itself.
+// The payout happens later via the Commission Payout weekly workflow.
+// ---------------------------------------------------------------------------
+
+export async function handleCommissionCreate(
+  context: HandlerContext,
+  _opts: HandlerOptions
+): Promise<Record<string, unknown>> {
+  const bookingId = context.booking_id as string | undefined;
+  if (!bookingId) throw new Error('commission.create: booking_id required in context');
+
+  const checkoutSessionId = (context.checkout_session_id as string | undefined) ?? null;
+
+  const supabase = createServiceRoleClient();
+
+  // Call the handle_successful_payment RPC — creates all commission split transactions
+  const { error } = await supabase.rpc('handle_successful_payment', {
+    p_booking_id: bookingId,
+    p_stripe_checkout_id: checkoutSessionId,
+  });
+
+  if (error) {
+    throw new Error(`commission.create: RPC failed for booking ${bookingId} — ${error.message}`);
+  }
+
+  // Fetch the newly created transactions for context
+  const { data: transactions } = await supabase
+    .from('transactions')
+    .select('id, type, amount, status')
+    .eq('booking_id', bookingId)
+    .in('status', ['clearing', 'available', 'paid_out']);
+
+  const tutorTx = transactions?.find((t) => t.type === 'Tutoring Payout');
+
+  console.log(
+    `[commission.create] Commission created for booking ${bookingId}. ` +
+    `${transactions?.length ?? 0} transactions. Tutor payout: £${tutorTx?.amount?.toFixed(2) ?? '0'}`
+  );
+
+  return {
+    commission_created: true,
+    transaction_count: transactions?.length ?? 0,
+    tutor_transaction_id: tutorTx?.id ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// commission.void
+// Voids all clearing transactions for a booking (used in cancellation path).
+// Does NOT touch paid_out transactions — those require a Stripe refund first.
+// ---------------------------------------------------------------------------
+
+export async function handleCommissionVoid(
+  context: HandlerContext,
+  _opts: HandlerOptions
+): Promise<Record<string, unknown>> {
+  const bookingId = context.booking_id as string | undefined;
+  if (!bookingId) throw new Error('commission.void: booking_id required in context');
+
+  const supabase = createServiceRoleClient();
+
+  const { data: voidedRows, error } = await supabase
+    .from('transactions')
+    .update({ status: 'void' })
+    .eq('booking_id', bookingId)
+    .eq('status', 'clearing')
+    .select('id');
+
+  if (error) {
+    throw new Error(`commission.void: failed to void transactions for booking ${bookingId} — ${error.message}`);
+  }
+
+  const count = voidedRows?.length ?? 0;
+  console.log(`[commission.void] Voided ${count} clearing transactions for booking ${bookingId}`);
+
+  return { voided_count: count, voided: count > 0 };
 }

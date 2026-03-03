@@ -13,11 +13,22 @@ import { handleCaasScore } from './handlers/caas';
 import { handleRulesEvaluate } from './handlers/rules';
 import { handleProfileActivate } from './handlers/profile';
 import { handleNotificationSend } from './handlers/notification';
-import { handleCommissionQueryAvailable } from './handlers/commission';
 import {
+  handleCommissionQueryAvailable,
+  handleCommissionCreate,
+  handleCommissionVoid,
+} from './handlers/commission';
+import {
+  handleStripeCharge,
+  handleStripeRefund,
   handleStripeValidateConnectAccount,
   handleStripeConnectPayout,
 } from './handlers/stripe';
+import { handleSessionCreate, handleSessionWait } from './handlers/session';
+import { handleAiAgentInvoke } from './handlers/ai-agent';
+import { handleReviewRequest } from './handlers/review';
+import { handleSchedulingNegotiate } from './handlers/scheduling';
+import { handleReferralAttribute, handleReferralUpdateStatus } from './handlers/referral';
 
 export type HandlerContext = Record<string, unknown>;
 
@@ -39,6 +50,7 @@ type HandlerFn = (
 // ---------------------------------------------------------------------------
 
 const HANDLERS: Record<string, HandlerFn> = {
+  // Phase 1 — Tutor Approval + Commission Payout
   'caas.score': handleCaasScore,
   'rules.evaluate': handleRulesEvaluate,
   'profile.activate': handleProfileActivate,
@@ -46,6 +58,19 @@ const HANDLERS: Record<string, HandlerFn> = {
   'commission.query_available': handleCommissionQueryAvailable,
   'stripe.validate_connect_account': handleStripeValidateConnectAccount,
   'stripe.connect_payout': handleStripeConnectPayout,
+
+  // Phase 3 — Booking Lifecycle (shadow mode)
+  'stripe.charge': handleStripeCharge,
+  'stripe.refund': handleStripeRefund,
+  'session.create': handleSessionCreate,
+  'session.wait': handleSessionWait,
+  'ai_agent.invoke': handleAiAgentInvoke,
+  'review.request': handleReviewRequest,
+  'commission.create': handleCommissionCreate,
+  'commission.void': handleCommissionVoid,
+  'scheduling.negotiate': handleSchedulingNegotiate,
+  'referral.attribute': handleReferralAttribute,
+  'referral.update_status': handleReferralUpdateStatus,
 };
 
 // ---------------------------------------------------------------------------

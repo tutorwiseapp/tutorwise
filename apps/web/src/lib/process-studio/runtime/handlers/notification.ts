@@ -3,9 +3,10 @@
  * Template-based email notifications via Resend.
  *
  * handler_config.template selects which email to send:
- *   tutor_approved   — approval confirmation to tutor
- *   tutor_rejected   — rejection email to tutor
- *   payout_processed — payout confirmation to creator
+ *   tutor_approved      — approval confirmation to tutor
+ *   tutor_rejected      — rejection email to tutor
+ *   payout_processed    — payout confirmation to creator
+ *   referral_converted  — referral conversion notification to agent
  *
  * Context inputs:  { email?: string, profile_id?: string, full_name?: string, ... }
  * Context outputs: { notification_id: string, template: string }
@@ -114,6 +115,25 @@ function buildEmail(
         subject,
         html: generateEmailTemplate({
           headline: 'Payout Processed',
+          variant: 'success',
+          body,
+          cta: { text: 'View Earnings', url: `${siteUrl}/dashboard/earnings` },
+        }),
+      };
+    }
+
+    case 'referral_converted': {
+      const serviceName = (context.service_name as string | undefined) ?? 'a tutoring session';
+      const subject = 'Your referral has converted — commission incoming!';
+      const body = `
+        ${paragraph(`Hi ${bold(name)},`)}
+        ${paragraph(`Great news! Someone you referred has just booked ${bold(serviceName)} on TutorWise.`)}
+        ${paragraph(`Your referral commission is being processed and will appear in your earnings shortly (typically within 7 days).`)}
+      `;
+      return {
+        subject,
+        html: generateEmailTemplate({
+          headline: 'Referral Converted',
           variant: 'success',
           body,
           cta: { text: 'View Earnings', url: `${siteUrl}/dashboard/earnings` },

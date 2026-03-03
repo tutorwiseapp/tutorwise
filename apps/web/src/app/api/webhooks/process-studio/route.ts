@@ -2,15 +2,19 @@
  * POST /api/webhooks/process-studio
  * Receives Supabase Database Webhook events and triggers workflow executions.
  *
- * Current triggers:
+ * Registered triggers:
  *   - profiles table UPDATE where new.status = 'under_review'
  *     → starts the Tutor Approval workflow
+ *   - bookings table INSERT (any new booking)
+ *     → starts Booking Lifecycle — Human Tutor (if agent_id is null or profile is not AI)
+ *     → starts Booking Lifecycle — AI Tutor (if booking is for an AI agent tutor)
  *
  * Security: validates x-webhook-secret header against PROCESS_STUDIO_WEBHOOK_SECRET env var.
  *
- * Supabase Dashboard config:
- *   Table: profiles, Event: UPDATE, Filter: status=under_review
- *   Target URL: {APP_URL}/api/webhooks/process-studio
+ * Supabase Dashboard config (three webhooks needed):
+ *   1. Table: profiles, Event: UPDATE, Filter: status=under_review
+ *   2. Table: bookings, Event: INSERT (all rows — engine checks execution_mode)
+ *   Target URL for both: {APP_URL}/api/webhooks/process-studio
  *   Headers: { x-webhook-secret: <PROCESS_STUDIO_WEBHOOK_SECRET> }
  */
 
@@ -96,6 +100,69 @@ export async function POST(request: NextRequest) {
         trigger: 'tutor_approval',
         executionId,
         profileId,
+        mode: process.execution_mode,
+      });
+    }
+
+    // Handle: new booking created → start Booking Lifecycle workflow
+    if (table === 'bookings' && type === 'INSERT' && record) {
+      const bookingId = record.id as string;
+      const agentId = record.agent_id as string | null | undefined;
+      const supabase = createServiceRoleClient();
+
+      // Determine if this is an AI agent booking by checking if the tutor profile is AI
+      let isAiTutor = false;
+      const tutorId = record.tutor_id as string | undefined;
+      if (tutorId) {
+        const { data: tutorProfile } = await supabase
+          .from('profiles')
+          .select('is_ai_agent')
+          .eq('id', tutorId)
+          .single();
+        isAiTutor = tutorProfile?.is_ai_agent === true;
+      }
+
+      const processName = isAiTutor
+        ? 'Booking Lifecycle — AI Tutor'
+        : 'Booking Lifecycle — Human Tutor';
+
+      const { data: process } = await supabase
+        .from('workflow_processes')
+        .select('id, execution_mode')
+        .eq('name', processName)
+        .single();
+
+      if (!process) {
+        console.warn(`[process-studio webhook] ${processName} process not found — skipping`);
+        return NextResponse.json({ received: true, action: 'skipped', reason: 'process not found' });
+      }
+
+      if (process.execution_mode === 'design') {
+        console.log(`[process-studio webhook] ${processName} is in design mode — skipping`);
+        return NextResponse.json({ received: true, action: 'skipped', reason: 'design mode' });
+      }
+
+      const executionId = await workflowRuntime.start(process.id, {
+        booking_id: bookingId,
+        tutor_id: tutorId ?? null,
+        client_id: record.client_id as string | null ?? null,
+        agent_id: agentId ?? null,
+        amount: record.amount as number | null ?? null,
+        service_name: record.service_name as string | null ?? null,
+        is_ai_tutor: isAiTutor,
+      });
+
+      console.log(
+        `[process-studio webhook] Started ${processName} execution ${executionId} ` +
+        `for booking ${bookingId} (mode: ${process.execution_mode})`
+      );
+
+      return NextResponse.json({
+        received: true,
+        action: 'started',
+        trigger: isAiTutor ? 'booking_ai_tutor' : 'booking_human_tutor',
+        executionId,
+        bookingId,
         mode: process.execution_mode,
       });
     }

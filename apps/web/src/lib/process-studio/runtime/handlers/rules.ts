@@ -7,6 +7,7 @@
  *   { field: string, min: number }        — passes if context[field] >= min
  *   { field: string, eq: unknown }        — passes if context[field] === eq
  *   { field: string, truthy: true }       — passes if context[field] is truthy
+ *   { check: "exists", field: string }    — passes if context[field] is non-null/non-empty
  *
  * Context outputs: { passed: boolean, reason: string }
  * Also stores _lastConditionPassed for WorkflowCompiler conditional routing.
@@ -29,7 +30,10 @@ export async function handleRulesEvaluate(
   let passed = false;
   let reason = '';
 
-  if ('threshold' in config) {
+  if (config.check === 'exists') {
+    passed = value !== null && value !== undefined && value !== '';
+    reason = `${field} ${passed ? 'exists' : 'is null/empty'}`;
+  } else if ('threshold' in config) {
     const threshold = config.threshold as number;
     passed = typeof value === 'number' && value >= threshold;
     reason = `${field}=${value} ${passed ? '>=' : '<'} threshold=${threshold}`;

@@ -1,5 +1,16 @@
 /**
- * Handlers: stripe.validate_connect_account + stripe.connect_payout
+ * Stripe handlers:
+ *
+ * stripe.charge
+ *   Creates a Stripe Checkout Session for a booking. Webhook-mode: suspends until
+ *   checkout.session.completed fires. Used in Booking Lifecycle workflows.
+ *   Context inputs:  { booking_id: string }
+ *   Context outputs: { checkout_session_id, payment_intent_id, checkout_url }
+ *
+ * stripe.refund
+ *   Issues a full refund for a booking via Stripe.
+ *   Context inputs:  { payment_intent_id: string }
+ *   Context outputs: { refund_id, status }
  *
  * stripe.validate_connect_account
  *   Context inputs:  { stripe_account_id: string } OR { creators: Creator[] }
@@ -12,9 +23,105 @@
  *   Context outputs: { payouts_processed: number, payouts_failed: number, payout_results: PayoutResult[] }
  */
 
+import { stripe } from '@/lib/stripe';
 import { canReceivePayouts, createConnectPayout } from '@/lib/stripe/payouts';
 import { createServiceRoleClient } from '@/utils/supabase/server';
 import type { HandlerContext, HandlerOptions } from '../NodeHandlerRegistry';
+
+// ---------------------------------------------------------------------------
+// stripe.charge
+// Creates a Stripe Checkout Session for the booking and suspends (webhook-mode).
+// Phase 4 live: the Stripe webhook resumes the execution on checkout.session.completed.
+// ---------------------------------------------------------------------------
+
+export async function handleStripeCharge(
+  context: HandlerContext,
+  opts: HandlerOptions
+): Promise<Record<string, unknown>> {
+  const bookingId = context.booking_id as string | undefined;
+  if (!bookingId) throw new Error('stripe.charge: booking_id required in context');
+
+  const supabase = createServiceRoleClient();
+
+  const { data: booking, error } = await supabase
+    .from('bookings')
+    .select(`
+      id, amount, service_name, client_id, tutor_id,
+      tutor:tutor_id(stripe_account_id)
+    `)
+    .eq('id', bookingId)
+    .single();
+
+  if (error || !booking) {
+    throw new Error(`stripe.charge: booking ${bookingId} not found — ${error?.message}`);
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tutorwise.io';
+  const tutorAccount = (booking.tutor as unknown as { stripe_account_id?: string } | null);
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    mode: 'payment',
+    line_items: [
+      {
+        price_data: {
+          currency: 'gbp',
+          product_data: { name: booking.service_name },
+          unit_amount: Math.round((booking.amount as number) * 100),
+        },
+        quantity: 1,
+      },
+    ],
+    metadata: {
+      booking_id: bookingId,
+      execution_id: opts.executionId,
+      node_id: opts.nodeId,
+    },
+    success_url: `${appUrl}/bookings?payment=success`,
+    cancel_url: `${appUrl}/bookings?payment=cancel`,
+    ...(tutorAccount?.stripe_account_id
+      ? {
+          payment_intent_data: {
+            application_fee_amount: Math.round((booking.amount as number) * 10),
+            transfer_data: { destination: tutorAccount.stripe_account_id },
+          },
+        }
+      : {}),
+  });
+
+  console.log(`[stripe.charge] Created checkout session ${session.id} for booking ${bookingId}`);
+
+  return {
+    checkout_session_id: session.id,
+    payment_intent_id: session.payment_intent as string ?? null,
+    checkout_url: session.url,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// stripe.refund
+// Issues a full refund for a payment intent. Used in cancellation paths.
+// Idempotency key is required (enforced in NodeHandlerRegistry).
+// ---------------------------------------------------------------------------
+
+export async function handleStripeRefund(
+  context: HandlerContext,
+  opts: HandlerOptions
+): Promise<Record<string, unknown>> {
+  const paymentIntentId = context.payment_intent_id as string | undefined;
+  if (!paymentIntentId) throw new Error('stripe.refund: payment_intent_id required in context');
+
+  const idempotencyKey = opts.idempotencyKey ?? `refund:${opts.executionId}:${opts.nodeId}`;
+
+  const refund = await stripe.refunds.create(
+    { payment_intent: paymentIntentId },
+    { idempotencyKey }
+  );
+
+  console.log(`[stripe.refund] Refund ${refund.id} for payment_intent ${paymentIntentId} — status: ${refund.status}`);
+
+  return { refund_id: refund.id, status: refund.status };
+}
 
 interface Creator {
   profile_id: string;
