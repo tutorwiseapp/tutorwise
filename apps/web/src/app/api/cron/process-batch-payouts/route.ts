@@ -11,6 +11,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createConnectPayout, canReceivePayouts } from '@/lib/stripe/payouts';
 import { sendPayoutProcessedEmail } from '@/lib/email/commission-available';
+import { workflowRuntime } from '@/lib/process-studio/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +45,22 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
 
   try {
+    // Check if Commission Payout workflow is live — delegate to engine
+    const { data: commissionProcess } = await supabase
+      .from('workflow_processes')
+      .select('id, execution_mode')
+      .eq('name', 'Commission Payout')
+      .single();
+
+    if (commissionProcess?.execution_mode === 'live') {
+      console.log('[Batch Payout] Commission Payout process is live — delegating to workflow engine');
+      const executionId = await workflowRuntime.start(commissionProcess.id, {
+        _triggeredBy: 'cron',
+        _triggeredAt: new Date().toISOString(),
+      });
+      return NextResponse.json({ success: true, delegatedToEngine: true, executionId });
+    }
+
     console.log('[Batch Payout] Starting weekly payout processing');
 
     // Get all available referral commissions grouped by profile

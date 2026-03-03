@@ -40,6 +40,13 @@ export interface ProcessStepData {
   stepCount?: number;
   templateId?: string;
   templateName?: string;
+  // Execution metadata — ignored at design time, used by PlatformWorkflowRuntime
+  handler?: string;                                           // e.g. "stripe.connect_payout"
+  handler_config?: Record<string, unknown>;                   // e.g. { threshold: 70, template: "tutor_approved" }
+  completion_mode?: 'sync' | 'webhook' | 'hitl' | 'ai_session';
+  assigned_role?: string;                                     // "admin" | "tutor" | "client" | "automated"
+  retry_limit?: number;                                       // defaults to 3
+  timeout_minutes?: number;                                   // max time before auto-fail
 }
 
 export type ProcessNode = Node<ProcessStepData>;
@@ -96,6 +103,7 @@ export interface WorkflowProcess {
   category: string;
   nodes: ProcessNode[];
   edges: ProcessEdge[];
+  execution_mode?: 'design' | 'shadow' | 'live';
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
