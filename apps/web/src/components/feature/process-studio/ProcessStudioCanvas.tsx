@@ -108,6 +108,8 @@ export function ProcessStudioCanvas() {
     pushHistory,
     popHistory,
     clearHistory,
+    pendingCanvasImport,
+    setPendingCanvasImport,
   } = useProcessStudioStore();
 
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo(
@@ -515,6 +517,14 @@ export function ProcessStudioCanvas() {
       }
     })();
   }, [drillDownTarget, clearDrillDown, handleTemplateSelect]);
+
+  // --- Import from Discovery Panel ---
+  useEffect(() => {
+    if (!pendingCanvasImport) return;
+    const { nodes: importNodes, edges: importEdges, name: importName, description: importDesc } = pendingCanvasImport;
+    setPendingCanvasImport(null);
+    handleTemplateSelect(importNodes, importEdges, importName, importDesc);
+  }, [pendingCanvasImport, setPendingCanvasImport, handleTemplateSelect]);
 
   // --- Export JSON Handler ---
   const handleExportJSON = useCallback(() => {

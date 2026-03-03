@@ -56,6 +56,10 @@ interface ProcessStudioStore {
   requestDrillDown: (templateName: string) => void;
   clearDrillDown: () => void;
 
+  // Import from Discovery Panel
+  pendingCanvasImport: { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null;
+  setPendingCanvasImport: (data: { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null) => void;
+
   // Navigation history (for back button after drill-down)
   navigationHistory: NavHistoryEntry[];
   pushHistory: (entry: NavHistoryEntry) => void;
@@ -80,6 +84,7 @@ const initialState = {
   autoSaveStatus: 'idle' as 'idle' | 'saving' | 'saved' | 'error',
   drillDownTarget: null as string | null,
   navigationHistory: [] as NavHistoryEntry[],
+  pendingCanvasImport: null as { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null,
 };
 
 export const useProcessStudioStore = create<ProcessStudioStore>((set, get) => ({
@@ -112,6 +117,9 @@ export const useProcessStudioStore = create<ProcessStudioStore>((set, get) => ({
   // Subprocess drill-down
   requestDrillDown: (templateName) => set({ drillDownTarget: templateName }),
   clearDrillDown: () => set({ drillDownTarget: null }),
+
+  // Import from Discovery Panel
+  setPendingCanvasImport: (data) => set({ pendingCanvasImport: data }),
 
   // Navigation history
   pushHistory: (entry) =>

@@ -20,6 +20,7 @@ import {
   History,
 } from 'lucide-react';
 import { useDiscoveryStore } from './discovery-store';
+import { useProcessStudioStore } from './store';
 import { useDiscoveryRealtime } from '@/app/hooks/useDiscoveryRealtime';
 import type {
   SourceType,
@@ -111,7 +112,10 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     toggleSelected,
     selectAll,
     deselectAll,
+    setActiveTab,
   } = useDiscoveryStore();
+
+  const { setPendingCanvasImport } = useProcessStudioStore();
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -124,8 +128,8 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     status: string;
     results_count: number | null;
     duration_ms: number | null;
+    started_at: string;
     completed_at: string | null;
-    created_at: string;
   }>>([]);
   const [sourceStatus, setSourceStatus] = useState<Record<string, SourceScanStatus>>({});
 
@@ -135,10 +139,11 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   // Realtime: append new discoveries and update existing ones as scans stream in
   useDiscoveryRealtime({
     onNewResult: useCallback((result: DiscoveryResult) => {
-      setResults([...results, result]);
+      // Read current store state directly to avoid stale closure over `results`
+      const current = useDiscoveryStore.getState().results;
+      setResults([...current, result]);
       setExpandedGroups((prev) => new Set([...prev, result.category || 'other']));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [results, setResults]),
+    }, [setResults]),
     onResultUpdated: useCallback((result: DiscoveryResult) => {
       updateResult(result.id, result);
     }, [updateResult]),
@@ -243,16 +248,19 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
 
   const handleImportSingle = useCallback(
     (discovery: DiscoveryResult) => {
-      if (onImportToCanvas && discovery.nodes?.length) {
-        onImportToCanvas(
-          discovery.nodes,
-          discovery.edges,
-          discovery.name,
-          discovery.description || ''
-        );
-      }
+      if (!discovery.nodes?.length) return;
+      // Load into canvas via shared store and switch to Design tab
+      setPendingCanvasImport({
+        nodes: discovery.nodes,
+        edges: discovery.edges,
+        name: discovery.name,
+        description: discovery.description || '',
+      });
+      setActiveTab('design');
+      // Also call the prop callback if provided (backwards compat)
+      onImportToCanvas?.(discovery.nodes, discovery.edges, discovery.name, discovery.description || '');
     },
-    [onImportToCanvas]
+    [setPendingCanvasImport, setActiveTab, onImportToCanvas]
   );
 
   const handleImportSelected = useCallback(async () => {
@@ -520,7 +528,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
                     <td>
                       {scan.completed_at
                         ? new Date(scan.completed_at).toLocaleTimeString()
-                        : new Date(scan.created_at).toLocaleTimeString()}
+                        : new Date(scan.started_at).toLocaleTimeString()}
                     </td>
                     <td>{scan.source_types.join(', ')}</td>
                     <td>{scan.results_count ?? '—'}</td>

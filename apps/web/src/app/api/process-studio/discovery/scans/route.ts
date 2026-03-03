@@ -28,8 +28,8 @@ export async function GET() {
 
     const { data: scans, error: fetchError } = await supabase
       .from('workflow_discovery_scans')
-      .select('id, source_types, status, results_count, duration_ms, completed_at, created_at')
-      .order('created_at', { ascending: false })
+      .select('id, source_types, status, results_count, duration_ms, started_at, completed_at')
+      .order('started_at', { ascending: false })
       .limit(10);
 
     if (fetchError) {
