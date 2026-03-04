@@ -212,7 +212,7 @@ export class PlatformAIAgent extends BaseAgent {
  * Create a platform AI agent for Sage.
  */
 export function createPlatformAgent(
-  agentType: 'tutor' | 'coursework' | 'study_buddy' | 'research_assistant' | 'exam_prep' = 'tutor',
+  agentType: 'tutor' | 'coursework' | 'study_buddy' | 'research_assistant' | 'exam_prep' | 'growth_advisor' = 'tutor',
   subject: string = 'general',
   level?: string
 ): PlatformAIAgent {

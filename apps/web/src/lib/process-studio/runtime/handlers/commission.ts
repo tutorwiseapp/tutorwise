@@ -110,7 +110,11 @@ export async function handleCommissionQueryAvailable(
 // ---------------------------------------------------------------------------
 // commission.create
 // Calls handle_successful_payment RPC to create clearing transactions for all
-// commission splits (platform 10%, agent 20%, referrer 10%, tutor remainder).
+// commission splits (migration 342):
+//   Direct booking  (bookings.agent_id IS NULL):     tutor 90% / platform 10%
+//   Referred booking (bookings.agent_id IS NOT NULL): tutor 80% / platform 10% / referrer 10%
+// bookings.agent_id = lifetime referrer (profiles.referred_by_profile_id, any user role).
+// RENAME HISTORY: referrer_profile_id → agent_id (migration 051). agent_profile_id NEVER existed.
 // This creates 'clearing' status transactions — NOT the payout itself.
 // The payout happens later via the Commission Payout weekly workflow.
 // ---------------------------------------------------------------------------

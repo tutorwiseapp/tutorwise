@@ -27,7 +27,8 @@ export type AIAgentType =
   | 'coursework'         // Coursework assistance
   | 'study_buddy'        // Study companion
   | 'research_assistant' // Research and writing
-  | 'exam_prep';         // Exam preparation
+  | 'exam_prep'          // Exam preparation
+  | 'growth_advisor';    // Income & business growth advisor (Growth Agent)
 
 export type AIAgentContext =
   | 'platform'           // Sage (free, platform-owned)
@@ -294,6 +295,12 @@ export const AGENT_TYPE_METADATA: Record<AIAgentType, {
     label: 'Exam Prep Coach',
     description: 'Specialized exam preparation and technique',
     capabilities: ['past_paper_practice', 'exam_technique', 'time_management', 'revision_planning'],
+  },
+  growth_advisor: {
+    label: 'Growth Agent',
+    description: 'Personalised income & business growth advisor for tutors, agents, and organisations',
+    capabilities: ['pricing_benchmark', 'referral_strategy', 'income_stream_discovery', 'revenue_forecast', 'business_setup'],
+    defaultSubject: 'general',
   },
 };
 

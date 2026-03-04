@@ -234,6 +234,7 @@ export default function SageHistoryPage() {
             { id: 'history', label: 'History', active: true },
             { id: 'progress', label: 'Progress', href: '/sage/progress' },
             { id: 'materials', label: 'Materials', href: '/sage/materials' },
+            { id: 'billing', label: 'Billing', href: '/sage/billing' },
           ]}
           onTabChange={(tabId) => {
             if (tabId !== 'history') {

@@ -115,6 +115,7 @@ export default function GrowthPage() {
         <HubTabs
           tabs={[
             { id: 'chat', label: 'Chat', active: true },
+            { id: 'history', label: 'History', href: '/growth/history' },
             { id: 'billing', label: 'Billing', href: '/growth/billing' },
           ]}
           onTabChange={(tabId) => {

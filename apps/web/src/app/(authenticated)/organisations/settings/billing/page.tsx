@@ -13,6 +13,7 @@ import {
   getOrganisationSubscription,
   getOrganisationStats,
   getOrganisationCards,
+  getOrganisationInvoices,
   setOrganisationDefaultCard,
   removeOrganisationCard,
   createOrganisationCardCheckoutSession,
@@ -24,13 +25,33 @@ import Button from '@/app/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
 import OrganisationStatsWidget from '@/app/components/feature/organisations/sidebar/OrganisationStatsWidget';
 import OrganisationHelpWidget from '@/app/components/feature/organisations/sidebar/OrganisationHelpWidget';
-import OrganisationTipWidget from '@/app/components/feature/organisations/sidebar/OrganisationTipWidget';
-import OrganisationVideoWidget from '@/app/components/feature/organisations/sidebar/OrganisationVideoWidget';
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import styles from './page.module.css';
+
+function CardBrandBadge({ brand }: { brand: string }) {
+  const BRANDS: Record<string, { label: string; bg: string; color: string }> = {
+    visa:       { label: 'VISA', bg: '#1a1f71', color: '#fff' },
+    mastercard: { label: 'MC',   bg: '#eb001b', color: '#fff' },
+    amex:       { label: 'AMEX', bg: '#007bc1', color: '#fff' },
+    discover:   { label: 'DISC', bg: '#ff6600', color: '#fff' },
+    diners:     { label: 'DC',   bg: '#004a97', color: '#fff' },
+    jcb:        { label: 'JCB',  bg: '#003087', color: '#fff' },
+    unionpay:   { label: 'UP',   bg: '#d40000', color: '#fff' },
+  };
+  const b = BRANDS[brand.toLowerCase()] ?? { label: brand.toUpperCase().slice(0, 4), bg: '#6b7280', color: '#fff' };
+  return (
+    <span style={{
+      background: b.bg, color: b.color, fontSize: '9px', fontWeight: 700,
+      padding: '2px 5px', borderRadius: '3px', letterSpacing: '0.5px',
+      flexShrink: 0, display: 'inline-block',
+    }}>
+      {b.label}
+    </span>
+  );
+}
 
 export default function BillingSettingsPage() {
   const { organisation, profile, isLoading, tabs, handleTabChange } = useOrganisationSettings({
@@ -87,6 +108,16 @@ export default function BillingSettingsPage() {
 
   const savedCards = cardsData?.cards || [];
   const defaultPaymentMethodId = cardsData?.defaultPaymentMethodId || null;
+
+  const { data: invoicesData } = useQuery({
+    queryKey: ['organisation-invoices', organisation?.id],
+    queryFn: () => getOrganisationInvoices(organisation!.id),
+    enabled: !!organisation?.id && !!subscription?.stripe_customer_id,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+
+  const invoices = invoicesData?.invoices || [];
 
   // Mutation: Set default card
   const setDefaultMutation = useMutation({
@@ -379,40 +410,10 @@ export default function BillingSettingsPage() {
             subscription={subscription || null}
             onManageSubscription={handleManageSubscription}
           />
-          <OrganisationTipWidget />
-          <OrganisationVideoWidget />
         </HubSidebar>
       }
     >
       <div className={styles.content}>
-        {/* Stripe Configuration Notice */}
-        {!isStripeConfigured && (
-          <div className={styles.card}>
-            <h3 className={styles.cardTitle}>Configuration Required</h3>
-            <div className={styles.cardContent}>
-              <div className={`${styles.statusBox} ${styles.infoAlert}`}>
-                <div className={styles.statusContent}>
-                  <div>
-                    <h4 className={styles.statusTitle}>Stripe Not Configured</h4>
-                    <p className={styles.statusText}>
-                      The subscription service is not yet configured in the Stripe Dashboard.
-                    </p>
-                    <p className={styles.statusText}>
-                      To enable subscriptions, please:
-                    </p>
-                    <ul className={styles.featureList}>
-                      <li>Create an &quot;Organisation Premium&quot; product in your Stripe Dashboard</li>
-                      <li>Set the price to £50/month with a 14-day trial period</li>
-                      <li>Copy the Price ID and add it to STRIPE_PREMIUM_PRICE_ID in .env.local</li>
-                      <li>Restart the development server</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Subscription Status Card */}
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Current Subscription</h3>
@@ -559,10 +560,10 @@ export default function BillingSettingsPage() {
                   ) : (
                     savedCards.map((card) => (
                       <div key={card.id} className={styles.savedCard}>
-                        <span className={styles.cardIcon}></span>
+                        <CardBrandBadge brand={card.brand || 'unknown'} />
                         <div className={styles.savedCardDetails}>
                           <span>
-                            {card.brand?.toUpperCase()} **** {card.last4}
+                            **** {card.last4}
                             {card.id === defaultPaymentMethodId && (
                               <span className={styles.defaultBadge}>DEFAULT</span>
                             )}
@@ -622,40 +623,32 @@ export default function BillingSettingsPage() {
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Billing History</h3>
           <div className={styles.cardContent}>
-            {subscription && subscription.status !== 'none' ? (
-              <div className={styles.planDetails}>
-                <div className={styles.planItem}>
-                  <span className={styles.planLabel}>Subscription Started:</span>
-                  <span className={styles.planValue}>{formatDate(subscription.created_at)}</span>
-                </div>
-                <div className={styles.planItem}>
-                  <span className={styles.planLabel}>Current Period:</span>
-                  <span className={styles.planValue}>
-                    {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}
-                  </span>
-                </div>
-                <div className={styles.planItem}>
-                  <span className={styles.planLabel}>Status:</span>
-                  <span className={styles.planValue}>
-                    {subscription.status === 'active' ? 'Active' :
-                     subscription.status === 'trialing' ? 'Trial' :
-                     subscription.status === 'canceled' ? 'Canceled' :
-                     subscription.status}
-                  </span>
-                </div>
-                {subscription.trial_start && subscription.trial_end && (
-                  <div className={styles.planItem}>
-                    <span className={styles.planLabel}>Trial Period:</span>
-                    <span className={styles.planValue}>
-                      {formatDate(subscription.trial_start)} - {formatDate(subscription.trial_end)}
-                    </span>
-                  </div>
-                )}
-              </div>
+            {invoices.length === 0 ? (
+              <p className={styles.infoText}>No payment history yet.</p>
             ) : (
-              <p className={styles.infoText}>
-                No billing history available. Start your subscription to see billing details.
-              </p>
+              <div className={styles.invoiceList}>
+                {invoices.map((inv) => (
+                  <div key={inv.id} className={styles.invoiceRow}>
+                    <span className={styles.invoiceDate}>{formatDate(inv.created)}</span>
+                    <span className={styles.invoiceAmount}>
+                      £{(inv.amount_paid / 100).toFixed(2)}
+                    </span>
+                    <span className={`${styles.invoiceStatus} ${styles[`status_${inv.status}` as keyof typeof styles]}`}>
+                      {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
+                    </span>
+                    {inv.hosted_invoice_url && (
+                      <a
+                        href={inv.hosted_invoice_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.invoiceLink}
+                      >
+                        View
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

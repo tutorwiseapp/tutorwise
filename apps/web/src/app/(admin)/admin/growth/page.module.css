@@ -1,0 +1,25 @@
+/* Growth Admin Analytics Page Styles — mirrors sage admin page */
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.sectionHeading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+}
+
+.subscriptionsView {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .chartsSection { gap: 1rem; }
+}

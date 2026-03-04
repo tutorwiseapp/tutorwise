@@ -173,7 +173,16 @@ export type MetricName =
   | 'cas_ai_cost_total'
   | 'cas_cost_per_task'
   | 'cas_token_usage_total'
-  | 'cas_monthly_cost_projection';
+  | 'cas_monthly_cost_projection'
+  // Growth Agent metrics
+  | 'growth_questions_total'
+  | 'growth_unique_users'
+  | 'growth_free_users'
+  | 'growth_pro_users'
+  | 'growth_pro_subscriptions'
+  | 'growth_pro_mrr'
+  | 'growth_free_limit_hits'
+  | 'growth_pro_monthly_usage';
 
 export type ComparisonPeriod = 'yesterday' | 'last_week' | 'last_month';
 

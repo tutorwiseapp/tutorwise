@@ -393,6 +393,54 @@
   background-color: var(--color-error-bg);
 }
 
+/* ── Invoice List ──────────────────────────────────────────── */
+.invoiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.invoiceRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--font-size-sm);
+}
+
+.invoiceRow:last-child { border-bottom: none; }
+
+.invoiceDate { color: var(--color-text-light); }
+
+.invoiceAmount {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
+}
+
+.invoiceStatus {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: capitalize;
+}
+
+.status_paid { background: #dcfce7; color: #166534; }
+.status_open { background: #fef9c3; color: #854d0e; }
+.status_void { background: #f3f4f6; color: #6b7280; }
+.status_uncollectible { background: #f3f4f6; color: #6b7280; }
+.status_draft { background: #f3f4f6; color: #6b7280; }
+
+.invoiceLink {
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+}
+
+.invoiceLink:hover { text-decoration: underline; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .content {

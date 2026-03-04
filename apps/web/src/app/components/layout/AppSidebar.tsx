@@ -61,6 +61,7 @@ export default function AppSidebar() {
       ],
     },
     { href: '/sage', label: 'AI Tutor', roles: ['student', 'client', 'tutor', 'agent'] },
+    { href: '/growth', label: 'AI Growth', roles: ['tutor', 'agent'] },
     {
       href: '/ai-agents',
       label: 'AI Studio',

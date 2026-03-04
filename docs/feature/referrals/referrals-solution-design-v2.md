@@ -14,6 +14,7 @@
 
 | Date | Version | Description |
 |------|---------|-------------|
+| 2026-03-04 | v7.1 | **Migration 342 critical bug fix**: Restored `handle_successful_payment` RPC after silent regression introduced during AI agent rename work. `agent_profile_id` (never existed) → `agent_id` (correct post-migration-051 column). All referral commissions were silently failing (IF condition always NULL). Confirmed rate = **10% for ALL referrals** regardless of referrer role. Dropped stale 1-param overload. IMPORTANT: `bookings.agent_id` = lifetime referrer from `profiles.referred_by_profile_id` (any user role — client, tutor, agent). NOT an AI agent. Organisation margin/markup (org takes from tutor delivery) is a **separate** business model — NOT `handle_successful_payment`. |
 | 2025-12-16 | v7.0 | **Multi-tier commission system**: Configurable 1-7 tier support (Migration 123), conservative 1-tier launch with 3-tier roadmap, legal compliance documentation, fraud detection (Migration 120), partnership onboarding (Migration 121), client referrals (Migration 122), QR code API |
 | 2025-12-16 | v6.0 | **Production-ready implementation**: Hierarchical attribution (Migration 091), HMAC cookie signing, performance indexes (Migration 092), referral dashboard widget, delegation settings UI |
 | 2025-12-16 | v5.0 | **Patent v2.0 alignment**: Added commission delegation, removed device fingerprinting, updated terminology (RAID→referral_code) |

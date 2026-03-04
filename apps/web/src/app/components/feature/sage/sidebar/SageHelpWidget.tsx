@@ -122,8 +122,9 @@ export default function SageHelpWidget({
           // No subscription (default state)
           return (
             <div className={`${styles.statusBox} ${styles.neutralAlert}`}>
-              <p className={styles.statusTitle}>No Active Subscription</p>
-              <p className={styles.statusText}>Start your 14-day free trial today</p>
+              <p className={styles.statusTitle}>Free Tier</p>
+              <p className={styles.statusText}>10 free questions per day</p>
+              <p className={styles.statusText}>Upgrade for 5,000/month</p>
             </div>
           );
         })()}

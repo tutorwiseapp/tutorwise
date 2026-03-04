@@ -7,7 +7,7 @@ audience: "all"
 description: "Organisations allow tutoring agencies, schools, and tutoring centres to manage their teams, track performance, and collaborate effectively on Tutorwise."
 keywords: ["organisations", "agencies", "schools", "team management", "collaboration", "clients", "premium"]
 author: "Tutorwise Team"
-lastUpdated: "2026-02-05"
+lastUpdated: "2026-03-04"
 readTime: "8 min"
 relatedArticles:
   - "referrals"
@@ -413,10 +413,20 @@ Tasks can be linked to:
 
 Configure and track referral commissions for your team.
 
+<CalloutBox type="important">
+**Two separate commission concepts — do not confuse them:**
+
+**1. Referral Commission (10%)** — Earned when any user (client, tutor, or agent) refers someone who signs up and books. This is paid automatically by the platform to `bookings.agent_id` (the lifetime referrer). Commission split within your organisation (org vs member) is configured in Settings → Referrals.
+
+**2. Organisation Booking Margin** — A separate business model where the organisation takes a margin from tutors who deliver lessons under the org's brand. This is configured per organisation and is independent of the referral commission system.
+
+These two tracks do not overlap.
+</CalloutBox>
+
 ### Commission Settings
 
-**Organisation-Level Settings:**
-- **Referral Commission %** - How much of booking value goes to referrer (0-100%)
+**Organisation-Level Settings (Referral Commission only):**
+- **Referral Commission %** - How much of booking value goes to the referrer (platform default: 10%)
 - **Organisation vs Member Split** - Default split between organisation and referring member
 - **Minimum Booking Value** - Threshold for commission eligibility
 - **Payment Completion Required** - Only pay commissions after client payment clears

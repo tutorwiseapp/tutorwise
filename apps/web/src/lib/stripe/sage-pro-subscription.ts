@@ -61,34 +61,29 @@ export async function getSageProSubscription(
 }
 
 /**
- * Create Stripe Checkout Session for trial signup
+ * Create Stripe Checkout Session for Sage Pro subscription.
+ * Users get 10 free questions/day — they subscribe when they're ready.
  *
  * Flow:
- * 1. User clicks "Start Free Trial" on Sage page
- * 2. This function creates a Checkout Session with 14-day trial
- * 3. No credit card required during trial (trial_settings.end_behavior.missing_payment_method: 'cancel')
- * 4. User is redirected to Stripe Checkout
- * 5. After completing Checkout, user returns to /sage page
- * 6. Webhook creates sage_pro_subscriptions record with status='trialing'
+ * 1. User clicks "Upgrade to Sage Pro" (after hitting free daily limit or from billing page)
+ * 2. This function creates a Checkout Session (direct subscription, no trial)
+ * 3. User is redirected to Stripe Checkout
+ * 4. After completing Checkout, user returns to /sage page
+ * 5. Webhook creates sage_pro_subscriptions record with status='active'
  */
-export async function createTrialCheckoutSession(userId: string): Promise<Stripe.Checkout.Session> {
+export async function createCheckoutSession(userId: string): Promise<Stripe.Checkout.Session> {
   if (!process.env.STRIPE_SAGE_PRO_PRICE_ID) {
     throw new Error('STRIPE_SAGE_PRO_PRICE_ID not configured');
   }
 
   const supabase = await createClient();
 
-  // Get user's email for Stripe Customer
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user?.email) {
     throw new Error('User not authenticated');
   }
 
-  // Get trial days from feature flags (configurable via environment)
-  const trialDays = FEATURES.SUBSCRIPTION_PAYWALL.trialDays;
-
-  // Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     customer_email: user.email,
@@ -99,16 +94,9 @@ export async function createTrialCheckoutSession(userId: string): Promise<Stripe
       },
     ],
     subscription_data: {
-      trial_period_days: trialDays,
       metadata: {
         user_id: userId,
         subscription_type: 'sage_pro',
-      },
-      // Auto-cancel if no payment method added after trial
-      trial_settings: {
-        end_behavior: {
-          missing_payment_method: 'cancel' as const,
-        },
       },
     },
     metadata: {
@@ -122,6 +110,9 @@ export async function createTrialCheckoutSession(userId: string): Promise<Stripe
 
   return session;
 }
+
+/** @deprecated Use createCheckoutSession — trial removed, model is 10 free questions/day */
+export const createTrialCheckoutSession = createCheckoutSession;
 
 /**
  * Create Stripe Billing Portal Session

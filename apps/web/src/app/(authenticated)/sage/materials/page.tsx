@@ -290,6 +290,7 @@ export default function SageMaterialsPage() {
             { id: 'history', label: 'History', href: '/sage/history' },
             { id: 'progress', label: 'Progress', href: '/sage/progress' },
             { id: 'materials', label: 'Materials', active: true },
+            { id: 'billing', label: 'Billing', href: '/sage/billing' },
           ]}
           onTabChange={(tabId) => {
             if (tabId !== 'materials') {

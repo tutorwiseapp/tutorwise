@@ -926,3 +926,34 @@ export async function createOrganisationCardCheckoutSession(
 
   return sessionId;
 }
+
+export interface OrganisationInvoice {
+  id: string;
+  number: string | null;
+  created: string;
+  amount_paid: number;
+  currency: string;
+  status: 'paid' | 'open' | 'void' | 'uncollectible' | 'draft';
+  hosted_invoice_url: string | null;
+}
+
+/**
+ * List Stripe invoices for an organisation subscription
+ */
+export async function getOrganisationInvoices(
+  organisationId: string
+): Promise<{ invoices: OrganisationInvoice[] }> {
+  const response = await fetch('/api/stripe/organisations/invoices', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ organisationId }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to fetch invoices');
+  }
+
+  return response.json();
+}

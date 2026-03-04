@@ -168,6 +168,7 @@ export default function SageProgressPage() {
             { id: 'history', label: 'History', href: '/sage/history' },
             { id: 'progress', label: 'Progress', active: true },
             { id: 'materials', label: 'Materials', href: '/sage/materials' },
+            { id: 'billing', label: 'Billing', href: '/sage/billing' },
           ]}
           onTabChange={(tabId) => {
             if (tabId !== 'progress') {

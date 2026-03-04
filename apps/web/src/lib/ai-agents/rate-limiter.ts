@@ -18,14 +18,16 @@ import { redis } from '@/lib/redis';
 const FREE_DAILY_LIMIT = 10;
 const SAGE_PRO_MONTHLY_LIMIT = 5000;
 const SAGE_PRO_HOURLY_BURST_LIMIT = 100; // Prevent abuse/account sharing
+const GROWTH_PRO_MONTHLY_LIMIT = 5000;
+const GROWTH_PRO_HOURLY_BURST_LIMIT = 100;
 
 const ROLLING_WINDOW_HOURS = 24;
 const ROLLING_WINDOW_MS = ROLLING_WINDOW_HOURS * 60 * 60 * 1000;
 
 // --- Types ---
 
-export type AIAgent = 'lexi' | 'sage';
-export type RateLimitTier = 'free' | 'sage_pro';
+export type AIAgent = 'lexi' | 'sage' | 'growth';
+export type RateLimitTier = 'free' | 'sage_pro' | 'growth_pro';
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -37,7 +39,7 @@ export interface RateLimitResult {
   error?: 'daily_limit' | 'monthly_limit' | 'hourly_burst_limit';
   message?: string;
   upsell?: {
-    plan: 'sage_pro';
+    plan: 'sage_pro' | 'growth_pro';
     price: string;
     questions: number;
   };
@@ -45,7 +47,7 @@ export interface RateLimitResult {
 
 export interface SubscriptionStatus {
   isActive: boolean;
-  plan?: 'sage_pro';
+  plan?: 'sage_pro' | 'growth_pro';
   expiresAt?: Date;
 }
 
@@ -80,13 +82,18 @@ export async function checkAIAgentRateLimit(
     }
 
     // Sage: Check subscription status
-    const hasSagePro = subscription?.isActive && subscription?.plan === 'sage_pro';
-
-    if (hasSagePro) {
-      return await checkSageProLimit(userId);
-    } else {
-      return await checkFreeTierLimit(userId, agent);
+    if (agent === 'sage') {
+      const hasSagePro = subscription?.isActive && subscription?.plan === 'sage_pro';
+      return hasSagePro ? await checkSageProLimit(userId) : await checkFreeTierLimit(userId, agent);
     }
+
+    // Growth: Check subscription status
+    if (agent === 'growth') {
+      const hasGrowthPro = subscription?.isActive && subscription?.plan === 'growth_pro';
+      return hasGrowthPro ? await checkGrowthProLimit(userId) : await checkFreeTierLimit(userId, agent);
+    }
+
+    return await checkFreeTierLimit(userId, agent);
   } catch (error) {
     // Redis connection failed - allow request but log error
     console.error('[RateLimiter] Redis connection error, allowing request:', error instanceof Error ? error.message : error);
@@ -117,20 +124,24 @@ export async function incrementAIAgentUsage(
   }
 
   try {
-    const hasSagePro =
-      agent === 'sage' && subscription?.isActive && subscription?.plan === 'sage_pro';
+    const hasSagePro = agent === 'sage' && subscription?.isActive && subscription?.plan === 'sage_pro';
+    const hasGrowthPro = agent === 'growth' && subscription?.isActive && subscription?.plan === 'growth_pro';
 
     if (hasSagePro) {
-      // Increment Redis counter (fast rate limiting)
       await incrementSageProUsage(userId);
-
-      // Also increment database counter (authoritative billing tracking)
       try {
         const { incrementUsage } = await import('@/lib/stripe/sage-pro-subscription');
         await incrementUsage(userId, sessionId || 'unknown', 1);
       } catch (dbError) {
         console.error('[RateLimiter] Database increment failed (non-critical):', dbError);
-        // Don't throw - Redis increment succeeded, which is enough for rate limiting
+      }
+    } else if (hasGrowthPro) {
+      await incrementGrowthProUsage(userId);
+      try {
+        const { incrementGrowthUsage } = await import('@/lib/stripe/growth-pro-subscription');
+        await incrementGrowthUsage(userId, sessionId || 'unknown', 1);
+      } catch (dbError) {
+        console.error('[RateLimiter] Growth DB increment failed (non-critical):', dbError);
       }
     } else {
       await incrementFreeTierUsage(userId, agent);
@@ -175,11 +186,9 @@ async function checkFreeTierLimit(userId: string, agent: AIAgent): Promise<RateL
       message: 'Daily question limit reached',
       upsell:
         agent === 'sage'
-          ? {
-              plan: 'sage_pro',
-              price: '£10/month',
-              questions: SAGE_PRO_MONTHLY_LIMIT,
-            }
+          ? { plan: 'sage_pro', price: '£10/month', questions: SAGE_PRO_MONTHLY_LIMIT }
+          : agent === 'growth'
+          ? { plan: 'growth_pro', price: '£10/month', questions: GROWTH_PRO_MONTHLY_LIMIT }
           : undefined,
     };
   }
@@ -300,6 +309,69 @@ async function incrementSageProUsage(userId: string): Promise<void> {
   await redis!.expire(hourlyKey, 60 * 60); // 1 hour TTL
 }
 
+// --- Growth Pro: Monthly Limit + Hourly Burst Protection ---
+
+async function checkGrowthProLimit(userId: string): Promise<RateLimitResult> {
+  const month = getCurrentMonth();
+  const monthlyKey = `growth:messages:pro:${userId}:${month}`;
+
+  const monthlyCount = await redis!.get(monthlyKey);
+  const monthlyUsed = monthlyCount ? parseInt(monthlyCount) : 0;
+
+  if (monthlyUsed >= GROWTH_PRO_MONTHLY_LIMIT) {
+    return {
+      allowed: false,
+      tier: 'growth_pro',
+      limit: GROWTH_PRO_MONTHLY_LIMIT,
+      used: GROWTH_PRO_MONTHLY_LIMIT,
+      remaining: 0,
+      resetAt: getNextMonthStart(),
+      error: 'monthly_limit',
+      message: 'Monthly question limit reached',
+    };
+  }
+
+  const hour = getCurrentHour();
+  const hourlyKey = `growth:messages:pro:${userId}:hourly:${hour}`;
+  const hourlyCount = await redis!.get(hourlyKey);
+  const hourlyUsed = hourlyCount ? parseInt(hourlyCount) : 0;
+
+  if (hourlyUsed >= GROWTH_PRO_HOURLY_BURST_LIMIT) {
+    return {
+      allowed: false,
+      tier: 'growth_pro',
+      limit: GROWTH_PRO_MONTHLY_LIMIT,
+      used: monthlyUsed,
+      remaining: GROWTH_PRO_MONTHLY_LIMIT - monthlyUsed,
+      resetAt: getNextHourStart(),
+      error: 'hourly_burst_limit',
+      message: `Please wait before asking more questions (max ${GROWTH_PRO_HOURLY_BURST_LIMIT}/hour)`,
+    };
+  }
+
+  return {
+    allowed: true,
+    tier: 'growth_pro',
+    limit: GROWTH_PRO_MONTHLY_LIMIT,
+    used: monthlyUsed,
+    remaining: GROWTH_PRO_MONTHLY_LIMIT - monthlyUsed,
+    resetAt: getNextMonthStart(),
+  };
+}
+
+async function incrementGrowthProUsage(userId: string): Promise<void> {
+  const month = getCurrentMonth();
+  const monthlyKey = `growth:messages:pro:${userId}:${month}`;
+
+  await redis!.incr(monthlyKey);
+  await redis!.expireat(monthlyKey, getNextMonthStart().getTime() / 1000 + 30 * 24 * 60 * 60);
+
+  const hour = getCurrentHour();
+  const hourlyKey = `growth:messages:pro:${userId}:hourly:${hour}`;
+  await redis!.incr(hourlyKey);
+  await redis!.expire(hourlyKey, 60 * 60);
+}
+
 // --- Helper Functions ---
 
 /**
@@ -344,12 +416,36 @@ function getNextMidnightUTC(): Date {
   return tomorrow;
 }
 
-// --- Subscription Management (Future) ---
+// --- Subscription Management ---
+
+/**
+ * Get user's Growth Pro subscription status.
+ */
+export async function getGrowthSubscription(userId: string): Promise<SubscriptionStatus> {
+  try {
+    const { getGrowthProSubscription } = await import('@/lib/stripe/growth-pro-subscription');
+    const subscription = await getGrowthProSubscription(userId);
+
+    if (!subscription) return { isActive: false };
+
+    const isActive = subscription.status === 'active' || subscription.status === 'past_due';
+    if (isActive) {
+      return {
+        isActive: true,
+        plan: 'growth_pro',
+        expiresAt: new Date(subscription.current_period_end),
+      };
+    }
+
+    return { isActive: false };
+  } catch (error) {
+    console.error('[RateLimiter] Error fetching Growth subscription:', error);
+    return { isActive: false };
+  }
+}
 
 /**
  * Get user's Sage subscription status.
- * For now, always returns inactive (no subscriptions yet).
- * Future: Query database for active Stripe subscription.
  */
 export async function getSageSubscription(userId: string): Promise<SubscriptionStatus> {
   try {
