@@ -1,0 +1,53 @@
+/**
+ * Growth Page Styles
+ * Pattern: Mirrors sage/page.module.css exactly
+ */
+
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 400px);
+  min-height: 400px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.skeletonWidget {
+  height: 120px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: var(--radius-md, 8px);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chatContainer {
+    height: calc(100vh - 280px);
+    min-height: 300px;
+    border-radius: 0;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chatContainer {
+    height: calc(100vh - 350px);
+    min-height: 350px;
+  }
+}

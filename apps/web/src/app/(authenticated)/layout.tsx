@@ -68,7 +68,7 @@ export default function AuthenticatedLayout({
       <AppSidebar />
 
       {/* Center Column: Page Content (hub pages render their own HubSidebar) */}
-      <div className={styles.mainContent}>{children}</div>
+      <div className={styles.mainContent} data-scroll-container>{children}</div>
     </div>
   );
 }

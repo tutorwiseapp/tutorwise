@@ -61,6 +61,13 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // Skip subscription checkouts (sage_pro, growth_pro, ai_agent) —
+        // those are handled by customer.subscription.created
+        if (session.metadata?.subscription_type) {
+          console.log(`[WEBHOOK] Subscription checkout ${session.id} (${session.metadata.subscription_type}) — handled by subscription events`);
+          break;
+        }
+
         // Get booking_id from metadata
         const booking_id = session.metadata?.booking_id;
 
@@ -122,9 +129,20 @@ export async function POST(req: NextRequest) {
         });
 
         /**
-         * NOTE: Wiselist attribution tracking has been REMOVED.
-         * Do NOT implement wiselist_referrer_id metadata processing.
-         * The referral system (v4.3) has been removed - no attribution tracking needed.
+         * NOTE: Wiselist booking_referrer_id metadata tracking has been REMOVED.
+         * Do NOT implement wiselist_referrer_id metadata processing here.
+         *
+         * Referral commission attribution is handled entirely by handle_successful_payment RPC above.
+         * The referral loop: client signs up via referral → profiles.referred_by_profile_id set
+         * (handle_new_user trigger) → client books → bookings.agent_id = referred_by_profile_id
+         * (POST /api/bookings) → this webhook calls handle_successful_payment → RPC reads
+         * bookings.agent_id and creates 10% Referral Commission transaction + marks referral Converted.
+         *
+         * RENAME HISTORY (DO NOT REGRESS):
+         *   bookings.referrer_profile_id → bookings.agent_id (migration 051)
+         *   agent_profile_id has NEVER existed on the bookings table.
+         *   Migration 342 fixed a regression where the RPC used agent_profile_id, silently
+         *   causing all referral commissions to fail. Do NOT introduce agent_profile_id again.
          */
 
         // Send payment receipt email to client (async - don't block webhook)
@@ -569,6 +587,35 @@ export async function POST(req: NextRequest) {
 
           console.log(`[WEBHOOK:SUBSCRIPTION] Created Sage Pro subscription record for user ${userId}`);
         }
+        // Handle Growth Pro subscriptions
+        else if (subscriptionType === 'growth_pro') {
+          const userId = subscription.metadata?.user_id;
+
+          if (!userId) {
+            console.error('[WEBHOOK:SUBSCRIPTION] No user_id in Growth Pro subscription metadata');
+            throw new Error('Missing user_id in Growth Pro subscription metadata');
+          }
+
+          const { error: insertError } = await supabase
+            .from('growth_pro_subscriptions')
+            .insert({
+              user_id: userId,
+              stripe_subscription_id: subscription.id,
+              stripe_customer_id: subscription.customer as string,
+              stripe_price_id: (subscription as any).items?.data?.[0]?.price?.id ?? null,
+              status: subscription.status,
+              current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+              cancel_at_period_end: (subscription as any).cancel_at_period_end,
+            });
+
+          if (insertError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to create Growth Pro subscription record:', insertError);
+            throw insertError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Created Growth Pro subscription record for user ${userId}`);
+        }
         // Handle Organisation subscriptions (legacy)
         else {
           const organisationId = subscription.metadata?.organisation_id;
@@ -677,6 +724,28 @@ export async function POST(req: NextRequest) {
 
           console.log(`[WEBHOOK:SUBSCRIPTION] Updated Sage Pro subscription ${subscription.id}`);
         }
+        // Update Growth Pro subscription
+        else if (subscriptionType === 'growth_pro') {
+          const { error: updateError } = await supabase
+            .from('growth_pro_subscriptions')
+            .update({
+              status: subscription.status,
+              current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+              current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+              cancel_at_period_end: (subscription as any).cancel_at_period_end,
+              canceled_at: subscription.canceled_at
+                ? new Date(subscription.canceled_at * 1000).toISOString()
+                : null,
+            })
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to update Growth Pro subscription:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Updated Growth Pro subscription ${subscription.id}`);
+        }
         // Update Organisation subscription
         else {
           const { error: updateError } = await supabase
@@ -745,6 +814,20 @@ export async function POST(req: NextRequest) {
 
           console.log(`[WEBHOOK:SUBSCRIPTION] Marked Sage Pro subscription ${subscription.id} as canceled`);
         }
+        // Delete Growth Pro subscription
+        else if (subscriptionType === 'growth_pro') {
+          const { error: updateError } = await supabase
+            .from('growth_pro_subscriptions')
+            .update(cancelData)
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (updateError) {
+            console.error('[WEBHOOK:SUBSCRIPTION] Failed to mark Growth Pro subscription as canceled:', updateError);
+            throw updateError;
+          }
+
+          console.log(`[WEBHOOK:SUBSCRIPTION] Marked Growth Pro subscription ${subscription.id} as canceled`);
+        }
         // Delete Organisation subscription
         else {
           const { error: updateError } = await supabase
@@ -782,6 +865,13 @@ export async function POST(req: NextRequest) {
           .update({ status: 'active' })
           .eq('stripe_subscription_id', subscriptionId)
           .in('status', ['trialing', 'past_due']);
+
+        // Try Growth Pro subscription
+        await supabase
+          .from('growth_pro_subscriptions')
+          .update({ status: 'active' })
+          .eq('stripe_subscription_id', subscriptionId)
+          .in('status', ['past_due', 'incomplete']);
 
         // If not Sage Pro, try Organisation subscription
         if (sageError && sageError.code === 'PGRST116') {
@@ -821,6 +911,12 @@ export async function POST(req: NextRequest) {
         // Try updating Sage Pro subscription first
         const { error: sageError } = await supabase
           .from('sage_pro_subscriptions')
+          .update({ status: 'past_due' })
+          .eq('stripe_subscription_id', subscriptionId);
+
+        // Try Growth Pro subscription
+        await supabase
+          .from('growth_pro_subscriptions')
           .update({ status: 'past_due' })
           .eq('stripe_subscription_id', subscriptionId);
 
