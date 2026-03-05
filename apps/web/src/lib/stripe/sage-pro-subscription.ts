@@ -16,7 +16,6 @@
 import { stripe } from './client';
 import { createClient } from '@/utils/supabase/server';
 import type Stripe from 'stripe';
-import { FEATURES } from '@/config/organisation-features';
 
 // Re-export types and utilities from sage-pro-subscription-utils (client-safe)
 export type { SubscriptionStatus, SageProSubscription, QuotaCheckResult, StorageQuotaCheckResult } from './sage-pro-subscription-utils';
@@ -110,9 +109,6 @@ export async function createCheckoutSession(userId: string): Promise<Stripe.Chec
 
   return session;
 }
-
-/** @deprecated Use createCheckoutSession — trial removed, model is 10 free questions/day */
-export const createTrialCheckoutSession = createCheckoutSession;
 
 /**
  * Create Stripe Billing Portal Session
