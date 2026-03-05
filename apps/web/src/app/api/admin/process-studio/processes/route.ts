@@ -24,7 +24,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('workflow_processes')
-      .select('id, name, description, category, created_at, updated_at')
+      .select('id, name, description, category, execution_mode, created_at, updated_at')
       .order('updated_at', { ascending: false });
 
     if (error) {
