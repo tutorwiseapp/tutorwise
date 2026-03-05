@@ -12,7 +12,7 @@
  * - Automatically triggers review email sequence
  */
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -34,6 +34,21 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
 
   try {
+    // Skip when Booking Lifecycle engine is live — session.wait hitl handles completion
+    const serviceClient = createServiceRoleClient();
+    const { data: liveBookingProcess } = await serviceClient
+      .from('workflow_processes')
+      .select('id')
+      .in('name', ['Booking Lifecycle — Human Tutor', 'Booking Lifecycle — AI Tutor'])
+      .eq('execution_mode', 'live')
+      .limit(1)
+      .maybeSingle();
+
+    if (liveBookingProcess) {
+      console.log('[Session Completion] Booking Lifecycle engine is live — skipping (engine manages session completion)');
+      return NextResponse.json({ success: true, skipped: true, reason: 'engine_live' });
+    }
+
     const now = new Date();
 
     console.log('[Session Completion] Checking for completed sessions at:', now.toISOString());

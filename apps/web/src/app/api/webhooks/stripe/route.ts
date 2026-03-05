@@ -101,20 +101,32 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Call the RPC function to process payment atomically
-        // v4.9: Pass stripe_checkout_id for idempotency check
-        const { error: rpcError } = await supabase.rpc('handle_successful_payment', {
-          p_booking_id: booking_id,
-          p_stripe_checkout_id: session.id // v4.9: Idempotency key
-        });
+        // v10.0: If execution_id is in metadata, this checkout was created by the Workflow Engine.
+        // Resume the engine so commission.create handles the RPC atomically — skip direct RPC call.
+        const executionId = session.metadata?.execution_id;
+        if (executionId) {
+          const { workflowRuntime } = await import('@/lib/process-studio/runtime/PlatformWorkflowRuntime');
+          await workflowRuntime.resume(executionId, 'payment_completed', {
+            checkout_session_id: session.id,
+            payment_intent_id: String(session.payment_intent ?? ''),
+          });
+          console.log(`[WEBHOOK] Resumed workflow execution ${executionId} for booking ${booking_id}`);
+        } else {
+          // Legacy path: call the RPC function to process payment atomically
+          // v4.9: Pass stripe_checkout_id for idempotency check
+          const { error: rpcError } = await supabase.rpc('handle_successful_payment', {
+            p_booking_id: booking_id,
+            p_stripe_checkout_id: session.id,
+          });
 
-        if (rpcError) {
-          console.error('RPC handle_successful_payment failed:', rpcError);
-          // Don't return error to Stripe - we want to retry
-          throw rpcError;
+          if (rpcError) {
+            console.error('RPC handle_successful_payment failed:', rpcError);
+            // Don't return error to Stripe - we want to retry
+            throw rpcError;
+          }
+
+          console.log(`Successfully processed payment for booking ${booking_id}`);
         }
-
-        console.log(`Successfully processed payment for booking ${booking_id}`);
 
         // Award EduPay Points for tutoring income (async - don't block webhook)
         // v9.0: Fire-and-forget EP award after handle_successful_payment succeeds

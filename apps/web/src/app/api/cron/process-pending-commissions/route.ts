@@ -6,7 +6,7 @@
  * Called by pg_cron every hour to process pending referral commissions
  */
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendCommissionAvailableEmail } from '@/lib/email/commission-available';
 
@@ -31,6 +31,21 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
 
   try {
+    // Skip when Booking Lifecycle engine is live — commission transitions are handled by the engine
+    const serviceClient = createServiceRoleClient();
+    const { data: liveBookingProcess } = await serviceClient
+      .from('workflow_processes')
+      .select('id')
+      .in('name', ['Booking Lifecycle — Human Tutor', 'Booking Lifecycle — AI Tutor'])
+      .eq('execution_mode', 'live')
+      .limit(1)
+      .maybeSingle();
+
+    if (liveBookingProcess) {
+      console.log('[Process Pending] Booking Lifecycle engine is live — skipping (engine manages commission clearing)');
+      return NextResponse.json({ success: true, skipped: true, reason: 'engine_live' });
+    }
+
     const clearingCutoff = new Date(Date.now() - CLEARING_PERIOD_DAYS * 24 * 60 * 60 * 1000);
 
     console.log('[Process Pending] Looking for commissions older than:', clearingCutoff.toISOString());
