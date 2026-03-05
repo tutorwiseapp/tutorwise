@@ -54,7 +54,7 @@ The Tutorwise platform has evolved iteratively into a set of powerful but discon
 | CAS | Builds and deploys AI agents | Focused on dev pipeline, not operational intelligence |
 | Sage | Delivers AI tutoring | Events isolated, feedback not cross-system |
 | Lexi | Answers platform questions | Knowledge goes stale, no write actions |
-| Growth | Advises tutors on growth | Not yet built; must not be another island |
+| Growth | Advises tutors on growth | Built (read-only, Phase 1 tools); actions + campaigns not yet wired to platform |
 | Admin pages | Show operational data | Reactive, manual, no AI intelligence layer |
 
 The strategic problem is not that any individual system is broken. It is that they form **seven silos that happen to share a database**. No system knows what another is doing. No admin view shows the whole picture. Every new agent duplicates subscription logic, API routes, and UI. The cost of adding capability grows linearly instead of compounding.
@@ -1106,19 +1106,21 @@ Adding a new agent = one line in the rate limit config.
 ## 8. Build Phases
 
 ```
-iPOM BUILD SEQUENCE — Phase Dependencies
+iPOM BUILD SEQUENCE — Phase Dependencies (updated 2026-03-05)
 
-  Phase 0           Platform           Phase 1              Phase 2
-  (Cleanup)         Extraction         (Growth + Nexus)     (Actions + HITL)
-  ─────────         ────────────       ──────────────────   ────────────────
-  Remove dead  ──▶  agent_subscriptions  growth/ module     Action tools
-  code              agents-core pkg      Nexus bridges      HITL gateway
-  Clean skeleton    AgentChatUI          Pipelines 1+2      Proactive nudges
-  Verify build      Param routes         Platform Console
-                    Rate limiter
-                         │
-                         │ concurrent
-                         ▼
+  ✅ DONE              ✅ DONE            NOW                  Phase 2
+  Phase 0              Growth Agent       Platform Extraction   (Actions + HITL)
+  ─────────            ────────────       + Nexus Foundation    ────────────────
+  Remove dead          chat UI       ──▶  agent_subscriptions   Action tools
+  code                 API routes         agents-core pkg        HITL gateway
+  Clean skeleton       billing            AgentChatUI            Proactive nudges
+  Verify build         admin page         Param routes
+                       Stripe             Rate limiter
+                       sidebar link       Nexus bridges
+                            │             Pipelines 1+2
+                            │             Platform Console
+                            │ concurrent
+                            ▼
   Phase 3              Phase 4
   (Campaigns +         (Network + Automation)
    Admin Intel)
@@ -1130,15 +1132,17 @@ iPOM BUILD SEQUENCE — Phase Dependencies
   Lexi admin mode
 
 
-  TIMELINE (rough, sequential)
+  TIMELINE (revised — Growth already built)
   ────────────────────────────────────────────────────────────────────────
-  Week 1-2   Phase 0 (2-3h) + Platform Extraction (15-20h)
-  Week 2-6   Phase 1: Growth Agent + Nexus Foundation (62-75h)
-  Week 6-9   Phase 2: Actions + HITL Gateway (30-40h)
-  Week 9-12  Phase 3: Campaigns + Admin Intelligence (30-40h)
-  Week 12-16 Phase 4: Network Intelligence + Automation (30-40h)
+  ✅ Done      Phase 0: Cleanup (2-3h actual)
+  ✅ Done      Growth Agent core (built separately, ~35h)
+  Now          Platform Extraction + Nexus Foundation (30-40h)
+  Next         Phase 2: Actions + HITL Gateway (30-40h)
+  After        Phase 3: Campaigns + Admin Intelligence (30-40h)
+  After        Phase 4: Network Intelligence + Automation (30-40h)
   ────────────────────────────────────────────────────────────────────────
-  Total: ~169-218 AI-assisted developer hours
+  Remaining: ~120-160 AI-assisted developer hours (was 169-218h)
+  Saved: ~40-50h — Growth Agent already shipped
 ```
 
 ### Phase 0 — Cleanup `2–3h`
@@ -1170,22 +1174,22 @@ Foundational platform work done while building Growth. Makes every future agent 
 
 ---
 
-### Phase 1 — Growth Agent + Nexus Foundation `62–75h`
+### Phase 1 — Nexus Foundation + Platform Extraction `30–40h` *(Growth already built)*
 
-**Growth Agent core:**
+**Growth Agent core** *(Growth is already built — items below track remaining gaps):*
 
-| Task | Hours |
-|------|-------|
-| `growth/` module: agents, personas, 5 knowledge files, tools, orchestrator | 10–12 |
-| `@growth/*` tsconfig path alias | 0.5 |
-| `apps/web/src/lib/growth/` adapter layer | 4 |
-| Growth API routes (via parameterised `/api/agents/growth/`) | 3 |
-| Growth Score SQL + hourly cache | 3 |
-| Growth chat UI + Growth Score widget | 6–8 |
-| Sidebar navigation link | 0.5 |
-| Admin Growth page `/admin/growth/` | 3 |
-| Stripe Growth Pro: price ID, checkout, webhook handler | 3 |
-| Growth metrics attribution schema (`growth_agent_session_id` columns) | 2 |
+| Task | Hours | Status |
+|------|-------|--------|
+| `growth/` module: agents, personas, knowledge files, tools, orchestrator | 10–12 | ✅ Done |
+| `@growth/*` tsconfig path alias | 0.5 | ✅ Done |
+| `apps/web/src/lib/growth/` adapter layer | 4 | ✅ Done |
+| Growth API routes (`/api/growth/stream`, `/api/growth/session`, `/api/growth/audit`) | 3 | ✅ Done |
+| Growth Score SQL + hourly cache | 3 | TBD — verify |
+| Growth chat UI + Growth Score widget | 6–8 | ✅ Done |
+| Sidebar navigation link | 0.5 | ✅ Done |
+| Admin Growth page `/admin/growth/` | 3 | ✅ Done |
+| Stripe Growth Pro: price ID, checkout, webhook handler | 3 | ✅ Done |
+| Growth metrics attribution schema (`growth_agent_session_id` columns) | 2 | TBD — verify |
 
 **Nexus Foundation (built alongside Growth):**
 
@@ -1201,7 +1205,7 @@ Foundational platform work done while building Growth. Makes every future agent 
 | `get-executions.ts` shared agent tool | 2 |
 | `/admin/platform/` — Platform Console (health grid, event stream) | 6–8 |
 
-**Outcome**: Growth Agent live (read-only, Phase 1 tools). Lexi always up to date. Platform Console showing cross-system events. Knowledge pipelines running automatically.
+**Outcome**: Unified agent infrastructure in place. Lexi always up to date via Pipeline 1+2. Platform Console showing cross-system events. Growth Agent wired into Nexus (no longer an island). Cost of next new agent drops from ~50h to ~15h.
 
 ---
 
@@ -1263,15 +1267,16 @@ Foundational platform work done while building Growth. Makes every future agent 
 
 ### Grand Total Estimates
 
-| Phase | Scope | Hours |
-|-------|-------|-------|
-| Phase 0 | Cleanup | 2–3 |
-| Platform Extraction | Shared agent infrastructure | 15–20 |
-| Phase 1 | Growth Agent + Nexus Foundation | 62–75 |
-| Phase 2 | Actions + HITL Gateway | 30–40 |
-| Phase 3 | Campaigns + Admin Intelligence | 30–40 |
-| Phase 4 | Network Intelligence + Automation | 30–40 |
-| **Total** | | **169–218h** |
+| Phase | Scope | Hours | Status |
+|-------|-------|-------|--------|
+| Phase 0 | Cleanup | 2–3 | ✅ Done |
+| Growth Agent core | Chat, API routes, billing, admin, Stripe | ~35 | ✅ Done (built separately) |
+| Platform Extraction + Nexus Foundation | agent_subscriptions, agents-core, bridges, pipelines, Platform Console | 30–40 | **Now** |
+| Phase 2 | Actions + HITL Gateway | 30–40 | Pending |
+| Phase 3 | Campaigns + Admin Intelligence | 30–40 | Pending |
+| Phase 4 | Network Intelligence + Automation | 30–40 | Pending |
+| **Remaining total** | | **~120–160h** | |
+| ~~Original estimate~~ | ~~Including Growth build~~ | ~~169–218h~~ | ~~Superseded~~ |
 
 ---
 
