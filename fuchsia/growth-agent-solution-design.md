@@ -4,7 +4,7 @@
 **Date**: 2026-03-04 (updated 2026-03-05)
 **Owner**: Product Team
 **Series**: AI Studio Agents
-**Version**: 2.0 — Architectural decisions confirmed
+**Version**: 2.1 — Subscription infrastructure updated to unified agent_subscriptions table (iPOM D3)
 
 ---
 
@@ -595,7 +595,7 @@ Free users hit the rate limit and see an inline "Upgrade to Growth Pro" prompt.
 ```
 POST /api/growth/stream
         ↓
-getGrowthSubscription(userId)   ← checks growth_pro_subscriptions table
+getGrowthSubscription(userId)   ← checks agent_subscriptions WHERE agent_type='growth'
         ↓
 checkGrowthRateLimit()          ← Redis rolling 24hr window
         ↓
@@ -613,19 +613,30 @@ HTTP 429 + upsell payload       ← if free limit exceeded
 
 ### 10.3 Subscription Infrastructure
 
-**New DB table**: `growth_pro_subscriptions` (copy of `sage_pro_subscriptions` migration)
+**Shared DB table**: `agent_subscriptions` — unified across all agent types (iPOM Design Decision D3).
+Growth Pro records use `agent_type = 'growth'`. No separate `growth_pro_subscriptions` table.
 
 ```sql
-growth_pro_subscriptions (
-  id, user_id, stripe_subscription_id, stripe_customer_id,
+-- agent_subscriptions (shared with Sage, future agents)
+agent_subscriptions (
+  id, user_id, agent_type,              -- 'growth' | 'sage' | ...
+  stripe_subscription_id, stripe_customer_id,
   stripe_price_id, status, price_per_month,
   current_period_start, current_period_end,
   created_at, updated_at
 )
+
+-- Query pattern
+SELECT * FROM agent_subscriptions
+WHERE user_id = $1 AND agent_type = 'growth' AND status = 'active';
 ```
 
 **Stripe**: New price ID for Growth Pro (£10/month recurring) — `STRIPE_GROWTH_PRO_PRICE_ID`
 **Feature flag**: `NEXT_PUBLIC_ENABLE_GROWTH_PAYWALL` (default: true)
+
+> **Note**: If `agent_subscriptions` table does not yet exist (Sage still uses `sage_pro_subscriptions`),
+> the unified table is created as part of iPOM Phase 0 platform extraction. Until then, Growth
+> can bootstrap with its own `agent_subscriptions` migration that Sage migrates into later.
 
 ### 10.4 ROI Framing
 
@@ -688,7 +699,7 @@ Users can create their own Growth Agents in AI Studio:
 ```
 1. Create growth/ top-level module (copy sage/, strip unused, customise)
 2. Add @growth/* path alias to apps/web/tsconfig.json
-3. DB migration: growth_pro_subscriptions table
+3. DB migration: agent_subscriptions table (unified, agent_type column — replaces sage_pro_subscriptions + growth_pro_subscriptions)
 4. DB migration: add growth_advisor to ai_agents.agent_type enum (if DB enum)
 5. apps/web/src/lib/growth/ adapter layer
 6. Rate limiter: add Growth tier to existing rate-limiter.ts
