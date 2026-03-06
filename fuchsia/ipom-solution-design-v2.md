@@ -4,7 +4,7 @@
 **Status**: Architecture v2.0 — Ready for Phased Implementation
 **Date**: 2026-03-05
 **Owner**: Product Team
-**Version**: 2.0 — Supersedes v1.0
+**Version**: 2.1 — Q1 (GDPR retention) + Q4 (Growth Score all roles) resolved
 **Changes from v1.0**: Holistic architecture additions (learning loop + cross-agent context), `platform_events` dedicated table, async knowledge pipelines, cross-workflow coordination, AI tier routing, cost attribution, in-app notification UI design, Growth Score definition (D12), 10 new design decisions (D12–D21), corrected hour estimates, resolved open questions.
 
 ---
@@ -1574,17 +1574,37 @@ Growth Score SQL is a single CTE query joining `profiles`, `listings`, `bookings
 
 ### Remaining Open Questions
 
-**Q1: Audit log retention policy (GDPR)**
-`platform_events` and `workflow_executions` accumulate user-linked data. Under UK GDPR, automated decision-making records (tutor approval, commission calculation) have specific subject access request (SAR) implications. Recommend: 12-month rolling retention, archive to cold storage (Supabase pg_dump to S3). Must be designed before Phase 3 autonomous operations scale.
+**Q1: Audit log retention policy (GDPR)** ✅ RESOLVED
+See [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.md) for full policy.
+Summary:
+- `workflow_executions` + `decision_outcomes`: **3-year retention** (Article 22, UK Limitation Act)
+- `platform_events`: **12 months** (operational only)
+- `pipeline_jobs`: **30 days** (internal queue)
+- `growth_scores`: **6 months** (derived cache)
+- `cas_agent_events`: **90 days** (fine-tuning/debug)
+- Archival: rows marked `archived_at` at 12 months, exported to Supabase Storage, hard-deleted at retention limit
+- Erasure: pseudonymisation on account deletion (hash `profile_id` with deletion salt)
+- SAR handler: `GET /api/account/automated-decisions` (Phase 3)
+- Right to contest: `POST /api/account/automated-decisions/[id]/contest` (Phase 3)
+- Schema migrations: 340 (retention columns) — see policy doc §8
+- Privacy policy must be updated before Phase 3 goes live
 
-**Q2: `decision_outcomes` outcome metric definitions**
+**Q2: `decision_outcomes` outcome metric definitions** — *Remaining, required before Phase 3*
 The learning loop requires agreed definitions for what constitutes a "good" vs "bad" autonomous decision outcome. E.g., for Tutor Approval: is a "good" outcome zero disputes in 90 days, or positive reviews received? Product and ops must define outcome metrics per process before Phase 3 pg_cron jobs are written.
+Proposed enum: `dispute_raised | booking_made | nudge_converted | nudge_opened | referral_signup | referral_completed | payout_correct`
 
-**Q3: Admin Intelligence Agent — second admin role**
-If Tutorwise grows to 3+ admins with different functions (finance, content, growth), should the exception queue route by domain? Finance disputes → finance admin, content violations → content admin. Currently the exception queue is flat (all admins see all exceptions). Role-based routing is a Phase 3+ design decision.
+**Q3: Admin Intelligence Agent — admin role routing** — *Phase 3+ design, not a blocker*
+If Tutorwise grows to 3+ admins with different functions (finance, content, growth), should the exception queue route by domain? Currently the exception queue is flat (all admins see all exceptions). Role-based routing is a Phase 3+ design decision.
 
-**Q4: Growth Score for non-tutor roles — validation**
-The Growth Score formula in §10 is defined for tutors. Client, agent, and organisation variants are sketched but not validated. These must be agreed with product before the `compute-growth-scores` pg_cron job is built for non-tutor profiles.
+**Q4: Growth Score for non-tutor roles — validation** ✅ RESOLVED
+See [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md) for full formulas.
+Summary:
+- **Client** (0–100): `learning_activity` + `referral_network` + `profile_completeness` + `platform_engagement`
+- **Agent** (0–100): `network_size` + `referral_performance` + `commission_trajectory` + `platform_adoption`
+- **Organisation** (0–100): `team_health` (avg member tutor scores × 0.25) + `revenue_trajectory` + `referral_network` + `platform_adoption`
+- Schema: `growth_scores` table gains `role_type` column + `component_scores jsonb` (migration 341)
+- pg_cron: single job with role-specific CTE branches
+- Calibration: shadow mode for 30 days before Growth Agent acts on non-tutor scores
 
 ---
 
