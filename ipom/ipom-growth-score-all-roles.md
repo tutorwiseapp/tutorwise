@@ -1,7 +1,7 @@
 # iPOM — Growth Score: All Roles
 
-**Status**: Approved — Resolves Q4 from ipom-solution-design-v2.md
-**Date**: 2026-03-05
+**Status**: Approved v1.1 — Resolves Q4 from ipom-solution-design-v2.md; migration number corrected to 344 (v2.2 audit)
+**Date**: 2026-03-06
 **Owner**: Product Team
 **Applies to**: Phase 1 — `compute-growth-scores` pg_cron job
 
@@ -236,7 +236,7 @@ platform_adoption (0–25):
 The existing `growth_scores` table needs a `role_type` column:
 
 ```sql
--- Migration 341: Add role_type to growth_scores
+-- Migration 344: Add role_type to growth_scores
 ALTER TABLE growth_scores ADD COLUMN role_type text NOT NULL DEFAULT 'tutor'
   CHECK (role_type IN ('tutor', 'client', 'agent', 'organisation'));
 

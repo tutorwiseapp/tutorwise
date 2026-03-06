@@ -4,8 +4,8 @@
 **Status**: Architecture v2.0 — Ready for Phased Implementation
 **Date**: 2026-03-05
 **Owner**: Product Team
-**Version**: 2.1 — Q1 (GDPR retention) + Q4 (Growth Score all roles) resolved
-**Changes from v1.0**: Holistic architecture additions (learning loop + cross-agent context), `platform_events` dedicated table, async knowledge pipelines, cross-workflow coordination, AI tier routing, cost attribution, in-app notification UI design, Growth Score definition (D12), 10 new design decisions (D12–D21), corrected hour estimates, resolved open questions.
+**Version**: 2.2 — Audit fixes: migration numbers corrected (343/344), Article 22 Growth Score gating resolved, legal_hold + sar_requests FK + platform_events partitioning added, D22 (Growth Agent mode separation), workflow_version column
+**Changes from v1.0**: Holistic architecture additions (learning loop + cross-agent context), `platform_events` dedicated table, async knowledge pipelines, cross-workflow coordination, AI tier routing, cost attribution, in-app notification UI design, Growth Score definition (D12), 11 new design decisions (D12–D22), corrected hour estimates, resolved open questions.
 
 ---
 
@@ -1336,7 +1336,10 @@ Must complete and verify before Nexus Foundation starts.
 | DLQ retry scheduler pg_cron job | 2 |
 | Workflow fallback polling pg_cron job | 2 |
 | `growth_scores` table + Growth Score SQL (see §10) + hourly pg_cron | 4 |
-| **Total** | **70–80h** |
+| `workflow_version` + `version_notes` columns on `workflow_processes` (tracks version history before visual editor ships) | 1 |
+| GDPR migration 343: `archived_at`, `pseudonymised_at`, `deletion_scheduled_at`, `legal_hold`, `platform_events` partitioning, `sar_requests` table | 2 |
+| Growth Score migration 344: `growth_scores.role_type` + `component_scores jsonb` + unique index | 1 |
+| **Total** | **74–84h** |
 
 **Outcome**: Unified agent infrastructure. Lexi always current via async pipelines. Users experience coherent cross-agent context. Platform Console showing cross-system events and AI costs. All production reliability gaps closed.
 
@@ -1533,6 +1536,15 @@ Growth Score SQL is a single CTE query joining `profiles`, `listings`, `bookings
 ### D21: Organisation Growth Agent billing (v2.0)
 **Resolved**: Org admin accessing Growth Agent in org scope uses their personal subscription. A separate org-tier subscription (`agent_type='growth-org'`) is a Phase 4+ addition. Org scope is currently gated by `user_is_org_admin()` and personal `growth` subscription — org admin must have Growth Pro active. If not, org scope falls back to individual scope.
 
+### D22: Growth Agent mode separation — user vs admin (v2.2)
+**Resolved**: Single `GrowthAgentOrchestrator` serves both user-facing and admin-facing contexts, but with explicit `mode: 'user' | 'admin'` parameter separating system prompts, tool sets, and rate limits.
+
+- **User mode** (current): system prompt scoped to `profile_id`; tools read the user's own data (`read_my_growth_score`, `read_my_bookings`, `read_my_referrals`); rate-limited per subscription tier (free: 10/day, pro: 5,000/month).
+- **Admin mode** (Phase 3): system prompt targets platform-wide aggregate intelligence; tools use `service_role` credentials to query aggregate views (`read_all_growth_scores`, `read_org_health_aggregate`, `read_nudge_effectiveness`, `read_network_signals`); no rate cap but subject to Admin Intelligence hourly limit (max 10 heavy queries/hour via shared rate limiter).
+- **Context pollution risk without separation**: the user-facing prompt ("Let's grow your tutoring income") is semantically incompatible with admin queries ("show me org health across all 50 organisations"). Separate prompts are mandatory.
+- **UI placement**: Admin Growth mode entry point → `/admin/intelligence/growth/` (Phase 3), separate from the Lexi admin query bar, which serves platform operations questions. Two different admin workflows should not share one input.
+- **Rate limiter**: admin Growth mode registered as `'growth-admin'` in the shared rate limiter config, consistent with `'admin-intelligence'` treatment.
+
 ---
 
 ## 12. Success Metrics
@@ -1568,6 +1580,7 @@ Growth Score SQL is a single CTE query joining `profiles`, `listings`, `bookings
 | `cas_agent_events` as event bus | Dedicated `platform_events` table (D13). |
 | Growth Score formula | Defined (D12, §10). |
 | Org Growth Agent billing | Personal subscription required; org-tier a Phase 4+ addition (D21). |
+| Growth Agent user vs admin mode separation | Single orchestrator, `mode: 'user' \| 'admin'` parameter, separate system prompts + tool sets (D22). |
 | `agents-core` extraction risk | Isolated pre-foundation task with sequenced PR strategy (D14). |
 | Pipeline failure modes | Async via `pipeline_jobs` queue with retry (D15). |
 | LinkedIn OAuth timeline | Application starts now; Phase 4 placeholder if not approved (D17). |

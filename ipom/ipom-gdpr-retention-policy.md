@@ -1,7 +1,7 @@
 # iPOM — GDPR Data Retention & Automated Decision-Making Policy
 
-**Status**: Approved — Resolves Q1 from ipom-solution-design-v2.md
-**Date**: 2026-03-05
+**Status**: Approved v1.1 — Resolves Q1 from ipom-solution-design-v2.md; audit fixes applied (v2.2)
+**Date**: 2026-03-06
 **Jurisdiction**: UK GDPR + Data (Use and Access) Act 2025 (DUAA)
 **Owner**: Product Team
 **Applies to**: All iPOM Phase 1+ tables accumulating personal data
@@ -31,7 +31,8 @@ For Tutorwise iPOM:
 | Tutor Approval (autonomous tier) | **YES** | Determines whether tutor can operate on platform — significant effect |
 | Commission Payout calculation | **YES** | Financial effect on earnings |
 | Proactive nudges | **NO** | Informational only, no binding effect |
-| Growth Score | **BORDERLINE** | If used to gate visibility/features → YES; if advisory only → NO |
+| Growth Score (advisory display only) | **NO** | Informational; user can ignore the score |
+| Growth Score (gating decisions — e.g. score < 70 removes CaaS featured placement) | **YES** | Restricts platform visibility — significant effect on income potential. Score snapshot at gate time must be stored in `workflow_executions.decision_rationale`. |
 | Admin Intelligence anomaly flags | **NO** | Human admin reviews all flagged items |
 | Organisation Onboarding (shadow/supervised) | **NO** | Human approves all actions |
 
@@ -71,7 +72,7 @@ The DUAA received Royal Assent in 2025. Key changes relevant to iPOM:
 | `decision_outcomes` | YES (via FK) | `execution_id → profile_id` | YES |
 | `platform_events` | YES | `entity_id` (often `profile_id`) | NO (operational) |
 | `pipeline_jobs` | NO | source IDs only | NO |
-| `growth_scores` | YES | `user_id` | BORDERLINE |
+| `growth_scores` | YES | `user_id` | YES (when score gates platform features); NO (when advisory only) |
 | `cas_agent_events` | YES | `user_id` (session context) | NO |
 | `platform_ai_costs` | Minimal | `execution_id` (indirect) | NO |
 | `workflow_exceptions` | YES | `execution_id → profile_id` | YES (contested decisions) |
@@ -305,9 +306,12 @@ Before Phase 1 launches:
 - [ ] Add `archived_at` + `deletion_scheduled_at` columns to `workflow_executions`
 - [ ] Add `archived_at` to `platform_events`
 - [ ] Add `pseudonymised_at` column to `workflow_executions`
+- [ ] Add `legal_hold` column to `profiles` (prevents erasure during fraud/legal investigations)
 - [ ] Create `sar_requests` table (log all SARs received and responded to)
+- [ ] Partition `platform_events` by `created_at` (monthly; required from day one — expensive to retrofit)
 - [ ] pg_cron job `archive-aged-records` (monthly, archives to Supabase Storage)
 - [ ] pg_cron job `delete-expired-records` (monthly, hard-deletes after 3yr/12mo respectively)
+- [ ] **Phase 1 minimum (SAR)**: Add "To request human review, email support@tutorwise.com" to tutor approval notification — the right to contest must be advertised from the moment the autonomous tier is live
 - [ ] Update privacy policy (before Phase 3 autonomous operations go live)
 - [ ] `/api/account/automated-decisions` endpoint (Phase 3)
 - [ ] Account Settings > Privacy > My Automated Decisions UI (Phase 3)
@@ -315,25 +319,53 @@ Before Phase 1 launches:
 
 ### Migration Number
 
-Next migration: **340** (after existing 339)
+Next migration: **343** (latest existing is 342; 343 is next available)
 
 ```sql
--- Migration 340: iPOM GDPR retention columns
+-- Migration 343: iPOM GDPR retention columns + legal_hold + platform_events partitioning
+
+-- 1. workflow_executions retention columns
 ALTER TABLE workflow_executions
   ADD COLUMN archived_at timestamptz,
   ADD COLUMN pseudonymised_at timestamptz,
   ADD COLUMN deletion_scheduled_at timestamptz
     GENERATED ALWAYS AS (created_at + INTERVAL '3 years') STORED;
 
+-- 2. platform_events partitioning (add archived_at + prep for partitioning)
+--    NOTE: platform_events must be recreated as a partitioned table if it already exists.
+--    If created fresh in this migration, use the partitioned form below.
+--    If pre-existing: add archived_at column; partitioning requires a one-time migration
+--    (create new partitioned table, copy data, rename) — schedule for a low-traffic window.
 ALTER TABLE platform_events
   ADD COLUMN archived_at timestamptz;
 
+-- Partitioned version (if creating platform_events fresh in migration 343):
+-- CREATE TABLE platform_events (
+--   id uuid DEFAULT gen_random_uuid(),
+--   ...existing columns...,
+--   archived_at timestamptz,
+--   created_at timestamptz DEFAULT now()
+-- ) PARTITION BY RANGE (created_at);
+-- CREATE TABLE platform_events_2026_03 PARTITION OF platform_events
+--   FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+-- -- Add subsequent months via pg_partman or manual monthly migration
+
+-- 3. profiles: legal hold flag (prevents erasure during active fraud/legal investigations)
+ALTER TABLE profiles
+  ADD COLUMN legal_hold boolean DEFAULT false;
+CREATE INDEX idx_profiles_legal_hold ON profiles(legal_hold) WHERE legal_hold = true;
+
+-- 4. SAR request log
+--    profile_id is nullable (not FK): SAR records are compliance obligations that survive
+--    account deletion. Storing the hash of the pseudonymised profile_id instead of an FK
+--    ensures the record is retained even after profile erasure.
 CREATE TABLE IF NOT EXISTS sar_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  profile_id uuid REFERENCES profiles(id),
+  profile_id_hash text,                        -- sha256(profile_id || salt) — survives deletion
+  profile_id_raw uuid,                         -- NULL after account deletion/pseudonymisation
   requested_at timestamptz DEFAULT NOW(),
   responded_at timestamptz,
-  response_method text,         -- 'email' | 'in-app'
+  response_method text,                        -- 'email' | 'in-app'
   data_exported_at timestamptz,
   notes text
 );
