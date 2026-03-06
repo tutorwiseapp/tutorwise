@@ -319,10 +319,10 @@ Before Phase 1 launches:
 
 ### Migration Number
 
-Next migration: **343** (latest existing is 342; 343 is next available)
+Next migration: **344** (latest existing is 343; 344 is next available)
 
 ```sql
--- Migration 343: iPOM GDPR retention columns + legal_hold + platform_events partitioning
+-- Migration 344: iPOM GDPR retention columns + legal_hold + platform_events partitioning
 
 -- 1. workflow_executions retention columns
 ALTER TABLE workflow_executions

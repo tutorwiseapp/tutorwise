@@ -1337,8 +1337,8 @@ Must complete and verify before Nexus Foundation starts.
 | Workflow fallback polling pg_cron job | 2 |
 | `growth_scores` table + Growth Score SQL (see §10) + hourly pg_cron | 4 |
 | `workflow_version` + `version_notes` columns on `workflow_processes` (tracks version history before visual editor ships) | 1 |
-| GDPR migration 343: `archived_at`, `pseudonymised_at`, `deletion_scheduled_at`, `legal_hold`, `platform_events` partitioning, `sar_requests` table | 2 |
-| Growth Score migration 344: `growth_scores.role_type` + `component_scores jsonb` + unique index | 1 |
+| GDPR migration 344: `archived_at`, `pseudonymised_at`, `deletion_scheduled_at`, `legal_hold`, `platform_events` partitioning, `sar_requests` table | 2 |
+| Growth Score migration 345: `growth_scores.role_type` + `component_scores jsonb` + unique index | 1 |
 | **Total** | **74–84h** |
 
 **Outcome**: Unified agent infrastructure. Lexi always current via async pipelines. Users experience coherent cross-agent context. Platform Console showing cross-system events and AI costs. All production reliability gaps closed.

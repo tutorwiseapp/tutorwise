@@ -236,7 +236,7 @@ platform_adoption (0–25):
 The existing `growth_scores` table needs a `role_type` column:
 
 ```sql
--- Migration 344: Add role_type to growth_scores
+-- Migration 345: Add role_type to growth_scores
 ALTER TABLE growth_scores ADD COLUMN role_type text NOT NULL DEFAULT 'tutor'
   CHECK (role_type IN ('tutor', 'client', 'agent', 'organisation'));
 
