@@ -2,14 +2,14 @@
 
 **Tutoring Marketplace and CRM Platform**
 
-**Version**: 1.0.0-beta
-**Status**: Pre-Launch (Beta Release: 1 Mar 2026)
-**Last Updated**: 2026-02-22
+**Version**: 1.1.0
+**Status**: Beta (Launched 1 Mar 2026)
+**Last Updated**: 2026-03-06
 
 ---
 
-## <� **Project Overview**
-TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Currently built with Next.js 15 and Supabase (FastAPI backend on-hold for future roadmap), it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Client, Tutor, and Agent personas.
+## Project Overview
+TutorWise is a production-grade, full-stack EdTech marketplace and CRM ecosystem designed to unify the fragmented tutoring economy. Built with Next.js 16 and Supabase, it features a unique "Single Account, Multi-Role" identity system that allows users to seamlessly switch between Client, Tutor, and Agent personas.
 
 Unlike standard marketplaces, TutorWise integrates a sophisticated "Growth Engine" directly into its core, leveraging a proprietary Profile Graph to power viral referrals, network building, and commission tracking.
 
@@ -31,9 +31,15 @@ Bookings & Payments: Integrated Stripe Connect flow handling complex commission 
 Network: A LinkedIn-style connection graph allowing Agents to manage tutor rosters and students to build educational networks.
 
 5. Contextual Autonomous System (CAS)
-The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing.
+The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing. CAS is also exposed as an admin platform at `/admin/cas`.
 
-6. Sage AI GCSE Tutor (**[Documentation](sage/README.md)**)
+6. Growth Agent (£10/month AI Advisor)
+A role-adaptive AI advisor for all users (Tutor, Client, Agent, Organisation). Powered by a DSPy-style knowledge base (5 skill files covering pricing benchmarks, referral strategy, UK business/tax, income discovery, and compliance). Includes a free Revenue Audit tier.
+
+7. iPOM Studio (Intelligent Process & Operations Management)
+A unified admin canvas at `/admin/studio` for automating business processes. Phase 1 (Process Execution Engine) is complete with 5 live/shadow workflows (Tutor Approval, Commission Payout, Booking Lifecycle, Referral Attribution). Phase 2 adds AI Agents and multi-agent Teams.
+
+8. Sage AI GCSE Tutor (**[Documentation](sage/README.md)**)
 An AI-powered GCSE tutor providing personalized educational support with comprehensive curriculum coverage. Features:
 - **100+ curriculum topics** across 6 subjects (Maths, Biology, Chemistry, Physics, History, Geography)
 - **Multimodal input**: OCR (handwriting/textbook recognition) + Speech-to-Text via Gemini Vision & Audio
@@ -45,7 +51,7 @@ An AI-powered GCSE tutor providing personalized educational support with compreh
 
 **Version**: 2.0.0 | **Status**: Active Production | **Latest**: Science & Humanities curriculum (Feb 2026)
 
-7. Lexi AI Help Bot (**[Documentation](lexi/README.md)**)
+9. Lexi AI Help Bot (**[Documentation](lexi/README.md)**)
 An AI-powered platform assistant providing instant support and task automation across all user roles. Features:
 - **20+ function tools** for booking management, tutor search, progress tracking, payments
 - **5 primary personas** + 4 specialized sub-personas (earnings expert, matching helper, etc.)
@@ -73,8 +79,7 @@ npm run sync:env                  # Sync environment variables
 npm run dev                       # Start Next.js dev server
 
 # Frontend: http://localhost:3000
-# Backend: Supabase (cloud-hosted)
-# FastAPI backend (port 8000): On-hold, planned for future
+# Backend: Supabase (cloud-hosted PostgreSQL + Auth + Storage)
 ```
 
 **Complete setup guide**: [.ai/DEVELOPER-SETUP.md](.ai/DEVELOPER-SETUP.md)
@@ -86,14 +91,14 @@ npm run dev                       # Start Next.js dev server
 ```
 tutorwise/
 ├── apps/
-│   ├── web/              # Next.js 15 frontend (ACTIVE)
-│   └── api/              # FastAPI backend (ON-HOLD - future roadmap)
-├── packages/
-│   └── shared-types/     # Shared TypeScript types
-├── cas/                  # CAS development framework
-├── tools/                # Development tools & scripts
+│   └── web/              # Next.js 16 frontend + API routes
+├── sage/                 # Sage AI GCSE Tutor (standalone package)
+├── lexi/                 # Lexi AI Help Bot (standalone package)
+├── cas/                  # CAS AI development framework
+├── ipom/                 # iPOM Studio solution designs & docs
+├── tools/                # Development tools & DB migration scripts
 ├── tests/                # Test suites (Jest, Playwright, Percy)
-└── docs/                 # Documentation
+└── docs/                 # Feature & architecture documentation
 ```
 
 ---
@@ -115,28 +120,28 @@ tutorwise/
 - **Supabase Storage** - CDN-backed file storage for avatars and documents
 - **Supabase Functions** - Edge functions for server-side logic
 
+### AI Providers (6-Tier Fallback Chain)
+- **xAI Grok 4 Fast** - Primary LLM (env: `XAI_AI_API_KEY`)
+- **Google Gemini Flash** - Tier 2 + embedding model (`gemini-embedding-001`, 768-dim) (`GOOGLE_AI_API_KEY`)
+- **DeepSeek R1** - Tier 3 cost-efficient reasoning (`DEEPSEEK_AI_API_KEY`)
+- **Anthropic Claude Sonnet 4.6** - Tier 4 complex reasoning (`ANTHROPIC_AI_API_KEY`)
+- **OpenAI GPT-4o** - Tier 5 (`OPENAI_AI_API_KEY`)
+- **Rules-based** - Tier 6, always-on fallback (zero API cost)
+
+All AI access is via the shared service at `apps/web/src/lib/ai/` — `getAIService()` singleton with `generate()`, `generateJSON<T>()`, and `stream()`.
+
 ### Third-Party Services & Integrations (ACTIVE)
 - **Stripe Connect** - Payment processing and marketplace commissions
 - **Ably** - Real-time messaging, presence, typing indicators
 - **Resend** - Transactional email delivery
 - **Google Calendar API** - Calendar integration for scheduling
-- **Google AI (Gemini)** - Primary LLM provider for Sage & Lexi (cost-efficient, high quality)
-- **Anthropic (Claude)** - Fallback LLM provider for complex reasoning
-- **DeepSeek** - Cost-efficient alternative LLM provider
 - **Sentry** - Error tracking and monitoring
 - **Google Analytics** - User analytics and tracking
-- **Upstash Redis** - Rate limiting and caching (via Vercel)
 
 ### Database Extensions (ACTIVE)
 - **pgvector** - Semantic search with 768-dim embeddings (Gemini embedding model)
 - **PostgreSQL Full-Text Search** - Hybrid search with keyword + semantic ranking
 - **HNSW indexes** - Fast approximate nearest neighbor search for RAG
-
-### Future Roadmap (ON-HOLD)
-- **FastAPI** - Python microservices backend (planned for advanced features)
-- **Neo4j** - Graph database for network trust propagation (planned)
-- **Railway** - Backend deployment platform (planned for FastAPI)
-- **Jira Service Desk** - Customer support integration (partially implemented)
 
 ### Admin & Management
 - **Custom Admin Dashboard** - Built with Next.js App Router
@@ -208,67 +213,41 @@ CAS will apply 8 agent perspectives:
 
 ---
 
-## 🤖 AI Ecosystem (v2.0.0 - February 2026)
+## AI Ecosystem (v3.0.0 - March 2026)
 
-TutorWise features a complete AI ecosystem with 3 autonomous agents working together:
+TutorWise features a complete AI ecosystem. All AI is routed through the **6-tier fallback chain** (xAI → Gemini → DeepSeek → Claude → GPT-4o → Rules-based) at `apps/web/src/lib/ai/`.
 
 ### 1. **Sage AI GCSE Tutor** ([Documentation](sage/README.md))
-- ✅ **110 knowledge chunks** ingested across 22 GCSE Maths topics
-- ✅ **Hybrid RAG** with semantic (pgvector) + keyword (tsvector) search
-- ✅ **Multi-provider** architecture (Gemini → Claude → DeepSeek → Rules)
-- ✅ **Mathematical solver** combining SymPy, Algebrite, and LLM reasoning
+- ✅ **110 knowledge chunks** across 22 GCSE Maths topics; Hybrid RAG (pgvector + tsvector)
+- ✅ **Mathematical solver** (SymPy + Algebrite + LLM reasoning)
 - ✅ **Feedback loop** with automated gap detection (< 60% satisfaction threshold)
-- 🟡 **Multimodal input** endpoints ready (OCR for handwriting, Speech-to-Text for voice)
+- ✅ **Multimodal input** endpoints (OCR, Speech-to-Text)
 - 🎯 **Target:** 500+ topics (Maths, English, Science) by Q2 2026
 
 ### 2. **Lexi AI Help Bot** ([Documentation](lexi/README.md))
-- ✅ **20+ function tools** for platform actions (bookings, search, payments, navigation)
-- ✅ **Guest mode** with Rules-only provider (zero API cost for unauthenticated users)
+- ✅ **20+ function tools** for bookings, search, payments, navigation
+- ✅ **Guest mode** — Rules-only provider (zero API cost for unauthenticated users)
 - ✅ **5 personas** (Student, Tutor, Client, Agent, Organisation) + 4 sub-personas
-- ✅ **Deep links** for seamless navigation to any platform feature
-- ✅ **Analytics integration** feeds CAS Marketer for UX insights
-- 🎯 **Launch:** Q1 2026
+- ✅ **Deep links** for seamless platform navigation
 
-### 3. **CAS AI Product Team** ([Documentation](cas/README.md))
+### 3. **Growth Agent** (`apps/web/src/lib/growth-agent/`)
+- ✅ Role-adaptive AI advisor for ALL users (Tutor, Client, Agent, Organisation) — **£10/month**
+- ✅ **Free tier**: Revenue Audit at `GET /api/growth-agent/audit` (no subscription required)
+- ✅ **5 DSPy-style skill files**: pricing benchmarks, referral strategy, UK business/tax, income discovery, compliance
+- ✅ **8 tool functions**: tutor profile audit, listing analysis, referral channel review, etc.
+- ✅ **API**: `GET/POST /api/growth-agent/session`, `POST /api/growth-agent/stream`
+
+### 4. **CAS AI Product Team** ([Documentation](cas/README.md))
 - ✅ **8 specialized agents**: Planner, Analyst, Developer, Tester, QA, Security, Engineer, Marketer
 - ✅ **Strategic feedback loop**: Marketer → Planner → Analyst → Developer
+- ✅ **Admin dashboard** at `/admin/cas`
 - ✅ **Analytics collection** from Sage & Lexi (daily automated jobs)
-- ✅ **Autonomous improvements** based on user feedback and usage patterns
-- 🚀 **Result:** 400% faster delivery than traditional teams
-
-### Recent AI Improvements (Priority Implementation - Feb 2026)
-
-**Priority 1: Sage Feedback Processor** ✅
-- Automated daily feedback analysis and curriculum gap detection
-- Severity classification (critical/high/medium/low)
-- Content regeneration for topics with < 30% satisfaction
-- Supabase Edge Function: `sage-feedback-processor` (cron: 0 2 * * *)
-- CLI script: `npm run process:sage-feedback`
-
-**Priority 2: Multimodal Input** ✅
-- Voice transcription endpoint (`/api/sage/transcribe`) ready for Google Speech-to-Text
-- OCR endpoint (`/api/sage/ocr`) ready for Google Cloud Vision / Tesseract.js
-- Support for handwritten math, textbook photos, whiteboard images
-- Max file sizes: 10MB audio, 5MB images
-
-**Priority 3: CAS Marketer Activation** ✅
-- Daily analytics collection from Sage & Lexi sessions
-- Growth insights: opportunities, risks, milestones
-- Auto-detection: low engagement, poor satisfaction, drop-offs
-- Supabase Edge Function: `marketer-analytics` (cron: 0 3 * * *)
-- Feeds strategic planning via CAS Planner
-
-**Priority 4: Teacher Free Tier** ✅
-- Auto-verification via 50+ UK educational email domains (.sch.uk, .ac.uk, MATs)
-- Manual verification option for non-standard domains
-- Benefits: unlimited Sage access, all GCSE subjects, priority support
-- Growth strategy: teachers as key influencers in EdTech adoption
 
 **Documentation:**
-- [Sage README](sage/README.md) - Full AI tutor documentation
+- [Sage README](sage/README.md) - AI tutor documentation
 - [Lexi README](lexi/README.md) - Help bot documentation
 - [CAS README](cas/README.md) - AI product team documentation
-- [Supabase Edge Functions](supabase/functions/README.md) - Deployment guide
+- [iPOM Solution Design](ipom/ipom-solution-design-v3.md) - Process + Agent + Team automation
 
 ---
 
@@ -329,27 +308,40 @@ TutorWise features a complete AI ecosystem with 3 autonomous agents working toge
 - **Email Notifications**: Commission available, payout processed, payout failed
 - **£25 Minimum Payout**: Automated threshold prevents micro-transactions
 
-### Admin Features
-- **User Management**: Comprehensive admin dashboard with user CRUD operations
-  - Soft Delete: Account deactivation with PII anonymization
-  - Hard Delete: GDPR-compliant complete data purge with Stripe cleanup
-  - Advanced Filtering: Multi-criteria user filtering and search
-  - Data Export: CSV export functionality
-- **Forms Configuration**: Dynamic form field management system
-  - Shared Fields: Centralized field definitions across contexts
-  - Drag-and-drop reordering
-  - Context-specific configurations (Account, Organisation, Listings)
-  - Option management with active/inactive states
-- **Accounts Management**: Complete account oversight
-  - User accounts with role management
-  - Admin role hierarchy (Super Admin, Admin, System Admin, Support Admin)
-- **Listings Management**: Tutor listing administration
-- **Organisations Management**: Organisation account oversight
-- **Referrals Management**: Commission tracking and fraud detection
-- **Bookings Management**: Booking and session oversight
-- **Reviews Management**: Review moderation
-- **Financials Management**: Payment and commission tracking
-- **Action Logging**: Complete audit trail of all admin actions
+### Admin Features (13 Admin Hubs)
+- **Accounts Hub**: Soft/hard delete, GDPR-compliant PII anonymization, admin role hierarchy
+- **Bookings Hub**: Session and calendar management, no-show detection
+- **Configurations Hub**: Shared fields system (23 fields, 106 mappings, 9 contexts), dynamic form generation
+- **Financials Hub**: Transactions, payouts, commission splits, Stripe Connect
+- **Listings Hub**: Tutor listing administration
+- **Organisations Hub**: Team management, subscriptions, verification
+- **Referrals Hub**: Commission tracking, QR codes, fraud detection
+- **Reviews Hub**: Moderation and dispute handling
+- **SEO Hub**: Hub management, trust graph, eligibility tracking
+- **Settings Hub**: Payments, subscriptions, security, integrations, email
+- **Users Hub**: User administration and permissions
+- **CAS Hub** (`/admin/cas`): CAS AI agent team dashboard, run history, metrics
+- **iPOM Studio** (`/admin/studio`): Workflow automation, AI Agents, multi-agent Teams (see below)
+
+### iPOM Studio — Intelligent Process & Operations Management
+
+**Solution Design**: [ipom/ipom-solution-design-v3.md](ipom/ipom-solution-design-v3.md) (v3.4)
+
+#### Phase 1 — Process Execution Engine (COMPLETE)
+- **Runtime**: `PlatformWorkflowRuntime` in `apps/web/src/lib/process-studio/runtime/`
+- **LangGraph checkpointer**: `PostgresSaver` (session-mode port 5432)
+- **5 seeded workflows**: Tutor Approval (live), Commission Payout (live), Booking Lifecycle Human/AI Tutor (shadow), Referral Attribution (design)
+- **Shadow mode**: `execution_mode` (`design` | `shadow` | `live`) toggled per workflow via admin
+- **Webhook trigger**: Supabase DB webhook on `profiles UPDATE → under_review` → starts Tutor Approval process
+- **Cron delegation**: Commission Payout delegated from existing batch cron on Fridays 10am UTC
+- **API**: `POST /api/admin/process-studio/execute/start`, `GET/DELETE /api/admin/process-studio/execute/[id]`, `POST /api/admin/process-studio/execute/[id]/resume`, `POST /api/admin/process-studio/execute/task/[taskId]/complete`
+
+#### Phase 2 — Agents + Teams (PLANNED, ~140h)
+- **Agent** (single-agent AI specialist) — DB-defined in `analyst_agents` table, schedule + chat driven
+- **Team** (multi-agent) — DB-defined in `agent_teams` table; three patterns: Supervisor, Pipeline, Swarm
+- **TeamRuntime**: dynamically compiles LangGraph `StateGraph` from DB topology (no code deploy to rewire)
+- **CAS Team**: existing 9-agent CAS pipeline exposed as read-only Supervisor Team in registry
+- **Migrations planned**: 344–352 (GDPR, growth scores, versioning, analyst agents, agent subscriptions, intelligence, learning, agent teams)
 
 ### Help Centre & Support
 - **Custom Report Modal**: In-app bug reporting with screenshot capture
@@ -480,19 +472,9 @@ TutorWise features a complete AI ecosystem with 3 autonomous agents working toge
 
 ### Development
 ```bash
-# Frontend (ACTIVE)
-cd apps/web && npm run dev         # Start Next.js dev server (port 3000)
+npm run dev                        # Start Next.js dev server (port 3000)
 cd apps/web && npm run build       # Build for production
 cd apps/web && npm run lint        # Lint code
-
-# Backend (ON-HOLD - Future Roadmap)
-# cd apps/api && npm run dev:api   # FastAPI dev server (planned)
-# cd apps/api && npm run migrate   # Database migrations (planned)
-
-# Current Backend: Supabase (cloud-hosted)
-# - Database: Managed PostgreSQL with RLS
-# - Auth: Supabase Auth
-# - API: Next.js API Routes
 ```
 
 ### Testing
@@ -531,59 +513,44 @@ npm run cas:update-plan            # Update plan timestamp
 
 ### Required Environment Variables
 
-**Frontend (.env.local)** - Active:
 ```bash
-# Supabase Configuration
+# Supabase (required)
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+DATABASE_URL=postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+POSTGRES_URL_NON_POOLING=postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-2.pooler.supabase.com:5432/postgres
 
-# Stripe Configuration (Test/Live)
+# AI providers (6-tier fallback — add whichever you have)
+XAI_AI_API_KEY=xai-xxxxx           # tier 1 primary
+GOOGLE_AI_API_KEY=AIzaSyxxxxx      # tier 2 + embeddings
+DEEPSEEK_AI_API_KEY=sk-xxxxx       # tier 3
+ANTHROPIC_AI_API_KEY=sk-ant-xxxxx  # tier 4
+OPENAI_AI_API_KEY=sk-xxxxx         # tier 5
+
+# Stripe
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST=pk_test_xxxxx
 STRIPE_SECRET_KEY_TEST=sk_test_xxxxx
 STRIPE_WEBHOOK_SECRET_TEST=whsec_xxxxx
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE=pk_live_xxxxx
-STRIPE_SECRET_KEY_LIVE=sk_live_xxxxx
-STRIPE_WEBHOOK_SECRET_LIVE=whsec_xxxxx
 
-# Ably Real-time
+# Ably, Resend, Calendar
 NEXT_PUBLIC_ABLY_PUBLISHABLE_KEY=your_ably_key
 ABLY_SECRET_KEY=your_ably_secret
-
-# Resend Email
 RESEND_API_KEY=re_xxxxx
-
-# Google Services
-GOOGLE_AI_API_KEY=your_google_ai_key
 GOOGLE_CALENDAR_CLIENT_ID=your_client_id
 GOOGLE_CALENDAR_CLIENT_SECRET=your_client_secret
 
-# Monitoring & Analytics
-NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@sentry.io/xxxxx
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-
 # Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-JWT_SECRET=generate-secure-random-string
-NEXTAUTH_SECRET=generate-secure-random-string
 CRON_SECRET=generate-secure-random-string
+PROCESS_STUDIO_WEBHOOK_SECRET=generate-secure-random-string
 
-# Feature Flags
-NEXT_PUBLIC_ENABLE_STRIPE=true
-NEXT_PUBLIC_ENABLE_CHAT=true
-NEXT_PUBLIC_ENABLE_VIDEO=false
+# Monitoring
+NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@sentry.io/xxxxx
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-**Backend (.env)** - On-hold (FastAPI):
-```bash
-# Planned for future FastAPI implementation
-# SUPABASE_URL=your_supabase_url
-# SUPABASE_KEY=your_supabase_key
-# DATABASE_URL=your_database_url
-```
-
-See `.env.example` for complete list of variables.
+See `.env.example` for the complete list and [.ai/12-DEVELOPER-SETUP.md](.ai/12-DEVELOPER-SETUP.md) for setup instructions.
 
 ---
 
@@ -603,7 +570,7 @@ cd tools/database
 ./apply-migrations.sh
 ```
 
-**Key tables** (237 migrations total: 172 numbered + 65 supporting files):
+**Key tables** (345+ migrations applied):
 - `profiles` - User profiles (all roles) with soft delete and PII anonymization
 - `listings` - Tutor listings with dynamic field configuration
 - `shared_fields` - 23 centralized field definitions across 9 contexts
@@ -620,6 +587,11 @@ cd tools/database
 - `help_support_snapshots` - Bug reports with Jira sync status
 - `network_trust_graph` - Network trust and SEO eligibility
 - `seo_hubs` - Location-based SEO with automated cron jobs
+- `workflow_executions` + `workflow_tasks` - iPOM process execution engine state
+- `analyst_agents` - AI Agent definitions (iPOM Phase 2)
+- `agent_teams` + `agent_team_run_outputs` - Multi-agent Team definitions (iPOM Phase 2, migration 352)
+- `cas_agent_status`, `cas_agent_events`, `cas_metrics_timeseries` - CAS monitoring
+- `profiles.status` - Tutor approval workflow state (`pending`|`under_review`|`active`|`rejected`|`suspended`)
 
 ---
 
@@ -707,14 +679,6 @@ vercel deploy
 - **Storage**: CDN-backed file storage
 - **Functions**: Edge functions deployment
 
-### Future Backend - Railway (ON-HOLD)
-FastAPI backend deployment planned for future roadmap:
-```bash
-# Planned for FastAPI implementation
-# railway up --service backend-api
-```
-
-**Status**: On-hold pending FastAPI implementation decision
 
 ---
 
@@ -777,19 +741,15 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 
 ## Project Status
 
-**Current Phase**: Final Implementation (96% Complete)
-**Beta Release Target**: 1 Mar 2026
-**Target Launch**: Q2 2026
+**Current Phase**: Beta (Launched 1 Mar 2026) — Active development
+**Next Phase**: iPOM Studio Phase 2 (AI Agents + Teams), Growth Agent subscriptions
+**Target GA**: Q2 2026
 
-### Development Activity (Oct 2025 - Feb 2026)
-- **1,450+ commits** across 4 months
-- **87 new features** implemented (including VirtualSpace, Lexi AI, Sage AI)
-- **151 bug fixes** resolved
-- **65 refactors** for code quality
-- **55 documentation** updates
-- **400 pages** implemented (174 UI + 226 API endpoints)
-- **226 API endpoints** created
-- **266 database migrations** executed
+### Development Activity (Oct 2025 - Mar 2026)
+- **1,500+ commits** across 5 months
+- **90+ features** implemented
+- **345+ database migrations** applied
+- **400+ pages** (174 UI + 226+ API endpoints)
 - **382 components** in library
 
 **Recent Completions**:
@@ -909,30 +869,24 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Booking pattern recognition and recommendations
   - ✅ CaaS score improvement suggestions
 
-**In Progress (Final 4%)**:
-- 🔄 Notification service and token configuration (70% complete)
-- 🔄 Legal documents (0% complete)
-- 🔄 Final mobile responsiveness polish (85% complete)
-- 🔄 Performance optimization and caching (70% complete)
-- 🔄 Beta testing preparation (50% complete)
+**Completed Since Beta Launch (Mar 2026)**:
+- ✅ **iPOM Process Execution Engine** (Phase 1): 5 workflows, webhook triggers, shadow/live mode toggle
+- ✅ **Growth Agent**: 5-skill knowledge base, 8 tools, free Revenue Audit, £10/month subscription tier
+- ✅ **Tutor Approval Workflow**: `profiles.status` column, DB webhook, LangGraph execution
+- ✅ **Commission Payout Process**: cron delegation to process engine
+- ✅ **CAS Admin Dashboard** (`/admin/cas`): agent status, run history, metrics
 
-**Beta Release Scope (Jan 2026)**:
-- ✅ All core marketplace features
-- ✅ Complete admin dashboard
-- ✅ Referral system (Tier 1)
-- ✅ Payment processing
-- ✅ Help centre & support
-- ✅ User onboarding flows
-- 🎯 Initial user acquisition
-- 🎯 Early adopter feedback collection
+**In Progress**:
+- 🔄 iPOM Phase 5 — shadow run monitoring, divergence detection, go-live checklist
+- 🔄 Growth Agent subscriptions (Stripe billing integration)
+- 🔄 Mobile responsiveness polish
 
 **Planned (Post-Beta)**:
-- Review and ratings system expansion
-- Lexi AI and Sage AI enhancements
-- Multi-tier commission expansion (Tier 2-3)
-- VirtualSpace v2 (session recording, whiteboard templates)
+- iPOM Phase 2: AI Agents + multi-agent Teams in iPOM Studio (~140h)
+- Migrations 344–352 (GDPR retention, growth scores, analyst agents, agent teams)
+- Sage AI curriculum expansion (500+ topics)
+- Multi-tier commission expansion (Tier 2-3 — pending legal review)
 - Mobile app (React Native)
-- Native video call integration
 
 ---
 

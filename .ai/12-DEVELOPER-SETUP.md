@@ -2,8 +2,8 @@
 
 **Complete setup guide for new and existing developers**
 
-Last Updated: 2026-01-16
-Version: 1.0
+Last Updated: 2026-03-06
+Version: 2.0
 
 ---
 
@@ -27,14 +27,14 @@ Version: 1.0
 ## Overview
 
 TutorWise is a full-stack tutoring marketplace platform built with:
-- **Frontend**: Next.js 14 (App Router), React, TypeScript
-- **Backend**: Python FastAPI
-- **Databases**: PostgreSQL (Supabase), Neo4j (Graph), Redis (Cache)
-- **Deployment**: Vercel (Frontend), Railway (Backend)
+- **Frontend**: Next.js 16 (App Router), React, TypeScript
+- **Database**: PostgreSQL (Supabase + pgvector)
+- **Deployment**: Vercel
 - **Real-time**: Ably
 - **Email**: Resend
 - **Payments**: Stripe
-- **AI Tools**: Claude Code, Google Gemini
+- **AI**: 6-tier fallback chain — xAI Grok 4 Fast → Gemini Flash → DeepSeek R1 → Claude Sonnet 4.6 → GPT-4o → Rules-based
+- **AI Dev Tools**: Claude Code
 
 This guide covers everything from initial setup to daily development workflows.
 
@@ -62,7 +62,6 @@ cd tutorwise
 npm run dev
 
 # Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
 ```
 
 **That's it!** For full setup with all services, continue reading below.
@@ -75,20 +74,18 @@ npm run dev
 
 | Tool | Minimum Version | Purpose | Installation |
 |------|----------------|---------|--------------|
-| **Node.js** | 18.0+ | JavaScript runtime | [nodejs.org](https://nodejs.org/) |
-| **npm** | 9.0+ | Package manager | Comes with Node.js |
+| **Node.js** | 22.0+ | JavaScript runtime | [nodejs.org](https://nodejs.org/) |
+| **npm** | 10.0+ | Package manager | Comes with Node.js |
 | **Git** | 2.30+ | Version control | [git-scm.com](https://git-scm.com/) |
-| **Python** | 3.10+ | Backend API & AI tools | [python.org](https://www.python.org/) |
-| **Docker** | 20.0+ | Local databases (optional) | [docker.com](https://www.docker.com/) |
+
+> **macOS (Homebrew):** `brew install node@22` — ensure `/opt/homebrew/opt/node@22/bin` is on your PATH.
 
 ### Verify Installation
 
 ```bash
-node --version    # Should show v18.x.x or higher
-npm --version     # Should show 9.x.x or higher
+node --version    # Should show v22.x.x or higher
+npm --version     # Should show 10.x.x or higher
 git --version     # Should show 2.30.x or higher
-python3 --version # Should show 3.10.x or higher
-docker --version  # Should show 20.x.x or higher (optional)
 ```
 
 ---
@@ -106,10 +103,6 @@ docker --version  # Should show 20.x.x or higher (optional)
 code --install-extension dbaeumer.vscode-eslint
 code --install-extension esbenp.prettier-vscode
 code --install-extension bradlc.vscode-tailwindcss
-code --install-extension ms-python.python
-code --install-extension ms-python.vscode-pylance
-code --install-extension GraphQL.vscode-graphql
-code --install-extension Neo4j.neo4j
 code --install-extension redhat.vscode-yaml
 ```
 
@@ -224,38 +217,6 @@ supabase db pull
 supabase gen types typescript --project-id YOUR_PROJECT_ID > apps/web/src/types/supabase.ts
 ```
 
-### 5. Railway CLI
-
-**Installation:**
-```bash
-# macOS/Linux
-curl -fsSL https://railway.app/install.sh | sh
-
-# Or via npm
-npm install -g @railway/cli
-
-# Verify
-railway --version
-```
-
-**Authentication:**
-```bash
-# Login to Railway
-railway login
-
-# Link project
-railway link
-
-# View environment variables
-railway variables
-```
-
-**Deployment:**
-```bash
-# Deploy backend to Railway
-npm run deploy:railway
-```
-
 ---
 
 ## Database Setup
@@ -280,9 +241,14 @@ npm run deploy:railway
 3. Go to Project Settings → Database
 4. Copy connection strings:
    ```bash
-   DATABASE_URL=postgresql://postgres:[PASSWORD]@db.xxxxx.supabase.co:5432/postgres
-   DATABASE_POOLING_URL=postgresql://postgres:[PASSWORD]@db.xxxxx.supabase.co:6543/postgres?pgbouncer=true
+   # Pooler (transaction mode) — for normal app queries
+   DATABASE_URL=postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+
+   # Non-pooling (session mode, port 5432) — required for DDL, migrations, LangGraph checkpointer
+   POSTGRES_URL_NON_POOLING=postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-2.pooler.supabase.com:5432/postgres
    ```
+
+> **Important:** Use `POSTGRES_URL_NON_POOLING` for migrations and LangGraph's `PostgresSaver`. Use the pooler URL for all runtime queries.
 
 **Run Database Migrations:**
 ```bash
@@ -344,71 +310,6 @@ The authentication flow uses **token_hash** verification for email confirmation.
    - `http://localhost:3000/*` (development)
 
 **Important:** The `{{ .SiteURL }}` variable is set in Supabase Dashboard → Authentication → URL Configuration → Site URL.
-
-### 2. Neo4j (Graph Database)
-
-**Option A: Neo4j Aura (Cloud - Recommended for Production)**
-1. Go to [neo4j.com/cloud/aura](https://neo4j.com/cloud/aura/)
-2. Create free account
-3. Create new AuraDB instance
-4. Download credentials file
-5. Add to `.env.local`:
-   ```bash
-   NEO4J_URI=neo4j+s://xxxxx.databases.neo4j.io
-   NEO4J_USER=neo4j
-   NEO4J_PASSWORD=your-password-here
-   ```
-
-**Option B: Docker (Local Development)**
-```bash
-# Start Neo4j container
-docker run -d \
-  --name tutorwise-neo4j \
-  -p 7474:7474 \
-  -p 7687:7687 \
-  -e NEO4J_AUTH=neo4j/change-this-password \
-  neo4j:latest
-
-# Add to .env.local
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=change-this-password
-```
-
-**Verify Connection:**
-```bash
-npm run neo4j-test-connection
-```
-
-### 3. Redis (Cache & Rate Limiting)
-
-**Option A: Upstash Redis (Cloud - Recommended)**
-1. Go to [console.upstash.com](https://console.upstash.com/)
-2. Create new Redis database
-3. Copy credentials to `.env.local`:
-   ```bash
-   UPSTASH_REDIS_REST_URL=https://xxxxx.upstash.io
-   UPSTASH_REDIS_REST_TOKEN=xxxxx
-   ```
-
-**Option B: Docker (Local Development)**
-```bash
-# Start Redis container
-docker run -d \
-  --name tutorwise-redis \
-  -p 6379:6379 \
-  redis:alpine \
-  redis-server --requirepass change-this-password
-
-# Add to .env.local
-REDIS_URL=redis://:change-this-password@localhost:6379
-REDIS_PASSWORD=change-this-password
-```
-
-**Verify Connection:**
-```bash
-npm run redis-test-connection
-```
 
 ---
 
@@ -481,92 +382,71 @@ npm run redis-test-connection
 
 ## AI Development Tools
 
-### 1. Google Gemini API
+TutorWise uses a **6-tier AI fallback chain** — all powered through a single shared service at `apps/web/src/lib/ai/`. You only need keys for the providers you want to use; the service auto-falls-back down the chain.
 
-**Get API Key:**
-1. Go to [ai.google.dev](https://ai.google.dev/)
-2. Click "Get API key in Google AI Studio"
-3. Create new project or select existing
-4. Create API key
-5. Add to `.env.local`:
-   ```bash
-   GOOGLE_AI_API_KEY=AIzaSyxxxxx
-   ```
+### AI Provider Chain
 
-**Install Python Dependencies:**
+| Priority | Provider | Model | Env Var |
+|----------|----------|-------|---------|
+| 1 (primary) | **xAI** | Grok 4 Fast | `XAI_AI_API_KEY` |
+| 2 | **Google** | Gemini Flash | `GOOGLE_AI_API_KEY` |
+| 3 | **DeepSeek** | R1 | `DEEPSEEK_AI_API_KEY` |
+| 4 | **Anthropic** | Claude Sonnet 4.6 | `ANTHROPIC_AI_API_KEY` |
+| 5 | **OpenAI** | GPT-4o | `OPENAI_AI_API_KEY` |
+| 6 | Rules-based | — | (always available) |
+
+> **Naming convention:** All AI keys use the `_AI_` infix (e.g. `GOOGLE_AI_API_KEY`, not `GOOGLE_API_KEY`). The service checks both `*_AI_API_KEY || *_API_KEY` for backwards compatibility.
+
+**Add whichever keys you have to `.env.local`:**
 ```bash
-# Install Gemini SDK
-pip3 install google-generativeai
+# xAI (primary) — get at console.x.ai
+XAI_AI_API_KEY=xai-xxxxx
+
+# Google Gemini — get at ai.google.dev
+GOOGLE_AI_API_KEY=AIzaSyxxxxx
+
+# DeepSeek — get at platform.deepseek.com
+DEEPSEEK_AI_API_KEY=sk-xxxxx
+
+# Anthropic — get at console.anthropic.com
+ANTHROPIC_AI_API_KEY=sk-ant-xxxxx
+
+# OpenAI — get at platform.openai.com
+OPENAI_AI_API_KEY=sk-xxxxx
+```
+
+**The AI service is available as a singleton:**
+```typescript
+import { getAIService } from '@/lib/ai'
+const ai = getAIService()
+await ai.generate({ prompt: 'Hello' })           // streaming-capable
+await ai.generateJSON<MyType>({ prompt: '...' }) // typed JSON
+```
+
+### 1. Claude Code CLI
+
+**Installation:**
+```bash
+npm install -g @anthropic-ai/claude-code
 
 # Verify installation
-python3 -c "import google.generativeai as genai; print('Gemini SDK installed')"
+claude --version
 ```
 
-**Test Gemini Integration:**
+**Authentication:**
 ```bash
-# Check available models
-npm run gemini:models
-
-# Start interactive Gemini CLI
-npm run gemini
-
-# Or advanced CLI
-npm run gemini:advanced
+claude login
 ```
 
-### 2. Claude Code Configuration
-
-**Project Context Setup:**
+**Usage:**
 ```bash
-# Generate context for Claude Code
-npm run cas:generate
-
-# Start Claude Code with project context
-npm run ai:claude
+# Start Claude Code interactive session (from project root)
+claude
 ```
 
-**Claude Code Settings (`.claude/settings.json`):**
-```json
-{
-  "contextPaths": [
-    ".ai/",
-    "docs/",
-    "apps/web/src/"
-  ],
-  "ignorePatterns": [
-    "node_modules/",
-    ".next/",
-    "dist/",
-    "build/"
-  ],
-  "maxTokens": 8000
-}
-```
+### 2. Google Gemini Embedding
 
-### 3. Python Environment for AI Tools
-
-**Create Virtual Environment:**
-```bash
-# Create venv
-python3 -m venv .venv
-
-# Activate venv
-source .venv/bin/activate  # macOS/Linux
-# or
-.venv\Scripts\activate     # Windows
-
-# Install dependencies
-pip3 install -r requirements-ai.txt
-```
-
-**AI Tools Dependencies:**
-```bash
-# Key packages for AI integration
-pip3 install google-generativeai
-pip3 install anthropic
-pip3 install python-dotenv
-pip3 install requests
-```
+TutorWise uses `gemini-embedding-001` (768 dimensions) for vector search. The Gemini key (`GOOGLE_AI_API_KEY`) also powers embeddings — no separate setup needed beyond setting the env var above.
 
 ---
 
@@ -721,6 +601,7 @@ NODE_ENV=development
 # Payments (for booking features)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxxxx
 STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
 # Email (for notifications)
 RESEND_API_KEY=re_xxxxx
@@ -728,13 +609,15 @@ RESEND_API_KEY=re_xxxxx
 # Real-time (for chat)
 ABLY_API_KEY=xxxxx.xxxxx:xxxxx
 
-# AI Development
-GOOGLE_AI_API_KEY=AIzaSyxxxxx
+# AI providers (6-tier fallback — add whichever you have)
+XAI_AI_API_KEY=xai-xxxxx           # primary
+GOOGLE_AI_API_KEY=AIzaSyxxxxx      # tier 2 (also powers embeddings)
+DEEPSEEK_AI_API_KEY=sk-xxxxx       # tier 3
+ANTHROPIC_AI_API_KEY=sk-ant-xxxxx  # tier 4
+OPENAI_AI_API_KEY=sk-xxxxx         # tier 5
 
-# Graph Database (for recommendations)
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=change-this-password
+# Process Studio webhook (for process execution engine)
+PROCESS_STUDIO_WEBHOOK_SECRET=xxxxx
 ```
 
 ### Environment Variable Precedence
@@ -770,11 +653,8 @@ npm run workflow:check
 # Test Supabase connection
 npm run test:supabase
 
-# Test Neo4j connection
-./tools/scripts/neo4j-test-connection.sh
-
-# Test Redis connection
-./tools/scripts/redis-test-connection.sh
+# Or directly via psql (macOS Homebrew)
+/opt/homebrew/opt/postgresql@17/bin/psql "$POSTGRES_URL_NON_POOLING" -c "SELECT version();"
 ```
 
 ### 3. Test API Integrations
@@ -785,9 +665,6 @@ npm run test:stripe
 
 # Test Resend email
 npm run test:email
-
-# Test Gemini API
-npm run gemini:models
 ```
 
 ### 4. Test Full Development Workflow
@@ -807,17 +684,11 @@ npm run workflow:full
 ### 5. Start Development Server
 
 ```bash
-# Start both frontend and backend
 npm run dev
-
-# Or start individually:
-npm run dev:web    # Frontend only (port 3000)
-npm run dev:api    # Backend only (port 8000)
 ```
 
 **Verify:**
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend API: [http://localhost:8000/docs](http://localhost:8000/docs)
+- App: [http://localhost:3000](http://localhost:3000)
 - Supabase Studio: [http://localhost:54323](http://localhost:54323) (if running locally)
 
 ---
@@ -886,21 +757,7 @@ kill -9 $(lsof -ti:3000)
 PORT=3001 npm run dev
 ```
 
-#### 6. Python Backend Issues
-
-```bash
-# Activate virtual environment
-cd apps/api
-source venv/bin/activate
-
-# Install dependencies
-pip3 install -r requirements.txt
-
-# Test API
-python3 -m uvicorn app.main:app --reload
-```
-
-#### 7. Claude Code Authentication Issues
+#### 6. Claude Code Authentication Issues
 
 ```bash
 # Re-login
@@ -914,14 +771,15 @@ claude login
 claude --version
 ```
 
-#### 8. Gemini API Errors
+#### 7. AI Provider Errors
 
+The AI service auto-falls back through the 6-tier chain. If you see AI-related errors:
 ```bash
-# Check API key is valid
-npm run gemini:models
+# Check which keys are set
+grep "_AI_API_KEY" .env.local
 
-# If error, regenerate key at ai.google.dev
-# Update GOOGLE_AI_API_KEY in .env.local
+# The service logs which provider it used — check server console output
+# Add at least one key (GOOGLE_AI_API_KEY is easiest to get)
 ```
 
 ### Getting Help
@@ -985,16 +843,17 @@ npm run dev
 
 ### Before Committing
 
+The pre-commit hook runs automatically on `git commit` and enforces:
+- **Tests** (Jest)
+- **Lint** (ESLint — warnings allowed, errors block)
+- **Build** (full Next.js build — takes ~5 minutes)
+
 ```bash
-# Run full workflow validation
+# Run manually before committing
 npm run workflow:full
 
-# This runs:
-# - Linting (with auto-fix)
-# - Type checking
-# - Unit tests with coverage
-# - Build verification
-# - Security audit
+# macOS: if the hook fails with "node not found", ensure PATH includes node@22:
+export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
 ```
 
 ### Making Changes
@@ -1097,16 +956,13 @@ npm run jira:poll:continuous
 
 ```bash
 # Development
-npm run dev              # Start both frontend & backend
-npm run dev:web          # Frontend only
-npm run dev:api          # Backend only
+npm run dev              # Start frontend
 
 # Testing
 npm run test             # All tests
 npm run test:unit        # Unit tests
 npm run test:integration # Integration tests
 npm run test:e2e         # End-to-end tests
-npm run test:visual      # Visual regression tests
 
 # Quality
 npm run lint             # Run linter
@@ -1125,14 +981,8 @@ npm run workflow:clean   # Clean & reinstall
 ./tools/database/db-connect.sh              # Connect to database
 
 # Deployment
-npm run deploy:vercel       # Deploy frontend to Vercel
+npm run deploy:vercel       # Deploy to Vercel (preview)
 npm run deploy:vercel:prod  # Deploy to production
-npm run deploy:railway      # Deploy backend to Railway
-
-# AI Tools
-npm run gemini              # Start Gemini CLI
-npm run ai:gemini          # Gemini with context sync
-npm run claude:login        # Authenticate Claude Code
 
 # Environment
 npm run sync:env            # Sync .env.example → .env.local
@@ -1150,11 +1000,8 @@ npm run setup-aliases       # Create helpful aliases
 node --version
 npm --version
 git --version
-python3 --version
-docker --version
 vercel --version
 supabase --version
-railway --version
 claude --version
 ```
 
@@ -1162,12 +1009,12 @@ claude --version
 
 - **Supabase Dashboard**: [app.supabase.com](https://app.supabase.com/)
 - **Vercel Dashboard**: [vercel.com/dashboard](https://vercel.com/dashboard)
-- **Railway Dashboard**: [railway.app/dashboard](https://railway.app/dashboard)
 - **Stripe Dashboard**: [dashboard.stripe.com](https://dashboard.stripe.com/)
 - **Resend Dashboard**: [resend.com/overview](https://resend.com/overview)
 - **Ably Dashboard**: [ably.com/accounts](https://ably.com/accounts)
-- **Neo4j Aura Console**: [console.neo4j.io](https://console.neo4j.io/)
-- **Upstash Console**: [console.upstash.com](https://console.upstash.com/)
+- **xAI Console**: [console.x.ai](https://console.x.ai/)
+- **Google AI Studio**: [aistudio.google.com](https://aistudio.google.com/)
+- **Anthropic Console**: [console.anthropic.com](https://console.anthropic.com/)
 
 ---
 
