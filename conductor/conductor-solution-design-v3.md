@@ -3463,9 +3463,10 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 
 | Document | Purpose | Status |
 |----------|---------|--------|
-| [`ipom-solution-design-v3.md`](./ipom-solution-design-v3.md) | **This document — master reference** | Active |
-| [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.md) | GDPR retention policy, Article 22 obligations | Active |
-| [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md) | Growth Score formula for all 4 roles | Active |
+| [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md) | **This document — master reference** | Active |
+| [`conductor-gdpr-retention-policy.md`](./conductor-gdpr-retention-policy.md) | GDPR retention policy, Article 22 obligations | Active |
+| [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md) | Growth Score formula for all 4 roles | Active |
+| [`conductor-v3-audit.md`](./conductor-v3-audit.md) | Architecture audit, critical gaps, scoring | Active |
 | [`workflow-solution-design.md`](./workflow-solution-design.md) | Workflows builder implementation detail | Active |
 | [`process-discovery-solution-design.md`](./process-discovery-solution-design.md) | Process Discovery (4 phases) detail | Active |
 | [`process-execution-solution-design.md`](./process-execution-solution-design.md) | Execution engine (PlatformWorkflowRuntime) | Active |
@@ -3473,7 +3474,9 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 | [`cas/docs/CAS-SOLUTION-DESIGN.md`](../cas/docs/CAS-SOLUTION-DESIGN.md) | CAS platform architecture | Active |
 | [`cas/docs/CAS-ROADMAP.md`](../cas/docs/CAS-ROADMAP.md) | CAS roadmap (Q2 2026+) | Active |
 
-### Documents to Delete (superseded by v3)
+### Documents Deleted (superseded by v3)
+
+The following documents were deleted when the folder was renamed from `ipom/` to `conductor/`:
 
 | Document | Why |
 |----------|-----|
@@ -3486,5 +3489,5 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 
 ---
 
-*Version 3.4 — Conductor: Workflows + Agents + Teams unified. D23 Agent Teams (Supervisor/Pipeline/Swarm). Standard naming scheme. Migration 352.*
-*Supersedes: ipom-solution-design-v2.md, ipom-solution-design.md, platform-nexus-solution-design.md*
+*Version 3.5 — Conductor: Workflows + Agents + Teams unified. D23 Agent Teams (Supervisor/Pipeline/Swarm). Standard naming scheme. Migration 352.*
+*Supersedes: conductor-solution-design-v2.md, conductor-solution-design.md, platform-nexus-solution-design.md*

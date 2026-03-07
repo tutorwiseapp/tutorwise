@@ -1,10 +1,10 @@
-# iPOM — GDPR Data Retention & Automated Decision-Making Policy
+# Conductor — GDPR Data Retention & Automated Decision-Making Policy
 
-**Status**: Approved v1.1 — Resolves Q1 from ipom-solution-design-v2.md; audit fixes applied (v2.2)
+**Status**: Approved v1.1 — Resolves Q1 from conductor-solution-design-v2.md; audit fixes applied (v2.2)
 **Date**: 2026-03-06
 **Jurisdiction**: UK GDPR + Data (Use and Access) Act 2025 (DUAA)
 **Owner**: Product Team
-**Applies to**: All iPOM Phase 1+ tables accumulating personal data
+**Applies to**: All Conductor Phase 1+ tables accumulating personal data
 
 ---
 
@@ -24,7 +24,7 @@ Article 22 applies when a decision is:
 1. **Solely automated** (no meaningful human involvement), AND
 2. **Produces legal or similarly significant effects** on the individual
 
-For Tutorwise iPOM:
+For Tutorwise Conductor:
 
 | Process | Article 22 Applies? | Reason |
 |---------|-------------------|--------|
@@ -44,7 +44,7 @@ For Tutorwise iPOM:
 
 ### 1.3 Data (Use and Access) Act 2025 (DUAA)
 
-The DUAA received Royal Assent in 2025. Key changes relevant to iPOM:
+The DUAA received Royal Assent in 2025. Key changes relevant to Conductor:
 - Creates a **more permissive framework** for purely automated decisions — moves away from the near-blanket prohibition of original Article 22
 - Replaces prohibition with a **safeguards-based model** (inform, explain, enable contest, enable human review)
 - Secondary legislation and ICO AI/ADM Code of Practice expected **2026**
@@ -322,7 +322,7 @@ Before Phase 1 launches:
 Next migration: **344** (latest existing is 343; 344 is next available)
 
 ```sql
--- Migration 344: iPOM GDPR retention columns + legal_hold + platform_events partitioning
+-- Migration 344: Conductor GDPR retention columns + legal_hold + platform_events partitioning
 
 -- 1. workflow_executions retention columns
 ALTER TABLE workflow_executions

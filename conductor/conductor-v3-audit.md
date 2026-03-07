@@ -1,7 +1,7 @@
-# iPOM v3 — Architecture Audit
+# Conductor v3 — Architecture Audit
 
 **Date**: 2026-03-07
-**Document audited**: `ipom-solution-design-v3.md`
+**Document audited**: `conductor-solution-design-v3.md`
 
 ---
 
@@ -13,7 +13,7 @@ Well-architected. The vision — one admin canvas for workflows, agents, and tea
 1. RLS policies not specified for any new table
 2. `platform_events` partition pruning (6 months) contradicts GDPR retention (12 months)
 3. Tool Registry has no database schema
-4. ASCII "After iPOM" diagram has Process Studio disconnected from everything
+4. ASCII "After Conductor" diagram has Workflows disconnected from everything
 
 ---
 
@@ -34,9 +34,9 @@ Well-architected. The vision — one admin canvas for workflows, agents, and tea
 
 ## Critical Issues (blocking Phase 1)
 
-### C1 — ASCII "After iPOM" diagram: Process Studio disconnected
+### C1 — ASCII "After Conductor" diagram: Process Studio disconnected
 
-The `platform_events` bus splits into only two downward arrows (Intelligence Hub, Operations Interface). Workflow Runtime (Process Studio) has no connection shown. Should receive events from the bus AND be managed by iPOM Studio.
+The `platform_events` bus splits into only two downward arrows (Intelligence Hub, Operations Interface). Workflow Runtime (Workflows) has no connection shown. Should receive events from the bus AND be managed by Conductor.
 
 **Fixed in v3**: Yes (see below).
 
@@ -88,7 +88,7 @@ The existing `process-pending-commissions` and `complete-sessions` cron jobs pre
 
 ### H2 — Webhook receiver deduplication not explicitly specified
 
-Migration 346 adds a UNIQUE index on `(process_id, target_entity_id) WHERE status IN ('running', 'pending')`. The webhook receiver at `/api/webhooks/process-studio` must check this before starting an execution. If a duplicate webhook fires (Supabase fires webhooks at-least-once), the second would hit the constraint and fail. The document doesn't specify how that failure is handled (silently skip? log to DLQ?).
+Migration 346 adds a UNIQUE index on `(process_id, target_entity_id) WHERE status IN ('running', 'pending')`. The webhook receiver at `/api/webhooks/workflow` must check this before starting an execution. If a duplicate webhook fires (Supabase fires webhooks at-least-once), the second would hit the constraint and fail. The document doesn't specify how that failure is handled (silently skip? log to DLQ?).
 
 ### H3 — Admin Intelligence Agent vs Lexi admin mode: role separation unclear
 
@@ -149,8 +149,8 @@ When a workflow invokes a Team via the `cas_agent` handler (extended to accept `
 | "Growth Agent" | "Growth Advisor" (post-deprecation) | Product vision, §1 What to Remove |
 | "Process" (standalone) | "Workflow Process" (canonical DB table name) | Throughout |
 | "Analyst Agent" (sometimes) | "Analyst Agent" ← keep this as the type name | Phase 2 |
-| "AI Agent Studio" | Not developed in iPOM — belongs to Product 2 description only | §1 intro |
-| "Admin Studio" (once) | "iPOM Studio" | Phase 2 once |
+| "AI Agent Studio" | Not developed in Conductor — belongs to Product 2 description only | §1 intro |
+| "Admin Studio" (once) | "Conductor" | Phase 2 once |
 | "Autonomy Levels" (§1) | "Autonomy Tiers" (§DB schema, consistent elsewhere) | §1 Product Vision |
 
 ---
@@ -175,5 +175,5 @@ The following are shown somewhere in prose but have no diagram:
 - **Learning loop** (D19) is architecturally sound: outcomes measured at 14/30/60/90 day lags, expansion proposals require approval, contraction is automatic. Conservative and safe.
 - **PlatformUserContext** (D18) elegantly solves the cross-agent context problem without requiring agents to make redundant tool calls at session start.
 - **AI tier routing** (D20) is correct: rules → Gemini Flash → Claude Sonnet → Grok 4 Fast. Rules-based threshold checks at zero cost for the majority of operational decisions.
-- **CAS Team as a first-class iPOM entity** (D14) is clean — exposes existing CAS agents without rewriting them, just surfaces them in the registry and makes them configurable from UI.
-- **Bridge files pattern** (growth-bridge.ts, process-studio-bridge.ts) publishing to `platform_events` is the right decoupling mechanism — avoids direct cross-system calls.
+- **CAS Team as a first-class Conductor entity** (D14) is clean — exposes existing CAS agents without rewriting them, just surfaces them in the registry and makes them configurable from UI.
+- **Bridge files pattern** (growth-bridge.ts, workflow-bridge.ts) publishing to `platform_events` is the right decoupling mechanism — avoids direct cross-system calls.

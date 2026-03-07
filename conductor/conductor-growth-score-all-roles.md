@@ -1,6 +1,6 @@
-# iPOM — Growth Score: All Roles
+# Conductor — Growth Score: All Roles
 
-**Status**: Approved v1.1 — Resolves Q4 from ipom-solution-design-v2.md; migration number corrected to 344 (v2.2 audit)
+**Status**: Approved v1.1 — Resolves Q4 from conductor-solution-design-v2.md; migration number corrected to 344 (v2.2 audit)
 **Date**: 2026-03-06
 **Owner**: Product Team
 **Applies to**: Phase 1 — `compute-growth-scores` pg_cron job
@@ -30,7 +30,7 @@ All roles share:
 
 ## 2. Tutor Growth Score (0–100) — Existing, Confirmed
 
-As defined in ipom-solution-design-v2.md §10:
+As defined in conductor-solution-design-v2.md §10:
 
 ```
 profile_completeness (0–25):
@@ -216,7 +216,7 @@ platform_adoption (0–25):
 | 60–80 | Active | Standard monitoring |
 | > 80 | High-performing | Growth Agent expansion campaign prompts |
 | Team avg tutor score < 50 | Health concern | Admin Intelligence alert: "Org [X] team health declining" |
-| 0 active members in 30d | Dormant org | Process Studio: Org Dormancy Re-engagement workflow triggers |
+| 0 active members in 30d | Dormant org | Workflows: Org Dormancy Re-engagement workflow triggers |
 
 ### 5.3 Growth Agent recommendations by component
 
@@ -374,7 +374,7 @@ Client/Agent/Org formulas validated at Phase 2 entry:
 
 ## 8. Open Questions Resolved
 
-This document resolves **Q4** from ipom-solution-design-v2.md:
+This document resolves **Q4** from conductor-solution-design-v2.md:
 
 > "Growth Score for non-tutor roles — The Growth Score formula in §10 is defined for tutors. Client, agent, and organisation variants are sketched but not validated."
 

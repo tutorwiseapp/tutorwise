@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Lexi is a solid v1 platform assistant: role-adaptive, RAG-powered, tool-equipped, multi-provider. But it was designed before Sage Pro, the Growth Advisor, the CAS Process Engine, and the Admin Process Studio shipped. It treats users reactively (answer when asked), uses shallow read-only tools, and has no awareness of cross-platform state.
+Lexi is a solid v1 platform assistant: role-adaptive, RAG-powered, tool-equipped, multi-provider. But it was designed before Sage Pro, the Growth Advisor, the CAS Process Engine, and Conductor Workflows shipped. It treats users reactively (answer when asked), uses shallow read-only tools, and has no awareness of cross-platform state.
 
 This proposal defines five enhancement tracks that would make Lexi materially smarter and more useful — for users, admins, and platform support engineers.
 
@@ -108,7 +108,7 @@ interface LexiPlatformContext {
   // Growth
   growth: { has_pro, sessions_this_month, last_topic_discussed, daily_usage }
 
-  // CAS / Process Studio
+  // CAS / Conductor Workflows
   cas: { pending_approvals: [], recent_executions: [] }
 
   // Platform signals
@@ -144,7 +144,7 @@ Lexi (with context): Looking at your account, I can see a few things:
 User: "I have a pending approval - what is it for?"
 
 Lexi (with context, CAS-aware): You have 1 pending approval in the
-  Process Studio — it's for a commission payout to Sarah Chen (£127.50)
+  Conductor Workflows — it's for a commission payout to Sarah Chen (£127.50)
   as part of the weekly payout batch. It's been waiting 2 hours.
 
   Shall I open the approval screen, or would you like me to explain
@@ -159,7 +159,7 @@ Lexi should be the intelligent router between modules:
 |----------------------|-------------|
 | Homework / exam prep | "I'll hand you to Sage with this topic pre-loaded" + deep link with context |
 | Income strategy / pricing | "Your Growth Advisor can give you a detailed plan" + deep link |
-| A pending process / approval | "You have N items in Process Studio" + direct link to relevant execution |
+| A pending process / approval | "You have N items in Conductor Workflows" + direct link to relevant execution |
 | A bug / technical issue | Creates structured ticket with platform context pre-filled |
 
 ---
@@ -234,7 +234,7 @@ What can I help you with today?
 | `get_stripe_status` | Stripe account status, verification, payout history for any user |
 | `get_error_logs` | Recent errors/400s/500s for a given user or endpoint |
 | `list_pending_approvals` | All pending CAS approvals across the platform |
-| `get_process_execution` | Status of any workflow execution |
+| `get_workflow_execution` | Status of any workflow execution |
 | `run_diagnostic` | Pre-defined diagnostic queries (slow listings, stuck payouts, etc.) |
 | `send_admin_message` | Send a platform notification to any user |
 | `impersonate_session` | Read-only session to see what a user sees (audit-logged) |
@@ -313,7 +313,7 @@ Track when Lexi says "I don't know" or produces a low-confidence response:
 
 Currently missing from Lexi's knowledge base:
 - Growth Advisor usage guide (we just wrote growth.mdx — needs seeding)
-- CAS Process Studio — execution, HITL approvals, shadow/live modes
+- Conductor Workflows — execution, HITL approvals, shadow/live modes
 - AI Studio — how to create AI Tutors, training, deployment
 - Commission engine — advanced commission calculation rules
 - Referrals v2 — org-level referral tracking
@@ -384,7 +384,7 @@ These require no architectural changes — just new knowledge and minor code cha
 3. **Fix guest access gap** — either implement it or correct the documentation
 4. **Add proactive signal for unread messages** — cheapest signal, highest impact
 5. **Populate support ticket with full transcript** — one-line change to `create_support_ticket` tool
-6. **Add CAS/Process Studio to Lexi knowledge** — write the MDX, seed it
+6. **Add Conductor Workflows to Lexi knowledge** — write the MDX, seed it
 
 ---
 
