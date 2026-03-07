@@ -72,26 +72,26 @@ BEFORE iPOM — Seven Silos
 ```
 AFTER iPOM — Integrated Platform, One Admin Canvas (iPOM Studio)
 
-  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────────────────────────────┐
-  │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │  iPOM STUDIO                   │
-  │runtime │  │runtime │  │runtime │  │  Team  │  │  Workflows + Agents + Teams    │
-  └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘  │  (one canvas, one admin)      │
-      └────────────┴────────────┴───────────┴───────└─────────────┬──────────────┘
-                              │  PlatformUserContext (shared)      │
-                              │                                    │
-                ┌─────────────▼──────────────┐                    │
-                │    platform_events bus      │◀───────────────────┘
-                │  (unified event stream)     │
-                └──────┬──────────┬───────────┘
-                       │          │
-         ┌─────────────┘          └──────────────┐
-         │                                        │
-┌────────▼────────┐  ┌──────────────┐  ┌────────▼──────────┐
-│  Intelligence   │  │  Workflow     │  │   Operations       │
-│  Hub            │  │  Runtime     │  │   Interface        │
-│  (CAS + Analyst │  │  (Process    │  │   (Exception Queue,│
-│   Agents)       │  │   Studio)    │  │    Agent Registry) │
-└────────┬────────┘  └──────────────┘  └───────────────────┘
+  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌──────────────────────────────────┐
+  │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │  iPOM STUDIO                     │
+  │runtime │  │runtime │  │runtime │  │  Team  │  │  Workflows + Agents + Teams      │
+  └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘  │  (one canvas, one admin)        │
+      └────────────┴────────────┴───────────┴───────┴──────┬───────────┬──────────────┘
+                              │  PlatformUserContext (shared) │ configures│ designs
+                              │                              │           │
+                ┌─────────────▼──────────────┐              │           │
+                │    platform_events bus      │◀─────────────┘           │
+                │  (unified event stream)     │                          │
+                └──────┬──────────┬──────────┬───────────────────────────┘
+                       │          │           │
+         ┌─────────────┘          │           └──────────────────┐
+         │                        │                               │
+┌────────▼────────┐  ┌────────────▼──────────┐  ┌───────────────▼──────────────┐
+│  Intelligence   │  │  Workflow Runtime      │  │  Operations Interface         │
+│  Hub            │  │  (iPOM Studio canvas + │  │  (Exception Queue,            │
+│  (CAS + Analyst │  │   PlatformWorkflow     │  │   Agent Registry,             │
+│   Agents)       │  │   Runtime)             │  │   Monitoring)                 │
+└────────┬────────┘  └───────────────────────┘  └──────────────────────────────┘
          │
          ▼
 ┌─────────────────┐
@@ -417,7 +417,7 @@ iPOM STUDIO — WORKFLOW INVENTORY
 | **CAS WorkflowVisualizer → iPOM Studio** | 6h | Move `cas/packages/core/src/admin/WorkflowVisualizer.tsx` into iPOM Studio as a canvas tab/mode. CAS Team (9 agents as ReactFlow nodes with routing edges, live execution overlay) becomes a switchable view within the same canvas. `/admin/cas/workflow-fullscreen` removed — opens from iPOM Studio instead. |
 | Conditional edge labels (Yes / No / If / Else) | 4h | Extend ProcessEdgeData with `label?`. Render badge at edge midpoint. Condition node properties panel gains "Yes branch label" / "No branch label" fields. |
 | Handler schema registry + form-based config UI | 8h | Replace free-form JSON in PropertiesDrawer Tab 2. Registry maps handler name → required config fields. Dynamic form rendered from schema. |
-| Process versioning (migration 347) | 6h | `workflow_process_versions` table. Snapshot on every publish. Rollback from version list. Auto-save every 5 min (reason: "auto-save"). |
+| Process versioning (migration 347) | 6h | `workflow_process_versions` table. Snapshot on every publish. Rollback from version list. Auto-save every 5 min writes to `workflow_processes.draft_nodes/draft_edges` (NOT a version row). Publish creates a versioned snapshot in `workflow_process_versions`. |
 | Workflow validation (pre-publish checks) | 4h | Errors: no trigger, no end, orphan nodes, condition with single edge, action missing handler. Warnings: no description, approval with no assignee. Block publish if errors exist. |
 | **Subtotal** | **46h** | |
 
@@ -2292,6 +2292,21 @@ Each phase has specific testing requirements before deployment.
 
 All new tables across all phases. Existing tables (workflow_executions, workflow_tasks, workflow_processes, etc.) unchanged.
 
+**RLS policy requirement** (must be written in each migration, not shown below for brevity):
+
+| Table | Who can read | Who can write |
+|-------|-------------|---------------|
+| `platform_events` | `is_admin()` | `service_role` only |
+| `workflow_exceptions` | `is_admin()` | `service_role` + `is_admin()` for resolve/claim |
+| `growth_scores` | owner (`profile_id = auth.uid()`) + `is_admin()` | `service_role` only |
+| `analyst_agents` | `is_admin()` | `is_admin()` |
+| `analyst_tools` | `is_admin()` | `is_admin()` (activate requires `activated_by`) |
+| `agent_templates` | `is_admin()` | `is_admin()` (system templates read-only) |
+| `agent_subscriptions` | owner (`user_id = auth.uid()`) + `is_admin()` | `service_role` only |
+| `agent_teams` | `is_admin()` | `is_admin()` |
+| `decision_outcomes` | `is_admin()` | `service_role` only |
+| `process_autonomy_config` | `is_admin()` | `is_admin()` (tier contraction auto; expansion requires admin) |
+
 ```sql
 -- ═══════════════════════════════════════════════════════════════════
 -- Migration 344 (Phase 1): GDPR compliance + platform_events bus
@@ -2363,14 +2378,15 @@ SELECT cron.schedule(
   $$
 );
 
--- Prune partitions older than 6 months (runs 1st of each month)
+-- Prune partitions older than 12 months (GDPR retention: 12 months, not 6)
+-- Runs 1st of each month. Drops partition from 13 months ago.
 SELECT cron.schedule(
   'prune-platform-events-partitions',
   '0 2 1 * *',
   $$
     EXECUTE format(
       'DROP TABLE IF EXISTS platform_events_%s',
-      to_char(date_trunc(''month'', now()) - INTERVAL ''6 months'', ''YYYY_MM'')
+      to_char(date_trunc(''month'', now()) - INTERVAL ''13 months'', ''YYYY_MM'')
     );
   $$
 );
@@ -2474,11 +2490,34 @@ CREATE TABLE workflow_process_versions (
 );
 ALTER TABLE workflow_processes ADD COLUMN version integer DEFAULT 1;
 ALTER TABLE workflow_processes ADD COLUMN published_at timestamptz;
+-- Auto-save draft columns: auto-save writes here every 5 min; publish snapshots to workflow_process_versions
+ALTER TABLE workflow_processes ADD COLUMN draft_nodes jsonb;
+ALTER TABLE workflow_processes ADD COLUMN draft_edges jsonb;
+ALTER TABLE workflow_processes ADD COLUMN draft_updated_at timestamptz;
 
 
 -- ═══════════════════════════════════════════════════════════════════
--- Migration 348 (Phase 2): Analyst agents + agent templates
+-- Migration 348 (Phase 2): Analyst agents + agent templates + tool registry
 -- ═══════════════════════════════════════════════════════════════════
+
+-- Tool Registry: admin-registered tools available to analyst agents
+CREATE TABLE analyst_tools (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug text NOT NULL UNIQUE,
+  name text NOT NULL,
+  description text NOT NULL,
+  category text NOT NULL,          -- 'data_query' | 'platform_action' | 'calculation'
+  input_schema jsonb NOT NULL,     -- JSON Schema for tool inputs (validated before activation)
+  output_schema jsonb,             -- JSON Schema for expected output
+  function_path text NOT NULL,     -- e.g. 'apps/web/src/lib/agent-studio/tools/query-bookings.ts'
+  requires_entity_id boolean DEFAULT false,  -- platform_action tools must include entity_id (audit trail)
+  is_deterministic boolean DEFAULT true,     -- data_query tools must be deterministic
+  status text NOT NULL DEFAULT 'draft',      -- 'draft' | 'active' | 'inactive'
+  created_by uuid REFERENCES auth.users,
+  activated_by uuid REFERENCES auth.users,   -- code review required before activation
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
 
 CREATE TABLE analyst_agents (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -2847,7 +2886,7 @@ Risks that could derail the build. Mitigations are mandatory before phase sign-o
 | CAS WorkflowVisualizer ReactFlow props incompatible with Process Studio canvas | Medium | Medium | Phase 1 | Wrap in compatibility shim. Both are ReactFlow — same library. Isolate CAS canvas props before merge. |
 | Analyst agent tool queries return stale data | Low | Medium | Phase 2 | All tools query Supabase directly. No caching. Add `query_freshness_check` to agent system prompt context. |
 | Agent run cost spike (frontier model called unexpectedly) | Medium | Medium | Phase 2 | AI tier routing enforced in orchestrator. No direct frontier model call without task classification step. |
-| platform_events table grows unbounded | High | Medium | Phase 3 | Partition by month from day 1 (migration 344). pg_cron prune job drops partitions >6 months old. Initial 4 monthly partitions created in migration DDL. |
+| platform_events table grows unbounded | High | Medium | Phase 3 | Partition by month from day 1 (migration 344). pg_cron prune job drops partitions >12 months old (aligned with GDPR retention). Initial 4 monthly partitions created in migration DDL. |
 | pipeline_jobs DLQ fills up silently | Medium | High | Phase 3 | Platform Console shows queue depth in real-time. Alert if >100 jobs in `failed` status. |
 | Growth Score formula disagrees with tutor intuition | Low | High | Phase 3 | Run Growth Score in shadow for 30 days before showing to tutors. Admin validation gate before user rollout. |
 | PlatformUserContext Redis cache staleness (5 min) | Low | Low | Phase 4 | Acceptable for conversational context. Booking/payment data re-fetched on tool call, not from cache. |
@@ -3018,7 +3057,7 @@ iPOM BUILD SEQUENCE v3.4
 | CAS WorkflowVisualizer → iPOM Studio canvas tab | 6 | Move from `cas/packages/core/src/admin/`. `/admin/cas/workflow-fullscreen` removed. |
 | Conditional edge labels (Yes / No / If / Else) | 4 | Extend ProcessEdgeData with `label?`. Badge at edge midpoint. |
 | Handler schema registry + form-based config UI | 8 | Replace free-form JSON. Registry maps handler → required fields. Dynamic form. |
-| Process versioning (migration 347) | 6 | `workflow_process_versions` table. Snapshot on publish. Rollback. Auto-save 5 min. |
+| Process versioning (migration 347) | 6 | `workflow_process_versions` table. Snapshot on publish. Rollback. Auto-save 5 min → `draft_nodes/draft_edges` columns (not a version row). |
 | Workflow validation (pre-publish checks) | 4 | Block publish if: no trigger, no end, orphan nodes, condition single edge. Warn if: no description. |
 | Admin Command Center redesign | 8 | AI brief widget, exception queue (claimed_by), autonomous ops summary, Lexi query bar |
 | Navigation reframe (admin sidebar) | 4 | Autonomy-first structure. Domain pages move to Management section. |
