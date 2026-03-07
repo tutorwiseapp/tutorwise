@@ -387,13 +387,13 @@ CONDUCTOR — WORKFLOW INVENTORY
 
 | Item | Location | Status |
 |------|----------|--------|
-| Conductor designer (ReactFlow) | `apps/web/src/components/feature/process-studio/` | ✅ Live |
-| 7 node types + 11 handlers | `process-studio/handlers/` | ✅ Live |
-| PlatformWorkflowRuntime (LangGraph) | `apps/web/src/lib/process-studio/runtime/` | ✅ Live |
+| Conductor designer (ReactFlow) | `apps/web/src/components/feature/workflow/` | ✅ Live |
+| 7 node types + 11 handlers | `workflow/handlers/` | ✅ Live |
+| PlatformWorkflowRuntime (LangGraph) | `apps/web/src/lib/workflow/runtime/` | ✅ Live |
 | LangGraph PostgreSQL checkpointing | `cas-checkpointer.ts` | ✅ Live |
-| HITL ApprovalDrawer | `process-studio/components/` | ✅ Live |
+| HITL ApprovalDrawer | `workflow/components/` | ✅ Live |
 | Shadow mode (design/shadow/live) | `workflow_processes.execution_mode` | ✅ Live |
-| Process Discovery (4 phases) | `process-studio/discovery/` | ✅ Live |
+| Process Discovery (4 phases) | `workflow/discovery/` | ✅ Live |
 | CAS WorkflowVisualizer (ReactFlow) | `cas/packages/core/src/admin/` | ✅ Live — to merge |
 | CAS 9 agents | `cas/agents/` | ✅ Live — to expose |
 | 5 seeded workflow processes | migrations 338-339 | ✅ Live |
@@ -419,7 +419,7 @@ Before Phase 1 work begins, rename the internal code namespace to match the new 
 | Update nav URL: `/admin/studio` → `/admin/conductor` | `apps/web/src/app/admin/` route structure |
 | Update all imports referencing old paths | Global find-and-replace |
 
-> **Note**: These are label/path renames only — no logic changes. Estimated 2–3h. Do this before Phase 1 to avoid compounding the debt.
+> **Non-negotiable**: These are label/path renames only — no logic changes. Estimated 2–3h. Phase 1 does not start until Phase 0 is complete. Shipping Phase 1 on top of old names creates compounding technical debt across every file touched.
 
 ---
 
@@ -554,7 +554,7 @@ cas/integration/
 │     handleSessionEvent()    → session.started / session.ended
 │     handleScoreUpdated()    → growth.score_updated
 │
-└── process-studio-bridge.ts (NEW)
+└── workflow-bridge.ts (NEW)
       handleWorkflowStarted()    → workflow.started
       handleWorkflowCompleted()  → workflow.completed
                                     + write to decision_outcomes stub
@@ -566,7 +566,7 @@ cas/integration/
       handleTriggerDeduped()     → workflow.trigger_deduplicated
 ```
 
-**Shared Agent Tools** (`apps/web/src/lib/process-studio/agent-tools/`):
+**Shared Agent Tools** (`apps/web/src/lib/workflow/agent-tools/`):
 
 ```
   get-executions.ts        ← live execution state for a user (Lexi + Growth)
@@ -978,14 +978,14 @@ Conductor execution engine is the single action runtime for all conversational A
 HITL GATEWAY SECURITY BOUNDARY
 
   User-facing agents (Lexi, Growth, Sage):
-  POST /api/process-studio/execute/start
+  POST /api/workflow/execute/start
     Auth: user session + profile_id scope
     Permissions: scoped to requesting user's own data only
     Cannot: read or modify other users, escalate privileges
     Can: cancel own booking, update own listing, send own message
 
   Admin-facing agents (Admin Intelligence, analyst agents):
-  POST /api/admin/process-studio/execute/start
+  POST /api/admin/workflow/execute/start
     Auth: admin RBAC (requiresAdmin())
     Permissions: full execution context
     Can: approve/reject any entity, run any workflow
@@ -1428,7 +1428,7 @@ Foundation for cross-system analytics. **Uses a dedicated table, NOT an extensio
 -- Migration 344: platform_events — dedicated cross-system event store
 CREATE TABLE platform_events (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  source_system text NOT NULL,    -- 'sage' | 'lexi' | 'growth' | 'process-studio' | 'cas'
+  source_system text NOT NULL,    -- 'sage' | 'lexi' | 'growth' | 'workflow' | 'cas'
   event_type text NOT NULL,
   entity_id uuid,
   entity_type text,               -- 'user' | 'execution' | 'session' | 'organisation'
@@ -1823,7 +1823,7 @@ INTENT DETECTION FLOW
           │       → Admin confirms → POST execute/start
           │
           ├── intent='view_analytics'
-          │       → Navigate to /admin/process-studio/analytics
+          │       → Navigate to /admin/workflow/analytics
           │       → Pre-filter to relevant tab
           │
           └── intent='general', confidence < 0.7
@@ -1833,7 +1833,7 @@ INTENT DETECTION FLOW
 
 Intent routing is integrated into the Command Center query bar (Phase 3). Phase 4 upgrades the classifier from simple keyword → `getAIService().generateJSON()` for semantic intent detection with confidence scoring.
 
-Chat input on the unified `/admin/process-studio` dashboard routes through intent detection first.
+Chat input on the unified `/admin/workflow` dashboard routes through intent detection first.
 
 ### 4C — PlatformUserContext (10h)
 
@@ -2227,7 +2227,7 @@ Model Context Protocol (MCP) standardises how AI agents consume external tool AP
 
 **Integration point**: `Tool Registry` (Phase 2) already stores tools as JSON schemas. An MCP adapter would translate MCP `tool_definition` format into Tool Registry format, auto-registering tools from the external system. Agents call `mcp_tools_service.execute(tool_name, args)` which proxies to the external MCP server.
 
-**Security**: Each MCP connection has a separate OAuth credential stored in Supabase Vault (not in `analyst_agents.config`). Admin registers connections via a dedicated MCP Connections page under `/admin/process-studio/integrations`.
+**Security**: Each MCP connection has a separate OAuth credential stored in Supabase Vault (not in `analyst_agents.config`). Admin registers connections via a dedicated MCP Connections page under `/admin/workflow/integrations`.
 
 ### DSPy Evaluation Panel — Implementation Sketch
 
@@ -2249,7 +2249,7 @@ Each phase has specific testing requirements before deployment.
 
 | Test Type | Scope | Tool |
 |-----------|-------|------|
-| Unit tests | Handler functions (all 11 handlers) | Jest — `apps/web/src/lib/process-studio/handlers/**.test.ts` |
+| Unit tests | Handler functions (all 11 handlers) | Jest — `apps/web/src/lib/workflow/handlers/**.test.ts` |
 | Integration tests | PlatformWorkflowRuntime full run (Tutor Approval happy path + rejection path) | Jest + Supabase test DB |
 | E2E test | Workflows canvas: drag node, connect edge, publish | Playwright |
 | E2E test | HITL: submit approval task, approve via ApprovalDrawer, verify execution continues | Playwright |
@@ -2358,7 +2358,7 @@ CREATE TABLE sar_requests (
 -- Platform events bus (partitioned cross-system event store)
 CREATE TABLE platform_events (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  source_system text NOT NULL,    -- 'sage' | 'lexi' | 'growth' | 'process-studio' | 'cas'
+  source_system text NOT NULL,    -- 'sage' | 'lexi' | 'growth' | 'workflow' | 'cas'
   event_type text NOT NULL,
   entity_id uuid,
   entity_type text,               -- 'user' | 'execution' | 'session' | 'organisation'
@@ -2815,20 +2815,20 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/api/admin/process-studio/processes` | Admin | List all workflow processes with execution modes |
-| `POST` | `/api/admin/process-studio/processes` | Admin | Create new workflow process (from template) |
-| `PATCH` | `/api/admin/process-studio/processes/[id]/execution-mode` | Admin | Toggle shadow/live/design mode |
-| `GET` | `/api/admin/process-studio/processes/[id]/versions` | Admin | List process version history |
-| `POST` | `/api/admin/process-studio/processes/[id]/publish` | Admin | Publish current canvas as new version |
-| `POST` | `/api/admin/process-studio/execute/start` | Admin | Start workflow execution |
-| `GET` | `/api/admin/process-studio/execute/[executionId]` | Admin | Get execution status + task list |
-| `DELETE` | `/api/admin/process-studio/execute/[executionId]` | Admin | Cancel running execution |
-| `POST` | `/api/admin/process-studio/execute/[executionId]/resume` | Admin | Resume paused execution |
-| `POST` | `/api/admin/process-studio/execute/task/[taskId]/complete` | Admin | Complete HITL task (approve/reject) |
-| `GET` | `/api/admin/process-studio/exceptions` | Admin | List exception queue (filterable by domain/severity) |
-| `POST` | `/api/admin/process-studio/exceptions/[id]/claim` | Admin | Claim exception for review |
-| `POST` | `/api/admin/process-studio/exceptions/[id]/resolve` | Admin | Resolve exception with resolution text |
-| `POST` | `/api/webhooks/process-studio` | Webhook secret | Supabase DB webhook receiver |
+| `GET` | `/api/admin/workflow/processes` | Admin | List all workflow processes with execution modes |
+| `POST` | `/api/admin/workflow/processes` | Admin | Create new workflow process (from template) |
+| `PATCH` | `/api/admin/workflow/processes/[id]/execution-mode` | Admin | Toggle shadow/live/design mode |
+| `GET` | `/api/admin/workflow/processes/[id]/versions` | Admin | List process version history |
+| `POST` | `/api/admin/workflow/processes/[id]/publish` | Admin | Publish current canvas as new version |
+| `POST` | `/api/admin/workflow/execute/start` | Admin | Start workflow execution |
+| `GET` | `/api/admin/workflow/execute/[executionId]` | Admin | Get execution status + task list |
+| `DELETE` | `/api/admin/workflow/execute/[executionId]` | Admin | Cancel running execution |
+| `POST` | `/api/admin/workflow/execute/[executionId]/resume` | Admin | Resume paused execution |
+| `POST` | `/api/admin/workflow/execute/task/[taskId]/complete` | Admin | Complete HITL task (approve/reject) |
+| `GET` | `/api/admin/workflow/exceptions` | Admin | List exception queue (filterable by domain/severity) |
+| `POST` | `/api/admin/workflow/exceptions/[id]/claim` | Admin | Claim exception for review |
+| `POST` | `/api/admin/workflow/exceptions/[id]/resolve` | Admin | Resolve exception with resolution text |
+| `POST` | `/api/webhooks/workflow` | Webhook secret | Supabase DB webhook receiver |
 
 ### Phase 2 — Agents + Teams
 
@@ -2852,7 +2852,7 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 | `GET` | `/api/agents/[type]/session` | User | Start conversational agent session |
 | `POST` | `/api/agents/[type]/stream` | User | Stream agent response |
 | `GET` | `/api/agents/[type]/subscription` | User | Check subscription status for agent |
-| `POST` | `/api/process-studio/execute/start` | User | User-scoped HITL workflow trigger |
+| `POST` | `/api/workflow/execute/start` | User | User-scoped HITL workflow trigger |
 
 ### Phase 3 — Intelligence Layer
 
@@ -3015,7 +3015,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
   Process Discovery                 Admin Command Center redesign
   LangGraph checkpointing           Migration 346 production fixes
                                     Cross-workflow coordination
-                                    Bridge files (growth, process-studio)
+                                    Bridge files (growth, workflow)
                                     Template CRUD from UI
 
   Phase 2 (After Phase 1)           Phase 3 (After Phase 2)
@@ -3081,7 +3081,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Template CRUD from UI | 6 | Save as template, clone, edit metadata, delete (system templates protected) |
 | Migration 346 production fixes | 4 | Dedup index, DLQ retry pg_cron, fallback polling pg_cron |
 | Cross-workflow coordination | 6 | `workflow_entity_cooldowns` table. Check in `trigger-workflow.ts`. Cooldown for nudge-type workflows. |
-| Bridge files (growth-bridge.ts, process-studio-bridge.ts) | 5 | Publish to platform_events. Enqueue pipeline jobs on scan completed. |
+| Bridge files (growth-bridge.ts, workflow-bridge.ts) | 5 | Publish to platform_events. Enqueue pipeline jobs on scan completed. |
 | Shared agent tools (`agent-tools/`) | 3 | `get-executions`, `trigger-workflow`, `list-approvals`, `approve-task`, `get-divergences` |
 | Remove dead code (ExecutionCanvas, ShadowDivergencePanel) | 2 | Delete files. Verify build. |
 | **Total** | **84h** | |
@@ -3368,7 +3368,7 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 **Resolved**: CAS `AgentRuntimeInterface` in `cas/packages/core/` already provides this abstraction. Separate `packages/agents-core/` extraction is NOT needed — it would duplicate what already exists.
 
 ### D5: HITL gateway security boundary
-**Resolved**: Two endpoints (user-scoped `/api/process-studio/execute/start`, admin-scoped `/api/admin/process-studio/execute/start`), same `PlatformWorkflowRuntime`. Every workflow declares `undoable` and `rollback_procedure`.
+**Resolved**: Two endpoints (user-scoped `/api/workflow/execute/start`, admin-scoped `/api/admin/workflow/execute/start`), same `PlatformWorkflowRuntime`. Every workflow declares `undoable` and `rollback_procedure`.
 
 ### D6: Knowledge pipelines — two, not one
 **Resolved**: Pipeline 1 (Discovery → agent knowledge) + Pipeline 2 (Configurations → agent knowledge). Both async via `pipeline_jobs` queue. Caller never blocked.
@@ -3466,7 +3466,7 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 | [`ipom-solution-design-v3.md`](./ipom-solution-design-v3.md) | **This document — master reference** | Active |
 | [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.md) | GDPR retention policy, Article 22 obligations | Active |
 | [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md) | Growth Score formula for all 4 roles | Active |
-| [`process-studio-solution-design.md`](./process-studio-solution-design.md) | Workflows builder implementation detail | Active |
+| [`workflow-solution-design.md`](./workflow-solution-design.md) | Workflows builder implementation detail | Active |
 | [`process-discovery-solution-design.md`](./process-discovery-solution-design.md) | Process Discovery (4 phases) detail | Active |
 | [`process-execution-solution-design.md`](./process-execution-solution-design.md) | Execution engine (PlatformWorkflowRuntime) | Active |
 | [`lexi-enhancement-proposal.md`](./lexi-enhancement-proposal.md) | Lexi enhancements (separate backlog) | Active |
