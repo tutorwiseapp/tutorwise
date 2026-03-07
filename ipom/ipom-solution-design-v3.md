@@ -1,5 +1,5 @@
-# Tutorwise iPOM — Intelligent Platform Operations Management
-**Version**: 3.4 — Multi-agent Teams: D23 Agent Teams (Supervisor/Pipeline/Swarm), iPOM Studio rename, standard naming (Agent/Team/Workflow), TeamRuntime + AgentTeamState, migration 352 schema, §2I new section, Phase 2 extended to ~140h
+# Tutorwise Conductor — Intelligent Operations Platform
+**Version**: 3.5 — Conductor rename (was: iPOM Studio), Workflows rename (was: Process Studio), full naming system aligned: Conductor / Workflows / Agents / Teams
 **Date**: 2026-03-06
 **Status**: Phased implementation plan
 
@@ -23,17 +23,17 @@
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│  PRODUCT 3 — TUTORWISE iPOM                                     │
+│  PRODUCT 3 — TUTORWISE CONDUCTOR                                     │
 │  The engine room: autonomous operations, agent management,      │
 │  self-improving intelligence, exception handling                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### What iPOM Actually Is
+### What Conductor Actually Is
 
-iPOM is the **operating system for Tutorwise** — it lets the platform run itself and lets non-technical admins spin up specialist AI agents to replace human analysts when needed.
+Conductor is the **operating system for Tutorwise** — it lets the platform run itself and lets non-technical admins spin up specialist AI agents to replace human analysts when needed.
 
-Three capabilities — all managed from **one unified admin canvas (iPOM Studio)**:
+Three capabilities — all managed from **one unified admin canvas (Conductor)**:
 1. **Workflows** — automated business processes (tutor approval, commission payout, booking lifecycle)
 2. **Agents** — single-agent AI specialists: create, configure, monitor, remove from UI (Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor, Custom)
 3. **Teams** — multi-agent systems where multiple Agents collaborate toward one result:
@@ -42,17 +42,17 @@ Three capabilities — all managed from **one unified admin canvas (iPOM Studio)
 
 An admin can add a new Agent or Team, configure prompts/tools/schedule, monitor runs, and remove it — all without writing code.
 
-### What iPOM Is Not
+### What Conductor Is Not
 
-- **Not a user-facing product** — users never see "iPOM" directly
-- **Not a replacement** for CAS, Sage, or Lexi — those runtimes stay as-is; iPOM manages and connects them
-- **Not glue code** — iPOM is a strategic product investment with its own roadmap and value
-- **Not a new monolith** — iPOM is a protocol, interface, and management layer, not a new central service
+- **Not a user-facing product** — users never see "Conductor" directly
+- **Not a replacement** for CAS, Sage, or Lexi — those runtimes stay as-is; Conductor manages and connects them
+- **Not glue code** — Conductor is a strategic product investment with its own roadmap and value
+- **Not a new monolith** — Conductor is a protocol, interface, and management layer, not a new central service
 
 ### The Problem It Solves
 
 ```
-BEFORE iPOM — Seven Silos
+BEFORE CONDUCTOR — Seven Silos
 
   ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐
   │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │Process │  │AI Agent│  │ Admin  │
@@ -70,10 +70,10 @@ BEFORE iPOM — Seven Silos
 ```
 
 ```
-AFTER iPOM — Integrated Platform, One Admin Canvas (iPOM Studio)
+AFTER CONDUCTOR — Integrated Platform, One Admin Canvas (Conductor)
 
   ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌──────────────────────────────────┐
-  │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │  iPOM STUDIO                     │
+  │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │  CONDUCTOR                     │
   │runtime │  │runtime │  │runtime │  │  Team  │  │  Workflows + Agents + Teams      │
   └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘  │  (one canvas, one admin)        │
       └────────────┴────────────┴───────────┴───────┴──────┬───────────┬──────────────┘
@@ -88,7 +88,7 @@ AFTER iPOM — Integrated Platform, One Admin Canvas (iPOM Studio)
          │                        │                               │
 ┌────────▼────────┐  ┌────────────▼──────────┐  ┌───────────────▼──────────────┐
 │  Intelligence   │  │  Workflow Runtime      │  │  Operations Interface         │
-│  Hub            │  │  (iPOM Studio canvas + │  │  (Exception Queue,            │
+│  Hub            │  │  (Conductor canvas + │  │  (Exception Queue,            │
 │  (CAS + Analyst │  │   PlatformWorkflow     │  │   Agent Registry,             │
 │   Agents)       │  │   Runtime)             │  │   Monitoring)                 │
 └────────┬────────┘  └───────────────────────┘  └──────────────────────────────┘
@@ -101,7 +101,7 @@ AFTER iPOM — Integrated Platform, One Admin Canvas (iPOM Studio)
 │  autonomy tiers │
 └─────────────────┘
 
-  Adding a new Agent or Team = fill form in iPOM Studio. Cost: minutes, no code.
+  Adding a new Agent or Team = fill form in Conductor. Cost: minutes, no code.
 ```
 
 ### Autonomy Levels
@@ -151,7 +151,7 @@ DECISION ROUTING FLOW
    low risk        override      (AI recommends) the rules
          │              │              │              │
          ▼              ▼              ▼              ▼
-  Process Studio   Approval        Exception       Config
+  Workflows   Approval        Exception       Config
   executes         queue item      queue card      page /
   automatically    (approve /      + AI brief      Process
   No human         override)       + confidence    Studio
@@ -246,9 +246,9 @@ Before building anything new, make these strategic corrections:
 ### Redesign
 | What | Current | Should Be |
 |------|---------|-----------|
-| iPOM Studio toolbar node buttons | Programmatic add-node buttons | Drag-from-palette node toolbox sidebar |
+| Conductor toolbar node buttons | Programmatic add-node buttons | Drag-from-palette node toolbox sidebar |
 | Handler config in PropertiesDrawer | Free-form JSON | Form-based fields per handler type (driven by handler schema registry) |
-| CAS admin dashboard (`/admin/cas`) | Separate product with its own UI | Merged into unified iPOM Studio Monitoring tab |
+| CAS admin dashboard (`/admin/cas`) | Separate product with its own UI | Merged into unified Conductor Monitoring tab |
 | `packages/agents-core` (proposed) | Standalone extraction task | Not needed — CAS `AgentRuntimeInterface` already is this abstraction |
 
 ---
@@ -257,7 +257,7 @@ Before building anything new, make these strategic corrections:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│  iPOM STUDIO  (/admin/studio)  ← the single admin canvas            │
+│  CONDUCTOR  (/admin/conductor)  ← the single admin canvas            │
 │                                                                      │
 │  ┌─────────────┐   ┌──────────────────────────────────────────┐     │
 │  │ Node Palette│   │  CANVAS (ReactFlow)                      │     │
@@ -294,7 +294,7 @@ Before building anything new, make these strategic corrections:
 **One admin entry point. Two underlying runtimes. All Agents and Teams managed from the same place.**
 
 - **Agents** (Market Intelligence, Financial, Operations, Growth) run on the Agent Runtime — standalone, schedule + chat driven
-- **CAS Team** (Director, Developer, Tester etc.) runs on TeamRuntime via Supervisor pattern — exposed and manageable from iPOM Studio
+- **CAS Team** (Director, Developer, Tester etc.) runs on TeamRuntime via Supervisor pattern — exposed and manageable from Conductor
 - **Custom Teams** — admin builds topology on canvas; TeamRuntime compiles LangGraph StateGraph from DB definition at execution time
 - **Workflows** can invoke any registered Agent or Team via the `agent` action node type
 
@@ -302,7 +302,7 @@ Before building anything new, make these strategic corrections:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                       TUTORWISE iPOM v3.0                               │
+│                       TUTORWISE CONDUCTOR v3.0                               │
 ├──────────────┬─────────────────┬────────────────┬──────────────────────┤
 │  AUTOMATION  │  INTELLIGENCE   │  OPERATIONS    │  NEXUS               │
 │  RUNTIME     │  HUB            │  INTERFACE     │  (integration layer) │
@@ -329,7 +329,7 @@ Before building anything new, make these strategic corrections:
 | Property | Description | Status |
 |----------|------------|--------|
 | **Integrated** | Every part knows what every other is doing | ✅ `platform_events` bus |
-| **Autonomous** | Routine decisions need no human | ✅ Four-tier model + iPOM Studio execution engine |
+| **Autonomous** | Routine decisions need no human | ✅ Four-tier model + Conductor execution engine |
 | **Intelligent** | Anomalies surface before humans notice | ✅ Admin Intelligence Agent (Phase 3) |
 | **Self-maintaining** | Knowledge stays current without manual effort | ✅ Async pipelines (Phase 3) |
 | **Self-improving** | Decisions get better from observed outcomes | Phase 4 — Learning Layer |
@@ -342,7 +342,7 @@ Before building anything new, make these strategic corrections:
 ### Workflow Inventory
 
 ```
-iPOM STUDIO — WORKFLOW INVENTORY
+CONDUCTOR — WORKFLOW INVENTORY
 
   LIVE (running in production)
   ┌─────────────────────────────────────────────────────────────────┐
@@ -361,21 +361,21 @@ iPOM STUDIO — WORKFLOW INVENTORY
   │  Referral Attribution    (called from Booking Lifecycle)        │
   └─────────────────────────────────────────────────────────────────┘
 
-  iPOM ADDS (Phase 1+)
+  CONDUCTOR ADDS (Phase 1+)
   ┌─────────────────────────────────────────────────────────────────┐
   │  Organisation Onboarding  │  Stuck Referral Recovery            │
   │  Listing Quality Nudge    │  Org Dormancy Re-engagement         │
   └─────────────────────────────────────────────────────────────────┘
 
-  ALL AGENTS and TEAMS delegate write actions through iPOM Studio execution engine.
+  ALL AGENTS and TEAMS delegate write actions through Conductor execution engine.
   Full audit trail + idempotency + rollback support on every action.
 ```
 
-### System Roles in iPOM
+### System Roles in Conductor
 
-| System | Role in iPOM | Participates As |
+| System | Role in Conductor | Participates As |
 |--------|-------------|----------------|
-| **iPOM Studio** | Admin Canvas + Automation Runtime — executes all Workflows, Agents, Teams, HITL approvals | Primary action executor for all Agents and Teams |
+| **Conductor** | Admin Canvas + Automation Runtime — executes all Workflows, Agents, Teams, HITL approvals | Primary action executor for all Agents and Teams |
 | **CAS** | Intelligence Hub backbone — hosts admin intelligence agent, event store | `cas:admin-intelligence` + 9 existing agents |
 | **Sage** | AI tutor runtime | Event bridge — session, feedback, progress events |
 | **Lexi** | Help bot + admin conversational interface | Bridge + admin mode with operational tools |
@@ -387,7 +387,7 @@ iPOM STUDIO — WORKFLOW INVENTORY
 
 | Item | Location | Status |
 |------|----------|--------|
-| iPOM Studio designer (ReactFlow) | `apps/web/src/components/feature/process-studio/` | ✅ Live |
+| Conductor designer (ReactFlow) | `apps/web/src/components/feature/process-studio/` | ✅ Live |
 | 7 node types + 11 handlers | `process-studio/handlers/` | ✅ Live |
 | PlatformWorkflowRuntime (LangGraph) | `apps/web/src/lib/process-studio/runtime/` | ✅ Live |
 | LangGraph PostgreSQL checkpointing | `cas-checkpointer.ts` | ✅ Live |
@@ -397,7 +397,7 @@ iPOM STUDIO — WORKFLOW INVENTORY
 | CAS WorkflowVisualizer (ReactFlow) | `cas/packages/core/src/admin/` | ✅ Live — to merge |
 | CAS 9 agents | `cas/agents/` | ✅ Live — to expose |
 | 5 seeded workflow processes | migrations 338-339 | ✅ Live |
-| ChatPanel (AI mutations on canvas) | Process Studio canvas | ✅ Live |
+| ChatPanel (AI mutations on canvas) | Workflows canvas | ✅ Live |
 
 ---
 
@@ -406,7 +406,24 @@ iPOM STUDIO — WORKFLOW INVENTORY
 **Estimate**: 80–90h
 **Dependency**: None — start immediately
 
-### 1A — iPOM Studio Designer Completion (40–48h)
+### Phase 0 — Code Rename: `process-studio` → `workflow`
+
+Before Phase 1 work begins, rename the internal code namespace to match the new product naming.
+
+| Task | Scope |
+|------|-------|
+| Rename API routes: `/api/admin/process-studio/` → `/api/admin/workflow/` | All route files under `apps/web/src/app/api/admin/process-studio/` |
+| Rename component directory: `components/feature/process-studio/` → `components/feature/workflow/` | All files inside |
+| Rename store: `useProcessStudioStore` → `useWorkflowStore` | `store.ts` + all imports |
+| Rename component: `ChatPanel` label "Process Assistant" → "Workflow Assistant" | `ChatPanel.tsx` line 200 |
+| Update nav URL: `/admin/studio` → `/admin/conductor` | `apps/web/src/app/admin/` route structure |
+| Update all imports referencing old paths | Global find-and-replace |
+
+> **Note**: These are label/path renames only — no logic changes. Estimated 2–3h. Do this before Phase 1 to avoid compounding the debt.
+
+---
+
+### 1A — Conductor Designer Completion (40–48h)
 
 **What to build:**
 
@@ -414,7 +431,7 @@ iPOM STUDIO — WORKFLOW INVENTORY
 |------|-------|-------|
 | Node palette sidebar with drag-to-canvas | 10h | Left panel, grouped by category: **Triggers / Actions / Decisions / Human / Flow / Agents**. Dragging onto canvas creates node at drop position. |
 | Merge ExecutionCanvas → design canvas overlay | 8h | Remove `ExecutionCanvas.tsx`. Add `showLiveOverlay` toggle on design canvas. Node border colour reflects `workflow_tasks.status` via Supabase Realtime. |
-| **CAS WorkflowVisualizer → iPOM Studio** | 6h | Move `cas/packages/core/src/admin/WorkflowVisualizer.tsx` into iPOM Studio as a canvas tab/mode. CAS Team (9 agents as ReactFlow nodes with routing edges, live execution overlay) becomes a switchable view within the same canvas. `/admin/cas/workflow-fullscreen` removed — opens from iPOM Studio instead. |
+| **CAS WorkflowVisualizer → Conductor** | 6h | Move `cas/packages/core/src/admin/WorkflowVisualizer.tsx` into Conductor as a canvas tab/mode. CAS Team (9 agents as ReactFlow nodes with routing edges, live execution overlay) becomes a switchable view within the same canvas. `/admin/cas/workflow-fullscreen` removed — opens from Conductor instead. |
 | Conditional edge labels (Yes / No / If / Else) | 4h | Extend ProcessEdgeData with `label?`. Render badge at edge midpoint. Condition node properties panel gains "Yes branch label" / "No branch label" fields. |
 | Handler schema registry + form-based config UI | 8h | Replace free-form JSON in PropertiesDrawer Tab 2. Registry maps handler name → required config fields. Dynamic form rendered from schema. |
 | Process versioning (migration 347) | 6h | `workflow_process_versions` table. Snapshot on every publish. Rollback from version list. Auto-save every 5 min writes to `workflow_processes.draft_nodes/draft_edges` (NOT a version row). Publish creates a versioned snapshot in `workflow_process_versions`. |
@@ -451,7 +468,7 @@ iPOM STUDIO — WORKFLOW INVENTORY
 **What to remove:**
 - `ExecutionCanvas.tsx` — replaced by overlay above
 - `ShadowDivergencePanel.tsx` — rebuild properly (see 1C) or cut entirely
-- `/admin/cas/workflow-fullscreen` route — absorbed into iPOM Studio canvas
+- `/admin/cas/workflow-fullscreen` route — absorbed into Conductor canvas
 
 ### 1B — Live Production Fixes + Cross-Workflow Coordination (10h)
 
@@ -562,11 +579,11 @@ cas/integration/
 
 ### 1C — Unified Admin Monitoring (10–12h)
 
-Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admin/process-studio/fullscreen`) with one unified view at `/admin/studio`:
+Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admin/process-studio/fullscreen`) with one unified view at `/admin/conductor`:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  /admin/studio                                           │
+│  /admin/conductor                                           │
 │  [Canvas] [Agents] [Teams] [Monitoring] [Discovery]     │
 │  [Analytics]                                             │
 ├──────────────────────────────────────────────────────────┤
@@ -595,14 +612,14 @@ Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admi
 | **Platform Health** | DLQ backlog count, webhook failures, shadow mode divergences (rebuilt from ShadowDivergencePanel). |
 | **Operational Briefing** | AI-generated daily summary (uses existing `getAIService().generate()`). |
 
-**Remove**: `/admin/cas` standalone dashboard — data migrated to unified iPOM Studio Monitoring tab.
+**Remove**: `/admin/cas` standalone dashboard — data migrated to unified Conductor Monitoring tab.
 
 **Navigation reframe** — the admin sidebar is reorganised from domain-first to autonomy-first:
 
 ```
 ADMIN SIDEBAR — Before vs After
 
-  BEFORE (domain-first)          AFTER iPOM (autonomy-first)
+  BEFORE (domain-first)          AFTER CONDUCTOR (autonomy-first)
   ─────────────────────          ───────────────────────────
   Dashboard                      Dashboard (command center)
   ── Bookings                      [AI brief]  [Query bar]
@@ -618,18 +635,18 @@ ADMIN SIDEBAR — Before vs After
   ── Lexi                        ── Signal (content → GMV)
   ── Growth                      ── Network (referral graph)
   ── CAS                         ── Platform Health
-  ── Process Studio
+  ── Workflows
   ── AI Agents                   MANAGEMENT
                                  ── Bookings / Listings
                                  ── Accounts / Financials
                                  ── Referrals / Organisations
                                  ── AI Systems (Sage, Lexi, Growth)
 
-                                 iPOM STUDIO  (/admin/studio)
-                                 ── Workflows  (/admin/studio/workflows)
-                                 ── Agents     (/admin/studio/agents)
-                                 ── Teams      (/admin/studio/teams)
-                                 ── Discovery  (/admin/studio/discovery)
+                                 CONDUCTOR  (/admin/conductor)
+                                 ── Workflows  (/admin/conductor/workflows)
+                                 ── Agents     (/admin/conductor/agents)
+                                 ── Teams      (/admin/conductor/teams)
+                                 ── Discovery  (/admin/conductor/discovery)
                                  ── Settings / Shared Fields
 ```
 
@@ -707,7 +724,7 @@ Extends existing TemplateSelector:
 
 ---
 
-## Phase 2 — iPOM Studio: Agents + Teams
+## Phase 2 — Conductor: Agents + Teams
 **Goal**: Non-technical admins can spin up specialist AI Agents (single) and multi-agent Teams from the canvas.
 **Estimate**: 130–140h
 **Dependency**: Phase 1 complete
@@ -716,9 +733,9 @@ This is the user's primary goal. Build from Fuschia's Agents module, adapted for
 
 ### 2A — Agent Node Type + Registry (25h)
 
-**Not a separate canvas** — the Agent designer is built INTO iPOM Studio. Two additions to the existing canvas:
+**Not a separate canvas** — the Agent designer is built INTO Conductor. Two additions to the existing canvas:
 
-**Addition 1: `agent` node type (8th node type in iPOM Studio)**
+**Addition 1: `agent` node type (8th node type in Conductor)**
 
 Added to the node palette under the "Agents" group. When dragged onto the canvas:
 - Can be used inline in a Workflow (action invokes an Agent, output passes to next node)
@@ -730,13 +747,13 @@ What you can do from the canvas:
 3. Save → Agent registered in `analyst_agents` table, status: `active`
 4. Load from Agent templates (pre-built configurations)
 
-**Addition 2: Registry Panel (`/admin/studio` — three tabs)**
+**Addition 2: Registry Panel (`/admin/conductor` — three tabs)**
 
 Dedicated list view alongside the canvas — shows ALL Workflows, Agents, and Teams:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  iPOM STUDIO                [Workflows] [Agents] [Teams]    │
+│  CONDUCTOR                [Workflows] [Agents] [Teams]    │
 ├─────────────────────────────────────────────────────────────┤
 │  AGENTS TAB                                   [+ New Agent] │
 ├─────────────────────────────────────────────────────────────┤
@@ -757,11 +774,11 @@ Dedicated list view alongside the canvas — shows ALL Workflows, Agents, and Te
 Admin actions on any Agent: **Configure · Monitor runs · Chat · Remove**
 Admin actions on any Team: **View Canvas · Monitor runs · Remove**
 
-**iPOM Studio canvas with Agent and Team nodes:**
+**Conductor canvas with Agent and Team nodes:**
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
-│  iPOM Studio  [Workflows ▼]  [Agents]  [Teams]  [Discovery]   [Publish] │
+│  Conductor  [Workflows ▼]  [Agents]  [Teams]  [Discovery]   [Publish] │
 ├──────┬───────────────────────────────────────────────────────────────────┤
 │      │                                                                    │
 │ WORKFLOWS   ┌─────────┐    ┌──────────────┐    ┌───────────┐            │
@@ -828,7 +845,7 @@ Database-backed registry of tools available to agents. Admin can register new to
 **Tool Registry UI:**
 
 ```
-/admin/studio/agents/tools
+/admin/conductor/agents/tools
 
   ┌─────────────────────────────────────────────────────────────┐
   │  TOOL REGISTRY                              [+ Register Tool] │
@@ -895,7 +912,7 @@ interface AnalystTool {
 | `flag_for_review` | Adds item to admin exception queue | Confirmation |
 | `send_notification` | Send in-app or email notification to user | Delivery receipt |
 
-**UI:** `/admin/studio/agents/tools` — list tools, register new, enable/disable, test with sample input.
+**UI:** `/admin/conductor/agents/tools` — list tools, register new, enable/disable, test with sample input.
 
 **Execution**: Tools are Tutorwise PostgreSQL queries + Supabase RPC calls. No external API calls yet. Each tool is a registered TypeScript function in `apps/web/src/lib/agent-studio/tools/`.
 
@@ -904,7 +921,7 @@ interface AnalystTool {
 Once an agent is saved from the designer:
 
 1. **Deployed**: Agent is registered in `analyst_agents` table with its config, tools, and schedules. Status: `active`.
-2. **Chat interface** at `/admin/studio/agents/[agent-slug]`: Admin can chat directly with the deployed Agent. Agent uses its tools to answer. Stream responses via `getAIService().stream()`.
+2. **Chat interface** at `/admin/conductor/agents/[agent-slug]`: Admin can chat directly with the deployed Agent. Agent uses its tools to answer. Stream responses via `getAIService().stream()`.
 3. **Scheduled runs**: pg_cron fires at the configured schedule, invokes the agent with its scheduled task prompt, writes output to `agent_run_outputs` table, optionally posts to exception queue or sends email.
 4. **Status monitoring**: Agent card in unified monitoring dashboard shows last_run_at, last_run_status, task count, error count.
 
@@ -947,13 +964,13 @@ Pre-built agent organization configurations stored in `agent_templates` table. S
 
 ### 2E — Agent + Team → Workflow Integration (5h)
 
-Existing `cas_agent` action node type in iPOM Studio Workflows already exists. Extend it:
+Existing `cas_agent` action node type in Conductor Workflows already exists. Extend it:
 - Handler dropdown now shows deployed analyst agents (from `analyst_agents` table) not just CAS hardcoded agents
 - Handler config: `{ agent_slug, prompt_template, output_field }` — agent runs with prompt, output stored in execution context for next node
 
 ### 2F — HITL Action Gateway — Security Boundary
 
-iPOM Studio execution engine is the single action runtime for all conversational Agents. Every Agent write action goes through it — full audit trail, idempotency, rollback.
+Conductor execution engine is the single action runtime for all conversational Agents. Every Agent write action goes through it — full audit trail, idempotency, rollback.
 
 **Two distinct endpoints, same execution engine:**
 
@@ -1037,7 +1054,7 @@ NOTIFICATION BELL (header)
 ```
 AGENT LIFECYCLE
 
-  Admin opens iPOM Studio
+  Admin opens Conductor
          │
          ▼
   [Agents tab] → clicks "+ New Agent"
@@ -1128,7 +1145,7 @@ const AGENT_RATE_LIMITS: Record<string, AgentRateLimit> = {
 
 ### 2I — Agent Teams (35–40h)
 
-Multi-agent Teams extend iPOM Studio beyond single-agent coordination. Where an Agent answers one question independently, a Team assigns subtasks to multiple Agents and synthesises a combined result.
+Multi-agent Teams extend Conductor beyond single-agent coordination. Where an Agent answers one question independently, a Team assigns subtasks to multiple Agents and synthesises a combined result.
 
 #### Three Team Patterns
 
@@ -1229,7 +1246,7 @@ class TeamRuntime {
 }
 ```
 
-#### Team Canvas (in iPOM Studio)
+#### Team Canvas (in Conductor)
 
 When admin clicks **+ New Team** or opens an existing Team:
 
@@ -1291,8 +1308,8 @@ interface CasAgentHandlerConfig {
 
 | Task | Hours | Notes |
 |------|-------|-------|
-| `team` node type (9th) in iPOM Studio + Team canvas mode | 8 | New node in palette. Canvas renders topology (nodes + edges from DB). Team property panel. |
-| Teams tab in iPOM Studio Registry | 4 | List teams. Status, last run, pattern badge. CAS Team visible read-only. |
+| `team` node type (9th) in Conductor + Team canvas mode | 8 | New node in palette. Canvas renders topology (nodes + edges from DB). Team property panel. |
+| Teams tab in Conductor Registry | 4 | List teams. Status, last run, pattern badge. CAS Team visible read-only. |
 | `AgentTeamState` TypeScript interface + schema | 2 | Shared state. Typed. Used by all three patterns. |
 | `TeamRuntime` — dynamic LangGraph StateGraph compilation | 10 | Reads topology from DB. Compiles StateGraph. Checkpointed (same PostgresSaver). |
 | Supervisor pattern executor | 4 | Coordinator node reads all specialist outputs and calls synthesis prompt. |
@@ -1314,7 +1331,7 @@ interface CasAgentHandlerConfig {
 
 ### 3A — Analytics Dashboard (15h)
 
-At `/admin/studio/analytics` — three tabs matching Fuschia's AnalyticsModule:
+At `/admin/conductor/analytics` — three tabs matching Fuschia's AnalyticsModule:
 
 **Workflows tab:**
 - Execution volume by process (last 7d, 30d)
@@ -1359,11 +1376,11 @@ REFERRAL PIPELINE ANALYSIS
   recommended action (nudge sequence, email, manual review) with confidence.
 ```
 
-**Analytics Dashboard Mockup** (`/admin/studio/analytics`):
+**Analytics Dashboard Mockup** (`/admin/conductor/analytics`):
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  /admin/studio  [Canvas] [Agents] [Teams] [Monitoring] [Analytics]│
+│  /admin/conductor  [Canvas] [Agents] [Teams] [Monitoring] [Analytics]│
 ├──────────────────────────────────────────────────────────────────┤
 │  ANALYTICS                                                        │
 │  [Workflows] [Agents] [Platform]                                 │
@@ -1394,7 +1411,7 @@ REFERRAL PIPELINE ANALYSIS
 
 ### 3B — Real-Time Monitoring (15h)
 
-WebSocket-based live monitoring at `/admin/studio/monitoring`:
+WebSocket-based live monitoring at `/admin/conductor/monitoring`:
 
 - **Active workflow executions**: Live node-by-node progress for all running workflows
 - **Agent live status**: Active / Idle / Running (which tool) / Error for each deployed agent
@@ -1522,7 +1539,7 @@ configurations-knowledge-pipeline.ts
 ### 3C-ii — Platform Console Mockup
 
 ```
-/admin/studio  [Canvas] [Agents] [Teams] [Monitoring] [Analytics] [Console]
+/admin/conductor  [Canvas] [Agents] [Teams] [Monitoring] [Analytics] [Console]
 
 CONSOLE TAB — Platform Health
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -1656,10 +1673,10 @@ const COST_PER_1K_TOKENS_GBP = {
 // Total estimated: ~£0.20–0.40/day = £6–12/month
 ```
 
-**Growth campaigns** (Phase 3 addition to iPOM-managed workflows):
+**Growth campaigns** (Phase 3 addition to Conductor-managed workflows):
 
 ```
-iPOM GROWTH CAMPAIGNS (Supervised tier)
+CONDUCTOR GROWTH CAMPAIGNS (Supervised tier)
 
   30-DAY REFERRAL SPRINT
   Trigger: Admin starts campaign for a tutor segment (e.g. tutors with score > 70)
@@ -1675,7 +1692,7 @@ iPOM GROWTH CAMPAIGNS (Supervised tier)
   Steps:
     In-app prompt "Set up delegation for your team"
     Guided wizard: select tutors → configure payout split → confirm
-    Process Studio executes delegation setup via Supabase update
+    Workflows executes delegation setup via Supabase update
 ```
 
 ### 3E — Growth Scores (migration 345) (10h)
@@ -1735,7 +1752,7 @@ Growth Score (0–100) for all 4 roles computed daily by pg_cron. Component scor
 | Admin Intelligence Agent (`cas:admin-intelligence`) | 15 | New CAS agent. Briefing + anomaly + on-demand. Reads all operational tables. |
 | AI tier router (`classifyAdminTask`) | 3 | Rules / cheap / medium / frontier. 5–10x cost reduction. |
 | Admin Intelligence rate limiting + event batching | 3 | Max 1 analysis/domain/15 min. Max 10 runs/hour. |
-| `platform_ai_costs` table + write on every iPOM AI call | 3 | Cost tracking per source_system. |
+| `platform_ai_costs` table + write on every Conductor AI call | 3 | Cost tracking per source_system. |
 | Admin Intelligence: weekly tier calibration proposals | 4 | Reads `process_autonomy_config`. Proposes tier changes. Admin approves. |
 | Exception escalation: 48h unclaimed → email admin | 2 | Resend email. `escalated_at` set. |
 | Lexi admin mode | 5 | `is_admin()` check. Admin-scoped tools + system prompt. |
@@ -2065,7 +2082,7 @@ measure-nudge-outcomes            — every 3 days: check nudge sent 14d ago, co
 ```
 CONFORMANCE CHECKING
 
-  Defined process graph (Process Studio):
+  Defined process graph (Workflows):
   trigger → action → condition → [yes] approval → end
                               → [no]  end
 
@@ -2091,7 +2108,7 @@ CONFORMANCE CHECKING
 | Process mining analytics | 6 | Most common paths (Sankey or flow diagram), avg cycle time per node, failure cluster detection. |
 | Pattern detection (AI-powered) | 5 | AI analyses exception queue + decision_outcomes to surface recurring patterns. "65% of rejections..." |
 | Shadow monitoring dashboard | 6 | Side-by-side: shadow vs live for Booking Lifecycle. Divergence rate. Go-live readiness checklist. |
-| Value Stream tab in Process Studio | 5 | Simple canvas: drag value steps, system auto-calculates avg cycle time from workflow_tasks. Bottleneck highlight. |
+| Value Stream tab in Workflows | 5 | Simple canvas: drag value steps, system auto-calculates avg cycle time from workflow_tasks. Bottleneck highlight. |
 | Process mining analytics embedding into Admin Intelligence briefing | 3 | Weekly pattern summary included in Admin Intelligence daily brief. |
 | **Total** | **35h** | |
 
@@ -2099,7 +2116,7 @@ CONFORMANCE CHECKING
 
 ```
 PROCESS MINING — ANALYTICS TAB (Phase 5)
-/admin/studio/workflows/[id]/analytics
+/admin/conductor/workflows/[id]/analytics
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  Tutor Approval — Process Analytics                         Last 90 days    │
@@ -2140,7 +2157,7 @@ PROCESS MINING — ANALYTICS TAB (Phase 5)
 
 ```
 SHADOW MONITORING — BOOKING LIFECYCLE (Human Tutor)
-/admin/studio/workflows/[id]/shadow
+/admin/conductor/workflows/[id]/shadow
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  Shadow vs Live — Last 30 days               Go-live Readiness: 78%  ⚠️    │
@@ -2187,10 +2204,10 @@ Mark these as future — not required for core product:
 |-----------|---------------|----------|
 | **Graphiti Temporal Memory** | `graphiti_enhanced_workflow_agent.py` | Agent episodic memory: what worked before. Requires Graphiti infrastructure. Add when agents need to learn across many runs. |
 | **MCP Integration** | `mcp/` components + `mcp_tools_service.py` | Model Context Protocol bridge to external tools. Add when connecting to enterprise systems (HCM, ServiceNow equivalents). |
-| **DSPy Evaluation Panel** | `DSPyEvaluationPanel.tsx` | Per-node AI prompt testing. Add when Process Studio is used for complex AI decision nodes requiring prompt iteration. |
+| **DSPy Evaluation Panel** | `DSPyEvaluationPanel.tsx` | Per-node AI prompt testing. Add when Workflows is used for complex AI decision nodes requiring prompt iteration. |
 | **MLflow Observability** | `intent_agent.py` MLflow integration | AI cost and quality tracking at model level. Add when AI cost becomes material (>£500/month). |
 | **Value Streams Designer** | `ValueStreamsModule.tsx` | End-to-end value stream mapping. Add when process mining data is rich enough to drive design decisions. |
-| **Learning Layer** | iPOM v2 design | Autonomy tier auto-calibration based on decision outcomes. Add after 6 months of live autonomous execution. |
+| **Learning Layer** | Conductor v2 design | Autonomy tier auto-calibration based on decision outcomes. Add after 6 months of live autonomous execution. |
 
 ### Graphiti Temporal Memory — Implementation Sketch
 
@@ -2214,11 +2231,11 @@ Model Context Protocol (MCP) standardises how AI agents consume external tool AP
 
 ### DSPy Evaluation Panel — Implementation Sketch
 
-DSPy gives admins a systematic way to test and iterate AI node prompts in Process Studio without deploying code. Useful when a condition node or AI recommendation node is giving wrong outputs.
+DSPy gives admins a systematic way to test and iterate AI node prompts in Workflows without deploying code. Useful when a condition node or AI recommendation node is giving wrong outputs.
 
-**When to add**: When Process Studio has >10 live workflows using AI decision nodes and prompt iteration is happening manually (changing system prompt, redeploy, test cycle).
+**When to add**: When Workflows has >10 live workflows using AI decision nodes and prompt iteration is happening manually (changing system prompt, redeploy, test cycle).
 
-**Integration point**: In the Process Studio canvas, right-clicking an `ai-decision` node type would open the DSPy Evaluation Panel. Admin provides test cases (input → expected output). DSPy runs the prompt against the test set and shows pass/fail + confidence distribution. Failing prompts can be edited inline and re-tested before publishing.
+**Integration point**: In the Workflows canvas, right-clicking an `ai-decision` node type would open the DSPy Evaluation Panel. Admin provides test cases (input → expected output). DSPy runs the prompt against the test set and shows pass/fail + confidence distribution. Failing prompts can be edited inline and re-tested before publishing.
 
 **Metric to watch**: If admins are changing AI node prompts >2x per month per process, DSPy panel is worth building.
 
@@ -2234,9 +2251,9 @@ Each phase has specific testing requirements before deployment.
 |-----------|-------|------|
 | Unit tests | Handler functions (all 11 handlers) | Jest — `apps/web/src/lib/process-studio/handlers/**.test.ts` |
 | Integration tests | PlatformWorkflowRuntime full run (Tutor Approval happy path + rejection path) | Jest + Supabase test DB |
-| E2E test | Process Studio canvas: drag node, connect edge, publish | Playwright |
+| E2E test | Workflows canvas: drag node, connect edge, publish | Playwright |
 | E2E test | HITL: submit approval task, approve via ApprovalDrawer, verify execution continues | Playwright |
-| Manual | CAS WorkflowVisualizer renders inside Process Studio canvas tab | QA checklist |
+| Manual | CAS WorkflowVisualizer renders inside Workflows canvas tab | QA checklist |
 | Manual | Exception queue: create, claim, resolve, verify audit log | QA checklist |
 | Regression | All 5 existing workflows (Tutor Approval, Commission Payout, Booking Lifecycle x2, Referral) | Jest |
 
@@ -2254,7 +2271,7 @@ Each phase has specific testing requirements before deployment.
 | Integration tests | Team run end-to-end: create team in DB → TeamRuntime.run() → verify team_result + handoff_history | Jest + test DB |
 | Integration tests | Team invoked from Workflow (via extended `cas_agent` handler with `team_slug`) | Jest |
 | Manual | Market Intelligence Agent: run on staging, verify output JSON structure | QA checklist |
-| Manual | Agent node in iPOM Studio: drag, configure, connect to Workflow, execute | QA checklist |
+| Manual | Agent node in Conductor: drag, configure, connect to Workflow, execute | QA checklist |
 | Manual | Team canvas: create Supervisor team (3 agents), run, verify team_result synthesised | QA checklist |
 | Load test | 4 Agents + 1 Team running concurrently (cron alignment stress test) | k6: simulate simultaneous pg_cron triggers |
 
@@ -2681,7 +2698,7 @@ Latest applied: **343**. Next:
 
 ## Agent Catalog
 
-All Agents registered in the iPOM Studio Registry. Seeded in migration 348.
+All Agents registered in the Conductor Registry. Seeded in migration 348.
 
 ### Analyst Agents (Phase 2)
 
@@ -2769,9 +2786,9 @@ Four analyst agents pre-seeded. Each config drives the system prompt, tool set, 
 }
 ```
 
-### CAS Team (iPOM Studio — Teams Registry)
+### CAS Team (Conductor — Teams Registry)
 
-The CAS Team is a pre-configured Supervisor Team (9 agents). It surfaces in the Teams tab of iPOM Studio Registry. Team topology is read-only from the registry in Phase 2 (editing requires code change in `cas/agents/`). Phase 2+ roadmap: make CAS Team DB-editable like custom teams. The registry shows team status, last run, and links to the Team canvas view.
+The CAS Team is a pre-configured Supervisor Team (9 agents). It surfaces in the Teams tab of Conductor Registry. Team topology is read-only from the registry in Phase 2 (editing requires code change in `cas/agents/`). Phase 2+ roadmap: make CAS Team DB-editable like custom teams. The registry shows team status, last run, and links to the Team canvas view.
 
 | Agent in CAS Team | Role | Trigger | Autonomy |
 |-------|------|---------|----------|
@@ -2792,9 +2809,9 @@ The CAS Team is a pre-configured Supervisor Team (9 agents). It surfaces in the 
 
 ## API Surface Reference
 
-Complete list of HTTP routes introduced or modified by iPOM across all phases.
+Complete list of HTTP routes introduced or modified by Conductor across all phases.
 
-### Phase 1 — iPOM Studio Consolidation
+### Phase 1 — Conductor Consolidation
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
@@ -2869,10 +2886,10 @@ Complete list of HTTP routes introduced or modified by iPOM across all phases.
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/api/admin/studio/workflows/[id]/analytics` | Admin | Process analytics (paths, cycle times, conformance) |
-| `GET` | `/api/admin/studio/workflows/[id]/conformance` | Admin | Conformance report with deviation list |
-| `GET` | `/api/admin/studio/workflows/[id]/shadow` | Admin | Shadow vs live comparison + go-live checklist |
-| `POST` | `/api/admin/studio/workflows/[id]/promote` | Admin | Promote shadow process to live mode |
+| `GET` | `/api/admin/conductor/workflows/[id]/analytics` | Admin | Process analytics (paths, cycle times, conformance) |
+| `GET` | `/api/admin/conductor/workflows/[id]/conformance` | Admin | Conformance report with deviation list |
+| `GET` | `/api/admin/conductor/workflows/[id]/shadow` | Admin | Shadow vs live comparison + go-live checklist |
+| `POST` | `/api/admin/conductor/workflows/[id]/promote` | Admin | Promote shadow process to live mode |
 
 ---
 
@@ -2883,7 +2900,7 @@ Risks that could derail the build. Mitigations are mandatory before phase sign-o
 | Risk | Probability | Impact | Phase | Mitigation |
 |------|-------------|--------|-------|------------|
 | LangGraph checkpointer connection pool exhaustion | Medium | High | Phase 1 | Use `POSTGRES_URL_NON_POOLING` (port 5432, session mode). Add connection_limit guard. Monitor pg_stat_activity. |
-| CAS WorkflowVisualizer ReactFlow props incompatible with Process Studio canvas | Medium | Medium | Phase 1 | Wrap in compatibility shim. Both are ReactFlow — same library. Isolate CAS canvas props before merge. |
+| CAS WorkflowVisualizer ReactFlow props incompatible with Workflows canvas | Medium | Medium | Phase 1 | Wrap in compatibility shim. Both are ReactFlow — same library. Isolate CAS canvas props before merge. |
 | Analyst agent tool queries return stale data | Low | Medium | Phase 2 | All tools query Supabase directly. No caching. Add `query_freshness_check` to agent system prompt context. |
 | Agent run cost spike (frontier model called unexpectedly) | Medium | Medium | Phase 2 | AI tier routing enforced in orchestrator. No direct frontier model call without task classification step. |
 | platform_events table grows unbounded | High | Medium | Phase 3 | Partition by month from day 1 (migration 344). pg_cron prune job drops partitions >12 months old (aligned with GDPR retention). Initial 4 monthly partitions created in migration DDL. |
@@ -2902,11 +2919,11 @@ Risks that could derail the build. Mitigations are mandatory before phase sign-o
 
 ## Operational Runbooks
 
-Short playbooks for the most common admin operations after iPOM is live.
+Short playbooks for the most common admin operations after Conductor is live.
 
 ### Runbook 1: Deploying a New Agent
 
-1. Navigate to `/admin/studio` → **Agents** tab.
+1. Navigate to `/admin/conductor` → **Agents** tab.
 2. Click **+ New Agent** — opens Agent Config form.
 3. Fill slug (kebab-case), name, description, schedule (cron syntax), system prompt.
 4. Add tools from Tool Registry dropdown. Each tool shows its schema.
@@ -2927,17 +2944,17 @@ Pre-conditions (enforced by UI go-live checklist):
 - Rollback procedure documented in process metadata
 
 Steps:
-1. `/admin/studio/workflows/[id]/shadow` — review go-live checklist.
+1. `/admin/conductor/workflows/[id]/shadow` — review go-live checklist.
 2. Review all divergent executions. For each: mark "expected" or "fix required".
 3. If fix required: edit process canvas, republish version, run in shadow for 7 more days.
 4. When checklist is green: click **Promote to Live**.
-5. Execution mode changes from `shadow` to `live` (PATCH `/api/admin/studio/workflows/[id]/execution-mode`).
+5. Execution mode changes from `shadow` to `live` (PATCH `/api/admin/conductor/workflows/[id]/execution-mode`).
 6. First live execution triggers within 24h (next webhook or cron event).
 7. Monitor Platform Console for anomalies for 48h post-promotion.
 
 ### Runbook 3: Handling an Exception Queue Item
 
-1. `/admin/studio` → **Exception Queue** tab.
+1. `/admin/conductor` → **Exception Queue** tab.
 2. Filter by severity (Critical first). Items unclaimed for >48h are highlighted red.
 3. Click **Claim** — soft-locks the item for 15 minutes.
 4. Review: AI recommendation + confidence score + evidence count + execution context.
@@ -2950,7 +2967,7 @@ Steps:
 
 ### Runbook 5: Creating a New Multi-Agent Team
 
-1. Navigate to `/admin/studio` → **Teams** tab.
+1. Navigate to `/admin/conductor` → **Teams** tab.
 2. Click **+ New Team** — canvas opens in Team mode.
 3. Select pattern: **Supervisor** (recommended for most cases), **Pipeline**, or **Swarm**.
 4. Drag Agent tiles from the palette onto the Team canvas:
@@ -2970,7 +2987,7 @@ Steps:
 Trigger: Admin Intelligence auto-downgrades a process tier from `autonomous` → `supervised` because rolling 30-day accuracy dropped below threshold.
 
 1. Email/notification arrives: "Tutor Approval accuracy dropped to 82% (threshold: 90%). Process downgraded to Supervised."
-2. Navigate to `/admin/studio/autonomy` — see the process and its recent decision_outcomes.
+2. Navigate to `/admin/conductor/autonomy` — see the process and its recent decision_outcomes.
 3. Drill into failed decisions: what was the AI recommendation vs actual admin decision?
 4. Common causes:
    - Edge case in training data (e.g. new tutor type the model hasn't seen)
@@ -2978,18 +2995,18 @@ Trigger: Admin Intelligence auto-downgrades a process tier from `autonomous` →
    - Data quality issue (null values in CaaS score)
 5. Fix root cause (update process config, refresh knowledge chunks, or fix data pipeline).
 6. Monitor in Supervised mode for 14 days. If accuracy recovers, Admin Intelligence will propose re-expansion.
-7. Admin approves re-expansion via `/admin/studio/autonomy` — tier returns to `autonomous`.
+7. Admin approves re-expansion via `/admin/conductor/autonomy` — tier returns to `autonomous`.
 
 ---
 
 ## Build Sequence
 
 ```
-iPOM BUILD SEQUENCE v3.4
+CONDUCTOR BUILD SEQUENCE v3.4
 
   ✅ DONE                           Phase 1 (Now)
   ─────────────────────             ─────────────────────────────────────
-  iPOM Studio designer (ReactFlow)  Node palette sidebar
+  Conductor designer (ReactFlow)  Node palette sidebar
   PlatformWorkflowRuntime           Merge ExecutionCanvas → overlay
   5 live/shadow workflows           CAS WorkflowVisualizer → Studio canvas
   CAS Team (9 agents, code)         Handler schema registry + form UI
@@ -3042,7 +3059,7 @@ iPOM BUILD SEQUENCE v3.4
 | Phase | What | Hours | Priority |
 |-------|------|-------|---------|
 | **Phase 1** | Consolidation: fix designer, merge monitoring, cross-workflow coordination, bridge files | 80–90h | **Now** |
-| **Phase 2** | iPOM Studio — Agents + Teams: agent node, registry, tool registry, deployment, templates, Growth Agent migration, TeamRuntime, three patterns | 130–140h | **Next** (primary goal) |
+| **Phase 2** | Conductor — Agents + Teams: agent node, registry, tool registry, deployment, templates, Growth Agent migration, TeamRuntime, three patterns | 130–140h | **Next** (primary goal) |
 | **Phase 3** | Intelligence: platform events, knowledge pipelines, admin AI, analytics, monitoring | 90–110h | After Phase 2 |
 | **Phase 4** | Knowledge base, intent detection, PlatformUserContext, learning loop | 60–70h | After Phase 3 |
 | **Phase 5** | Process mining enhancement, conformance checking, go-live monitoring | 25–35h | After Phase 4 |
@@ -3054,7 +3071,7 @@ iPOM BUILD SEQUENCE v3.4
 |------|-------|-------|
 | Node palette sidebar with drag-to-canvas | 10 | Left panel groups: Triggers / Actions / Decisions / Human / Flow / Agents |
 | Merge ExecutionCanvas → design canvas overlay | 8 | Remove `ExecutionCanvas.tsx`. `showLiveOverlay` toggle. Node border colour via Supabase Realtime. |
-| CAS WorkflowVisualizer → iPOM Studio canvas tab | 6 | Move from `cas/packages/core/src/admin/`. `/admin/cas/workflow-fullscreen` removed. |
+| CAS WorkflowVisualizer → Conductor canvas tab | 6 | Move from `cas/packages/core/src/admin/`. `/admin/cas/workflow-fullscreen` removed. |
 | Conditional edge labels (Yes / No / If / Else) | 4 | Extend ProcessEdgeData with `label?`. Badge at edge midpoint. |
 | Handler schema registry + form-based config UI | 8 | Replace free-form JSON. Registry maps handler → required fields. Dynamic form. |
 | Process versioning (migration 347) | 6 | `workflow_process_versions` table. Snapshot on publish. Rollback. Auto-save 5 min → `draft_nodes/draft_edges` columns (not a version row). |
@@ -3073,30 +3090,30 @@ iPOM BUILD SEQUENCE v3.4
 
 | Task | Hours | Notes |
 |------|-------|-------|
-| `agent` node type (8th) in iPOM Studio | 8 | New node in palette. Property panel: full AnalystAgentConfig. Renders as agent card on canvas. |
-| Agent Registry panel (`/admin/studio/agents`) | 8 | List all Agents. Add/Configure/Monitor/Remove actions. |
+| `agent` node type (8th) in Conductor | 8 | New node in palette. Property panel: full AnalystAgentConfig. Renders as agent card on canvas. |
+| Agent Registry panel (`/admin/conductor/agents`) | 8 | List all Agents. Add/Configure/Monitor/Remove actions. |
 | Tool Registry backend (`analyst_tools` DB + TypeScript functions) | 10 | DB-backed registry. Register/validate/test tools. Category: data_query/platform_action/calculation. |
 | Tool Registry UI | 5 | List tools, register new, enable/disable, test with sample input. |
 | Seed analyst agent templates (4 standard + custom) | 6 | Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor. `agent_templates` table. |
 | Agent deployment (save to `analyst_agents` + pg_cron schedule) | 8 | Save from canvas → DB. pg_cron fires → agent runs → agent_run_outputs. |
-| Agent chat interface (`/admin/studio/agents/[slug]`) | 6 | Direct chat with deployed Agent. `getAIService().stream()` with agent config + tools. |
+| Agent chat interface (`/admin/conductor/agents/[slug]`) | 6 | Direct chat with deployed Agent. `getAIService().stream()` with agent config + tools. |
 | Agent Template Gallery (load pre-built team configs) | 5 | Load from `agent_templates`. Preview before deploy. |
 | Agent → workflow integration (extend `cas_agent` handler) | 5 | Handler dropdown shows `analyst_agents`. Config: `{agent_slug, prompt_template, output_field}`. |
 | `analyst_agents` + `agent_run_outputs` + `agent_templates` tables (migration 348) | 3 | DB schema. Indexes. |
 | `agent_subscriptions` unified table + zero-downtime migration (migration 349) | 8 | Replace `sage_pro_subscriptions`. Deploy separately. Shadow write period 24h. Cutover. |
 | Parameterised `/api/agents/[agentType]/` routes | 6 | Replace per-agent routes. All agents via single parameterised handler. |
 | Shared `<AgentChatUI agentType="..." platformContext={...} />` | 4 | Single reusable chat component for all agent types. |
-| iPOM new workflows: Org Onboarding + Stuck Referral Recovery | 8 | iPOM Studio Workflow definitions. Trigger: org created / referral stale 7d. |
-| iPOM new workflows: Listing Quality Nudge + Org Dormancy | 6 | iPOM Studio Workflow definitions. Trigger: Growth Score < 40 / org dormant 60d. |
+| Conductor new workflows: Org Onboarding + Stuck Referral Recovery | 8 | Conductor Workflow definitions. Trigger: org created / referral stale 7d. |
+| Conductor new workflows: Listing Quality Nudge + Org Dormancy | 6 | Conductor Workflow definitions. Trigger: Growth Score < 40 / org dormant 60d. |
 | Growth Agent migration (skill files → agent knowledge, route deprecation) | 6 | Convert 5 skill files to Growth Advisor `agent_templates` config. Add deprecation redirects on `/api/growth-agent/*` → `/api/agents/growth/*`. Delete `apps/web/src/lib/growth-agent/` after 30-day deprecation period. |
 | **Subtotal — Agents** | **102h** | |
 | **(+ Teams — see §2I task table)** | **+38h** | Subtotal from §2I Teams tasks. |
 | **Phase 2 Total** | **~140h** | |
 
-### iPOM New Workflows (Phase 2)
+### Conductor New Workflows (Phase 2)
 
 ```
-iPOM ADDS — 4 NEW SUPERVISED WORKFLOWS
+CONDUCTOR ADDS — 4 NEW SUPERVISED WORKFLOWS
 
   ORGANISATION ONBOARDING
   Trigger: organisation created + admin accepted
@@ -3136,7 +3153,7 @@ iPOM ADDS — 4 NEW SUPERVISED WORKFLOWS
 |------|--------|
 | `ExecutionCanvas.tsx` | Delete. Replace with execution overlay on design canvas. |
 | `ShadowDivergencePanel.tsx` | Delete skeleton. Rebuild properly in Phase 1C monitoring. |
-| `/admin/cas` route and dashboard | Delete. Agent/runtime data moves to unified `/admin/studio`. |
+| `/admin/cas` route and dashboard | Delete. Agent/runtime data moves to unified `/admin/conductor`. |
 | Growth Agent standalone code (`apps/web/src/lib/growth-agent/`) | Migrate then remove. Convert 5 skill files to Growth Advisor agent knowledge. Deprecate `/api/growth-agent/*` routes → redirect to `/api/agents/growth/*`. Delete after unified routes verified. |
 | "agents-core shared package" extraction plan from v2 | Cancel. CAS `AgentRuntimeInterface` already provides this abstraction. No duplication needed. |
 
@@ -3144,12 +3161,12 @@ iPOM ADDS — 4 NEW SUPERVISED WORKFLOWS
 
 | Item | Current role | New role |
 |------|-------------|---------|
-| CAS 9 agents (Director, Developer, etc.) | Described as "build pipeline" dev tools | Exposed as the **CAS Team** (Supervisor pattern) in iPOM Studio Teams registry — configurable, monitorable from UI |
-| CAS WorkflowVisualizer | `/admin/cas/workflow-fullscreen` standalone page | Canvas tab within iPOM Studio — same ReactFlow nodes, merged into one admin |
-| `/admin/cas` dashboard | Separate CAS product dashboard | Data surfaces in iPOM Studio Monitoring tab |
+| CAS 9 agents (Director, Developer, etc.) | Described as "build pipeline" dev tools | Exposed as the **CAS Team** (Supervisor pattern) in Conductor Teams registry — configurable, monitorable from UI |
+| CAS WorkflowVisualizer | `/admin/cas/workflow-fullscreen` standalone page | Canvas tab within Conductor — same ReactFlow nodes, merged into one admin |
+| `/admin/cas` dashboard | Separate CAS product dashboard | Data surfaces in Conductor Monitoring tab |
 | `cas_agent` action handler | Invokes hardcoded CAS agents | Invokes any registered **Agent** or **Team** by slug |
 | CAS LangGraph runtime | CAS-specific | Shared backbone for all Agents and Teams (via TeamRuntime + existing AgentRuntimeInterface) |
-| Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor | Never built (standalone architecture) | **Agent** templates seeded in `analyst_agents` — run from iPOM Studio, no separate UI needed |
+| Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor | Never built (standalone architecture) | **Agent** templates seeded in `analyst_agents` — run from Conductor, no separate UI needed |
 
 ### What Stays Unchanged
 
@@ -3265,7 +3282,7 @@ PHASE DEPENDENCY GRAPH
   PHASE 1 (~84h) ─── runs in parallel with Phase 2 start
   ───────────────────────────────────────────────────────────
   Node palette + handler schema forms
-  CAS WorkflowVisualizer → Process Studio canvas
+  CAS WorkflowVisualizer → Workflows canvas
   Process versioning (migration 347)
   Cross-workflow coordination + bridge files
   Admin Command Center redesign
@@ -3276,7 +3293,7 @@ PHASE DEPENDENCY GRAPH
   ───────────────────────────────────────────────────────────
   AGENTS: Agent node (8th) + Registry Panel + Tool Registry
           4 agent templates + seeding + chat UI + subscriptions
-          Growth Agent migration + iPOM new workflows (4 types)
+          Growth Agent migration + Conductor new workflows (4 types)
   TEAMS:  Team node (9th) + TeamRuntime + AgentTeamState
           Supervisor / Pipeline / Swarm patterns
           CAS Team exposed + agent_teams schema (migration 352)
@@ -3312,7 +3329,7 @@ PHASE DEPENDENCY GRAPH
 
 ## GDPR Compliance
 
-iPOM creates autonomous decisions subject to UK GDPR Article 22 (automated individual decision-making). This creates compliance obligations.
+Conductor creates autonomous decisions subject to UK GDPR Article 22 (automated individual decision-making). This creates compliance obligations.
 
 | Table | Retention | Reason |
 |-------|-----------|--------|
@@ -3339,10 +3356,10 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ## Design Decisions
 
 ### D1: Product name
-**Resolved**: Tutorwise iPOM (Intelligent Platform Operations Management). Internal engineering name: Nexus. Users never see either.
+**Resolved**: Tutorwise Conductor (Intelligent Platform Operations Management). Internal engineering name: Nexus. Users never see either.
 
 ### D2: Rebuild or evolve admin
-**Resolved**: Evolve, not rebuild. `HubPageLayout` stays. Domain pages move to Management section. Work is intelligence layer, navigation reframe, and iPOM Studio as the one admin canvas.
+**Resolved**: Evolve, not rebuild. `HubPageLayout` stays. Domain pages move to Management section. Work is intelligence layer, navigation reframe, and Conductor as the one admin canvas.
 
 ### D3: Per-agent subscription tables vs unified
 **Resolved**: Single `agent_subscriptions` table with `agent_type`. Zero-downtime migration from `sage_pro_subscriptions`. Adding a new agent = one row, no new routes.
@@ -3368,8 +3385,8 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ### D10: Network Intelligence — new page or extend Signal
 **Resolved**: New `/admin/network/` page (Phase 4). Signal = content attribution. Network = growth attribution. Different data, different audiences.
 
-### D11: Agent Designer — separate canvas or extend iPOM Studio
-**Resolved**: Extend iPOM Studio. NOT a separate canvas. Agent node (8th type) + Team node (9th type) added to iPOM Studio palette. CAS WorkflowVisualizer merged as a canvas tab. One admin entry point for all Workflows, Agents, and Teams.
+### D11: Agent Designer — separate canvas or extend Conductor
+**Resolved**: Extend Conductor. NOT a separate canvas. Agent node (8th type) + Team node (9th type) added to Conductor palette. CAS WorkflowVisualizer merged as a canvas tab. One admin entry point for all Workflows, Agents, and Teams.
 
 ### D12: Growth Score formula
 **Resolved**: 4-component composite score (0–100). Components: `profile_completeness + listing_performance + earnings_trajectory + platform_engagement`, each 0–25. Computed daily, cached in `growth_scores`. See §Phase 3 for full formula.
@@ -3377,8 +3394,8 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ### D13: platform_events vs cas_agent_events
 **Resolved**: Dedicated `platform_events` table. `cas_agent_events` remains CAS-internal (schema, RLS, retention designed for fine-grained agent turn events). `platform_events` is cross-system (coarser, different retention, different RLS).
 
-### D14: CAS agents in iPOM Studio
-**Resolved**: CAS 9 agents remain in their existing `cas/agents/` location. They are **exposed** as the **CAS Team** in iPOM Studio Teams registry (visible, monitorable from UI) but NOT rewritten. The WorkflowVisualizer is moved into iPOM Studio; the agents themselves stay in CAS. Phase 3+: CAS Team topology becomes DB-editable.
+### D14: CAS agents in Conductor
+**Resolved**: CAS 9 agents remain in their existing `cas/agents/` location. They are **exposed** as the **CAS Team** in Conductor Teams registry (visible, monitorable from UI) but NOT rewritten. The WorkflowVisualizer is moved into Conductor; the agents themselves stay in CAS. Phase 3+: CAS Team topology becomes DB-editable.
 
 ### D15: Knowledge pipeline async vs synchronous
 **Resolved**: Both pipelines async via `pipeline_jobs` queue. Caller returns immediately. pg_cron processes every 2 minutes with retry (max 5 attempts, exponential backoff). Platform Console shows queue depth and last successful run.
@@ -3405,7 +3422,7 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 **Resolved**: See [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md). Client score weighted toward referral + booking frequency. Agent score toward active tutor count + referral conversion. Organisation score = aggregate member scores + org-level booking volume. Shadow mode for 30 days before Growth Agent acts on non-tutor scores.
 
 ### D23: Agent Teams — multi-agent design
-**Resolved**: iPOM Studio introduces a first-class **Team** concept (distinct from standalone **Agent** and **Workflow**). Three patterns supported in Phase 2:
+**Resolved**: Conductor introduces a first-class **Team** concept (distinct from standalone **Agent** and **Workflow**). Three patterns supported in Phase 2:
 
 1. **Supervisor** — coordinator Agent routes tasks to specialists and synthesises result. Covers 80% of cases. CAS Team uses this pattern.
 2. **Pipeline** — sequential DAG; each Agent receives previous Agent's output via `AgentTeamState.context[output_key]`. Branches allowed.
@@ -3413,7 +3430,7 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 
 Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an `output_key` (Google ADK pattern) — makes topology DB-configurable without code change. **`TeamRuntime`** dynamically compiles a LangGraph `StateGraph` from `agent_teams.nodes` + `agent_teams.edges` at execution time — adding/rewiring Agents in a Team requires no code deployment.
 
-**CAS Team** surfaces as a read-only Supervisor Team in iPOM Studio Registry (Phase 2). Future phase: CAS Team topology becomes DB-editable from the Team canvas, same as custom Teams.
+**CAS Team** surfaces as a read-only Supervisor Team in Conductor Registry (Phase 2). Future phase: CAS Team topology becomes DB-editable from the Team canvas, same as custom Teams.
 
 **Inline creation**: Admin can create a new Agent directly from the Team canvas property panel (without pre-registering it). Agent is saved to `analyst_agents` table and immediately added to the team topology.
 
@@ -3449,7 +3466,7 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 | [`ipom-solution-design-v3.md`](./ipom-solution-design-v3.md) | **This document — master reference** | Active |
 | [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.md) | GDPR retention policy, Article 22 obligations | Active |
 | [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md) | Growth Score formula for all 4 roles | Active |
-| [`process-studio-solution-design.md`](./process-studio-solution-design.md) | Process Studio builder implementation detail | Active |
+| [`process-studio-solution-design.md`](./process-studio-solution-design.md) | Workflows builder implementation detail | Active |
 | [`process-discovery-solution-design.md`](./process-discovery-solution-design.md) | Process Discovery (4 phases) detail | Active |
 | [`process-execution-solution-design.md`](./process-execution-solution-design.md) | Execution engine (PlatformWorkflowRuntime) | Active |
 | [`lexi-enhancement-proposal.md`](./lexi-enhancement-proposal.md) | Lexi enhancements (separate backlog) | Active |
@@ -3469,5 +3486,5 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 
 ---
 
-*Version 3.4 — iPOM Studio: Workflows + Agents + Teams unified. D23 Agent Teams (Supervisor/Pipeline/Swarm). Standard naming scheme. Migration 352.*
+*Version 3.4 — Conductor: Workflows + Agents + Teams unified. D23 Agent Teams (Supervisor/Pipeline/Swarm). Standard naming scheme. Migration 352.*
 *Supersedes: ipom-solution-design-v2.md, ipom-solution-design.md, platform-nexus-solution-design.md*
