@@ -153,9 +153,9 @@ DECISION ROUTING FLOW
          ▼              ▼              ▼              ▼
   Workflows   Approval        Exception       Config
   executes         queue item      queue card      page /
-  automatically    (approve /      + AI brief      Process
-  No human         override)       + confidence    Studio
-  needed                           + recommendation Design
+  automatically    (approve /      + AI brief      Conductor
+  No human         override)       + confidence    Workflows
+  needed                           + recommendation design
          │              │              │
          └──────────────┴──────────────┘
                         │
@@ -304,14 +304,14 @@ Before building anything new, make these strategic corrections:
 ┌────────────────────────────────────────────────────────────────────────┐
 │                       TUTORWISE CONDUCTOR v3.0                               │
 ├──────────────┬─────────────────┬────────────────┬──────────────────────┤
-│  AUTOMATION  │  INTELLIGENCE   │  OPERATIONS    │  NEXUS               │
-│  RUNTIME     │  HUB            │  INTERFACE     │  (integration layer) │
+│  AUTOMATION  │  INTELLIGENCE   │  OPERATIONS    │  INTEGRATION         │
+│  RUNTIME     │  HUB            │  INTERFACE     │  LAYER               │
 │              │                 │                │                      │
-│  Process     │  Admin Intel    │  Process       │  platform_events bus │
-│  Studio:     │  Agent          │  Studio:       │  Knowledge pipelines │
-│  Discovery   │  +              │  Exception     │  Bridge files        │
-│  Design      │  Analyst Agents │  queue         │  PlatformUserContext │
-│  Execution   │  (all types)    │  HITL approvals│  Cross-workflow      │
+│  Workflows:  │  Admin Intel    │  Workflows:    │  platform_events bus │
+│  Discovery   │  Agent          │  Exception     │  Knowledge pipelines │
+│  Design      │  +              │  queue         │  Bridge files        │
+│  Execution   │  Analyst Agents │  HITL approvals│  PlatformUserContext │
+│              │  (all types)    │  Monitoring    │  Cross-workflow      │
 │              │                 │  Monitoring    │  coordination        │
 │  Autonomous  │  Generates:     │  Agent Registry│  Operational health  │
 │  workflows   │  Daily brief    │  One canvas    │                      │
