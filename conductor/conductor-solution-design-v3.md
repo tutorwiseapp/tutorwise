@@ -1,5 +1,5 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.8 — Admin dashboard retention policy: existing nav retained throughout all phases; nav reorganisation deferred to Phase 3 when Command Center is built and tested; Phase 0 sidebar changes restricted to additive only
+**Version**: 3.7 — Feature Intelligence Specs (9 specs, migrations 353–363); Go-to-Market pipeline formalised; Professional Assessment added; Workflow Inventory expanded; Agent tool sets updated
 **Date**: 2026-03-08
 **Status**: Phased implementation plan
 
@@ -552,44 +552,16 @@ Nine feature intelligence specs written (2026-03-08). Each spec defines:
 
 Before Phase 1 work begins, rename the internal code namespace to match the new product naming.
 
-#### Admin Dashboard Retention Rule
-
-> **The existing admin sidebar is never removed — only added to.**
-> The full navigation reorganisation (autonomy-first structure, OPERATIONS / INTELLIGENCE / MANAGEMENT sections) happens in **Phase 3** when the Command Center, Exception Queue, and Intelligence panels are built and verified. Until then, the existing domain-first sidebar remains the primary interface and Conductor sections are added alongside it.
-
-**Phase 0 sidebar change: add CONDUCTOR section only.**
-
-```
-EXISTING SIDEBAR (unchanged)     NEW ADDITION (Phase 0)
-────────────────────────         ──────────────────────
-Dashboard                        + CONDUCTOR
-── Bookings                        ── Workflows  (/admin/conductor)
-── Listings
-── Accounts
-── Financials
-── Referrals
-── Organisations
-── Reviews
-
-AI SYSTEMS
-── Sage
-── Lexi
-── Growth
-── CAS                           ← kept until Phase 1 complete
-── Workflows  (old Studio)       ← kept as alias redirect
-── AI Agents
-```
-
 | Task | Scope |
 |------|-------|
-| Rename API routes: `/api/admin/process-studio/` → `/api/admin/workflow/` — **add redirect aliases for old paths, do not delete them** | All route files under `apps/web/src/app/api/admin/process-studio/`; old paths 307 → new paths |
+| Rename API routes: `/api/admin/process-studio/` → `/api/admin/workflow/` | All route files under `apps/web/src/app/api/admin/process-studio/` |
 | Rename component directory: `components/feature/process-studio/` → `components/feature/workflow/` | All files inside |
 | Rename store: `useProcessStudioStore` → `useWorkflowStore` | `store.ts` + all imports |
 | Rename component: `ChatPanel` label "Process Assistant" → "Workflow Assistant" | `ChatPanel.tsx` line 200 |
-| Add `/admin/conductor` route (new) — keep `/admin/studio` as redirect to `/admin/conductor` | `apps/web/src/app/admin/` route structure |
+| Update nav URL: `/admin/studio` → `/admin/conductor` | `apps/web/src/app/admin/` route structure |
 | Update all imports referencing old paths | Global find-and-replace |
 | Rename DB table: `analyst_agents` → `specialist_agents`; add `built_in` + `role` columns; seed 8 CAS built-in rows (Migration 348) | `tools/database/migrations/348_...` + all code references to `analyst_agents` |
-| **Defer**: Remove `/admin/cas` standalone route | **Phase 1** — only after CAS agent data is confirmed surfacing in `/admin/conductor` Agents tab |
+| Remove `/admin/cas` standalone route; CAS agent data surfaces in `/admin/conductor` Agents tab | `apps/web/src/app/admin/cas/` route deletion + nav link removal |
 
 > **Non-negotiable**: These are label/path renames only — no logic changes. Estimated 2–3h. Phase 1 does not start until Phase 0 is complete. Shipping Phase 1 on top of old names creates compounding technical debt across every file touched.
 
@@ -784,62 +756,43 @@ Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admi
 | **Platform Health** | DLQ backlog count, webhook failures, shadow mode divergences (rebuilt from ShadowDivergencePanel). |
 | **Operational Briefing** | AI-generated daily summary (uses existing `getAIService().generate()`). |
 
-**Defer removal**: `/admin/cas` standalone dashboard — keep live until Phase 1 Agents tab is verified. Remove only after CAS agent data is confirmed surfacing correctly in `/admin/conductor` Agents tab.
+**Remove**: `/admin/cas` standalone dashboard — data migrated to unified Conductor Monitoring tab.
 
-**Navigation progression** — the admin sidebar evolves incrementally across phases. The existing domain-first nav is **never removed**; Conductor sections are added alongside it. The full autonomy-first reorganisation only happens in Phase 3 when the Command Center, Exception Queue, and Intelligence panels are built and verified.
-
-#### Navigation Evolution by Phase
+**Navigation reframe** — the admin sidebar is reorganised from domain-first to autonomy-first:
 
 ```
-PHASE 0 — Additive only
-  [existing sidebar unchanged]
-  + CONDUCTOR
-    ── Workflows  (/admin/conductor)
+ADMIN SIDEBAR — Before vs After
 
-PHASE 1 — Add Agents tab when Phase 1 complete
-  [existing sidebar unchanged]
-  + CONDUCTOR
-    ── Workflows  (/admin/conductor/workflows)
-    ── Agents     (/admin/conductor/agents)      ← add when Phase 1 done
-    + remove /admin/cas only after CAS data confirmed in Agents tab
-
-PHASE 2 — Add Teams when TeamRuntime stable
-  [existing sidebar unchanged]
-  + CONDUCTOR
-    ── Workflows
-    ── Agents
-    ── Teams      (/admin/conductor/teams)       ← add when Phase 2 done
-    ── Discovery  (/admin/conductor/discovery)
-
-PHASE 3 — Full navigation reorganisation (when Command Center is built and tested)
-  Dashboard (command center)
-    [AI brief]  [Exception queue]  [Autonomous ops summary]
-
-  OPERATIONS
-  ── Exception Queue
-  ── HITL Approvals
-  ── Autonomous Activity Log
-
-  INTELLIGENCE
-  ── Signal (content → GMV)
-  ── Network (referral graph)
-  ── Platform Health
-
-  MANAGEMENT  ← existing domain pages move here (URLs unchanged)
-  ── Bookings / Listings
-  ── Accounts / Financials
-  ── Referrals / Organisations
-  ── AI Systems (Sage, Lexi, Growth)
-
-  CONDUCTOR  (/admin/conductor)
+  BEFORE (domain-first)          AFTER CONDUCTOR (autonomy-first)
+  ─────────────────────          ───────────────────────────
+  Dashboard                      Dashboard (command center)
+  ── Bookings                      [AI brief]  [Query bar]
+  ── Listings                      [Exception queue]
+  ── Accounts                      [Autonomous ops summary]
+  ── Financials
+  ── Referrals                   OPERATIONS
+  ── Organisations               ── Exception Queue
+  ── Reviews                     ── HITL Approvals
+                                 ── Autonomous Activity Log
+  AI SYSTEMS
+  ── Sage                        INTELLIGENCE
+  ── Lexi                        ── Signal (content → GMV)
+  ── Growth                      ── Network (referral graph)
+  ── CAS                         ── Platform Health
   ── Workflows
-  ── Agents
-  ── Teams
-  ── Discovery
-  ── Settings / Shared Fields
-```
+  ── AI Agents                   MANAGEMENT
+                                 ── Bookings / Listings
+                                 ── Accounts / Financials
+                                 ── Referrals / Organisations
+                                 ── AI Systems (Sage, Lexi, Growth)
 
-> **Rule**: The sidebar reflects what is **built and working**, not what is planned. Each phase adds nav items when the feature behind them is verified. Domain pages remain accessible throughout — they shift from primary interface to Management drill-down only when the Command Center (Phase 3) is ready to replace them as the primary interface.
+                                 CONDUCTOR  (/admin/conductor)
+                                 ── Workflows  (/admin/conductor/workflows)
+                                 ── Agents     (/admin/conductor/agents)
+                                 ── Teams      (/admin/conductor/teams)
+                                 ── Discovery  (/admin/conductor/discovery)
+                                 ── Settings / Shared Fields
+```
 
 **Admin Command Center** — the new primary admin homepage:
 
@@ -3363,8 +3316,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Process versioning (migration 347) | 6 | `workflow_process_versions` table. Snapshot on publish. Rollback. Auto-save 5 min → `draft_nodes/draft_edges` columns (not a version row). |
 | Workflow validation (pre-publish checks) | 4 | Block publish if: no trigger, no end, orphan nodes, condition single edge. Warn if: no description. |
 | Admin Command Center redesign | 8 | AI brief widget, exception queue (claimed_by), autonomous ops summary, Lexi query bar |
-| Add Agents tab to CONDUCTOR nav section | 1 | Additive only — add `/admin/conductor/agents` to sidebar after Phase 1 Agents tab is verified. Remove `/admin/cas` route at this point. |
-| Navigation reorganisation (autonomy-first) | 4 | **Phase 3 task — not Phase 1.** Full OPERATIONS / INTELLIGENCE / MANAGEMENT reframe. Domain pages move to Management section. Only execute after Command Center, Exception Queue, and Intelligence panels are built and verified. |
+| Navigation reframe (admin sidebar) | 4 | Autonomy-first structure. Domain pages move to Management section. |
 | Template CRUD from UI | 6 | Save as template, clone, edit metadata, delete (system templates protected) |
 | Migration 346 production fixes | 4 | Dedup index, DLQ retry pg_cron, fallback polling pg_cron |
 | Cross-workflow coordination | 6 | `workflow_entity_cooldowns` table. Check in `trigger-workflow.ts`. Cooldown for nudge-type workflows. |
@@ -3773,7 +3725,7 @@ CAS stops being a standalone admin section. Its functionality is absorbed into C
 - **Growth Marketing** — Marketer + Market Intelligence
 - **Full Stack** — All 8 built-in specialists + coordinator
 
-**Phase 0 additional tasks**: (a) Rename DB table `analyst_agents` → `specialist_agents`, add `built_in` + `role` columns, seed 8 built-in rows (Migration 348 DDL). (b) Add CONDUCTOR section to admin sidebar (additive only — existing nav untouched). `/admin/cas` route deferred to Phase 1 removal. These are data/path changes only — no logic changes.
+**Phase 0 additional tasks**: (a) Rename DB table `analyst_agents` → `specialist_agents`, add `built_in` + `role` columns, seed 8 built-in rows (Migration 348 DDL). (b) Remove `/admin/cas` route; surface CAS data in `/admin/conductor`. These are data/path changes only — no logic changes.
 
 ---
 
