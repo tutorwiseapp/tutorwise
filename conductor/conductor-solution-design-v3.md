@@ -1,5 +1,5 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.6 — D24: Specialist Agents, CAS refit, built-in registry; `specialist_agents` → `specialist_agents`; CAS 8 built-ins seeded with `built_in = true`
+**Version**: 3.6 — D24: Specialist Agents, CAS refit, built-in registry; `analyst_agents` → `specialist_agents`; CAS 8 built-ins seeded with `built_in = true`
 **Date**: 2026-03-06
 **Status**: Phased implementation plan
 
@@ -35,7 +35,7 @@ Conductor is the **operating system for Tutorwise** — it lets the platform run
 
 Three capabilities — all managed from **one unified admin canvas (Conductor)**:
 1. **Workflows** — automated business processes (tutor approval, commission payout, booking lifecycle)
-2. **Agents** — single-agent AI specialists: create, configure, monitor, remove from UI (Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor, Custom)
+2. **Agents** — single-agent AI specialists: create, configure, monitor, remove from UI (Market Intelligence, Financial Analyst, Operations Monitor, Retention Monitor, Custom)
 3. **Teams** — multi-agent systems where multiple Agents collaborate toward one result:
    - **CAS Team** (Supervisor pattern, 9 agents: Director, Analyst, Developer, Tester, QA, Security, Engineer, Planner, Marketer)
    - **Custom teams** — admin builds new teams on the canvas (Supervisor / Pipeline / Swarm)
@@ -240,7 +240,7 @@ Before building anything new, make these strategic corrections:
 |------|-----|
 | `ExecutionCanvas.tsx` as a separate tab | Merge execution state overlay into design canvas. Two canvases is wrong. |
 | `ShadowDivergencePanel.tsx` (skeleton) | Either implement properly in Phase 1 or cut. No half-implementations. |
-| Growth Agent standalone code (substantially built — skill files, orchestrator, API routes) | Migrate then remove. Skill files → Growth Advisor agent knowledge. API routes deprecated (redirect to `/api/agents/growth/`). Delete `apps/web/src/lib/growth-agent/` after unified routes verified. See Phase 2 migration task. |
+| Growth Advisor standalone code (substantially built — skill files, orchestrator, API routes) | Migrate then remove. Skill files → Growth Advisor agent knowledge. API routes deprecated (redirect to `/api/agents/growth/`). Delete `apps/web/src/lib/growth-agent/` after unified routes verified. See Phase 2 migration task. |
 | CAS "build pipeline" narrative | Reframe: CAS runtime becomes the execution backbone for specialist agents. The 8 CAS agents (marketer, analyst, etc.) are redeployed as built-in Specialist registrations (`built_in = true`), not a separate developer tool. |
 
 ### Redesign
@@ -293,7 +293,7 @@ Before building anything new, make these strategic corrections:
 
 **One admin entry point. Two underlying runtimes. All Agents and Teams managed from the same place.**
 
-- **Agents** (Market Intelligence, Financial, Operations, Growth) run on the Agent Runtime — standalone, schedule + chat driven
+- **Agents** (Market Intelligence, Financial, Operations, Retention Monitor) run on the Agent Runtime — standalone, schedule + chat driven
 - **CAS Team** (Director, Developer, Tester etc.) runs on TeamRuntime via Supervisor pattern — exposed and manageable from Conductor
 - **Custom Teams** — admin builds topology on canvas; TeamRuntime compiles LangGraph StateGraph from DB definition at execution time
 - **Workflows** can invoke any registered Agent or Team via the `agent` action node type
@@ -418,7 +418,7 @@ Before Phase 1 work begins, rename the internal code namespace to match the new 
 | Rename component: `ChatPanel` label "Process Assistant" → "Workflow Assistant" | `ChatPanel.tsx` line 200 |
 | Update nav URL: `/admin/studio` → `/admin/conductor` | `apps/web/src/app/admin/` route structure |
 | Update all imports referencing old paths | Global find-and-replace |
-| Rename DB table: `specialist_agents` → `specialist_agents`; add `built_in` + `role` columns; seed 8 CAS built-in rows (Migration 348) | `tools/database/migrations/348_...` + all code references to `specialist_agents` |
+| Rename DB table: `analyst_agents` → `specialist_agents`; add `built_in` + `role` columns; seed 8 CAS built-in rows (Migration 348) | `tools/database/migrations/348_...` + all code references to `analyst_agents` |
 | Remove `/admin/cas` standalone route; CAS agent data surfaces in `/admin/conductor` Agents tab | `apps/web/src/app/admin/cas/` route deletion + nav link removal |
 
 > **Non-negotiable**: These are label/path renames only — no logic changes. Estimated 2–3h. Phase 1 does not start until Phase 0 is complete. Shipping Phase 1 on top of old names creates compounding technical debt across every file touched.
@@ -731,7 +731,7 @@ Extends existing TemplateSelector:
 **Estimate**: 130–140h
 **Dependency**: Phase 1 complete
 
-This is the user's primary goal. Build from Fuschia's Agents module, adapted for Tutorwise. Three new capabilities: standalone Agents, multi-agent Teams (Supervisor/Pipeline/Swarm patterns), and Growth Agent migration.
+This is the user's primary goal. Build from Fuschia's Agents module, adapted for Tutorwise. Three new capabilities: standalone Agents, multi-agent Teams (Supervisor/Pipeline/Swarm patterns), and Growth Advisor migration.
 
 ### 2A — Agent Node Type + Registry (25h)
 
@@ -762,7 +762,7 @@ Dedicated list view alongside the canvas — shows ALL Workflows, Agents, and Te
 │  ● Market Intelligence    active   last run: 2h ago  [Chat] │
 │  ● Financial Analyst      active   last run: 6h ago  [Chat] │
 │  ● Operations Monitor     active   last run: 1h ago  [Chat] │
-│  ● Growth Advisor         active   last run: 3h ago  [Chat] │
+│  ● Retention Monitor      active   last run: 3h ago  [Chat] │
 │  (none custom — drag from palette to create)                │
 ├─────────────────────────────────────────────────────────────┤
 │  TEAMS TAB                                    [+ New Team]  │
@@ -835,10 +835,10 @@ interface AgentSchedule {
 | **Financial Analyst** | Commission calculations, revenue trends, payout anomalies | `query_commissions`, `query_stripe_payouts`, `query_revenue_trends` | Weekly Friday 08:00 |
 | **Operations Monitor** | At-risk tutors, platform health, anomalies | `query_platform_health`, `query_tutor_churn_risk`, `query_session_completion` | Daily 07:00 |
 | **Platform Health** | Error rates, webhook failures, execution failures | `query_execution_failures`, `query_dlq_backlog`, `query_agent_errors` | Every 4 hours |
-| **Growth Advisor** | User growth scores, referral performance, cohort retention | `query_growth_scores`, `query_referral_pipeline`, `query_cohort_retention` | Daily 08:00 |
+| **Retention Monitor** | Cohort retention, referral funnel conversion, supply/demand gaps, org renewal health | `query_cohort_retention`, `query_referral_funnel`, `query_supply_demand_gap`, `query_org_health` | Daily 08:00 |
 | **Custom** | Define your own | Any registered tools | Custom |
 
-**Note**: Growth Advisor here replaces the standalone Growth Agent architecture. It is one specialist agent template, not a separate product.
+**Note**: Retention Monitor is the admin-facing platform analytics specialist. It is distinct from the user-facing **Growth Advisor** product (`/growth`, £10/month subscription) — see D17.
 
 ### 2B — Tool Registry (15h)
 
@@ -1739,7 +1739,7 @@ GROWTH SCORE FORMULA (tutors)
     referral_sent_14d: 0 or 5     │  lesson_rebooked > 50%: 0 or 5
 
 Thresholds:
-  < 40:  Growth Agent flags for intervention
+  < 40:  Growth Advisor flags for intervention
   < 70:  Below CaaS featured threshold
   Drop > 5pts in 7d: triggers proactive nudge
 ```
@@ -1749,7 +1749,7 @@ Non-tutor roles (migration 345 `role_type` column):
 - **Agent**: weighted toward active tutor count + referral conversion rate
 - **Organisation**: aggregate of member Growth Scores + org-level booking volume
 
-Shadow mode for 30 days before Growth Agent acts on non-tutor scores.
+Shadow mode for 30 days before Growth Advisor acts on non-tutor scores.
 
 Growth Score (0–100) for all 4 roles computed daily by pg_cron. Component scores stored in `component_scores jsonb`. Displayed in admin analytics and user dashboards.
 
@@ -1763,7 +1763,7 @@ Growth Score (0–100) for all 4 roles computed daily by pg_cron. Component scor
 | `pipeline_jobs` table + pg_cron `process-pipeline-jobs` (every 2 min) | 3 | Retry up to 5 attempts, exponential backoff. |
 | Pipeline 1: `discovery-knowledge-pipeline.ts` | 8 | Async. Delta-sync (hash). Batch embed. Semantic dedup (cosine > 0.95 → skip). Lexi + Growth chunks. |
 | Pipeline 2: `configurations-knowledge-pipeline.ts` | 4 | Async. Config change → Lexi chunks updated within 2 min. |
-| `growth_knowledge_chunks` table + Growth Agent RAG retrieval | 3 | Same schema as `lexi_knowledge_chunks`. Growth RAG reads it. |
+| `growth_knowledge_chunks` table + Growth Advisor RAG retrieval | 3 | Same schema as `lexi_knowledge_chunks`. Growth Advisor RAG reads it. |
 | Admin Intelligence Agent (`cas:admin-intelligence`) | 15 | New CAS agent. Briefing + anomaly + on-demand. Reads all operational tables. |
 | AI tier router (`classifyAdminTask`) | 3 | Rules / cheap / medium / frontier. 5–10x cost reduction. |
 | Admin Intelligence rate limiting + event batching | 3 | Max 1 analysis/domain/15 min. Max 10 runs/hour. |
@@ -2787,16 +2787,16 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
 - Profile completeness <60% AND has an active listing
 - Growth Score dropped >20 points in 30 days
 
-#### Growth Advisor Agent (Admin Mode)
+#### Retention Monitor Agent
 
 ```json
 {
-  "slug": "growth-advisor-admin",
-  "name": "Growth Advisor Agent (Admin)",
-  "description": "Provides platform-level growth insights for admins. Different from user-facing Growth Agent. Analyses cohort retention, referral funnel performance, tutor supply vs demand gaps, and org partnership health.",
-  "schedule": "0 7 * * 1",
+  "slug": "retention-monitor",
+  "name": "Retention Monitor Agent",
+  "description": "Platform-level retention and funnel analytics for admins. Analyses cohort retention, referral funnel conversion, tutor supply vs demand gaps, and org partnership health. Not related to the user-facing Growth Advisor product.",
+  "schedule": "0 8 * * *",
   "tools": ["query_cohort_retention", "query_referral_funnel", "query_supply_demand_gap", "query_org_health", "flag_exception"],
-  "system_prompt_template": "You are a growth analyst for Tutorwise admin. You analyse platform-level growth patterns. Key metrics: weekly cohort retention (target >60% at week 4), referral funnel conversion (target >8% from share to booking), subject supply gaps (demand >2x supply), org renewal rate (target >80%).",
+  "system_prompt_template": "You are a retention and funnel analyst for Tutorwise admin. You monitor platform-level health signals. Key metrics: weekly cohort retention (target >60% at week 4), referral funnel conversion (target >8% from share to booking), subject supply gaps (demand >2x supply), org renewal rate (target >80%).",
   "output_format": "structured_json",
   "autonomy_level": "supervised",
   "alert_threshold": { "confidence": 75, "evidence_count": 3 }
@@ -3043,7 +3043,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
     Tool Registry (DB-backed)       pipeline_jobs queue + pg_cron
     Agent templates + seeding       Admin Intelligence Agent
     Agent deployment + chat UI      AI tier routing
-    Growth Agent migration          Admin Command Center redesign
+    Growth Advisor migration          Admin Command Center redesign
     Unified agent_subscriptions     Lexi admin mode
     Parameterised /api/agents/[type]AI cost attribution table
     Agent → Workflow integration    Real-time monitoring WebSocket
@@ -3076,7 +3076,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Phase | What | Hours | Priority |
 |-------|------|-------|---------|
 | **Phase 1** | Consolidation: fix designer, merge monitoring, cross-workflow coordination, bridge files | 80–90h | **Now** |
-| **Phase 2** | Conductor — Agents + Teams: agent node, registry, tool registry, deployment, templates, Growth Agent migration, TeamRuntime, three patterns | 130–140h | **Next** (primary goal) |
+| **Phase 2** | Conductor — Agents + Teams: agent node, registry, tool registry, deployment, templates, Growth Advisor migration, TeamRuntime, three patterns | 130–140h | **Next** (primary goal) |
 | **Phase 3** | Intelligence: platform events, knowledge pipelines, admin AI, analytics, monitoring | 90–110h | After Phase 2 |
 | **Phase 4** | Knowledge base, intent detection, PlatformUserContext, learning loop | 60–70h | After Phase 3 |
 | **Phase 5** | Process mining enhancement, conformance checking, go-live monitoring | 25–35h | After Phase 4 |
@@ -3111,7 +3111,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Agent Registry panel (`/admin/conductor/agents`) | 8 | List all Agents. Add/Configure/Monitor/Remove actions. |
 | Tool Registry backend (`analyst_tools` DB + TypeScript functions) | 10 | DB-backed registry. Register/validate/test tools. Category: data_query/platform_action/calculation. |
 | Tool Registry UI | 5 | List tools, register new, enable/disable, test with sample input. |
-| Seed specialist agent templates (4 standard + custom) | 6 | Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor. `agent_templates` table. |
+| Seed specialist agent templates (4 standard + custom) | 6 | Market Intelligence, Financial Analyst, Operations Monitor, Retention Monitor. `agent_templates` table. |
 | Agent deployment (save to `specialist_agents` + pg_cron schedule) | 8 | Save from canvas → DB. pg_cron fires → agent runs → agent_run_outputs. |
 | Agent chat interface (`/admin/conductor/agents/[slug]`) | 6 | Direct chat with deployed Agent. `getAIService().stream()` with agent config + tools. |
 | Agent Template Gallery (load pre-built team configs) | 5 | Load from `agent_templates`. Preview before deploy. |
@@ -3122,7 +3122,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Shared `<AgentChatUI agentType="..." platformContext={...} />` | 4 | Single reusable chat component for all agent types. |
 | Conductor new workflows: Org Onboarding + Stuck Referral Recovery | 8 | Conductor Workflow definitions. Trigger: org created / referral stale 7d. |
 | Conductor new workflows: Listing Quality Nudge + Org Dormancy | 6 | Conductor Workflow definitions. Trigger: Growth Score < 40 / org dormant 60d. |
-| Growth Agent migration (skill files → agent knowledge, route deprecation) | 6 | Convert 5 skill files to Growth Advisor `agent_templates` config. Add deprecation redirects on `/api/growth-agent/*` → `/api/agents/growth/*`. Delete `apps/web/src/lib/growth-agent/` after 30-day deprecation period. |
+| Growth Advisor migration (skill files → agent knowledge, route deprecation) | 6 | Convert 5 skill files to Growth Advisor `agent_templates` config. Add deprecation redirects on `/api/growth-agent/*` → `/api/agents/growth/*`. Delete `apps/web/src/lib/growth-agent/` after 30-day deprecation period. |
 | **Subtotal — Agents** | **102h** | |
 | **(+ Teams — see §2I task table)** | **+38h** | Subtotal from §2I Teams tasks. |
 | **Phase 2 Total** | **~140h** | |
@@ -3171,7 +3171,7 @@ CONDUCTOR ADDS — 4 NEW SUPERVISED WORKFLOWS
 | `ExecutionCanvas.tsx` | Delete. Replace with execution overlay on design canvas. |
 | `ShadowDivergencePanel.tsx` | Delete skeleton. Rebuild properly in Phase 1C monitoring. |
 | `/admin/cas` route and dashboard | Delete. Agent/runtime data moves to unified `/admin/conductor`. |
-| Growth Agent standalone code (`apps/web/src/lib/growth-agent/`) | Migrate then remove. Convert 5 skill files to Growth Advisor agent knowledge. Deprecate `/api/growth-agent/*` routes → redirect to `/api/agents/growth/*`. Delete after unified routes verified. |
+| Growth Advisor standalone code (`apps/web/src/lib/growth-agent/`) | Migrate then remove. Convert 5 skill files to Growth Advisor agent knowledge. Deprecate `/api/growth-agent/*` routes → redirect to `/api/agents/growth/*`. Delete after unified routes verified. |
 | "agents-core shared package" extraction plan from v2 | Cancel. CAS `AgentRuntimeInterface` already provides this abstraction. No duplication needed. |
 
 ### What Changes Role
@@ -3183,7 +3183,7 @@ CONDUCTOR ADDS — 4 NEW SUPERVISED WORKFLOWS
 | `/admin/cas` dashboard | Separate CAS product dashboard | Data surfaces in Conductor Monitoring tab |
 | `cas_agent` action handler | Invokes hardcoded CAS agents | Invokes any registered **Agent** or **Team** by slug |
 | CAS LangGraph runtime | CAS-specific | Shared backbone for all Agents and Teams (via TeamRuntime + existing AgentRuntimeInterface) |
-| Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor | Never built (standalone architecture) | **Agent** templates seeded in `specialist_agents` — run from Conductor, no separate UI needed |
+| Market Intelligence, Financial Analyst, Operations Monitor, Retention Monitor | Never built (standalone architecture) | **Agent** templates seeded in `specialist_agents` — run from Conductor, no separate UI needed |
 
 ### What Stays Unchanged
 
@@ -3248,7 +3248,7 @@ listing_performance:   views_14d = 3 ❌ 0, booking_conv = 0% ❌ 0 = 0
 earnings_trajectory:   0 bookings ❌ 0, no growth ❌ 0, stripe inactive ❌ 0 = 0
 platform_engagement:   response_rate 45% ❌ 0, review_rate 0% ❌ 0, no referral ❌ 0, rebook 0% ❌ 0 = 0
 
-Growth Score: 16 — Operations Monitor flags for intervention. Growth Agent sends nudge.
+Growth Score: 16 — Operations Monitor flags for intervention. Growth Advisor (user product) sends nudge.
 ```
 
 ### Example: Client (weighted toward referrals + bookings)
@@ -3310,7 +3310,7 @@ PHASE DEPENDENCY GRAPH
   ───────────────────────────────────────────────────────────
   AGENTS: Agent node (8th) + Registry Panel + Tool Registry
           4 agent templates + seeding + chat UI + subscriptions
-          Growth Agent migration + Conductor new workflows (4 types)
+          Growth Advisor migration + Conductor new workflows (4 types)
   TEAMS:  Team node (9th) + TeamRuntime + AgentTeamState
           Supervisor / Pipeline / Swarm patterns
           CAS Team exposed + agent_teams schema (migration 352)
@@ -3393,7 +3393,7 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ### D7: Admin Intelligence — new agent or extend CAS Analyst
 **Resolved**: New `cas:admin-intelligence` agent. CAS Analyst = dev pipeline. Admin Intelligence = marketplace operations. Same infrastructure, separate agents.
 
-### D8: Organisation data scope for Growth Agent
+### D8: Organisation data scope for Growth Advisor
 **Resolved**: Individual scope (`profile_id`) for tutor/client/agent personas. Organisation scope (`org_id`) for org admin persona, gated by `user_is_org_admin()` RLS. Agent cannot cross scopes.
 
 ### D9: Proactive nudge trigger mechanism
@@ -3420,8 +3420,21 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ### D16: Exception queue ownership model
 **Resolved**: `claimed_by uuid` + `claimed_at timestamptz` on `workflow_exceptions`. 15-minute soft lock: other admins see claimed status but can override-claim. Unclaimed >48h triggers email escalation to admin team.
 
-### D17: Growth Agent mode separation — user vs admin
-**Resolved**: Single `GrowthAgentOrchestrator` serves both user-facing and admin-facing contexts, with explicit `mode: 'user' | 'admin'` parameter separating system prompts, tool sets, and rate limits. Admin mode entry point: `/admin/intelligence/growth/` (Phase 3) — separate from Lexi admin query bar.
+### D17: Growth Advisor vs Retention Monitor — two separate agents
+
+**Resolved**: These are two distinct agents with different ownership, audiences, and runtime contexts. No shared orchestrator, no `mode` flag.
+
+| | Growth Advisor | Retention Monitor |
+|---|---|---|
+| **Audience** | Individual users (tutor, client, agent, org) | Admins only |
+| **Entry point** | `/growth` (user-facing product) | `/admin/conductor/agents/retention-monitor` |
+| **Subscription** | £10/month — Product 2 | Conductor built-in — no user subscription |
+| **Runtime** | `GrowthAgentOrchestrator` (conversational, on-demand) | Conductor Agent Runtime (scheduled daily 08:00 + on-demand chat) |
+| **Data scope** | User's own metrics, history, recommendations | Platform-wide cohorts and aggregate signals |
+| **Tools** | `query_user_metrics`, `query_referral_links`, income stream tools | `query_cohort_retention`, `query_referral_funnel`, `query_supply_demand_gap`, `query_org_health` |
+| **Phase** | Phase 2 (Growth Advisor product) | Phase 3 (Conductor Agents) |
+
+The previous single-orchestrator model with `mode: 'user' \| 'admin'` is retired. "Growth Agent" as a term is retired — use **Growth Advisor** (user product) or **Retention Monitor** (admin specialist) explicitly.
 
 ### D18: PlatformUserContext as platform-level construct
 **Resolved**: Fetched server-side at session start for any conversational agent. Injected into agent system prompt. Redis-cached per user for 5 minutes. Enables cross-agent awareness and context-carrying handoffs. Not Lexi-specific.
@@ -3436,7 +3449,7 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 **Resolved**: Both use CAS `AgentRuntimeInterface`. Specialist agents (Market Intelligence, Financial Analyst etc.) are simpler — they run analysis and flag exceptions; they do NOT need the full 9-agent LangGraph CI/CD pipeline. CAS pipeline agents run the full two-loop workflow. The registry holds both types, but they execute via different paths on the same interface.
 
 ### D22: Growth Score for non-tutor roles
-**Resolved**: See [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md). Client score weighted toward referral + booking frequency. Agent score toward active tutor count + referral conversion. Organisation score = aggregate member scores + org-level booking volume. Shadow mode for 30 days before Growth Agent acts on non-tutor scores.
+**Resolved**: See [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md). Client score weighted toward referral + booking frequency. Agent score toward active tutor count + referral conversion. Organisation score = aggregate member scores + org-level booking volume. Shadow mode for 30 days before Growth Advisor acts on non-tutor scores.
 
 ### D23: Agent Teams — multi-agent design
 **Resolved**: Conductor introduces a first-class **Team** concept (distinct from standalone **Agent** and **Workflow**). Three patterns supported in Phase 2:
