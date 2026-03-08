@@ -73,7 +73,7 @@ export default function AdminSidebar() {
     { href: '/admin/growth', label: 'AI Growth' },
     { href: '/admin/lexi', label: 'Lexi AI Agent' },
     { href: '/admin/cas', label: 'CAS AI Agents' },
-    { href: '/admin/process-studio', label: 'Process Studio' },
+    { href: '/admin/conductor', label: 'Conductor' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },
     {

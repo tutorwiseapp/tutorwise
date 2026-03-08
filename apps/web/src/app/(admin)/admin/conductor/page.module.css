@@ -1,0 +1,23 @@
+/* Process Studio page layout */
+
+.canvasContainer {
+  height: calc(100vh - 176px); /* Account for tabs */
+  min-height: 500px;
+  margin-left: -1rem; /* Negate contentContainerBoard left padding for flush canvas */
+  margin-bottom: -5rem; /* Negate contentContainerBoard bottom padding */
+}
+
+.discoveryContainer {
+  height: calc(100vh - 176px); /* Account for tabs */
+  min-height: 500px;
+  margin-left: -1rem;
+  margin-bottom: -5rem;
+}
+
+.executionContainer {
+  height: calc(100vh - 176px); /* Account for tabs */
+  min-height: 500px;
+  margin-left: -1rem;
+  margin-bottom: -5rem;
+  overflow: hidden;
+}

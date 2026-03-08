@@ -13,7 +13,7 @@
 import { useEffect, useRef } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import type { DiscoveryResult } from '@/lib/process-studio/scanner/types';
+import type { DiscoveryResult } from '@/lib/workflow/scanner/types';
 
 export interface UseDiscoveryRealtimeOptions {
   onNewResult?: (result: DiscoveryResult) => void;

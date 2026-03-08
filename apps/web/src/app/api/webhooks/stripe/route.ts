@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
         // Resume the engine so commission.create handles the RPC atomically — skip direct RPC call.
         const executionId = session.metadata?.execution_id;
         if (executionId) {
-          const { workflowRuntime } = await import('@/lib/process-studio/runtime/PlatformWorkflowRuntime');
+          const { workflowRuntime } = await import('@/lib/workflow/runtime/PlatformWorkflowRuntime');
           await workflowRuntime.resume(executionId, 'payment_completed', {
             checkout_session_id: session.id,
             payment_intent_id: String(session.payment_intent ?? ''),

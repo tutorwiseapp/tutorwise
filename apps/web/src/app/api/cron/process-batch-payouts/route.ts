@@ -11,7 +11,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createConnectPayout, canReceivePayouts } from '@/lib/stripe/payouts';
 import { sendPayoutProcessedEmail } from '@/lib/email/commission-available';
-import { workflowRuntime } from '@/lib/process-studio/runtime/PlatformWorkflowRuntime';
+import { workflowRuntime } from '@/lib/workflow/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
 

@@ -20,7 +20,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/utils/supabase/server';
-import { workflowRuntime } from '@/lib/process-studio/runtime/PlatformWorkflowRuntime';
+import { workflowRuntime } from '@/lib/workflow/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
 
