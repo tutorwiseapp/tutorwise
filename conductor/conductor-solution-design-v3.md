@@ -1,6 +1,6 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.6 — D24: Specialist Agents, CAS refit, built-in registry; `analyst_agents` → `specialist_agents`; CAS 8 built-ins seeded with `built_in = true`
-**Date**: 2026-03-06
+**Version**: 3.7 — Feature Intelligence Specs (9 specs, migrations 353–363); Go-to-Market pipeline formalised; Professional Assessment added; Workflow Inventory expanded; Agent tool sets updated
+**Date**: 2026-03-08
 **Status**: Phased implementation plan
 
 ---
@@ -379,9 +379,9 @@ CONDUCTOR — WORKFLOW INVENTORY
   │  Detector: —                  │  Detector: Retention Monitor         │
   ├───────────────────────────────┼──────────────────────────────────────┤
   │  Listing Quality Nudge        │  Org Dormancy Re-engagement          │
-  │  Feature: Marketplace         │  Feature: Network                    │
-  │  Trigger: Growth Score < 40   │  Trigger: org dormant 60d            │
-  │  Detector: Operations Monitor │  Detector: Retention Monitor         │
+  │  Feature: Marketplace/Listing │  Feature: Network                    │
+  │  Trigger: quality_low alert   │  Trigger: org dormant 60d            │
+  │  Detector: Market Intelligence│  Detector: Retention Monitor         │
   ├───────────────────────────────┼──────────────────────────────────────┤
   │  Dormant Referrer Re-engage   │  CaaS Stale Score Recovery           │
   │  Feature: Referrals           │  Feature: CaaS                       │
@@ -390,10 +390,51 @@ CONDUCTOR — WORKFLOW INVENTORY
   │  Detector: Retention Monitor  │  Detector: Operations Monitor        │
   └──────────────────────────────────────────────────────────────────────┘
 
+  CONDUCTOR ADDS — Phase 3 (from Intelligence Specs — all HITL-gated)
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  Content Lifecycle            │  Article Boost                       │
+  │  Feature: Resources→SEO→Signal│  Feature: Signal / Resources         │
+  │  Trigger: article pending_    │  Trigger: article_intelligence       │
+  │    review (DB webhook)        │    score declining (Signal spec)      │
+  │  Gate: SEO Readiness ≥ 70     │  Detector: Market Intelligence       │
+  │  Detector: Market Intelligence│                                      │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Content Decay Recovery       │  Supply Gap → Recruitment            │
+  │  Feature: SEO / Resources     │  Feature: Marketplace                │
+  │  Trigger: rank_drop_critical  │  Trigger: supply_demand_gap (0       │
+  │    or impressions_declining   │    supply, >20 searches)             │
+  │  Detector: Market Intelligence│  Detector: Market Intelligence       │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Pricing Intelligence Alert   │  Scheduling Stall Intervention       │
+  │  Feature: Listings            │  Feature: Bookings                   │
+  │  Trigger: pricing_outliers_   │  Trigger: booking Confirmed +        │
+  │    high > 15 listings         │    unscheduled > 48h                 │
+  │  Detector: Market Intelligence│  Detector: Retention Monitor         │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  High Cancelling Tutor        │  GMV Decline → Revenue Recovery      │
+  │  Feature: Bookings            │  Feature: Bookings / Financials      │
+  │  Trigger: cancel_rate > 30%   │  Trigger: GMV < 80% of 4-week avg   │
+  │    AND count ≥ 3 in 30d       │                                      │
+  │  Detector: Retention Monitor  │  Detector: Retention Monitor         │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Pre-Payout Health Check      │  Unreversed Commission Auto-Fix      │
+  │  Feature: Financials          │  Feature: Financials                 │
+  │  Trigger: Thu 09:00 UTC       │  Trigger: unreversed_refunds > 0     │
+  │    (before Friday payout)     │    (financial integrity)             │
+  │  Detector: Retention Monitor  │  Detector: Retention Monitor         │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Dispute Escalation           │  [future: VirtualSpace Dropout]      │
+  │  Feature: Financials          │  Feature: VirtualSpace               │
+  │  Trigger: open disputes +3    │  Trigger: session < 10 min           │
+  │    in 7 days                  │    (Booking Lifecycle node)          │
+  │  Detector: Retention Monitor  │  Detector: Market Intelligence       │
+  └──────────────────────────────────────────────────────────────────────┘
+
   KEY:
     Detector = which Specialist Agent flags the condition that fires this workflow
     HITL     = Human-In-The-Loop gate (admin must approve before action executes)
     Subprocess = no direct trigger; parent workflow calls it mid-execution
+    Gate     = automated check that must pass before workflow proceeds
 ```
 
 ### System Roles in Conductor
@@ -423,6 +464,82 @@ CONDUCTOR — WORKFLOW INVENTORY
 | CAS 9 agents | `cas/agents/` | ✅ Live — to expose |
 | 5 seeded workflow processes | migrations 338-339 | ✅ Live |
 | ChatPanel (AI mutations on canvas) | Workflows canvas | ✅ Live |
+
+---
+
+## Go-to-Market Pipeline — Content Intelligence Loop
+
+The primary organic acquisition strategy is a unified content pipeline where each stage feeds the next. Conductor intelligence monitors every stage.
+
+```
+CONTENT INTELLIGENCE LOOP — Resources → SEO → Signal → Marketplace → Bookings
+
+  1. RESOURCES (create)
+     Article written → SEO Readiness Score computed
+     Gate: score ≥ 70 before publish (Content Lifecycle workflow — HITL if below)
+     Intelligence: query_resources_health, query_editorial_opportunities
+     Spec: resources-intelligence-spec.md | Migration 356
+
+  2. SEO (optimise)
+     Article indexed → keyword ranking tracked → hub/spoke position maintained
+     Monitor: rank velocity, content decay, backlink health
+     Intelligence: query_seo_health, query_keyword_opportunities
+     Spec: seo-intelligence-spec.md | Migration 357
+
+  3. SIGNAL (measure)
+     Article views → listing views → bookings attributed
+     Article Intelligence Score (0-100): Conv(40%) + Revenue(30%) + Traffic(20%) + Freshness(10%)
+     5 bands: Star / Performer / Opportunity / Underperformer / Dead Weight
+     Intelligence: query_content_attribution
+     Spec: signal-intelligence-spec.md | Migration 358
+
+  4. MARKETPLACE (land)
+     Organic traffic lands on search/listing pages
+     Supply/demand gaps detected → recruitment campaigns triggered
+     Intelligence: query_marketplace_health, query_supply_demand_gap
+     Spec: marketplace-intelligence-spec.md | Migration 359
+
+  5. BOOKINGS (convert)
+     Client finds tutor → books → pays → session delivered
+     Booking health, cancellation patterns, GMV trend monitored
+     Intelligence: query_booking_health
+     Spec: bookings-intelligence-spec.md | Migration 360
+
+  Intervention loop:
+    Signal → Dead Weight article → Content Decay Recovery workflow
+    Signal → Opportunity article → Article Boost workflow
+    Marketplace → supply_gap → Supply Gap → Recruitment Campaign workflow
+    Bookings → gmv_declining → GMV Decline → Revenue Recovery workflow
+```
+
+---
+
+## Feature Intelligence Specs Index
+
+Nine feature intelligence specs written (2026-03-08). Each spec defines:
+- Specialist Agent tool(s) and SQL implementation
+- Alert triggers + severity + admin action
+- Daily platform metrics table (pg_cron)
+- Admin UI panel extension
+- Conductor workflow integration
+- Growth Advisor coaching layer
+
+| Spec | Agent Owner | Key Tools | Migration | Phase 3 est. |
+|------|-------------|-----------|-----------|-------------|
+| [resources-intelligence-spec.md](./resources-intelligence-spec.md) | Market Intelligence | `query_resources_health`, `query_editorial_opportunities` | 356 | 18h |
+| [seo-intelligence-spec.md](./seo-intelligence-spec.md) | Market Intelligence | `query_seo_health`, `query_keyword_opportunities` | 357 | 20h |
+| [signal-intelligence-spec.md](./signal-intelligence-spec.md) | Market Intelligence | `query_content_attribution` | 358 | 27h |
+| [marketplace-intelligence-spec.md](./marketplace-intelligence-spec.md) | Market Intelligence | `query_marketplace_health`, `query_supply_demand_gap` | 359 | 24h |
+| [bookings-intelligence-spec.md](./bookings-intelligence-spec.md) | Retention Monitor | `query_booking_health` | 360 | 22h |
+| [listings-intelligence-spec.md](./listings-intelligence-spec.md) | Market Intelligence | `query_listing_health`, `query_pricing_intelligence` | 361 | 20h |
+| [financials-intelligence-spec.md](./financials-intelligence-spec.md) | Retention Monitor | `query_financial_health` | 362 | 20h |
+| [virtualspace-intelligence-spec.md](./virtualspace-intelligence-spec.md) | Market Intelligence | `query_virtualspace_health` | 363 | 14h |
+| [referral-intelligence-spec.md](./referral-intelligence-spec.md) | Retention Monitor | `query_referral_funnel`, K coefficient SQL | 353–354 | 24h |
+| [caas-intelligence-spec.md](./caas-intelligence-spec.md) | Operations Monitor | `query_caas_health` | 355 | 30h |
+
+**Total Phase 3 intelligence layer: ~219h across 10 features**
+
+> **Professional Assessment**: See [`conductor-professional-assessment.md`](./conductor-professional-assessment.md) for full market comparison (Temporal, LangGraph, Camunda, n8n, CrewAI, Microsoft Copilot Studio), honest weaknesses, lab research comparison, and solo-founder + Claude execution model analysis.
 
 ---
 
@@ -1364,10 +1481,12 @@ interface CasAgentHandlerConfig {
 
 ---
 
-## Phase 3 — Analytics & Monitoring
-**Goal**: Full visibility across Workflows, Agents, and Teams. Real-time monitoring.
-**Estimate**: 90–110h
+## Phase 3 — Analytics & Monitoring + Feature Intelligence Layer
+**Goal**: Full visibility across Workflows, Agents, and Teams. Real-time monitoring. Platform-wide feature intelligence (10 features × daily metrics + Conductor workflows).
+**Estimate**: 90–110h (existing plan) + ~219h (Feature Intelligence Layer) = ~310–330h total
 **Dependency**: Phase 2
+
+> **Feature Intelligence Layer**: 10 specialist specs define the platform metrics tables (migrations 353–363), pg_cron jobs, agent tools, admin UI panels, and Conductor workflows for every major feature. See the [Feature Intelligence Specs Index](#feature-intelligence-specs-index) and individual spec files in `conductor/`. Phase 3 intelligence should be sequenced: Resources (356) → SEO (357) → Signal (358) → Marketplace (359) → Bookings (360), then Listings/Financials/VirtualSpace/Referral/CaaS in parallel.
 
 ### 3A — Analytics Dashboard (15h)
 
@@ -1777,6 +1896,41 @@ Non-tutor roles (migration 345 `role_type` column):
 Shadow mode for 30 days before Growth Advisor acts on non-tutor scores.
 
 Growth Score (0–100) for all 4 roles computed daily by pg_cron. Component scores stored in `component_scores jsonb`. Displayed in admin analytics and user dashboards.
+
+### 3F — Feature Intelligence Layer (migrations 353–363, ~219h)
+
+One platform metrics table + one pg_cron compute function per feature. Each feeds three outputs: Specialist Agent tool, Admin UI panel, Conductor workflow trigger.
+
+**Implementation sequence** (go-to-market pipeline order):
+
+| Step | Feature | Spec | Migration | pg_cron | Agent Tool | Admin Panel |
+|------|---------|------|-----------|---------|-----------|-------------|
+| 1 | Resources | [spec](./resources-intelligence-spec.md) | 356 | 04:30 | `query_resources_health` | `/admin/resources` intelligence panel |
+| 2 | SEO | [spec](./seo-intelligence-spec.md) | 357 | 05:00 | `query_seo_health` | `/admin/seo` signal tab |
+| 3 | Signal | [spec](./signal-intelligence-spec.md) | 358 | — | `query_content_attribution` | `/admin/signal` enhancements |
+| 4 | Marketplace | [spec](./marketplace-intelligence-spec.md) | 359 | 06:00 | `query_marketplace_health` | `/admin/signal` Marketplace tab |
+| 5 | Bookings | [spec](./bookings-intelligence-spec.md) | 360 | 06:30 | `query_booking_health` | `/admin/bookings` intelligence panel |
+| 6 | Listings | [spec](./listings-intelligence-spec.md) | 361 | 07:00 | `query_listing_health` | `/admin/listings` intelligence panel |
+| 7 | Financials | [spec](./financials-intelligence-spec.md) | 362 | 07:30 | `query_financial_health` | `/admin/financials` intelligence panel |
+| 8 | VirtualSpace | [spec](./virtualspace-intelligence-spec.md) | 363 | 08:00 | `query_virtualspace_health` | `/admin/virtualspace` panel |
+| 9 | Referral | [spec](./referral-intelligence-spec.md) | 353–354 | 08:30 | `query_referral_funnel` | `/admin/referrals` K coefficient panel |
+| 10 | CaaS | [spec](./caas-intelligence-spec.md) | 355 | 05:30 | `query_caas_health` | `/admin/signal` CaaS tab |
+
+**Shared architectural pattern** (applies to all 10):
+
+```
+1. Migration creates `{feature}_platform_metrics_daily` table
+2. pg_cron runs `compute_{feature}_platform_metrics()` daily
+3. Specialist Agent tool reads live DB + daily table (trend data)
+4. Alert triggers fire when thresholds exceeded → flag_exception()
+5. Admin UI panel at existing admin route extended with Intelligence section
+6. Conductor workflow triggered (if severity=critical) with HITL gate
+```
+
+**Total per-feature budget**:
+- Resources: 18h · SEO: 20h · Signal: 27h · Marketplace: 24h · Bookings: 22h
+- Listings: 20h · Financials: 20h · VirtualSpace: 14h · Referral: 24h · CaaS: 30h
+- **Total: 219h across 10 features**
 
 ### Detailed Phase 3 Task Table
 
@@ -2725,15 +2879,35 @@ CREATE TABLE platform_knowledge_chunks (
 Latest applied: **343**. Next:
 
 ```
-344 — GDPR: workflow_executions GDPR columns + profiles.legal_hold + sar_requests (hash-based) + platform_events (partitioned)
-345 — Growth Scores: growth_scores table with role_type + component_scores
-346 — Phase 1 production fixes: dedup index + DLQ retry cron + fallback polling + workflow_entity_cooldowns + pipeline_jobs + workflow_exceptions
-347 — Phase 1 versioning: workflow_process_versions + workflow_processes.version/published_at
-348 — Phase 2 agents: specialist_agents + agent_run_outputs + agent_templates
-349 — Phase 2 subscriptions: agent_subscriptions (zero-downtime, separate deployment)
-350 — Phase 3 intelligence: growth_knowledge_chunks + platform_ai_costs
-351 — Phase 4 learning: decision_outcomes + process_autonomy_config + platform_knowledge_chunks
-352 — Phase 2 teams: agent_teams + agent_team_run_outputs (+ indexes)
+Phase 1 — Consolidation
+  344 — GDPR: workflow_executions GDPR columns + profiles.legal_hold + sar_requests (hash-based) + platform_events (partitioned)
+  345 — Growth Scores: growth_scores table with role_type + component_scores
+  346 — Phase 1 production fixes: dedup index + DLQ retry cron + fallback polling + workflow_entity_cooldowns + pipeline_jobs + workflow_exceptions
+  347 — Phase 1 versioning: workflow_process_versions + workflow_processes.version/published_at
+
+Phase 2 — Agents + Teams
+  348 — Phase 2 agents: specialist_agents + agent_run_outputs + agent_templates
+  349 — Phase 2 subscriptions: agent_subscriptions (zero-downtime, separate deployment)
+  350 — Phase 3 intelligence: growth_knowledge_chunks + platform_ai_costs
+  351 — Phase 4 learning: decision_outcomes + process_autonomy_config + platform_knowledge_chunks
+  352 — Phase 2 teams: agent_teams + agent_team_run_outputs (+ indexes)
+
+Phase 3 — Feature Intelligence Layer (platform metrics + daily pg_cron jobs)
+  353 — Referral: referral_metrics_daily (K coefficient + funnel + cohort)
+  354 — Referral: referral_network_stats materialized view (hub nodes, chain depth)
+  355 — CaaS: caas_platform_metrics_daily + compute_caas_platform_metrics() pg_cron 05:30
+  356 — Resources: resources_platform_metrics_daily + compute_resources_platform_metrics() pg_cron 04:30
+  357 — SEO: seo_platform_metrics_daily + compute_seo_platform_metrics() pg_cron 05:00
+  358 — Signal: article_intelligence_scores (composite 0-100, 5 bands)
+  359 — Marketplace: marketplace_platform_metrics_daily + marketplace_search_events + pg_cron 06:00
+  360 — Bookings: bookings_platform_metrics_daily + compute_bookings_platform_metrics() pg_cron 06:30
+  361 — Listings: listings_platform_metrics_daily + compute_listings_platform_metrics() pg_cron 07:00
+  362 — Financials: financials_platform_metrics_daily + compute_financials_platform_metrics() pg_cron 07:30
+  363 — VirtualSpace: virtualspace_platform_metrics_daily + compute_virtualspace_platform_metrics() pg_cron 08:00
+
+pg_cron schedule (Phase 3 intelligence jobs, all UTC):
+  04:30 Resources  05:00 SEO  05:30 CaaS  06:00 Marketplace  06:30 Bookings
+  07:00 Listings   07:30 Financials       08:00 VirtualSpace  08:30 Referral
 ```
 
 ---
@@ -2754,18 +2928,36 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
   "name": "Market Intelligence Agent",
   "description": "Analyses booking trends, subject demand signals, price benchmarks, and competitive positioning. Runs daily. Surfaces top-3 actionable insights in Admin Intelligence daily brief.",
   "schedule": "0 6 * * *",
-  "tools": ["query_booking_volume_by_subject", "query_price_distribution", "query_listing_conversion_rates", "query_search_query_log", "flag_exception"],
-  "system_prompt_template": "You are a market intelligence analyst for Tutorwise, a UK tutoring marketplace. Your role is to identify demand-supply imbalances, emerging subjects, pricing anomalies, and conversion bottlenecks. Provide specific, actionable insights. When you flag an exception, include confidence score and supporting evidence count.",
+  "tools": [
+    "query_booking_volume_by_subject", "query_price_distribution",
+    "query_listing_conversion_rates", "query_search_query_log",
+    "query_marketplace_health", "query_supply_demand_gap",
+    "query_listing_health", "query_pricing_intelligence",
+    "query_seo_health", "query_keyword_opportunities",
+    "query_content_attribution", "query_resources_health",
+    "query_editorial_opportunities", "query_virtualspace_health",
+    "flag_exception"
+  ],
+  "system_prompt_template": "You are a market intelligence analyst for Tutorwise, a UK tutoring marketplace. Your role is to identify demand-supply imbalances, emerging subjects, pricing anomalies, and conversion bottlenecks. You also monitor the content marketing pipeline (Resources → SEO → Signal → Marketplace → Bookings). Provide specific, actionable insights. When you flag an exception, include confidence score and supporting evidence count.",
   "output_format": "structured_json",
   "autonomy_level": "supervised",
   "alert_threshold": { "confidence": 75, "evidence_count": 3 }
 }
 ```
 
-**Tools it calls**:
+**Tools it calls** (Phase 3 intelligence layer — see individual specs):
+- `query_marketplace_health` — supply/demand balance, search funnel, AI adoption
+- `query_supply_demand_gap` — subjects with high demand and low supply
+- `query_listing_health` — listing quality distribution, stale/dead listings
+- `query_pricing_intelligence` — P25/median/P75 pricing by subject+level
+- `query_seo_health` — keyword rankings, content decay, backlink health
+- `query_keyword_opportunities` — high-value uncaptured keyword targets
+- `query_content_attribution` — article→listing→booking flywheel health, Article Intelligence Score
+- `query_resources_health` — content pipeline velocity, SEO readiness, hub coverage gaps
+- `query_editorial_opportunities` — hub keyword gaps, uncovered spoke topics
+- `query_virtualspace_health` — session adoption, completion rates, free-help conversion
 - `query_booking_volume_by_subject` — last 30d vs prior 30d, grouped by subject
 - `query_price_distribution` — p25/p50/p75 prices per subject, vs agent baseline
-- `query_listing_conversion_rates` — view-to-enquiry, enquiry-to-booking rates by listing
 - `query_search_query_log` — unanswered search queries (zero results returned)
 - `flag_exception` — writes to `workflow_exceptions` with AI recommendation
 
@@ -2798,7 +2990,7 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
   "name": "Operations Monitor Agent",
   "description": "Monitors platform health: at-risk tutors (inactivity, low ratings), session completion rates, support queue depth. Runs every 6 hours.",
   "schedule": "0 */6 * * *",
-  "tools": ["query_tutor_activity", "query_session_completion_rates", "query_support_queue", "query_rating_trends", "flag_exception"],
+  "tools": ["query_tutor_activity", "query_session_completion_rates", "query_support_queue", "query_rating_trends", "query_caas_health", "flag_exception"],
   "system_prompt_template": "You are a platform operations monitor for Tutorwise. Identify tutors at risk of churning (no sessions in 30 days, declining ratings, incomplete profiles). Identify operational anomalies: session completion rates <85%, support queue >50 open tickets, rating average dropping >0.5 in 14 days.",
   "output_format": "structured_json",
   "autonomy_level": "supervised",
@@ -2820,8 +3012,13 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
   "name": "Retention Monitor Agent",
   "description": "Platform-level retention and funnel analytics for admins. Analyses cohort retention, referral funnel conversion, tutor supply vs demand gaps, and org partnership health. Not related to the user-facing Growth Advisor product.",
   "schedule": "0 8 * * *",
-  "tools": ["query_cohort_retention", "query_referral_funnel", "query_supply_demand_gap", "query_org_health", "flag_exception"],
-  "system_prompt_template": "You are a retention and funnel analyst for Tutorwise admin. You monitor platform-level health signals. Key metrics: weekly cohort retention (target >60% at week 4), referral funnel conversion (target >8% from share to booking), subject supply gaps (demand >2x supply), org renewal rate (target >80%).",
+  "tools": [
+    "query_cohort_retention", "query_referral_funnel",
+    "query_supply_demand_gap", "query_org_health",
+    "query_booking_health", "query_financial_health",
+    "flag_exception"
+  ],
+  "system_prompt_template": "You are a retention and funnel analyst for Tutorwise admin. You monitor platform-level health signals. Key metrics: weekly cohort retention (target >60% at week 4), referral funnel K coefficient (target K > 0.15), booking cancellation rate (target <10%), financial clearing health (no stalls >14 days), subject supply gaps (demand >2x supply), org renewal rate (target >80%).",
   "output_format": "structured_json",
   "autonomy_level": "supervised",
   "alert_threshold": { "confidence": 75, "evidence_count": 3 }
