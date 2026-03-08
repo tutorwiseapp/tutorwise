@@ -63,12 +63,12 @@ The DDL ends with `PARTITION BY RANGE (created_at)` but creates no partition. A 
 
 ### C5 — RLS policies not specified for any new table
 
-New tables (`workflow_exceptions`, `growth_scores`, `agent_subscriptions`, `analyst_agents`, `agent_teams`, `platform_events`) have no RLS policies shown. The document says "use `is_admin()` function" but doesn't write the policies.
+New tables (`workflow_exceptions`, `growth_scores`, `agent_subscriptions`, `specialist_agents`, `agent_teams`, `platform_events`) have no RLS policies shown. The document says "use `is_admin()` function" but doesn't write the policies.
 
 **Minimum required before Phase 1**:
 - `workflow_exceptions`: `is_admin()` for all operations
 - `growth_scores`: user can read own row; admin can read all
-- `analyst_agents`: admin only
+- `specialist_agents`: admin only
 - `platform_events`: service_role only for writes; admin for reads
 
 **Fix**: Add RLS note per table in the schema block. Policies implemented in migrations.
@@ -134,7 +134,7 @@ Tools are the mechanism agents take actions. A malicious or buggy tool registere
 
 ### M4 — Cross-tenant isolation for org-scoped agents
 
-If Organisation A creates an analyst agent (e.g. their own Operations Monitor), can Organisation B's admin see it? The document doesn't specify org-scoped agent visibility. `analyst_agents.created_by` is a user FK, not an org FK. RLS policy on `analyst_agents` should gate on `is_admin()` OR `created_by = auth.uid()` depending on whether org admins can create agents.
+If Organisation A creates an analyst agent (e.g. their own Operations Monitor), can Organisation B's admin see it? The document doesn't specify org-scoped agent visibility. `specialist_agents.created_by` is a user FK, not an org FK. RLS policy on `specialist_agents` should gate on `is_admin()` OR `created_by = auth.uid()` depending on whether org admins can create agents.
 
 ### M5 — Workflow → Team invocation context mapping
 
@@ -148,7 +148,7 @@ When a workflow invokes a Team via the `cas_agent` handler (extended to accept `
 |-----------|-----------|-------|
 | "Growth Agent" | "Growth Advisor" (post-deprecation) | Product vision, §1 What to Remove |
 | "Process" (standalone) | "Workflow Process" (canonical DB table name) | Throughout |
-| "Analyst Agent" (sometimes) | "Analyst Agent" ← keep this as the type name | Phase 2 |
+| "Analyst Agent" | "Specialist Agent" — resolved in D24; DB table renamed `specialist_agents` | Phase 2 |
 | "AI Agent Studio" | Not developed in Conductor — belongs to Product 2 description only | §1 intro |
 | "Admin Studio" (once) | "Conductor" | Phase 2 once |
 | "Autonomy Levels" (§1) | "Autonomy Tiers" (§DB schema, consistent elsewhere) | §1 Product Vision |

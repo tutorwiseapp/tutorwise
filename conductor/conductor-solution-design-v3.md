@@ -1,5 +1,5 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.5 — Conductor rename (was: iPOM Studio), Workflows rename (was: Process Studio), full naming system aligned: Conductor / Workflows / Agents / Teams
+**Version**: 3.6 — D24: Specialist Agents, CAS refit, built-in registry; `specialist_agents` → `specialist_agents`; CAS 8 built-ins seeded with `built_in = true`
 **Date**: 2026-03-06
 **Status**: Phased implementation plan
 
@@ -218,7 +218,7 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 | **Workflow Execution** (LangGraph, pause/resume, HITL) | **95% — Tutorwise AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer | Fuschia uses flat YAML; keep ours |
 | **Agent Designer** (visual canvas to design agent org, assign tools) | **15%** — CAS WorkflowVisualizer provides ReactFlow agent pipeline visualization; no general-purpose agent creation UI | Build Phase 2 on existing CAS canvas foundation |
 | **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | **0% → Phase 2** — Fuschia supports single topology; Tutorwise extends with 3 patterns + generic AgentTeamState + dynamic TeamRuntime | **Tutorwise will surpass Fuschia** — DB-configurable topology without code deploy |
-| **Agent Templates** (pre-built analyst team configs) | 0% | Build with Phase 2 |
+| **Agent Templates** (pre-built specialist team configs) | 0% | Build with Phase 2 |
 | **Tool Registry** (register/assign tools to agents from UI) | 0% — tools are hardcoded in TypeScript | Build with Phase 2 |
 | **Knowledge Module** (knowledge graph, data import) | 20% — hardcoded in agent prompts | Phase 3 |
 | **Analytics Module** (workflow analytics, agent performance) | 50% — execution tracking exists; no dashboard | Phase 3 |
@@ -241,7 +241,7 @@ Before building anything new, make these strategic corrections:
 | `ExecutionCanvas.tsx` as a separate tab | Merge execution state overlay into design canvas. Two canvases is wrong. |
 | `ShadowDivergencePanel.tsx` (skeleton) | Either implement properly in Phase 1 or cut. No half-implementations. |
 | Growth Agent standalone code (substantially built — skill files, orchestrator, API routes) | Migrate then remove. Skill files → Growth Advisor agent knowledge. API routes deprecated (redirect to `/api/agents/growth/`). Delete `apps/web/src/lib/growth-agent/` after unified routes verified. See Phase 2 migration task. |
-| CAS "build pipeline" narrative | Reframe: CAS runtime becomes the execution backbone for analyst agents. The 8 CAS agents (marketer, analyst, etc.) are redeployed as analyst agent templates, not a separate developer tool. |
+| CAS "build pipeline" narrative | Reframe: CAS runtime becomes the execution backbone for specialist agents. The 8 CAS agents (marketer, analyst, etc.) are redeployed as built-in Specialist registrations (`built_in = true`), not a separate developer tool. |
 
 ### Redesign
 | What | Current | Should Be |
@@ -418,6 +418,8 @@ Before Phase 1 work begins, rename the internal code namespace to match the new 
 | Rename component: `ChatPanel` label "Process Assistant" → "Workflow Assistant" | `ChatPanel.tsx` line 200 |
 | Update nav URL: `/admin/studio` → `/admin/conductor` | `apps/web/src/app/admin/` route structure |
 | Update all imports referencing old paths | Global find-and-replace |
+| Rename DB table: `specialist_agents` → `specialist_agents`; add `built_in` + `role` columns; seed 8 CAS built-in rows (Migration 348) | `tools/database/migrations/348_...` + all code references to `specialist_agents` |
+| Remove `/admin/cas` standalone route; CAS agent data surfaces in `/admin/conductor` Agents tab | `apps/web/src/app/admin/cas/` route deletion + nav link removal |
 
 > **Non-negotiable**: These are label/path renames only — no logic changes. Estimated 2–3h. Phase 1 does not start until Phase 0 is complete. Shipping Phase 1 on top of old names creates compounding technical debt across every file touched.
 
@@ -450,7 +452,7 @@ Before Phase 1 work begins, rename the internal code namespace to match the new 
 | `supabase_update` | `table (str)`, `id_field (str)`, `updates (obj)` | Updates a Supabase table row. Rollback: reverse update. |
 | `growth_score_compute` | `profile_id_field (str)`, `role_type (str)` | Computes + caches Growth Score for one profile. |
 | `referral_attribute` | `booking_id_field (str)` | Looks up agent_id on booking. Calculates commission split. |
-| `cas_agent` | `agent_slug (str)`, `prompt_template (str)`, `output_field (str)` | Invokes a registered agent (analyst or CAS). Output stored in context. |
+| `cas_agent` | `agent_slug (str)` or `team_slug (str)`, `prompt_template (str)`, `output_field (str)` | Invokes a registered Specialist Agent or Team by slug. Output stored in context. |
 | `http_request` | `url (str)`, `method (str)`, `body_template (obj)`, `auth_env_var (str)` | External HTTP call. Response stored in context. |
 | `condition_eval` | `expression (str)`, `context_fields (arr)` | Evaluates a JS expression against execution context. Routes yes/no branches. |
 
@@ -744,7 +746,7 @@ Added to the node palette under the "Agents" group. When dragged onto the canvas
 What you can do from the canvas:
 1. Drag an Agent tile from the "Agents" palette onto the canvas
 2. Configure via the property panel (right drawer) — full config including prompt, skills, tools, strategy
-3. Save → Agent registered in `analyst_agents` table, status: `active`
+3. Save → Agent registered in `specialist_agents` table, status: `active`
 4. Load from Agent templates (pre-built configurations)
 
 **Addition 2: Registry Panel (`/admin/conductor` — three tabs)**
@@ -802,7 +804,7 @@ Admin actions on any Team: **View Canvas · Monitor runs · Remove**
 
 **Agent node configuration (AgentPropertyForm equivalent):**
 ```typescript
-interface AnalystAgentConfig {
+interface SpecialistAgentConfig {
   id: string;
   name: string;                             // e.g. "Market Intelligence Agent"
   role: 'coordinator' | 'specialist' | 'executor';
@@ -920,19 +922,21 @@ interface AnalystTool {
 
 Once an agent is saved from the designer:
 
-1. **Deployed**: Agent is registered in `analyst_agents` table with its config, tools, and schedules. Status: `active`.
+1. **Deployed**: Agent is registered in `specialist_agents` table with its config, tools, and schedules. Status: `active`.
 2. **Chat interface** at `/admin/conductor/agents/[agent-slug]`: Admin can chat directly with the deployed Agent. Agent uses its tools to answer. Stream responses via `getAIService().stream()`.
 3. **Scheduled runs**: pg_cron fires at the configured schedule, invokes the agent with its scheduled task prompt, writes output to `agent_run_outputs` table, optionally posts to exception queue or sends email.
 4. **Status monitoring**: Agent card in unified monitoring dashboard shows last_run_at, last_run_status, task count, error count.
 
 ```sql
 -- Migration 348
-CREATE TABLE analyst_agents (
+CREATE TABLE specialist_agents (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   slug text NOT NULL UNIQUE,
   name text NOT NULL,
-  config jsonb NOT NULL,           -- AnalystAgentConfig
+  role text,                       -- e.g. 'DevOps Engineer', 'Delivery Manager', 'Growth Marketing Specialist'
+  config jsonb NOT NULL,           -- SpecialistAgentConfig
   status text NOT NULL DEFAULT 'active',
+  built_in boolean DEFAULT false,  -- true = CAS pre-shipped built-in; false = admin-created custom
   created_by uuid REFERENCES auth.users(id),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
@@ -940,7 +944,7 @@ CREATE TABLE analyst_agents (
 
 CREATE TABLE agent_run_outputs (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  agent_id uuid NOT NULL REFERENCES analyst_agents(id),
+  agent_id uuid NOT NULL REFERENCES specialist_agents(id),
   trigger_type text NOT NULL,      -- 'scheduled' | 'manual' | 'workflow'
   input_prompt text NOT NULL,
   output_text text,
@@ -949,6 +953,17 @@ CREATE TABLE agent_run_outputs (
   duration_ms integer,
   created_at timestamptz DEFAULT now()
 );
+
+-- Seed 8 CAS built-in specialists (built_in = true, survives table renames and Phase 0 migration)
+INSERT INTO specialist_agents (slug, name, role, config, built_in) VALUES
+  ('developer',  'Developer',          'Software Developer',          '{}', true),
+  ('tester',     'Tester',             'Test Engineer',               '{}', true),
+  ('qa',         'QA',                 'Quality Assurance',           '{}', true),
+  ('engineer',   'DevOps Engineer',    'DevOps Engineer',             '{}', true),
+  ('security',   'Security Engineer',  'Security Engineer',           '{}', true),
+  ('marketer',   'Marketer',           'Growth Marketing Specialist', '{}', true),
+  ('analyst',    'Analyst',            'Business / Data Analyst',     '{}', true),
+  ('planner',    'Planner',            'Delivery Manager',            '{}', true);
 ```
 
 ### 2D — Agent Templates (5h)
@@ -957,15 +972,15 @@ Pre-built agent organization configurations stored in `agent_templates` table. S
 
 | Template | Agents included | Use case |
 |---------|----------------|---------|
-| **Operations Analyst** | Market Intelligence + Operations Monitor | Full ops coverage for a single admin |
-| **Financial Analyst** | Financial Analyst + Platform Health | Finance-focused monitoring |
-| **Growth Team** | Growth Advisor + Market Intelligence | Growth strategy focus |
-| **Full Stack** | All 5 standard agents, coordinator at top | Enterprise-style agent org |
+| **Platform Engineering** | Developer + Tester + QA + DevOps Engineer + Security Engineer | Platform build, test, deploy, and secure |
+| **Operations Intelligence** | Analyst + Planner + Operations Monitor | Analytics, monitoring, delivery management |
+| **Growth Marketing** | Marketer + Market Intelligence | User acquisition, campaigns, growth strategy |
+| **Full Stack** | All 8 built-in specialists + coordinator | Enterprise — full platform coverage |
 
 ### 2E — Agent + Team → Workflow Integration (5h)
 
 Existing `cas_agent` action node type in Conductor Workflows already exists. Extend it:
-- Handler dropdown now shows deployed analyst agents (from `analyst_agents` table) not just CAS hardcoded agents
+- Handler dropdown now shows deployed specialist agents (from `specialist_agents` table) not just CAS hardcoded agents
 - Handler config: `{ agent_slug, prompt_template, output_field }` — agent runs with prompt, output stored in execution context for next node
 
 ### 2F — HITL Action Gateway — Security Boundary
@@ -984,7 +999,7 @@ HITL GATEWAY SECURITY BOUNDARY
     Cannot: read or modify other users, escalate privileges
     Can: cancel own booking, update own listing, send own message
 
-  Admin-facing agents (Admin Intelligence, analyst agents):
+  Admin-facing agents (Admin Intelligence, specialist agents):
   POST /api/admin/workflow/execute/start
     Auth: admin RBAC (requiresAdmin())
     Permissions: full execution context
@@ -1077,7 +1092,7 @@ AGENT LIFECYCLE
   └─────────────────────────────────────────┘
          │
          ▼ [Save]
-  INSERT INTO analyst_agents (slug, name, config, status='active')
+  INSERT INTO specialist_agents (slug, name, config, status='active')
          │
          ▼
   Agent appears in Agent Registry:
@@ -1100,7 +1115,7 @@ AGENT LIFECYCLE
 CREATE TABLE agent_subscriptions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users NOT NULL,
-  agent_type text NOT NULL,           -- 'sage' | 'growth' | future analyst agents
+  agent_type text NOT NULL,           -- 'sage' | 'growth' | future specialist agents
   stripe_subscription_id text,
   stripe_customer_id text,
   stripe_price_id text,
@@ -1130,7 +1145,7 @@ apps/web/src/app/api/agents/[agentType]/
   subscription/route.ts ← replaces per-agent subscription routes
 ```
 
-`[agentType]` resolves to the correct orchestrator, rate limit config, and subscription check. Adding analyst agents = one registration entry, no new routes.
+`[agentType]` resolves to the correct orchestrator, rate limit config, and subscription check. Adding specialist agents = one registration entry, no new routes.
 
 **Shared rate limits:**
 
@@ -1225,7 +1240,7 @@ class TeamRuntime {
 
   private buildAgentNode(node: TeamNode) {
     return async (state: AgentTeamState) => {
-      const agent = await db.analyst_agents.findOne({ slug: node.agent_slug })
+      const agent = await db.specialist_agents.findOne({ slug: node.agent_slug })
       const result = await getAIService().generate({
         systemPrompt: agent.config.systemPrompt,
         userPrompt: JSON.stringify({ task: state.task, context: state.context }),
@@ -2211,11 +2226,11 @@ Mark these as future — not required for core product:
 
 ### Graphiti Temporal Memory — Implementation Sketch
 
-Graphiti gives agents episodic memory: they remember what worked in past runs, not just what the system prompt tells them. Relevant when analyst agents run hundreds of times and need to avoid repeating the same incorrect recommendations.
+Graphiti gives agents episodic memory: they remember what worked in past runs, not just what the system prompt tells them. Relevant when specialist agents run hundreds of times and need to avoid repeating the same incorrect recommendations.
 
-**When to add**: After 6 months of live analyst agent runs, when `agent_run_outputs` table has >500 rows per agent and recurring false positives are observed.
+**When to add**: After 6 months of live specialist agent runs, when `agent_run_outputs` table has >500 rows per agent and recurring false positives are observed.
 
-**Integration point**: `GrowthAgentOrchestrator` (and equivalent analyst agent orchestrators) would gain a `graphiti_client` injected at construction. Before generating output, the agent queries episodic memory: "What happened last time I flagged a similar pattern?" After generating output, it writes an episode: "I recommended X on [date] given [context]. Admin resolution: [Y]."
+**Integration point**: `GrowthAgentOrchestrator` (and equivalent specialist agent orchestrators) would gain a `graphiti_client` injected at construction. Before generating output, the agent queries episodic memory: "What happened last time I flagged a similar pattern?" After generating output, it writes an episode: "I recommended X on [date] given [context]. Admin resolution: [Y]."
 
 **Infrastructure**: Graphiti runs as a separate service (self-hosted or cloud). Data lives in a Neo4j-compatible graph DB, separate from the Supabase PostgreSQL instance. Adds ~£30–50/month infrastructure cost.
 
@@ -2227,7 +2242,7 @@ Model Context Protocol (MCP) standardises how AI agents consume external tool AP
 
 **Integration point**: `Tool Registry` (Phase 2) already stores tools as JSON schemas. An MCP adapter would translate MCP `tool_definition` format into Tool Registry format, auto-registering tools from the external system. Agents call `mcp_tools_service.execute(tool_name, args)` which proxies to the external MCP server.
 
-**Security**: Each MCP connection has a separate OAuth credential stored in Supabase Vault (not in `analyst_agents.config`). Admin registers connections via a dedicated MCP Connections page under `/admin/workflow/integrations`.
+**Security**: Each MCP connection has a separate OAuth credential stored in Supabase Vault (not in `specialist_agents.config`). Admin registers connections via a dedicated MCP Connections page under `/admin/workflow/integrations`.
 
 ### DSPy Evaluation Panel — Implementation Sketch
 
@@ -2316,7 +2331,7 @@ All new tables across all phases. Existing tables (workflow_executions, workflow
 | `platform_events` | `is_admin()` | `service_role` only |
 | `workflow_exceptions` | `is_admin()` | `service_role` + `is_admin()` for resolve/claim |
 | `growth_scores` | owner (`profile_id = auth.uid()`) + `is_admin()` | `service_role` only |
-| `analyst_agents` | `is_admin()` | `is_admin()` |
+| `specialist_agents` | `is_admin()` | `is_admin()` |
 | `analyst_tools` | `is_admin()` | `is_admin()` (activate requires `activated_by`) |
 | `agent_templates` | `is_admin()` | `is_admin()` (system templates read-only) |
 | `agent_subscriptions` | owner (`user_id = auth.uid()`) + `is_admin()` | `service_role` only |
@@ -2517,7 +2532,7 @@ ALTER TABLE workflow_processes ADD COLUMN draft_updated_at timestamptz;
 -- Migration 348 (Phase 2): Analyst agents + agent templates + tool registry
 -- ═══════════════════════════════════════════════════════════════════
 
--- Tool Registry: admin-registered tools available to analyst agents
+-- Tool Registry: admin-registered tools available to specialist agents
 CREATE TABLE analyst_tools (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   slug text NOT NULL UNIQUE,
@@ -2536,11 +2551,13 @@ CREATE TABLE analyst_tools (
   updated_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE analyst_agents (
+CREATE TABLE specialist_agents (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   slug text NOT NULL UNIQUE, name text NOT NULL,
+  role text,                           -- e.g. 'DevOps Engineer', 'Delivery Manager'
   config jsonb NOT NULL,
   status text NOT NULL DEFAULT 'draft',  -- 'draft' | 'active' | 'inactive'
+  built_in boolean DEFAULT false,        -- true = CAS pre-shipped; false = admin-created
   created_by uuid REFERENCES auth.users,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
@@ -2548,7 +2565,7 @@ CREATE TABLE analyst_agents (
 
 CREATE TABLE agent_run_outputs (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  agent_id uuid NOT NULL REFERENCES analyst_agents(id),
+  agent_id uuid NOT NULL REFERENCES specialist_agents(id),
   trigger_type text NOT NULL, input_prompt text NOT NULL,
   output_text text, tools_called jsonb, status text NOT NULL,
   duration_ms integer, created_at timestamptz DEFAULT now()
@@ -2558,7 +2575,7 @@ CREATE TABLE agent_templates (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   slug text NOT NULL UNIQUE, name text NOT NULL,
   description text, category text,         -- 'operations' | 'finance' | 'growth' | 'full-stack'
-  agents_config jsonb NOT NULL,            -- Array of AnalystAgentConfig
+  agents_config jsonb NOT NULL,            -- Array of SpecialistAgentConfig
   tags text[],
   is_system boolean DEFAULT false,         -- system templates protected from deletion
   created_at timestamptz DEFAULT now()
@@ -2573,7 +2590,7 @@ CREATE TABLE agent_templates (
 CREATE TABLE agent_subscriptions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users NOT NULL,
-  agent_type text NOT NULL,           -- 'sage' | 'growth' | future analyst agents
+  agent_type text NOT NULL,           -- 'sage' | 'growth' | future specialist agents
   stripe_subscription_id text, stripe_customer_id text,
   stripe_price_id text, status text NOT NULL,
   price_per_month integer,
@@ -2687,7 +2704,7 @@ Latest applied: **343**. Next:
 345 — Growth Scores: growth_scores table with role_type + component_scores
 346 — Phase 1 production fixes: dedup index + DLQ retry cron + fallback polling + workflow_entity_cooldowns + pipeline_jobs + workflow_exceptions
 347 — Phase 1 versioning: workflow_process_versions + workflow_processes.version/published_at
-348 — Phase 2 agents: analyst_agents + agent_run_outputs + agent_templates
+348 — Phase 2 agents: specialist_agents + agent_run_outputs + agent_templates
 349 — Phase 2 subscriptions: agent_subscriptions (zero-downtime, separate deployment)
 350 — Phase 3 intelligence: growth_knowledge_chunks + platform_ai_costs
 351 — Phase 4 learning: decision_outcomes + process_autonomy_config + platform_knowledge_chunks
@@ -2700,9 +2717,9 @@ Latest applied: **343**. Next:
 
 All Agents registered in the Conductor Registry. Seeded in migration 348.
 
-### Analyst Agents (Phase 2)
+### Specialist Agents (Phase 2)
 
-Four analyst agents pre-seeded. Each config drives the system prompt, tool set, and schedule.
+Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus any admin-created custom agents). Each config drives the system prompt, tool set, and schedule.
 
 #### Market Intelligence Agent
 
@@ -2928,7 +2945,7 @@ Short playbooks for the most common admin operations after Conductor is live.
 3. Fill slug (kebab-case), name, description, schedule (cron syntax), system prompt.
 4. Add tools from Tool Registry dropdown. Each tool shows its schema.
 5. Set autonomy level: `supervised` for new agents (production validation first).
-6. Click **Save as Draft** — agent is created in `analyst_agents` with `status='draft'`.
+6. Click **Save as Draft** — agent is created in `specialist_agents` with `status='draft'`.
 7. Click **Run Now** — triggers one manual run. Review output in Run History tab.
 8. If output is correct: click **Activate** — sets `status='active'`, enables cron.
 9. After 7 days, review run history. If all correct: promote autonomy to `autonomous`.
@@ -2972,7 +2989,7 @@ Steps:
 3. Select pattern: **Supervisor** (recommended for most cases), **Pipeline**, or **Swarm**.
 4. Drag Agent tiles from the palette onto the Team canvas:
    - Use existing Agents from the registry, OR
-   - Create a new Agent inline from the node property panel (saves to `analyst_agents` + adds to team)
+   - Create a new Agent inline from the node property panel (saves to `specialist_agents` + adds to team)
 5. Set `output_key` for each Agent in the property panel (e.g. `demand`, `pricing`, `competitive`).
 6. For **Supervisor**: designate the coordinator Agent. Connect specialists to it with routing edges.
 7. For **Pipeline**: connect Agents left-to-right. Add conditional branch edges if needed.
@@ -3090,16 +3107,16 @@ CONDUCTOR BUILD SEQUENCE v3.4
 
 | Task | Hours | Notes |
 |------|-------|-------|
-| `agent` node type (8th) in Conductor | 8 | New node in palette. Property panel: full AnalystAgentConfig. Renders as agent card on canvas. |
+| `agent` node type (8th) in Conductor | 8 | New node in palette. Property panel: full SpecialistAgentConfig. Renders as agent card on canvas. |
 | Agent Registry panel (`/admin/conductor/agents`) | 8 | List all Agents. Add/Configure/Monitor/Remove actions. |
 | Tool Registry backend (`analyst_tools` DB + TypeScript functions) | 10 | DB-backed registry. Register/validate/test tools. Category: data_query/platform_action/calculation. |
 | Tool Registry UI | 5 | List tools, register new, enable/disable, test with sample input. |
-| Seed analyst agent templates (4 standard + custom) | 6 | Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor. `agent_templates` table. |
-| Agent deployment (save to `analyst_agents` + pg_cron schedule) | 8 | Save from canvas → DB. pg_cron fires → agent runs → agent_run_outputs. |
+| Seed specialist agent templates (4 standard + custom) | 6 | Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor. `agent_templates` table. |
+| Agent deployment (save to `specialist_agents` + pg_cron schedule) | 8 | Save from canvas → DB. pg_cron fires → agent runs → agent_run_outputs. |
 | Agent chat interface (`/admin/conductor/agents/[slug]`) | 6 | Direct chat with deployed Agent. `getAIService().stream()` with agent config + tools. |
 | Agent Template Gallery (load pre-built team configs) | 5 | Load from `agent_templates`. Preview before deploy. |
-| Agent → workflow integration (extend `cas_agent` handler) | 5 | Handler dropdown shows `analyst_agents`. Config: `{agent_slug, prompt_template, output_field}`. |
-| `analyst_agents` + `agent_run_outputs` + `agent_templates` tables (migration 348) | 3 | DB schema. Indexes. |
+| Agent → workflow integration (extend `cas_agent` handler) | 5 | Handler dropdown shows `specialist_agents` (all, including built-ins). Config: `{agent_slug, prompt_template, output_field}`. |
+| `specialist_agents` + `agent_run_outputs` + `agent_templates` tables (migration 348) | 3 | DB schema. Indexes. |
 | `agent_subscriptions` unified table + zero-downtime migration (migration 349) | 8 | Replace `sage_pro_subscriptions`. Deploy separately. Shadow write period 24h. Cutover. |
 | Parameterised `/api/agents/[agentType]/` routes | 6 | Replace per-agent routes. All agents via single parameterised handler. |
 | Shared `<AgentChatUI agentType="..." platformContext={...} />` | 4 | Single reusable chat component for all agent types. |
@@ -3166,7 +3183,7 @@ CONDUCTOR ADDS — 4 NEW SUPERVISED WORKFLOWS
 | `/admin/cas` dashboard | Separate CAS product dashboard | Data surfaces in Conductor Monitoring tab |
 | `cas_agent` action handler | Invokes hardcoded CAS agents | Invokes any registered **Agent** or **Team** by slug |
 | CAS LangGraph runtime | CAS-specific | Shared backbone for all Agents and Teams (via TeamRuntime + existing AgentRuntimeInterface) |
-| Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor | Never built (standalone architecture) | **Agent** templates seeded in `analyst_agents` — run from Conductor, no separate UI needed |
+| Market Intelligence, Financial Analyst, Operations Monitor, Growth Advisor | Never built (standalone architecture) | **Agent** templates seeded in `specialist_agents` — run from Conductor, no separate UI needed |
 
 ### What Stays Unchanged
 
@@ -3415,11 +3432,11 @@ Detailed policy: [`ipom-gdpr-retention-policy.md`](./ipom-gdpr-retention-policy.
 ### D20: AI tier routing for Admin Intelligence Agent
 **Resolved**: Task classification before model selection. Rules-only for threshold checks (0 cost). Gemini Flash for summarisation. Claude Sonnet for exception recommendations. Grok 4 Fast for daily brief only. Estimated 5–10x cost reduction vs flat frontier model.
 
-### D21: Analyst agents vs CAS pipeline agents — different runtime?
-**Resolved**: Both use CAS `AgentRuntimeInterface`. Analyst agents (Market Intelligence, Financial Analyst etc.) are simpler — they run analysis and flag exceptions; they do NOT need the full 9-agent LangGraph CI/CD pipeline. CAS pipeline agents run the full two-loop workflow. The registry holds both types, but they execute via different paths on the same interface.
+### D21: Specialist agents vs CAS pipeline agents — different runtime?
+**Resolved**: Both use CAS `AgentRuntimeInterface`. Specialist agents (Market Intelligence, Financial Analyst etc.) are simpler — they run analysis and flag exceptions; they do NOT need the full 9-agent LangGraph CI/CD pipeline. CAS pipeline agents run the full two-loop workflow. The registry holds both types, but they execute via different paths on the same interface.
 
 ### D22: Growth Score for non-tutor roles
-**Resolved**: See [`ipom-growth-score-all-roles.md`](./ipom-growth-score-all-roles.md). Client score weighted toward referral + booking frequency. Agent score toward active tutor count + referral conversion. Organisation score = aggregate member scores + org-level booking volume. Shadow mode for 30 days before Growth Agent acts on non-tutor scores.
+**Resolved**: See [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md). Client score weighted toward referral + booking frequency. Agent score toward active tutor count + referral conversion. Organisation score = aggregate member scores + org-level booking volume. Shadow mode for 30 days before Growth Agent acts on non-tutor scores.
 
 ### D23: Agent Teams — multi-agent design
 **Resolved**: Conductor introduces a first-class **Team** concept (distinct from standalone **Agent** and **Workflow**). Three patterns supported in Phase 2:
@@ -3432,9 +3449,48 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 
 **CAS Team** surfaces as a read-only Supervisor Team in Conductor Registry (Phase 2). Future phase: CAS Team topology becomes DB-editable from the Team canvas, same as custom Teams.
 
-**Inline creation**: Admin can create a new Agent directly from the Team canvas property panel (without pre-registering it). Agent is saved to `analyst_agents` table and immediately added to the team topology.
+**Inline creation**: Admin can create a new Agent directly from the Team canvas property panel (without pre-registering it). Agent is saved to `specialist_agents` table and immediately added to the team topology.
 
 **Teams invocable from Workflows**: The existing `cas_agent` action handler is extended to accept a `team_slug`. TeamRuntime executes the full team; `team_result` is stored in the workflow execution context for downstream nodes.
+
+### D24: Specialist Agents — CAS refit, naming, and built-in registry
+**Resolved**: Four decisions consolidated into a single architectural change.
+
+**1. `analyst_agents` → `specialist_agents` (table rename)**
+The term "analyst" was too narrow — agents include DevOps Engineer, Marketer, Delivery Manager, and Security Engineer, none of which are analysts. `specialist_agents` correctly names any individual domain-expert AI agent. DB table renamed accordingly. `agent_teams` is unchanged — "team of agents" is grammatically correct as a compound noun.
+
+Naming collision context (three distinct "agent" concepts in the codebase):
+- `profiles.role_type = 'agent'` = human referral/recruitment agent (existing, unchanged)
+- `ai_agents` table = AI Tutor marketplace agents (existing, unchanged)
+- `specialist_agents` = Conductor operational specialists (this table)
+
+**2. `built_in` column added to `specialist_agents`**
+`built_in boolean DEFAULT false` distinguishes CAS pre-shipped specialists from admin-created custom specialists. Admin sees ONE unified Specialist Registry — no "CAS agents" vs "custom agents" split in the UI. The `built_in` flag prevents accidental deletion of core specialists and is an implementation detail invisible to the admin experience.
+
+**3. CAS 8 built-in agents seeded as Specialists**
+CAS was built before Conductor. Its 8 agents are refit as Conductor's standard/built-in Specialists, seeded with `built_in = true` in Migration 348. The CAS runtime remains the internal execution engine for ALL Specialists and Teams — name stays "CAS" in code, invisible to admin UI.
+
+| CAS slug | Display name | Role |
+|----------|-------------|------|
+| `developer` | Developer | Software Developer |
+| `tester` | Tester | Test Engineer |
+| `qa` | QA | Quality Assurance |
+| `engineer` | DevOps Engineer | DevOps Engineer |
+| `security` | Security Engineer | Security Engineer |
+| `marketer` | Marketer | Growth Marketing Specialist |
+| `analyst` | Analyst | Business / Data Analyst |
+| `planner` | Planner | Delivery Manager / Project Manager |
+
+**4. `/admin/cas` merged into `/admin/conductor` Agents tab**
+CAS stops being a standalone admin section. Its functionality is absorbed into Conductor's unified Agents tab. The `/admin/cas` route is removed in Phase 0 (same sweep as process-studio route removal). Admin experience: one canvas, one Specialist Registry, one Team Registry.
+
+**§2D Agent Templates renamed** to reflect the actual specialist groups:
+- **Platform Engineering** — Developer + Tester + QA + DevOps Engineer + Security Engineer
+- **Operations Intelligence** — Analyst + Planner + Operations Monitor
+- **Growth Marketing** — Marketer + Market Intelligence
+- **Full Stack** — All 8 built-in specialists + coordinator
+
+**Phase 0 additional tasks**: (a) Rename DB table `analyst_agents` → `specialist_agents`, add `built_in` + `role` columns, seed 8 built-in rows (Migration 348 DDL). (b) Remove `/admin/cas` route; surface CAS data in `/admin/conductor`. These are data/path changes only — no logic changes.
 
 ---
 
@@ -3453,7 +3509,7 @@ Generic **`AgentTeamState`** flows through all patterns. Each Agent declares an 
 | Cross-agent context load time | <500ms PlatformUserContext fetch | Server-side timing |
 | Nudge effectiveness | >15% conversion rate | `decision_outcomes.outcome_metric='nudge_converted'` |
 | Shadow mode divergence | <5% of shadow executions differ | `platform_events.workflow.shadow_divergence` |
-| Agent registry coverage | 100% of platform agents in registry | `analyst_agents` + CAS agents count |
+| Agent registry coverage | 100% of platform agents in registry | `specialist_agents` count (built-in + custom) |
 
 **Baseline measurements required before Phase 3**: Current admin decision volume (manual vs queue-based) and current autonomous operation rate must be established at Phase 2 completion.
 
@@ -3489,5 +3545,5 @@ The following documents were deleted when the folder was renamed from `ipom/` to
 
 ---
 
-*Version 3.5 — Conductor: Workflows + Agents + Teams unified. D23 Agent Teams (Supervisor/Pipeline/Swarm). Standard naming scheme. Migration 352.*
+*Version 3.6 — D24: Specialist Agents, CAS refit, `analyst_agents` → `specialist_agents`, built-in registry (`built_in = true`), §2D templates renamed (Platform Engineering / Operations Intelligence / Growth Marketing / Full Stack), `/admin/cas` merged into Conductor.*
 *Supersedes: conductor-solution-design-v2.md, conductor-solution-design.md, platform-nexus-solution-design.md*
