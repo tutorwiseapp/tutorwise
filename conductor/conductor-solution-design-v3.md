@@ -344,31 +344,56 @@ Before building anything new, make these strategic corrections:
 ```
 CONDUCTOR — WORKFLOW INVENTORY
 
-  LIVE (running in production)
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  Tutor Approval              │  Commission Payout               │
-  │  Webhook: profile UPDATE     │  Cron: Fri 10am                  │
-  │  HITL: admin approves        │  Steps: eligible? → stripe.payout│
-  └─────────────────────────────────────────────────────────────────┘
+  Architecture principle:
+    Specialist Agents DETECT conditions → Workflows ACT on them.
+    Workflows map 1:1 to platform features. Every write action goes through
+    the execution engine (audit trail + idempotency + rollback).
 
-  SHADOW (running parallel, not acting — 30-day shadow period)
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  Booking Lifecycle (Human Tutor)   Booking Lifecycle (AI Tutor) │
-  └─────────────────────────────────────────────────────────────────┘
+  LIVE (running in production)
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  Tutor Approval                 │  Commission Payout                 │
+  │  Feature: User Profile          │  Feature: Financials / Referrals   │
+  │  Trigger: profile UPDATE →      │  Trigger: Cron Fri 10am            │
+  │    under_review (webhook)       │  Steps: eligible? → stripe.payout  │
+  │  HITL: admin approves/rejects   │  Detector: Retention Monitor       │
+  └──────────────────────────────────────────────────────────────────────┘
+
+  SHADOW (running parallel, not acting — 30-day minimum shadow period)
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  Booking Lifecycle (Human Tutor)    Booking Lifecycle (AI Tutor)     │
+  │  Feature: Bookings                  Feature: Bookings (AI)           │
+  │  Trigger: bookings INSERT           Trigger: ai_agent session INSERT │
+  └──────────────────────────────────────────────────────────────────────┘
 
   SUBPROCESS (no standalone trigger — called by parent workflow)
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  Referral Attribution    (called from Booking Lifecycle)        │
-  └─────────────────────────────────────────────────────────────────┘
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  Referral Attribution   (called from Booking Lifecycle)              │
+  │  Feature: Referrals — sets bookings.agent_id for K coefficient       │
+  └──────────────────────────────────────────────────────────────────────┘
 
-  CONDUCTOR ADDS (Phase 1+)
-  ┌─────────────────────────────────────────────────────────────────┐
-  │  Organisation Onboarding  │  Stuck Referral Recovery            │
-  │  Listing Quality Nudge    │  Org Dormancy Re-engagement         │
-  └─────────────────────────────────────────────────────────────────┘
+  CONDUCTOR ADDS — Phase 2 (triggered by agent flags or platform events)
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │  Organisation Onboarding      │  Stuck Referral Recovery             │
+  │  Feature: Network             │  Feature: Referrals                  │
+  │  Trigger: org created         │  Trigger: referral stale 7d          │
+  │  Detector: —                  │  Detector: Retention Monitor         │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Listing Quality Nudge        │  Org Dormancy Re-engagement          │
+  │  Feature: Marketplace         │  Feature: Network                    │
+  │  Trigger: Growth Score < 40   │  Trigger: org dormant 60d            │
+  │  Detector: Operations Monitor │  Detector: Retention Monitor         │
+  ├───────────────────────────────┼──────────────────────────────────────┤
+  │  Dormant Referrer Re-engage   │  CaaS Stale Score Recovery           │
+  │  Feature: Referrals           │  Feature: CaaS                       │
+  │  Trigger: hub referrer        │  Trigger: stale scores > 5% active   │
+  │    inactive 30d               │    users                             │
+  │  Detector: Retention Monitor  │  Detector: Operations Monitor        │
+  └──────────────────────────────────────────────────────────────────────┘
 
-  ALL AGENTS and TEAMS delegate write actions through Conductor execution engine.
-  Full audit trail + idempotency + rollback support on every action.
+  KEY:
+    Detector = which Specialist Agent flags the condition that fires this workflow
+    HITL     = Human-In-The-Loop gate (admin must approve before action executes)
+    Subprocess = no direct trigger; parent workflow calls it mid-execution
 ```
 
 ### System Roles in Conductor
