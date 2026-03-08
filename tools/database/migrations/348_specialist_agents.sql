@@ -1,0 +1,5 @@
+-- RESERVED: Migration 348
+-- Phase: iPOM v3.4 — Phase 2 Specialist Agents
+-- Description: specialist_agents table (renamed from analyst_agents) — agent type, config, schedule, tool_ids
+-- Spec: conductor/conductor-solution-design-v3.md §Phase 2 Agent Registry
+-- Status: Pending implementation

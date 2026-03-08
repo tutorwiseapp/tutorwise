@@ -1,0 +1,5 @@
+-- RESERVED: Migration 349
+-- Phase: iPOM v3.4 — Phase 2 Specialist Agents
+-- Description: agent_subscriptions table — agent alert subscriptions to workflow triggers
+-- Spec: conductor/conductor-solution-design-v3.md §Phase 2 Agent Registry
+-- Status: Pending implementation

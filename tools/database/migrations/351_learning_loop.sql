@@ -1,0 +1,5 @@
+-- RESERVED: Migration 351
+-- Phase: iPOM v3.4 — Phase 2 Learning Loop
+-- Description: decision_outcomes table — lag-based outcome measurement (14/30/60/90 days)
+-- Spec: conductor/conductor-solution-design-v3.md §3D Learning Loop
+-- Status: Pending implementation

@@ -1,0 +1,6 @@
+-- RESERVED: Migration 356
+-- Phase: Conductor Phase 3 — Resources Intelligence (Content Intelligence Loop Stage 1)
+-- Description: resources_platform_metrics_daily table + compute_article_readiness_score() + pg_cron 04:30 UTC
+-- Spec: conductor/resources-intelligence-spec.md
+-- Agent: Market Intelligence (query_resources_health, query_editorial_opportunities tools)
+-- Status: Pending implementation

@@ -1,0 +1,6 @@
+-- RESERVED: Migration 355
+-- Phase: Conductor Phase 3 — CaaS Intelligence
+-- Description: caas_platform_metrics_daily table + compute_caas_platform_metrics() + pg_cron 05:30 UTC
+-- Spec: conductor/caas-intelligence-spec.md
+-- Agent: Operations Monitor (query_caas_health tool)
+-- Status: Pending implementation

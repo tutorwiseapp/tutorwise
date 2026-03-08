@@ -1,0 +1,6 @@
+-- RESERVED: Migration 354
+-- Phase: Conductor Phase 3 — Referral Intelligence
+-- Description: referral_network_stats materialized view — K-factor, referral coefficient computation
+-- Spec: conductor/referral-intelligence-spec.md
+-- Agent: Retention Monitor (query_referral_health tool)
+-- Status: Pending implementation

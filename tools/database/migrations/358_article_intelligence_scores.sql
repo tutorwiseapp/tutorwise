@@ -1,0 +1,6 @@
+-- RESERVED: Migration 358
+-- Phase: Conductor Phase 3 — Signal Intelligence (Content Intelligence Loop Stage 3)
+-- Description: article_intelligence_scores table — Article Intelligence Score (AIS), decay detection
+-- Spec: conductor/signal-intelligence-spec.md
+-- Agent: Market Intelligence (query_signal_health tool)
+-- Status: Pending implementation

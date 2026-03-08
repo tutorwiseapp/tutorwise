@@ -1,0 +1,6 @@
+-- RESERVED: Migration 361
+-- Phase: Conductor Phase 3 — Listings Intelligence
+-- Description: listings_platform_metrics_daily table + compute_listings_platform_metrics() + pg_cron 07:00 UTC
+-- Spec: conductor/listings-intelligence-spec.md
+-- Agent: Market Intelligence (query_listing_health, query_pricing_intelligence tools)
+-- Status: Pending implementation

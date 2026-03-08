@@ -1,0 +1,6 @@
+-- RESERVED: Migration 363
+-- Phase: Conductor Phase 3 — VirtualSpace Intelligence
+-- Description: virtualspace_platform_metrics_daily table + compute_virtualspace_platform_metrics() + pg_cron 08:00 UTC
+-- Spec: conductor/virtualspace-intelligence-spec.md
+-- Agent: Market Intelligence (query_virtualspace_health tool)
+-- Status: Pending implementation

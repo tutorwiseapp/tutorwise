@@ -1,0 +1,6 @@
+-- RESERVED: Migration 360
+-- Phase: Conductor Phase 3 — Bookings Intelligence (Content Intelligence Loop Stage 5)
+-- Description: bookings_platform_metrics_daily table + compute_bookings_platform_metrics() + pg_cron 06:30 UTC
+-- Spec: conductor/bookings-intelligence-spec.md
+-- Agent: Retention Monitor (query_booking_health tool)
+-- Status: Pending implementation

@@ -1,0 +1,5 @@
+-- RESERVED: Migration 347
+-- Phase: iPOM v3.4 — Phase 2 foundation
+-- Description: Workflow process versioning — version_number, parent_version_id
+-- Spec: ipom/process-execution-solution-design.md
+-- Status: Pending implementation

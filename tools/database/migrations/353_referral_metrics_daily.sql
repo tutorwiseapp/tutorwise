@@ -1,0 +1,6 @@
+-- RESERVED: Migration 353
+-- Phase: Conductor Phase 3 — Referral Intelligence
+-- Description: referral_metrics_daily table + compute_referral_metrics_daily() + pg_cron 08:30 UTC
+-- Spec: conductor/referral-intelligence-spec.md
+-- Agent: Retention Monitor (query_referral_health tool)
+-- Status: Pending implementation

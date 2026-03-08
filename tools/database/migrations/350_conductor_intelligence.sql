@@ -1,0 +1,5 @@
+-- RESERVED: Migration 350
+-- Phase: iPOM v3.4 — Phase 2 Intelligence
+-- Description: conductor_intelligence_runs table — agent execution log, tool call history
+-- Spec: conductor/conductor-solution-design-v3.md §Phase 2 Intelligence
+-- Status: Pending implementation

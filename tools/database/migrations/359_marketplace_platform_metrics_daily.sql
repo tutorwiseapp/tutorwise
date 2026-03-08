@@ -1,0 +1,6 @@
+-- RESERVED: Migration 359
+-- Phase: Conductor Phase 3 — Marketplace Intelligence (Content Intelligence Loop Stage 4)
+-- Description: marketplace_platform_metrics_daily + marketplace_search_events tables + pg_cron 06:00 UTC
+-- Spec: conductor/marketplace-intelligence-spec.md
+-- Agent: Market Intelligence (query_marketplace_health, query_supply_demand_gap tools)
+-- Status: Pending implementation

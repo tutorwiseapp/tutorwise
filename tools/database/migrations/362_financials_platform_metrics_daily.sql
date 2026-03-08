@@ -1,0 +1,6 @@
+-- RESERVED: Migration 362
+-- Phase: Conductor Phase 3 — Financials Intelligence
+-- Description: financials_platform_metrics_daily table + compute_financials_platform_metrics() + pg_cron 07:30 UTC
+-- Spec: conductor/financials-intelligence-spec.md
+-- Agent: Retention Monitor (query_financial_health tool)
+-- Status: Pending implementation

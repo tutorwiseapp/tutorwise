@@ -1,0 +1,6 @@
+-- RESERVED: Migration 357
+-- Phase: Conductor Phase 3 — SEO Intelligence (Content Intelligence Loop Stage 2)
+-- Description: seo_platform_metrics_daily table + compute_seo_platform_metrics() + pg_cron 05:00 UTC
+-- Spec: conductor/seo-intelligence-spec.md
+-- Agent: Market Intelligence (query_seo_health tool)
+-- Status: Pending implementation

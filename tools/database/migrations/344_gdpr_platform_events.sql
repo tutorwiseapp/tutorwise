@@ -1,0 +1,5 @@
+-- RESERVED: Migration 344
+-- Phase: iPOM v3.4 — Phase 2 foundation
+-- Description: GDPR retention policy enforcement + platform_events table
+-- Spec: ipom/process-execution-solution-design.md
+-- Status: Pending implementation

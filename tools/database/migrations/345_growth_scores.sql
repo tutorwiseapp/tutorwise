@@ -1,0 +1,5 @@
+-- RESERVED: Migration 345
+-- Phase: iPOM v3.4 — Phase 2 foundation
+-- Description: Growth Score table — cohort-based, all-role scoring
+-- Spec: conductor/conductor-solution-design-v3.md §Growth Score
+-- Status: Pending implementation

@@ -1,0 +1,5 @@
+-- RESERVED: Migration 352
+-- Phase: iPOM v3.4 — Phase 2 Multi-Agent Teams
+-- Description: agent_teams + agent_team_run_outputs tables — TeamRuntime topology, Supervisor/Pipeline/Swarm patterns
+-- Spec: conductor/conductor-solution-design-v3.md §Phase 2 TeamRuntime
+-- Status: Pending implementation
