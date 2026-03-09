@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import {
   Play, Circle, GitBranch, CheckCircle, Bell, Square, Layers,
+  Brain, Users,
   ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import type { ProcessStepType } from './types';
@@ -46,6 +47,18 @@ const PALETTE_GROUPS: { group: string; items: PaletteItem[] }[] = [
     group: 'Flow',
     items: [
       { type: 'subprocess', label: 'Subprocess', description: 'Nested workflow', icon: Layers, cssClass: 'subprocess' },
+    ],
+  },
+  {
+    group: 'Agents',
+    items: [
+      { type: 'agent', label: 'Specialist Agent', description: 'Run a CAS specialist agent', icon: Brain, cssClass: 'agent' },
+    ],
+  },
+  {
+    group: 'Teams',
+    items: [
+      { type: 'team', label: 'Agent Team', description: 'Run a multi-agent team', icon: Users, cssClass: 'team' },
     ],
   },
   {

@@ -8,6 +8,8 @@ import {
   Bell,
   Square,
   Layers,
+  Brain,
+  Users,
 } from 'lucide-react';
 
 // --- Node Types ---
@@ -20,6 +22,8 @@ export const PROCESS_STEP_TYPES = [
   'notification',
   'end',
   'subprocess',
+  'agent',
+  'team',
 ] as const;
 
 export type ProcessStepType = (typeof PROCESS_STEP_TYPES)[number];
@@ -40,6 +44,12 @@ export interface ProcessStepData {
   stepCount?: number;
   templateId?: string;
   templateName?: string;
+  // Agent/Team-specific fields
+  agentSlug?: string;
+  teamSlug?: string;
+  teamPattern?: 'supervisor' | 'pipeline' | 'swarm';
+  outputField?: string;
+  promptTemplate?: string;
   // Execution metadata — ignored at design time, used by PlatformWorkflowRuntime
   handler?: string;                                           // e.g. "stripe.connect_payout"
   handler_config?: Record<string, unknown>;                   // e.g. { threshold: 70, template: "tutor_approved" }
@@ -74,6 +84,8 @@ export const NODE_TYPE_CONFIG: Record<ProcessStepType, NodeTypeConfig> = {
   notification: { icon: Bell, label: 'Notification', cssClass: 'notification' },
   end: { icon: Square, label: 'End', cssClass: 'end' },
   subprocess: { icon: Layers, label: 'Subprocess', cssClass: 'subprocess' },
+  agent: { icon: Brain, label: 'Specialist Agent', cssClass: 'agent' },
+  team: { icon: Users, label: 'Agent Team', cssClass: 'team' },
 };
 
 // --- Chat Types ---

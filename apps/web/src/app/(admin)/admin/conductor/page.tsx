@@ -12,6 +12,11 @@ import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store
 import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 
+const AgentManagementPanel = dynamic(
+  () => import('@/components/feature/conductor/AgentManagementPanel').then((m) => ({ default: m.AgentManagementPanel })),
+  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading agents…</div> }
+);
+
 // WorkflowVisualizer may use browser APIs — load client-side only
 const WorkflowVisualizer = dynamic(
   () => import('@cas/packages/core/src/admin').then((m) => ({ default: m.WorkflowVisualizer })),
@@ -33,6 +38,7 @@ export default function ConductorPage() {
     { id: 'design', label: 'Design', active: activeTab === 'design' },
     { id: 'discovery', label: 'Discovery', active: activeTab === 'discovery' },
     { id: 'execution', label: 'Execution', active: activeTab === 'execution' },
+    { id: 'agents', label: 'Agents', active: activeTab === 'agents' },
     { id: 'teams', label: 'Teams', active: activeTab === 'teams' },
     { id: 'monitoring', label: 'Monitoring', active: activeTab === 'monitoring' },
   ];
@@ -69,6 +75,12 @@ export default function ConductorPage() {
       {activeTab === 'execution' && (
         <div className={styles.executionContainer}>
           <ExecutionPanel />
+        </div>
+      )}
+
+      {activeTab === 'agents' && (
+        <div className={styles.agentsContainer}>
+          <AgentManagementPanel />
         </div>
       )}
 

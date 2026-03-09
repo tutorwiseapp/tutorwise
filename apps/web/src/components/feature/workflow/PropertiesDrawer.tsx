@@ -347,6 +347,79 @@ export function PropertiesDrawer({
             />
           </div>
 
+          {/* Agent / Team configuration */}
+          {(localData.type === 'agent' || localData.type === 'team') && (
+            <div className={styles.fieldGroup}>
+              <div className={styles.fieldGroupTitle}>
+                {localData.type === 'agent' ? 'Agent Configuration' : 'Team Configuration'}
+              </div>
+
+              {localData.type === 'agent' && (
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="ps-agent-slug">Agent Slug</label>
+                  <input
+                    id="ps-agent-slug"
+                    className={styles.input}
+                    value={localData.agentSlug || ''}
+                    onChange={(e) => handleFieldChange('agentSlug', e.target.value)}
+                    placeholder="e.g., analyst"
+                  />
+                </div>
+              )}
+
+              {localData.type === 'team' && (
+                <>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="ps-team-slug">Team Slug</label>
+                    <input
+                      id="ps-team-slug"
+                      className={styles.input}
+                      value={localData.teamSlug || ''}
+                      onChange={(e) => handleFieldChange('teamSlug', e.target.value)}
+                      placeholder="e.g., cas-team"
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="ps-team-pattern">Pattern</label>
+                    <select
+                      id="ps-team-pattern"
+                      className={styles.select}
+                      value={localData.teamPattern || 'supervisor'}
+                      onChange={(e) => handleFieldChange('teamPattern', e.target.value as ProcessStepData['teamPattern'])}
+                    >
+                      <option value="supervisor">Supervisor</option>
+                      <option value="pipeline">Pipeline</option>
+                      <option value="swarm">Swarm</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="ps-prompt-template">Prompt Template</label>
+                <textarea
+                  id="ps-prompt-template"
+                  className={styles.textarea}
+                  value={localData.promptTemplate || ''}
+                  onChange={(e) => handleFieldChange('promptTemplate', e.target.value)}
+                  placeholder="Use {{context.field}} for dynamic values"
+                  rows={4}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="ps-output-field">Output Field</label>
+                <input
+                  id="ps-output-field"
+                  className={styles.input}
+                  value={localData.outputField || ''}
+                  onChange={(e) => handleFieldChange('outputField', e.target.value)}
+                  placeholder="e.g., agent_analysis"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Condition edge labels */}
           {localData.type === 'condition' && (
             <div className={styles.fieldGroup}>

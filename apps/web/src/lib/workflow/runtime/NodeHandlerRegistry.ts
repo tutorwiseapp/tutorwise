@@ -29,6 +29,7 @@ import { handleAiAgentInvoke } from './handlers/ai-agent';
 import { handleReviewRequest } from './handlers/review';
 import { handleSchedulingNegotiate } from './handlers/scheduling';
 import { handleReferralAttribute, handleReferralUpdateStatus } from './handlers/referral';
+import { handleCasAgent } from './handlers/cas-agent';
 
 export type HandlerContext = Record<string, unknown>;
 
@@ -71,6 +72,9 @@ const HANDLERS: Record<string, HandlerFn> = {
   'scheduling.negotiate': handleSchedulingNegotiate,
   'referral.attribute': handleReferralAttribute,
   'referral.update_status': handleReferralUpdateStatus,
+
+  // Phase 2 — Agent + Team nodes
+  'cas_agent': handleCasAgent,
 };
 
 // ---------------------------------------------------------------------------

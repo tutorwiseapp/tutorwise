@@ -1,0 +1,247 @@
+.page {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1100px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #9ca3af;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 0.15s;
+}
+
+.backLink:hover { color: #f3f4f6; }
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f9fafb;
+  flex: 1;
+}
+
+.badge {
+  background: #374151;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconBtn {
+  background: none;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  padding: 0.3rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.iconBtn:hover { border-color: #6b7280; color: #f3f4f6; }
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #a78bfa;
+  background: none;
+  border: 1px solid #4c1d95;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.addBtn:hover { background: #1e1040; }
+
+.registerForm {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.formRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input {
+  background: #0f1117;
+  border: 1px solid #374151;
+  color: #f9fafb;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.825rem;
+  width: 100%;
+}
+
+.select {
+  background: #0f1117;
+  border: 1px solid #374151;
+  color: #f9fafb;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.825rem;
+}
+
+.submitBtn {
+  background: #7c3aed;
+  border: none;
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+
+.submitBtn:hover { background: #6d28d9; }
+
+.loading { color: #6b7280; font-size: 0.875rem; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.825rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  border-bottom: 1px solid #1f2937;
+}
+
+.table td {
+  padding: 0.6rem 0.75rem;
+  color: #d1d5db;
+  border-bottom: 1px solid #111827;
+}
+
+.slug { font-family: monospace; color: #a78bfa; }
+
+.desc {
+  max-width: 300px;
+  color: #9ca3af;
+}
+
+.categoryBadge {
+  background: #1f2937;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.statusDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.active { background: #10b981; }
+.inactive { background: #6b7280; }
+
+.testBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.testBtn:hover:not(:disabled) { border-color: #6b7280; color: #f3f4f6; }
+.testBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.testResultPanel {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.testResultTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: #1f2937;
+  font-size: 0.825rem;
+  color: #d1d5db;
+}
+
+.testResultTitle code {
+  color: #a78bfa;
+  font-family: monospace;
+}
+
+.closeResult {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.testError {
+  padding: 0.75rem;
+  color: #ef4444;
+  font-size: 0.825rem;
+}
+
+.testOutput {
+  padding: 0.75rem;
+  font-size: 0.775rem;
+  color: #9ca3af;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
