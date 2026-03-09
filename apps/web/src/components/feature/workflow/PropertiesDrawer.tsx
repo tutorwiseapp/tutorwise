@@ -445,6 +445,26 @@ export function PropertiesDrawer({
                   placeholder={field.placeholder}
                   rows={3}
                 />
+              ) : field.type === 'json' ? (
+                <textarea
+                  id={`handler-${field.key}`}
+                  className={styles.textarea}
+                  value={
+                    typeof handlerConfig[field.key] === 'object'
+                      ? JSON.stringify(handlerConfig[field.key], null, 2)
+                      : String(handlerConfig[field.key] ?? field.defaultValue ?? '{}')
+                  }
+                  onChange={(e) => {
+                    try {
+                      handleConfigFieldChange(field.key, JSON.parse(e.target.value));
+                    } catch {
+                      handleConfigFieldChange(field.key, e.target.value);
+                    }
+                  }}
+                  placeholder={field.placeholder ?? '{ "key": "value" }'}
+                  rows={5}
+                  spellCheck={false}
+                />
               ) : (
                 <input
                   id={`handler-${field.key}`}
