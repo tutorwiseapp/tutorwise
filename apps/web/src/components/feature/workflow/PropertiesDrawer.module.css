@@ -178,6 +178,66 @@
   text-decoration: underline;
 }
 
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-light, #f9fafb);
+}
+.tab {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tab:hover { color: var(--color-text-primary, #111827); }
+.tabActive {
+  color: var(--color-primary, #006C67);
+  border-bottom-color: var(--color-primary, #006C67);
+  font-weight: var(--font-weight-semibold, 600);
+  background: var(--color-white, #fff);
+}
+
+/* Handler config */
+.handlerDesc {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 4px 0 0 0;
+  line-height: 1.5;
+}
+.required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+.handlerEmpty {
+  padding: 20px 0;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Field group (condition branch labels) */
+.fieldGroup {
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 12px;
+  background: var(--color-bg-light, #f9fafb);
+}
+.fieldGroupTitle {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
 /* Footer */
 .footer {
   padding: var(--space-2, 16px);

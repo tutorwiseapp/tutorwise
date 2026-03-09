@@ -464,17 +464,19 @@ export function TemplateSelector({
                     <button
                       className={styles.cardActionButton}
                       onClick={() => handleEdit(template)}
-                      title="Edit template"
+                      title="Edit template metadata"
                     >
                       <Pencil size={12} />
                     </button>
-                    <button
-                      className={`${styles.cardActionButton} ${styles.cardActionDanger}`}
-                      onClick={() => handleDelete(template.id, template.name)}
-                      title="Delete template"
-                    >
-                      <Trash2 size={12} />
-                    </button>
+                    {!template.is_system && (
+                      <button
+                        className={`${styles.cardActionButton} ${styles.cardActionDanger}`}
+                        onClick={() => handleDelete(template.id, template.name)}
+                        title="Delete template"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

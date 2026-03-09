@@ -3,7 +3,8 @@
  * Extracted from /api/workflow/parse/route.ts for reuse by the Discovery Engine scanners.
  */
 
-import type { ProcessStepType } from '@/components/feature/workflow/types';
+import type { Node, Edge } from 'reactflow';
+import type { ProcessStepData, ProcessEdgeData, ProcessStepType } from '@/components/feature/workflow/types';
 
 // --- Parsed types (AI output before conversion to ReactFlow) ---
 
@@ -128,6 +129,75 @@ export function toReactFlowFormat(data: ParsedWorkflow) {
   }));
 
   return { nodes, edges };
+}
+
+// --- Publish validation ---
+
+export interface PublishValidationResult {
+  errors: string[];
+  warnings: string[];
+  valid: boolean;
+}
+
+/**
+ * Validate a ReactFlow canvas before publishing.
+ * Errors block publish; warnings allow it (shown as advisory).
+ */
+export function validateForPublish(
+  nodes: Node<ProcessStepData>[],
+  edges: Edge<ProcessEdgeData>[]
+): PublishValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const hasTrigger = nodes.some((n) => n.data?.type === 'trigger');
+  const hasEnd = nodes.some((n) => n.data?.type === 'end');
+
+  if (!hasTrigger) errors.push('Workflow must have at least one Trigger node.');
+  if (!hasEnd) errors.push('Workflow must have at least one End node.');
+
+  // Connected node IDs (appear in at least one edge)
+  const connectedIds = new Set<string>();
+  for (const e of edges) {
+    connectedIds.add(e.source);
+    connectedIds.add(e.target);
+  }
+
+  for (const node of nodes) {
+    const isOrphan = !connectedIds.has(node.id);
+    if (isOrphan) {
+      errors.push(`Node "${node.data?.label || node.id}" has no connections (orphan).`);
+    }
+
+    // Condition must have 2 outgoing edges (Yes + No)
+    if (node.data?.type === 'condition') {
+      const outgoing = edges.filter((e) => e.source === node.id);
+      if (outgoing.length < 2) {
+        errors.push(
+          `Condition node "${node.data?.label || node.id}" must have both Yes and No branches.`
+        );
+      }
+    }
+
+    // Action nodes must have a handler configured
+    if (node.data?.type === 'action' && !node.data?.handler) {
+      errors.push(
+        `Action node "${node.data?.label || node.id}" has no handler configured.`
+      );
+    }
+
+    // Warnings
+    if (!node.data?.description) {
+      warnings.push(`Node "${node.data?.label || node.id}" has no description.`);
+    }
+    if (node.data?.type === 'approval' && !node.data?.assignee) {
+      warnings.push(
+        `Approval node "${node.data?.label || node.id}" has no assignee role set.`
+      );
+    }
+  }
+
+  return { errors, warnings, valid: errors.length === 0 };
 }
 
 /**

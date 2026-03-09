@@ -1,5 +1,7 @@
 export { WorkflowCanvas } from './WorkflowCanvas';
 export { ProcessStepNode } from './ProcessStepNode';
+export { WorkflowEdge } from './WorkflowEdge';
+export { NodePalette } from './NodePalette';
 export { Toolbar } from './Toolbar';
 export { PropertiesDrawer } from './PropertiesDrawer';
 export { ProcessInput } from './ProcessInput';
@@ -8,7 +10,6 @@ export { ProcessBrowser } from './ProcessBrowser';
 export { ChatPanel } from './ChatPanel';
 export { default as DiscoveryPanel } from './DiscoveryPanel';
 export { ExecutionPanel } from './ExecutionPanel';
-export { ExecutionCanvas } from './ExecutionCanvas';
 export { ExecutionList } from './ExecutionList';
 export { ApprovalDrawer } from './ApprovalDrawer';
 export { ExecutionModeToggle } from './ExecutionModeToggle';
@@ -23,8 +24,10 @@ export type {
   ProcessStepData,
   ProcessNode,
   ProcessEdge,
+  ProcessEdgeData,
   WorkflowProcess,
   WorkflowProcessTemplate,
+  WorkflowProcessVersion,
   WorkflowSnapshot,
   ChatMessage,
   WorkflowMutation,

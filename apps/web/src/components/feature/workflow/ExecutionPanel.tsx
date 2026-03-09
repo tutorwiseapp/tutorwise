@@ -5,7 +5,7 @@ import { Layers, RefreshCw } from 'lucide-react';
 import { ExecutionCommandBar } from './ExecutionCommandBar';
 import { ExecutionList } from './ExecutionList';
 import type { WorkflowExecution } from './ExecutionList';
-import { ExecutionCanvas } from './ExecutionCanvas';
+import { WorkflowCanvas } from './WorkflowCanvas';
 import { ApprovalDrawer } from './ApprovalDrawer';
 import type { WorkflowTask } from './ApprovalDrawer';
 import { ExecutionModeToggle } from './ExecutionModeToggle';
@@ -205,12 +205,13 @@ export function ExecutionPanel() {
         {/* Right: Live canvas monitor */}
         <div className={styles.rightPanel}>
           {selectedExecution && selectedProcess ? (
-            <ExecutionCanvas
-              nodes={selectedProcess.nodes as ProcessNode[]}
-              edges={selectedProcess.edges as ProcessEdge[]}
+            <WorkflowCanvas
+              readOnly
+              showLiveOverlay
               executionId={selectedExecution.id}
-              initialTaskStatuses={taskStatusMap}
-              onNodeClick={handleCanvasNodeClick}
+              initialNodes={selectedProcess.nodes as ProcessNode[]}
+              initialEdges={selectedProcess.edges as ProcessEdge[]}
+              onNodeStatusClick={handleCanvasNodeClick}
             />
           ) : (
             <div className={styles.emptyMonitor}>

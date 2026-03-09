@@ -50,7 +50,13 @@ export interface ProcessStepData {
 }
 
 export type ProcessNode = Node<ProcessStepData>;
-export type ProcessEdge = Edge;
+
+export interface ProcessEdgeData {
+  label?: string;        // Optional branch label (e.g. "Yes", "No", "If approved")
+  animated?: boolean;
+}
+
+export type ProcessEdge = Edge<ProcessEdgeData>;
 
 // --- Node Type Config ---
 
@@ -103,11 +109,26 @@ export interface WorkflowProcess {
   category: string;
   nodes: ProcessNode[];
   edges: ProcessEdge[];
+  draft_nodes?: ProcessNode[] | null;
+  draft_edges?: ProcessEdge[] | null;
   execution_mode?: 'design' | 'shadow' | 'live';
+  current_version?: number;
+  published_at?: string | null;
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface WorkflowProcessVersion {
+  id: string;
+  process_id: string;
+  version_number: number;
+  nodes: ProcessNode[];
+  edges: ProcessEdge[];
+  published_by: string | null;
+  published_at: string;
+  notes: string | null;
 }
 
 export interface WorkflowProcessTemplate {
