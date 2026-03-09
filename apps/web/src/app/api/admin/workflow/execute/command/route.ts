@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { getAIService } from '@/lib/ai';
+import { workflowRuntime } from '@/lib/workflow/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +65,30 @@ Interpret the user's command and respond with a JSON action object:
       message: string;
     };
 
-    return NextResponse.json({ result: parsed });
+    // Dispatch the parsed action — the NLI bar is not advisory-only
+    let actionResult: string | undefined;
+    if (parsed.action === 'cancel' && parsed.executionId) {
+      try {
+        await workflowRuntime.cancel(parsed.executionId);
+        actionResult = `Cancelled execution ${parsed.executionId.slice(0, 8)}.`;
+      } catch (err) {
+        actionResult = `Cancel failed: ${err instanceof Error ? err.message : 'unknown error'}`;
+      }
+    } else if (parsed.action === 'resume' && parsed.executionId) {
+      try {
+        await workflowRuntime.resume(parsed.executionId, 'admin_command', {});
+        actionResult = `Resumed execution ${parsed.executionId.slice(0, 8)}.`;
+      } catch (err) {
+        actionResult = `Resume failed: ${err instanceof Error ? err.message : 'unknown error'}`;
+      }
+    }
+
+    return NextResponse.json({
+      result: {
+        ...parsed,
+        message: actionResult ?? parsed.message,
+      },
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     return NextResponse.json({ error: message }, { status: 500 });

@@ -978,12 +978,11 @@ export async function POST(req: NextRequest) {
       const booking_id = (event.data.object as any).metadata?.booking_id || null;
 
       await supabase.from('failed_webhooks').insert({
-        event_id: event.id,
-        event_type: event.type,
+        url: '/api/webhooks/stripe',
+        method: 'POST',
+        payload: { event_id: event.id, event_type: event.type, booking_id, data: event } as any,
         status: 'failed',
         error_message: error instanceof Error ? error.message : 'Unknown error',
-        payload: event as any,
-        booking_id
       });
 
       console.log(`Logged failed webhook ${event.id} to DLQ`);

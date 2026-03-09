@@ -185,14 +185,18 @@ describe('POST /api/webhooks/stripe', () => {
       expect(response.status).toBe(200);
       expect(result.error).toContain('DLQ');
 
-      // Verify DLQ insert was called
+      // Verify DLQ insert was called with correct schema (migration 346 columns)
       expect(mockSupabase.from).toHaveBeenCalledWith('failed_webhooks');
       expect(mockSupabase.insert).toHaveBeenCalledWith(
         expect.objectContaining({
-          event_id: 'evt_test123',
-          event_type: 'checkout.session.completed',
+          url: '/api/webhooks/stripe',
+          method: 'POST',
           status: 'failed',
-          booking_id: mockBookingId,
+          payload: expect.objectContaining({
+            event_id: 'evt_test123',
+            event_type: 'checkout.session.completed',
+            booking_id: mockBookingId,
+          }),
         })
       );
     });

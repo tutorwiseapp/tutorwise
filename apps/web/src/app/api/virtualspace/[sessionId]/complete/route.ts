@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createServiceRoleClient } from '@/utils/supabase/server';
 
 export async function POST(
   request: NextRequest,
@@ -118,6 +119,32 @@ export async function POST(
 
     // Note: For booking sessions, CaaS recalculation happens automatically
     // via database trigger (trigger_caas_immediate_on_booking_complete)
+
+    // Resume any paused workflow execution waiting on this booking's session
+    if (session.session_type === 'booking' && session.booking_id) {
+      try {
+        const serviceClient = createServiceRoleClient();
+        const { data: execution } = await serviceClient
+          .from('workflow_executions')
+          .select('id')
+          .eq('status', 'paused')
+          .contains('execution_context', { booking_id: session.booking_id })
+          .limit(1)
+          .maybeSingle();
+
+        if (execution) {
+          const { workflowRuntime } = await import('@/lib/workflow/runtime/PlatformWorkflowRuntime');
+          await workflowRuntime.resume(execution.id, 'session_completed', {
+            session_id: sessionId,
+            session_outcome: 'completed',
+          });
+          console.log(`[virtualspace/complete] Resumed workflow execution ${execution.id} for booking ${session.booking_id}`);
+        }
+      } catch (resumeErr) {
+        // Non-critical — log but don't fail the session completion
+        console.error('[virtualspace/complete] Failed to resume workflow execution:', resumeErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
