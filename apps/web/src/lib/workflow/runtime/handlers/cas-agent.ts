@@ -72,7 +72,7 @@ export async function handleCasAgent(
 
   // Team run
   const { teamRuntime } = await import('@/lib/workflow/team-runtime/TeamRuntime');
-  const result = await teamRuntime.run(teamSlug!, resolvedPrompt, 'workflow');
+  const result = await teamRuntime.run(teamSlug as string, resolvedPrompt, 'workflow');
 
   return {
     [outputField]: result.team_result,

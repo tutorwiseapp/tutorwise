@@ -31,13 +31,14 @@ export async function POST(
     return new Response('prompt is required', { status: 400 });
   }
 
+  const prompt = body.prompt;
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
         controller.enqueue(encoder.encode(sseEvent('start', { agent_id: id })));
 
-        for await (const chunk of specialistAgentRunner.stream(id, body.prompt!)) {
+        for await (const chunk of specialistAgentRunner.stream(id, prompt)) {
           controller.enqueue(encoder.encode(sseEvent('chunk', { content: chunk })));
         }
 

@@ -14,8 +14,7 @@ export interface NudgeReport {
 }
 
 const COOLDOWN_DAYS = 7;
-const NUDGE_TYPES = ['quality_brief', 'score_dropped', 'pending_messages', 'booking_tips'] as const;
-type NudgeType = (typeof NUDGE_TYPES)[number];
+type NudgeType = 'quality_brief' | 'score_dropped' | 'pending_messages' | 'booking_tips';
 
 interface TutorProfile {
   id: string;
@@ -25,7 +24,6 @@ interface TutorProfile {
 }
 
 async function hasCooldown(supabase: Awaited<ReturnType<typeof createServiceRoleClient>>, entityId: string, nudgeType: string): Promise<boolean> {
-  const cutoff = new Date(Date.now() - COOLDOWN_DAYS * 86400000).toISOString();
   const { data } = await supabase
     .from('workflow_entity_cooldowns')
     .select('cooldown_until')
@@ -33,8 +31,6 @@ async function hasCooldown(supabase: Awaited<ReturnType<typeof createServiceRole
     .eq('entity_type', `nudge_${nudgeType}`)
     .gt('cooldown_until', new Date().toISOString())
     .maybeSingle();
-
-  void cutoff; // used conceptually
   return !!data;
 }
 
