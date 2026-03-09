@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     if (processId) query = query.eq('process_id', processId);
-    if (status) query = query.eq('status', status);
+    if (status) {
+      const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
+      query = statuses.length === 1 ? query.eq('status', statuses[0]) : query.in('status', statuses);
+    }
 
     const { data, error } = await query;
 
