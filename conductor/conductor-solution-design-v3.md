@@ -1,5 +1,5 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.8 — GTM + Referral Lifecycle use cases formalised; `gtm-intelligence-spec.md` added as capstone meta-spec; referral migrations renumbered 364–365; all referral commissions corrected to 10%; VirtualSpace dual-role (Free Help shortcut + Bookings execution) documented
+**Version**: 3.9 — Four additional Conductor use cases added: Retention/LTV Lifecycle, AI Product Adoption, Organisation Conversion, and AI Studio Creator Lifecycle; migrations 366–369; specs index expanded to 14 intelligence specs
 **Date**: 2026-03-09
 **Status**: Phased implementation plan
 
@@ -467,14 +467,40 @@ CONDUCTOR — WORKFLOW INVENTORY
 
 ---
 
-## Go-to-Market Lifecycle — Two Conductor Use Cases
+## Conductor Use Cases — Six Lifecycles
 
-Conductor operates on two parallel use cases formalised in **[`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md)**:
+Conductor operates on six lifecycle use cases. The first two (GTM and Referral) are acquisition-focused. The remaining four cover post-acquisition retention, AI product adoption, organisation conversion, and the AI creator economy.
 
-| Use Case | Nature | Capstone Spec |
-|----------|--------|---------------|
-| **GTM Lifecycle** | Sequential 6-stage funnel — content to revenue | [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) |
-| **Referral Lifecycle** | Parallel acquisition track — injects users at any stage | [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) |
+| # | Use Case | Nature | Spec |
+|---|----------|--------|------|
+| 1 | **GTM Lifecycle** | Sequential 6-stage funnel — content to revenue | [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) (capstone) |
+| 2 | **Referral Lifecycle** | Parallel acquisition track — injects users at any GTM stage | [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) |
+| 3 | **Retention / LTV Lifecycle** | Post-acquisition cohort health — all 4 user roles | [`retention-intelligence-spec.md`](./retention-intelligence-spec.md) |
+| 4 | **AI Product Adoption** | Sage Pro + Growth Agent subscriptions + AI marketplace | [`ai-adoption-intelligence-spec.md`](./ai-adoption-intelligence-spec.md) |
+| 5 | **Organisation Conversion** | Solo operator → org founder conversion funnel | [`org-conversion-intelligence-spec.md`](./org-conversion-intelligence-spec.md) |
+| 6 | **AI Studio Creator Lifecycle** | AI agent creator journey — draft to active income | [`ai-studio-intelligence-spec.md`](./ai-studio-intelligence-spec.md) |
+
+```
+ACQUISITION                    RETENTION & GROWTH
+──────────────────────────     ──────────────────────────────────────────────────
+
+GTM Lifecycle:                 Retention / LTV (Use Case 3):
+Resources → SEO →              Onboarding → Activated → Retained →
+Marketplace → Listings →         Re-engagement → Win-back
+Bookings → Financials          (all 4 roles: tutor, client, agent, org)
+
+Referral (Use Case 2):         Org Conversion (Use Case 5):
+Injects at any GTM stage       Solo operator → Org candidate →
+10% lifetime commission          Org founder → Scaling org
+
+                               AI Product Adoption (Use Case 4):
+                               Sage Pro + Growth Agent subscriptions
+                               + AI marketplace demand metrics
+
+                               AI Studio Creator (Use Case 6):
+                               AI agent: Draft → Configure → Publish →
+                                 First booking → Quality → Scale
+```
 
 ### GTM Lifecycle — Standard Path
 
@@ -570,7 +596,7 @@ Free Help Conversion:   Marketplace → Free Help → 14d window → Booking →
 
 ## Feature Intelligence Specs Index
 
-Ten feature intelligence specs (2026-03-08/09) + one capstone meta-spec (2026-03-09). Each spec defines:
+Fourteen intelligence specs (2026-03-08/09) across six Conductor use cases + one capstone meta-spec. Each spec defines:
 - Specialist Agent tool(s) and SQL implementation
 - Alert triggers + severity + admin action
 - Daily platform metrics table (pg_cron)
@@ -578,23 +604,57 @@ Ten feature intelligence specs (2026-03-08/09) + one capstone meta-spec (2026-03
 - Conductor workflow integration
 - Growth Advisor coaching layer
 
-**Capstone meta-spec** (links all specs into the two Conductor use cases):
+**Capstone meta-spec** (links GTM + Referral specs into two acquisition use cases):
 [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) — GTM Lifecycle + Referral Lifecycle architecture, stage gates, agent coverage map, cross-stage feedback loops, Conductor template definition.
 
-| Spec | Agent Owner | Key Tools | Migration | Phase 3 est. |
-|------|-------------|-----------|-----------|-------------|
-| [resources-intelligence-spec.md](./resources-intelligence-spec.md) | Market Intelligence | `query_resources_health`, `query_editorial_opportunities` | 356 | 18h |
-| [seo-intelligence-spec.md](./seo-intelligence-spec.md) | Market Intelligence | `query_seo_health`, `query_keyword_opportunities` | 357 | 20h |
-| [signal-intelligence-spec.md](./signal-intelligence-spec.md) | Market Intelligence | `query_content_attribution` | 358 | 27h |
-| [marketplace-intelligence-spec.md](./marketplace-intelligence-spec.md) | Market Intelligence | `query_marketplace_health`, `query_supply_demand_gap` | 359 | 24h |
-| [bookings-intelligence-spec.md](./bookings-intelligence-spec.md) | Retention Monitor | `query_booking_health` | 360 | 22h |
-| [listings-intelligence-spec.md](./listings-intelligence-spec.md) | Market Intelligence | `query_listing_health`, `query_pricing_intelligence` | 361 | 20h |
-| [financials-intelligence-spec.md](./financials-intelligence-spec.md) | Retention Monitor | `query_financial_health` | 362 | 20h |
-| [virtualspace-intelligence-spec.md](./virtualspace-intelligence-spec.md) | Market Intelligence | `query_virtualspace_health` | 363 | 14h |
-| [referral-intelligence-spec.md](./referral-intelligence-spec.md) | Retention Monitor | `query_referral_funnel`, K coefficient SQL | 364–365 | 24h |
-| [caas-intelligence-spec.md](./caas-intelligence-spec.md) | Operations Monitor | `query_caas_health` | 355 | 30h |
+### GTM Lifecycle + Cross-Cutting Layers (Use Cases 1 & 2)
 
-**Total Phase 3 intelligence layer: ~219h across 10 features** (+ 34h Referral Phase 4 = ~253h total)
+| Spec | Use Case | Agent Owner | Key Tools | Migration | Phase 3 est. |
+|------|----------|-------------|-----------|-----------|-------------|
+| [caas-intelligence-spec.md](./caas-intelligence-spec.md) | GTM foundation | Operations Monitor | `query_caas_health` | 355 | 30h |
+| [resources-intelligence-spec.md](./resources-intelligence-spec.md) | GTM stage 1 | Market Intelligence | `query_resources_health`, `query_editorial_opportunities` | 356 | 18h |
+| [seo-intelligence-spec.md](./seo-intelligence-spec.md) | GTM stage 2 | Market Intelligence | `query_seo_health`, `query_keyword_opportunities` | 357 | 20h |
+| [signal-intelligence-spec.md](./signal-intelligence-spec.md) | GTM cross-cutting | Market Intelligence | `query_content_attribution` | 358 | 27h |
+| [marketplace-intelligence-spec.md](./marketplace-intelligence-spec.md) | GTM stage 3 | Market Intelligence | `query_marketplace_health`, `query_supply_demand_gap` | 359 | 24h |
+| [bookings-intelligence-spec.md](./bookings-intelligence-spec.md) | GTM stage 5 | Retention Monitor | `query_booking_health` | 360 | 22h |
+| [listings-intelligence-spec.md](./listings-intelligence-spec.md) | GTM stage 4 | Market Intelligence | `query_listing_health`, `query_pricing_intelligence` | 361 | 20h |
+| [financials-intelligence-spec.md](./financials-intelligence-spec.md) | GTM stage 6 | Retention Monitor | `query_financial_health` | 362 | 20h |
+| [virtualspace-intelligence-spec.md](./virtualspace-intelligence-spec.md) | GTM shortcut + execution | Market Intelligence | `query_virtualspace_health` | 363 | 14h |
+| [referral-intelligence-spec.md](./referral-intelligence-spec.md) | Referral lifecycle | Retention Monitor | `query_referral_funnel`, K coefficient SQL | 364–365 | 24h |
+
+**GTM + Referral subtotal: ~219h Phase 3** (+ 34h Phase 4 = ~253h)
+
+### Post-Acquisition Use Cases (Use Cases 3–6)
+
+| Spec | Use Case | Agent Owner | Key Tool | Migration | Phase 3 est. |
+|------|----------|-------------|----------|-----------|-------------|
+| [retention-intelligence-spec.md](./retention-intelligence-spec.md) | Retention / LTV | Retention Monitor | `query_retention_health` | 366 | 22h |
+| [ai-adoption-intelligence-spec.md](./ai-adoption-intelligence-spec.md) | AI Product Adoption | Market Intelligence | `query_ai_adoption_health` | 367 | 18h |
+| [org-conversion-intelligence-spec.md](./org-conversion-intelligence-spec.md) | Org Conversion | Operations Monitor | `query_org_conversion_health` | 368 | 18h |
+| [ai-studio-intelligence-spec.md](./ai-studio-intelligence-spec.md) | AI Studio Creator | Market Intelligence | `query_ai_studio_health` | 369 | 20h |
+
+**Post-acquisition subtotal: ~78h Phase 3** (+ ~16h Phase 4 = ~94h)
+
+**Total across all 14 specs: ~297h Phase 3 + ~50h Phase 4 = ~347h**
+
+### pg_cron Schedule — All Intelligence Metrics (UTC)
+
+| Time | Job | Migration |
+|------|-----|-----------|
+| 04:30 | Resources platform metrics | 356 |
+| 05:00 | SEO platform metrics | 357 |
+| 05:30 | CaaS platform metrics | 355 |
+| 06:00 | Marketplace platform metrics | 359 |
+| 06:30 | Bookings platform metrics | 360 |
+| 07:00 | Listings platform metrics | 361 |
+| 07:30 | Financials platform metrics | 362 |
+| 08:00 | VirtualSpace platform metrics | 363 |
+| 08:30 | Signal (Article Intelligence Scores) | 358 |
+| 09:00 | Referral metrics daily | 364 |
+| 09:30 | Retention platform metrics | 366 |
+| 10:00 | AI Adoption platform metrics | 367 |
+| 10:30 | Org Conversion platform metrics | 368 |
+| 11:00 | AI Studio platform metrics | 369 |
 
 > **Professional Assessment**: See [`conductor-professional-assessment.md`](./conductor-professional-assessment.md) for full market comparison (Temporal, LangGraph, Camunda, n8n, CrewAI, Microsoft Copilot Studio), honest weaknesses, lab research comparison, and solo-founder + Claude execution model analysis.
 
