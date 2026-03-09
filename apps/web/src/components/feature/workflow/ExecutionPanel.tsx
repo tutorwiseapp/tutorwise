@@ -10,6 +10,7 @@ import { ApprovalDrawer } from './ApprovalDrawer';
 import type { WorkflowTask } from './ApprovalDrawer';
 import { ExecutionModeToggle } from './ExecutionModeToggle';
 import { ShadowDivergencePanel } from './ShadowDivergencePanel';
+import { GoLiveReadiness } from './GoLiveReadiness';
 import type { WorkflowProcess, ProcessNode, ProcessEdge } from './types';
 import styles from './ExecutionPanel.module.css';
 
@@ -180,6 +181,16 @@ export function ExecutionPanel() {
               </div>
             ))}
           </div>
+
+          {/* Go-Live Readiness panel (shown when selected process is in shadow mode) */}
+          {selectedProcess?.execution_mode === 'shadow' && (
+            <div className={styles.divergenceWrapper}>
+              <GoLiveReadiness
+                process={selectedProcess}
+                onModeChanged={(m) => handleProcessModeChanged(selectedProcess.id, m)}
+              />
+            </div>
+          )}
 
           {/* Shadow divergence panel (if process has shadow runs) */}
           {shadowExecutions.length > 0 && (
