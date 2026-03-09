@@ -45,3 +45,11 @@
   margin-bottom: -5rem;
   overflow: auto;
 }
+
+.intelligenceContainer {
+  height: calc(100vh - 176px);
+  min-height: 500px;
+  margin-left: -1rem;
+  margin-bottom: -5rem;
+  overflow: hidden;
+}

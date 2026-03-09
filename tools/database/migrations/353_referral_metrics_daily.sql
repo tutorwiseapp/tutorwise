@@ -1,6 +1,6 @@
--- RESERVED: Migration 353
+-- REASSIGNED: Migration 353 (this stub number conflicts with 353_platform_notifications.sql which is applied)
 -- Phase: Conductor Phase 3 — Referral Intelligence
--- Description: referral_metrics_daily table + compute_referral_metrics_daily() + pg_cron 08:30 UTC
--- Spec: conductor/referral-intelligence-spec.md
--- Agent: Retention Monitor (query_referral_health tool)
--- Status: Pending implementation
+-- REASSIGNED TO: Migration 364 (referral_metrics_daily)
+-- See: conductor/referral-intelligence-spec.md
+-- Note: 353_platform_notifications.sql is the authoritative migration 353 (already applied).
+--       Referral metrics daily has been correctly assigned to migration 364.

@@ -1,0 +1,31 @@
+/**
+ * GET /api/admin/signal/marketplace
+ * Marketplace health + supply/demand gap analysis for Conductor.
+ * Query params: ?days=7
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+import { executeTool } from '@/lib/agent-studio/tools/executor';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { searchParams } = new URL(request.url);
+    const days = parseInt(searchParams.get('days') ?? '7', 10);
+
+    const [health, gap] = await Promise.all([
+      executeTool('query_marketplace_health', { days }),
+      executeTool('query_supply_demand_gap', { days }),
+    ]);
+
+    return NextResponse.json({ success: true, data: { health, gap } });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });
+  }
+}

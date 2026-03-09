@@ -10,6 +10,7 @@ import {
 } from '@/components/feature/workflow';
 import { ExecutionPanel } from '@/components/feature/workflow/ExecutionPanel';
 import { MonitoringPanel } from '@/components/feature/workflow/MonitoringPanel';
+import { IntelligencePanel } from '@/components/feature/conductor/IntelligencePanel';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
 import dynamic from 'next/dynamic';
 import styles from './page.module.css';
@@ -50,6 +51,7 @@ export default function ConductorPage() {
     { id: 'agents', label: 'Agents', active: activeTab === 'agents' },
     { id: 'teams', label: 'Teams', active: activeTab === 'teams' },
     { id: 'monitoring', label: 'Monitoring', active: activeTab === 'monitoring' },
+    { id: 'intelligence', label: 'Intelligence', active: activeTab === 'intelligence' },
   ];
 
   return (
@@ -102,6 +104,12 @@ export default function ConductorPage() {
       {activeTab === 'monitoring' && (
         <div className={styles.monitoringContainer}>
           <MonitoringPanel />
+        </div>
+      )}
+
+      {activeTab === 'intelligence' && (
+        <div className={styles.intelligenceContainer}>
+          <IntelligencePanel />
         </div>
       )}
     </HubPageLayout>

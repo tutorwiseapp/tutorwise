@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
     if (query) {
       // Hybrid path: structured filters + semantic vector search
       const result = await hybridSearch(query, filters, limit, offset);
+      logSearchEvent(query, filters, result.total).catch(() => {});
       return NextResponse.json(result, { headers: noCacheHeaders() });
     }
 
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest) {
     };
 
     const result = await searchListings(searchParams2);
+    logSearchEvent('', filters, (result as any).total ?? (result as any).listings?.length ?? 0).catch(() => {});
     return NextResponse.json(result, { headers: noCacheHeaders() });
   } catch (error) {
     console.error('Marketplace search error:', error);
@@ -65,12 +67,14 @@ export async function POST(request: NextRequest) {
 
     if (searchQuery) {
       const result = await hybridSearch(searchQuery, filters || {}, limit, offset);
+      logSearchEvent(searchQuery, filters || {}, result.total).catch(() => {});
       return NextResponse.json(result, { headers: noCacheHeaders() });
     }
 
     // Structured-only
     const searchParams: ListingSearchParams = { filters: filters || {}, sort, limit, offset };
     const result = await searchListings(searchParams);
+    logSearchEvent('', filters || {}, (result as any).total ?? (result as any).listings?.length ?? 0).catch(() => {});
     return NextResponse.json(result, { headers: noCacheHeaders() });
   } catch (error) {
     console.error('Marketplace search error:', error);
@@ -274,4 +278,22 @@ function noCacheHeaders(): Record<string, string> {
     'Pragma': 'no-cache',
     'Expires': '0',
   };
+}
+
+// Fire-and-forget: log search event for supply/demand intelligence
+async function logSearchEvent(query: string, filters: any, resultsCount: number): Promise<void> {
+  try {
+    const supabase = createServiceRoleClient();
+    await (supabase as any)
+      .from('marketplace_search_events')
+      .insert({
+        query: query || null,
+        subject: filters?.subjects?.[0] ?? null,
+        level: filters?.levels?.[0] ?? null,
+        delivery_mode: filters?.delivery_modes ?? null,
+        results_count: resultsCount,
+      });
+  } catch {
+    // Silently ignore — intelligence logging must never break search
+  }
 }
