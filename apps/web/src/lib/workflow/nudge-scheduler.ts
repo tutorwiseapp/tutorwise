@@ -20,7 +20,7 @@ interface TutorProfile {
   id: string;
   user_id: string;
   caas_score: number | null;
-  booking_count: number | null;
+  last_login_at: string | null;
 }
 
 async function hasCooldown(supabase: Awaited<ReturnType<typeof createServiceRoleClient>>, entityId: string, nudgeType: string): Promise<boolean> {
@@ -65,10 +65,10 @@ export async function processNudges(): Promise<NudgeReport> {
   const breakdown: Record<string, number> = {};
   let nudgesSent = 0;
 
-  // Load active tutor profiles
+  // Load active tutor profiles (Bug 6 fix: use profiles.last_login_at instead of auth.users)
   const { data: tutors, error } = await supabase
     .from('profiles')
-    .select('id, user_id, caas_score, booking_count')
+    .select('id, user_id, caas_score, last_login_at')
     .eq('role', 'tutor')
     .eq('status', 'active')
     .limit(500);
@@ -77,81 +77,73 @@ export async function processNudges(): Promise<NudgeReport> {
 
   const profiles = (tutors ?? []) as TutorProfile[];
   const since30d = new Date(Date.now() - 30 * 86400000).toISOString();
-  const since14d = new Date(Date.now() - 14 * 86400000).toISOString();
   const since3d = new Date(Date.now() - 3 * 86400000).toISOString();
 
   for (const profile of profiles) {
     const score = profile.caas_score ?? 50;
 
-    // ── Condition 1: Low score + no recent listing views → AI quality brief ──
+    // ── Condition 1: Low score → AI quality brief ──
+    // Note: listing_views table not yet available; fires on caas_score < 40 alone
     if (score < 40) {
       const nudgeType: NudgeType = 'quality_brief';
       if (!(await hasCooldown(supabase, profile.id, nudgeType))) {
-        const { count } = await supabase
-          .from('listing_views')
-          .select('id', { count: 'exact', head: true })
-          .eq('tutor_id', profile.id)
-          .gte('viewed_at', since14d);
-
-        if ((count ?? 0) === 0) {
-          await sendNudge(
-            supabase, profile.user_id,
-            'Improve your profile visibility',
-            'Your growth score is below 40 and your listings haven\'t been viewed recently. Review your profile quality to attract more bookings.',
-            nudgeType
-          );
-          await setCooldown(supabase, profile.id, nudgeType);
-          breakdown[nudgeType] = (breakdown[nudgeType] ?? 0) + 1;
-          nudgesSent++;
-        }
+        await sendNudge(
+          supabase, profile.user_id,
+          'Improve your profile visibility',
+          'Your growth score is below 40. Review your profile quality to attract more bookings.',
+          nudgeType
+        );
+        await setCooldown(supabase, profile.id, nudgeType);
+        breakdown[nudgeType] = (breakdown[nudgeType] ?? 0) + 1;
+        nudgesSent++;
       }
     }
 
     // ── Condition 2: score dropped > 5pts in 7d ──
+    // TODO: enable fully when growth_score_history table exists (migration 345)
     {
       const nudgeType: NudgeType = 'score_dropped';
       if (!(await hasCooldown(supabase, profile.id, nudgeType))) {
-        const { data: prevScores } = await supabase
-          .from('growth_score_history')
-          .select('score')
-          .eq('profile_id', profile.id)
-          .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
-          .order('created_at', { ascending: true })
-          .limit(1);
+        try {
+          const { data: prevScores } = await supabase
+            .from('growth_score_history')
+            .select('score')
+            .eq('profile_id', profile.id)
+            .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
+            .order('created_at', { ascending: true })
+            .limit(1);
 
-        const prevScore = prevScores?.[0]?.score as number | undefined;
-        if (prevScore !== undefined && score < prevScore - 5) {
-          await sendNudge(
-            supabase, profile.user_id,
-            'Your growth score has dropped',
-            `Your growth score dropped from ${prevScore} to ${score} this week. Check your recent activity to understand why.`,
-            nudgeType
-          );
-          await setCooldown(supabase, profile.id, nudgeType);
-          breakdown[nudgeType] = (breakdown[nudgeType] ?? 0) + 1;
-          nudgesSent++;
+          const prevScore = prevScores?.[0]?.score as number | undefined;
+          if (prevScore !== undefined && score < prevScore - 5) {
+            await sendNudge(
+              supabase, profile.user_id,
+              'Your growth score has dropped',
+              `Your growth score dropped from ${prevScore} to ${score} this week. Check your recent activity to understand why.`,
+              nudgeType
+            );
+            await setCooldown(supabase, profile.id, nudgeType);
+            breakdown[nudgeType] = (breakdown[nudgeType] ?? 0) + 1;
+            nudgesSent++;
+          }
+        } catch {
+          // Silently skip: growth_score_history table not yet available
         }
       }
     }
 
     // ── Condition 3: unread messages > 3 AND last login > 3d ──
+    // Bug 5 fix: use chat_messages with receiver_id + read boolean
+    // Bug 6 fix: use profiles.last_login_at (already loaded above)
     {
       const nudgeType: NudgeType = 'pending_messages';
       if (!(await hasCooldown(supabase, profile.id, nudgeType))) {
-        const [{ count: unreadCount }, { data: userRows }] = await Promise.all([
-          supabase
-            .from('messages')
-            .select('id', { count: 'exact', head: true })
-            .eq('recipient_id', profile.user_id)
-            .is('read_at', null),
-          supabase
-            .from('auth.users')
-            .select('last_sign_in_at')
-            .eq('id', profile.user_id)
-            .single(),
-        ]);
+        const { count: unreadCount } = await supabase
+          .from('chat_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('receiver_id', profile.user_id)
+          .eq('read', false);
 
-        const lastLogin = (userRows as { last_sign_in_at?: string } | null)?.last_sign_in_at;
+        const lastLogin = profile.last_login_at;
         const inactiveEnough = !lastLogin || lastLogin < since3d;
 
         if ((unreadCount ?? 0) > 3 && inactiveEnough) {

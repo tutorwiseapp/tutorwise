@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import {
   WorkflowCanvas,
@@ -33,6 +35,13 @@ const WorkflowVisualizer = dynamic(
 export default function ConductorPage() {
   const activeTab = useDiscoveryStore((s) => s.activeTab);
   const setActiveTab = useDiscoveryStore((s) => s.setActiveTab);
+  const searchParams = useSearchParams();
+
+  // Sync ?tab= URL param into store on mount (e.g. back-link from agent chat page)
+  useEffect(() => {
+    const tab = searchParams.get('tab') as DiscoveryTab | null;
+    if (tab) setActiveTab(tab);
+  }, [searchParams, setActiveTab]);
 
   const tabs = [
     { id: 'design', label: 'Design', active: activeTab === 'design' },

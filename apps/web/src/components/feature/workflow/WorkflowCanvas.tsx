@@ -590,6 +590,10 @@ export function WorkflowCanvas({
           type: stepType,
           description: '',
           editable: true,
+          // Auto-assign cas_agent handler for agent/team nodes
+          ...(stepType === 'agent' || stepType === 'team'
+            ? { handler: 'cas_agent', handler_config: {} }
+            : {}),
         },
       };
 

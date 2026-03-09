@@ -16,17 +16,17 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
     const { data, error } = await supabase
       .from('bookings')
-      .select('created_at, subject, status')
+      .select('created_at, subjects, status')
       .gte('created_at', since)
       .order('created_at', { ascending: true });
 
     if (error) throw new Error(error.message);
 
-    // Group by week + subject
+    // Group by week + primary subject
     const weeks: Record<string, Record<string, number>> = {};
     for (const row of data ?? []) {
       const week = new Date(row.created_at).toISOString().slice(0, 10);
-      const subject = (row.subject as string) || 'unknown';
+      const subject = (row.subjects as string[] | null)?.[0] || 'unknown';
       weeks[week] = weeks[week] ?? {};
       weeks[week][subject] = (weeks[week][subject] ?? 0) + 1;
     }
@@ -40,7 +40,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, caas_score, average_rating, booking_count')
+      .select('id, full_name, caas_score, average_rating')
       .eq('role', 'tutor')
       .eq('status', 'active')
       .order('caas_score', { ascending: false })
@@ -138,7 +138,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, full_name, caas_score, booking_count, average_rating')
+      .select('id, full_name, caas_score, average_rating')
       .eq('role', 'tutor')
       .lt('caas_score', threshold)
       .order('caas_score', { ascending: true })

@@ -360,8 +360,8 @@ export function PropertiesDrawer({
                   <input
                     id="ps-agent-slug"
                     className={styles.input}
-                    value={localData.agentSlug || ''}
-                    onChange={(e) => handleFieldChange('agentSlug', e.target.value)}
+                    value={(handlerConfig.agent_slug as string) || ''}
+                    onChange={(e) => handleConfigFieldChange('agent_slug', e.target.value)}
                     placeholder="e.g., analyst"
                   />
                 </div>
@@ -374,8 +374,8 @@ export function PropertiesDrawer({
                     <input
                       id="ps-team-slug"
                       className={styles.input}
-                      value={localData.teamSlug || ''}
-                      onChange={(e) => handleFieldChange('teamSlug', e.target.value)}
+                      value={(handlerConfig.team_slug as string) || ''}
+                      onChange={(e) => handleConfigFieldChange('team_slug', e.target.value)}
                       placeholder="e.g., cas-team"
                     />
                   </div>
@@ -384,8 +384,8 @@ export function PropertiesDrawer({
                     <select
                       id="ps-team-pattern"
                       className={styles.select}
-                      value={localData.teamPattern || 'supervisor'}
-                      onChange={(e) => handleFieldChange('teamPattern', e.target.value as ProcessStepData['teamPattern'])}
+                      value={(handlerConfig.team_pattern as string) || 'supervisor'}
+                      onChange={(e) => handleConfigFieldChange('team_pattern', e.target.value)}
                     >
                       <option value="supervisor">Supervisor</option>
                       <option value="pipeline">Pipeline</option>
@@ -400,8 +400,8 @@ export function PropertiesDrawer({
                 <textarea
                   id="ps-prompt-template"
                   className={styles.textarea}
-                  value={localData.promptTemplate || ''}
-                  onChange={(e) => handleFieldChange('promptTemplate', e.target.value)}
+                  value={(handlerConfig.prompt_template as string) || ''}
+                  onChange={(e) => handleConfigFieldChange('prompt_template', e.target.value)}
                   placeholder="Use {{context.field}} for dynamic values"
                   rows={4}
                 />
@@ -412,8 +412,8 @@ export function PropertiesDrawer({
                 <input
                   id="ps-output-field"
                   className={styles.input}
-                  value={localData.outputField || ''}
-                  onChange={(e) => handleFieldChange('outputField', e.target.value)}
+                  value={(handlerConfig.output_field as string) || ''}
+                  onChange={(e) => handleConfigFieldChange('output_field', e.target.value)}
                   placeholder="e.g., agent_analysis"
                 />
               </div>
