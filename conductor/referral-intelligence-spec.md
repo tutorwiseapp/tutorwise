@@ -54,14 +54,17 @@ bookings
   booking_referrer_id    uuid                 -- Wiselist analytics ONLY (not commission)
 ```
 
-### 2B. Four Referral Types
+### 2B. Referral Types
+
+All referrals earn **10% lifetime commission** on every booking attributed to the referred user, regardless of referrer role or referred user type.
 
 | Type | Who refers | Who is referred | Commission | `referral_target_type` |
 |------|-----------|----------------|------------|------------------------|
-| **Supply-side individual** | Any user | New tutor/agent | 10% lifetime on referred tutor's bookings | `'tutor'` |
-| **Demand-side individual** | Any user | New client | 5% lifetime on referred client's bookings | `'client'` |
-| **Agent model** | Human "agent" (role_type = 'agent') | New tutors or clients | 10% / 5% | either |
-| **Organisation-delegated** | Org → team member → leads | New tutors or clients | Configurable split (org + member share of 10%) | either |
+| **Supply-side** | Any user | New tutor/agent | 10% lifetime on referred user's bookings | `'tutor'` |
+| **Demand-side** | Any user | New client | 10% lifetime on referred user's bookings | `'client'` |
+| **Agent model** | Human "agent" (role_type = 'agent') | New tutors or clients | 10% lifetime | either |
+
+> **Note on organisations**: Organisations do not have a separate referral commission type. An organisation member who refers a user does so as an individual — the 10% commission accrues to the referring member's profile (`bookings.agent_id`). Organisation referral analytics (`organisation_referral_stats`, `member_referral_stats`) track aggregate performance but do not alter commission mechanics.
 
 ### 2C. Existing Analytics Assets
 
@@ -726,7 +729,7 @@ Autonomy: supervised (admin approves before first send)
 
 | Task | Estimate | Output |
 |------|----------|--------|
-| `referral_metrics_daily` table (migration 353) | 2h | DB schema + pg_cron populate job |
+| `referral_metrics_daily` table (migration 364) | 2h | DB schema + pg_cron populate job |
 | `compute_referral_metrics()` pg_cron function | 4h | K coefficient at 4 segments, daily 06:00 |
 | `query_referral_funnel` tool registration | 2h | Retention Monitor tool |
 | Retention Monitor alert rules (referral subset) | 2h | 6 alert conditions + flag taxonomy |
@@ -738,7 +741,7 @@ Autonomy: supervised (admin approves before first send)
 
 | Task | Estimate | Output |
 |------|----------|--------|
-| `referral_network_stats` materialized view (migration 354) | 2h | Hourly refresh |
+| `referral_network_stats` materialized view (migration 365) | 2h | Hourly refresh |
 | `GET /api/admin/network/stats` | 4h | Network Health tab data |
 | `GET /api/admin/network/chain` | 4h | Recursive tree query |
 | Chain Explorer UI (ReactFlow tree or D3) | 10h | Interactive referral tree |
@@ -749,12 +752,12 @@ Autonomy: supervised (admin approves before first send)
 
 ### Migration Numbers
 
-Following the established sequence (latest applied: 343, iPOM plan uses 344–352):
+Following the established sequence (latest applied: 343, iPOM plan uses 344–352, Conductor Feature Intelligence specs use 353–363):
 
 | Migration | Content |
 |-----------|---------|
-| 353 | `referral_metrics_daily` table + `compute_referral_metrics()` pg_cron |
-| 354 | `referral_network_stats` materialized view + hourly refresh pg_cron |
+| 364 | `referral_metrics_daily` table + `compute_referral_metrics()` pg_cron |
+| 365 | `referral_network_stats` materialized view + hourly refresh pg_cron |
 
 ---
 
@@ -768,6 +771,7 @@ Following the established sequence (latest applied: 343, iPOM plan uses 344–35
 | **Network depth via recursive CTE** (not graph DB) | Depth rarely exceeds 4–5 hops in a two-sided marketplace; PostgreSQL recursive CTEs handle this fine without introducing a graph database dependency |
 | **Chain Explorer is read-only in Phase 4** | Writing to the referral graph (reassigning attribution) is a legal/financial operation — requires separate GDPR-reviewed process |
 | **Retention Monitor holds referral queries** (not a separate agent) | Referral health, cohort retention, and supply/demand are all signals of the same underlying metric: "is the platform growing sustainably?" One agent, one daily scan. |
+| **CaaS score amplifies referral propensity** | Higher CaaS score = higher trust signal = tutors and clients more confident recommending the platform. K-coefficient segmentation by CaaS band (top quartile vs bottom quartile referrers) surfaces this effect. Referral Retention Monitor alerts should cross-reference CaaS health — a K decline coinciding with a CaaS score decline points to a trust problem, not a referral UX problem. |
 
 ---
 
@@ -778,7 +782,7 @@ Following the established sequence (latest applied: 343, iPOM plan uses 344–35
 | Q1 | Should referral attribution be transferable? (e.g. if a referrer account is deleted, does their referred user lose attribution?) | Product | Phase 3 |
 | Q2 | Do we surface the K coefficient publicly (transparency) or keep it internal? | Product | Phase 3 |
 | Q3 | Should ghost-rate emails be auto-sent (supervised workflow) or always require admin approval? | Product | Phase 3 |
-| Q4 | For organisation referrals: should the org-level K be computed separately from the individual K? | Analytics | Phase 4 |
+| Q4 | Should K be segmented by CaaS score band (top quartile vs bottom) to quantify the trust → referral link? | Analytics | Phase 4 |
 | Q5 | Chain Explorer privacy: should admins be able to see full referral trees for any user, or only their own org? | Legal/GDPR | Phase 4 |
 
 ---

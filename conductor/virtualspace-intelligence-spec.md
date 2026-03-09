@@ -387,8 +387,6 @@ Growth Advisor coaching:
 
 | Migration | Spec | Table Created |
 |-----------|------|---------------|
-| 353 | Referral | `referral_metrics_daily` |
-| 354 | Referral | `referral_network_stats` (materialized view) |
 | 355 | CaaS | `caas_platform_metrics_daily` |
 | 356 | Resources | `resources_platform_metrics_daily` |
 | 357 | SEO | `seo_platform_metrics_daily` |
@@ -398,6 +396,8 @@ Growth Advisor coaching:
 | 361 | Listings | `listings_platform_metrics_daily` |
 | 362 | Financials | `financials_platform_metrics_daily` |
 | 363 | VirtualSpace | `virtualspace_platform_metrics_daily` |
+| 364 | Referral | `referral_metrics_daily` |
+| 365 | Referral | `referral_network_stats` (materialized view) |
 
 **pg_cron schedule (all metrics, UTC):**
 
@@ -411,4 +411,4 @@ Growth Advisor coaching:
 | 07:00 | Listings platform metrics |
 | 07:30 | Financials platform metrics |
 | 08:00 | VirtualSpace platform metrics |
-| 08:30 | Referral metrics daily (from referral spec) |
+| 09:00 | Referral metrics daily (migration 364 — from referral spec) |

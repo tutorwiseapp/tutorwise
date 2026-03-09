@@ -1,6 +1,6 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.7 — Feature Intelligence Specs (9 specs, migrations 353–363); Go-to-Market pipeline formalised; Professional Assessment added; Workflow Inventory expanded; Agent tool sets updated
-**Date**: 2026-03-08
+**Version**: 3.8 — GTM + Referral Lifecycle use cases formalised; `gtm-intelligence-spec.md` added as capstone meta-spec; referral migrations renumbered 364–365; all referral commissions corrected to 10%; VirtualSpace dual-role (Free Help shortcut + Bookings execution) documented
+**Date**: 2026-03-09
 **Status**: Phased implementation plan
 
 ---
@@ -467,62 +467,119 @@ CONDUCTOR — WORKFLOW INVENTORY
 
 ---
 
-## Go-to-Market Pipeline — Content Intelligence Loop
+## Go-to-Market Lifecycle — Two Conductor Use Cases
 
-The primary organic acquisition strategy is a unified content pipeline where each stage feeds the next. Conductor intelligence monitors every stage.
+Conductor operates on two parallel use cases formalised in **[`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md)**:
+
+| Use Case | Nature | Capstone Spec |
+|----------|--------|---------------|
+| **GTM Lifecycle** | Sequential 6-stage funnel — content to revenue | [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) |
+| **Referral Lifecycle** | Parallel acquisition track — injects users at any stage | [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) |
+
+### GTM Lifecycle — Standard Path
 
 ```
-CONTENT INTELLIGENCE LOOP — Resources → SEO → Signal → Marketplace → Bookings
+┌──────────────── SIGNAL (cross-cutting attribution, not a stage) ─────────────────┐
+│  Article → search → marketplace → listing → booking → payment                   │
+│  Segments by booking_type ('human' | 'ai_agent')                                │
+│  Article Intelligence Score: Conv(40%) + Revenue(30%) + Traffic(20%) + Fresh(10%)│
+└──────────────────────────────────────────────────────────────────────────────────┘
+        ↑ reads from all stages                  ↓ feeds intelligence back
 
+Resources ──► SEO ──► Marketplace ──► Listings ──► Bookings ──► Financials
+  [1]          [2]        [3]            [4]           [5]           [6]
+
+CaaS (trust quality foundation — precondition for Marketplace, Listings, Bookings, and Referral propensity)
+```
+
+### VirtualSpace — Alternative Conversion Path
+
+VirtualSpace Free Help (`session_type='free_help'`) is an **instant booking** that bypasses Listings:
+
+```
+Marketplace ──► [Free Help] ──────────────────────────────► Bookings
+                (instant session,                              ↑
+                 14-day booking window)                        │
+Marketplace ──► Listings ──────────────────────────────────►──┘
+                (standard path)
+```
+
+VirtualSpace also provides the session execution layer within Bookings (booking sessions, `session_type='booking'`). Spec: [`virtualspace-intelligence-spec.md`](./virtualspace-intelligence-spec.md) | Migration 363
+
+### Stage Intelligence Summary
+
+```
   1. RESOURCES (create)
-     Article written → SEO Readiness Score computed
-     Gate: score ≥ 70 before publish (Content Lifecycle workflow — HITL if below)
-     Intelligence: query_resources_health, query_editorial_opportunities
+     Gate: SEO Readiness Score ≥ 70 before publish
+     Agent: Market Intelligence | query_resources_health, query_editorial_opportunities
      Spec: resources-intelligence-spec.md | Migration 356
 
-  2. SEO (optimise)
-     Article indexed → keyword ranking tracked → hub/spoke position maintained
-     Monitor: rank velocity, content decay, backlink health
-     Intelligence: query_seo_health, query_keyword_opportunities
+  2. SEO (optimise + acquire)
+     Monitor: rank velocity, content decay, backlink health, keyword gaps
+     Agent: Market Intelligence | query_seo_health, query_keyword_opportunities
      Spec: seo-intelligence-spec.md | Migration 357
 
-  3. SIGNAL (measure)
-     Article views → listing views → bookings attributed
-     Article Intelligence Score (0-100): Conv(40%) + Revenue(30%) + Traffic(20%) + Freshness(10%)
-     5 bands: Star / Performer / Opportunity / Underperformer / Dead Weight
-     Intelligence: query_content_attribution
+  SIGNAL (cross-cutting attribution — reads + writes to all 6 stages)
+     Article Intelligence Score computed per article, segmented by booking_type
+     Agent: Market Intelligence | query_content_attribution
      Spec: signal-intelligence-spec.md | Migration 358
 
-  4. MARKETPLACE (land)
-     Organic traffic lands on search/listing pages
-     Supply/demand gaps detected → recruitment campaigns triggered
-     Intelligence: query_marketplace_health, query_supply_demand_gap
+  3. MARKETPLACE (discover)
+     Supply/demand gaps → recruitment; search funnel; AI agent adoption
+     Agent: Market Intelligence | query_marketplace_health, query_supply_demand_gap
      Spec: marketplace-intelligence-spec.md | Migration 359
 
-  5. BOOKINGS (convert)
-     Client finds tutor → books → pays → session delivered
-     Booking health, cancellation patterns, GMV trend monitored
-     Intelligence: query_booking_health
+  4. LISTINGS (commit)
+     Listing quality, pricing benchmarks, completeness score
+     Agent: Market Intelligence | query_listing_health, query_pricing_intelligence
+     Spec: listings-intelligence-spec.md | Migration 361
+
+  5. BOOKINGS (convert + retain)
+     Cancellation, no-show, scheduling stall, repeat booking rate, GMV
+     Agent: Retention Monitor | query_booking_health
      Spec: bookings-intelligence-spec.md | Migration 360
 
-  Intervention loop:
-    Signal → Dead Weight article → Content Decay Recovery workflow
-    Signal → Opportunity article → Article Boost workflow
-    Marketplace → supply_gap → Supply Gap → Recruitment Campaign workflow
-    Bookings → gmv_declining → GMV Decline → Revenue Recovery workflow
+  6. FINANCIALS (settle)
+     Clearing pipeline, payout health, disputes, unreversed commissions
+     Agent: Retention Monitor | query_financial_health
+     Spec: financials-intelligence-spec.md | Migration 362
+
+  REFERRAL (parallel track — injects users at any stage)
+     K-coefficient (I × C1 × C2), funnel, ghost rate, hub node identification
+     Commission: 10% lifetime, all referrer types, all referred user types
+     Agent: Retention Monitor | query_referral_funnel
+     Spec: referral-intelligence-spec.md | Migrations 364–365
+
+  CaaS (trust foundation — underpins all stages + referral propensity)
+     Score distribution, stale detection, CaaS–revenue correlation
+     Agent: Operations Monitor | query_caas_health
+     Spec: caas-intelligence-spec.md | Migration 355
+```
+
+### Cross-Stage Feedback Loops
+
+```
+Content Intelligence:   Signal → Article band → Content Decay Recovery / Article Boost
+Supply/Demand:          Signal demand ↑ → Marketplace gap → Supply Gap → Recruitment
+Payout Flywheel:        Financials payouts → tutor trust → Referral K ↑ → more Bookings
+CaaS Compounding:       Bookings + Referrals + Free Help → CaaS ↑ → Marketplace ranking ↑
+Free Help Conversion:   Marketplace → Free Help → 14d window → Booking → Signal attribution
 ```
 
 ---
 
 ## Feature Intelligence Specs Index
 
-Nine feature intelligence specs written (2026-03-08). Each spec defines:
+Ten feature intelligence specs (2026-03-08/09) + one capstone meta-spec (2026-03-09). Each spec defines:
 - Specialist Agent tool(s) and SQL implementation
 - Alert triggers + severity + admin action
 - Daily platform metrics table (pg_cron)
 - Admin UI panel extension
 - Conductor workflow integration
 - Growth Advisor coaching layer
+
+**Capstone meta-spec** (links all specs into the two Conductor use cases):
+[`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) — GTM Lifecycle + Referral Lifecycle architecture, stage gates, agent coverage map, cross-stage feedback loops, Conductor template definition.
 
 | Spec | Agent Owner | Key Tools | Migration | Phase 3 est. |
 |------|-------------|-----------|-----------|-------------|
@@ -534,10 +591,10 @@ Nine feature intelligence specs written (2026-03-08). Each spec defines:
 | [listings-intelligence-spec.md](./listings-intelligence-spec.md) | Market Intelligence | `query_listing_health`, `query_pricing_intelligence` | 361 | 20h |
 | [financials-intelligence-spec.md](./financials-intelligence-spec.md) | Retention Monitor | `query_financial_health` | 362 | 20h |
 | [virtualspace-intelligence-spec.md](./virtualspace-intelligence-spec.md) | Market Intelligence | `query_virtualspace_health` | 363 | 14h |
-| [referral-intelligence-spec.md](./referral-intelligence-spec.md) | Retention Monitor | `query_referral_funnel`, K coefficient SQL | 353–354 | 24h |
+| [referral-intelligence-spec.md](./referral-intelligence-spec.md) | Retention Monitor | `query_referral_funnel`, K coefficient SQL | 364–365 | 24h |
 | [caas-intelligence-spec.md](./caas-intelligence-spec.md) | Operations Monitor | `query_caas_health` | 355 | 30h |
 
-**Total Phase 3 intelligence layer: ~219h across 10 features**
+**Total Phase 3 intelligence layer: ~219h across 10 features** (+ 34h Referral Phase 4 = ~253h total)
 
 > **Professional Assessment**: See [`conductor-professional-assessment.md`](./conductor-professional-assessment.md) for full market comparison (Temporal, LangGraph, Camunda, n8n, CrewAI, Microsoft Copilot Studio), honest weaknesses, lab research comparison, and solo-founder + Claude execution model analysis.
 
@@ -1897,11 +1954,13 @@ Shadow mode for 30 days before Growth Advisor acts on non-tutor scores.
 
 Growth Score (0–100) for all 4 roles computed daily by pg_cron. Component scores stored in `component_scores jsonb`. Displayed in admin analytics and user dashboards.
 
-### 3F — Feature Intelligence Layer (migrations 353–363, ~219h)
+### 3F — Feature Intelligence Layer (migrations 355–365, ~253h)
 
 One platform metrics table + one pg_cron compute function per feature. Each feeds three outputs: Specialist Agent tool, Admin UI panel, Conductor workflow trigger.
 
-**Implementation sequence** (go-to-market pipeline order):
+Two Conductor use cases: **GTM Lifecycle** (stages 1–6 + Signal + CaaS + VirtualSpace) and **Referral Lifecycle** (parallel track). See [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) for the full architecture.
+
+**Implementation sequence** (GTM pipeline order):
 
 | Step | Feature | Spec | Migration | pg_cron | Agent Tool | Admin Panel |
 |------|---------|------|-----------|---------|-----------|-------------|
@@ -1913,8 +1972,8 @@ One platform metrics table + one pg_cron compute function per feature. Each feed
 | 6 | Listings | [spec](./listings-intelligence-spec.md) | 361 | 07:00 | `query_listing_health` | `/admin/listings` intelligence panel |
 | 7 | Financials | [spec](./financials-intelligence-spec.md) | 362 | 07:30 | `query_financial_health` | `/admin/financials` intelligence panel |
 | 8 | VirtualSpace | [spec](./virtualspace-intelligence-spec.md) | 363 | 08:00 | `query_virtualspace_health` | `/admin/virtualspace` panel |
-| 9 | Referral | [spec](./referral-intelligence-spec.md) | 353–354 | 08:30 | `query_referral_funnel` | `/admin/referrals` K coefficient panel |
-| 10 | CaaS | [spec](./caas-intelligence-spec.md) | 355 | 05:30 | `query_caas_health` | `/admin/signal` CaaS tab |
+| 9 | CaaS | [spec](./caas-intelligence-spec.md) | 355 | 05:30 | `query_caas_health` | `/admin/signal` CaaS tab |
+| 10 | Referral | [spec](./referral-intelligence-spec.md) | 364–365 | 09:00 | `query_referral_funnel` | `/admin/signal` Referral tab + `/admin/network/` |
 
 **Shared architectural pattern** (applies to all 10):
 

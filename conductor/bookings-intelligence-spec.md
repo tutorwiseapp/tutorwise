@@ -572,11 +572,14 @@ Growth Advisor coaching triggers:
 
 | Migration | Spec | Description |
 |-----------|------|-------------|
-| 353 | Referral | `referral_metrics_daily` |
-| 354 | Referral | `referral_network_stats` materialized view |
 | 355 | CaaS | `caas_platform_metrics_daily` |
 | 356 | Resources | `resources_platform_metrics_daily` |
 | 357 | SEO | `seo_platform_metrics_daily` |
 | 358 | Signal | `article_intelligence_scores` |
 | 359 | Marketplace | `marketplace_platform_metrics_daily` + `marketplace_search_events` |
 | 360 | Bookings | `bookings_platform_metrics_daily` |
+| 361 | Listings | `listings_platform_metrics_daily` |
+| 362 | Financials | `financials_platform_metrics_daily` |
+| 363 | VirtualSpace | `virtualspace_platform_metrics_daily` |
+| 364 | Referral | `referral_metrics_daily` |
+| 365 | Referral | `referral_network_stats` materialized view |
