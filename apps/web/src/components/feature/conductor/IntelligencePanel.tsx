@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
   List, DollarSign, Monitor, Share2, Activity, BarChart2,
+  Heart, Bot, Building2, Layers,
 } from 'lucide-react';
 import styles from './IntelligencePanel.module.css';
 
@@ -12,32 +13,41 @@ import styles from './IntelligencePanel.module.css';
 
 type IntelTab =
   | 'caas' | 'resources' | 'seo' | 'signal' | 'marketplace'
-  | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral';
+  | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral'
+  | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio';
 
 const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
-  { id: 'caas',         label: 'CaaS',        icon: Users },
-  { id: 'resources',   label: 'Resources',   icon: BookOpen },
-  { id: 'seo',         label: 'SEO',         icon: Search },
-  { id: 'signal',      label: 'Signal',      icon: Activity },
-  { id: 'marketplace', label: 'Marketplace', icon: ShoppingCart },
-  { id: 'listings',    label: 'Listings',    icon: List },
-  { id: 'bookings',    label: 'Bookings',    icon: TrendingUp },
-  { id: 'financials',  label: 'Financials',  icon: DollarSign },
-  { id: 'virtualspace',label: 'VirtualSpace',icon: Monitor },
-  { id: 'referral',    label: 'Referral',    icon: Share2 },
+  { id: 'caas',          label: 'CaaS',        icon: Users },
+  { id: 'resources',    label: 'Resources',   icon: BookOpen },
+  { id: 'seo',          label: 'SEO',         icon: Search },
+  { id: 'signal',       label: 'Signal',      icon: Activity },
+  { id: 'marketplace',  label: 'Marketplace', icon: ShoppingCart },
+  { id: 'listings',     label: 'Listings',    icon: List },
+  { id: 'bookings',     label: 'Bookings',    icon: TrendingUp },
+  { id: 'financials',   label: 'Financials',  icon: DollarSign },
+  { id: 'virtualspace', label: 'VirtualSpace',icon: Monitor },
+  { id: 'referral',     label: 'Referral',    icon: Share2 },
+  { id: 'retention',    label: 'Retention',   icon: Heart },
+  { id: 'ai_adoption',  label: 'AI Adoption', icon: Bot },
+  { id: 'org_conversion', label: 'Orgs',      icon: Building2 },
+  { id: 'ai_studio',    label: 'AI Studio',   icon: Layers },
 ];
 
 const TAB_ENDPOINTS: Record<IntelTab, string> = {
-  caas:         '/api/admin/caas/analytics',
-  resources:    '/api/admin/resources/intelligence',
-  seo:          '/api/admin/seo/intelligence',
-  signal:       '/api/admin/signal/intelligence',
-  marketplace:  '/api/admin/signal/marketplace',
-  listings:     '/api/admin/listings/intelligence',
-  bookings:     '/api/admin/bookings/intelligence',
-  financials:   '/api/admin/financials/intelligence',
-  virtualspace: '/api/admin/virtualspace/intelligence',
-  referral:     '/api/admin/referrals/analytics',
+  caas:          '/api/admin/caas/analytics',
+  resources:     '/api/admin/resources/intelligence',
+  seo:           '/api/admin/seo/intelligence',
+  signal:        '/api/admin/signal/intelligence',
+  marketplace:   '/api/admin/signal/marketplace',
+  listings:      '/api/admin/listings/intelligence',
+  bookings:      '/api/admin/bookings/intelligence',
+  financials:    '/api/admin/financials/intelligence',
+  virtualspace:  '/api/admin/virtualspace/intelligence',
+  referral:      '/api/admin/referrals/analytics',
+  retention:     '/api/admin/retention/intelligence',
+  ai_adoption:   '/api/admin/ai/intelligence?view=adoption',
+  org_conversion:'/api/admin/organisations/intelligence',
+  ai_studio:     '/api/admin/ai/intelligence?view=studio',
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -488,21 +498,292 @@ function ReferralSection({ data }: { data: any }) {
   );
 }
 
+// ── Retention Section ────────────────────────────────────────────────────────
+
+function AlertBadge({ severity }: { severity: string }) {
+  const color = severity === 'critical' ? '#ef4444' : severity === 'warning' ? '#f59e0b' : '#3b82f6';
+  return <span style={{ color, fontWeight: 600, marginRight: 4 }}>{severity === 'critical' ? '✖' : severity === 'warning' ? '⚠' : 'ℹ'}</span>;
+}
+
+function RetentionSection({ data }: { data: any }) {
+  const cohorts = data?.cohorts;
+  const churn = data?.churn_signals;
+  const onboarding = data?.onboarding;
+  const ltv = data?.ltv;
+  const alerts: any[] = data?.alerts ?? [];
+
+  if (!cohorts) return <InlineEmpty icon={Heart} message="No retention metrics yet." hint="Populates daily at 09:30 UTC" />;
+
+  const roles: Array<{ key: string; label: string }> = [
+    { key: 'tutor', label: 'Tutors' },
+    { key: 'client', label: 'Clients' },
+    { key: 'agent', label: 'Agents' },
+    { key: 'organisation', label: 'Orgs' },
+  ];
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>User Lifecycle Cohorts</h4>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Role</th><th>Onboarding</th><th>Activated</th><th>Retained</th><th>Re-engage</th><th>Win-back</th>
+            </tr>
+          </thead>
+          <tbody>
+            {roles.map(({ key, label }) => {
+              const c = cohorts[key] ?? {};
+              return (
+                <tr key={key}>
+                  <td><strong>{label}</strong></td>
+                  <td>{fmt(c.onboarding)}</td>
+                  <td>{fmt(c.activated)}</td>
+                  <td>{fmt(c.retained)}</td>
+                  <td>{fmt(c.re_engagement)}</td>
+                  <td>{fmt(c.win_back)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className={styles.statGrid}>
+        <StatCard label="Score Drop Alerts (7d)" value={fmt(churn?.score_drop_alerts_7d)} sub="Growth Score drop > 5pts" />
+        <StatCard label="High-Value At Risk" value={fmt(churn?.high_value_at_risk)} sub="retained users, drop > 10pts" />
+        <StatCard label="Stuck Tutors >14d" value={fmt(onboarding?.stuck_tutors_14d)} sub="no booking yet" />
+        <StatCard label="Stuck Clients >14d" value={fmt(onboarding?.stuck_clients_14d)} sub="no booking yet" />
+        <StatCard label="Activation Rate 30d" value={onboarding?.activation_rate_30d != null ? fmtPct(onboarding.activation_rate_30d) : '—'} sub="target ≥ 40%" />
+        <StatCard label="Avg Client Lifetime Bookings" value={ltv?.avg_bookings_per_client_lifetime != null ? Number(ltv.avg_bookings_per_client_lifetime).toFixed(1) : '—'} />
+        <StatCard label="Referral vs Organic LTV" value={ltv?.referral_vs_organic_ltv_ratio != null ? `${Number(ltv.referral_vs_organic_ltv_ratio).toFixed(2)}x` : '—'} sub="referred / organic avg bookings" />
+      </div>
+      {alerts.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Alerts</h4>
+          <div>
+            {alerts.map((a: any, i: number) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
+                <AlertBadge severity={a.severity} />
+                <strong>{a.message}</strong>
+                {a.action && <span style={{ color: '#6b7280', marginLeft: 8 }}>→ {a.action}</span>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── AI Adoption Section ──────────────────────────────────────────────────────
+
+function AIAdoptionSection({ data }: { data: any }) {
+  const sage = data?.sage_pro;
+  const growth = data?.growth_agent;
+  const marketplace = data?.ai_marketplace;
+  const combined = data?.combined;
+  const alerts: any[] = data?.alerts ?? [];
+
+  if (!marketplace) return <InlineEmpty icon={Bot} message="No AI adoption metrics yet." hint="Populates daily at 10:00 UTC" />;
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>Sage Pro</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Active Subscribers" value={fmt(sage?.active_subscribers)} />
+        <StatCard label="New (30d)" value={fmt(sage?.new_subscriptions_30d)} />
+        <StatCard label="Churned (30d)" value={fmt(sage?.cancellations_30d)} />
+        <StatCard label="Churn Rate" value={sage?.churn_rate != null ? fmtPct(sage.churn_rate) : '—'} />
+        <StatCard label="MRR" value={fmtPence(sage?.mrr_pence)} />
+        <StatCard label="Trial→Paid Rate" value={sage?.trial_to_paid_rate != null ? fmtPct(sage.trial_to_paid_rate) : '—'} />
+      </div>
+      <h4 className={styles.subHeading}>Growth Agent</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Active Subscribers" value={fmt(growth?.active_subscribers)} />
+        <StatCard label="New (30d)" value={fmt(growth?.new_subscriptions_30d)} />
+        <StatCard label="Churn Rate" value={growth?.churn_rate != null ? fmtPct(growth.churn_rate) : '—'} />
+        <StatCard label="MRR" value={fmtPence(growth?.mrr_pence)} />
+        <StatCard label="Sessions (30d)" value={fmt(growth?.sessions_30d)} />
+        <StatCard label="Power Users" value={fmt(growth?.power_users_30d)} sub="> 5 sessions in 30d" />
+        <StatCard label="Free Audit→Paid" value={growth?.free_audit_to_paid_rate != null ? fmtPct(growth.free_audit_to_paid_rate) : '—'} />
+      </div>
+      <h4 className={styles.subHeading}>AI Marketplace</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Active AI Agents" value={fmt(marketplace?.active_ai_agents)} />
+        <StatCard label="AI Bookings (30d)" value={fmt(marketplace?.ai_bookings_30d)} />
+        <StatCard label="AI GMV (30d)" value={fmtPence(marketplace?.ai_gmv_30d_pence)} />
+        <StatCard label="AI Booking Share" value={marketplace?.ai_booking_share != null ? fmtPct(marketplace.ai_booking_share) : '—'} />
+        <StatCard label="Agents 0 Bookings" value={fmt(marketplace?.ai_agents_with_0_bookings_30d)} sub="last 30d" />
+        <StatCard label="Combined AI MRR" value={fmtPence(combined?.total_ai_mrr_pence)} />
+        <StatCard label="AI Revenue Share" value={combined?.ai_revenue_share != null ? fmtPct(combined.ai_revenue_share) : '—'} />
+      </div>
+      {alerts.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Alerts</h4>
+          <div>
+            {alerts.map((a: any, i: number) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
+                <AlertBadge severity={a.severity} />
+                <strong>{a.message}</strong>
+                {a.action && <span style={{ color: '#6b7280', marginLeft: 8 }}>→ {a.action}</span>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Org Conversion Section ───────────────────────────────────────────────────
+
+function OrgConversionSection({ data }: { data: any }) {
+  const pipeline = data?.candidate_pipeline;
+  const newOrgs = data?.new_orgs;
+  const health = data?.org_health;
+  const alerts: any[] = data?.alerts ?? [];
+
+  if (!pipeline) return <InlineEmpty icon={Building2} message="No org conversion metrics yet." hint="Populates daily at 10:30 UTC" />;
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>Candidate Pipeline</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Tier 1 (Emerging)" value={fmt(pipeline?.tier_1_candidates)} sub="Growth Score ≥ 60, 3+ managed" />
+        <StatCard label="Tier 2 (Strong)" value={fmt(pipeline?.tier_2_candidates)} sub="Growth Score ≥ 75, 5+ managed" />
+        <StatCard label="Tier 3 (Ready)" value={fmt(pipeline?.tier_3_ready)} sub="> 30d at Tier 2, no action" />
+        <StatCard label="Nudged (30d)" value={fmt(pipeline?.candidates_nudged_30d)} />
+        <StatCard label="Conversion Rate" value={pipeline?.conversion_rate_30d != null ? fmtPct(pipeline.conversion_rate_30d) : '—'} sub="nudge → org created" />
+        <StatCard label="Avg Days to Convert" value={pipeline?.avg_days_nudge_to_creation != null ? `${Number(pipeline.avg_days_nudge_to_creation).toFixed(1)}d` : '—'} />
+      </div>
+      <h4 className={styles.subHeading}>New Orgs (30d)</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Created" value={fmt(newOrgs?.orgs_created_30d)} />
+        <StatCard label="From Conductor Nudge" value={fmt(newOrgs?.orgs_from_conductor_nudge)} />
+        <StatCard label="Organic" value={fmt(newOrgs?.organic_org_creation)} />
+      </div>
+      <h4 className={styles.subHeading}>Org Health</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Active Orgs" value={fmt(health?.total_active_orgs)} />
+        <StatCard label="Onboarding Stall" value={fmt(health?.new_org_onboarding_stall)} sub="new orgs, no delegation in 7d" />
+        <StatCard label="Avg Members/Org" value={health?.avg_members_per_org != null ? Number(health.avg_members_per_org).toFixed(1) : '—'} />
+        <StatCard label="Avg Org Growth Score" value={health?.avg_org_growth_score != null ? Number(health.avg_org_growth_score).toFixed(1) : '—'} />
+        <StatCard label="Struggling Orgs" value={fmt(health?.orgs_below_threshold)} sub="score < 40" />
+      </div>
+      {alerts.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Alerts</h4>
+          <div>
+            {alerts.map((a: any, i: number) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
+                <AlertBadge severity={a.severity} />
+                <strong>{a.message}</strong>
+                {a.action && <span style={{ color: '#6b7280', marginLeft: 8 }}>→ {a.action}</span>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── AI Studio Section ────────────────────────────────────────────────────────
+
+function AIStudioSection({ data }: { data: any }) {
+  const funnel = data?.funnel;
+  const cohorts = data?.creator_cohorts;
+  const quality = data?.quality;
+  const revenue = data?.revenue;
+  const alerts: any[] = data?.alerts ?? [];
+  const topAgents: any[] = quality?.top_agents_by_bookings ?? [];
+
+  if (!funnel) return <InlineEmpty icon={Layers} message="No AI Studio metrics yet." hint="Populates daily at 11:00 UTC" />;
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>Creator Funnel (30d)</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Created" value={fmt(funnel?.created_30d)} />
+        <StatCard label="Published" value={fmt(funnel?.published_30d)} />
+        <StatCard label="Publish Rate" value={funnel?.publish_rate != null ? fmtPct(funnel.publish_rate) : '—'} sub="target ≥ 50%" />
+        <StatCard label="First Booking Rate" value={funnel?.first_booking_rate != null ? fmtPct(funnel.first_booking_rate) : '—'} sub="within 14d of publish" />
+        <StatCard label="Avg Days → Publish" value={funnel?.avg_days_create_to_publish != null ? `${Number(funnel.avg_days_create_to_publish).toFixed(1)}d` : '—'} />
+        <StatCard label="Avg Days → First Booking" value={funnel?.avg_days_publish_to_first_booking != null ? `${Number(funnel.avg_days_publish_to_first_booking).toFixed(1)}d` : '—'} />
+      </div>
+      <h4 className={styles.subHeading}>Creator Cohorts</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Stuck in Draft (>7d)" value={fmt(cohorts?.stuck_in_draft)} />
+        <StatCard label="Published, 0 Bookings (>14d)" value={fmt(cohorts?.published_zero_bookings_14d)} />
+        <StatCard label="Active Earning" value={fmt(cohorts?.active_earning)} sub="≥1 booking in 30d" />
+        <StatCard label="Scaling" value={fmt(cohorts?.scaling)} sub="3+/mo or 10+ total sessions" />
+      </div>
+      <h4 className={styles.subHeading}>Quality</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Avg Rating (all agents)" value={quality?.avg_rating_all_ai_agents != null ? Number(quality.avg_rating_all_ai_agents).toFixed(2) : '—'} />
+        <StatCard label="Below Threshold" value={fmt(quality?.agents_below_threshold)} sub="avg rating < 4.0, ≥3 reviews" />
+        <StatCard label="No Reviews Yet" value={fmt(quality?.agents_with_no_reviews)} />
+        <StatCard label="AI GMV (30d)" value={fmtPence(revenue?.total_ai_gmv_30d_pence)} />
+        <StatCard label="Avg Revenue/Agent" value={fmtPence(revenue?.avg_revenue_per_active_agent_pence)} sub="per month" />
+        <StatCard label="Top 10% Revenue Share" value={revenue?.top_10_pct_revenue_share != null ? fmtPct(revenue.top_10_pct_revenue_share) : '—'} />
+      </div>
+      {topAgents.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Top AI Agents</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead><tr><th>Agent</th><th>Sessions</th><th>Avg Rating</th><th>Revenue</th></tr></thead>
+              <tbody>
+                {topAgents.slice(0, 10).map((a: any) => (
+                  <tr key={a.agent_id}>
+                    <td>{a.agent_name}</td>
+                    <td>{fmt(a.bookings_30d)}</td>
+                    <td>{a.avg_rating != null ? Number(a.avg_rating).toFixed(2) : '—'}</td>
+                    <td>{fmtPence(a.revenue_30d_pence)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      {alerts.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Alerts</h4>
+          <div>
+            {alerts.map((a: any, i: number) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
+                <AlertBadge severity={a.severity} />
+                <strong>{a.message}</strong>
+                {a.action && <span style={{ color: '#6b7280', marginLeft: 8 }}>→ {a.action}</span>}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Section router ───────────────────────────────────────────────────────────
 
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
   if (!data) return <InlineEmpty icon={BarChart2} message="No data loaded." />;
   switch (tab) {
-    case 'caas':         return <CaaSSection data={data} />;
-    case 'resources':    return <ResourcesSection data={data} />;
-    case 'seo':          return <SEOSection data={data} />;
-    case 'signal':       return <SignalSection data={data} />;
-    case 'marketplace':  return <MarketplaceSection data={data} />;
-    case 'listings':     return <ListingsSection data={data} />;
-    case 'bookings':     return <BookingsSection data={data} />;
-    case 'financials':   return <FinancialsSection data={data} />;
-    case 'virtualspace': return <VirtualSpaceSection data={data} />;
-    case 'referral':     return <ReferralSection data={data} />;
+    case 'caas':           return <CaaSSection data={data} />;
+    case 'resources':      return <ResourcesSection data={data} />;
+    case 'seo':            return <SEOSection data={data} />;
+    case 'signal':         return <SignalSection data={data} />;
+    case 'marketplace':    return <MarketplaceSection data={data} />;
+    case 'listings':       return <ListingsSection data={data} />;
+    case 'bookings':       return <BookingsSection data={data} />;
+    case 'financials':     return <FinancialsSection data={data} />;
+    case 'virtualspace':   return <VirtualSpaceSection data={data} />;
+    case 'referral':       return <ReferralSection data={data} />;
+    case 'retention':      return <RetentionSection data={data} />;
+    case 'ai_adoption':    return <AIAdoptionSection data={data} />;
+    case 'org_conversion': return <OrgConversionSection data={data} />;
+    case 'ai_studio':      return <AIStudioSection data={data} />;
   }
 }
 

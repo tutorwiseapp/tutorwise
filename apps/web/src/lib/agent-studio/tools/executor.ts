@@ -608,6 +608,300 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     };
   },
 
+  // ── Phase 3: Use Cases 3–6 Intelligence Tools ──────────────────────────────
+
+  async query_retention_health(input) {
+    const supabase = await createServiceRoleClient();
+    const days = (input.days as number) ?? 30;
+
+    const [latest, churnSignals, onboardingStall, ltvData, scoreDrops] = await Promise.all([
+      supabase
+        .from('retention_platform_metrics_daily')
+        .select('*')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('growth_scores')
+        .select('user_id, role, score, previous_score, computed_at')
+        .not('previous_score', 'is', null)
+        .gte('computed_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+      supabase
+        .from('profiles')
+        .select('id, active_role, created_at')
+        .in('active_role', ['tutor', 'client'])
+        .eq('status', 'active')
+        .lt('created_at', new Date(Date.now() - 14 * 86400000).toISOString())
+        .limit(500),
+      supabase
+        .from('profiles')
+        .select('id, active_role, referred_by_profile_id')
+        .eq('active_role', 'client')
+        .limit(1000),
+      supabase
+        .from('growth_scores')
+        .select('user_id, role, score, previous_score')
+        .filter('previous_score', 'not.is', null),
+    ]);
+
+    if (latest.error) throw new Error(latest.error.message);
+
+    const m = latest.data;
+    const scoreDropCount = (churnSignals.data ?? []).filter(
+      (s) => (s.score ?? 0) - (s.previous_score ?? s.score ?? 0) <= -5,
+    ).length;
+    const highValueAtRisk = (churnSignals.data ?? []).filter(
+      (s) => (s.score ?? 0) - (s.previous_score ?? s.score ?? 0) <= -10 && (s.score ?? 0) >= 60,
+    ).length;
+
+    const alerts = [];
+    if (m) {
+      if ((m.tutor_re_engagement ?? 0) > 20) alerts.push({ type: 'churn_spike', severity: 'warning', role: 'tutor', message: `${m.tutor_re_engagement} tutors in re-engagement cohort`, action: 'Review tutor retention funnel' });
+      if ((m.client_re_engagement ?? 0) > 30) alerts.push({ type: 'churn_spike', severity: 'warning', role: 'client', message: `${m.client_re_engagement} clients in re-engagement cohort`, action: 'Trigger client re-engagement sequence' });
+      if ((m.stuck_tutors_14d ?? 0) > 20) alerts.push({ type: 'onboarding_stall', severity: 'warning', role: 'tutor', message: `${m.stuck_tutors_14d} tutors stuck in onboarding >14d`, action: 'Review onboarding UX and trigger nudge sequence' });
+      if ((m.stuck_clients_14d ?? 0) > 30) alerts.push({ type: 'onboarding_stall', severity: 'warning', role: 'client', message: `${m.stuck_clients_14d} clients stuck in onboarding >14d`, action: 'Review signup → first booking funnel' });
+      if (m.activation_rate_30d_pct != null && Number(m.activation_rate_30d_pct) < 40) alerts.push({ type: 'activation_low', severity: 'warning', message: `Activation rate ${m.activation_rate_30d_pct}% below 40% target`, action: 'Review signup → first booking conversion funnel' });
+      if (highValueAtRisk > 0) alerts.push({ type: 'high_value_churn_risk', severity: 'critical', message: `${highValueAtRisk} high-value users with score drop > 10pts`, action: 'Immediate Growth Advisor proactive outreach' });
+    }
+
+    return {
+      cohorts: {
+        tutor:  { onboarding: m?.tutor_onboarding ?? 0, activated: m?.tutor_activated ?? 0, retained: m?.tutor_retained ?? 0, re_engagement: m?.tutor_re_engagement ?? 0, win_back: m?.tutor_win_back ?? 0 },
+        client: { onboarding: m?.client_onboarding ?? 0, activated: m?.client_activated ?? 0, retained: m?.client_retained ?? 0, re_engagement: m?.client_re_engagement ?? 0, win_back: m?.client_win_back ?? 0 },
+        agent:  { onboarding: m?.agent_onboarding ?? 0, activated: m?.agent_activated ?? 0, retained: m?.agent_retained ?? 0, re_engagement: m?.agent_re_engagement ?? 0, win_back: m?.agent_win_back ?? 0 },
+        organisation: { onboarding: m?.org_onboarding ?? 0, activated: m?.org_activated ?? 0, retained: m?.org_retained ?? 0, re_engagement: m?.org_re_engagement ?? 0, win_back: m?.org_win_back ?? 0 },
+      },
+      churn_signals: {
+        score_drop_alerts_7d: m?.score_drop_alerts_7d ?? scoreDropCount,
+        high_value_at_risk: m?.high_value_at_risk ?? highValueAtRisk,
+      },
+      onboarding: {
+        stuck_tutors_14d: m?.stuck_tutors_14d ?? 0,
+        stuck_clients_14d: m?.stuck_clients_14d ?? 0,
+        activation_rate_30d: m?.activation_rate_30d_pct ?? null,
+      },
+      ltv: {
+        avg_bookings_per_client_lifetime: m?.avg_client_lifetime_bookings ?? null,
+        referral_vs_organic_ltv_ratio: m?.referral_vs_organic_ltv_ratio ?? null,
+      },
+      alerts,
+      metric_date: m?.metric_date ?? null,
+      days,
+    };
+  },
+
+  async query_ai_adoption_health(input) {
+    const supabase = await createServiceRoleClient();
+    const days = (input.days as number) ?? 30;
+
+    const [latest, activeAgents, aiBookings, zeroBookingAgents] = await Promise.all([
+      supabase
+        .from('ai_adoption_platform_metrics_daily')
+        .select('*')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('ai_agents')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'active'),
+      supabase
+        .from('bookings')
+        .select('id', { count: 'exact', head: true })
+        .eq('booking_type', 'ai_agent')
+        .gte('created_at', new Date(Date.now() - days * 86400000).toISOString()),
+      supabase
+        .from('ai_agents')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'active'),
+    ]);
+
+    if (latest.error) throw new Error(latest.error.message);
+    const m = latest.data;
+
+    const alerts = [];
+    if (m) {
+      if ((m.ai_agents_zero_bookings ?? 0) > (m.active_ai_agents ?? 1) * 0.5) {
+        alerts.push({ type: 'ai_marketplace_cold', severity: 'warning', message: `${m.ai_agents_zero_bookings} active AI agents had 0 bookings in 30d`, action: 'Investigate AI agent listing quality; trigger AI Studio coaching' });
+      }
+    }
+
+    return {
+      sage_pro: {
+        active_subscribers: m?.sage_active_subscribers ?? 0,
+        new_subscriptions_30d: m?.sage_new_30d ?? 0,
+        cancellations_30d: m?.sage_cancellations_30d ?? 0,
+        churn_rate: m?.sage_churn_rate_pct ?? null,
+        mrr_pence: m?.sage_mrr_pence ?? 0,
+        trial_to_paid_rate: m?.sage_trial_to_paid_rate_pct ?? null,
+      },
+      growth_agent: {
+        active_subscribers: m?.growth_active_subscribers ?? 0,
+        new_subscriptions_30d: m?.growth_new_30d ?? 0,
+        cancellations_30d: m?.growth_cancellations_30d ?? 0,
+        churn_rate: m?.growth_churn_rate_pct ?? null,
+        mrr_pence: m?.growth_mrr_pence ?? 0,
+        sessions_30d: m?.growth_sessions_30d ?? 0,
+        power_users_30d: m?.growth_power_users_30d ?? 0,
+        free_audit_to_paid_rate: m?.growth_free_to_paid_rate_pct ?? null,
+      },
+      ai_marketplace: {
+        active_ai_agents: m?.active_ai_agents ?? (activeAgents.count ?? 0),
+        ai_bookings_30d: m?.ai_bookings_30d ?? (aiBookings.count ?? 0),
+        ai_gmv_30d_pence: m?.ai_gmv_30d_pence ?? 0,
+        ai_booking_share: m?.ai_booking_share_pct ?? null,
+        ai_agents_with_0_bookings_30d: m?.ai_agents_zero_bookings ?? 0,
+      },
+      combined: {
+        total_ai_mrr_pence: m?.total_ai_mrr_pence ?? 0,
+        ai_revenue_share: m?.ai_revenue_share_pct ?? null,
+      },
+      alerts,
+      metric_date: m?.metric_date ?? null,
+      days,
+    };
+  },
+
+  async query_org_conversion_health(input) {
+    const supabase = await createServiceRoleClient();
+    const days = (input.days as number) ?? 30;
+
+    const [latest, newOrgs, totalOrgs] = await Promise.all([
+      supabase
+        .from('org_conversion_platform_metrics_daily')
+        .select('*')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('connection_groups')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'organisation')
+        .gte('created_at', new Date(Date.now() - days * 86400000).toISOString()),
+      supabase
+        .from('connection_groups')
+        .select('id', { count: 'exact', head: true })
+        .eq('type', 'organisation'),
+    ]);
+
+    if (latest.error) throw new Error(latest.error.message);
+    const m = latest.data;
+
+    const alerts = [];
+    if (m) {
+      if ((m.tier_3_ready ?? 0) > 0) alerts.push({ type: 'tier3_candidate_inactive', severity: 'warning', message: `${m.tier_3_ready} Tier 3 org candidates — ready to convert, no response in 7d`, action: 'HITL: review high-value org candidates for personal outreach' });
+      if ((m.new_org_onboarding_stall ?? 0) > 2) alerts.push({ type: 'new_org_onboarding_stall', severity: 'warning', message: `${m.new_org_onboarding_stall} new orgs with no delegation setup`, action: 'Trigger Organisation Onboarding workflow + review setup UX' });
+      if ((m.orgs_below_threshold ?? 0) > 0) alerts.push({ type: 'org_dormancy', severity: 'critical', message: `${m.orgs_below_threshold} organisations with Growth Score < 40`, action: 'Trigger Org Dormancy Re-engagement workflow' });
+      if (m.conversion_rate_pct != null && Number(m.conversion_rate_pct) < 5) alerts.push({ type: 'conversion_rate_low', severity: 'info', message: `Org conversion rate ${m.conversion_rate_pct}% — below 5% target`, action: 'Review nudge messaging and org creation UX' });
+    }
+
+    return {
+      candidate_pipeline: {
+        tier_1_candidates: m?.tier_1_candidates ?? 0,
+        tier_2_candidates: m?.tier_2_candidates ?? 0,
+        tier_3_ready: m?.tier_3_ready ?? 0,
+        total_candidates: (m?.tier_1_candidates ?? 0) + (m?.tier_2_candidates ?? 0),
+        candidates_nudged_30d: m?.candidates_nudged_30d ?? 0,
+        conversion_rate_30d: m?.conversion_rate_pct ?? null,
+        avg_days_nudge_to_creation: m?.avg_days_nudge_to_conversion ?? null,
+      },
+      new_orgs: {
+        orgs_created_30d: m?.orgs_created_30d ?? (newOrgs.count ?? 0),
+        orgs_from_conductor_nudge: m?.orgs_from_conductor_nudge ?? 0,
+        organic_org_creation: (m?.orgs_created_30d ?? 0) - (m?.orgs_from_conductor_nudge ?? 0),
+      },
+      org_health: {
+        total_active_orgs: m?.total_active_orgs ?? (totalOrgs.count ?? 0),
+        new_org_onboarding_stall: m?.new_org_onboarding_stall ?? 0,
+        avg_members_per_org: m?.avg_members_per_org ?? null,
+        avg_org_growth_score: m?.avg_org_growth_score ?? null,
+        orgs_below_threshold: m?.orgs_below_threshold ?? 0,
+      },
+      alerts,
+      metric_date: m?.metric_date ?? null,
+      days,
+    };
+  },
+
+  async query_ai_studio_health(input) {
+    const supabase = await createServiceRoleClient();
+    const days = (input.days as number) ?? 30;
+
+    const [latest, draftStall, coldStart, topAgents] = await Promise.all([
+      supabase
+        .from('ai_studio_platform_metrics_daily')
+        .select('*')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('ai_agents')
+        .select('id, name, created_at')
+        .eq('status', 'draft')
+        .lt('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
+        .limit(20),
+      supabase
+        .from('ai_agents')
+        .select('id, name, published_at')
+        .eq('status', 'active')
+        .lt('published_at', new Date(Date.now() - 14 * 86400000).toISOString())
+        .limit(20),
+      supabase
+        .from('ai_agents')
+        .select('id, name, total_sessions, avg_rating, total_revenue')
+        .eq('status', 'active')
+        .order('total_sessions', { ascending: false })
+        .limit(10),
+    ]);
+
+    if (latest.error) throw new Error(latest.error.message);
+    const m = latest.data;
+
+    const alerts = [];
+    if (m) {
+      if ((m.stuck_in_draft ?? 0) > 10) alerts.push({ type: 'draft_stall', severity: 'warning', message: `${m.stuck_in_draft} AI agents stuck in draft > 7d`, action: 'Trigger configuration coaching sequence for affected tutors' });
+      if (m.publish_rate_pct != null && Number(m.publish_rate_pct) < 50) alerts.push({ type: 'publish_rate_low', severity: 'warning', message: `Publish rate ${m.publish_rate_pct}% — fewer than half of created agents go live`, action: 'Review AI Studio configuration UX; simplify setup flow' });
+      if ((m.agents_below_quality_threshold ?? 0) > 0) alerts.push({ type: 'quality_concern', severity: 'critical', message: `${m.agents_below_quality_threshold} AI agents with avg rating < 4.0 and ≥3 reviews`, action: 'HITL: review flagged AI agents; consider suspension' });
+    }
+
+    return {
+      funnel: {
+        created_30d: m?.agents_created_30d ?? 0,
+        published_30d: m?.agents_published_30d ?? 0,
+        publish_rate: m?.publish_rate_pct ?? null,
+        first_booking_rate: m?.first_booking_rate_pct ?? null,
+        avg_days_create_to_publish: m?.avg_days_create_to_publish ?? null,
+        avg_days_publish_to_first_booking: m?.avg_days_publish_to_booking ?? null,
+      },
+      creator_cohorts: {
+        stuck_in_draft: m?.stuck_in_draft ?? (draftStall.data ?? []).length,
+        published_zero_bookings_14d: m?.published_zero_bookings ?? (coldStart.data ?? []).length,
+        active_earning: m?.active_earning ?? 0,
+        scaling: m?.scaling ?? 0,
+      },
+      quality: {
+        avg_rating_all_ai_agents: m?.avg_rating_all_agents ?? null,
+        agents_below_threshold: m?.agents_below_quality_threshold ?? 0,
+        agents_with_no_reviews: m?.agents_with_no_reviews ?? 0,
+        top_agents_by_bookings: (topAgents.data ?? []).map((a: any) => ({
+          agent_id: a.id,
+          agent_name: a.name,
+          bookings_30d: a.total_sessions ?? 0,
+          avg_rating: a.avg_rating ?? null,
+          revenue_30d_pence: a.total_revenue ?? 0,
+        })),
+      },
+      revenue: {
+        total_ai_gmv_30d_pence: m?.total_ai_gmv_30d_pence ?? 0,
+        avg_revenue_per_active_agent_pence: m?.avg_revenue_per_active_agent_pence ?? 0,
+        top_10_pct_revenue_share: m?.top_10_pct_revenue_share_pct ?? null,
+      },
+      alerts,
+      metric_date: m?.metric_date ?? null,
+      days,
+    };
+  },
+
   async query_referral_funnel(input) {
     const supabase = await createServiceRoleClient();
     const segment = (input.segment as string) ?? 'platform';
