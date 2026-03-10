@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { X, Plus, Minus, Trash2, MousePointerClick, ExternalLink } from 'lucide-react';
+import { X, Plus, Minus, Trash2, MousePointerClick, ExternalLink, ArrowRight } from 'lucide-react';
 import { useWorkflowStore } from './store';
+import { useDiscoveryStore } from './discovery-store';
 import { PROCESS_STEP_TYPES, NODE_TYPE_CONFIG } from './types';
 import type { ProcessStepData, ProcessStepType, ProcessNode, ProcessEdge } from './types';
 import { HANDLER_SCHEMAS, HANDLER_NAMES, getHandlerSchema } from '@/lib/workflow/handler-schema';
@@ -26,6 +27,7 @@ export function PropertiesDrawer({
   onDeleteNode,
 }: PropertiesDrawerProps) {
   const { closeDrawer } = useWorkflowStore();
+  const setConductorTab = useDiscoveryStore((s) => s.setActiveTab);
   const [localData, setLocalData] = useState<ProcessStepData | null>(null);
   const [activeTab, setActiveTab] = useState<DrawerTab>('basic');
 
@@ -350,8 +352,15 @@ export function PropertiesDrawer({
           {/* Agent / Team configuration */}
           {(localData.type === 'agent' || localData.type === 'team') && (
             <div className={styles.fieldGroup}>
-              <div className={styles.fieldGroupTitle}>
-                {localData.type === 'agent' ? 'Agent Configuration' : 'Team Configuration'}
+              <div className={styles.fieldGroupTitle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>{localData.type === 'agent' ? 'Agent Configuration' : 'Team Configuration'}</span>
+                <button
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#006c67', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', fontWeight: 500 }}
+                  onClick={() => setConductorTab(localData.type === 'agent' ? 'agents' : 'teams')}
+                  title={`Go to ${localData.type === 'agent' ? 'Agents' : 'Teams'} tab`}
+                >
+                  Configure <ArrowRight size={11} />
+                </button>
               </div>
 
               {localData.type === 'agent' && (

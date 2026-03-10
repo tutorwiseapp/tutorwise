@@ -1,10 +1,43 @@
 /**
- * PUT    /api/admin/teams/[id] — update team
+ * PATCH  /api/admin/teams/[id] — partial update (e.g. space_id assignment)
+ * PUT    /api/admin/teams/[id] — full update team
  * DELETE /api/admin/teams/[id] — deactivate team
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { id } = await params;
+    const body = await request.json() as { space_id?: string | null; status?: string };
+
+    const allowed: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if ('space_id' in body) allowed.space_id = body.space_id ?? null;
+    if ('status' in body) allowed.status = body.status;
+
+    const { data, error } = await supabase
+      .from('agent_teams')
+      .update(allowed)
+      .eq('id', id)
+      .select('id, slug, name, space_id')
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });
+  }
+}
 
 export async function PUT(
   request: NextRequest,

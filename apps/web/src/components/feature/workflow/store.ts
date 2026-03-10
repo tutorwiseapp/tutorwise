@@ -60,6 +60,11 @@ interface WorkflowStore {
   pendingCanvasImport: { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null;
   setPendingCanvasImport: (data: { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null) => void;
 
+  // Process load signal (from WorkflowSwitcher → WorkflowCanvas)
+  pendingProcessLoad: import('./types').WorkflowProcess | null;
+  requestProcessLoad: (process: import('./types').WorkflowProcess) => void;
+  clearProcessLoad: () => void;
+
   // Navigation history (for back button after drill-down)
   navigationHistory: NavHistoryEntry[];
   pushHistory: (entry: NavHistoryEntry) => void;
@@ -85,6 +90,7 @@ const initialState = {
   drillDownTarget: null as string | null,
   navigationHistory: [] as NavHistoryEntry[],
   pendingCanvasImport: null as { nodes: ProcessNode[]; edges: ProcessEdge[]; name: string; description: string } | null,
+  pendingProcessLoad: null as import('./types').WorkflowProcess | null,
 };
 
 export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
@@ -120,6 +126,10 @@ export const useWorkflowStore = create<WorkflowStore>((set, get) => ({
 
   // Import from Discovery Panel
   setPendingCanvasImport: (data) => set({ pendingCanvasImport: data }),
+
+  // Process load signal
+  requestProcessLoad: (process) => set({ pendingProcessLoad: process }),
+  clearProcessLoad: () => set({ pendingProcessLoad: null }),
 
   // Navigation history
   pushHistory: (entry) =>

@@ -72,9 +72,10 @@ const PALETTE_GROUPS: { group: string; items: PaletteItem[] }[] = [
 interface NodePaletteProps {
   collapsed?: boolean;
   onCollapse?: (collapsed: boolean) => void;
+  onAddNode?: (type: ProcessStepType) => void;
 }
 
-export function NodePalette({ collapsed = false, onCollapse }: NodePaletteProps) {
+export function NodePalette({ collapsed = false, onCollapse, onAddNode }: NodePaletteProps) {
   const [isCollapsed, setIsCollapsed] = useState(collapsed);
 
   const toggle = () => {
@@ -101,7 +102,10 @@ export function NodePalette({ collapsed = false, onCollapse }: NodePaletteProps)
   return (
     <div className={styles.palette}>
       <div className={styles.paletteHeader}>
-        <span className={styles.paletteTitle}>Nodes</span>
+        <div className={styles.paletteTitleGroup}>
+          <span className={styles.paletteTitle}>Nodes</span>
+          <span className={styles.paletteSubtitle}>click or drag to add</span>
+        </div>
         <button className={styles.collapseBtn} onClick={toggle} title="Collapse palette">
           <ChevronLeft size={16} />
         </button>
@@ -119,6 +123,7 @@ export function NodePalette({ collapsed = false, onCollapse }: NodePaletteProps)
                   className={`${styles.paletteItem} ${styles[item.cssClass]}`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, item.type)}
+                  onClick={() => onAddNode?.(item.type)}
                   title={item.description}
                 >
                   <Icon size={14} className={styles.itemIcon} />
@@ -130,9 +135,6 @@ export function NodePalette({ collapsed = false, onCollapse }: NodePaletteProps)
         ))}
       </div>
 
-      <div className={styles.paletteFooter}>
-        Drag onto canvas
-      </div>
     </div>
   );
 }

@@ -5,12 +5,17 @@ import type {
   DiscoveryResult,
 } from '@/lib/workflow/scanner/types';
 
-export type DiscoveryTab = 'design' | 'discovery' | 'execution' | 'agents' | 'teams' | 'monitoring' | 'intelligence';
+export type DiscoveryTab = 'workflows' | 'discovery' | 'execution' | 'agents' | 'teams' | 'spaces' | 'monitoring' | 'intelligence';
 
 interface DiscoveryStore {
   // Active tab
   activeTab: DiscoveryTab;
   setActiveTab: (tab: DiscoveryTab) => void;
+
+  // Cross-navigation: navigate to Teams tab and pre-select a specific team
+  pendingTeamSlug: string | null;
+  navigateToTeam: (slug: string) => void;
+  clearPendingTeam: () => void;
 
   // Discovery results
   results: DiscoveryResult[];
@@ -42,7 +47,8 @@ interface DiscoveryStore {
 }
 
 const initialState = {
-  activeTab: 'design' as DiscoveryTab,
+  activeTab: 'workflows' as DiscoveryTab,
+  pendingTeamSlug: null as string | null,
   results: [] as DiscoveryResult[],
   isScanning: false,
   scanProgress: { completed: 0, total: 0 },
@@ -56,6 +62,9 @@ export const useDiscoveryStore = create<DiscoveryStore>((set, get) => ({
   ...initialState,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
+
+  navigateToTeam: (slug) => set({ activeTab: 'teams', pendingTeamSlug: slug }),
+  clearPendingTeam: () => set({ pendingTeamSlug: null }),
 
   setResults: (results) => set({ results }),
 

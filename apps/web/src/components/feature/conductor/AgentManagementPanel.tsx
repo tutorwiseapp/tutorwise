@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import styles from './AgentManagementPanel.module.css';
+import { AgentChatPanel } from './AgentChatPanel';
 
 interface SpecialistAgent {
   id: string;
@@ -26,6 +28,7 @@ interface AgentTeam {
   nodes: Array<{ id: string; data: { agentSlug: string } }>;
   status: 'active' | 'inactive';
   built_in: boolean;
+  space_id: string | null;
   updated_at: string;
 }
 
@@ -36,62 +39,67 @@ const PATTERN_LABELS: Record<string, string> = {
 };
 
 export function AgentManagementPanel() {
-  const [agents, setAgents] = useState<SpecialistAgent[]>([]);
-  const [teams, setTeams] = useState<AgentTeam[]>([]);
-  const [loadingAgents, setLoadingAgents] = useState(true);
-  const [loadingTeams, setLoadingTeams] = useState(true);
+  const queryClient = useQueryClient();
+  const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent | null>(null);
 
-  const fetchAgents = async () => {
-    setLoadingAgents(true);
-    try {
+  const { data: agents = [], isLoading: loadingAgents, refetch: refetchAgents } = useQuery({
+    queryKey: ['admin-agents'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/agents');
       const json = await res.json() as { success: boolean; data: SpecialistAgent[] };
-      if (json.success) setAgents(json.data);
-    } finally {
-      setLoadingAgents(false);
-    }
-  };
+      if (!json.success) throw new Error('Failed to load agents');
+      return json.data;
+    },
+    staleTime: 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
 
-  const fetchTeams = async () => {
-    setLoadingTeams(true);
-    try {
+  const { data: teams = [], isLoading: loadingTeams, refetch: refetchTeams } = useQuery({
+    queryKey: ['admin-teams'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/teams');
       const json = await res.json() as { success: boolean; data: AgentTeam[] };
-      if (json.success) setTeams(json.data);
-    } finally {
-      setLoadingTeams(false);
-    }
-  };
+      if (!json.success) throw new Error('Failed to load teams');
+      return json.data;
+    },
+    staleTime: 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
 
-  useEffect(() => {
-    fetchAgents();
-    fetchTeams();
-  }, []);
+  const removeAgentMutation = useMutation({
+    mutationFn: async (agent: SpecialistAgent) => {
+      if (!confirm(`Deactivate agent "${agent.name}"?`)) throw new Error('cancelled');
+      await fetch(`/api/admin/agents/${agent.id}`, { method: 'DELETE' });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agents'] }),
+  });
 
-  const removeAgent = async (agent: SpecialistAgent) => {
-    if (!confirm(`Deactivate agent "${agent.name}"?`)) return;
-    await fetch(`/api/admin/agents/${agent.id}`, { method: 'DELETE' });
-    await fetchAgents();
-  };
+  const removeTeamMutation = useMutation({
+    mutationFn: async (team: AgentTeam) => {
+      if (!confirm(`Deactivate team "${team.name}"?`)) throw new Error('cancelled');
+      await fetch(`/api/admin/teams/${team.id}`, { method: 'DELETE' });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-teams'] }),
+  });
 
-  const removeTeam = async (team: AgentTeam) => {
-    if (!confirm(`Deactivate team "${team.name}"?`)) return;
-    await fetch(`/api/admin/teams/${team.id}`, { method: 'DELETE' });
-    await fetchTeams();
-  };
-
-  const runTeam = async (team: AgentTeam) => {
-    const task = prompt(`Task for ${team.name}:`);
-    if (!task) return;
-    await fetch(`/api/admin/teams/${team.id}/run`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task }),
-    });
-    alert('Team run started. Check run history for results.');
-  };
+  const runTeamMutation = useMutation({
+    mutationFn: async (team: AgentTeam) => {
+      const task = prompt(`Task for ${team.name}:`);
+      if (!task) throw new Error('cancelled');
+      await fetch(`/api/admin/teams/${team.id}/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task }),
+      });
+      return team.name;
+    },
+    onSuccess: () => alert('Team run started. Check run history for results.'),
+  });
 
   return (
+    <div className={styles.outer}>
     <div className={styles.container}>
       {/* ── Agents Registry ── */}
       <section className={styles.section}>
@@ -102,7 +110,7 @@ export function AgentManagementPanel() {
             <span className={styles.badge}>{agents.length}</span>
           </div>
           <div className={styles.headerActions}>
-            <button className={styles.iconBtn} onClick={fetchAgents} title="Refresh">
+            <button className={styles.iconBtn} onClick={() => refetchAgents()} title="Refresh">
               <RefreshCw size={14} />
             </button>
             <Link href="/admin/conductor/agents/new" className={styles.addBtn}>
@@ -124,17 +132,18 @@ export function AgentManagementPanel() {
                     {agent.built_in && <span className={styles.builtInBadge}>built-in</span>}
                   </div>
                   <div className={styles.cardActions}>
-                    <Link
-                      href={`/admin/conductor/agents/${agent.slug}`}
-                      className={styles.actionBtn}
+                    <button
+                      className={`${styles.actionBtn} ${selectedAgent?.id === agent.id ? styles.active : ''}`}
+                      onClick={() => setSelectedAgent(selectedAgent?.id === agent.id ? null : agent)}
                       title="Chat with agent"
                     >
                       <MessageCircle size={14} />
-                    </Link>
+                    </button>
                     {!agent.built_in && (
                       <button
                         className={`${styles.actionBtn} ${styles.danger}`}
-                        onClick={() => removeAgent(agent)}
+                        onClick={() => removeAgentMutation.mutate(agent)}
+                        disabled={removeAgentMutation.isPending}
                         title="Deactivate agent"
                       >
                         <Trash2 size={14} />
@@ -164,7 +173,7 @@ export function AgentManagementPanel() {
             <span className={styles.badge}>{teams.length}</span>
           </div>
           <div className={styles.headerActions}>
-            <button className={styles.iconBtn} onClick={fetchTeams} title="Refresh">
+            <button className={styles.iconBtn} onClick={() => refetchTeams()} title="Refresh">
               <RefreshCw size={14} />
             </button>
             <Link href="/admin/conductor/teams/new" className={styles.addBtn}>
@@ -189,7 +198,8 @@ export function AgentManagementPanel() {
                   <div className={styles.cardActions}>
                     <button
                       className={styles.actionBtn}
-                      onClick={() => runTeam(team)}
+                      onClick={() => runTeamMutation.mutate(team)}
+                      disabled={runTeamMutation.isPending}
                       title="Run team"
                     >
                       <Play size={14} />
@@ -197,7 +207,8 @@ export function AgentManagementPanel() {
                     {!team.built_in && (
                       <button
                         className={`${styles.actionBtn} ${styles.danger}`}
-                        onClick={() => removeTeam(team)}
+                        onClick={() => removeTeamMutation.mutate(team)}
+                        disabled={removeTeamMutation.isPending}
                         title="Deactivate team"
                       >
                         <Trash2 size={14} />
@@ -216,6 +227,10 @@ export function AgentManagementPanel() {
           </div>
         )}
       </section>
+    </div>
+    {selectedAgent && (
+      <AgentChatPanel agent={selectedAgent} onClose={() => setSelectedAgent(null)} />
+    )}
     </div>
   );
 }

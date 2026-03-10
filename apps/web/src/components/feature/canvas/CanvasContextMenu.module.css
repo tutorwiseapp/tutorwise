@@ -1,0 +1,59 @@
+/* CanvasContextMenu — right-click floating menu for canvas nodes */
+
+.menu {
+  z-index: 9999;
+  min-width: 168px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  padding: 4px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  animation: menuIn 0.1s ease;
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 3px 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 450;
+  color: #374151;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+  font-family: inherit;
+}
+
+.item:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.item.danger { color: #374151; }
+.item.danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.item.navigate { color: #374151; }
+.item.navigate:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}

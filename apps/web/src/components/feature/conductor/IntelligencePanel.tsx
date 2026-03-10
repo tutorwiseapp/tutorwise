@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
   List, DollarSign, Monitor, Share2, Activity,
@@ -14,16 +15,16 @@ type IntelTab =
   | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral';
 
 const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
-  { id: 'caas',        label: 'CaaS',        icon: Users },
-  { id: 'resources',  label: 'Resources',   icon: BookOpen },
-  { id: 'seo',        label: 'SEO',         icon: Search },
-  { id: 'signal',     label: 'Signal',      icon: Activity },
-  { id: 'marketplace',label: 'Marketplace', icon: ShoppingCart },
-  { id: 'listings',   label: 'Listings',    icon: List },
-  { id: 'bookings',   label: 'Bookings',    icon: TrendingUp },
-  { id: 'financials', label: 'Financials',  icon: DollarSign },
+  { id: 'caas',         label: 'CaaS',        icon: Users },
+  { id: 'resources',   label: 'Resources',   icon: BookOpen },
+  { id: 'seo',         label: 'SEO',         icon: Search },
+  { id: 'signal',      label: 'Signal',      icon: Activity },
+  { id: 'marketplace', label: 'Marketplace', icon: ShoppingCart },
+  { id: 'listings',    label: 'Listings',    icon: List },
+  { id: 'bookings',    label: 'Bookings',    icon: TrendingUp },
+  { id: 'financials',  label: 'Financials',  icon: DollarSign },
   { id: 'virtualspace',label: 'VirtualSpace',icon: Monitor },
-  { id: 'referral',   label: 'Referral',    icon: Share2 },
+  { id: 'referral',    label: 'Referral',    icon: Share2 },
 ];
 
 const TAB_ENDPOINTS: Record<IntelTab, string> = {
@@ -72,6 +73,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 // ── Section renderers ────────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CaaSSection({ data }: { data: any }) {
   const latest = data?.latest;
   const byRole = data?.byRole ?? [];
@@ -92,6 +94,7 @@ function CaaSSection({ data }: { data: any }) {
           <table className={styles.table}>
             <thead><tr><th>Role</th><th>Avg Score</th><th>Provisional</th><th>Stale</th></tr></thead>
             <tbody>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {byRole.map((r: any) => (
                 <tr key={r.role_type}>
                   <td>{r.role_type}</td>
@@ -108,6 +111,7 @@ function CaaSSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ResourcesSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const band = data?.health?.bandBreakdown ?? {};
@@ -134,6 +138,7 @@ function ResourcesSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Band</th><th>Views 30d</th><th>Trend</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {opportunities.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -155,6 +160,7 @@ function ResourcesSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Spoke Count</th><th>Status</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {hubGaps.map((h: any) => (
                   <tr key={h.id}>
                     <td>{h.subject}</td>
@@ -171,6 +177,7 @@ function ResourcesSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SEOSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const topKw = data?.health?.topKeywords ?? [];
@@ -195,6 +202,7 @@ function SEOSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Keyword</th><th>Position</th><th>Search Volume</th><th>Clicks 28d</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {opps.slice(0, 10).map((k: any) => (
                   <tr key={k.keyword}>
                     <td>{k.keyword}</td>
@@ -215,6 +223,7 @@ function SEOSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Keyword</th><th>Position</th><th>Clicks 28d</th><th>CTR</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {topKw.slice(0, 10).map((k: any) => (
                   <tr key={k.keyword}>
                     <td>{k.keyword}</td>
@@ -232,6 +241,7 @@ function SEOSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SignalSection({ data }: { data: any }) {
   const top = data?.topPerformers ?? [];
   const dead = data?.deadWeight ?? [];
@@ -249,6 +259,7 @@ function SignalSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Conv %</th><th>Revenue 30d</th><th>Views 30d</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {top.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -270,6 +281,7 @@ function SignalSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Days Stale</th><th>Views 30d</th><th>Trend</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {dead.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -288,6 +300,7 @@ function SignalSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MarketplaceSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const gaps = data?.gap?.gaps ?? [];
@@ -311,6 +324,7 @@ function MarketplaceSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Searches</th><th>Zero-Result Rate</th><th>Active Listings</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {gaps.map((g: any) => (
                   <tr key={g.subject}>
                     <td>{g.subject}</td>
@@ -328,6 +342,7 @@ function MarketplaceSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ListingsSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const incomplete = data?.health?.incompleteListings;
@@ -352,6 +367,7 @@ function ListingsSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Level</th><th>Count</th><th>Min</th><th>Avg</th><th>Max</th></tr></thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {pricing.slice(0, 15).map((p: any) => (
                   <tr key={`${p.subject}-${p.level}`}>
                     <td>{p.subject}</td>
@@ -371,6 +387,7 @@ function ListingsSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function BookingsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -393,6 +410,7 @@ function BookingsSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FinancialsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -415,6 +433,7 @@ function FinancialsSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function VirtualSpaceSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -435,6 +454,7 @@ function VirtualSpaceSection({ data }: { data: any }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ReferralSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -469,6 +489,7 @@ function ReferralSection({ data }: { data: any }) {
 
 // ── Section router ───────────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
   if (!data) return <p className={styles.empty}>No data loaded.</p>;
   switch (tab) {
@@ -489,33 +510,21 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
 
 export function IntelligencePanel() {
   const [activeTab, setActiveTab] = useState<IntelTab>('caas');
-  const [data, setData] = useState<Record<IntelTab, any>>({} as Record<IntelTab, any>);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastFetched, setLastFetched] = useState<Partial<Record<IntelTab, Date>>>({});
 
-  const fetchTab = useCallback(async (tab: IntelTab) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(TAB_ENDPOINTS[tab]);
+  // One query per active tab — React Query caches each tab's result for 5 min.
+  // Switching tabs uses cached data instantly; re-fetches only when stale.
+  const { data, isFetching, error, refetch, dataUpdatedAt } = useQuery({
+    queryKey: ['intel', activeTab],
+    queryFn: async () => {
+      const res = await fetch(TAB_ENDPOINTS[activeTab]);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      setData((prev) => ({ ...prev, [tab]: json.data ?? json }));
-      setLastFetched((prev) => ({ ...prev, [tab]: new Date() }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Auto-load on tab switch (if not already fetched)
-  useEffect(() => {
-    if (!lastFetched[activeTab]) {
-      fetchTab(activeTab);
-    }
-  }, [activeTab, fetchTab, lastFetched]);
+      return json.data ?? json;
+    },
+    staleTime: 5 * 60_000,   // 5 min — analytics don't need constant refresh
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
 
   const currentTab = INTEL_TABS.find((t) => t.id === activeTab)!;
 
@@ -543,28 +552,32 @@ export function IntelligencePanel() {
             {currentTab.label} Intelligence
           </h3>
           <div className={styles.headerRight}>
-            {lastFetched[activeTab] && (
+            {dataUpdatedAt > 0 && (
               <span className={styles.lastFetched}>
-                Updated {lastFetched[activeTab]!.toLocaleTimeString()}
+                Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
               </span>
             )}
             <button
               className={styles.refreshBtn}
-              onClick={() => fetchTab(activeTab)}
-              disabled={loading}
+              onClick={() => refetch()}
+              disabled={isFetching}
               title="Refresh"
             >
-              <RefreshCw size={14} className={loading ? styles.spinning : undefined} />
+              <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
             </button>
           </div>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && (
+          <div className={styles.error}>
+            {error instanceof Error ? error.message : 'Failed to load data'}
+          </div>
+        )}
 
-        {loading && !data[activeTab] ? (
+        {isFetching && !data ? (
           <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
         ) : (
-          <SectionContent tab={activeTab} data={data[activeTab]} />
+          <SectionContent tab={activeTab} data={data} />
         )}
       </div>
     </div>

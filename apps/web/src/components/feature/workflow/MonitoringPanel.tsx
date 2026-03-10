@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, AlertTriangle, CheckCircle, Clock, Activity, Zap, Brain } from 'lucide-react';
 import styles from './MonitoringPanel.module.css';
 
@@ -43,11 +43,6 @@ const SEVERITY_CONFIG: Record<string, { color: string; label: string }> = {
   low: { color: '#16a34a', label: 'Low' },
 };
 
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString();
-}
-
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -60,47 +55,39 @@ function timeAgo(iso: string): string {
 // --- Exception Queue Section ---
 
 function ExceptionQueue() {
-  const [exceptions, setExceptions] = useState<WorkflowException[]>([]);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchExceptions = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: exceptions = [], isFetching, refetch } = useQuery({
+    queryKey: ['workflow-exceptions'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/workflow/exceptions');
       const data = await res.json();
-      if (data.success) setExceptions(data.data as WorkflowException[]);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      if (!data.success) throw new Error('Failed to load exceptions');
+      return data.data as WorkflowException[];
+    },
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
+  });
 
-  const handleClaim = useCallback(async (exceptionId: string) => {
-    try {
-      await fetch(`/api/admin/workflow/exceptions/${exceptionId}/claim`, { method: 'POST' });
-      fetchExceptions();
-    } catch {
-      // ignore
-    }
-  }, [fetchExceptions]);
+  const claimMutation = useMutation({
+    mutationFn: (exceptionId: string) =>
+      fetch(`/api/admin/workflow/exceptions/${exceptionId}/claim`, { method: 'POST' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-exceptions'] }),
+  });
 
-  const handleResolve = useCallback(async (exceptionId: string) => {
-    const resolution = window.prompt('Resolution notes (optional):');
-    if (resolution === null) return; // cancelled
-    try {
+  const resolveMutation = useMutation({
+    mutationFn: async (exceptionId: string) => {
+      const resolution = window.prompt('Resolution notes (optional):');
+      if (resolution === null) throw new Error('cancelled');
       await fetch(`/api/admin/workflow/exceptions/${exceptionId}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resolution }),
       });
-      fetchExceptions();
-    } catch {
-      // ignore
-    }
-  }, [fetchExceptions]);
-
-  useEffect(() => { fetchExceptions(); }, [fetchExceptions]);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-exceptions'] }),
+  });
 
   return (
     <div className={styles.section}>
@@ -109,14 +96,14 @@ function ExceptionQueue() {
           <AlertTriangle size={14} />
           Exception Queue
         </div>
-        <button className={styles.refreshBtn} onClick={fetchExceptions} title="Refresh">
+        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
           <RefreshCw size={12} />
         </button>
       </div>
 
-      {loading && <div className={styles.loading}>Loading…</div>}
+      {isFetching && exceptions.length === 0 && <div className={styles.loading}>Loading…</div>}
 
-      {!loading && exceptions.length === 0 && (
+      {!isFetching && exceptions.length === 0 && (
         <div className={styles.empty}>
           <CheckCircle size={20} className={styles.emptyIcon} />
           No unresolved exceptions
@@ -149,14 +136,16 @@ function ExceptionQueue() {
               {!ex.claimed_by && (
                 <button
                   className={styles.actionBtn}
-                  onClick={() => handleClaim(ex.id)}
+                  onClick={() => claimMutation.mutate(ex.id)}
+                  disabled={claimMutation.isPending}
                 >
                   Claim
                 </button>
               )}
               <button
                 className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
-                onClick={() => handleResolve(ex.id)}
+                onClick={() => resolveMutation.mutate(ex.id)}
+                disabled={resolveMutation.isPending}
               >
                 Resolve
               </button>
@@ -171,23 +160,17 @@ function ExceptionQueue() {
 // --- Active Workflows Section ---
 
 function ActiveWorkflows() {
-  const [executions, setExecutions] = useState<ActiveExecution[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchActive = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: executions = [], isFetching, refetch } = useQuery({
+    queryKey: ['active-executions'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/workflow/execute?status=running,paused&limit=50');
       const data = await res.json();
-      if (data.executions) setExecutions(data.executions as ActiveExecution[]);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchActive(); }, [fetchActive]);
+      return (data.executions ?? []) as ActiveExecution[];
+    },
+    staleTime: 15_000,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
+  });
 
   return (
     <div className={styles.section}>
@@ -199,14 +182,14 @@ function ActiveWorkflows() {
             <span className={styles.badge}>{executions.length}</span>
           )}
         </div>
-        <button className={styles.refreshBtn} onClick={fetchActive} title="Refresh">
+        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
           <RefreshCw size={12} />
         </button>
       </div>
 
-      {loading && <div className={styles.loading}>Loading…</div>}
+      {isFetching && executions.length === 0 && <div className={styles.loading}>Loading…</div>}
 
-      {!loading && executions.length === 0 && (
+      {!isFetching && executions.length === 0 && (
         <div className={styles.empty}>No active executions</div>
       )}
 
@@ -233,23 +216,17 @@ function ActiveWorkflows() {
 // --- Platform Health Section ---
 
 function PlatformHealthSection() {
-  const [health, setHealth] = useState<PlatformHealth | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const fetchHealth = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: health, isFetching, refetch } = useQuery({
+    queryKey: ['workflow-health'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/workflow/health');
       const data = await res.json();
-      if (data.success) setHealth(data.data as PlatformHealth);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchHealth(); }, [fetchHealth]);
+      if (!data.success) throw new Error('Failed to load health');
+      return data.data as PlatformHealth;
+    },
+    staleTime: 60_000,
+    refetchOnWindowFocus: true,
+  });
 
   return (
     <div className={styles.section}>
@@ -258,12 +235,12 @@ function PlatformHealthSection() {
           <Zap size={14} />
           Platform Health
         </div>
-        <button className={styles.refreshBtn} onClick={fetchHealth} title="Refresh">
+        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
           <RefreshCw size={12} />
         </button>
       </div>
 
-      {loading && <div className={styles.loading}>Loading…</div>}
+      {isFetching && !health && <div className={styles.loading}>Loading…</div>}
 
       {health && (
         <div className={styles.healthGrid}>
@@ -284,27 +261,17 @@ function PlatformHealthSection() {
 // --- Operational Briefing Section ---
 
 function OperationalBriefing() {
-  const [briefing, setBriefing] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [lastFetched, setLastFetched] = useState<Date | null>(null);
-
-  const fetchBriefing = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: briefing, isFetching, refetch, dataUpdatedAt } = useQuery({
+    queryKey: ['workflow-briefing'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/workflow/briefing');
       const data = await res.json();
-      if (data.success) {
-        setBriefing(data.data.briefing);
-        setLastFetched(new Date());
-      }
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchBriefing(); }, [fetchBriefing]);
+      if (!data.success) throw new Error('Failed to load briefing');
+      return data.data.briefing as string;
+    },
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <div className={styles.section}>
@@ -313,15 +280,15 @@ function OperationalBriefing() {
           <Brain size={14} />
           Operational Briefing
         </div>
-        <button className={styles.refreshBtn} onClick={fetchBriefing} title="Refresh" disabled={loading}>
+        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh" disabled={isFetching}>
           <RefreshCw size={12} />
         </button>
       </div>
 
-      {loading && <div className={styles.loading}>Generating briefing…</div>}
-      {lastFetched && (
+      {isFetching && !briefing && <div className={styles.loading}>Generating briefing…</div>}
+      {dataUpdatedAt > 0 && (
         <div className={styles.briefingTime}>
-          Last updated: {formatTime(lastFetched.toISOString())}
+          Last updated: {new Date(dataUpdatedAt).toLocaleString()}
         </div>
       )}
       {briefing && (

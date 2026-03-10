@@ -1,10 +1,9 @@
-/* ChatPanel — Side panel for natural language workflow editing */
-
 .panel {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   background: var(--color-white, #fff);
+  border-left: 1px solid var(--color-border, #e5e7eb);
   height: 100%;
   overflow: hidden;
   position: relative;
@@ -48,6 +47,12 @@
 .resetButton:hover {
   background: var(--color-bg-light, #f9fafb);
   color: var(--color-text-primary, #111827);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .header {
@@ -105,7 +110,7 @@
 
 .userMessage {
   align-self: flex-end;
-  background: var(--color-primary, #006C67);
+  background: var(--color-primary, #006c67);
   color: var(--color-white, #fff);
 }
 
@@ -114,26 +119,6 @@
   background: var(--color-bg-light, #f9fafb);
   color: var(--color-text-primary, #111827);
   border: 1px solid var(--color-border-light, #f3f4f6);
-}
-
-.systemMessage {
-  align-self: center;
-  background: transparent;
-  color: var(--color-text-tertiary, #9ca3af);
-  font-size: var(--font-size-xs, 12px);
-  text-align: center;
-}
-
-.mutationBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  font-size: 10px;
-  color: var(--color-success-700, #15803d);
-  background: var(--color-success-50, #f0fdf4);
-  padding: 2px 8px;
-  border-radius: 999px;
 }
 
 /* Empty state */
@@ -181,8 +166,8 @@
 }
 
 .suggestionChip:hover {
-  border-color: var(--color-primary, #006C67);
-  color: var(--color-primary, #006C67);
+  border-color: var(--color-primary, #006c67);
+  color: var(--color-primary, #006c67);
   background: var(--color-white, #fff);
 }
 
@@ -210,7 +195,7 @@
 
 .textInput:focus {
   outline: none;
-  border-color: var(--color-primary, #006C67);
+  border-color: var(--color-primary, #006c67);
 }
 
 .textInput::placeholder {
@@ -226,7 +211,7 @@
   justify-content: center;
   border: none;
   border-radius: var(--border-radius-md, 8px);
-  background: var(--color-primary, #006C67);
+  background: var(--color-primary, #006c67);
   color: var(--color-white, #fff);
   cursor: pointer;
   transition: background-color 0.15s ease;

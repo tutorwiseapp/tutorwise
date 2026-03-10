@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Layers, RefreshCw } from 'lucide-react';
 import { ExecutionCommandBar } from './ExecutionCommandBar';
 import { ExecutionList } from './ExecutionList';
@@ -21,83 +22,91 @@ interface ExecutionDetail extends WorkflowExecution {
 }
 
 export function ExecutionPanel() {
-  const [processes, setProcesses] = useState<WorkflowProcess[]>([]);
+  const queryClient = useQueryClient();
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
-  const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
-  const [selectedExecution, setSelectedExecution] = useState<ExecutionDetail | null>(null);
+  const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [isLoadingProcesses, setIsLoadingProcesses] = useState(false);
-  const [isLoadingExecutions, setIsLoadingExecutions] = useState(false);
   const [approvalTask, setApprovalTask] = useState<WorkflowTask | null>(null);
 
   // Fetch all processes
-  const fetchProcesses = useCallback(async () => {
-    setIsLoadingProcesses(true);
-    try {
+  const { data: processes = [], isFetching: isLoadingProcesses, refetch: refetchProcesses } = useQuery({
+    queryKey: ['workflow-processes'],
+    queryFn: async () => {
       const res = await fetch('/api/admin/workflow/processes');
       const data = await res.json();
-      if (data.success) setProcesses(data.data as WorkflowProcess[]);
-    } catch {
-      // ignore
-    } finally {
-      setIsLoadingProcesses(false);
-    }
-  }, []);
+      if (!data.success) throw new Error('Failed to load processes');
+      return data.data as WorkflowProcess[];
+    },
+    staleTime: 60_000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  });
 
-  // Fetch executions (optionally filtered by process)
-  const fetchExecutions = useCallback(async () => {
-    setIsLoadingExecutions(true);
-    try {
+  // Fetch executions filtered by selected process
+  const { data: executions = [], isFetching: isLoadingExecutions, refetch: refetchExecutions } = useQuery({
+    queryKey: ['workflow-executions', selectedProcessId],
+    queryFn: async () => {
       const params = new URLSearchParams({ limit: '100' });
       if (selectedProcessId) params.set('processId', selectedProcessId);
       const res = await fetch(`/api/admin/workflow/execute?${params}`);
       const data = await res.json();
-      if (data.executions) setExecutions(data.executions as WorkflowExecution[]);
-    } catch {
-      // ignore
-    } finally {
-      setIsLoadingExecutions(false);
-    }
-  }, [selectedProcessId]);
-
-  // Fetch execution detail including tasks
-  const fetchExecutionDetail = useCallback(async (executionId: string) => {
-    try {
-      const res = await fetch(`/api/admin/workflow/execute/${executionId}`);
-      const data = await res.json();
-      if (data.execution) {
-        setSelectedExecution(data.execution as ExecutionDetail);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  useEffect(() => { fetchProcesses(); }, [fetchProcesses]);
-  useEffect(() => { fetchExecutions(); }, [fetchExecutions]);
-
-  const handleSelectExecution = useCallback(
-    (execution: WorkflowExecution) => {
-      setApprovalTask(null);
-      fetchExecutionDetail(execution.id);
+      return (data.executions ?? []) as WorkflowExecution[];
     },
-    [fetchExecutionDetail]
-  );
+    staleTime: 30_000,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
+  });
 
-  const handleProcessModeChanged = useCallback(
-    (processId: string, newMode: string) => {
-      setProcesses((prev) =>
-        prev.map((p) =>
+  // Fetch execution detail (auto-polls when an execution is selected)
+  const { data: selectedExecution } = useQuery<ExecutionDetail | null>({
+    queryKey: ['execution-detail', selectedExecutionId],
+    queryFn: async () => {
+      if (!selectedExecutionId) return null;
+      const res = await fetch(`/api/admin/workflow/execute/${selectedExecutionId}`);
+      const data = await res.json();
+      return (data.execution ?? null) as ExecutionDetail | null;
+    },
+    enabled: !!selectedExecutionId,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
+  });
+
+  // Process mode optimistic update
+  const processModesMutation = useMutation({
+    mutationFn: async ({ processId, newMode }: { processId: string; newMode: string }) => {
+      // Actual PATCH is handled inside ExecutionModeToggle — we just update cache here
+      return { processId, newMode };
+    },
+    onMutate: async ({ processId, newMode }) => {
+      await queryClient.cancelQueries({ queryKey: ['workflow-processes'] });
+      const prev = queryClient.getQueryData<WorkflowProcess[]>(['workflow-processes']);
+      queryClient.setQueryData<WorkflowProcess[]>(['workflow-processes'], (old = []) =>
+        old.map((p) =>
           p.id === processId
             ? { ...p, execution_mode: newMode as WorkflowProcess['execution_mode'] }
             : p
         )
       );
+      return { prev };
     },
-    []
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['workflow-processes'], ctx.prev);
+    },
+  });
+
+  const handleSelectExecution = useCallback((execution: WorkflowExecution) => {
+    setApprovalTask(null);
+    setSelectedExecutionId(execution.id);
+  }, []);
+
+  const handleProcessModeChanged = useCallback(
+    (processId: string, newMode: string) => {
+      processModesMutation.mutate({ processId, newMode });
+    },
+    [processModesMutation]
   );
 
-  // When clicking a paused (HITL) node on the canvas, open ApprovalDrawer
   const handleCanvasNodeClick = useCallback(
     (nodeId: string, status: string) => {
       if (status !== 'paused' || !selectedExecution?.tasks) return;
@@ -112,10 +121,12 @@ export function ExecutionPanel() {
   const handleApprovalDecision = useCallback(
     (_decision: 'approve' | 'reject') => {
       setApprovalTask(null);
-      if (selectedExecution) fetchExecutionDetail(selectedExecution.id);
-      fetchExecutions();
+      if (selectedExecutionId) {
+        queryClient.invalidateQueries({ queryKey: ['execution-detail', selectedExecutionId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['workflow-executions', selectedProcessId] });
     },
-    [selectedExecution, fetchExecutionDetail, fetchExecutions]
+    [queryClient, selectedExecutionId, selectedProcessId]
   );
 
   // Derive node status map from selected execution tasks
@@ -124,12 +135,10 @@ export function ExecutionPanel() {
     taskStatusMap[t.node_id] = t.status;
   });
 
-  // Get process nodes/edges for the selected execution
   const selectedProcess = processes.find(
     (p) => p.id === (selectedExecution?.process_id ?? selectedProcessId)
   );
 
-  // Shadow executions for divergence panel
   const shadowExecutions = executions
     .filter((e) => e.is_shadow)
     .map((e) => ({
@@ -141,7 +150,7 @@ export function ExecutionPanel() {
   return (
     <div className={styles.container}>
       {/* NLI Command Bar */}
-      <ExecutionCommandBar onResult={fetchExecutions} />
+      <ExecutionCommandBar onResult={() => refetchExecutions()} />
 
       <div className={styles.body}>
         {/* Left: Process list + Execution list */}
@@ -150,11 +159,11 @@ export function ExecutionPanel() {
           <div className={styles.processSection}>
             <div className={styles.sectionHeader}>
               <span className={styles.sectionTitle}>Processes</span>
-              <button className={styles.refreshBtn} onClick={fetchProcesses}>
+              <button className={styles.refreshBtn} onClick={() => refetchProcesses()}>
                 <RefreshCw size={12} />
               </button>
             </div>
-            {isLoadingProcesses && (
+            {isLoadingProcesses && processes.length === 0 && (
               <div className={styles.loadingRow}>Loading…</div>
             )}
             {processes.map((proc) => (
@@ -166,7 +175,7 @@ export function ExecutionPanel() {
                   className={styles.processRowClickable}
                   onClick={() => {
                     setSelectedProcessId(proc.id);
-                    setSelectedExecution(null);
+                    setSelectedExecutionId(null);
                   }}
                 >
                   <Layers size={13} className={styles.processIcon} />
@@ -205,10 +214,10 @@ export function ExecutionPanel() {
               executions={executions}
               isLoading={isLoadingExecutions}
               statusFilter={statusFilter}
-              selectedId={selectedExecution?.id ?? null}
+              selectedId={selectedExecutionId}
               onFilterChange={setStatusFilter}
               onSelect={handleSelectExecution}
-              onRefresh={fetchExecutions}
+              onRefresh={() => refetchExecutions()}
             />
           </div>
         </div>

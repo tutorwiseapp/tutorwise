@@ -23,12 +23,14 @@
   border-radius: var(--border-radius-md, 8px);
   border: 1px solid var(--color-border, #e5e7eb);
   box-shadow: var(--shadow-sm);
+  bottom: 34px !important;
 }
 
 .minimap {
   border-radius: var(--border-radius-md, 8px);
   border: 1px solid var(--color-border, #e5e7eb);
   box-shadow: var(--shadow-sm);
+  bottom: 34px !important;
 }
 
 /* Right panel — always visible */
@@ -115,6 +117,7 @@
   padding: 6px 12px;
   box-shadow: var(--shadow-sm);
   pointer-events: none;
+  bottom: 34px !important;
 }
 
 /* Publish button */
@@ -342,6 +345,12 @@
   }
 
   .minimap {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls {
     display: none;
   }
 }

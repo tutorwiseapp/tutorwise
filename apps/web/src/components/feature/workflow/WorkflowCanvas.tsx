@@ -2,16 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ReactFlow, {
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  ReactFlowProvider,
   Controls,
   Background,
   MiniMap,
   Panel,
-  BackgroundVariant,
 } from 'reactflow';
+import { FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasNodeActionsContext, CanvasContextMenu } from '@/components/feature/canvas';
+import type { ContextMenuItem } from '@/components/feature/canvas';
 import type {
   Connection,
   NodeMouseHandler,
@@ -19,11 +23,11 @@ import type {
   OnEdgesChange,
   OnNodesDelete,
   OnEdgesDelete,
-  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { MessageSquare, Settings2, ArrowLeft, Upload, History, X, RotateCcw } from 'lucide-react';
+import { MessageSquare, Settings2, ArrowLeft, Upload, History, X, RotateCcw, Pencil, Copy, Trash2, ArrowRight } from 'lucide-react';
 import { useWorkflowStore } from './store';
+import { useDiscoveryStore } from './discovery-store';
 import type { RightPanelMode } from './store';
 import { ProcessStepNode } from './ProcessStepNode';
 import { WorkflowEdge } from './WorkflowEdge';
@@ -57,11 +61,14 @@ const EDGE_TYPES = {
   workflowEdge: WorkflowEdge,
 };
 
+// Stable reference — prevents ReactFlow nodeTypes/edgeTypes change warning
+const DEFAULT_EDGE_OPTIONS = { type: 'workflowEdge', animated: true };
+
 const DEFAULT_NODES: ProcessNode[] = [
   {
     id: 'trigger-1',
     type: 'processStep',
-    position: { x: 300, y: 50 },
+    position: { x: 300, y: 20 },
     data: {
       label: 'Start',
       type: 'trigger',
@@ -72,7 +79,7 @@ const DEFAULT_NODES: ProcessNode[] = [
   {
     id: 'end-1',
     type: 'processStep',
-    position: { x: 300, y: 400 },
+    position: { x: 300, y: 220 },
     data: {
       label: 'End',
       type: 'end',
@@ -100,7 +107,7 @@ interface WorkflowCanvasProps {
   onNodeStatusClick?: (nodeId: string, status: string) => void;
 }
 
-export function WorkflowCanvas({
+function WorkflowCanvasInner({
   executionId,
   showLiveOverlay,
   readOnly,
@@ -109,19 +116,16 @@ export function WorkflowCanvas({
   onNodeStatusClick,
 }: WorkflowCanvasProps = {}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { fitView, screenToFlowPosition } = useReactFlow();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isParsing, setIsParsing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishValidationResult | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
 
-  // Version history
+  // Version history — open/close state (query handles the fetch)
   const [showVersionHistory, setShowVersionHistory] = useState(false);
-  const [versions, setVersions] = useState<WorkflowProcessVersion[]>([]);
-  const [loadingVersions, setLoadingVersions] = useState(false);
 
   // Live overlay: task status map nodeId → status
   const [taskStatusMap, setTaskStatusMap] = useState<Record<string, string>>({});
@@ -160,6 +164,8 @@ export function WorkflowCanvas({
     clearHistory,
     pendingCanvasImport,
     setPendingCanvasImport,
+    pendingProcessLoad,
+    clearProcessLoad,
   } = useWorkflowStore();
 
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo(
@@ -173,6 +179,19 @@ export function WorkflowCanvas({
     () => nodes.find((n) => n.id === selectedNodeId) as ProcessNode | null ?? null,
     [nodes, selectedNodeId]
   );
+
+  // React Query: version history — fetches when dialog opens, caches 30s
+  const { data: versions = [], isFetching: loadingVersions } = useQuery({
+    queryKey: ['workflow-versions', processId],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/workflow/processes/${processId}/versions?full=true`);
+      const data = await res.json();
+      if (!data.success) throw new Error('Failed to load versions');
+      return data.data as WorkflowProcessVersion[];
+    },
+    enabled: showVersionHistory && !!processId,
+    staleTime: 30_000,
+  });
 
   // Apply live overlay styles when executionId + showLiveOverlay
   const displayNodes = useMemo(() => {
@@ -282,6 +301,7 @@ export function WorkflowCanvas({
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setContextMenu(null);
   }, [setSelectedNode]);
 
   const onNodesDelete: OnNodesDelete = useCallback(
@@ -346,12 +366,42 @@ export function WorkflowCanvas({
     [setNodes, setEdges, pushSnapshot, markDirty, readOnly]
   );
 
-  // --- Save Handler: saves to draft_nodes/draft_edges ---
-  const handleSave = useCallback(async (silent = false) => {
-    if (readOnly) return;
-    setIsSaving(true);
-    setAutoSaveStatus('saving');
-    try {
+  const handleDuplicateNode = useCallback(
+    (id: string) => {
+      if (readOnly) return;
+      const node = nodes.find((n) => n.id === id);
+      if (!node) return;
+      pushSnapshot('Duplicate node');
+      const newNode: ProcessNode = {
+        ...node,
+        id: `${node.data.type}-${Date.now()}`,
+        position: { x: node.position.x + 40, y: node.position.y + 40 },
+        selected: false,
+      };
+      setNodes((nds) => [...nds, newNode]);
+      markDirty();
+    },
+    [nodes, setNodes, pushSnapshot, markDirty, readOnly]
+  );
+
+  // Context menu state (right-click)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node: ProcessNode } | null>(null);
+
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: ProcessNode) => {
+      if (readOnly) return;
+      event.preventDefault();
+      setContextMenu({ x: event.clientX, y: event.clientY, node });
+    },
+    [readOnly]
+  );
+
+  const setConductorTab = useDiscoveryStore((s) => s.setActiveTab);
+
+  // --- Save Mutation ---
+  const saveMutation = useMutation({
+    mutationFn: async (silent: boolean) => {
+      if (readOnly) return null;
       const payload = {
         name: processName || 'Untitled Process',
         description: processDescription || null,
@@ -359,7 +409,6 @@ export function WorkflowCanvas({
         draft_nodes: nodes,
         draft_edges: edges,
       };
-
       let res: Response;
       if (processId) {
         res = await fetch(`/api/admin/workflow/processes/${processId}`, {
@@ -368,60 +417,61 @@ export function WorkflowCanvas({
           body: JSON.stringify(payload),
         });
       } else {
-        // First save: POST with nodes too (so the process has at least initial data)
         res = await fetch('/api/admin/workflow/processes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...payload, nodes, edges }),
         });
       }
-
       const data = await res.json();
-      if (data.success) {
-        if (!processId && data.data?.id) {
-          setProcessId(data.data.id);
-        }
-        markSaved();
-        setAutoSaveStatus('saved');
-      } else {
-        setAutoSaveStatus('error');
-        if (!silent) alert(data.error || 'Failed to save process');
-      }
-    } catch {
+      if (!data.success) throw new Error(data.error || 'Failed to save process');
+      return data.data;
+    },
+    onMutate: () => setAutoSaveStatus('saving'),
+    onSuccess: (data) => {
+      if (!processId && data?.id) setProcessId(data.id);
+      markSaved();
+      setAutoSaveStatus('saved');
+    },
+    onError: (_err, silent) => {
       setAutoSaveStatus('error');
       if (!silent) alert('Failed to save. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  }, [readOnly, processId, processName, processDescription, nodes, edges, setProcessId, markSaved, setAutoSaveStatus]);
+    },
+  });
 
-  // --- Publish: doPublish must be defined before handlePublish ---
-  const doPublish = useCallback(async (notes?: string) => {
-    if (!processId) return;
-    setIsPublishing(true);
-    try {
-      // Auto-save draft first
-      await handleSave(true);
+  const handleSave = useCallback(async (silent = false) => {
+    if (readOnly) return;
+    await saveMutation.mutateAsync(silent);
+  }, [readOnly, saveMutation]);
 
+  // --- Publish Mutation ---
+  const publishMutation = useMutation({
+    mutationFn: async (notes?: string) => {
+      if (!processId) throw new Error('No process ID');
+      await saveMutation.mutateAsync(true);
       const res = await fetch(`/api/admin/workflow/processes/${processId}/publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes: notes ?? null }),
       });
       const data = await res.json();
-      if (data.success) {
-        setPublishResult(null);
-        setPublishError(null);
-        alert(`Published as v${data.data.version}!`);
-      } else {
-        setPublishError(data.error || 'Failed to publish');
-      }
-    } catch {
-      setPublishError('Publish failed. Please try again.');
-    } finally {
-      setIsPublishing(false);
-    }
-  }, [processId, handleSave]);
+      if (!data.success) throw new Error(data.error || 'Failed to publish');
+      return data.data;
+    },
+    onSuccess: (data) => {
+      setPublishResult(null);
+      setPublishError(null);
+      queryClient.invalidateQueries({ queryKey: ['workflow-versions', processId] });
+      alert(`Published as v${data.version}!`);
+    },
+    onError: (err) => {
+      setPublishError(err instanceof Error ? err.message : 'Publish failed. Please try again.');
+    },
+  });
+
+  const doPublish = useCallback(async (notes?: string) => {
+    await publishMutation.mutateAsync(notes);
+  }, [publishMutation]);
 
   const handlePublish = useCallback(async () => {
     if (readOnly || !processId) return;
@@ -461,17 +511,10 @@ export function WorkflowCanvas({
   }, [nodes, edges, readOnly]);
 
   // --- Version History ---
-  const handleShowVersionHistory = useCallback(async () => {
+  const handleShowVersionHistory = useCallback(() => {
     if (!processId) return;
     setShowVersionHistory(true);
-    setLoadingVersions(true);
-    try {
-      const res = await fetch(`/api/admin/workflow/processes/${processId}/versions?full=true`);
-      const data = await res.json();
-      if (data.success) setVersions(data.data);
-    } finally {
-      setLoadingVersions(false);
-    }
+    // React Query fires automatically when showVersionHistory=true && processId is set
   }, [processId]);
 
   const handleRestoreVersion = useCallback(
@@ -485,9 +528,9 @@ export function WorkflowCanvas({
       setEdges((version.edges as ProcessEdge[]) || []);
       markDirty();
       setShowVersionHistory(false);
-      setTimeout(() => reactFlowInstance.current?.fitView({ padding: 0.2 }), 100);
+      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
     },
-    [pushSnapshot, setNodes, setEdges, markDirty]
+    [pushSnapshot, setNodes, setEdges, markDirty, fitView]
   );
 
   // --- Go Back Handler ---
@@ -501,10 +544,8 @@ export function WorkflowCanvas({
     setProcessDescription(entry.description);
     setProcessId(entry.processId);
     markSaved();
-    setTimeout(() => {
-      reactFlowInstance.current?.fitView({ padding: 0.2 });
-    }, 100);
-  }, [popHistory, pushSnapshot, setNodes, setEdges, setProcessName, setProcessDescription, setProcessId, markSaved]);
+    setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
+  }, [popHistory, pushSnapshot, setNodes, setEdges, setProcessName, setProcessDescription, setProcessId, markSaved, fitView]);
 
   // --- New Process Handler ---
   const handleNew = useCallback(() => {
@@ -515,11 +556,9 @@ export function WorkflowCanvas({
       resetStore();
       setNodes(DEFAULT_NODES);
       setEdges([]);
-      setTimeout(() => {
-        reactFlowInstance.current?.fitView({ padding: 0.2 });
-      }, 100);
+      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
     }
-  }, [resetStore, setNodes, setEdges, clearHistory]);
+  }, [resetStore, setNodes, setEdges, clearHistory, fitView]);
 
   // --- Load Process Handler ---
   const handleLoadProcess = useCallback(
@@ -539,13 +578,17 @@ export function WorkflowCanvas({
       setProcessName(process.name);
       setProcessDescription(process.description || '');
       markSaved();
-
-      setTimeout(() => {
-        reactFlowInstance.current?.fitView({ padding: 0.2 });
-      }, 100);
+      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
     },
-    [setNodes, setEdges, pushSnapshot, setProcessId, setProcessName, setProcessDescription, markSaved]
+    [setNodes, setEdges, pushSnapshot, setProcessId, setProcessName, setProcessDescription, markSaved, fitView]
   );
+
+  // --- WorkflowSwitcher signal watcher ---
+  useEffect(() => {
+    if (!pendingProcessLoad) return;
+    handleLoadProcess(pendingProcessLoad);
+    clearProcessLoad();
+  }, [pendingProcessLoad, handleLoadProcess, clearProcessLoad]);
 
   // --- Clear Handler ---
   const handleClear = useCallback(() => {
@@ -567,47 +610,55 @@ export function WorkflowCanvas({
     event.dataTransfer.dropEffect = 'move';
   }, [readOnly]);
 
+  const createNode = useCallback((stepType: ProcessStepType, position: { x: number; y: number }): ProcessNode => ({
+    id: generateNodeId(),
+    type: 'processStep',
+    position,
+    data: {
+      label: `New ${stepType}`,
+      type: stepType,
+      description: '',
+      editable: true,
+      ...(stepType === 'agent' || stepType === 'team'
+        ? { handler: 'cas_agent', handler_config: {} }
+        : {}),
+    },
+  }), []);
+
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       if (readOnly) return;
       event.preventDefault();
 
       const typeStr = event.dataTransfer.getData('application/process-step-type');
-      if (!typeStr || !reactFlowInstance.current) return;
+      if (!typeStr) return;
 
-      const position = reactFlowInstance.current.screenToFlowPosition({
+      const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
-      const stepType = typeStr as ProcessStepType;
-      const newNode: ProcessNode = {
-        id: generateNodeId(),
-        type: 'processStep',
-        position,
-        data: {
-          label: `New ${stepType}`,
-          type: stepType,
-          description: '',
-          editable: true,
-          // Auto-assign cas_agent handler for agent/team nodes
-          ...(stepType === 'agent' || stepType === 'team'
-            ? { handler: 'cas_agent', handler_config: {} }
-            : {}),
-        },
-      };
-
+      const newNode = createNode(typeStr as ProcessStepType, position);
       pushSnapshot('Add node');
       setNodes((nds) => [...nds, newNode]);
       markDirty();
       setSelectedNode(newNode.id);
     },
-    [setNodes, pushSnapshot, markDirty, setSelectedNode, readOnly]
+    [createNode, setNodes, pushSnapshot, markDirty, setSelectedNode, readOnly, screenToFlowPosition]
   );
 
-  const onInit = useCallback((instance: ReactFlowInstance) => {
-    reactFlowInstance.current = instance;
-  }, []);
+  const addNodeByType = useCallback((stepType: ProcessStepType) => {
+    if (readOnly) return;
+    const position = screenToFlowPosition({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    });
+    const newNode = createNode(stepType, position);
+    pushSnapshot('Add node');
+    setNodes((nds) => [...nds, newNode]);
+    markDirty();
+    setSelectedNode(newNode.id);
+  }, [createNode, setNodes, pushSnapshot, markDirty, setSelectedNode, readOnly, screenToFlowPosition]);
 
   const handleNodeDragStop = useCallback(() => {
     if (readOnly) return;
@@ -641,17 +692,14 @@ export function WorkflowCanvas({
         setProcessName(workflow.name);
         setProcessDescription(workflow.description);
         markDirty();
-
-        setTimeout(() => {
-          reactFlowInstance.current?.fitView({ padding: 0.2 });
-        }, 100);
+        setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
       } catch {
         alert('Failed to connect to AI service. Please try again.');
       } finally {
         setIsParsing(false);
       }
     },
-    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription]
+    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription, fitView]
   );
 
   // --- Template Handler ---
@@ -671,11 +719,9 @@ export function WorkflowCanvas({
       setProcessDescription(description);
       markDirty();
 
-      setTimeout(() => {
-        reactFlowInstance.current?.fitView({ padding: 0.2 });
-      }, 100);
+      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
     },
-    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription]
+    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription, fitView]
   );
 
   // --- Chat Mutation Handler ---
@@ -686,12 +732,9 @@ export function WorkflowCanvas({
       setNodes(layoutNodes);
       setEdges(mutatedEdges);
       markDirty();
-
-      setTimeout(() => {
-        reactFlowInstance.current?.fitView({ padding: 0.2 });
-      }, 100);
+      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
     },
-    [setNodes, setEdges, pushSnapshot, markDirty]
+    [setNodes, setEdges, pushSnapshot, markDirty, fitView]
   );
 
   // --- Global Keyboard Shortcuts ---
@@ -817,16 +860,14 @@ export function WorkflowCanvas({
           setProcessId(null);
           markDirty();
 
-          setTimeout(() => {
-            reactFlowInstance.current?.fitView({ padding: 0.2 });
-          }, 100);
+          setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
         } catch {
           alert('Failed to parse JSON file. Please check the file format.');
         }
       };
       reader.readAsText(file);
     },
-    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription, setProcessId]
+    [setNodes, setEdges, pushSnapshot, markDirty, setProcessName, setProcessDescription, setProcessId, fitView]
   );
 
   // --- Export PDF Handler ---
@@ -862,7 +903,23 @@ export function WorkflowCanvas({
     [onEdgesChange, readOnly]
   );
 
+  const nodeActions = {
+    onEdit: (id: string) => { setSelectedNode(id); setRightPanelMode('properties'); },
+    onDuplicate: handleDuplicateNode,
+    onDelete: handleDeleteNode,
+    onNavigate: (_id: string, tab: 'agents' | 'teams') => setConductorTab(tab),
+  };
+
+  const contextMenuItems: ContextMenuItem[] = contextMenu ? [
+    { icon: Pencil, label: 'Edit', onClick: () => { setSelectedNode(contextMenu.node.id); setRightPanelMode('properties'); } },
+    { icon: Copy,   label: 'Duplicate', onClick: () => handleDuplicateNode(contextMenu.node.id) },
+    ...(contextMenu.node.data.type === 'agent' ? [{ icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('agents') }] : []),
+    ...(contextMenu.node.data.type === 'team'  ? [{ icon: ArrowRight, label: 'Configure Team',  variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('teams')  }] : []),
+    { icon: Trash2, label: 'Delete', variant: 'danger' as const, dividerBefore: true, onClick: () => handleDeleteNode(contextMenu.node.id) },
+  ] : [];
+
   return (
+    <CanvasNodeActionsContext.Provider value={readOnly ? {} : nodeActions}>
     <div className={styles.container}>
       {!readOnly && (
         <Toolbar
@@ -878,13 +935,13 @@ export function WorkflowCanvas({
           onFullscreen={handleFullscreen}
           canUndo={canUndo}
           canRedo={canRedo}
-          isSaving={isSaving}
+          isSaving={saveMutation.isPending}
           nodeCount={nodes.length}
           edgeCount={edges.length}
         />
       )}
       <div className={styles.canvasRow}>
-        {!readOnly && <NodePalette />}
+        {!readOnly && <NodePalette onAddNode={addNodeByType} />}
         <div
           className={styles.canvasWrapper}
           ref={reactFlowWrapper}
@@ -897,16 +954,17 @@ export function WorkflowCanvas({
             onConnect={onConnect}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
+            onNodeContextMenu={onNodeContextMenu as never}
             onNodesDelete={onNodesDelete}
             onEdgesDelete={onEdgesDelete}
             onDragOver={onDragOver}
             onDrop={onDrop}
-            onInit={onInit}
             onNodeDragStop={handleNodeDragStop}
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
-            defaultEdgeOptions={{ type: 'workflowEdge', animated: true }}
+            defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
             fitView
+            fitViewOptions={FIT_VIEW_OPTIONS}
             deleteKeyCode={readOnly ? null : 'Delete'}
             nodesDraggable={!readOnly}
             nodesConnectable={!readOnly}
@@ -914,7 +972,7 @@ export function WorkflowCanvas({
             proOptions={{ hideAttribution: true }}
           >
             <Controls className={styles.controls} />
-            <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+            <Background color={BACKGROUND_CONFIG.color} gap={BACKGROUND_CONFIG.gap} size={BACKGROUND_CONFIG.size} variant={BACKGROUND_CONFIG.variant} />
             <MiniMap
               className={styles.minimap}
               nodeStrokeWidth={3}
@@ -950,13 +1008,13 @@ export function WorkflowCanvas({
                 )}
                 {processId && (
                   <button
-                    className={`${styles.publishButton} ${isPublishing ? styles.publishButtonBusy : ''}`}
+                    className={`${styles.publishButton} ${publishMutation.isPending ? styles.publishButtonBusy : ''}`}
                     onClick={handlePublish}
-                    disabled={isPublishing}
+                    disabled={publishMutation.isPending}
                     title="Publish to live"
                   >
                     <Upload size={14} />
-                    {isPublishing ? 'Publishing…' : 'Publish'}
+                    {publishMutation.isPending ? 'Publishing…' : 'Publish'}
                   </button>
                 )}
                 <div className={styles.panelToggle}>
@@ -1093,6 +1151,24 @@ export function WorkflowCanvas({
           </div>
         </div>
       )}
+
+      {contextMenu && (
+        <CanvasContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenuItems}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
+    </CanvasNodeActionsContext.Provider>
+  );
+}
+
+export function WorkflowCanvas(props: WorkflowCanvasProps = {}) {
+  return (
+    <ReactFlowProvider>
+      <WorkflowCanvasInner {...props} />
+    </ReactFlowProvider>
   );
 }

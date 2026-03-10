@@ -1,0 +1,190 @@
+/* CanvasNode — Shared canvas node, left-accent-strip design */
+
+.node {
+  width: 160px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid var(--accent-color, #9ca3af);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 10px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: grab;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s ease;
+  position: relative;
+}
+
+.node:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.selected {
+  border-color: #e5e7eb;
+  border-left-color: var(--accent-color, #9ca3af);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 25%, transparent),
+              0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+/* Type badge: icon + type label */
+.typeBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-color, #9ca3af);
+  margin-bottom: 3px;
+}
+
+/* Header row: label + status dot */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Status dot */
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status_pending   { background: #9ca3af; }
+.status_skipped   { background: #d1d5db; }
+.status_completed { background: #34a853; }
+.status_active {
+  background: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  animation: activePulse 1.5s ease-in-out infinite;
+}
+/* online = agent is healthy/available (green, no pulse) */
+.status_online {
+  background: #10b981;
+}
+.status_running {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  animation: runningPulse 1s ease-in-out infinite;
+}
+
+@keyframes activePulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+  50%       { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+}
+
+@keyframes runningPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3); }
+  50%       { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
+}
+
+/* Description */
+.description {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Footer slot (e.g. subprocess badge + drill-down button) */
+.footer {
+  margin-top: 6px;
+}
+
+/* Meta slot (assignee / duration / external link) */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #9ca3af;
+  flex-wrap: wrap;
+}
+
+/* ReactFlow handles */
+.handle {
+  width: 8px;
+  height: 8px;
+  background: #9ca3af;
+  border: 2px solid #ffffff;
+}
+
+/* Condition node yes/no labels */
+.conditionLabels {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 14px 0;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.conditionYes { color: #34a853; }
+.conditionNo  { color: #d93025; }
+
+/* ── Node toolbar (left-click floating action bar) ── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  padding: 3px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: background 0.1s, color 0.1s;
+}
+
+.toolbarBtn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.toolbarBtnDanger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.toolbarBtnNavigate:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 16px;
+  background: #e5e7eb;
+  margin: 0 2px;
+  flex-shrink: 0;
+}

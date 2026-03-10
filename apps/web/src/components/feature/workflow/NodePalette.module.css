@@ -9,6 +9,7 @@
   user-select: none;
 }
 
+
 .collapsed {
   width: 32px;
   flex-shrink: 0;
@@ -29,12 +30,24 @@
   flex-shrink: 0;
 }
 
+.paletteTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
 .paletteTitle {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-tertiary, #9ca3af);
+}
+
+.paletteSubtitle {
+  font-size: 9px;
+  color: var(--color-text-secondary, #6b7280);
+  letter-spacing: 0.01em;
 }
 
 .collapseBtn {
@@ -118,12 +131,3 @@
 .notification .itemIcon { color: #ea580c; }
 .subprocess .itemIcon { color: #0d9488; }
 .end .itemIcon      { color: #dc2626; }
-
-.paletteFooter {
-  padding: 8px 10px;
-  font-size: 10px;
-  color: var(--color-text-tertiary, #9ca3af);
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  text-align: center;
-  flex-shrink: 0;
-}

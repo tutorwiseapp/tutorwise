@@ -1,6 +1,6 @@
 /**
- * GET  /api/admin/teams — list agent teams
- * POST /api/admin/teams — create a new team
+ * GET  /api/admin/spaces — list agent spaces
+ * POST /api/admin/spaces — create a new space
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
 
     let query = supabase
-      .from('agent_teams')
-      .select('id, slug, name, description, pattern, nodes, edges, coordinator_slug, config, status, built_in, space_id, created_at, updated_at')
+      .from('agent_spaces')
+      .select('id, slug, name, description, color, status, built_in, created_at, updated_at')
       .order('built_in', { ascending: false })
       .order('name');
 
@@ -44,11 +44,7 @@ export async function POST(request: NextRequest) {
       slug: string;
       name: string;
       description?: string;
-      pattern?: string;
-      nodes?: unknown[];
-      edges?: unknown[];
-      coordinator_slug?: string;
-      config?: Record<string, unknown>;
+      color?: string;
     };
 
     if (!body.slug || !body.name) {
@@ -56,24 +52,20 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('agent_teams')
+      .from('agent_spaces')
       .insert({
         slug: body.slug,
         name: body.name,
         description: body.description ?? null,
-        pattern: body.pattern ?? 'supervisor',
-        nodes: body.nodes ?? [],
-        edges: body.edges ?? [],
-        coordinator_slug: body.coordinator_slug ?? null,
-        config: body.config ?? {},
+        color: body.color ?? '#6366f1',
         created_by: user.id,
       })
-      .select('id, slug, name')
+      .select('id, slug, name, color')
       .single();
 
     if (error) {
       if (error.code === '23505') {
-        return NextResponse.json({ error: `Team slug '${body.slug}' already exists` }, { status: 409 });
+        return NextResponse.json({ error: `Space slug '${body.slug}' already exists` }, { status: 409 });
       }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

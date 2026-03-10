@@ -1,73 +1,17 @@
-/* ProcessStepNode — Custom ReactFlow node for Process Studio */
-
-.node {
-  width: 260px;
-  background: var(--color-white, #fff);
-  border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-2, 16px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  cursor: grab;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.node:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.selected {
-  border-width: 3px;
-  box-shadow: 0 0 0 2px var(--color-primary, #006C67);
-}
-
-/* Node type colors — border + matching tinted background */
-.trigger {
-  border-color: #16a34a;
-  background: #f0fdf4;
-}
-
-.action {
-  border-color: #3b82f6;
-  background: #eff6ff;
-}
-
-.condition {
-  border-color: #d97706;
-  background: #fffbeb;
-}
-
-.approval {
-  border-color: #8b5cf6;
-  background: #faf5ff;
-}
-
-.notification {
-  border-color: #0891b2;
-  background: #ecfeff;
-}
-
-.end {
-  border-color: #6b7280;
-  background: #f9fafb;
-}
-
-.subprocess {
-  border-color: #0d9488;
-  background: #f0fdfa;
-}
+/* ProcessStepNode — only subprocess footer and meta row styles remain.
+   All node visual styles (node, typeBadge, label, description, handles, etc.)
+   have moved to CanvasNode.module.css */
 
 .subprocessFooter {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
   gap: 6px;
 }
 
 .stepCountBadge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 2px 6px;
   background: #0d9488;
   color: #fff;
   border-radius: 999px;
@@ -79,7 +23,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 2px 8px;
+  padding: 2px 6px;
   background: transparent;
   border: 1px solid #0d9488;
   border-radius: 999px;
@@ -96,81 +40,16 @@
   color: #fff;
 }
 
-/* Status badge (dot in header) */
-.statusBadge {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.status_pending  { background: #9ca3af; }
-.status_active   { background: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); animation: activePulse 1.5s ease-in-out infinite; }
-.status_completed { background: #34a853; }
-.status_skipped  { background: #d1d5db; }
-
-@keyframes activePulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
-  50%       { box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
-}
-
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1, 8px);
-  margin-bottom: var(--space-1, 8px);
-}
-
-.icon {
-  font-size: var(--font-size-base, 16px);
-  flex-shrink: 0;
-}
-
-.label {
-  font-size: var(--font-size-sm, 14px);
-  font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-text-primary, #111827);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Description */
-.description {
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-secondary, #6b7280);
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  border-top: 1px solid var(--color-border-light, #f3f4f6);
-  padding-top: var(--space-1, 8px);
-}
-
-/* Meta (assignee + duration) */
-.meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 16px);
-  margin-top: var(--space-1, 8px);
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-tertiary, #9ca3af);
-}
-
 .metaItem {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .metaLink {
   display: inline-flex;
   align-items: center;
-  color: var(--color-info-500, #3b82f6);
+  color: #3b82f6;
   margin-left: auto;
   opacity: 0.7;
   transition: opacity 0.15s;
@@ -178,29 +57,4 @@
 
 .metaLink:hover {
   opacity: 1;
-}
-
-/* Handles */
-.handle {
-  width: 8px;
-  height: 8px;
-  background: var(--color-gray-400, #9ca3af);
-  border: 2px solid var(--color-white, #fff);
-}
-
-/* Condition node labels */
-.conditionLabels {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 20px 0;
-  font-size: 10px;
-  color: var(--color-text-tertiary, #9ca3af);
-}
-
-.conditionYes {
-  color: var(--color-success-600, #34a853);
-}
-
-.conditionNo {
-  color: var(--color-error-600, #d93025);
 }

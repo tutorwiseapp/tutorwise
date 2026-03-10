@@ -256,7 +256,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         name: discovery.name,
         description: discovery.description || '',
       });
-      setActiveTab('design');
+      setActiveTab('workflows');
       // Also call the prop callback if provided (backwards compat)
       onImportToCanvas?.(discovery.nodes, discovery.edges, discovery.name, discovery.description || '');
     },

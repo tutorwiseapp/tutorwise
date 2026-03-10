@@ -1,55 +1,220 @@
-/* Process Studio page layout */
+/* Conductor page layout */
+
+.tabsFlush {
+  margin-left: -1rem;
+}
+
+/* Nav row: stage bar + tab bar */
+.navRow {
+  position: relative;
+  margin-left: -1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Lifecycle stage bar — sits above the tab bar */
+.stageBar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 6px 1rem 4px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* Arrow separator between stages */
+.stage + .stage::before {
+  content: '›';
+  position: absolute;
+  left: -2px;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.stage:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
+
+.stageActive {
+  color: var(--color-primary, #006c67);
+  font-weight: 600;
+}
+
+.stageNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.stageActive .stageNumber {
+  background: var(--color-primary, #006c67);
+  color: #fff;
+}
+
+/* Tab navigation row */
+.navTabs {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  position: relative;
+  margin-bottom: -2px; /* tabs overlap border */
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+.navTabs::-webkit-scrollbar { display: none; }
+
+.navTab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #4B4B4B);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.navTab:hover {
+  color: var(--color-primary, #006c67);
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.navTabActive {
+  color: var(--color-primary, #006c67);
+  border-bottom: 2px solid var(--color-primary, #006c67);
+  font-weight: 600;
+}
 
 .canvasContainer {
-  height: calc(100vh - 176px); /* Account for tabs */
-  min-height: 500px;
+  height: calc(100dvh - 210px); /* Account for tabs */
+  min-height: 400px;
   margin-left: -1rem; /* Negate contentContainerBoard left padding for flush canvas */
   margin-bottom: -5rem; /* Negate contentContainerBoard bottom padding */
 }
 
 .discoveryContainer {
-  height: calc(100vh - 176px); /* Account for tabs */
-  min-height: 500px;
+  height: calc(100dvh - 210px); /* Account for tabs */
+  min-height: 400px;
   margin-left: -1rem;
   margin-bottom: -5rem;
 }
 
 .executionContainer {
-  height: calc(100vh - 176px); /* Account for tabs */
-  min-height: 500px;
+  height: calc(100dvh - 210px); /* Account for tabs */
+  min-height: 400px;
   margin-left: -1rem;
   margin-bottom: -5rem;
   overflow: hidden;
 }
 
 .teamsContainer {
-  height: calc(100vh - 176px);
-  min-height: 500px;
+  height: calc(100dvh - 210px);
+  min-height: 400px;
   margin-left: -1rem;
   margin-bottom: -5rem;
   overflow: hidden;
 }
 
 .agentsContainer {
-  height: calc(100vh - 176px);
-  min-height: 500px;
+  height: calc(100dvh - 210px + 1rem);
+  min-height: 400px;
+  margin-top: -1rem;
   margin-left: -1rem;
   margin-bottom: -5rem;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.spacesContainer {
+  height: calc(100dvh - 210px);
+  min-height: 400px;
+  margin-left: -1rem;
+  margin-bottom: -5rem;
+  overflow: hidden;
 }
 
 .monitoringContainer {
-  height: calc(100vh - 176px);
-  min-height: 500px;
+  height: calc(100dvh - 210px);
+  min-height: 400px;
   margin-left: -1rem;
   margin-bottom: -5rem;
   overflow: auto;
 }
 
 .intelligenceContainer {
-  height: calc(100vh - 176px);
-  min-height: 500px;
+  height: calc(100dvh - 210px);
+  min-height: 400px;
   margin-left: -1rem;
   margin-bottom: -5rem;
   overflow: hidden;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  /* Stage bar: horizontal scroll on overflow */
+  .stageBar {
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    padding: 4px 0.75rem 3px;
+    gap: 0;
+  }
+  .stageBar::-webkit-scrollbar { display: none; }
+  .stage { padding: 3px 8px; font-size: 10px; }
+  .stageNumber { width: 14px; height: 14px; font-size: 9px; }
+
+  /* Tabs: compact */
+  .navTab { font-size: 0.8rem; padding: 0.55rem 0.35rem; }
+
+  /* Containers: stage bar gone (~34px saved), adjust offset */
+  .canvasContainer,
+  .discoveryContainer,
+  .executionContainer,
+  .teamsContainer,
+  .spacesContainer,
+  .monitoringContainer,
+  .intelligenceContainer {
+    height: calc(100dvh - 170px);
+    min-height: 300px;
+  }
+
+  .agentsContainer {
+    height: calc(100dvh - 160px);
+    min-height: 300px;
+  }
 }
