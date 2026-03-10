@@ -28,7 +28,6 @@ import 'reactflow/dist/style.css';
 import { MessageSquare, Settings2, ArrowLeft, Upload, History, X, RotateCcw, Pencil, Copy, Trash2, ArrowRight } from 'lucide-react';
 import { useWorkflowStore } from './store';
 import { useDiscoveryStore } from './discovery-store';
-import type { RightPanelMode } from './store';
 import { ProcessStepNode } from './ProcessStepNode';
 import { WorkflowEdge } from './WorkflowEdge';
 import { NodePalette } from './NodePalette';
@@ -224,7 +223,7 @@ function WorkflowCanvasInner({
   useEffect(() => {
     if (!showLiveOverlay || !executionId) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase RealtimeChannel not typed in app layer
     let channel: any = null;
 
     const setup = async () => {
@@ -400,7 +399,7 @@ function WorkflowCanvasInner({
 
   // --- Save Mutation ---
   const saveMutation = useMutation({
-    mutationFn: async (silent: boolean) => {
+    mutationFn: async (_silent: boolean) => {
       if (readOnly) return null;
       const payload = {
         name: processName || 'Untitled Process',

@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -73,7 +74,6 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 // ── Section renderers ────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CaaSSection({ data }: { data: any }) {
   const latest = data?.latest;
   const byRole = data?.byRole ?? [];
@@ -111,7 +111,6 @@ function CaaSSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ResourcesSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const band = data?.health?.bandBreakdown ?? {};
@@ -177,7 +176,6 @@ function ResourcesSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SEOSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const topKw = data?.health?.topKeywords ?? [];
@@ -241,7 +239,6 @@ function SEOSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SignalSection({ data }: { data: any }) {
   const top = data?.topPerformers ?? [];
   const dead = data?.deadWeight ?? [];
@@ -300,7 +297,6 @@ function SignalSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MarketplaceSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const gaps = data?.gap?.gaps ?? [];
@@ -342,7 +338,6 @@ function MarketplaceSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ListingsSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const incomplete = data?.health?.incompleteListings;
@@ -387,7 +382,6 @@ function ListingsSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function BookingsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -410,7 +404,6 @@ function BookingsSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FinancialsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -433,7 +426,6 @@ function FinancialsSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function VirtualSpaceSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -454,7 +446,6 @@ function VirtualSpaceSection({ data }: { data: any }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ReferralSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
@@ -489,7 +480,6 @@ function ReferralSection({ data }: { data: any }) {
 
 // ── Section router ───────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
   if (!data) return <p className={styles.empty}>No data loaded.</p>;
   switch (tab) {

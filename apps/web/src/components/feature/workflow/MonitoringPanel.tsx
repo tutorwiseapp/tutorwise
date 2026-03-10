@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, AlertTriangle, CheckCircle, Clock, Activity, Zap, Brain } from 'lucide-react';
+import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain } from 'lucide-react';
 import styles from './MonitoringPanel.module.css';
 
 // --- Types ---
