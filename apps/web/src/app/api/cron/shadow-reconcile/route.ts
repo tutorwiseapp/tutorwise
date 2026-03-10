@@ -209,5 +209,36 @@ export async function GET(request: NextRequest) {
     // Non-fatal — continue
   }
 
+  // Phase 5: Write conformance rate snapshots for processes that had completions in the last hour
+  try {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { data: recentExecs } = await supabase
+      .from('workflow_executions')
+      .select('process_id')
+      .eq('status', 'completed')
+      .eq('is_shadow', false)
+      .gte('completed_at', oneHourAgo);
+
+    const distinctProcessIds = [
+      ...new Set((recentExecs ?? []).map((r: { process_id: string }) => r.process_id)),
+    ];
+
+    for (const processId of distinctProcessIds) {
+      const { ConformanceChecker } = await import('@/lib/process-studio/conformance/ConformanceChecker');
+      const batchResult = await ConformanceChecker.batchCheck(processId, supabase, 90);
+
+      await supabase.from('process_conformance_snapshots').insert({
+        process_id: processId,
+        conformance_rate: batchResult.conformanceRate,
+        total: batchResult.total,
+        conformant_count: batchResult.conformant,
+        deviated_count: batchResult.deviated,
+      });
+    }
+  } catch (snapshotError) {
+    console.error('[shadow-reconcile] Conformance snapshot error:', snapshotError);
+    // Non-fatal — continue
+  }
+
   return NextResponse.json({ success: true, ...results });
 }

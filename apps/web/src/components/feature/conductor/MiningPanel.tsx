@@ -195,9 +195,9 @@ function ConformanceSection({
   }
 
   const conformanceRate: number = data.conformanceRate ?? 0;
-  const conformantCount: number = data.conformantCount ?? 0;
-  const deviatedCount: number = data.deviatedCount ?? 0;
-  const expectedPathsCount: number = data.expectedPathsCount ?? 0;
+  const conformantCount: number = data.conformant ?? 0;
+  const deviatedCount: number = data.deviated ?? 0;
+  const expectedPathsCount: number = data.expectedPathCount ?? 0;
   const byType: Record<string, number> = data.byType ?? {};
   const deviations: any[] = data.deviations ?? [];
 
@@ -253,20 +253,20 @@ function ConformanceSection({
               <tbody>
                 {deviations.map((d: any, i: number) => (
                   <tr key={i}>
-                    <td className={styles.mono}>{String(d.executionId ?? d.exec_id ?? '').slice(0, 8)}</td>
-                    <td>{d.nodeId ?? d.node_id ?? '—'}</td>
+                    <td className={styles.mono}>{String(d.executionId ?? '').slice(0, 8)}</td>
+                    <td>{d.nodeId ?? '—'}</td>
                     <td>
                       <span className={`${styles.chip} ${styles.chipAmber}`}>
-                        {(d.type ?? d.deviation_type ?? '').replace(/_/g, ' ')}
+                        {(d.type ?? '').replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td>
-                      {d.detectedAt ?? d.detected_at
-                        ? new Date(d.detectedAt ?? d.detected_at).toLocaleDateString()
+                      {d.detectedAt
+                        ? new Date(d.detectedAt).toLocaleDateString()
                         : '—'}
                     </td>
                     <td>
-                      {d.isExpectedPath || d.is_expected_path ? (
+                      {d.isExpectedPath ? (
                         <span className={`${styles.chip} ${styles.chipGreen}`}>Expected</span>
                       ) : d.id == null ? (
                         <button className={styles.markExpectedBtnDisabled} disabled title="Not yet persisted by cron">

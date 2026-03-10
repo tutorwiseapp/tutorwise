@@ -52,9 +52,10 @@ export async function GET(_request: NextRequest) {
         .limit(20),
 
       // Top referrers by lifetime commission (attribution)
+      // NOTE: referrals.agent_id is the referrer (renamed from referrer_id in migration 052)
       supabase
         .from('referrals')
-        .select('referrer_id, commission_amount_pence, status')
+        .select('agent_id, commission_amount_pence, status')
         .eq('status', 'converted'),
     ]);
 
@@ -63,11 +64,11 @@ export async function GET(_request: NextRequest) {
     const orgs = orgHealthRes.data ?? [];
     const referrals = topReferrersRes.data ?? [];
 
-    // Compute top referrers by LTV (sum of commission_amount_pence per referrer_id)
+    // Compute top referrers by LTV (sum of commission_amount_pence per agent_id)
     const referrerMap: Record<string, number> = {};
     for (const r of referrals as any[]) {
-      if (r.referrer_id) {
-        referrerMap[r.referrer_id] = (referrerMap[r.referrer_id] ?? 0) + (r.commission_amount_pence ?? 0);
+      if (r.agent_id) {
+        referrerMap[r.agent_id] = (referrerMap[r.agent_id] ?? 0) + (r.commission_amount_pence ?? 0);
       }
     }
     const topReferrerIds = Object.entries(referrerMap)
@@ -90,7 +91,7 @@ export async function GET(_request: NextRequest) {
           full_name: profile?.full_name ?? 'Unknown',
           role: profile?.active_role ?? 'tutor',
           lifetime_commission_pence: referrerMap[id] ?? 0,
-          referral_count: (referrals as any[]).filter((r) => r.referrer_id === id).length,
+          referral_count: (referrals as any[]).filter((r) => r.agent_id === id).length,
         };
       });
     }

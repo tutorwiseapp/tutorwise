@@ -69,30 +69,17 @@ export async function POST(
     // Use service role for data queries (bypasses RLS cleanly)
     const db = createServiceRoleClient();
 
-    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
-
     // ---- INLINE CHECKLIST COMPUTATION (mirrors shadow API) ----
 
-    const [shadowResult, liveResult] = await Promise.all([
-      db
-        .from('workflow_executions')
-        .select('id, status, started_at, completed_at, shadow_divergence')
-        .eq('process_id', processId)
-        .eq('is_shadow', true),
-      db
-        .from('workflow_executions')
-        .select('id, status, started_at, completed_at, shadow_divergence')
-        .eq('process_id', processId)
-        .eq('is_shadow', false)
-        .not('completed_at', 'is', null)
-        .gte('started_at', since),
-    ]);
+    const shadowResult = await db
+      .from('workflow_executions')
+      .select('id, status, started_at, completed_at, shadow_divergence')
+      .eq('process_id', processId)
+      .eq('is_shadow', true);
 
     if (shadowResult.error) throw shadowResult.error;
-    if (liveResult.error) throw liveResult.error;
 
     const shadowExecutions: ExecutionRow[] = shadowResult.data ?? [];
-    const liveExecutions: ExecutionRow[] = liveResult.data ?? [];
 
     // Shadow divergence metrics
     const shadowTotal = shadowExecutions.length;
@@ -131,9 +118,6 @@ export async function POST(
     if (conformanceData?.conformance_rate != null) {
       conformanceRate = Math.round(conformanceData.conformance_rate);
     }
-
-    // Suppress unused variable warning — liveExecutions fetched for symmetry with shadow API
-    void liveExecutions;
 
     // ---- GO-LIVE CHECKLIST ----
     const goLiveChecklist: ChecklistItem[] = [
