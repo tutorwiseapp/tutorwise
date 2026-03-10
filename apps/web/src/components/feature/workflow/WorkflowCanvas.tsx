@@ -223,7 +223,6 @@ function WorkflowCanvasInner({
   useEffect(() => {
     if (!showLiveOverlay || !executionId) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase RealtimeChannel not typed in app layer
     let channel: any = null;
 
     const setup = async () => {

@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -94,7 +93,6 @@ function CaaSSection({ data }: { data: any }) {
           <table className={styles.table}>
             <thead><tr><th>Role</th><th>Avg Score</th><th>Provisional</th><th>Stale</th></tr></thead>
             <tbody>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {byRole.map((r: any) => (
                 <tr key={r.role_type}>
                   <td>{r.role_type}</td>
@@ -137,7 +135,6 @@ function ResourcesSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Band</th><th>Views 30d</th><th>Trend</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {opportunities.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -159,7 +156,6 @@ function ResourcesSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Spoke Count</th><th>Status</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {hubGaps.map((h: any) => (
                   <tr key={h.id}>
                     <td>{h.subject}</td>
@@ -200,7 +196,6 @@ function SEOSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Keyword</th><th>Position</th><th>Search Volume</th><th>Clicks 28d</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {opps.slice(0, 10).map((k: any) => (
                   <tr key={k.keyword}>
                     <td>{k.keyword}</td>
@@ -221,7 +216,6 @@ function SEOSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Keyword</th><th>Position</th><th>Clicks 28d</th><th>CTR</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {topKw.slice(0, 10).map((k: any) => (
                   <tr key={k.keyword}>
                     <td>{k.keyword}</td>
@@ -256,7 +250,6 @@ function SignalSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Conv %</th><th>Revenue 30d</th><th>Views 30d</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {top.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -278,7 +271,6 @@ function SignalSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Article ID</th><th>Score</th><th>Days Stale</th><th>Views 30d</th><th>Trend</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {dead.slice(0, 10).map((a: any) => (
                   <tr key={a.article_id}>
                     <td className={styles.mono}>{a.article_id?.slice(0, 8)}…</td>
@@ -320,7 +312,6 @@ function MarketplaceSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Searches</th><th>Zero-Result Rate</th><th>Active Listings</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {gaps.map((g: any) => (
                   <tr key={g.subject}>
                     <td>{g.subject}</td>
@@ -362,7 +353,6 @@ function ListingsSection({ data }: { data: any }) {
             <table className={styles.table}>
               <thead><tr><th>Subject</th><th>Level</th><th>Count</th><th>Min</th><th>Avg</th><th>Max</th></tr></thead>
               <tbody>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {pricing.slice(0, 15).map((p: any) => (
                   <tr key={`${p.subject}-${p.level}`}>
                     <td>{p.subject}</td>
