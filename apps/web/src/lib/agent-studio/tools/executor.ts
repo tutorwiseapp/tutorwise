@@ -730,22 +730,15 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const supabase = await createServiceRoleClient();
     const days = (input.days as number) ?? 30;
 
-    const [latest, activeAgents, aiBookings, zeroBookingAgents] = await Promise.all([
+    // Note: booking_type enum has values direct/referred/agent_job — no 'ai_agent' value yet.
+    // AI booking counts come from the daily metrics table (compute function uses tutor_id proxy).
+    const [latest, activeAgents] = await Promise.all([
       supabase
         .from('ai_adoption_platform_metrics_daily')
         .select('*')
         .order('metric_date', { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase
-        .from('ai_agents')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'active'),
-      supabase
-        .from('bookings')
-        .select('id', { count: 'exact', head: true })
-        .eq('booking_type', 'ai_agent')
-        .gte('created_at', new Date(Date.now() - days * 86400000).toISOString()),
       supabase
         .from('ai_agents')
         .select('id', { count: 'exact', head: true })
@@ -783,7 +776,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       },
       ai_marketplace: {
         active_ai_agents: m?.active_ai_agents ?? (activeAgents.count ?? 0),
-        ai_bookings_30d: m?.ai_bookings_30d ?? (aiBookings.count ?? 0),
+        ai_bookings_30d: m?.ai_bookings_30d ?? 0,
         ai_gmv_30d_pence: m?.ai_gmv_30d_pence ?? 0,
         ai_booking_share: m?.ai_booking_share_pct ?? null,
         ai_agents_with_0_bookings_30d: m?.ai_agents_zero_bookings ?? 0,

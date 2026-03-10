@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Component } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
@@ -44,7 +44,7 @@ const SELF_FETCHING_TABS: Set<IntelTab> = new Set(['gtm', 'tier_calibration', 'p
 
 const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
   gtm:           null,  // self-fetching via GTMLifecycleSection
-  caas:          '/api/admin/caas/analytics',
+  caas:          '/api/admin/caas/intelligence',
   resources:     '/api/admin/resources/intelligence',
   seo:           '/api/admin/seo/intelligence',
   signal:        '/api/admin/signal/intelligence',
@@ -53,7 +53,7 @@ const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
   bookings:      '/api/admin/bookings/intelligence',
   financials:    '/api/admin/financials/intelligence',
   virtualspace:  '/api/admin/virtualspace/intelligence',
-  referral:      '/api/admin/referrals/analytics',
+  referral:      '/api/admin/referrals/intelligence',
   retention:     '/api/admin/retention/intelligence',
   ai_adoption:   '/api/admin/ai/intelligence?view=adoption',
   org_conversion:'/api/admin/organisations/intelligence',
@@ -111,6 +111,33 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
       {sub && <div className={styles.statSub}>{sub}</div>}
     </div>
   );
+}
+
+// ── Section Error Boundary ───────────────────────────────────────────────────
+
+class SectionErrorBoundary extends Component<
+  { children: React.ReactNode; sectionLabel: string },
+  { hasError: boolean; message: string }
+> {
+  constructor(props: { children: React.ReactNode; sectionLabel: string }) {
+    super(props);
+    this.state = { hasError: false, message: '' };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, message: error.message };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: '#dc2626', padding: '16px', fontSize: '0.875rem', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+          ⚠ {this.props.sectionLabel} section failed to render: {this.state.message}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 // ── Section renderers ────────────────────────────────────────────────────────
@@ -870,7 +897,7 @@ const GTM_STAGE_ENDPOINTS = [
   { key: 'listings',     url: '/api/admin/listings/intelligence' },
   { key: 'bookings',     url: '/api/admin/bookings/intelligence' },
   { key: 'financials',   url: '/api/admin/financials/intelligence' },
-  { key: 'caas',         url: '/api/admin/caas/analytics' },
+  { key: 'caas',         url: '/api/admin/caas/intelligence' },
   { key: 'signal',       url: '/api/admin/signal/intelligence' },
   { key: 'virtualspace', url: '/api/admin/virtualspace/intelligence' },
 ] as const;
@@ -878,24 +905,32 @@ const GTM_STAGE_ENDPOINTS = [
 type StageStatus = 'green' | 'amber' | 'red' | 'grey';
 
 function GTMLifecycleSection() {
-  const { data: stageData = {} as Record<string, any>, isFetching } = useQuery({
+  const { data: queryResult, isFetching } = useQuery({
     queryKey: ['gtm-lifecycle-overview'],
     queryFn: async () => {
       const results = await Promise.allSettled(
         GTM_STAGE_ENDPOINTS.map(async ({ key, url }) => {
           const res = await fetch(url);
-          if (!res.ok) return [key, null] as [string, null];
+          if (!res.ok) return [key, null] as [string, any];
           const j = await res.json();
           return [key, j.data ?? j] as [string, any];
         })
       );
-      return Object.fromEntries(
+      const failedKeys: string[] = results.flatMap((r, i) => {
+        if (r.status === 'rejected') return [GTM_STAGE_ENDPOINTS[i].key as string];
+        if (r.status === 'fulfilled' && r.value[1] === null) return [GTM_STAGE_ENDPOINTS[i].key as string];
+        return [] as string[];
+      });
+      const stageData = Object.fromEntries(
         results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
       ) as Record<string, any>;
+      return { stageData, failedKeys };
     },
     staleTime: 5 * 60_000,
     retry: false,
   });
+  const stageData = queryResult?.stageData ?? {} as Record<string, any>;
+  const failedKeySet = new Set(queryResult?.failedKeys ?? []);
 
   type StageDefinition = {
     num: number;
@@ -1036,15 +1071,19 @@ function GTMLifecycleSection() {
                 <div className={styles.gtmStageHeader}>
                   <span className={styles.gtmStageNum}>{stage.num}</span>
                   <span className={styles.gtmStageName}>{stage.label}</span>
-                  <span
-                    className={`${styles.gtmStatusDot} ${
-                      status === 'green' ? styles.gtmStatusGreen
-                      : status === 'amber' ? styles.gtmStatusAmber
-                      : status === 'red' ? styles.gtmStatusRed
-                      : styles.gtmStatusGrey
-                    }`}
-                    title={status}
-                  />
+                  {failedKeySet.has(stage.id) ? (
+                    <span style={{ fontSize: '0.65rem', color: '#d97706', fontWeight: 600 }}>⚠ Failed</span>
+                  ) : (
+                    <span
+                      className={`${styles.gtmStatusDot} ${
+                        status === 'green' ? styles.gtmStatusGreen
+                        : status === 'amber' ? styles.gtmStatusAmber
+                        : status === 'red' ? styles.gtmStatusRed
+                        : styles.gtmStatusGrey
+                      }`}
+                      title={status}
+                    />
+                  )}
                 </div>
                 <div className={styles.gtmStageMetric}>{metric ?? 'No data yet'}</div>
                 <div className={styles.gtmStageAgent}>{stage.agent}</div>
@@ -1243,7 +1282,9 @@ export function IntelligencePanel() {
           {!isSelfFetching && isFetching && !data ? (
             <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
           ) : (
-            <SectionContent tab={activeTab} data={data} />
+            <SectionErrorBoundary key={activeTab} sectionLabel={currentTab.label}>
+              <SectionContent tab={activeTab} data={data} />
+            </SectionErrorBoundary>
           )}
         </div>
       </div>

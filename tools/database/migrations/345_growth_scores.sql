@@ -1,5 +1,5 @@
--- RESERVED: Migration 345
--- Phase: iPOM v3.4 — Phase 2 foundation
--- Description: Growth Score table — cohort-based, all-role scoring
--- Spec: conductor/conductor-solution-design-v3.md §Growth Score
--- Status: Pending implementation
+-- STUB: Migration 345 — Growth Score table
+-- Status: Table was created in migration 366 (retention_platform_metrics_daily)
+--         alongside the retention compute function. Column is 'role' (not 'role_type').
+-- See: tools/database/migrations/366_retention_platform_metrics_daily.sql
+-- See: conductor/conductor-growth-score-all-roles.md
