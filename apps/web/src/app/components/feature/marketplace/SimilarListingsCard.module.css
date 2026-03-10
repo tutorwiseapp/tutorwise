@@ -1,4 +1,4 @@
-/* SimilarOrganisationsCard.module.css — scroll-rail shell */
+/* SimilarListingsCard.module.css — shared scroll-rail shell */
 
 .card { padding: 0 !important; }
 
@@ -57,6 +57,7 @@
   scroll-snap-align: start;
 }
 
+/* Flat border, no shadow inside the rail */
 .cardWrapper > * {
   box-shadow: none !important;
   border: 1px solid #e5e7eb !important;

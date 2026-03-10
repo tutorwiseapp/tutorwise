@@ -56,6 +56,9 @@
  * RELATED SECTION (optional, 1-column full-width)
  * =================================================================== */
 .relatedSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
   margin-bottom: var(--space-4, 32px);
 }
 

@@ -17,6 +17,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { BookOpen, Briefcase } from 'lucide-react';
 import type { Listing } from '@tutorwise/shared-types';
 import type { MatchScore } from '@/lib/services/matchScoring';
 import { slugify } from '@/lib/utils/slugify';
@@ -119,8 +120,8 @@ export default function MarketplaceListingCard({ listing, matchScore }: Marketpl
         key="category"
         className={`${styles.categoryBadge} ${styles[`category${listing.listing_category.charAt(0).toUpperCase() + listing.listing_category.slice(1)}`]}`}
       >
-        {listing.listing_category === 'course' && '📚 Course'}
-        {listing.listing_category === 'job' && '💼 Job'}
+        {listing.listing_category === 'course' && <><BookOpen size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />Course</>}
+        {listing.listing_category === 'job' && <><Briefcase size={11} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />Job</>}
       </div>
     );
   }

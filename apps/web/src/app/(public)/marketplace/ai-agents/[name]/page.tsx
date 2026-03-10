@@ -31,6 +31,7 @@ import { AIAgentTrustCard } from '@/app/components/feature/ai-agents/public-prof
 import { AIAgentStatsCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentStatsCard';
 import { AIAgentStartSessionCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentStartSessionCard';
 import { SimilarAIAgentsCard } from '@/app/components/feature/ai-agents/public-profile/SimilarAIAgentsCard';
+import SimilarListingsCard from '@/app/components/feature/marketplace/SimilarListingsCard';
 import { AIAgentViewTracker } from '@/app/components/feature/ai-agents/public-profile/AIAgentViewTracker';
 import { AIAgentMobileBottomCTA } from '@/app/components/feature/ai-agents/public-profile/AIAgentMobileBottomCTA';
 import type { AIAgentPublicProfile } from '@/app/components/feature/ai-agents/public-profile/AIAgentHeroSection';
@@ -267,7 +268,14 @@ export default async function AIAgentPublicPage({ params }: AIAgentPublicPagePro
         <AIAgentStatsCard key="stats" agent={agent} studentsHelped={studentsHelped} />,
         <AIAgentStartSessionCard key="start-session" agent={agent} />,
       ]}
-      relatedSection={<SimilarAIAgentsCard agents={similarAgents} />}
+      relatedSection={
+        <>
+          <SimilarAIAgentsCard agents={similarAgents} />
+          <SimilarListingsCard
+            currentSubjects={agent.subject ? [agent.subject] : []}
+          />
+        </>
+      }
       mobileBottomCTA={<AIAgentMobileBottomCTA agent={agent} />}
       viewTracker={<AIAgentViewTracker agentId={agent.id} />}
       showBottomSpacer={true}

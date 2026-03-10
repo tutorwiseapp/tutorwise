@@ -1,16 +1,7 @@
-/**
- * Filename: SimilarProfilesCard.module.css
- * Purpose: Styles for Similar Profiles card
- * Created: 2025-11-12
- * Updated: 2026-01-05 - Matched standard card pattern with teal header
- */
+/* SimilarProfilesCard.module.css — scroll-rail shell */
 
-/* Override Card default padding to match standard pattern */
-.card {
-  padding: 0 !important;
-}
+.card { padding: 0 !important; }
 
-/* Teal header section matching standard card styling */
 .cardHeader {
   display: flex;
   align-items: center;
@@ -29,183 +20,59 @@
   line-height: 1.4;
 }
 
-/* Card content section with proper padding */
-.cardContent {
-  padding: 16px;
+.seeAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary-default, #006c67);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+.seeAllLink:hover { text-decoration: underline; }
 
-/* Horizontal Scroll Container */
-.profilesGrid {
+.cardContent { padding: var(--space-4, 32px); }
+
+.scrollContainer {
   display: flex;
   gap: var(--space-3, 24px);
   overflow-x: auto;
+  overflow-y: visible;
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
+  padding-top: 8px;
+  padding-left: 4px;
   padding-bottom: var(--space-2, 16px);
 }
 
-.profilesGrid::-webkit-scrollbar {
-  height: 8px;
-}
+.scrollContainer::-webkit-scrollbar { height: 8px; }
+.scrollContainer::-webkit-scrollbar-track { background: #F5F5F5; border-radius: 4px; }
+.scrollContainer::-webkit-scrollbar-thumb { background: #D1D1D1; border-radius: 4px; }
+.scrollContainer::-webkit-scrollbar-thumb:hover { background: var(--color-primary-default, #006c67); }
 
-.profilesGrid::-webkit-scrollbar-track {
-  background: var(--color-gray-100, #F5F5F5);
-  border-radius: 4px;
-}
-
-.profilesGrid::-webkit-scrollbar-thumb {
-  background: var(--color-gray-300, #D1D1D1);
-  border-radius: 4px;
-}
-
-.profilesGrid::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary-default, #006c67);
-}
-
-/* Individual Profile Card */
-.profileCard {
-  position: relative;
-  flex: 0 0 280px;
+.cardWrapper {
+  flex: 0 0 282px;
   scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3, 24px);
-  padding: var(--space-4, 32px);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
 }
 
-.profileCard:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  transform: translateY(-4px);
+.cardWrapper > * {
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb !important;
 }
+.cardWrapper > *:hover { box-shadow: none !important; }
 
-.profileCard:active {
-  transform: translateY(-2px);
-}
-
-/* Avatar */
-.avatarContainer {
-  flex-shrink: 0;
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.avatarPlaceholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-/* Profile Info */
-.profileInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.profileName {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.profileRole {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0;
-}
-
-.primaryItem {
-  font-size: 0.8125rem;
-  color: #374151;
-  margin: 0;
-  padding: 4px 12px;
-  background: #f3f4f6;
-  border-radius: 6px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Location */
-.location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.8125rem;
-  color: #6b7280;
-}
-
-/* Rating */
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.875rem;
-}
-
-.ratingValue {
-  font-weight: 600;
-  color: #111827;
-}
-
-.reviewCount {
-  color: #6b7280;
-}
-
-/* Empty State - matching ReviewsCard pattern */
 .emptyMessage {
-  font-size: 1rem; /* 16px - matching ReviewsCard empty state */
+  font-size: 1rem;
   color: #6b7280;
   text-align: center;
   padding: 48px 16px;
   margin: 0;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .cardTitle {
-    font-size: 15px;
-  }
-
-  .cardContent {
-    padding: 16px;
-  }
-
-  .profileCard {
-    flex: 0 0 240px;
-    padding: var(--space-3, 24px);
-  }
-
-  .avatar,
-  .avatarPlaceholder {
-    width: 64px;
-    height: 64px;
-    font-size: 1.5rem;
-  }
+@media (max-width: 767px) {
+  .cardTitle { font-size: 15px; }
+  .cardContent { padding: var(--space-3, 24px); }
+  .cardWrapper { flex: 0 0 240px; }
 }

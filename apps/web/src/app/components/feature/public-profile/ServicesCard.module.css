@@ -107,12 +107,13 @@
   padding: 12px 32px;
   padding-left: 36px;
   background: #ffffff;
+  border: none;
   border-bottom: 1px solid #e5e7eb;
   border-left: 3px solid #e5e7eb;
-  border-right: none;
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
+  appearance: none;
 }
 
 .listingRow:first-child {

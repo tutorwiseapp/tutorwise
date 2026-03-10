@@ -1,16 +1,13 @@
 /**
  * Filename: SimilarOrganisationsCard.tsx
- * Purpose: Display similar organisations for discovery
- * Created: 2025-12-31
+ * Purpose: Similar organisations scroll rail using MarketplaceOrganisationCard shell
  */
 
 'use client';
 
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Building2, MapPin, Star, Users } from 'lucide-react';
-import { getInitials } from '@/lib/utils/initials';
+import { ArrowRight } from 'lucide-react';
 import Card from '@/app/components/ui/data-display/Card';
+import MarketplaceOrganisationCard from '@/app/components/feature/marketplace/MarketplaceOrganisationCard';
 import styles from './SimilarOrganisationsCard.module.css';
 
 interface Organisation {
@@ -35,117 +32,44 @@ export function SimilarOrganisationsCard({
   organisations,
   currentOrganisationId,
 }: SimilarOrganisationsCardProps) {
-  const router = useRouter();
-
-  // Filter out current organisation and limit to 6
-  const filteredOrgs = organisations
-    .filter(org => org.id !== currentOrganisationId)
+  const filtered = organisations
+    .filter((org) => org.id !== currentOrganisationId)
     .slice(0, 6);
-
-  const handleOrgClick = (org: Organisation) => {
-    router.push(`/organisation/${org.slug}`);
-  };
-
-  const getTrustBadge = (score?: number) => {
-    if (!score) return null;
-    if (score >= 90) return { label: 'Top 5%', color: '#006c67' };
-    if (score >= 80) return { label: 'Top 10%', color: '#006c67' };
-    return null;
-  };
 
   return (
     <Card className={styles.card}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>You might also like</h2>
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>You might also like</h2>
+        <a href="/org" className={styles.seeAllLink}>
+          See all organisations
+          <ArrowRight size={13} />
+        </a>
       </div>
 
-      {filteredOrgs.length === 0 ? (
-        <p className={styles.emptyMessage}>No matching profiles or listings yet.</p>
+      {filtered.length === 0 ? (
+        <p className={styles.emptyMessage}>No similar organisations yet.</p>
       ) : (
-        <div className={styles.content}>
-          <div className={styles.grid}>
-            {filteredOrgs.map((org) => {
-              const _initials = getInitials(org.name);
-              const trustBadge = getTrustBadge(org.caas_score);
-              const logoUrl = org.logo_url || org.avatar_url;
-
-              return (
-                <button
-                  key={org.id}
-                  className={styles.orgCard}
-                  onClick={() => handleOrgClick(org)}
-                  aria-label={`View ${org.name}'s profile`}
-                >
-                  {/* Logo */}
-                  <div className={styles.logoWrapper}>
-                    {logoUrl ? (
-                      <Image
-                        src={logoUrl}
-                        alt={org.name}
-                        width={80}
-                        height={80}
-                        className={styles.logo}
-                      />
-                    ) : (
-                      <div className={styles.logoFallback}>
-                        <Building2 size={32} />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Organisation Info */}
-                  <div className={styles.info}>
-                    <h3 className={styles.name}>{org.name}</h3>
-
-                    {/* Trust Badge */}
-                    {trustBadge && (
-                      <div
-                        className={styles.trustBadge}
-                        style={{ backgroundColor: `${trustBadge.color}15`, color: trustBadge.color }}
-                      >
-                        {trustBadge.label}
-                      </div>
-                    )}
-
-                    {/* Tagline */}
-                    {org.tagline && (
-                      <p className={styles.tagline}>{org.tagline}</p>
-                    )}
-
-                    {/* Stats */}
-                    <div className={styles.stats}>
-                      {org.avg_rating && org.avg_rating > 0 && (
-                        <div className={styles.statItem}>
-                          <Star size={14} fill="#fbbf24" color="#fbbf24" />
-                          <span>{org.avg_rating.toFixed(1)}</span>
-                        </div>
-                      )}
-
-                      {org.total_tutors && org.total_tutors > 0 && (
-                        <div className={styles.statItem}>
-                          <Users size={14} />
-                          <span>{org.total_tutors} tutors</span>
-                        </div>
-                      )}
-
-                      {org.location_city && (
-                        <div className={styles.statItem}>
-                          <MapPin size={14} />
-                          <span>{org.location_city}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Hover Overlay */}
-                  <div className={styles.hoverOverlay}>
-                    <span>View Profile →</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+      <div className={styles.cardContent}>
+        <div className={styles.scrollContainer}>
+          {filtered.map((org) => (
+            <div key={org.id} className={styles.cardWrapper}>
+              <MarketplaceOrganisationCard
+                organisation={{
+                  id: org.id,
+                  name: org.name,
+                  slug: org.slug,
+                  avatar_url: org.logo_url || org.avatar_url,
+                  location_city: org.location_city,
+                  tagline: org.tagline,
+                  caas_score: org.caas_score,
+                  avg_rating: org.avg_rating,
+                  total_tutors: org.total_tutors,
+                } as any}
+              />
+            </div>
+          ))}
         </div>
+      </div>
       )}
     </Card>
   );

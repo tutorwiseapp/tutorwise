@@ -32,7 +32,7 @@ import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard
 import { VerificationCard } from '@/app/components/feature/public-profile/VerificationCard';
 import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTouchCard';
 import { ListingStatsCard } from './components/ListingStatsCard';
-import RelatedListingsCard from './components/RelatedListingsCard';
+import SimilarListingsCard from '@/app/components/feature/marketplace/SimilarListingsCard';
 import MobileBottomCTA from './components/MobileBottomCTA';
 import { generateListingSchemaForPage } from '@/services/seo/schema-generator';
 
@@ -306,8 +306,8 @@ export default async function ListingDetailsPage(props: ListingDetailsPageProps)
         <GetInTouchCard key="contact" profile={enrichedProfile} currentUser={currentUserProfile} />,
       ]}
       relatedSection={
-        <RelatedListingsCard
-          listingId={listing.id}
+        <SimilarListingsCard
+          excludeListingId={listing.id}
           currentSubjects={listing.subjects}
           currentLocation={listing.location_city}
         />

@@ -35,6 +35,7 @@ import { GetInTouchCard } from '@/app/components/feature/public-profile/GetInTou
 import { ServicesCard } from '@/app/components/feature/public-profile/ServicesCard';
 import { ReviewsCard } from '@/app/components/feature/public-profile/ReviewsCard';
 import { SimilarProfilesCard } from '@/app/components/feature/public-profile/SimilarProfilesCard';
+import SimilarListingsCard from '@/app/components/feature/marketplace/SimilarListingsCard';
 import { MobileBottomCTA } from '@/app/components/feature/public-profile/MobileBottomCTA';
 import { ProfileViewTracker } from '@/app/components/feature/public-profile/ProfileViewTracker';
 import { generateProfileSchema } from '@/services/seo/schema-generator';
@@ -390,7 +391,17 @@ export default async function PublicProfilePage(props: PublicProfilePageProps) {
         <GetInTouchCard key="contact" profile={enrichedProfile} currentUser={currentUserProfile} />,
       ]}
       relatedSection={
-        <SimilarProfilesCard profiles={similarProfiles || []} />
+        <>
+          <SimilarProfilesCard profiles={similarProfiles || []} />
+          <SimilarListingsCard
+            currentSubjects={
+              (profile.professional_details?.tutor?.subjects ||
+               profile.professional_details?.client?.subjects ||
+               []) as string[]
+            }
+            currentLocation={profile.city ?? undefined}
+          />
+        </>
       }
       mobileBottomCTA={
         <MobileBottomCTA
