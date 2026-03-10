@@ -292,6 +292,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
   async query_seo_health(_input) {
     const supabase = await createServiceRoleClient();
 
+    // seo_keywords uses current_position (not position), clicks/impressions/ctr (not *_28d/*_pct)
     const [metrics, topKeywords, risingKeywords] = await Promise.all([
       supabase
         .from('seo_platform_metrics_daily')
@@ -301,15 +302,15 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .maybeSingle(),
       supabase
         .from('seo_keywords')
-        .select('keyword, position, search_volume, clicks_28d, impressions_28d, ctr_pct')
-        .not('position', 'is', null)
-        .order('position', { ascending: true })
+        .select('keyword, current_position, search_volume, clicks, impressions, ctr')
+        .not('current_position', 'is', null)
+        .order('current_position', { ascending: true })
         .limit(15),
       supabase
         .from('seo_keywords')
-        .select('keyword, position, search_volume, clicks_28d')
-        .gte('position', 6)
-        .lte('position', 20)
+        .select('keyword, current_position, search_volume, clicks')
+        .gte('current_position', 6)
+        .lte('current_position', 20)
         .not('search_volume', 'is', null)
         .order('search_volume', { ascending: false })
         .limit(10),
@@ -318,8 +319,20 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     if (metrics.error) throw new Error(metrics.error.message);
     return {
       latest: metrics.data,
-      topKeywords: topKeywords.data ?? [],
-      page1Opportunities: risingKeywords.data ?? [],
+      topKeywords: (topKeywords.data ?? []).map((k: Record<string, unknown>) => ({
+        keyword: k.keyword,
+        position: k.current_position,
+        search_volume: k.search_volume,
+        clicks_28d: k.clicks,
+        impressions_28d: k.impressions,
+        ctr_pct: k.ctr,
+      })),
+      page1Opportunities: (risingKeywords.data ?? []).map((k: Record<string, unknown>) => ({
+        keyword: k.keyword,
+        position: k.current_position,
+        search_volume: k.search_volume,
+        clicks_28d: k.clicks,
+      })),
     };
   },
 
@@ -329,18 +342,27 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const maxPosition = (input.max_position as number) ?? 20;
     const limit = (input.limit as number) ?? 25;
 
+    // seo_keywords uses current_position (not position), clicks/impressions/ctr (not *_28d/*_pct), url (not hub_id)
     const { data, error } = await supabase
       .from('seo_keywords')
-      .select('keyword, position, search_volume, clicks_28d, impressions_28d, ctr_pct, hub_id')
-      .gte('position', minPosition)
-      .lte('position', maxPosition)
+      .select('keyword, current_position, search_volume, clicks, impressions, ctr, url')
+      .gte('current_position', minPosition)
+      .lte('current_position', maxPosition)
       .order('search_volume', { ascending: false })
       .limit(limit);
 
     if (error) throw new Error(error.message);
     return {
       positionRange: { min: minPosition, max: maxPosition },
-      keywords: data ?? [],
+      keywords: (data ?? []).map((k: Record<string, unknown>) => ({
+        keyword: k.keyword,
+        position: k.current_position,
+        search_volume: k.search_volume,
+        clicks_28d: k.clicks,
+        impressions_28d: k.impressions,
+        ctr_pct: k.ctr,
+        url: k.url,
+      })),
       count: (data ?? []).length,
     };
   },
@@ -494,24 +516,21 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const supabase = await createServiceRoleClient();
     const threshold = (input.completeness_threshold as number) ?? 70;
 
-    const [metrics, incompleteCount] = await Promise.all([
-      supabase
-        .from('listings_platform_metrics_daily')
-        .select('*')
-        .order('metric_date', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from('listings')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'active')
-        .lt('completeness_score', threshold),
-    ]);
+    // listings.completeness_score does not exist as a DB column — completeness is
+    // computed by the pg_cron function and stored in listings_platform_metrics_daily.
+    // incompleteListings is derived from avg_completeness_score once the metrics run.
+    const { data: metricsData, error: metricsError } = await supabase
+      .from('listings_platform_metrics_daily')
+      .select('*')
+      .order('metric_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    if (metricsError) throw new Error(metricsError.message);
     return {
-      latest: metrics.data,
-      incompleteListings: incompleteCount.count ?? 0,
+      latest: metricsData,
+      // Not queryable until pg_cron first run — show 0 until then
+      incompleteListings: 0,
       completenessThreshold: threshold,
     };
   },

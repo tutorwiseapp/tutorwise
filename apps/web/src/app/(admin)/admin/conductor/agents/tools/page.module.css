@@ -136,6 +136,14 @@
 
 .loading { color: #6b7280; font-size: 0.875rem; }
 
+.spinning {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

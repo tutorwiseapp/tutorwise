@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Wrench, ArrowLeft, Play, Plus, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -24,26 +25,43 @@ interface TestResult {
   error?: string;
 }
 
+async function fetchTools(): Promise<AnalystTool[]> {
+  const res = await fetch('/api/admin/tools');
+  const json = await res.json() as { success: boolean; data: AnalystTool[] };
+  if (!json.success) throw new Error('Failed to fetch tools');
+  return json.data;
+}
+
 export default function ToolsRegistryPage() {
-  const [tools, setTools] = useState<AnalystTool[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
   const [showRegister, setShowRegister] = useState(false);
   const [form, setForm] = useState({ slug: '', name: '', description: '', category: 'analytics' });
 
-  const fetchTools = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/tools');
-      const json = await res.json() as { success: boolean; data: AnalystTool[] };
-      if (json.success) setTools(json.data);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: tools = [], isLoading, isFetching, error, refetch } = useQuery({
+    queryKey: ['admin-tools'],
+    queryFn: fetchTools,
+    staleTime: 60_000,
+    retry: false,
+  });
 
-  useEffect(() => { fetchTools(); }, []);
+  const registerMutation = useMutation({
+    mutationFn: async (payload: typeof form) => {
+      const res = await fetch('/api/admin/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json() as { success: boolean };
+      if (!json.success) throw new Error('Registration failed');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-tools'] });
+      setShowRegister(false);
+      setForm({ slug: '', name: '', description: '', category: 'analytics' });
+    },
+  });
 
   const testTool = async (tool: AnalystTool) => {
     setTesting(tool.slug);
@@ -63,21 +81,6 @@ export default function ToolsRegistryPage() {
     }
   };
 
-  const registerTool = async () => {
-    if (!form.slug || !form.name || !form.description) return;
-    const res = await fetch('/api/admin/tools', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    const json = await res.json() as { success: boolean };
-    if (json.success) {
-      setShowRegister(false);
-      setForm({ slug: '', name: '', description: '', category: 'analytics' });
-      await fetchTools();
-    }
-  };
-
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -90,8 +93,13 @@ export default function ToolsRegistryPage() {
           <span className={styles.badge}>{tools.length}</span>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.iconBtn} onClick={fetchTools} title="Refresh">
-            <RefreshCw size={14} />
+          <button
+            className={styles.iconBtn}
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Refresh"
+          >
+            <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
           </button>
           <button className={styles.addBtn} onClick={() => setShowRegister(!showRegister)}>
             <Plus size={14} /> Register Tool
@@ -112,12 +120,25 @@ export default function ToolsRegistryPage() {
             </select>
           </div>
           <input className={styles.input} placeholder="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <button className={styles.submitBtn} onClick={registerTool}>Register</button>
+          <button
+            className={styles.submitBtn}
+            onClick={() => registerMutation.mutate(form)}
+            disabled={registerMutation.isPending || !form.slug || !form.name || !form.description}
+          >
+            {registerMutation.isPending ? 'Registering…' : 'Register'}
+          </button>
+          {registerMutation.isError && (
+            <div className={styles.testError}>{String(registerMutation.error)}</div>
+          )}
         </div>
       )}
 
-      {loading ? (
+      {isLoading ? (
         <div className={styles.loading}>Loading tools…</div>
+      ) : error ? (
+        <div className={styles.testError}>
+          Failed to load tools. <button className={styles.testBtn} onClick={() => refetch()}>Retry</button>
+        </div>
       ) : (
         <table className={styles.table}>
           <thead>

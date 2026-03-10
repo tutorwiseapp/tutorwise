@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Send, Brain, ChevronDown, ChevronUp } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Send, Brain, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 
@@ -29,31 +30,43 @@ interface ChatMessage {
   content: string;
 }
 
+async function fetchAgentBySlug(slug: string): Promise<SpecialistAgent | null> {
+  const res = await fetch(`/api/admin/agents?status=active`);
+  const json = await res.json() as { success: boolean; data: SpecialistAgent[] };
+  if (!json.success) throw new Error('Failed to load agents');
+  return json.data.find((a) => a.slug === slug) ?? null;
+}
+
+async function fetchRunHistory(agentId: string): Promise<RunHistory[]> {
+  const res = await fetch(`/api/admin/agents/${agentId}/runs`);
+  const json = await res.json() as { success: boolean; data: RunHistory[] };
+  if (!json.success) throw new Error('Failed to load run history');
+  return json.data;
+}
+
 export default function AgentChatPage() {
   const { slug } = useParams() as { slug: string };
-  const [agent, setAgent] = useState<SpecialistAgent | null>(null);
-  const [runs, setRuns] = useState<RunHistory[]>([]);
+  const queryClient = useQueryClient();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [expandedRun, setExpandedRun] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    (async () => {
-      const res = await fetch(`/api/admin/agents?status=active`);
-      const json = await res.json() as { success: boolean; data: SpecialistAgent[] };
-      if (json.success) {
-        const found = json.data.find((a) => a.slug === slug);
-        setAgent(found ?? null);
-        if (found) {
-          const runsRes = await fetch(`/api/admin/agents/${found.id}/runs`);
-          const runsJson = await runsRes.json() as { success: boolean; data: RunHistory[] };
-          if (runsJson.success) setRuns(runsJson.data);
-        }
-      }
-    })();
-  }, [slug]);
+  const { data: agent, isLoading: agentLoading, error: agentError } = useQuery({
+    queryKey: ['admin-agent', slug],
+    queryFn: () => fetchAgentBySlug(slug),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+
+  const { data: runs = [], isFetching: runsFetching, refetch: refetchRuns } = useQuery({
+    queryKey: ['admin-agent-runs', agent?.id],
+    queryFn: () => fetchRunHistory(agent!.id),
+    enabled: !!agent?.id,
+    staleTime: 30_000,
+    retry: false,
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -106,16 +119,22 @@ export default function AgentChatPage() {
       }
     } finally {
       setStreaming(false);
-      // Refresh run history
-      const runsRes = await fetch(`/api/admin/agents/${agent.id}/runs`);
-      const runsJson = await runsRes.json() as { success: boolean; data: RunHistory[] };
-      if (runsJson.success) setRuns(runsJson.data);
+      queryClient.invalidateQueries({ queryKey: ['admin-agent-runs', agent.id] });
     }
   };
 
-  if (!agent) {
+  if (agentLoading) {
+    return <div className={styles.loading}>Loading agent…</div>;
+  }
+
+  if (agentError || !agent) {
     return (
-      <div className={styles.loading}>Loading agent…</div>
+      <div className={styles.loading}>
+        Agent not found.{' '}
+        <Link href="/admin/conductor?tab=agents" style={{ color: '#a78bfa' }}>
+          Back to Agents
+        </Link>
+      </div>
     );
   }
 
@@ -172,7 +191,17 @@ export default function AgentChatPage() {
       </div>
 
       <div className={styles.historyColumn}>
-        <div className={styles.historyTitle}>Run History</div>
+        <div className={styles.historyTitle}>
+          Run History
+          <button
+            className={styles.refreshRunsBtn}
+            onClick={() => refetchRuns()}
+            disabled={runsFetching}
+            title="Refresh"
+          >
+            <RefreshCw size={12} className={runsFetching ? styles.spinning : undefined} />
+          </button>
+        </div>
         {runs.length === 0 ? (
           <div className={styles.historyEmpty}>No runs yet</div>
         ) : (

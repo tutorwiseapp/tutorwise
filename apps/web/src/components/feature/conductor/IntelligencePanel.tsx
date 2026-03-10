@@ -798,11 +798,16 @@ export function IntelligencePanel() {
     queryKey: ['intel', activeTab],
     queryFn: async () => {
       const res = await fetch(TAB_ENDPOINTS[activeTab]);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try { const j = await res.json(); msg = j.error ?? msg; } catch { /* ignore */ }
+        throw new Error(msg);
+      }
       const json = await res.json();
       return json.data ?? json;
     },
     staleTime: 5 * 60_000,   // 5 min — analytics don't need constant refresh
+    retry: false,             // don't auto-retry 500s — admin can manually refresh
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
