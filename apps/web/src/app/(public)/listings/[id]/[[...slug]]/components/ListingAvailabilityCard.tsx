@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Check, X, Lightbulb } from 'lucide-react';
 import Card from '@/app/components/ui/data-display/Card';
 import styles from './ListingAvailabilityCard.module.css';
 
@@ -59,7 +60,7 @@ export default function ListingAvailabilityCard({
           <div className={styles.periodsList}>
             {availability.map((period) => (
               <div key={period.id} className={styles.periodItem}>
-                <span className={styles.periodIcon}>✓</span>
+                <Check size={14} className={styles.periodIcon} />
                 <span className={styles.periodText}>{formatPeriod(period)}</span>
               </div>
             ))}
@@ -74,7 +75,7 @@ export default function ListingAvailabilityCard({
           <div className={styles.periodsList}>
             {unavailability.map((period) => (
               <div key={period.id} className={styles.unavailableItem}>
-                <span className={styles.periodIcon}>✕</span>
+                <X size={14} className={styles.periodIcon} />
                 <span className={styles.periodText}>{formatUnavailable(period)}</span>
               </div>
             ))}
@@ -83,7 +84,7 @@ export default function ListingAvailabilityCard({
       )}
 
       <p className={styles.note}>
-        💡 Final date & time selection will be done during booking.
+        <Lightbulb size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Final date &amp; time selection will be done during booking.
       </p>
     </Card>
   );

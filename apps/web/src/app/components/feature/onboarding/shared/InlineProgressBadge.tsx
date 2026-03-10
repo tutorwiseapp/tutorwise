@@ -11,6 +11,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Check, ArrowRight, ChevronDown, ChevronRight, Circle } from 'lucide-react';
 import styles from './InlineProgressBadge.module.css';
 
 interface Step {
@@ -77,7 +78,11 @@ export default function InlineProgressBadge({
             }
             title={`${step.name} (${step.points} pts)`}
           >
-            {step.completed ? '●' : step.current ? '◐' : '○'}
+            {step.completed
+              ? <Circle size={8} fill="currentColor" />
+              : step.current
+              ? <Circle size={8} strokeWidth={3} />
+              : <Circle size={8} />}
           </span>
         ))}
       </div>
@@ -100,7 +105,7 @@ export default function InlineProgressBadge({
 
       {/* Chevron */}
       <span className={styles.chevron}>
-        {showTooltip ? '▼' : '›'}
+        {showTooltip ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
       </span>
 
       {/* Hover Tooltip */}
@@ -126,7 +131,11 @@ export default function InlineProgressBadge({
                 }
               >
                 <span className={styles.stepIcon}>
-                  {step.completed ? '✓' : step.current ? '→' : '○'}
+                  {step.completed
+                    ? <Check size={11} />
+                    : step.current
+                    ? <ArrowRight size={11} />
+                    : <Circle size={9} />}
                 </span>
                 <span className={styles.stepName}>{step.name}</span>
                 <span className={styles.stepPoints}>+{step.points}</span>

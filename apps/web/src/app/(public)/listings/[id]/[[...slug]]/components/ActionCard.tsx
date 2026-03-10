@@ -12,6 +12,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MessageCircle, Link2, Check, Calendar, FileText, Video, Package } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Card from '@/app/components/ui/data-display/Card';
 import Button from '@/app/components/ui/actions/Button';
@@ -120,7 +121,7 @@ export default function ActionCard({ listing }: ActionCardProps) {
       {/* Instant Booking Badge */}
       {listing.instant_booking_enabled && (
         <div className={styles.badgeContainer}>
-          <StatusBadge status="⚡ Instant Booking" />
+          <StatusBadge status="Instant Booking" />
         </div>
       )}
 
@@ -143,12 +144,12 @@ export default function ActionCard({ listing }: ActionCardProps) {
       {/* Secondary CTAs: Grid layout */}
       <div className={styles.ctaGrid}>
         <button onClick={handleContact} className={styles.ctaButton}>
-          <span className={styles.ctaIcon}>💬</span>
+          <MessageCircle size={16} className={styles.ctaIcon} />
           <span className={styles.ctaText}>Contact</span>
         </button>
 
         <button onClick={handleConnect} className={styles.ctaButton}>
-          <span className={styles.ctaIcon}>🔗</span>
+          <Link2 size={16} className={styles.ctaIcon} />
           <span className={styles.ctaText}>Connect</span>
         </button>
       </div>
@@ -156,11 +157,11 @@ export default function ActionCard({ listing }: ActionCardProps) {
       {/* Trust indicators */}
       <div className={styles.trustIndicators}>
         <p className={styles.trustText}>
-          <span className={styles.trustIcon}>✓</span>
+          <Check size={13} className={styles.trustIcon} />
           Free cancellation up to 24 hours
         </p>
         <p className={styles.trustText}>
-          <span className={styles.trustIcon}>✓</span>
+          <Check size={13} className={styles.trustIcon} />
           Money-back guarantee
         </p>
       </div>
@@ -199,7 +200,7 @@ function OneToOneVariant({ listing }: { listing: ListingV41 }) {
       {/* Availability hint */}
       <div className={styles.availabilityHint}>
         <p className={styles.hintText}>
-          📅 Select date & time after clicking &ldquo;Book Now&rdquo;
+          <Calendar size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Select date &amp; time after clicking &ldquo;Book Now&rdquo;
         </p>
       </div>
     </div>
@@ -261,7 +262,7 @@ function WorkshopVariant({ listing }: { listing: ListingV41 }) {
 
       <div className={styles.workshopDate}>
         <p className={styles.dateText}>
-          📅 Workshop date will be confirmed after booking
+          <Calendar size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Workshop date will be confirmed after booking
         </p>
       </div>
     </div>
@@ -283,17 +284,17 @@ function StudyPackageVariant({ listing }: { listing: ListingV41 }) {
         <div className={styles.infoRow}>
           <span className={styles.infoLabel}>Package Type:</span>
           <span className={styles.infoValue}>
-            {listing.package_type === 'pdf' && '📄 PDF / eBook'}
-            {listing.package_type === 'video' && '🎥 Video Course'}
-            {listing.package_type === 'bundle' && '📦 Bundle (PDF + Video)'}
+            {listing.package_type === 'pdf' && <><FileText size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />PDF / eBook</>}
+            {listing.package_type === 'video' && <><Video size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Video Course</>}
+            {listing.package_type === 'bundle' && <><Package size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Bundle (PDF + Video)</>}
           </span>
         </div>
       </div>
 
       <div className={styles.packagePerks}>
-        <p className={styles.perkText}>✓ Instant digital access</p>
-        <p className={styles.perkText}>✓ Lifetime updates</p>
-        <p className={styles.perkText}>✓ Money-back guarantee</p>
+        <p className={styles.perkText}><Check size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Instant digital access</p>
+        <p className={styles.perkText}><Check size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Lifetime updates</p>
+        <p className={styles.perkText}><Check size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Money-back guarantee</p>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Check } from 'lucide-react';
 import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './ContentTemplates.module.css';
@@ -478,7 +479,7 @@ export default function ContentTemplates({ onSelect, onClose }: ContentTemplates
                 <p className={styles.templateDescription}>{template.description}</p>
               </div>
               {selectedTemplate?.id === template.id && (
-                <span className={styles.checkmark}>✓</span>
+                <Check size={14} className={styles.checkmark} />
               )}
             </div>
           ))}

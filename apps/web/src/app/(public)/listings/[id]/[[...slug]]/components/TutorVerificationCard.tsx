@@ -5,6 +5,7 @@
 
 'use client';
 
+import { Mail, Smartphone, CreditCard, ShieldCheck, Check } from 'lucide-react';
 import Card from '@/app/components/ui/data-display/Card';
 import styles from './TutorVerificationCard.module.css';
 
@@ -17,22 +18,22 @@ export default function TutorVerificationCard({ profile }: TutorVerificationCard
     {
       label: 'Email',
       verified: profile.email_confirmed || false,
-      icon: '✉️',
+      icon: <Mail size={16} />,
     },
     {
       label: 'Phone',
       verified: profile.phone_verified || false,
-      icon: '📱',
+      icon: <Smartphone size={16} />,
     },
     {
       label: 'ID Verified',
       verified: profile.id_verified || false,
-      icon: '🆔',
+      icon: <CreditCard size={16} />,
     },
     {
       label: 'DBS Check',
       verified: profile.dbs_status === 'approved',
-      icon: '🛡️',
+      icon: <ShieldCheck size={16} />,
     },
   ];
 
@@ -45,7 +46,7 @@ export default function TutorVerificationCard({ profile }: TutorVerificationCard
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.label}>{item.label}</span>
             {item.verified ? (
-              <span className={styles.checkmark}>✓</span>
+              <Check size={13} className={styles.checkmark} />
             ) : (
               <span className={styles.notVerified}>—</span>
             )}

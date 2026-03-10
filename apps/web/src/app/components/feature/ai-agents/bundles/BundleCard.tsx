@@ -10,6 +10,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Bot, User, Calendar } from 'lucide-react';
 import styles from './BundleCard.module.css';
 
 interface Bundle {
@@ -71,7 +72,7 @@ export default function BundleCard({
       <div className={styles.breakdown}>
         {bundle.ai_sessions_count > 0 && (
           <div className={styles.sessionRow}>
-            <span className={styles.sessionIcon}>🤖</span>
+            <Bot size={15} className={styles.sessionIcon} />
             <span className={styles.sessionText}>
               {bundle.ai_sessions_count} AI {bundle.ai_sessions_count === 1 ? 'Session' : 'Sessions'}
             </span>
@@ -79,7 +80,7 @@ export default function BundleCard({
         )}
         {bundle.human_sessions_count > 0 && (
           <div className={styles.sessionRow}>
-            <span className={styles.sessionIcon}>👤</span>
+            <User size={15} className={styles.sessionIcon} />
             <span className={styles.sessionText}>
               {bundle.human_sessions_count} Human {bundle.human_sessions_count === 1 ? 'Session' : 'Sessions'}
             </span>
@@ -90,7 +91,7 @@ export default function BundleCard({
       {/* Validity Period */}
       {bundle.valid_days && (
         <div className={styles.validity}>
-          <span className={styles.validityIcon}>📅</span>
+          <Calendar size={14} className={styles.validityIcon} />
           <span>Valid for {bundle.valid_days} days after purchase</span>
         </div>
       )}

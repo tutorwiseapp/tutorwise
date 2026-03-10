@@ -16,6 +16,7 @@
 
 import { useState } from 'react';
 import type { AIAgentType } from '@sage/agents';
+import { Check } from 'lucide-react';
 import styles from './AgentTypeSelector.module.css';
 
 interface AgentTypeOption {
@@ -116,7 +117,7 @@ function CardsVariant({
             <ul className={styles.capabilities}>
               {option.capabilities.map((capability) => (
                 <li key={capability}>
-                  <span className={styles.checkmark}>✓</span>
+                  <Check size={12} className={styles.checkmark} />
                   {capability}
                 </li>
               ))}
@@ -124,7 +125,7 @@ function CardsVariant({
 
             {selectedType === option.type && (
               <div className={styles.selectedIndicator}>
-                <span className={styles.checkCircle}>✓</span>
+                <Check size={14} className={styles.checkCircle} />
                 Selected
               </div>
             )}

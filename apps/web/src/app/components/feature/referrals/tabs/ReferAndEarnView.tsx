@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import toast from 'react-hot-toast';
-import { FaWhatsapp, FaFacebook, FaLinkedin } from 'react-icons/fa';
+import { MessageCircle, Facebook, Linkedin, Check } from 'lucide-react';
 import Button from '@/app/components/ui/actions/Button';
 import styles from './ReferAndEarnView.module.css';
 
@@ -105,7 +105,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
         >
           {showCopiedOverlay === 'link-card' && (
             <div className={styles.copiedOverlay}>
-              <span className={styles.checkmark}>✓</span> Copied!
+              <Check size={14} className={styles.checkmark} /> Copied!
             </div>
           )}
           <div className={styles.cardHeader}>
@@ -132,7 +132,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
         >
           {showCopiedOverlay === 'qr-card' && (
             <div className={styles.copiedOverlay}>
-              <span className={styles.checkmark}>✓</span> Copied!
+              <Check size={14} className={styles.checkmark} /> Copied!
             </div>
           )}
           <div className={styles.cardHeader}>
@@ -162,7 +162,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
         >
           {showCopiedOverlay === 'embed-card' && (
             <div className={styles.copiedOverlay}>
-              <span className={styles.checkmark}>✓</span> Copied!
+              <Check size={14} className={styles.checkmark} /> Copied!
             </div>
           )}
           <div className={styles.cardHeader}>
@@ -186,7 +186,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Join Tutorwise! ${referralUrl}`)}`, '_blank')}
         >
-          <FaWhatsapp size={18} style={{ marginRight: '8px' }} />
+          <MessageCircle size={18} style={{ marginRight: '8px' }} />
           Refer on WhatsApp
         </Button>
         <Button
@@ -194,7 +194,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          <FaFacebook size={18} style={{ marginRight: '8px' }} />
+          <Facebook size={18} style={{ marginRight: '8px' }} />
           Refer on Facebook
         </Button>
         <Button
@@ -202,7 +202,7 @@ export default function ReferAndEarnView({ referralCode }: ReferAndEarnViewProps
           size="md"
           onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralUrl)}`, '_blank')}
         >
-          <FaLinkedin size={18} style={{ marginRight: '8px' }} />
+          <Linkedin size={18} style={{ marginRight: '8px' }} />
           Refer on LinkedIn
         </Button>
       </div>

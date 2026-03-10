@@ -15,6 +15,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { Video, User, CheckCircle2 } from 'lucide-react';
 import styles from './VideoModeControls.module.css';
 
 interface VideoModeControlsProps {
@@ -117,7 +118,7 @@ export default function VideoModeControls({
           onClick={handleJoinVideo}
           disabled={isProcessing}
         >
-          <span className={styles.icon}>📹</span>
+          <Video size={18} className={styles.icon} />
           <span>{isProcessing ? 'Starting video...' : 'Join Video Session'}</span>
         </button>
         <p className={styles.hint}>
@@ -154,7 +155,7 @@ export default function VideoModeControls({
             onClick={() => setShowHandoffModal(true)}
             disabled={isProcessing}
           >
-            <span className={styles.icon}>👤</span>
+            <User size={18} className={styles.icon} />
             <span>Request Human Tutor</span>
           </button>
           <p className={styles.hint}>
@@ -165,7 +166,7 @@ export default function VideoModeControls({
 
       {sessionMode === 'hybrid' && (
         <div className={styles.hybridInfo}>
-          <span className={styles.icon}>✅</span>
+          <CheckCircle2 size={18} className={styles.icon} />
           <span>Human tutor has been invited to your session</span>
         </div>
       )}

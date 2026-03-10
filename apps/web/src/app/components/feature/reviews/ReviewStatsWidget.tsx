@@ -8,6 +8,7 @@
 'use client';
 
 import React from 'react';
+import { Star } from 'lucide-react';
 import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
 import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
 import styles from './ReviewStatsWidget.module.css';
@@ -32,11 +33,11 @@ export default function ReviewStatsWidget({ stats, averageRating }: Props) {
       <div className={styles.stars}>
         {[...Array(5)].map((_, i) => {
           if (i < fullStars) {
-            return <span key={i} className={styles.starFilled}>★</span>;
+            return <Star key={i} size={14} fill="currentColor" className={styles.starFilled} />;
           } else if (i === fullStars && hasHalfStar) {
-            return <span key={i} className={styles.starHalf}>★</span>;
+            return <Star key={i} size={14} fill="currentColor" className={styles.starHalf} />;
           } else {
-            return <span key={i} className={styles.starEmpty}>★</span>;
+            return <Star key={i} size={14} className={styles.starEmpty} />;
           }
         })}
       </div>

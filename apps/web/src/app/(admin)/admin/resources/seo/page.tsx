@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Rocket, BarChart2, Search, CheckCircle2, Bot, Tag, FileText, Map, ArrowRight, ExternalLink } from 'lucide-react';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
 import { AdminStatsWidget, AdminHelpWidget } from '@/app/components/admin/widgets';
@@ -80,7 +81,7 @@ export default function BlogSEOPage() {
           <>
             <div className={styles.setupBanner}>
               <div className={styles.bannerContent}>
-                <h3 className={styles.bannerTitle}>🚀 Complete SEO Setup</h3>
+                <h3 className={styles.bannerTitle}><Rocket size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Complete SEO Setup</h3>
                 <p className={styles.bannerText}>
                   To start tracking SEO metrics, complete the manual setup tasks. See the
                   BLOG_SEO_MONITORING_GUIDE.md file for detailed instructions.
@@ -92,7 +93,7 @@ export default function BlogSEOPage() {
               <h3 className={styles.sectionTitle}>Setup Checklist</h3>
               <div className={styles.checklistGrid}>
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>📊</div>
+                  <div className={styles.checklistIcon}><BarChart2 size={22} /></div>
                   <h4 className={styles.checklistTitle}>Google Analytics 4</h4>
                   <p className={styles.checklistDescription}>
                     Track page views, user behavior, and traffic sources
@@ -101,7 +102,7 @@ export default function BlogSEOPage() {
                 </div>
 
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>🔍</div>
+                  <div className={styles.checklistIcon}><Search size={22} /></div>
                   <h4 className={styles.checklistTitle}>Google Search Console</h4>
                   <p className={styles.checklistDescription}>
                     Monitor search performance, keywords, and indexing
@@ -110,7 +111,7 @@ export default function BlogSEOPage() {
                 </div>
 
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>✅</div>
+                  <div className={styles.checklistIcon}><CheckCircle2 size={22} /></div>
                   <h4 className={styles.checklistTitle}>Sitemaps</h4>
                   <p className={styles.checklistDescription}>
                     Dynamic sitemap generated at /resources/sitemap.xml
@@ -119,7 +120,7 @@ export default function BlogSEOPage() {
                 </div>
 
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>🤖</div>
+                  <div className={styles.checklistIcon}><Bot size={22} /></div>
                   <h4 className={styles.checklistTitle}>Robots.txt</h4>
                   <p className={styles.checklistDescription}>
                     Search engine crawl directives configured
@@ -128,7 +129,7 @@ export default function BlogSEOPage() {
                 </div>
 
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>🏷️</div>
+                  <div className={styles.checklistIcon}><Tag size={22} /></div>
                   <h4 className={styles.checklistTitle}>Structured Data</h4>
                   <p className={styles.checklistDescription}>
                     JSON-LD Schema.org markup on all articles
@@ -137,7 +138,7 @@ export default function BlogSEOPage() {
                 </div>
 
                 <div className={styles.checklistCard}>
-                  <div className={styles.checklistIcon}>📝</div>
+                  <div className={styles.checklistIcon}><FileText size={22} /></div>
                   <h4 className={styles.checklistTitle}>Meta Tags</h4>
                   <p className={styles.checklistDescription}>
                     Custom SEO titles, descriptions, OpenGraph tags
@@ -156,9 +157,9 @@ export default function BlogSEOPage() {
                   rel="noopener noreferrer"
                   className={styles.linkCard}
                 >
-                  <span className={styles.linkIcon}>🗺️</span>
+                  <Map size={16} className={styles.linkIcon} />
                   <span className={styles.linkText}>View Blog Sitemap</span>
-                  <span className={styles.linkArrow}>→</span>
+                  <ArrowRight size={14} className={styles.linkArrow} />
                 </a>
 
                 <a
@@ -167,9 +168,9 @@ export default function BlogSEOPage() {
                   rel="noopener noreferrer"
                   className={styles.linkCard}
                 >
-                  <span className={styles.linkIcon}>🤖</span>
+                  <Bot size={16} className={styles.linkIcon} />
                   <span className={styles.linkText}>View Robots.txt</span>
-                  <span className={styles.linkArrow}>→</span>
+                  <ArrowRight size={14} className={styles.linkArrow} />
                 </a>
 
                 <a
@@ -178,9 +179,9 @@ export default function BlogSEOPage() {
                   rel="noopener noreferrer"
                   className={styles.linkCard}
                 >
-                  <span className={styles.linkIcon}>🔍</span>
+                  <Search size={16} className={styles.linkIcon} />
                   <span className={styles.linkText}>Google Search Console</span>
-                  <span className={styles.linkArrow}>↗</span>
+                  <ExternalLink size={14} className={styles.linkArrow} />
                 </a>
 
                 <a
@@ -189,9 +190,9 @@ export default function BlogSEOPage() {
                   rel="noopener noreferrer"
                   className={styles.linkCard}
                 >
-                  <span className={styles.linkIcon}>📊</span>
+                  <BarChart2 size={16} className={styles.linkIcon} />
                   <span className={styles.linkText}>Google Analytics</span>
-                  <span className={styles.linkArrow}>↗</span>
+                  <ExternalLink size={14} className={styles.linkArrow} />
                 </a>
               </div>
             </div>

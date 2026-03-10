@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 6px 1rem 4px;
+  padding: 6px 1rem 6px;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -85,6 +85,7 @@
   gap: 1rem;
   padding-left: 1rem;
   padding-right: 1rem;
+  padding-top: 6px;
   position: relative;
   margin-bottom: -2px; /* tabs overlap border */
   overflow-x: auto;

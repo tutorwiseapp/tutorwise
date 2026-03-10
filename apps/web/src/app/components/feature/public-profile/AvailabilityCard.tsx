@@ -9,6 +9,7 @@
  */
 
 import type { Profile } from '@/types';
+import { Check, X } from 'lucide-react';
 import Card from '@/app/components/ui/data-display/Card';
 import styles from './AvailabilityCard.module.css';
 
@@ -94,7 +95,7 @@ function AvailabilityDisplay({ data }: { data: any }) {
       <ul className={styles.periodsList}>
         {data.map((period: string, index: number) => (
           <li key={index} className={styles.periodItem}>
-            <span className={styles.periodIcon}>✓</span>
+            <Check size={13} className={styles.periodIcon} />
             {period}
           </li>
         ))}
@@ -118,7 +119,7 @@ function AvailabilityDisplay({ data }: { data: any }) {
       <ul className={styles.periodsList}>
         {entries.map(([day, time]) => (
           <li key={day} className={styles.periodItem}>
-            <span className={styles.periodIcon}>✓</span>
+            <Check size={13} className={styles.periodIcon} />
             <span className={styles.dayName}>
               {day.charAt(0).toUpperCase() + day.slice(1)}:
             </span>{' '}
@@ -154,7 +155,7 @@ function UnavailabilityDisplay({ data }: { data: any }) {
       <ul className={styles.periodsList}>
         {data.map((period: string, index: number) => (
           <li key={index} className={styles.periodItem}>
-            <span className={styles.periodIconUnavailable}>×</span>
+            <X size={13} className={styles.periodIconUnavailable} />
             {period}
           </li>
         ))}
@@ -178,7 +179,7 @@ function UnavailabilityDisplay({ data }: { data: any }) {
       <ul className={styles.periodsList}>
         {entries.map(([label, period]) => (
           <li key={label} className={styles.periodItem}>
-            <span className={styles.periodIconUnavailable}>×</span>
+            <X size={13} className={styles.periodIconUnavailable} />
             <span className={styles.dayName}>
               {label.charAt(0).toUpperCase() + label.slice(1)}:
             </span>{' '}

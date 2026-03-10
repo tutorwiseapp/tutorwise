@@ -13,6 +13,7 @@
  */
 
 import type { Profile } from '@/types';
+import { Check, X } from 'lucide-react';
 import Card from '@/app/components/ui/data-display/Card';
 import styles from './AvailabilityScheduleCard.module.css';
 
@@ -87,7 +88,7 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
                   <div className={styles.periodsList}>
                     {recurringPeriods.map((period) => (
                       <div key={period.id} className={styles.periodItem}>
-                        <span className={styles.periodIcon}>✓</span>
+                        <Check size={13} className={styles.periodIcon} />
                         <span className={styles.periodText}>
                           {formatAvailabilityPeriod(period)}
                         </span>
@@ -104,7 +105,7 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
                   <div className={styles.periodsList}>
                     {oneTimePeriods.map((period) => (
                       <div key={period.id} className={styles.periodItem}>
-                        <span className={styles.periodIcon}>✓</span>
+                        <Check size={13} className={styles.periodIcon} />
                         <span className={styles.periodText}>
                           {formatAvailabilityPeriod(period)}
                         </span>
@@ -131,7 +132,7 @@ export function AvailabilityScheduleCard({ profile }: AvailabilityScheduleCardPr
             <div className={styles.periodsList}>
               {unavailability.map((period) => (
                 <div key={period.id} className={styles.unavailableItem}>
-                  <span className={styles.periodIconUnavailable}>×</span>
+                  <X size={13} className={styles.periodIconUnavailable} />
                   <span className={styles.periodText}>
                     {formatUnavailabilityPeriod(period)}
                   </span>

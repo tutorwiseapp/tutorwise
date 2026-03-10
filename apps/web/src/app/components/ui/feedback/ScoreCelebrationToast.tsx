@@ -16,6 +16,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Sparkles, Star, CheckCircle2, ArrowRight } from 'lucide-react';
 import styles from './ScoreCelebrationToast.module.css';
 
 export interface ScoreCelebrationData {
@@ -42,9 +43,9 @@ export default function ScoreCelebrationToast({
 
   // Get celebration level based on points gained
   const getCelebrationLevel = () => {
-    if (pointsGained >= 10) return { emoji: '🎉', color: '#10b981', label: 'Amazing!' };
-    if (pointsGained >= 5) return { emoji: '⭐', color: '#3b82f6', label: 'Great job!' };
-    return { emoji: '✅', color: '#6b7280', label: 'Nice!' };
+    if (pointsGained >= 10) return { icon: <Sparkles size={24} />, color: '#10b981', label: 'Amazing!' };
+    if (pointsGained >= 5) return { icon: <Star size={24} fill="currentColor" />, color: '#3b82f6', label: 'Great job!' };
+    return { icon: <CheckCircle2 size={24} />, color: '#6b7280', label: 'Nice!' };
   };
 
   const celebration = getCelebrationLevel();
@@ -81,7 +82,7 @@ export default function ScoreCelebrationToast({
 
       {/* Header */}
       <div className={styles.header}>
-        <span className={styles.emoji}>{celebration.emoji}</span>
+        <span className={styles.emoji} style={{ color: celebration.color }}>{celebration.icon}</span>
         <span className={styles.celebrationLabel} style={{ color: celebration.color }}>
           {celebration.label}
         </span>
@@ -91,7 +92,7 @@ export default function ScoreCelebrationToast({
       <div className={styles.scoreChange}>
         <div className={styles.scoreRow}>
           <span className={styles.scoreOld}>{previousScore}</span>
-          <span className={styles.arrow}>→</span>
+          <ArrowRight size={16} className={styles.arrow} />
           <span className={styles.scoreNew} style={{ color: celebration.color }}>
             {newScore}
           </span>
@@ -109,7 +110,7 @@ export default function ScoreCelebrationToast({
           className={styles.nextStepButton}
           onClick={handleNextStepClick}
         >
-          {nextStep.label} →
+          {nextStep.label} <ArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />
         </Link>
       )}
     </div>

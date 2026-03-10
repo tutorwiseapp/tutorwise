@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { Package, Bot, User, Clock } from 'lucide-react';
 import styles from './page.module.css';
 
 interface BundlePurchase {
@@ -87,7 +88,7 @@ export default function MyBundlesPage() {
 
       {bundles.length === 0 ? (
         <div className={styles.empty}>
-          <div className={styles.emptyIcon}>📦</div>
+          <Package size={48} className={styles.emptyIcon} />
           <h2>No Active Bundles</h2>
           <p>You haven't purchased any session bundles yet.</p>
           <a href="/marketplace" className={styles.browseLink}>
@@ -148,12 +149,12 @@ function BundleCard({ purchase }: BundleCardProps) {
       {/* Session Breakdown */}
       <div className={styles.sessions}>
         <div className={styles.sessionItem}>
-          <span className={styles.sessionIcon}>🤖</span>
+          <Bot size={15} className={styles.sessionIcon} />
           <span className={styles.sessionCount}>{purchase.ai_sessions_remaining}</span>
           <span className={styles.sessionLabel}>AI sessions</span>
         </div>
         <div className={styles.sessionItem}>
-          <span className={styles.sessionIcon}>👤</span>
+          <User size={15} className={styles.sessionIcon} />
           <span className={styles.sessionCount}>{purchase.human_sessions_remaining}</span>
           <span className={styles.sessionLabel}>Human sessions</span>
         </div>
@@ -162,7 +163,7 @@ function BundleCard({ purchase }: BundleCardProps) {
       {/* Expiration */}
       {daysRemaining !== null && (
         <div className={styles.expiration}>
-          <span className={styles.expirationIcon}>⏰</span>
+          <Clock size={14} className={styles.expirationIcon} />
           <span className={styles.expirationText}>
             {daysRemaining === 0 ? 'Expires today' : `Expires in ${daysRemaining} days`}
           </span>

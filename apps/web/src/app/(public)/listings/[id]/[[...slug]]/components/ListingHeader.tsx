@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Star, Heart, Share2, Gift } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
 import toast from 'react-hot-toast';
@@ -108,7 +109,7 @@ export default function ListingHeader({ listing, tutorProfile: _tutorProfile, tu
           {/* Rating */}
           {tutorStats.averageRating > 0 && (
             <div className={styles.rating}>
-              <span className={styles.ratingIcon}>★</span>
+              <Star size={14} fill="currentColor" className={styles.ratingIcon} />
               <span className={styles.ratingValue}>{formatRating(tutorStats.averageRating)}</span>
             </div>
           )}
@@ -153,7 +154,7 @@ export default function ListingHeader({ listing, tutorProfile: _tutorProfile, tu
             className={`${styles.actionButton} ${isSaved ? styles.saved : ''}`}
             aria-label={isSaved ? 'Remove from saved' : 'Save listing'}
           >
-            <span className={styles.icon}>{isSaved ? '❤️' : '♡'}</span>
+            <Heart size={16} fill={isSaved ? 'currentColor' : 'none'} className={styles.icon} />
             <span className={styles.actionText}>Save</span>
           </button>
 
@@ -163,7 +164,7 @@ export default function ListingHeader({ listing, tutorProfile: _tutorProfile, tu
             className={styles.actionButton}
             aria-label="Share listing"
           >
-            <span className={styles.icon}>⤴</span>
+            <Share2 size={16} className={styles.icon} />
             <span className={styles.actionText}>Share</span>
           </button>
 
@@ -173,7 +174,7 @@ export default function ListingHeader({ listing, tutorProfile: _tutorProfile, tu
             className={styles.referButton}
             aria-label="Copy contextual referral link to earn 10% commission"
           >
-            <span className={styles.icon}>🎁</span>
+            <Gift size={16} className={styles.icon} />
             <span className={styles.actionText}>Refer & Earn</span>
           </button>
         </div>

@@ -6,6 +6,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Star, Check, Banknote, AlertTriangle, X } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
 import Card from '@/app/components/ui/data-display/Card';
 import Button from '@/app/components/ui/actions/Button';
@@ -128,7 +129,7 @@ export default function ListingDetailsColumn({
           <>
             <div className={styles.reviewsPreview}>
               <p className={styles.reviewPlaceholder}>
-                ⭐ Reviews feature coming soon (Reviews v4.2)
+                <Star size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Reviews feature coming soon (Reviews v4.2)
               </p>
             </div>
             <Button variant="secondary" fullWidth>
@@ -143,25 +144,25 @@ export default function ListingDetailsColumn({
         <h4 className={styles.cardTitle}>Cancellation Policy</h4>
         <div className={styles.policyContent}>
           <div className={styles.policyItem}>
-            <span className={styles.policyIcon}>✓</span>
+            <Check size={14} className={styles.policyIcon} />
             <p className={styles.policyText}>
               <strong>Free cancellation</strong> up to 24 hours before the session starts.
             </p>
           </div>
           <div className={styles.policyItem}>
-            <span className={styles.policyIcon}>💰</span>
+            <Banknote size={14} className={styles.policyIcon} />
             <p className={styles.policyText}>
               <strong>Full refund</strong> if you cancel within the free cancellation period.
             </p>
           </div>
           <div className={styles.policyItem}>
-            <span className={styles.policyIcon}>⚠️</span>
+            <AlertTriangle size={14} className={styles.policyIcon} />
             <p className={styles.policyText}>
               <strong>50% refund</strong> if you cancel within 24 hours of the session.
             </p>
           </div>
           <div className={styles.policyItem}>
-            <span className={styles.policyIcon}>✕</span>
+            <X size={14} className={styles.policyIcon} />
             <p className={styles.policyText}>
               <strong>No refund</strong> if you cancel after the session has started.
             </p>

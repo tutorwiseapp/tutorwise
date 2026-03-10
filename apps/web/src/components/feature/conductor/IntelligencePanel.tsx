@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
-  List, DollarSign, Monitor, Share2, Activity,
+  List, DollarSign, Monitor, Share2, Activity, BarChart2,
 } from 'lucide-react';
 import styles from './IntelligencePanel.module.css';
 
@@ -14,7 +14,7 @@ type IntelTab =
   | 'caas' | 'resources' | 'seo' | 'signal' | 'marketplace'
   | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral';
 
-const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { id: 'caas',         label: 'CaaS',        icon: Users },
   { id: 'resources',   label: 'Resources',   icon: BookOpen },
   { id: 'seo',         label: 'SEO',         icon: Search },
@@ -59,6 +59,26 @@ function fmtPct(value: unknown): string {
   return `${Number(value).toFixed(1)}%`;
 }
 
+// ── Inline Empty State ───────────────────────────────────────────────────────
+
+function InlineEmpty({
+  icon: Icon,
+  message,
+  hint,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  message: string;
+  hint?: string;
+}) {
+  return (
+    <div className={styles.empty}>
+      <Icon size={32} className={styles.emptyIcon} />
+      <span>{message}</span>
+      {hint && <span className={styles.emptyHint}>{hint}</span>}
+    </div>
+  );
+}
+
 // ── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -76,7 +96,7 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 function CaaSSection({ data }: { data: any }) {
   const latest = data?.latest;
   const byRole = data?.byRole ?? [];
-  if (!latest) return <p className={styles.empty}>No CaaS metrics yet. Run the pg_cron at 05:30 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={Users} message="No CaaS metrics yet." hint="Populates daily at 05:30 UTC" />;
 
   return (
     <div>
@@ -116,7 +136,7 @@ function ResourcesSection({ data }: { data: any }) {
   const opportunities = editorial.opportunityArticles ?? [];
   const hubGaps = editorial.hubsNeedingSpokes ?? [];
 
-  if (!latest) return <p className={styles.empty}>No resources metrics yet. Run the pg_cron at 04:30 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={BookOpen} message="No resources metrics yet." hint="Populates daily at 04:30 UTC" />;
 
   return (
     <div>
@@ -177,7 +197,7 @@ function SEOSection({ data }: { data: any }) {
   const topKw = data?.health?.topKeywords ?? [];
   const opps = data?.opportunities?.keywords ?? [];
 
-  if (!latest) return <p className={styles.empty}>No SEO metrics yet. Run the pg_cron at 05:00 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={Search} message="No SEO metrics yet." hint="Populates daily at 05:00 UTC" />;
 
   return (
     <div>
@@ -293,7 +313,7 @@ function MarketplaceSection({ data }: { data: any }) {
   const latest = data?.health?.latest;
   const gaps = data?.gap?.gaps ?? [];
 
-  if (!latest) return <p className={styles.empty}>No marketplace metrics yet. Run the pg_cron at 06:00 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={ShoppingCart} message="No marketplace metrics yet." hint="Populates daily at 06:00 UTC" />;
 
   return (
     <div>
@@ -334,7 +354,7 @@ function ListingsSection({ data }: { data: any }) {
   const incomplete = data?.health?.incompleteListings;
   const pricing = data?.pricing?.pricing ?? [];
 
-  if (!latest) return <p className={styles.empty}>No listings metrics yet. Run the pg_cron at 07:00 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={List} message="No listings metrics yet." hint="Populates daily at 07:00 UTC" />;
 
   return (
     <div>
@@ -376,7 +396,7 @@ function BookingsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
 
-  if (!latest) return <p className={styles.empty}>No booking metrics yet. Run the pg_cron at 06:30 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={TrendingUp} message="No booking metrics yet." hint="Populates daily at 06:30 UTC" />;
 
   return (
     <div>
@@ -398,7 +418,7 @@ function FinancialsSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
 
-  if (!latest) return <p className={styles.empty}>No financial metrics yet. Run the pg_cron at 07:30 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={DollarSign} message="No financial metrics yet." hint="Populates daily at 07:30 UTC" />;
 
   return (
     <div>
@@ -420,7 +440,7 @@ function VirtualSpaceSection({ data }: { data: any }) {
   const trend = data?.trend ?? [];
   const latest = trend[0];
 
-  if (!latest) return <p className={styles.empty}>No VirtualSpace metrics yet. Run the pg_cron at 08:00 UTC.</p>;
+  if (!latest) return <InlineEmpty icon={Monitor} message="No VirtualSpace metrics yet." hint="Populates daily at 08:00 UTC" />;
 
   return (
     <div>
@@ -471,7 +491,7 @@ function ReferralSection({ data }: { data: any }) {
 // ── Section router ───────────────────────────────────────────────────────────
 
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
-  if (!data) return <p className={styles.empty}>No data loaded.</p>;
+  if (!data) return <InlineEmpty icon={BarChart2} message="No data loaded." />;
   switch (tab) {
     case 'caas':         return <CaaSSection data={data} />;
     case 'resources':    return <ResourcesSection data={data} />;
@@ -548,17 +568,19 @@ export function IntelligencePanel() {
           </div>
         </div>
 
-        {error && (
-          <div className={styles.error}>
-            {error instanceof Error ? error.message : 'Failed to load data'}
-          </div>
-        )}
+        <div className={styles.contentBody}>
+          {error && (
+            <div className={styles.error}>
+              {error instanceof Error ? error.message : 'Failed to load data'}
+            </div>
+          )}
 
-        {isFetching && !data ? (
-          <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
-        ) : (
-          <SectionContent tab={activeTab} data={data} />
-        )}
+          {isFetching && !data ? (
+            <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
+          ) : (
+            <SectionContent tab={activeTab} data={data} />
+          )}
+        </div>
       </div>
     </div>
   );
