@@ -14,6 +14,7 @@ import { lexiOrchestrator } from '@lexi/core/orchestrator';
 import { sessionStore } from '@lexi/services/session-store';
 import { rateLimiter, rateLimitHeaders, rateLimitError } from '@lexi/services/rate-limiter';
 import type { UserRole } from '@cas/packages/core/src/context';
+import { fetchPlatformUserContext, formatPlatformContextForPrompt } from '@/lib/platform/user-context';
 
 /**
  * POST /api/lexi/session
@@ -140,12 +141,22 @@ export async function POST(request: NextRequest) {
     const greeting = lexiOrchestrator.getGreeting(session.sessionId);
     const capabilities = lexiOrchestrator.getCapabilities(session.sessionId);
 
+    // Fetch PlatformUserContext (fire-and-forget on error — non-blocking)
+    let platformContextBlock: string | undefined;
+    try {
+      const ctx = await fetchPlatformUserContext(user.id);
+      platformContextBlock = formatPlatformContextForPrompt(ctx);
+    } catch {
+      // Context enrichment is best-effort — never fail session creation
+    }
+
     return NextResponse.json({
       sessionId: session.sessionId,
       persona: session.persona,
       greeting,
       capabilities,
       expiresAt: session.expiresAt.toISOString(),
+      platformContextBlock, // injected into Lexi system prompt on first turn
     });
   } catch (error) {
     console.error('[Lexi API] Session creation error:', error);

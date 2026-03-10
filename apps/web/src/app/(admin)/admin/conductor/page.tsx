@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
 import {
@@ -12,6 +13,8 @@ import { ExecutionPanel } from '@/components/feature/workflow/ExecutionPanel';
 import { MonitoringPanel } from '@/components/feature/workflow/MonitoringPanel';
 import { IntelligencePanel } from '@/components/feature/conductor/IntelligencePanel';
 import { SpacesPanel } from '@/components/feature/conductor/SpacesPanel';
+import { KnowledgePanel } from '@/components/feature/conductor/KnowledgePanel';
+import { MiningPanel } from '@/components/feature/conductor/MiningPanel';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import dynamic from 'next/dynamic';
@@ -52,19 +55,21 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
   { id: 'agents',      label: 'Agents' },
   { id: 'teams',       label: 'Teams' },
   { id: 'spaces',      label: 'Spaces' },
+  { id: 'knowledge',   label: 'Knowledge' },
   // Execute
   { id: 'execution',   label: 'Execution' },
   // Observe
   { id: 'monitoring',  label: 'Monitoring' },
   { id: 'intelligence',label: 'Intelligence' },
+  { id: 'mining',      label: 'Mining' },
 ];
 
 // Lifecycle stages with their tab IDs
 const STAGES: { label: string; tabs: DiscoveryTab[]; number: number }[] = [
   { number: 1, label: 'Design',  tabs: ['workflows', 'discovery'] },
-  { number: 2, label: 'Build',   tabs: ['agents', 'teams', 'spaces'] },
+  { number: 2, label: 'Build',   tabs: ['agents', 'teams', 'spaces', 'knowledge'] },
   { number: 3, label: 'Execute', tabs: ['execution'] },
-  { number: 4, label: 'Observe', tabs: ['monitoring', 'intelligence'] },
+  { number: 4, label: 'Observe', tabs: ['monitoring', 'intelligence', 'mining'] },
 ];
 
 function getActiveStage(activeTab: DiscoveryTab): number {
@@ -76,6 +81,17 @@ export default function ConductorPage() {
   const activeTab = useDiscoveryStore((s) => s.activeTab);
   const setActiveTab = useDiscoveryStore((s) => s.setActiveTab);
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Phase 4B: Intent routing callbacks for ExecutionCommandBar
+  const handleNavigateToAgent = useCallback((slug: string, prompt?: string) => {
+    const url = `/admin/conductor/agents/${slug}${prompt ? `?prompt=${encodeURIComponent(prompt)}` : ''}`;
+    router.push(url);
+  }, [router]);
+
+  const handleNavigateToTab = useCallback((tab: string) => {
+    setActiveTab(tab as DiscoveryTab);
+  }, [setActiveTab]);
 
   // Sync ?tab= URL param; default to 'workflows' when no param present
   useEffect(() => {
@@ -145,7 +161,10 @@ export default function ConductorPage() {
       {activeTab === 'execution' && (
         <ErrorBoundary fallback={<TabError tab="Execution" />}>
           <div className={styles.executionContainer}>
-            <ExecutionPanel />
+            <ExecutionPanel
+              onNavigateToAgent={handleNavigateToAgent}
+              onNavigateToTab={handleNavigateToTab}
+            />
           </div>
         </ErrorBoundary>
       )}
@@ -174,6 +193,14 @@ export default function ConductorPage() {
         </ErrorBoundary>
       )}
 
+      {activeTab === 'knowledge' && (
+        <ErrorBoundary fallback={<TabError tab="Knowledge" />}>
+          <div className={styles.intelligenceContainer}>
+            <KnowledgePanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
       {activeTab === 'monitoring' && (
         <ErrorBoundary fallback={<TabError tab="Monitoring" />}>
           <div className={styles.monitoringContainer}>
@@ -186,6 +213,14 @@ export default function ConductorPage() {
         <ErrorBoundary fallback={<TabError tab="Intelligence" />}>
           <div className={styles.intelligenceContainer}>
             <IntelligencePanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {activeTab === 'mining' && (
+        <ErrorBoundary fallback={<TabError tab="Mining" />}>
+          <div className={styles.intelligenceContainer}>
+            <MiningPanel />
           </div>
         </ErrorBoundary>
       )}

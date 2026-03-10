@@ -153,5 +153,61 @@ export async function GET(request: NextRequest) {
   }
 
   console.log('[Shadow Reconcile] Complete:', results);
+
+  // Phase 5: Batch conformance check for executions completed in the last hour
+  try {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { data: recentlyCompleted } = await supabase
+      .from('workflow_executions')
+      .select('id, process_id, workflow_processes(nodes, edges)')
+      .eq('status', 'completed')
+      .eq('is_shadow', false)
+      .gte('completed_at', oneHourAgo);
+
+    for (const exec of recentlyCompleted ?? []) {
+      // Skip if already checked (conformance_deviations has a row for this execution)
+      const { count: existingCount } = await supabase
+        .from('conformance_deviations')
+        .select('id', { count: 'exact', head: true })
+        .eq('execution_id', exec.id);
+
+      if ((existingCount ?? 0) > 0) continue;
+
+      // Load tasks for this execution
+      const { data: tasks } = await supabase
+        .from('workflow_tasks')
+        .select('id, node_id, status, started_at, completed_at')
+        .eq('execution_id', exec.id)
+        .order('started_at', { ascending: true });
+
+      const process = (exec as any).workflow_processes;
+      if (!process?.nodes || !tasks) continue;
+
+      // Import ConformanceChecker (dynamic to avoid issues)
+      const { ConformanceChecker } = await import('@/lib/process-studio/conformance/ConformanceChecker');
+      const result = ConformanceChecker.checkExecution(
+        exec.id,
+        { nodes: process.nodes, edges: process.edges ?? [] },
+        tasks
+      );
+
+      if (result.deviations.length > 0) {
+        const rows = result.deviations.map((dev) => ({
+          execution_id: exec.id,
+          process_id: exec.process_id,
+          node_id: dev.nodeId,
+          deviation_type: dev.type,
+          expected_node_ids: dev.expectedNextIds,
+          actual_node_id: dev.actualNextId,
+        }));
+        await supabase.from('conformance_deviations').insert(rows);
+      }
+      // Even if no deviations, we skip inserting anything — the execution is conformant
+    }
+  } catch (conformanceError) {
+    console.error('[shadow-reconcile] Conformance batch check error:', conformanceError);
+    // Non-fatal — continue
+  }
+
   return NextResponse.json({ success: true, ...results });
 }

@@ -14,6 +14,7 @@ import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { growthOrchestrator } from '@growth/core/orchestrator';
 import type { GrowthUserRole, GrowthUserMetrics } from '@growth/tools/types';
+import { fetchPlatformUserContext, formatPlatformContextForPrompt } from '@/lib/platform/user-context';
 
 // ============================================================================
 // HELPERS
@@ -188,6 +189,15 @@ export async function POST(_request: NextRequest) {
     const suggestions = growthOrchestrator.getSuggestions(role);
     const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
+    // Fetch PlatformUserContext (fire-and-forget on error — non-blocking)
+    let platformContextBlock: string | undefined;
+    try {
+      const ctx = await fetchPlatformUserContext(user.id);
+      platformContextBlock = formatPlatformContextForPrompt(ctx);
+    } catch {
+      // Context enrichment is best-effort — never fail session creation
+    }
+
     return NextResponse.json({
       sessionId,
       role,
@@ -210,6 +220,7 @@ export async function POST(_request: NextRequest) {
         features: ['revenue_audit', 'pricing_benchmark', 'referral_strategy', 'income_streams', 'business_setup'],
       },
       expiresAt: expiresAt.toISOString(),
+      platformContextBlock, // injected into Growth system prompt on first turn
     });
   } catch (error) {
     console.error('[Growth Session] Creation error:', error);

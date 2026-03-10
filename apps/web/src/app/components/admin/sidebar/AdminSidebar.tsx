@@ -73,6 +73,7 @@ export default function AdminSidebar() {
     { href: '/admin/growth', label: 'AI Growth' },
     { href: '/admin/lexi', label: 'Lexi AI Agent' },
     { href: '/admin/conductor', label: 'Conductor' },
+    { href: '/admin/network', label: 'Network Intelligence' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },
     {

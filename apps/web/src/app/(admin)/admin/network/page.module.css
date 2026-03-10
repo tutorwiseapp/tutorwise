@@ -1,0 +1,222 @@
+/* Network Intelligence admin page */
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+
+.tabBar {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0 0 0 0;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.7rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700, #374151);
+  cursor: pointer;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--color-primary, #006c67);
+}
+
+.tabActive {
+  color: var(--color-primary, #006c67);
+  border-bottom: 2px solid var(--color-primary, #006c67);
+  font-weight: 600;
+}
+
+/* ── Stat grid ───────────────────────────────────────────────────────────── */
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 14px 16px;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Sub-headings ────────────────────────────────────────────────────────── */
+
+.sectionHeading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 20px 0 10px;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  margin-bottom: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 9px 14px;
+  text-align: left;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-light, #f9fafb);
+}
+
+.table td {
+  padding: 9px 14px;
+  color: var(--color-text-primary, #111827);
+  border-bottom: 1px solid var(--color-bg-light, #f9fafb);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: var(--color-bg-light, #f9fafb);
+}
+
+/* ── Status badges ───────────────────────────────────────────────────────── */
+
+.statusBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* ── Summary footer ──────────────────────────────────────────────────────── */
+
+.summaryFooter {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 13px;
+  color: var(--color-text-secondary, #6b7280);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summaryLabel {
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+/* ── Note / info block ───────────────────────────────────────────────────── */
+
+.infoNote {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(0, 108, 103, 0.06);
+  border: 1px solid rgba(0, 108, 103, 0.2);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* ── States ──────────────────────────────────────────────────────────────── */
+
+.loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 13px;
+}
+
+.error {
+  background: rgba(217, 48, 37, 0.06);
+  border: 1px solid rgba(217, 48, 37, 0.2);
+  color: var(--color-error, #d93025);
+  border-radius: var(--border-radius-md, 8px);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── Attribution total ───────────────────────────────────────────────────── */
+
+.attributionTotal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: 13px;
+}
+
+.attributionTotalValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+}
+
+.attributionTotalLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

@@ -21,7 +21,12 @@ interface ExecutionDetail extends WorkflowExecution {
   tasks?: WorkflowTask[];
 }
 
-export function ExecutionPanel() {
+interface ExecutionPanelProps {
+  onNavigateToAgent?: (slug: string, prompt?: string) => void;
+  onNavigateToTab?: (tab: string) => void;
+}
+
+export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: ExecutionPanelProps = {}) {
   const queryClient = useQueryClient();
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
   const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
@@ -150,7 +155,11 @@ export function ExecutionPanel() {
   return (
     <div className={styles.container}>
       {/* NLI Command Bar */}
-      <ExecutionCommandBar onResult={() => refetchExecutions()} />
+      <ExecutionCommandBar
+        onResult={() => refetchExecutions()}
+        onNavigateToAgent={onNavigateToAgent}
+        onNavigateToTab={onNavigateToTab}
+      />
 
       <div className={styles.body}>
         {/* Left: Process list + Execution list */}

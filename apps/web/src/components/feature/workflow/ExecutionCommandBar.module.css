@@ -72,3 +72,34 @@
   margin: 0;
   padding: 0 2px;
 }
+
+/* ── Phase 4B: Workflow trigger confirmation ──────────────────────────── */
+.confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  padding: 2px 2px;
+}
+
+.confirmYes {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: none;
+  background: var(--color-primary, #006C67);
+  color: #fff;
+  font-size: var(--font-size-xs, 12px);
+  cursor: pointer;
+}
+.confirmYes:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.confirmNo {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  background: none;
+  font-size: var(--font-size-xs, 12px);
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+}

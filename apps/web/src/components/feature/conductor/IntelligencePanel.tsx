@@ -5,18 +5,22 @@ import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
   List, DollarSign, Monitor, Share2, Activity, BarChart2,
-  Heart, Bot, Building2, Layers,
+  Heart, Bot, Building2, Layers, Target, GitBranch, Route,
 } from 'lucide-react';
+import { TierCalibrationPanel } from './TierCalibrationPanel';
 import styles from './IntelligencePanel.module.css';
 
 // ── Sub-tab config ──────────────────────────────────────────────────────────
 
 type IntelTab =
+  | 'gtm'
   | 'caas' | 'resources' | 'seo' | 'signal' | 'marketplace'
   | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral'
-  | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio';
+  | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio'
+  | 'tier_calibration' | 'process_mining';
 
 const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+  { id: 'gtm',          label: 'GTM Lifecycle', icon: Route },
   { id: 'caas',          label: 'CaaS',        icon: Users },
   { id: 'resources',    label: 'Resources',   icon: BookOpen },
   { id: 'seo',          label: 'SEO',         icon: Search },
@@ -31,9 +35,15 @@ const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ siz
   { id: 'ai_adoption',  label: 'AI Adoption', icon: Bot },
   { id: 'org_conversion', label: 'Orgs',      icon: Building2 },
   { id: 'ai_studio',    label: 'AI Studio',   icon: Layers },
+  { id: 'tier_calibration', label: 'Autonomy', icon: Target },
+  { id: 'process_mining', label: 'Process Mining', icon: GitBranch },
 ];
 
-const TAB_ENDPOINTS: Record<IntelTab, string> = {
+// Tabs with their own internal data fetching (skip standard useQuery)
+const SELF_FETCHING_TABS: Set<IntelTab> = new Set(['gtm', 'tier_calibration', 'process_mining']);
+
+const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
+  gtm:           null,  // self-fetching via GTMLifecycleSection
   caas:          '/api/admin/caas/analytics',
   resources:     '/api/admin/resources/intelligence',
   seo:           '/api/admin/seo/intelligence',
@@ -47,7 +57,9 @@ const TAB_ENDPOINTS: Record<IntelTab, string> = {
   retention:     '/api/admin/retention/intelligence',
   ai_adoption:   '/api/admin/ai/intelligence?view=adoption',
   org_conversion:'/api/admin/organisations/intelligence',
-  ai_studio:     '/api/admin/ai/intelligence?view=studio',
+  ai_studio:         '/api/admin/ai/intelligence?view=studio',
+  tier_calibration:  null,  // self-fetching via TierCalibrationPanel
+  process_mining:    null,  // self-fetching via ProcessMiningIntelSection
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -765,9 +777,367 @@ function AIStudioSection({ data }: { data: any }) {
   );
 }
 
+// ── Process Mining Section ───────────────────────────────────────────────────
+
+function ProcessMiningIntelSection() {
+  const { data: processes = [] } = useQuery({
+    queryKey: ['workflow-processes-mining'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/workflow/processes');
+      const data = await res.json();
+      return (data.data ?? []) as Array<{ id: string; name: string; execution_mode?: string }>;
+    },
+    staleTime: 60_000,
+  });
+
+  const topProcesses = processes.slice(0, 5);
+
+  const { data: analyticsMap = {}, isFetching } = useQuery({
+    queryKey: ['mining-intel-all', topProcesses.map((p) => p.id).join(',')],
+    queryFn: async () => {
+      if (topProcesses.length === 0) return {};
+      const results = await Promise.allSettled(
+        topProcesses.map(async (p) => {
+          const res = await fetch(`/api/admin/conductor/workflows/${p.id}/analytics`);
+          if (!res.ok) return [p.id, null] as [string, null];
+          const data = await res.json();
+          return [p.id, data] as [string, typeof data];
+        })
+      );
+      return Object.fromEntries(
+        results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+      );
+    },
+    enabled: topProcesses.length > 0,
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+
+  if (isFetching && Object.keys(analyticsMap).length === 0) {
+    return <div className={styles.loading}>Loading process mining overview…</div>;
+  }
+
+  if (processes.length === 0) {
+    return <InlineEmpty icon={GitBranch} message="No processes found." hint="Create processes in the Workflows tab" />;
+  }
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>Process Analytics Overview (last 90 days)</h4>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Process</th>
+              <th>Runs</th>
+              <th>Completed %</th>
+              <th>Avg Cycle</th>
+              <th>Top Pattern</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topProcesses.map((p) => {
+              const analytics = analyticsMap[p.id];
+              const completedPct = analytics?.summary?.total > 0
+                ? ((analytics.summary.completed / analytics.summary.total) * 100).toFixed(1)
+                : null;
+              const topPattern = analytics?.patterns?.[0];
+              return (
+                <tr key={p.id}>
+                  <td>{p.name}</td>
+                  <td>{fmt(analytics?.summary?.total)}</td>
+                  <td>{completedPct != null ? `${completedPct}%` : '—'}</td>
+                  <td>{analytics?.summary?.avgCycleDays != null ? `${Number(analytics.summary.avgCycleDays).toFixed(1)}d` : '—'}</td>
+                  <td style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                    {topPattern ? topPattern.summary?.slice(0, 60) + (topPattern.summary?.length > 60 ? '…' : '') : '—'}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── GTM Lifecycle Section ─────────────────────────────────────────────────────
+
+const GTM_STAGE_ENDPOINTS = [
+  { key: 'resources',    url: '/api/admin/resources/intelligence' },
+  { key: 'seo',          url: '/api/admin/seo/intelligence' },
+  { key: 'marketplace',  url: '/api/admin/signal/marketplace' },
+  { key: 'listings',     url: '/api/admin/listings/intelligence' },
+  { key: 'bookings',     url: '/api/admin/bookings/intelligence' },
+  { key: 'financials',   url: '/api/admin/financials/intelligence' },
+  { key: 'caas',         url: '/api/admin/caas/analytics' },
+  { key: 'signal',       url: '/api/admin/signal/intelligence' },
+  { key: 'virtualspace', url: '/api/admin/virtualspace/intelligence' },
+] as const;
+
+type StageStatus = 'green' | 'amber' | 'red' | 'grey';
+
+function GTMLifecycleSection() {
+  const { data: stageData = {} as Record<string, any>, isFetching } = useQuery({
+    queryKey: ['gtm-lifecycle-overview'],
+    queryFn: async () => {
+      const results = await Promise.allSettled(
+        GTM_STAGE_ENDPOINTS.map(async ({ key, url }) => {
+          const res = await fetch(url);
+          if (!res.ok) return [key, null] as [string, null];
+          const j = await res.json();
+          return [key, j.data ?? j] as [string, any];
+        })
+      );
+      return Object.fromEntries(
+        results.flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+      ) as Record<string, any>;
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+
+  type StageDefinition = {
+    num: number;
+    id: string;
+    label: string;
+    agent: string;
+    getMetric: (d: any) => string | null;
+    getStatus: (d: any) => StageStatus;
+  };
+
+  const STAGES: StageDefinition[] = [
+    {
+      num: 1, id: 'resources', label: 'Resources', agent: 'Market Intelligence',
+      getMetric: (d) => {
+        const l = d?.health?.latest;
+        return l ? `${fmt(l.published_articles)} articles · ${fmt(l.seo_ready_articles)} SEO ready` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.health?.latest;
+        if (!l) return 'grey';
+        if ((l.seo_ready_articles ?? 0) > 0) return 'green';
+        if ((l.published_articles ?? 0) > 0) return 'amber';
+        return 'red';
+      },
+    },
+    {
+      num: 2, id: 'seo', label: 'SEO', agent: 'Market Intelligence',
+      getMetric: (d) => {
+        const l = d?.health?.latest;
+        return l ? `${fmt(l.page1_count)} page-1 · avg pos ${l.avg_position ? Number(l.avg_position).toFixed(1) : '—'}` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.health?.latest;
+        if (!l) return 'grey';
+        if ((l.top3_count ?? 0) > 0) return 'green';
+        if ((l.page1_count ?? 0) > 0) return 'amber';
+        return 'red';
+      },
+    },
+    {
+      num: 3, id: 'marketplace', label: 'Marketplace', agent: 'Market Intelligence',
+      getMetric: (d) => {
+        const l = d?.health?.latest;
+        return l ? `${fmt(l.total_searches_30d)} searches · ${fmtPct(l.zero_result_rate_pct)} zero-result` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.health?.latest;
+        if (!l) return 'grey';
+        const rate = l.zero_result_rate_pct ?? 0;
+        if (rate < 10) return 'green';
+        if (rate < 20) return 'amber';
+        return 'red';
+      },
+    },
+    {
+      num: 4, id: 'listings', label: 'Listings', agent: 'Market Intelligence',
+      getMetric: (d) => {
+        const l = d?.health?.latest;
+        return l ? `${fmt(l.active_listings)} active · avg ${fmtPct(l.avg_completeness_score)} complete` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.health?.latest;
+        if (!l) return 'grey';
+        const score = l.avg_completeness_score ?? 0;
+        if (score >= 70) return 'green';
+        if (score >= 50) return 'amber';
+        return 'red';
+      },
+    },
+    {
+      num: 5, id: 'bookings', label: 'Bookings', agent: 'Retention Monitor',
+      getMetric: (d) => {
+        const l = d?.trend?.[0];
+        return l ? `GMV ${fmtPence(l.gmv_30d_pence)} · cancel ${fmtPct(l.cancellation_rate_pct)}` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.trend?.[0];
+        if (!l) return 'grey';
+        const cancel = l.cancellation_rate_pct ?? 0;
+        const stalls = d?.liveStalls48h ?? l.stalled_over_48h ?? 0;
+        if (cancel < 15 && stalls === 0) return 'green';
+        if (cancel < 25) return 'amber';
+        return 'red';
+      },
+    },
+    {
+      num: 6, id: 'financials', label: 'Financials', agent: 'Retention Monitor',
+      getMetric: (d) => {
+        const l = d?.trend?.[0];
+        return l ? `Net rev ${fmtPence(l.net_platform_revenue_30d_pence)} · ${fmt(l.open_disputes)} disputes` : null;
+      },
+      getStatus: (d): StageStatus => {
+        const l = d?.trend?.[0];
+        if (!l) return 'grey';
+        const disputes = l.open_disputes ?? 0;
+        const stalled = l.stalled_over_14d ?? 0;
+        const unreversed = l.unreversed_refunds ?? 0;
+        if (disputes === 0 && stalled === 0 && unreversed === 0) return 'green';
+        if (disputes <= 2 && stalled <= 5) return 'amber';
+        return 'red';
+      },
+    },
+  ];
+
+  if (isFetching && Object.keys(stageData).length === 0) {
+    return <div className={styles.loading}>Loading GTM Lifecycle overview…</div>;
+  }
+
+  const caasLatest = stageData.caas?.latest;
+  const caasScore = caasLatest?.avg_caas_score ?? 0;
+  const caasStatus: StageStatus = !caasLatest ? 'grey' : caasScore >= 60 ? 'green' : caasScore >= 40 ? 'amber' : 'red';
+
+  const starCount = stageData.signal?.topPerformers?.length ?? 0;
+  const deadCount = stageData.signal?.deadWeight?.length ?? 0;
+
+  const vsLatest = stageData.virtualspace?.trend?.[0];
+
+  return (
+    <div>
+      {/* Signal — cross-cutting attribution bar */}
+      <div className={styles.gtmSignalBar}>
+        <span className={styles.gtmSignalLabel}>Signal (cross-cutting attribution)</span>
+        <span className={styles.gtmSignalStat}>{fmt(starCount)} Star articles</span>
+        <span className={styles.gtmDivider}>·</span>
+        <span className={styles.gtmSignalStat}>{fmt(deadCount)} Dead Weight</span>
+      </div>
+
+      {/* 6-stage funnel pipeline */}
+      <div className={styles.gtmPipeline}>
+        {STAGES.map((stage, i) => {
+          const d = stageData[stage.id];
+          const metric = stage.getMetric(d);
+          const status = stage.getStatus(d);
+          return (
+            // eslint-disable-next-line react/jsx-key
+            <div key={stage.id} style={{ display: 'contents' }}>
+              <div className={styles.gtmStageCard}>
+                <div className={styles.gtmStageHeader}>
+                  <span className={styles.gtmStageNum}>{stage.num}</span>
+                  <span className={styles.gtmStageName}>{stage.label}</span>
+                  <span
+                    className={`${styles.gtmStatusDot} ${
+                      status === 'green' ? styles.gtmStatusGreen
+                      : status === 'amber' ? styles.gtmStatusAmber
+                      : status === 'red' ? styles.gtmStatusRed
+                      : styles.gtmStatusGrey
+                    }`}
+                    title={status}
+                  />
+                </div>
+                <div className={styles.gtmStageMetric}>{metric ?? 'No data yet'}</div>
+                <div className={styles.gtmStageAgent}>{stage.agent}</div>
+              </div>
+              {i < STAGES.length - 1 && <div className={styles.gtmArrow}>›</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* VirtualSpace shortcut note */}
+      {vsLatest && (
+        <div className={styles.gtmShortcutNote}>
+          <Monitor size={13} style={{ flexShrink: 0 }} />
+          <span>VirtualSpace shortcut (Marketplace → Bookings):</span>
+          <strong>{fmtPct(vsLatest.free_help_conversion_pct)} Free Help → paid booking</strong>
+          <span>· {fmt(vsLatest.free_help_sessions_30d)} free sessions 30d</span>
+        </div>
+      )}
+
+      {/* CaaS — trust foundation row */}
+      <div className={styles.gtmFoundationBar}>
+        <Users size={13} style={{ flexShrink: 0 }} />
+        <span className={styles.gtmFoundationLabel}>CaaS Trust Foundation (precondition: Marketplace, Listings, Bookings)</span>
+        <span
+          className={`${styles.gtmStatusDot} ${
+            caasStatus === 'green' ? styles.gtmStatusGreen
+            : caasStatus === 'amber' ? styles.gtmStatusAmber
+            : caasStatus === 'red' ? styles.gtmStatusRed
+            : styles.gtmStatusGrey
+          }`}
+        />
+        <span className={styles.gtmFoundationMetric}>
+          {caasLatest
+            ? `Avg score: ${fmt(caasScore)} · Star: ${fmt(caasLatest.star_count)} · Active: ${fmt(caasLatest.active_count)} · Stale: ${fmt(caasLatest.stale_count)}`
+            : 'No data yet'}
+        </span>
+      </div>
+
+      {/* Intervention map */}
+      <h4 className={styles.subHeading}>Stage Gate Summary</h4>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Gate In</th>
+              <th>Gate Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { stage: '1 Resources', gateIn: 'Admin creates article', gateOut: 'Published + readiness ≥ 70', key: 'resources' },
+              { stage: '2 SEO', gateIn: 'Article published + indexed', gateOut: 'Organic traffic landing', key: 'seo' },
+              { stage: '3 Marketplace', gateIn: 'User lands on platform', gateOut: 'Views listing or starts Free Help', key: 'marketplace' },
+              { stage: '4 Listings', gateIn: 'User views listing', gateOut: 'Booking form initiated', key: 'listings' },
+              { stage: '5 Bookings', gateIn: 'Booking form + payment', gateOut: 'Session completed', key: 'bookings' },
+              { stage: '6 Financials', gateIn: 'Session completed', gateOut: 'Payout disbursed', key: 'financials' },
+            ].map((row) => {
+              const stageDef = STAGES.find((s) => s.id === row.key);
+              const status = stageDef?.getStatus(stageData[row.key]) ?? 'grey';
+              return (
+                <tr key={row.key}>
+                  <td style={{ fontWeight: 600 }}>{row.stage}</td>
+                  <td style={{ color: '#6b7280', fontSize: '0.8rem' }}>{row.gateIn}</td>
+                  <td style={{ color: '#6b7280', fontSize: '0.8rem' }}>{row.gateOut}</td>
+                  <td>
+                    <span
+                      className={`${styles.gtmStatusDot} ${
+                        status === 'green' ? styles.gtmStatusGreen
+                        : status === 'amber' ? styles.gtmStatusAmber
+                        : status === 'red' ? styles.gtmStatusRed
+                        : styles.gtmStatusGrey
+                      }`}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ── Section router ───────────────────────────────────────────────────────────
 
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
+  switch (tab) {
+    case 'gtm':            return <GTMLifecycleSection />;
+  }
   if (!data) return <InlineEmpty icon={BarChart2} message="No data loaded." />;
   switch (tab) {
     case 'caas':           return <CaaSSection data={data} />;
@@ -783,7 +1153,9 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
     case 'retention':      return <RetentionSection data={data} />;
     case 'ai_adoption':    return <AIAdoptionSection data={data} />;
     case 'org_conversion': return <OrgConversionSection data={data} />;
-    case 'ai_studio':      return <AIStudioSection data={data} />;
+    case 'ai_studio':          return <AIStudioSection data={data} />;
+    case 'tier_calibration':   return <TierCalibrationPanel />;
+    case 'process_mining':     return <ProcessMiningIntelSection />;
   }
 }
 
@@ -792,12 +1164,16 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
 export function IntelligencePanel() {
   const [activeTab, setActiveTab] = useState<IntelTab>('caas');
 
+  const isSelfFetching = SELF_FETCHING_TABS.has(activeTab);
+
   // One query per active tab — React Query caches each tab's result for 5 min.
-  // Switching tabs uses cached data instantly; re-fetches only when stale.
+  // Self-fetching tabs (e.g. tier_calibration) skip this entirely.
   const { data, isFetching, error, refetch, dataUpdatedAt } = useQuery({
     queryKey: ['intel', activeTab],
     queryFn: async () => {
-      const res = await fetch(TAB_ENDPOINTS[activeTab]);
+      const endpoint = TAB_ENDPOINTS[activeTab];
+      if (!endpoint) return null;
+      const res = await fetch(endpoint);
       if (!res.ok) {
         let msg = `HTTP ${res.status}`;
         try { const j = await res.json(); msg = j.error ?? msg; } catch { /* ignore */ }
@@ -806,6 +1182,7 @@ export function IntelligencePanel() {
       const json = await res.json();
       return json.data ?? json;
     },
+    enabled: !isSelfFetching,
     staleTime: 5 * 60_000,   // 5 min — analytics don't need constant refresh
     retry: false,             // don't auto-retry 500s — admin can manually refresh
     refetchOnMount: true,
@@ -838,30 +1215,32 @@ export function IntelligencePanel() {
             {currentTab.label} Intelligence
           </h3>
           <div className={styles.headerRight}>
-            {dataUpdatedAt > 0 && (
+            {!isSelfFetching && dataUpdatedAt > 0 && (
               <span className={styles.lastFetched}>
                 Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
               </span>
             )}
-            <button
-              className={styles.refreshBtn}
-              onClick={() => refetch()}
-              disabled={isFetching}
-              title="Refresh"
-            >
-              <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
-            </button>
+            {!isSelfFetching && (
+              <button
+                className={styles.refreshBtn}
+                onClick={() => refetch()}
+                disabled={isFetching}
+                title="Refresh"
+              >
+                <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
+              </button>
+            )}
           </div>
         </div>
 
         <div className={styles.contentBody}>
-          {error && (
+          {!isSelfFetching && error && (
             <div className={styles.error}>
               {error instanceof Error ? error.message : 'Failed to load data'}
             </div>
           )}
 
-          {isFetching && !data ? (
+          {!isSelfFetching && isFetching && !data ? (
             <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
           ) : (
             <SectionContent tab={activeTab} data={data} />

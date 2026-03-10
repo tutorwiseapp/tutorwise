@@ -297,7 +297,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       supabase
         .from('seo_platform_metrics_daily')
         .select('*')
-        .order('metric_date', { ascending: false })
+        .order('snapshot_date', { ascending: false })
         .limit(1)
         .maybeSingle(),
       supabase
@@ -317,8 +317,24 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     ]);
 
     if (metrics.error) throw new Error(metrics.error.message);
+    // Map raw DB columns (snapshot_date, keywords_top5, etc.) to display-friendly names
+    const raw = metrics.data as Record<string, unknown> | null;
+    const latest = raw ? {
+      snapshot_date: raw.snapshot_date,
+      total_keywords:
+        ((raw.keywords_top5 as number) ?? 0) +
+        ((raw.keywords_top10 as number) ?? 0) +
+        ((raw.keywords_page2 as number) ?? 0) +
+        ((raw.keywords_page3plus as number) ?? 0) +
+        ((raw.not_ranked as number) ?? 0),
+      top3_count: raw.keywords_top5 ?? 0,    // best available proxy (top 5)
+      page1_count: raw.keywords_top10 ?? 0,
+      avg_position: raw.avg_position,
+      avg_position_delta: raw.avg_position_delta,
+      total_backlinks: raw.active_backlinks,
+    } : null;
     return {
-      latest: metrics.data,
+      latest,
       topKeywords: (topKeywords.data ?? []).map((k: Record<string, unknown>) => ({
         keyword: k.keyword,
         position: k.current_position,
@@ -541,7 +557,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
     let query = supabase
       .from('listings')
-      .select('subjects, level, hourly_rate')
+      .select('subjects, levels, hourly_rate')
       .eq('status', 'active')
       .not('hourly_rate', 'is', null);
 
@@ -555,9 +571,10 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     // Aggregate by subject+level
     const buckets: Record<string, { rates: number[]; subject: string; level: string }> = {};
     for (const row of data ?? []) {
+      const firstLevel = ((row.levels as string[] | null) ?? [])[0] ?? 'all';
       for (const subj of (row.subjects as string[] | null) ?? []) {
-        const key = `${subj}:${row.level ?? 'all'}`;
-        buckets[key] = buckets[key] ?? { rates: [], subject: subj, level: row.level ?? 'all' };
+        const key = `${subj}:${firstLevel}`;
+        buckets[key] = buckets[key] ?? { rates: [], subject: subj, level: firstLevel };
         buckets[key].rates.push(row.hourly_rate as number);
       }
     }
@@ -954,6 +971,122 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       trend: dailyMetrics.data ?? [],
       network: networkStats.data,
       funnelLast30d: statuses,
+    };
+  },
+
+  // ── Phase 4C-ii: Network Intelligence ────────────────────────────────────────
+
+  async query_network_intelligence(_input) {
+    const supabase = await createServiceRoleClient();
+
+    const [networkStatsRes, trendRes, topReferrersRes] = await Promise.all([
+      supabase
+        .from('referral_network_stats')
+        .select('avg_depth, max_depth, hub_count, ghost_rate_pct, delegation_adoption_pct, refreshed_at')
+        .maybeSingle(),
+
+      supabase
+        .from('referral_metrics_daily')
+        .select('snapshot_date, new_referrals, converted_referrals, k_coefficient')
+        .order('snapshot_date', { ascending: false })
+        .limit(14),
+
+      supabase
+        .from('referrals')
+        .select('referrer_id, commission_amount_pence')
+        .eq('status', 'converted'),
+    ]);
+
+    // Aggregate top referrers
+    const referrerMap: Record<string, number> = {};
+    for (const r of (topReferrersRes.data ?? []) as any[]) {
+      if (r.referrer_id) {
+        referrerMap[r.referrer_id] = (referrerMap[r.referrer_id] ?? 0) + (r.commission_amount_pence ?? 0);
+      }
+    }
+    const topReferrerIds = Object.entries(referrerMap)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([id, commission]) => ({ profile_id: id, lifetime_commission_pence: commission }));
+
+    return {
+      network_health: networkStatsRes.data,
+      trend_14d: trendRes.data ?? [],
+      top_referrers_by_ltv: topReferrerIds,
+    };
+  },
+
+  // ── Phase 4D: Autonomy Calibration ───────────────────────────────────────────
+
+  async query_process_patterns(input) {
+    const supabase = await createServiceRoleClient();
+    const { process_id, pattern_type } = input as { process_id?: string; pattern_type?: string };
+    let q = supabase
+      .from('process_patterns')
+      .select('*, workflow_processes(name, execution_mode)')
+      .order('confidence', { ascending: false })
+      .limit(10);
+    if (process_id) q = q.eq('process_id', process_id);
+    if (pattern_type) q = q.eq('pattern_type', pattern_type);
+    const { data } = await q;
+    return { patterns: data ?? [], count: (data ?? []).length };
+  },
+
+  async query_autonomy_calibration(_input) {
+    const supabase = await createServiceRoleClient();
+
+    const { data: configs } = await supabase
+      .from('process_autonomy_config')
+      .select('id, process_id, current_tier, accuracy_30d, accuracy_threshold, proposal, workflow_processes(name, slug)')
+      .order('updated_at', { ascending: false });
+
+    if (!configs?.length) return { configs: [], proposals: [] };
+
+    // For each config, compute accuracy from decision_outcomes
+    const enriched = await Promise.all(
+      configs.map(async (config: any) => {
+        const { data: execIds } = await supabase
+          .from('workflow_executions')
+          .select('id')
+          .eq('process_id', config.process_id)
+          .limit(50);
+
+        const ids = (execIds ?? []).map((e: any) => e.id);
+        if (!ids.length) return { ...config, accuracy_computed: null, outcome_count: 0 };
+
+        const { data: outcomes } = await supabase
+          .from('decision_outcomes')
+          .select('outcome_value')
+          .in('execution_id', ids)
+          .not('outcome_value', 'is', null)
+          .eq('lag_days', 30);
+
+        const measured = outcomes ?? [];
+        const correct = measured.filter((o: any) => o.outcome_value > 0.5).length;
+        const accuracy = measured.length > 0 ? Math.round((correct / measured.length) * 100) : null;
+
+        // Check if we should propose expansion or downgrade
+        let proposal: string | null = config.proposal;
+        if (accuracy !== null) {
+          if (!proposal && accuracy > config.accuracy_threshold + 10) proposal = 'expand';
+          if (!proposal && accuracy < config.accuracy_threshold - 10) proposal = 'downgrade';
+        }
+
+        return {
+          ...config,
+          accuracy_computed: accuracy,
+          outcome_count: measured.length,
+          suggested_proposal: proposal,
+        };
+      })
+    );
+
+    const pendingProposals = enriched.filter((c: any) => c.suggested_proposal || c.proposal);
+
+    return {
+      configs: enriched,
+      proposals: pendingProposals,
+      summary: `${enriched.length} processes tracked. ${pendingProposals.length} need attention.`,
     };
   },
 };

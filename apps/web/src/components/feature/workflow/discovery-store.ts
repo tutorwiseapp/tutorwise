@@ -5,7 +5,7 @@ import type {
   DiscoveryResult,
 } from '@/lib/workflow/scanner/types';
 
-export type DiscoveryTab = 'workflows' | 'discovery' | 'execution' | 'agents' | 'teams' | 'spaces' | 'monitoring' | 'intelligence';
+export type DiscoveryTab = 'workflows' | 'discovery' | 'execution' | 'agents' | 'teams' | 'spaces' | 'knowledge' | 'monitoring' | 'intelligence' | 'mining';
 
 interface DiscoveryStore {
   // Active tab

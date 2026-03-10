@@ -2,11 +2,31 @@
  * SpecialistAgentRunner
  * Loads a specialist agent from the DB, builds a system prompt, and runs ReAct-style
  * tool-calling loops via the shared AI service. Writes results to agent_run_outputs.
+ *
+ * Phase 4A: RAG augmentation — queries platform_knowledge_chunks before each run
+ * to inject relevant knowledge into the system prompt.
  */
 
 import { createServiceRoleClient } from '@/utils/supabase/server';
 import { getAIService } from '@/lib/ai';
+import { generateEmbedding } from '@/lib/services/embeddings';
 import { executeTool } from './tools/executor';
+
+// ── Agent → knowledge category mapping (Phase 4A) ────────────────────────────
+// Maps agent slugs to the most relevant platform_knowledge_chunks category.
+// null = all categories (analyst, general-purpose agents)
+const AGENT_KNOWLEDGE_CATEGORY: Record<string, string | null> = {
+  'market-intelligence':   'intel_marketplace',
+  'retention-monitor':     'intel_retention',
+  'operations-monitor':    'intel_bookings',
+  'autonomy-calibrator':   'workflow_process',
+  'analyst':               null,
+  'marketer':              'intel_caas',
+  'planner':               'workflow_process',
+  'developer':             'handler_doc',
+  'engineer':              'handler_doc',
+  'director':              null,
+};
 
 export interface AgentRunResult {
   outputText: string;
@@ -34,16 +54,22 @@ interface SpecialistAgent {
 const TOOL_CALL_PATTERN = /TOOL_CALL:\s*(\w+)\s+(\{[\s\S]*?\})/g;
 const MAX_TOOL_ROUNDS = 5;
 
-function buildSystemPrompt(agent: SpecialistAgent, toolDescriptions: string): string {
+function buildSystemPrompt(
+  agent: SpecialistAgent,
+  toolDescriptions: string,
+  knowledgeBlock?: string
+): string {
   const config = agent.config ?? {};
   const skills = (config.skills ?? []).join(', ') || 'general analysis';
   const instructions = config.instructions ? `\nAdditional instructions: ${config.instructions}` : '';
+  const knowledgeSection = knowledgeBlock
+    ? `\nPLATFORM KNOWLEDGE (relevant context for this task):\n${knowledgeBlock}\n`
+    : '';
 
   return `You are ${agent.name}, a ${agent.role} specialist at Tutorwise (${agent.department}).
 ${agent.description ?? ''}
 
-Skills: ${skills}${instructions}
-
+Skills: ${skills}${instructions}${knowledgeSection}
 Available tools:
 ${toolDescriptions}
 
@@ -52,6 +78,29 @@ TOOL_CALL: tool_slug {"param": "value"}
 
 After receiving tool results, continue your analysis. When done, provide your final response.
 Do not call tools unless you genuinely need data. Keep your response focused and actionable.`;
+}
+
+/**
+ * Query platform_knowledge_chunks for relevant knowledge to augment the system prompt.
+ * Falls back silently if the table doesn't exist or query fails.
+ */
+async function fetchKnowledgeBlock(agentSlug: string, prompt: string): Promise<string | undefined> {
+  try {
+    const category = AGENT_KNOWLEDGE_CATEGORY[agentSlug] ?? null;
+    const embedding = await generateEmbedding(`${agentSlug}: ${prompt}`);
+    const supabase = await createServiceRoleClient();
+    const { data } = await supabase.rpc('match_platform_knowledge_chunks', {
+      query_embedding: JSON.stringify(embedding),
+      match_category: category,
+      match_count: 3,
+      match_threshold: 0.5,
+    });
+    if (!data || data.length === 0) return undefined;
+    return (data as any[]).map((c: any) => `[${c.category}] ${c.title}:\n${c.content}`).join('\n---\n');
+  } catch {
+    // Knowledge base may not be seeded yet — fail silently
+    return undefined;
+  }
 }
 
 async function loadToolDescriptions(toolSlugs: string[]): Promise<string> {
@@ -88,8 +137,11 @@ export class SpecialistAgentRunner {
     if (error || !agent) throw new Error(`Agent not found: ${agentId}`);
 
     const toolSlugs: string[] = (agent.config as AgentConfig)?.tools ?? [];
-    const toolDescriptions = await loadToolDescriptions(toolSlugs);
-    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions);
+    const [toolDescriptions, knowledgeBlock] = await Promise.all([
+      loadToolDescriptions(toolSlugs),
+      fetchKnowledgeBlock(agent.slug, prompt),
+    ]);
+    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions, knowledgeBlock);
 
     const ai = getAIService();
     const toolsCalled: AgentRunResult['toolsCalled'] = [];

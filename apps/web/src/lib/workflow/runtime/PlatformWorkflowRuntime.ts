@@ -123,6 +123,9 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
           .from('workflow_executions')
           .update({ status: 'completed', completed_at: new Date().toISOString() })
           .eq('id', executionId);
+
+        // Phase 4D: Write decision_outcomes stubs for learning loop measurement
+        await writeDecisionOutcomeStubs(supabase, executionId, processId).catch(() => {});
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -280,3 +283,48 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
 
 // Singleton — one runtime instance shared across requests
 export const workflowRuntime = new PlatformWorkflowRuntime();
+
+// ---------------------------------------------------------------------------
+// Phase 4D: Learning Loop — decision_outcomes stubs
+// ---------------------------------------------------------------------------
+
+// Maps process slug → outcome metrics to track (for pg_cron jobs to fill)
+const PROCESS_OUTCOME_METRICS: Record<string, Array<{ metric: string; lag_days: number }>> = {
+  'tutor-approval':          [{ metric: 'dispute_raised', lag_days: 30 }, { metric: 'active_30d', lag_days: 30 }],
+  'commission-payout':       [{ metric: 'payout_correct', lag_days: 7 }, { metric: 'dispute_raised', lag_days: 30 }],
+  'booking-lifecycle-human': [{ metric: 'booking_completed', lag_days: 14 }, { metric: 'cancellation_rate', lag_days: 30 }],
+  'booking-lifecycle-ai':    [{ metric: 'booking_completed', lag_days: 14 }, { metric: 'cancellation_rate', lag_days: 30 }],
+  'referral-attribution':    [{ metric: 'nudge_converted', lag_days: 14 }, { metric: 'commission_earned', lag_days: 30 }],
+};
+
+/**
+ * Write decision_outcomes stub rows when a workflow execution completes.
+ * pg_cron jobs will fill outcome_value at the appropriate lag intervals.
+ * Fails silently — learning loop is non-critical infrastructure.
+ */
+async function writeDecisionOutcomeStubs(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+  executionId: string,
+  processId: string
+): Promise<void> {
+  // Look up process slug
+  const { data: process } = await supabase
+    .from('workflow_processes')
+    .select('slug')
+    .eq('id', processId)
+    .single();
+
+  const slug = process?.slug ?? '';
+  const metrics = PROCESS_OUTCOME_METRICS[slug];
+  if (!metrics?.length) return;
+
+  // Insert outcome stubs (outcome_value = null, filled later by pg_cron)
+  const stubs = metrics.map(({ metric, lag_days }) => ({
+    execution_id: executionId,
+    outcome_metric: metric,
+    outcome_value: null,
+    lag_days,
+  }));
+
+  await supabase.from('decision_outcomes').insert(stubs);
+}

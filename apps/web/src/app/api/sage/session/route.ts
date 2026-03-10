@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
+import { fetchPlatformUserContext, formatPlatformContextForPrompt } from '@/lib/platform/user-context';
 
 type SageSubject = 'maths' | 'english' | 'science' | 'general';
 type SageLevel = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
@@ -137,6 +138,15 @@ export async function POST(request: NextRequest) {
       console.warn('[Sage Session] Could not store session (table may not exist):', insertError.message);
     }
 
+    // Fetch PlatformUserContext (fire-and-forget on error — non-blocking)
+    let platformContextBlock: string | undefined;
+    try {
+      const ctx = await fetchPlatformUserContext(user.id);
+      platformContextBlock = formatPlatformContextForPrompt(ctx);
+    } catch {
+      // Context enrichment is best-effort — never fail session creation
+    }
+
     return NextResponse.json({
       sessionId,
       persona: 'sage',
@@ -154,6 +164,7 @@ export async function POST(request: NextRequest) {
         role: profile?.active_role || 'student',
       },
       expiresAt: expiresAt.toISOString(),
+      platformContextBlock, // injected into Sage system prompt on first turn
     });
   } catch (error) {
     console.error('[Sage Session] Creation error:', error);
