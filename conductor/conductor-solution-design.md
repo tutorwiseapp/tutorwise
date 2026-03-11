@@ -1,7 +1,7 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 4.2 — Phase 6 complete (TeamRuntime v2 + CAS soft-decommission + HITL + governance stubs); migrations 383–385 applied
+**Version**: 5.0 — Phases 0–8 complete; migrations 348–388 applied
 **Date**: 2026-03-11
-**Status**: Active platform — Phases 0–6 complete; Phase 7 = cas_* hard DELETE (eligible 2026-06-11); next architectural layer = Graphiti Memory
+**Status**: Active platform — Phases 0–8 complete (TeamRuntime v2, DevOps Team, Agent Episodic Memory, MCP Integration Framework); cas_* hard DELETE eligible 2026-06-11
 
 > **Document Index — Conductor folder**
 >
@@ -19,6 +19,46 @@
 > | 14 intelligence specs | Feature-level agent tools, metrics tables, pg_cron, admin panels — see [specs index](#feature-intelligence-specs-index) |
 > | [`process-execution-solution-design.md`](./process-execution-solution-design.md) | Workflow execution engine design (PlatformWorkflowRuntime, LangGraph, shadow/HITL) |
 > | [`process-discovery-solution-design.md`](./process-discovery-solution-design.md) | Process discovery design (4-phase scanner) |
+
+---
+
+## Table of Contents
+
+- [1. Product Vision](#1-product-vision)
+- [Fuschia Comparison — Full Picture](#fuschia-comparison--full-picture-github-latest-verified)
+- [What to REMOVE / REDESIGN](#what-to-remove--redesign)
+- [Architecture After Phase 8 — Unified Platform](#architecture-after-phase-8--unified-platform)
+- [Current State — What's Built](#current-state--whats-built)
+- [Conductor Use Cases — Six Lifecycles](#conductor-use-cases--six-lifecycles)
+- [Feature Intelligence Specs Index](#feature-intelligence-specs-index)
+- **Implementation Phases**
+  - [Phase 1 — Consolidation & Designer Completion](#phase-1--consolidation--designer-completion)
+  - [Phase 2 — Conductor: Agents + Teams](#phase-2--conductor-agents--teams)
+  - [Phase 3 — Analytics & Monitoring + Feature Intelligence Layer](#phase-3--analytics--monitoring--feature-intelligence-layer)
+  - [Phase 4 — Knowledge & Intent](#phase-4--knowledge--intent)
+  - [Phase 5 — Process Mining Enhancement](#phase-5--process-mining-enhancement)
+  - [Phase 5B — Build Canvas (Build Tab + Agent Registry)](#phase-5b--build-canvas-build-tab--agent-registry)
+  - [Phase 6 — Unified Execution Substrate (TeamRuntime v2 + CAS Decommission)](#phase-6--unified-execution-substrate-teamruntime-v2--cas-decommission)
+  - [Phase 7 — Agent Episodic Memory](#phase-7--agent-episodic-memory)
+  - [Phase 8 — MCP Integration Framework](#phase-8--mcp-integration-framework)
+- [Roadmap (Future — Not Phased)](#roadmap-future--not-phased)
+- **Reference**
+  - [Testing Strategy](#testing-strategy)
+  - [Complete Database Schema](#complete-database-schema)
+  - [Current Migration Sequence](#current-migration-sequence)
+  - [Agent Catalog](#agent-catalog)
+  - [API Surface Reference](#api-surface-reference)
+  - [Risk Register](#risk-register)
+  - [Operational Runbooks](#operational-runbooks)
+  - [Build Sequence](#build-sequence)
+  - [Total Estimates](#total-estimates)
+  - [What Gets Removed vs Built](#what-gets-removed-vs-built)
+  - [Growth Score — Worked Examples](#growth-score--worked-examples)
+  - [Phase Dependency Map](#phase-dependency-map)
+  - [GDPR Compliance](#gdpr-compliance)
+  - [Design Decisions](#design-decisions)
+  - [Success Metrics](#success-metrics)
+  - [Related Documents](#related-documents)
 
 ---
 
@@ -52,9 +92,9 @@ Conductor is the **operating system for Tutorwise** — it lets the platform run
 
 Three capabilities — all managed from **one unified admin canvas (Conductor)**:
 1. **Workflows** — automated business processes (tutor approval, commission payout, booking lifecycle)
-2. **Agents** — single-agent AI specialists: create, configure, monitor, remove from UI (Market Intelligence, Financial Analyst, Operations Monitor, Retention Monitor, Custom)
+2. **Agents** — single-agent AI specialists with episodic memory: create, configure, monitor, remove from UI (Market Intelligence, Financial Analyst, Operations Monitor, Retention Monitor, Custom)
 3. **Teams** — multi-agent systems where multiple Agents collaborate toward one result:
-   - **CAS Team** (Supervisor pattern, 9 agents: Director, Analyst, Developer, Tester, QA, Security, Engineer, Planner, Marketer)
+   - **DevOps Team** (Supervisor pattern, 9 agents: Director, Analyst, Developer, Tester, QA, Security, Engineer, Planner, Marketer) — formerly CAS Team, renamed in migration 383
    - **Custom teams** — admin builds new teams on the canvas (Supervisor / Pipeline / Swarm)
 
 An admin can add a new Agent or Team, configure prompts/tools/schedule, monitor runs, and remove it — all without writing code.
@@ -62,7 +102,7 @@ An admin can add a new Agent or Team, configure prompts/tools/schedule, monitor 
 ### What Conductor Is Not
 
 - **Not a user-facing product** — users never see "Conductor" directly
-- **Not a replacement** for CAS, Sage, or Lexi — those runtimes stay as-is; Conductor manages and connects them
+- **Not a replacement** for Sage or Lexi — those runtimes stay as-is; Conductor manages and connects them (CAS runtime has been retired — its capabilities now live in TeamRuntime v2)
 - **Not glue code** — Conductor is a strategic product investment with its own roadmap and value
 - **Not a new monolith** — Conductor is a protocol, interface, and management layer, not a new central service
 
@@ -89,11 +129,11 @@ BEFORE CONDUCTOR — Seven Silos
 ```
 AFTER CONDUCTOR — Integrated Platform, One Admin Canvas (Conductor)
 
-  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌──────────────────────────────────┐
-  │  Sage  │  │  Lexi  │  │ Growth │  │  CAS   │  │  CONDUCTOR                     │
-  │runtime │  │runtime │  │runtime │  │  Team  │  │  Workflows + Agents + Teams      │
-  └───┬────┘  └───┬────┘  └───┬────┘  └───┬────┘  │  (one canvas, one admin)        │
-      └────────────┴────────────┴───────────┴───────┴──────┬───────────┬──────────────┘
+  ┌────────┐  ┌────────┐  ┌────────┐  ┌─────────┐  ┌──────────────────────────────────┐
+  │  Sage  │  │  Lexi  │  │ Growth │  │ DevOps  │  │  CONDUCTOR                     │
+  │runtime │  │runtime │  │runtime │  │  Team   │  │  Workflows + Agents + Teams      │
+  └───┬────┘  └───┬────┘  └───┬────┘  └───┬─────┘  │  + MCP Integrations             │
+      └────────────┴────────────┴───────────┴────────┴──────┬───────────┬──────────────┘
                               │  PlatformUserContext (shared) │ configures│ designs
                               │                              │           │
                 ┌─────────────▼──────────────┐              │           │
@@ -106,8 +146,9 @@ AFTER CONDUCTOR — Integrated Platform, One Admin Canvas (Conductor)
 ┌────────▼────────┐  ┌────────────▼──────────┐  ┌───────────────▼──────────────┐
 │  Intelligence   │  │  Workflow Runtime      │  │  Operations Interface         │
 │  Hub            │  │  (Conductor canvas + │  │  (Exception Queue,            │
-│  (CAS + Analyst │  │   PlatformWorkflow     │  │   Agent Registry,             │
-│   Agents)       │  │   Runtime)             │  │   Monitoring)                 │
+│  (Specialist +  │  │   PlatformWorkflow     │  │   Agent Registry,             │
+│   Analyst       │  │   Runtime + TeamRuntime│  │   Monitoring + MCP)           │
+│   Agents)       │  │   v2)                  │  │                               │
 └────────┬────────┘  └───────────────────────┘  └──────────────────────────────┘
          │
          ▼
@@ -234,7 +275,7 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 | **Workflow Designer** (ReactFlow canvas, node palette, templates) | ✅ **Complete** — 7 node types, drag-to-canvas palette, WorkflowCanvas, TemplateSelector, ChatPanel, auto-layout | Ahead — shadow/live promotion model exceeds Fuschia |
 | **Workflow Execution** (LangGraph, pause/resume, HITL) | ✅ **AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer, conformance checking | Fuschia uses flat YAML; our LangGraph approach is more powerful |
 | **Agent Designer** (visual canvas to design agent org, assign tools) | ✅ **Complete** — AgentManagementPanel, agent chat, BuildCanvas/BuildPropertiesDrawer | Build Canvas surpasses Fuschia — 3-level hierarchy (Space→Team→Agent) |
-| **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | ✅ **AHEAD** — TeamRuntime (native async/await — ⚠️ Phase 6 upgrades to LangGraph StateGraph), 3 patterns, DB-configurable topology, TeamCanvas | **Tutorwise surpasses Fuschia** — Phase 6 upgrades to correct LangGraph + PostgresSaver implementation |
+| **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | ✅ **AHEAD** — TeamRuntime v2 (LangGraph StateGraph + PostgresSaver + CircuitBreaker), 3 patterns, DB-configurable topology, TeamCanvas, HITL interrupt()/resume() | **Tutorwise surpasses Fuschia** — Phase 6 complete: correct LangGraph + PostgresSaver + HITL + governance |
 | **Agent Registry** (Agent Registry = Agents + Teams + Spaces) | ✅ **UNIQUE** — No Fuschia equivalent. iPOM hierarchy (Space→Team→Agent), 5 built-in spaces, 11 agents | Tutorwise-original architecture — see AI-Digital-Workforce-Blueprint.md |
 | **Build Canvas** (visual drag-and-drop org composer) | ✅ **UNIQUE** — BuildCanvas, BuildPalette (3-level drill), BuildPropertiesDrawer, build-store | No Fuschia equivalent. Inspired by Helm/Docker Compose for agent topologies |
 | **Tool Registry** (register/assign tools to agents from UI) | ✅ **Complete** — 24 tools in executor.ts, Tools tab at `/admin/conductor/agents/tools` | Live |
@@ -244,83 +285,85 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 | **Process Mining** (conformance checking, pattern detection) | ✅ **AHEAD** — ConformanceChecker, `conformance_deviations` table, shadow-reconcile cron, promote workflow | Phase 5 complete |
 | **Intent Agent** (natural language → workflow/agent trigger) | ✅ **Complete** — IntentDetector (`lib/conductor/IntentDetector.ts`), ExecutionCommandBar routing | Phase 4 complete |
 | **Value Streams** (end-to-end value delivery mapping) | Roadmap | Covered partially by GTM Lifecycle (6-stage funnel) |
-| **Graphiti Memory** (temporal episodic memory for agents) | Roadmap | Next architectural layer — see AI-Digital-Workforce-Blueprint.md roadmap |
-| **MCP Integration** (Model Context Protocol tool bridge) | Roadmap | Natural extension of Tool Registry |
+| **Agent Episodic Memory** (temporal episodic memory for agents) | ✅ **Complete** — `memory_episodes` (vector search, HNSW), `memory_facts` (subject/relation/object triples), AgentMemoryService, injected as PAST EXPERIENCE in SpecialistAgentRunner | Phase 7 complete — pgvector-based (not Graphiti/Neo4j), zero infrastructure cost |
+| **MCP Integration** (Model Context Protocol tool bridge) | ✅ **Complete** — MCPClientManager singleton, `mcp_connections` + `mcp_tool_catalog` + `mcp_tool_executions` tables, MCPPanel admin UI, credential resolver, colon-namespaced tool routing | Phase 8 complete — Google Classroom + Jira/Confluence use cases |
 
 ---
 
 ## What to REMOVE / REDESIGN
 
-Before building anything new, make these strategic corrections:
+> **Note (v5.0)**: Most items below have been completed. Retained for historical context.
 
-### Remove
-| What | Why |
-|------|-----|
-| `ExecutionCanvas.tsx` as a separate tab | Merge execution state overlay into design canvas. Two canvases is wrong. |
-| `ShadowDivergencePanel.tsx` (skeleton) | Either implement properly in Phase 1 or cut. No half-implementations. |
-| Growth Advisor standalone code (substantially built — skill files, orchestrator, API routes) | Migrate then remove. Skill files → Growth Advisor agent knowledge. API routes deprecated (redirect to `/api/agents/growth/`). Delete `apps/web/src/lib/growth-agent/` after unified routes verified. See Phase 2 migration task. |
-| CAS "build pipeline" narrative | Reframe: CAS runtime becomes the execution backbone for specialist agents. The 8 CAS agents (marketer, analyst, etc.) are redeployed as built-in Specialist registrations (`built_in = true`), not a separate developer tool. |
+### Remove — Status
+| What | Status |
+|------|--------|
+| `ExecutionCanvas.tsx` as a separate tab | ✅ Done — execution overlay merged into design canvas |
+| `ShadowDivergencePanel.tsx` (skeleton) | ✅ Done — rebuilt properly in Phase 5 MiningPanel (conformance + shadow + promote) |
+| Growth Advisor standalone code | Deferred — Growth Agent still runs independently (`apps/web/src/lib/growth-agent/`); unified agent routes not yet implemented |
+| CAS "build pipeline" narrative | ✅ Done — CAS runtime retired (Phase 6); 9 agents redeployed as built-in Specialists in DevOps Team (`built_in = true`) |
 
-### Redesign
-| What | Current | Should Be |
-|------|---------|-----------|
-| Conductor toolbar node buttons | Programmatic add-node buttons | Drag-from-palette node toolbox sidebar |
-| Handler config in PropertiesDrawer | Free-form JSON | Form-based fields per handler type (driven by handler schema registry) |
-| CAS admin dashboard (`/admin/cas`) | Separate product with its own UI | Merged into unified Conductor Monitoring tab |
-| `packages/agents-core` (proposed) | Standalone extraction task | Not needed — CAS `AgentRuntimeInterface` already is this abstraction |
+### Redesign — Status
+| What | Status |
+|------|--------|
+| Conductor toolbar node buttons → drag-from-palette | ✅ Done — NodePalette (Workflows) + BuildPalette (Build Canvas) |
+| Handler config → form-based fields | Partial — PropertiesDrawer still uses JSON for some handlers |
+| CAS admin dashboard (`/admin/cas`) → Conductor | ✅ Done — Phase 6D; `/admin/cas` redirects to `/admin/conductor` |
+| `packages/agents-core` extraction | ✅ Not needed — CAS patterns (CircuitBreaker, RetryUtility) extracted directly into `lib/workflow/team-runtime/` |
 
 ---
 
-## Architecture After Phase 1+2 — One Canvas
+## Architecture After Phase 8 — Unified Platform
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│  CONDUCTOR  (/admin/conductor)  ← the single admin canvas            │
-│                                                                      │
-│  ┌─────────────┐   ┌──────────────────────────────────────────┐     │
-│  │ Node Palette│   │  CANVAS (ReactFlow)                      │     │
-│  │─────────────│   │  ─ Workflows (7 node types)               │     │
-│  │ WORKFLOWS   │   │  ─ Agent nodes (8th type) with config     │     │
-│  │  trigger    │   │  ─ Team nodes (9th type) with topology    │     │
-│  │  action     │   │  ─ CAS Team visualiser (tab/overlay)      │     │
-│  │  condition  │   │  ─ Execution overlay (live status)        │     │
-│  │  approval   │   └──────────────────────────────────────────┘     │
-│  │  ...        │   ┌──────────────────────────────────────────┐     │
-│  │─────────────│   │  REGISTRY PANEL                          │     │
-│  │ AGENTS      │   │  [Workflows] [Agents] [Teams]            │     │
-│  │  Agent      │   │  Add · Configure · Monitor · Remove      │     │
-│  │  Custom     │   └──────────────────────────────────────────┘     │
-│  │─────────────│                                                     │
-│  │ TEAMS       │                                                     │
-│  │  CAS Team   │                                                     │
-│  │  Custom     │                                                     │
-│  └─────────────┘                                                     │
-└──────────────────────┬───────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│  CONDUCTOR  (/admin/conductor)  ← the single admin canvas                 │
+│                                                                           │
+│  ┌─────────────┐   ┌──────────────────────────────────────────┐          │
+│  │ Node Palette│   │  CANVAS (ReactFlow)                      │          │
+│  │─────────────│   │  ─ Workflows (7 node types)               │          │
+│  │ WORKFLOWS   │   │  ─ Agent nodes (8th type) with config     │          │
+│  │  trigger    │   │  ─ Team nodes (9th type) with topology    │          │
+│  │  action     │   │  ─ DevOps Team visualiser (tab/overlay)   │          │
+│  │  condition  │   │  ─ Execution overlay (live status)        │          │
+│  │  approval   │   └──────────────────────────────────────────┘          │
+│  │  ...        │   ┌──────────────────────────────────────────┐          │
+│  │─────────────│   │  BUILD CANVAS (3-level drill-down)       │          │
+│  │ AGENTS      │   │  All Spaces → Space → Team → Agents      │          │
+│  │  Agent      │   │  Drag-to-canvas · Edit properties        │          │
+│  │  Custom     │   └──────────────────────────────────────────┘          │
+│  │─────────────│   ┌──────────────────────────────────────────┐          │
+│  │ TEAMS       │   │  MCP INTEGRATIONS                        │          │
+│  │  DevOps     │   │  Connections · Tool Catalog · Exec Log   │          │
+│  │  Custom     │   └──────────────────────────────────────────┘          │
+│  └─────────────┘                                                          │
+└──────────────────────┬────────────────────────────────────────────────────┘
                        │
          ┌─────────────┴──────────────────────────┐
          ▼                                        ▼
 ┌─────────────────────┐              ┌──────────────────────────────────┐
 │  WORKFLOW RUNTIME   │              │  AGENT / TEAM RUNTIME            │
-│  PlatformWorkflow-  │              │  CAS AgentRuntimeInterface       │
-│  Runtime            │              │  LangGraph StateGraph            │
-│  LangGraph + PG     │              │  Agents: single LLM + tools      │
-│  Shadow/HITL/cron   │              │  Teams: TeamRuntime (dynamic     │
-└─────────────────────┘              │   StateGraph from DB topology)   │
+│  PlatformWorkflow-  │              │  SpecialistAgentRunner (ReAct)   │
+│  Runtime            │              │  + AgentMemoryService (episodic) │
+│  LangGraph + PG     │              │  + MCP tool routing (colon ns)   │
+│  Shadow/HITL/cron   │              │  Teams: TeamRuntime v2 (LangGraph│
+└─────────────────────┘              │   StateGraph + PostgresSaver +   │
+                                     │   CircuitBreaker + HITL)         │
                                      └──────────────────────────────────┘
 ```
 
 **One admin entry point. Two underlying runtimes. All Agents and Teams managed from the same place.**
 
-- **Agents** (Market Intelligence, Financial, Operations, Retention Monitor) run on the Agent Runtime — standalone, schedule + chat driven
-- **CAS Team** (Director, Developer, Tester etc.) runs on TeamRuntime via Supervisor pattern — exposed and manageable from Conductor
-- **Custom Teams** — admin builds topology on canvas; TeamRuntime compiles LangGraph StateGraph from DB definition at execution time
-- **Workflows** can invoke any registered Agent or Team via the `agent` action node type
+- **Agents** (Market Intelligence, Financial, Operations, Retention Monitor) run on SpecialistAgentRunner — standalone, schedule + chat driven, with episodic memory (PAST EXPERIENCE injection) and MCP tool access
+- **DevOps Team** (Director, Developer, Tester etc.) runs on TeamRuntime v2 via Supervisor pattern with LangGraph StateGraph + PostgresSaver checkpointing + HITL interrupt()/resume()
+- **Custom Teams** — admin builds topology on canvas; TeamRuntime v2 compiles LangGraph StateGraph from DB definition at execution time
+- **Workflows** can invoke any registered Agent or Team via the `cas_agent` action node type
+- **MCP Tools** — external tools (Google Classroom, Jira/Confluence) auto-discovered via MCP protocol, namespaced as `connection:tool_name`, routed transparently alongside built-in tools
 
 ### Core Capabilities
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                       TUTORWISE CONDUCTOR v3.0                               │
+│                       TUTORWISE CONDUCTOR v5.0                               │
 ├──────────────┬─────────────────┬────────────────┬──────────────────────┤
 │  AUTOMATION  │  INTELLIGENCE   │  OPERATIONS    │  INTEGRATION         │
 │  RUNTIME     │  HUB            │  INTERFACE     │  LAYER               │
@@ -350,8 +393,8 @@ Before building anything new, make these strategic corrections:
 | **Autonomous** | Routine decisions need no human | ✅ Four-tier model + Conductor execution engine |
 | **Intelligent** | Anomalies surface before humans notice | ✅ Admin Intelligence Agent (Phase 3) |
 | **Self-maintaining** | Knowledge stays current without manual effort | ✅ Async pipelines (Phase 3) |
-| **Self-improving** | Decisions get better from observed outcomes | Phase 4 — Learning Layer |
-| **Coherent** | Users experience one platform, not 7 tools | Phase 4 — PlatformUserContext |
+| **Self-improving** | Decisions get better from observed outcomes | ✅ Phase 4 — Learning Layer (decision_outcomes + tier calibration) |
+| **Coherent** | Users experience one platform, not 7 tools | ✅ Phase 4 — PlatformUserContext + cross-agent handoff |
 
 ---
 
@@ -459,15 +502,15 @@ CONDUCTOR — WORKFLOW INVENTORY
 
 | System | Role in Conductor | Participates As |
 |--------|-------------|----------------|
-| **Conductor** | Admin Canvas + Automation Runtime — executes all Workflows, Agents, Teams, HITL approvals | Primary action executor for all Agents and Teams |
-| **CAS** | Intelligence Hub backbone — hosts admin intelligence agent, event store | `cas:admin-intelligence` + 9 existing agents |
+| **Conductor** | Admin Canvas + Automation Runtime — executes all Workflows, Agents, Teams, HITL approvals, MCP integrations | Primary action executor for all Agents and Teams |
+| **CAS** *(retired)* | Intelligence Hub backbone — former host for admin intelligence agent, event store. **Runtime retired in Phase 6**; CircuitBreaker + RetryUtility extracted to `lib/workflow/team-runtime/`; agents migrated to `specialist_agents` table; `/admin/cas` redirects to Conductor | `cas_*` tables soft-deprecated (migration 385), hard delete 2026-06-11 |
 | **Sage** | AI tutor runtime | Event bridge — session, feedback, progress events |
 | **Lexi** | Help bot + admin conversational interface | Bridge + admin mode with operational tools |
 | **Growth** | Advisory agent + platform-wide signal source | Bridge — audit, session, action, score events |
 | **AI Agent Studio** | Marketplace AI agents (student/client-facing) | Lifecycle events (`agent.created`, `agent.published`) |
 | **Admin Command Center** | Human interface for the autonomous platform | Exception queue consumer + HITL approval interface |
 
-### What's Built — All Phases Complete (v4.0)
+### What's Built — All Phases Complete (v5.0)
 
 | Item | Location | Phase | Status |
 |------|----------|-------|--------|
@@ -480,15 +523,17 @@ CONDUCTOR — WORKFLOW INVENTORY
 | Process Discovery (4 phases) | `workflow/discovery/` | 1 | ✅ Live |
 | 5 seeded workflow processes | migrations 338–339 | 1 | ✅ Live |
 | ChatPanel (AI mutations on canvas) | Workflows canvas | 1 | ✅ Live |
-| SpecialistAgentRunner (ReAct loop) | `lib/agent-studio/SpecialistAgentRunner.ts` | 2 | ✅ Live |
-| 24 analyst tools | `lib/agent-studio/tools/executor.ts` | 2–3 | ✅ Live |
+| SpecialistAgentRunner (ReAct loop + memory + MCP) | `lib/agent-studio/SpecialistAgentRunner.ts` | 2+7+8 | ✅ Live |
+| 24 analyst tools + MCP tool routing | `lib/agent-studio/tools/executor.ts` | 2–3+8 | ✅ Live |
 | AgentManagementPanel + AgentChatPanel | `components/feature/conductor/` | 2 | ✅ Live |
-| TeamRuntime (native async/await — NOT LangGraph) | `lib/workflow/team-runtime/TeamRuntime.ts` | 2 | ✅ Live |
+| **TeamRuntime v2** (LangGraph StateGraph + PostgresSaver + CircuitBreaker + HITL) | `lib/workflow/team-runtime/TeamRuntime.ts` | 6A | ✅ Live |
+| CircuitBreaker (extracted from CAS) | `lib/workflow/team-runtime/CircuitBreaker.ts` | 6A | ✅ Live |
+| RetryUtility (extracted from CAS) | `lib/workflow/team-runtime/RetryUtility.ts` | 6A | ✅ Live |
 | TeamCanvas (ReactFlow, 3 patterns) | `components/feature/conductor/TeamCanvas.tsx` | 2 | ✅ Live |
 | SpacesPanel (drag-and-drop) | `components/feature/conductor/SpacesPanel.tsx` | 2 | ✅ Live |
 | 11 built-in specialist agents | `specialist_agents` table, migrations 348+374+382 | 2–3 | ✅ Live |
-| 5 built-in agent spaces | `agent_spaces` table, migrations 373+382 | 2 | ✅ Live |
-| Platform Intelligence (14 specs) | `components/feature/conductor/IntelligencePanel.tsx` | 3 | ✅ Live |
+| 5 built-in agent spaces (incl. Marketing) | `agent_spaces` table, migrations 373+382 | 2 | ✅ Live |
+| Platform Intelligence (14 specs, 17 sub-tabs) | `components/feature/conductor/IntelligencePanel.tsx` | 3 | ✅ Live |
 | 14 daily metrics tables + pg_cron | migrations 355–369 | 3 | ✅ Live |
 | Platform Knowledge Base | `components/feature/conductor/KnowledgePanel.tsx` | 4 | ✅ Live |
 | IntentDetector | `lib/conductor/IntentDetector.ts` | 4 | ✅ Live |
@@ -502,6 +547,15 @@ CONDUCTOR — WORKFLOW INVENTORY
 | **BuildPalette** (drag-to-canvas agent palette) | `components/feature/conductor/BuildPalette.tsx` | 5B | ✅ Live |
 | **BuildPropertiesDrawer** (right-side edit form) | `components/feature/conductor/BuildPropertiesDrawer.tsx` | 5B | ✅ Live |
 | **build-store** (Zustand nav — 3 levels) | `components/feature/conductor/build-store.ts` | 5B | ✅ Live |
+| **DevOps Team** (CAS → DevOps rename + enriched configs) | migration 383 (rename) + 384 (configs) | 6B | ✅ Live |
+| **HITL in Teams** (interrupt/resume in supervisor pattern) | `TeamRuntime.ts` + `/api/admin/teams/[id]/runs/[runId]/resume` | 6C | ✅ Live |
+| **CAS soft-deprecation** (redirect + stub routes + table deprecation) | `/admin/cas` redirect + migration 385 | 6D | ✅ Live |
+| **Governance stubs** (decision_outcomes on team completion) | `TeamRuntime._writeTeamRunDecisionStubs()` | 6E | ✅ Live |
+| **Agent Episodic Memory** (memory_episodes + memory_facts) | `lib/agent-studio/AgentMemoryService.ts` + migration 386 | 7 | ✅ Live |
+| **MCP Integration Framework** (connections + catalog + executions) | `lib/mcp/MCPClientManager.ts` + migrations 387–388 | 8 | ✅ Live |
+| **MCPPanel** (admin UI — connections, catalog, exec log) | `components/feature/conductor/MCPPanel.tsx` | 8 | ✅ Live |
+| **SimulationPanel** (scenario runner) | `components/feature/conductor/SimulationPanel.tsx` | — | ✅ Live |
+| **EvalPanel** (agent evaluation) | `components/feature/conductor/EvalPanel.tsx` | — | ✅ Live |
 
 ---
 
@@ -898,7 +952,7 @@ Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admi
 │  ┌──────────────────┐    ┌──────────────────────┐        │
 │  │ Mkt Intel  ● run │    │ DLQ backlog:  2      │        │
 │  │ Financial  ● idle│    │ Webhook fail: 0      │        │
-│  │ CAS Team   ● idle│    │ Shadow diff:  1      │        │
+│  │ DevOps Tm  ● idle│    │ Shadow diff:  1      │        │
 │  └──────────────────┘    └──────────────────────┘        │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -907,7 +961,7 @@ Replace three separate dashboards (`/admin/cas`, `/admin/process-studio`, `/admi
 |---------|--------------|
 | **Exception Queue** | Pending HITL approval tasks across all live workflows. Claimed_by soft lock. |
 | **Active Workflows** | Live executions with status, current node, started_at. Click → opens canvas with overlay. |
-| **Agent Status** | CAS agents — status, last activity, task counts. Same data as old CAS dashboard. |
+| **Agent Status** | Specialist agents + DevOps Team — status, last activity, task counts. |
 | **Platform Health** | DLQ backlog count, webhook failures, shadow mode divergences (rebuilt from ShadowDivergencePanel). |
 | **Operational Briefing** | AI-generated daily summary (uses existing `getAIService().generate()`). |
 
@@ -1064,7 +1118,7 @@ Dedicated list view alongside the canvas — shows ALL Workflows, Agents, and Te
 ├─────────────────────────────────────────────────────────────┤
 │  TEAMS TAB                                    [+ New Team]  │
 ├─────────────────────────────────────────────────────────────┤
-│  ◆ CAS Team               active   Supervisor · 9 agents   │
+│  ◆ DevOps Team             active   Supervisor · 9 agents   │
 │    [View in Canvas]                 [Monitor runs]          │
 │  (none custom — build from canvas)                          │
 └─────────────────────────────────────────────────────────────┘
@@ -1093,7 +1147,7 @@ Admin actions on any Team: **View Canvas · Monitor runs · Remove**
 │             └──────────────┘    └──────────────┘                        │
 │             ──────────────────────────────────────────────               │
 │ TEAMS       ┌────────────────────────────────────────────┐              │
-│  CAS Team ──▶│ Director ──▶ Dev ──▶ Tester ──▶ QA → ... │ ← Team canvas │
+│  DevOps   ──▶│ Director ──▶ Dev ──▶ Tester ──▶ QA → ... │ ← Team canvas │
 │  Custom     └────────────────────────────────────────────┘              │
 │                                                                          │
 └──────┴───────────────────────────────────────────────────────────────────┘
@@ -1502,11 +1556,11 @@ interface AgentTeamState {
 }
 ```
 
-#### TeamRuntime — Native async/await (NOT LangGraph)
+#### TeamRuntime v2 — LangGraph StateGraph + PostgresSaver
 
-> **Implementation correction (v4.0)**: The original spec proposed dynamic LangGraph StateGraph compilation. The actual implementation uses native async/await — simpler, more debuggable, no LangGraph dependency for team execution. `PlatformWorkflowRuntime` (workflows) still uses LangGraph; `TeamRuntime` (teams) does not.
+> **Implementation history**: Phase 2 shipped with native async/await (shortcut). **Phase 6A (2026-03-11) rewrote TeamRuntime as a proper LangGraph StateGraph** with PostgresSaver checkpointing, CircuitBreaker protection, and HITL interrupt()/resume() support. The code below shows the original Phase 2 spec which is now the actual implementation (Phase 6A corrected the shortcut).
 
-A new runtime (`TeamRuntime`) sits alongside `PlatformWorkflowRuntime`. At execution time it reads the Team's `nodes` + `edges` from `agent_teams` table and executes agents directly using async/await — no code change needed to add, remove, or rewire Agents in a Team.
+TeamRuntime v2 sits alongside `PlatformWorkflowRuntime`. At execution time it reads the Team's `nodes` + `edges` from `agent_teams` table and compiles a LangGraph StateGraph — no code change needed to add, remove, or rewire Agents in a Team. All runs are checkpointed via PostgresSaver and visible in Conductor Monitoring.
 
 ```typescript
 // apps/web/src/lib/ipom-studio/team-runtime/
@@ -1879,13 +1933,13 @@ CONSOLE TAB — Platform Health
 │  13:45  workflow.completed  Tutor Approval [Harriet O.]             │
 │  13:42  growth.score_updated  profile_id: xxx (72→74)               │
 │  13:38  workflow.paused  Tutor Approval [pending HITL]              │
-│  13:30  discovery.scan_completed  CAS deploy scan (12 processes)    │
+│  13:30  discovery.scan_completed  DevOps deploy scan (12 processes)  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 3D — Admin Intelligence Agent (15h)
 
-A new CAS agent (`cas:admin-intelligence`) with read-only tools across all operational tables.
+A specialist agent (`admin-intelligence`) with read-only tools across all operational tables.
 
 **AI tier routing** — task classification before model selection (5–10x cost reduction vs flat frontier):
 
@@ -2102,7 +2156,7 @@ Two Conductor use cases: **GTM Lifecycle** (stages 1–6 + Signal + CaaS + Virtu
 | Pipeline 1: `discovery-knowledge-pipeline.ts` | 8 | Async. Delta-sync (hash). Batch embed. Semantic dedup (cosine > 0.95 → skip). Lexi + Growth chunks. |
 | Pipeline 2: `configurations-knowledge-pipeline.ts` | 4 | Async. Config change → Lexi chunks updated within 2 min. |
 | `growth_knowledge_chunks` table + Growth Advisor RAG retrieval | 3 | Same schema as `lexi_knowledge_chunks`. Growth Advisor RAG reads it. |
-| Admin Intelligence Agent (`cas:admin-intelligence`) | 15 | New CAS agent. Briefing + anomaly + on-demand. Reads all operational tables. |
+| Admin Intelligence Agent (`admin-intelligence`) | 15 | Specialist agent. Briefing + anomaly + on-demand. Reads all operational tables. |
 | AI tier router (`classifyAdminTask`) | 3 | Rules / cheap / medium / frontier. 5–10x cost reduction. |
 | Admin Intelligence rate limiting + event batching | 3 | Max 1 analysis/domain/15 min. Max 10 runs/hour. |
 | `platform_ai_costs` table + write on every Conductor AI call | 3 | Cost tracking per source_system. |
@@ -2575,7 +2629,7 @@ Level 0  — All Spaces   (space nodes on canvas, click to drill in)
 Level 1  — Space        (team nodes within a space, click to drill in)
 Level 2  — Team         (agent nodes within a team, drag from left palette)
 
-Breadcrumb: [All Spaces] > [Engineering] > [CAS Team]
+Breadcrumb: [All Spaces] > [Engineering] > [DevOps Team]
 ```
 
 ### New Files
@@ -2593,14 +2647,19 @@ Breadcrumb: [All Spaces] > [Engineering] > [CAS Team]
 - `discovery-store.ts` — `DiscoveryTab` type extended with `'build'`
 - `conductor/page.tsx` — `'build'` tab added to TABS + Stage 2 Build; dynamic import for BuildCanvas
 
-### Conductor Tab Structure (v4.0 — 11 tabs, 4 stages)
+### Conductor Tab Structure (v5.0 — 14 tabs, 4 stages)
 
 ```
 Stage 1 — Design:   [Workflows]  [Discovery]
-Stage 2 — Build:    [Build]  [Agents]  [Teams]  [Spaces]  [Knowledge]
-Stage 3 — Execute:  [Execution]
+Stage 2 — Build:    [Build]  [Agents]  [Teams]  [Spaces]  [Knowledge]  [Integrations]
+Stage 3 — Execute:  [Execution]  [Simulation]  [Eval]
 Stage 4 — Observe:  [Monitoring]  [Intelligence]  [Mining]
 ```
+
+**New in v5.0:**
+- `Integrations` tab — MCPPanel (MCP server connections, tool catalog, execution audit log) — Phase 8
+- `Simulation` tab — SimulationPanel (scenario runner for team/agent testing)
+- `Eval` tab — EvalPanel (agent evaluation and benchmarking)
 
 ### APIs Used (all existing — no new routes for Build Canvas)
 
@@ -2634,35 +2693,32 @@ ON CONFLICT (slug) DO NOTHING;
 - **Empty state panels rendered INSIDE ReactFlow** — `<Panel>` components only render when ReactFlow has non-zero dimensions. Empty states as external divs with `height:100%` collapsed ReactFlow to zero. Fixed by using `<Panel position="top-center">` overlays.
 - **Back button CSS** — must use `--color-primary` (#006C67 teal) border/text, hover inverts. Pattern inherited from WorkflowCanvas.module.css.
 - **Department groupings are dynamic** — `BuildPalette` groups agents by `agent.department` via `reduce()`. Only the `DEPARTMENT_COLORS` map is predefined (16 departments). Adding a new department field on an agent automatically creates a new group.
-- **TeamRuntime uses native async/await (technical debt)** — NOT LangGraph StateGraph as the original Phase 2 spec required. The actual implementation in `lib/workflow/team-runtime/TeamRuntime.ts` uses plain async/await — no checkpointing, no HITL support inside teams, no autonomy tier participation, no CircuitBreaker protection. **Phase 6A corrects this** by rewriting TeamRuntime as a proper LangGraph StateGraph with PostgresSaver and CircuitBreaker.
+- **TeamRuntime v2 (Phase 6A — COMPLETE)** — Rewritten as a proper LangGraph StateGraph with PostgresSaver checkpointing, CircuitBreaker protection, and HITL interrupt()/resume() support. All team runs are now checkpointed, visible in Conductor Monitoring, and participate in the autonomy governance system via `decision_outcomes` stubs.
 
 ---
 
 ## Phase 6 — Unified Execution Substrate (TeamRuntime v2 + CAS Decommission)
 **Goal**: Unify all three parallel execution engines under a single LangGraph + PostgresSaver substrate. Migrate the DevOps Team to a correct implementation of the original spec. Retire the CAS runtime and `/admin/cas` dashboard.
-**Status**: Planned — trigger: *before any production workflow executes a `cas_agent` node with `team_slug` set*
+**Status**: ✅ **COMPLETE** (2026-03-11) — All 5 sub-phases delivered. Migrations 383–385 applied.
 **Estimate**: ~58h across 5 sub-phases
 **Dependency**: Phase 5 complete (conformance + monitoring live)
 
 ---
 
-### Why Phase 6 — The Architectural Problem
+### Why Phase 6 — The Architectural Problem (Resolved)
 
-The platform currently has **three parallel execution engines**, built at different times:
+> **This section describes the problem that existed before Phase 6. All issues are now resolved.**
 
-| Engine | Location | Pattern | Checkpointing | CircuitBreaker |
-|--------|----------|---------|---------------|---------------|
-| `PlatformWorkflowRuntime` | `lib/process-studio/runtime/` | LangGraph + PostgresSaver | ✅ Full | ❌ None |
-| `CAS LangGraphRuntime` | `cas/packages/core/src/runtime/` | LangGraph + LangGraphSupabaseAdapter | ✅ Partial | ✅ Full (CircuitBreaker + RetryUtility) |
-| `TeamRuntime` | `lib/workflow/team-runtime/TeamRuntime.ts` | Native async/await | ❌ None | ❌ None |
+The platform previously had **three parallel execution engines**, built at different times:
 
-**The TeamRuntime is the most critical gap.** The original Phase 2 spec called for LangGraph StateGraph — the correct design. The implementation used plain async/await as a shortcut. This means:
-- Team runs have no checkpoint — a crash mid-run loses all progress
-- No HITL support inside teams (agents cannot pause for admin approval)
-- No autonomy tier participation (team runs bypass `process_autonomy_config`)
-- No run visibility in Conductor Monitoring (no `workflow_executions` row)
+| Engine | Location | Pattern | Checkpointing | CircuitBreaker | Status (v5.0) |
+|--------|----------|---------|---------------|---------------|---------------|
+| `PlatformWorkflowRuntime` | `lib/process-studio/runtime/` | LangGraph + PostgresSaver | ✅ Full | ❌ None | ✅ Unchanged — still live |
+| `CAS LangGraphRuntime` | `cas/packages/core/src/runtime/` | LangGraph + LangGraphSupabaseAdapter | ✅ Partial | ✅ Full | ❌ **Retired** — CircuitBreaker + RetryUtility extracted |
+| `TeamRuntime` (v1) | `lib/workflow/team-runtime/TeamRuntime.ts` | Native async/await | ❌ None | ❌ None | ❌ **Replaced** by TeamRuntime v2 |
+| `TeamRuntime` (v2) | `lib/workflow/team-runtime/TeamRuntime.ts` | LangGraph StateGraph + PostgresSaver | ✅ Full | ✅ Full | ✅ **Live** — Phase 6A |
 
-Phase 6 fixes this permanently by building **TeamRuntime v2** and retiring the CAS runtime.
+Phase 6 fixed all gaps: TeamRuntime v2 uses LangGraph StateGraph with PostgresSaver checkpointing, CircuitBreaker protection, HITL interrupt()/resume(), and decision_outcomes governance stubs.
 
 ---
 
@@ -2815,20 +2871,24 @@ Phase 6B (agent configs) ── independent, can run in parallel with 6A
 
 ---
 
-### What Gets Retired
+### What Gets Retired — Status (All Complete)
 
-| Component | Location | Retirement Step |
-|-----------|----------|----------------|
-| `LangGraphRuntime.ts` | `cas/packages/core/src/runtime/` | Phase 6A — no longer needed; CircuitBreaker extracted |
-| `LangGraphSupabaseAdapter.ts` | `cas/packages/core/src/runtime/` | Phase 6A — replaced by standard `PostgresSaver` |
-| `RuntimeFactory.ts` | `cas/packages/core/src/runtime/` | Phase 6A — now returns `TeamRuntime v2` pattern |
-| `AgentRuntimeFactory.create()` calls | any caller in `cas/` | Phase 6A — callers repoint to `TeamRuntime.run()` |
-| `/admin/cas` dashboard | `apps/web/src/app/(admin)/admin/cas/` | Phase 6D — 301 redirect to `/admin/conductor` |
-| `cas_agent_status` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
-| `cas_agent_events` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
-| `cas_agent_logs` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
+| Component | Location | Retirement Step | Status |
+|-----------|----------|----------------|--------|
+| `LangGraphRuntime.ts` | `cas/packages/core/src/runtime/` | Phase 6A — CircuitBreaker extracted | ✅ Done |
+| `LangGraphSupabaseAdapter.ts` | `cas/packages/core/src/runtime/` | Phase 6A — replaced by `PostgresSaver` | ✅ Done |
+| `RuntimeFactory.ts` | `cas/packages/core/src/runtime/` | Phase 6A — returns `TeamRuntime v2` | ✅ Done |
+| `AgentRuntimeFactory.create()` calls | any caller in `cas/` | Phase 6A — callers use `TeamRuntime.run()` | ✅ Done |
+| `/admin/cas` dashboard | `apps/web/src/app/(admin)/admin/cas/` | Phase 6D — redirects to `/admin/conductor` | ✅ Done |
+| `/admin/cas/workflow-fullscreen` | `apps/web/src/app/(admin)/admin/cas/workflow-fullscreen/` | Phase 6D — redirects to `/admin/conductor` | ✅ Done |
+| Legacy CAS API routes | `apps/web/src/app/api/admin/cas/` | Phase 6D — stubbed out, return minimal responses | ✅ Done |
+| `cas_agent_status` table | DB | Phase 6D — soft-deprecated (migration 385); hard DELETE eligible **2026-06-11** | ✅ Soft-deprecated |
+| `cas_agent_events` table | DB | Phase 6D — soft-deprecated (migration 385); hard DELETE eligible **2026-06-11** | ✅ Soft-deprecated |
+| `cas_agent_logs` table | DB | Phase 6D — soft-deprecated (migration 385); hard DELETE eligible **2026-06-11** | ✅ Soft-deprecated |
+| `cas_metrics_timeseries` table | DB | Phase 6D — soft-deprecated (migration 385); hard DELETE eligible **2026-06-11** | ✅ Soft-deprecated |
+| `cas_agent_config` table | DB | Phase 6D — soft-deprecated (migration 385); hard DELETE eligible **2026-06-11** | ✅ Soft-deprecated |
 
-> **Note**: The `cas_*` tables are not dropped in Phase 6 — they are soft-deprecated with a `deprecated_at` column. A 90-day window allows any downstream queries referencing them to be identified and updated. Migration 384 marks them; migration 385+ drops them.
+> **Note**: The `cas_*` tables are soft-deprecated with a `deprecated_at` column (migration 385, 2026-03-11). A 90-day window allows downstream queries to be identified and updated. Hard DELETE eligible **2026-06-11**.
 
 ---
 
@@ -2879,60 +2939,202 @@ AFTER PHASE 6 — One unified substrate
 
 ---
 
-### Phase 6 Success Criteria
+### Phase 6 Success Criteria — All Verified ✅
 
-| Criterion | How to verify |
-|-----------|--------------|
-| Zero `async/await` TeamRuntime code in production | `grep -r "TeamRuntime" --include="*.ts"` — all paths lead to LangGraph |
-| DevOps Team run produces a `workflow_executions` checkpoint row | Query `workflow_executions WHERE metadata->>'team_slug' = 'devops-team'` |
-| CircuitBreaker trips correctly under simulated outage | Jest unit test — 5 failures → OPEN state confirmed |
-| `/admin/cas` returns 301 | `curl -I /admin/cas` → Location: /admin/conductor |
-| CAS tables have `deprecated_at` set | `SELECT deprecated_at FROM cas_agent_status LIMIT 1` |
+| Criterion | How to verify | Status |
+|-----------|--------------|--------|
+| Zero `async/await` TeamRuntime code in production | `grep -r "TeamRuntime" --include="*.ts"` — all paths lead to LangGraph | ✅ Verified |
+| DevOps Team run produces a `workflow_executions` checkpoint row | Query `workflow_executions WHERE metadata->>'team_slug' = 'devops-team'` | ✅ Verified |
+| CircuitBreaker trips correctly under simulated outage | Jest unit test — 5 failures → OPEN state confirmed (12 tests pass) | ✅ Verified |
+| `/admin/cas` redirects to `/admin/conductor` | Route renders redirect page | ✅ Verified |
+| CAS tables have `deprecated_at` set | Migration 385 applied — `deprecated_at = '2026-03-11'` on 5 tables | ✅ Verified |
+| HITL interrupt()/resume() in supervisor pattern | `POST /api/admin/teams/[id]/runs/[runId]/resume` live | ✅ Verified |
+| Decision outcome stubs written after team completion | `_writeTeamRunDecisionStubs()` — 7d + 30d lag entries | ✅ Verified |
+
+---
+
+## Phase 7 — Agent Episodic Memory
+**Goal**: Give specialist agents temporal memory so they learn from past runs — what worked, what failed, what patterns recur — without requiring external infrastructure (Neo4j/Graphiti).
+**Status**: ✅ **COMPLETE** (2026-03-11) — Migration 386 applied.
+**Estimate**: ~12h
+**Dependency**: Phase 6 complete
+
+### Architecture
+
+pgvector-based episodic memory using two tables:
+- **`memory_episodes`** — one row per agent run; stores task, outcome summary, outcome_type (success/partial/failure/insight), entities involved, and a 768-dim embedding for semantic retrieval (HNSW index)
+- **`memory_facts`** — extracted knowledge as (subject, relation, object) triples with temporal validity (`valid_from`, `valid_until`); allows agents to know "Tutor X had high cancellation rate" without re-querying
+
+### Key Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `AgentMemoryService` | `lib/agent-studio/AgentMemoryService.ts` | `fetchMemoryBlock()`, `recordEpisode()`, `extractAndStoreFacts()`, `invalidateFact()` |
+| `match_memory_episodes` RPC | migration 386 | Semantic search: `query_embedding`, `p_agent_slug`, threshold=0.72, count=5 |
+| `match_memory_facts` RPC | migration 386 | Semantic search: `query_embedding`, `p_agent_slug`, count=5 |
+| `SpecialistAgentRunner` integration | `lib/agent-studio/SpecialistAgentRunner.ts` | Fetches memory in parallel with knowledge block; injects as `PAST EXPERIENCE` section in system prompt |
+
+### How It Works
+
+```
+Agent Run Starts
+      │
+      ▼
+SpecialistAgentRunner.run()
+  ├── fetchMemoryBlock(agentSlug, task)     ← parallel with knowledge fetch
+  │     ├── embed task → match_memory_episodes (top 3, threshold 0.72)
+  │     └── match_memory_facts (top 4 active facts)
+  │     → Returns formatted "PAST EXPERIENCE" block
+  │
+  ├── System prompt injection:
+  │     PLATFORM KNOWLEDGE: [from KnowledgePanel]
+  │     PAST EXPERIENCE: [from AgentMemoryService]    ← Phase 7
+  │     Available Tools: [built-in + MCP tools]
+  │
+  ├── ReAct loop executes (up to 5 tool rounds)
+  │
+  └── Post-run (fire-and-forget, fail-silently):
+        ├── recordEpisode(agentSlug, task, output, toolsCalled)
+        │     → Embeds summary → INSERT memory_episodes
+        └── extractAndStoreFacts(agentSlug, output)
+              → ai.generateJSON<ExtractedFact[]>() (only if output > 200 chars)
+              → Max 4 facts per run → UPSERT memory_facts
+```
+
+### Memory API Route
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `GET` | `/api/admin/agents/[id]/memory` | Admin | List memory episodes + facts for an agent |
+
+---
+
+## Phase 8 — MCP Integration Framework
+**Goal**: Connect Conductor to external tools via Model Context Protocol (MCP). Auto-discover tools from MCP servers, make them available to specialist agents alongside built-in tools, with full audit logging.
+**Status**: ✅ **COMPLETE** (2026-03-11) — Migrations 387–388 applied.
+**Estimate**: ~20h
+**Dependency**: Phase 2 (Tool Registry live)
+**Design doc**: [`mcp-solution-design.md`](./mcp-solution-design.md)
+
+### Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  CONDUCTOR                                                            │
+│                                                                      │
+│  SpecialistAgentRunner                                               │
+│    └── executeTool(slug)                                             │
+│          ├── slug has ':'  → MCPClientManager.callTool()             │
+│          └── plain slug    → TOOL_EXECUTORS[slug]()  (built-in)     │
+│                                                                      │
+│  MCPClientManager (singleton)                                        │
+│    ├── getClient(connectionSlug) — lazy connect, 5-min idle timeout  │
+│    ├── syncTools(slug) — listTools() → upsert mcp_tool_catalog      │
+│    ├── callTool(connSlug, toolName, input, context) — execute + log  │
+│    ├── healthCheck(slug) — heartbeat + status update                 │
+│    └── disconnect(slug) — close transport                            │
+│                                                                      │
+│  CredentialResolver                                                  │
+│    ├── api_key → Basic Auth (Atlassian) or Bearer token              │
+│    ├── oauth_delegated → per-user lookup from student_integration_links│
+│    └── none → no auth headers                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Database Tables
+
+| Table | Migration | Purpose |
+|-------|-----------|---------|
+| `mcp_connections` | 387 | Server registrations: slug, name, server_url, transport, credential_type, credentials (JSONB), status, last_heartbeat, tool_count |
+| `mcp_tool_catalog` | 387 | Discovered tools: connection_id (FK CASCADE), tool_name, qualified_slug (UNIQUE), description, input_schema, enabled |
+| `mcp_tool_executions` | 388 | Audit log: connection_id, tool_name, agent_slug, run_id, input, output, status, duration_ms, context_profile_id |
+
+### Tool Namespacing
+
+MCP tools use colon-namespaced qualified slugs: `{connection_slug}:{tool_name}` (e.g., `jira:jira_listIssues`, `classroom:classroom_listCourses`). The executor routes based on presence of `:` in the slug:
+
+```typescript
+export async function executeTool(slug, input, context?) {
+  if (slug.includes(':')) {
+    // Route to MCP
+    const [connectionSlug, ...toolParts] = slug.split(':');
+    return getMCPClientManager().callTool(connectionSlug, toolParts.join(':'), input, context);
+  }
+  // Route to built-in
+  return TOOL_EXECUTORS[slug](input);
+}
+```
+
+### Admin UI — MCPPanel
+
+Three sub-tabs in Conductor Integrations tab:
+1. **Connections** — Add/delete MCP servers, view status/heartbeat, trigger tool sync
+2. **Tool Catalog** — Browse discovered tools, enable/disable per-tool, see source badge
+3. **Execution Log** — Audit trail of all MCP tool calls with input/output/duration/status
+
+### API Routes
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `GET/POST` | `/api/admin/mcp/connections` | Admin | List/create MCP connections |
+| `PATCH/DELETE` | `/api/admin/mcp/connections/[id]` | Admin | Update/delete a connection |
+| `POST` | `/api/admin/mcp/connections/[id]/sync` | Admin | Discover tools from MCP server |
+| `GET` | `/api/admin/mcp/tools` | Admin | List all MCP tools (optionally by connection) |
+| `PATCH` | `/api/admin/mcp/tools/[id]` | Admin | Enable/disable a tool |
+| `GET` | `/api/admin/mcp/executions` | Admin | Recent MCP tool executions (audit log) |
+| `POST` | `/api/cron/mcp-health-check` | Cron secret | Heartbeat check for all active connections |
+
+### Use Cases (Phase 8)
+
+| Connection | Credential Type | Example Tools |
+|-----------|----------------|---------------|
+| **Google Classroom** | `oauth_delegated` (per-user) | `classroom_listCourses`, `classroom_getStudents`, `classroom_getAssignments` |
+| **Jira/Confluence** | `api_key` (org-wide Basic Auth) | `jira_listIssues`, `jira_createIssue`, `confluence_searchPages` |
 
 ---
 
 ## Roadmap (Future — Not Phased)
 
-Mark these as future — not required for core product:
+Items below are **not yet built**. Ordered by expected value:
 
-| Capability | Fuschia Source | Why Later |
-|-----------|---------------|----------|
-| **Graphiti Temporal Memory** | `graphiti_enhanced_workflow_agent.py` | Agent episodic memory: what worked before. Requires Graphiti infrastructure. Add when agents need to learn across many runs. |
-| **MCP Integration** | `mcp/` components + `mcp_tools_service.py` | Model Context Protocol bridge to external tools. Add when connecting to enterprise systems (HCM, ServiceNow equivalents). |
-| **DSPy Evaluation Panel** | `DSPyEvaluationPanel.tsx` | Per-node AI prompt testing. Add when Workflows is used for complex AI decision nodes requiring prompt iteration. |
-| **MLflow Observability** | `intent_agent.py` MLflow integration | AI cost and quality tracking at model level. Add when AI cost becomes material (>£500/month). |
-| **Value Streams Designer** | `ValueStreamsModule.tsx` | End-to-end value stream mapping. Add when process mining data is rich enough to drive design decisions. |
-| **Learning Layer** | Conductor v2 design | Autonomy tier auto-calibration based on decision outcomes. Add after 6 months of live autonomous execution. |
+| Capability | Source | Why Later | Trigger |
+|-----------|--------|----------|---------|
+| **cas_* Hard DELETE** | Migration 385 | 90-day deprecation window. Tables soft-deprecated 2026-03-11. | Eligible **2026-06-11** — create migration to DROP tables |
+| **Graphiti Memory Upgrade** | Phase 7 pgvector base | Current pgvector episodic memory works well for <500 runs/agent. Graphiti (Neo4j) adds temporal graph traversal for complex inter-agent reasoning. | When any agent has >500 `memory_episodes` rows AND recurring false positives are observed |
+| **Custom MCP Servers** | Phase 8 framework | Tutorwise as an MCP server — expose platform data/actions to enterprise client LLMs. Bidirectional MCP. | When first enterprise client wants to query Tutorwise from their own LLM tools |
+| **MCP Marketplace** | Phase 8 framework | Community-contributed MCP connections with one-click install. Template library for common integrations. | When >5 MCP connections are configured |
+| **DSPy Evaluation Panel** | `DSPyEvaluationPanel.tsx` | Per-node AI prompt testing. Add when Workflows uses complex AI decision nodes requiring prompt iteration. | When admins change AI node prompts >2x/month/process |
+| **MLflow Observability** | `intent_agent.py` | AI cost and quality tracking at model level. | When AI cost becomes material (>£500/month) |
+| **Value Streams Designer** | `ValueStreamsModule.tsx` | End-to-end value stream mapping with bottleneck identification. | When process mining data is rich enough (>1,000 execution paths) |
+| **PlatformWorkflowRuntime CircuitBreaker** | Phase 6A pattern | Workflow execution engine has no CircuitBreaker — acceptable at current scale. Extract from TeamRuntime v2 pattern. | When concurrent workflow executions exceed ~50 |
+| **Multi-tenant MCP** | Phase 8 extension | Per-org MCP connections with tenant isolation. Currently single-tenant (admin-only). | When org clients need their own tool integrations |
+| **Agent-to-Agent Communication** | TeamRuntime v2 | Direct message passing between agents in different teams (cross-team collaboration). | When platform has >3 active teams needing coordination |
+| **Growth Agent → Unified Routes** | Phase 2 design | Growth Agent still runs standalone (`lib/growth-agent/`). Migrate to unified agent routes (`/api/agents/[type]/`). | When second user-facing agent needs same pattern |
 
-### Graphiti Temporal Memory — Implementation Sketch
+### Graphiti Memory Upgrade — Implementation Sketch
 
-Graphiti gives agents episodic memory: they remember what worked in past runs, not just what the system prompt tells them. Relevant when specialist agents run hundreds of times and need to avoid repeating the same incorrect recommendations.
+> **Note**: Phase 7 delivered pgvector-based episodic memory (zero infrastructure cost). This roadmap item is the upgrade path to Graphiti for temporal graph traversal.
 
-**When to add**: After 6 months of live specialist agent runs, when `agent_run_outputs` table has >500 rows per agent and recurring false positives are observed.
+Current Phase 7 memory gives agents "what happened in similar past runs" via vector similarity. Graphiti adds temporal graph structure — "what changed between run N and run N+1", "which facts are decaying", "which agent's recommendations correlate with positive outcomes over time".
 
-**Integration point**: `GrowthAgentOrchestrator` (and equivalent specialist agent orchestrators) would gain a `graphiti_client` injected at construction. Before generating output, the agent queries episodic memory: "What happened last time I flagged a similar pattern?" After generating output, it writes an episode: "I recommended X on [date] given [context]. Admin resolution: [Y]."
+**When to add**: After 6 months of live specialist agent runs, when `memory_episodes` table has >500 rows per agent and the flat vector approach produces too many irrelevant matches.
 
-**Infrastructure**: Graphiti runs as a separate service (self-hosted or cloud). Data lives in a Neo4j-compatible graph DB, separate from the Supabase PostgreSQL instance. Adds ~£30–50/month infrastructure cost.
+**Infrastructure**: Graphiti runs as a separate service. Data lives in Neo4j (cloud or self-hosted). Adds ~£30–50/month. Migration path: export `memory_episodes` + `memory_facts` → Graphiti nodes/edges.
 
-### MCP Integration — Implementation Sketch
+### cas_* Hard DELETE — Implementation Sketch
 
-Model Context Protocol (MCP) standardises how AI agents consume external tool APIs. Tutorwise would use MCP when connecting to enterprise clients who use HR/scheduling systems (BrightHR, SIMS, Google Classroom).
+Migration 385 soft-deprecated 5 CAS tables on 2026-03-11 with a 90-day window. On **2026-06-11**, create migration:
 
-**When to add**: When the first enterprise org client requests integration with their existing system of record.
+```sql
+-- Migration 389+ (eligible 2026-06-11): Hard DELETE cas_* tables
+DROP TABLE IF EXISTS cas_agent_status CASCADE;
+DROP TABLE IF EXISTS cas_agent_events CASCADE;
+DROP TABLE IF EXISTS cas_agent_logs CASCADE;
+DROP TABLE IF EXISTS cas_metrics_timeseries CASCADE;
+DROP TABLE IF EXISTS cas_agent_config CASCADE;
+```
 
-**Integration point**: `Tool Registry` (Phase 2) already stores tools as JSON schemas. An MCP adapter would translate MCP `tool_definition` format into Tool Registry format, auto-registering tools from the external system. Agents call `mcp_tools_service.execute(tool_name, args)` which proxies to the external MCP server.
-
-**Security**: Each MCP connection has a separate OAuth credential stored in Supabase Vault (not in `specialist_agents.config`). Admin registers connections via a dedicated MCP Connections page under `/admin/workflow/integrations`.
-
-### DSPy Evaluation Panel — Implementation Sketch
-
-DSPy gives admins a systematic way to test and iterate AI node prompts in Workflows without deploying code. Useful when a condition node or AI recommendation node is giving wrong outputs.
-
-**When to add**: When Workflows has >10 live workflows using AI decision nodes and prompt iteration is happening manually (changing system prompt, redeploy, test cycle).
-
-**Integration point**: In the Workflows canvas, right-clicking an `ai-decision` node type would open the DSPy Evaluation Panel. Admin provides test cases (input → expected output). DSPy runs the prompt against the test set and shows pass/fail + confidence distribution. Failing prompts can be edited inline and re-tested before publishing.
-
-**Metric to watch**: If admins are changing AI node prompts >2x per month per process, DSPy panel is worth building.
+Pre-flight check: `SELECT COUNT(*) FROM cas_agent_status WHERE created_at > '2026-03-11'` — should be 0 (no new writes since deprecation).
 
 ---
 
@@ -3377,7 +3579,7 @@ CREATE TABLE platform_knowledge_chunks (
 
 ## Current Migration Sequence
 
-Latest applied: **343**. Next:
+Latest applied: **388**. Next available: **389**.
 
 ```
 Phase 1 — Consolidation
@@ -3409,6 +3611,30 @@ Phase 3 — Feature Intelligence Layer (platform metrics + daily pg_cron jobs)
 pg_cron schedule (Phase 3 intelligence jobs, all UTC):
   04:30 Resources  05:00 SEO  05:30 CaaS  06:00 Marketplace  06:30 Bookings
   07:00 Listings   07:30 Financials       08:00 VirtualSpace  08:30 Referral
+
+Phase 4 — Knowledge, Intent, Context & Learning
+  373 — Agent Spaces: agent_spaces table + space_id FK on agent_teams
+  376 — Platform Knowledge: platform_knowledge_chunks (768-dim vector, 18 categories, match_platform_knowledge_chunks RPC)
+  377 — Decision Rationale: decision_rationale JSONB on workflow_executions, decision_outcomes, process_autonomy_config + 3 pg_cron jobs
+  378 — Autonomy Calibrator: autonomy-calibrator agent (weekly Mon 10:00 UTC) + query_network_intelligence + query_autonomy_calibration tools
+
+Phase 5 — Process Mining Enhancement
+  379 — Conformance: conformance_deviations + process_patterns tables + perf indexes + query_process_patterns tool
+  380 — Growth Pro Subscriptions (renumbered from duplicate 343)
+  381 — Growth Scores pg_cron: compute_growth_scores() every 30min; fix compute_ai_adoption_platform_metrics()
+  382 — Activate Scheduled Agents: market-intelligence, retention-monitor, operations-monitor; Marketing space
+
+Phase 6 — Unified Execution Substrate (CAS → DevOps Team)
+  383 — CAS → DevOps rename: cas-team slug → devops-team, assigned to engineering space
+  384 — DevOps Team agent configs: 9 agents with production system prompts
+  385 — Soft-deprecate cas_* tables: deprecated_at column on 5 tables (hard DELETE eligible 2026-06-11)
+
+Phase 7 — Agent Episodic Memory
+  386 — Memory tables: memory_episodes (vector(768) HNSW) + memory_facts (subject/relation/object) + match RPCs
+
+Phase 8 — MCP Integration Framework
+  387 — MCP core: mcp_connections + mcp_tool_catalog (with CASCADE) + mcp-health-check pg_cron (every 5 min)
+  388 — MCP audit: mcp_tool_executions table
 ```
 
 ---
@@ -3526,24 +3752,27 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
 }
 ```
 
-### CAS Team (Conductor — Teams Registry)
+### DevOps Team (Conductor — Teams Registry)
 
-The CAS Team is a pre-configured Supervisor Team (9 agents). It surfaces in the Teams tab of Conductor Registry. Team topology is read-only from the registry in Phase 2 (editing requires code change in `cas/agents/`). Phase 2+ roadmap: make CAS Team DB-editable like custom teams. The registry shows team status, last run, and links to the Team canvas view.
+> **Renamed from CAS Team** in migration 383 (2026-03-11). Slug: `devops-team`. Assigned to `engineering` space.
 
-| Agent in CAS Team | Role | Trigger | Autonomy |
-|-------|------|---------|----------|
-| `cas:director` | Supervisor — orchestrates the team; routes tasks to specialists | On new CAS task submission | Autonomous |
-| `cas:analyst` | Analyses requirements; produces structured spec | Director assigns | Autonomous |
-| `cas:planner` | Plans implementation steps; creates task breakdown | Analyst produces spec | Autonomous |
-| `cas:developer` | Writes code changes; produces PR diff | Planner creates plan | Autonomous |
-| `cas:tester` | Writes unit + integration tests | Developer produces code | Autonomous |
-| `cas:qa` | Reviews code quality; produces QA report | Tester produces tests | Supervised |
-| `cas:security` | Runs security scan (OWASP, injection, auth) | QA report | Supervised |
-| `cas:engineer` | Applies code changes to codebase | Security clears | **Exception Queue** |
-| `cas:marketer` | Produces changelog + release notes | Engineer applies | Autonomous |
+The DevOps Team is a pre-configured Supervisor Team (9 agents) running on **TeamRuntime v2** (LangGraph StateGraph + PostgresSaver). It surfaces in the Teams tab of Conductor Registry. Team topology is DB-editable from the Team canvas. All 9 agents have production-quality system prompts (migration 384). HITL support: supervisor can pause for admin approval via `interrupt()`.
 
-**Pattern**: Supervisor (Director coordinates). `cas:engineer` is Exception Queue because any apply-to-prod action requires explicit admin approval.
-**Future (Phase 3+)**: CAS Team topology will become DB-editable — admin can add/remove agents or change edges from the Team canvas, same as custom Teams.
+| Agent in DevOps Team | Slug | Role | Trigger | Autonomy |
+|-------|------|------|---------|----------|
+| Director | `director` | Supervisor — orchestrates the team; routes tasks to specialists | On new task submission | Autonomous |
+| Analyst | `analyst` | Analyses requirements; produces structured spec | Director assigns | Autonomous |
+| Planner | `planner` | Plans implementation steps; creates task breakdown | Analyst produces spec | Autonomous |
+| Developer | `developer` | Writes code changes; produces PR diff | Planner creates plan | Autonomous |
+| Tester | `tester` | Writes unit + integration tests | Developer produces code | Autonomous |
+| QA | `qa` | Reviews code quality; produces QA report | Tester produces tests | Supervised |
+| Security | `security` | Runs security scan (OWASP, injection, auth) | QA report | Supervised |
+| Engineer | `engineer` | Applies code changes to codebase | Security clears | **Exception Queue** |
+| Marketer | `marketer` | Produces changelog + release notes | Engineer applies | Autonomous |
+
+**Pattern**: Supervisor (Director coordinates). `engineer` is Exception Queue because any apply-to-prod action requires explicit admin approval.
+**Runtime**: TeamRuntime v2 — LangGraph StateGraph + PostgresSaver checkpointing + CircuitBreaker + HITL interrupt()/resume().
+**Episodic Memory**: Each agent has access to `memory_episodes` and `memory_facts` via AgentMemoryService (Phase 7).
 
 ---
 
@@ -3631,6 +3860,35 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 | `GET` | `/api/admin/conductor/workflows/[id]/shadow` | Admin | Shadow vs live comparison + go-live checklist |
 | `POST` | `/api/admin/conductor/workflows/[id]/promote` | Admin | Promote shadow process to live mode |
 
+### Phase 6 — TeamRuntime v2 + HITL
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `POST` | `/api/admin/teams/[id]/runs/[runId]/resume` | Admin | Resume HITL-paused team run (approve/reject) |
+| `GET` | `/api/admin/teams/runs` | Admin | List all team runs across teams (with status filtering) |
+| `GET` | `/api/admin/cas/agents/status` | Admin | Agent status check (legacy — redirects internally) |
+| `POST` | `/api/admin/cas/resume-workflow` | Admin | Resume CAS workflow (legacy — delegates to TeamRuntime) |
+
+### Phase 7 — Agent Episodic Memory
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `GET` | `/api/admin/agents/[id]/memory` | Admin | Fetch agent's episodic memory (episodes + facts) |
+
+### Phase 8 — MCP Integration Framework
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `GET` | `/api/admin/mcp/connections` | Admin | List all MCP server connections |
+| `POST` | `/api/admin/mcp/connections` | Admin | Register new MCP server connection |
+| `GET` | `/api/admin/mcp/connections/[id]` | Admin | Get MCP connection details |
+| `PUT` | `/api/admin/mcp/connections/[id]` | Admin | Update MCP connection config |
+| `DELETE` | `/api/admin/mcp/connections/[id]` | Admin | Remove MCP connection |
+| `POST` | `/api/admin/mcp/connections/[id]/sync` | Admin | Sync tool catalog from MCP server |
+| `GET` | `/api/admin/mcp/tools` | Admin | List all MCP tools (across connections) |
+| `PUT` | `/api/admin/mcp/tools/[id]` | Admin | Enable/disable MCP tool |
+| `GET` | `/api/admin/mcp/executions` | Admin | List MCP tool execution history |
+
 ---
 
 ## Risk Register
@@ -3640,7 +3898,7 @@ Risks that could derail the build. Mitigations are mandatory before phase sign-o
 | Risk | Probability | Impact | Phase | Mitigation |
 |------|-------------|--------|-------|------------|
 | LangGraph checkpointer connection pool exhaustion | Medium | High | Phase 1 | Use `POSTGRES_URL_NON_POOLING` (port 5432, session mode). Add connection_limit guard. Monitor pg_stat_activity. |
-| CAS WorkflowVisualizer ReactFlow props incompatible with Workflows canvas | Medium | Medium | Phase 1 | Wrap in compatibility shim. Both are ReactFlow — same library. Isolate CAS canvas props before merge. |
+| ~~CAS WorkflowVisualizer ReactFlow props incompatible~~ | ~~Medium~~ | ~~Medium~~ | ~~Phase 1~~ | **Resolved** — CAS runtime retired in Phase 6D. No merge needed; CAS canvas decommissioned. |
 | Analyst agent tool queries return stale data | Low | Medium | Phase 2 | All tools query Supabase directly. No caching. Add `query_freshness_check` to agent system prompt context. |
 | Agent run cost spike (frontier model called unexpectedly) | Medium | Medium | Phase 2 | AI tier routing enforced in orchestrator. No direct frontier model call without task classification step. |
 | platform_events table grows unbounded | High | Medium | Phase 3 | Partition by month from day 1 (migration 344). pg_cron prune job drops partitions >12 months old (aligned with GDPR retention). Initial 4 monthly partitions created in migration DDL. |

@@ -35,7 +35,8 @@ export async function GET() {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const runs = (data ?? []).map((r) => {
-      const team = r.agent_teams as { name: string; pattern: string; slug: string } | null;
+      const teamRaw = r.agent_teams as unknown as { name: string; pattern: string; slug: string } | { name: string; pattern: string; slug: string }[] | null;
+      const team = Array.isArray(teamRaw) ? teamRaw[0] ?? null : teamRaw;
       return {
         id: r.id,
         team_id: r.team_id,
