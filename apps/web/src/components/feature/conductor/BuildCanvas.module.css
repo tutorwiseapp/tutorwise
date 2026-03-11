@@ -885,6 +885,37 @@
   flex-shrink: 0;
 }
 
+/* ── Danger modifier ─────────────────────────────────────────────────────────── */
+
+.danger {
+  color: #ef4444 !important;
+}
+.danger:hover {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+}
+
+/* ── Back button (ReactFlow Panel top-left) ─────────────────────────────────── */
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: background 0.15s;
+}
+.backButton:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+}
+
 /* ── Drop overlay ────────────────────────────────────────────────────────────── */
 
 .dropOverlay {
