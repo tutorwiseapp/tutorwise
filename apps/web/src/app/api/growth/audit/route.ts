@@ -71,10 +71,11 @@ export async function POST(request: NextRequest) {
       .eq('tutor_id', user.id)
       .eq('status', 'confirmed');
 
+    // agent_id is the referrer (renamed from referrer_id in migration 052)
     const { data: referrals } = await supabase
       .from('referrals')
       .select('status, commission_amount_pence')
-      .eq('referrer_id', user.id);
+      .eq('agent_id', user.id);
 
     const { data: aiTutor } = await supabase
       .from('ai_agents')

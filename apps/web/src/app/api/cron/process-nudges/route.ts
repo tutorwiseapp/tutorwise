@@ -3,7 +3,7 @@
  * Called by pg_cron every 4 hours (job: 'proactive-nudges').
  * Runs proactive nudge checks for all active tutor profiles.
  *
- * Auth: x-cron-secret header (matches CRON_SECRET env var).
+ * Auth: Authorization: Bearer <CRON_SECRET> header.
  */
 
 import { NextRequest, NextResponse } from 'next/server';

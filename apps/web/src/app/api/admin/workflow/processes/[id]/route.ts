@@ -3,6 +3,21 @@ import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { supabase, user: null, error: 'Unauthorized' as const };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) return { supabase, user: null, error: 'Forbidden' as const };
+  return { supabase, user, error: null };
+}
+
 /**
  * GET /api/admin/workflow/processes/[id]
  * Fetch a single workflow process with full nodes/edges
@@ -13,16 +28,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { supabase, error: authError } = await requireAdmin();
 
-    if (authError || !user) {
+    if (authError) {
+      const status = authError === 'Unauthorized' ? 401 : 403;
       return NextResponse.json(
-        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 }
+        { success: false, error: authError, code: authError === 'Unauthorized' ? 'AUTH_REQUIRED' : 'ADMIN_REQUIRED' },
+        { status }
       );
     }
 
@@ -58,16 +70,13 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { supabase, user, error: authError } = await requireAdmin();
 
     if (authError || !user) {
+      const status = authError === 'Unauthorized' ? 401 : 403;
       return NextResponse.json(
-        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 }
+        { success: false, error: authError || 'Unauthorized', code: authError === 'Forbidden' ? 'ADMIN_REQUIRED' : 'AUTH_REQUIRED' },
+        { status }
       );
     }
 
@@ -114,16 +123,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { supabase, error: authError } = await requireAdmin();
 
-    if (authError || !user) {
+    if (authError) {
+      const status = authError === 'Unauthorized' ? 401 : 403;
       return NextResponse.json(
-        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 }
+        { success: false, error: authError, code: authError === 'Unauthorized' ? 'AUTH_REQUIRED' : 'ADMIN_REQUIRED' },
+        { status }
       );
     }
 

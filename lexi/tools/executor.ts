@@ -229,10 +229,11 @@ export class ToolExecutor {
       return { error: 'Database not available' };
     }
 
+    // agent_id is the referrer (renamed from referrer_id in migration 052)
     const { data: referrals, error } = await this.supabase
       .from('referrals')
       .select('*')
-      .eq('referrer_id', context.userId);
+      .eq('agent_id', context.userId);
 
     if (error) {
       return { error: 'Failed to fetch referrals' };

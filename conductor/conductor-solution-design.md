@@ -279,7 +279,7 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 | **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | ✅ **AHEAD** — TeamRuntime v2 (LangGraph StateGraph + PostgresSaver + CircuitBreaker), 3 patterns, DB-configurable topology, TeamCanvas, HITL interrupt()/resume() | **Tutorwise surpasses Fuschia** — Phase 6 complete: correct LangGraph + PostgresSaver + HITL + governance |
 | **Agent Registry** (Agent Registry = Agents + Teams + Spaces) | ✅ **UNIQUE** — No Fuschia equivalent. iPOM hierarchy (Space→Team→Agent), 5 built-in spaces, 11 agents | Tutorwise-original architecture — see AI-Digital-Workforce-Blueprint.md |
 | **Build Canvas** (visual drag-and-drop org composer) | ✅ **UNIQUE** — BuildCanvas, BuildPalette (3-level drill), BuildPropertiesDrawer, build-store | No Fuschia equivalent. Inspired by Helm/Docker Compose for agent topologies |
-| **Tool Registry** (register/assign tools to agents from UI) | ✅ **Complete** — 24 tools in executor.ts, Tools tab at `/admin/conductor/agents/tools` | Live |
+| **Tool Registry** (register/assign tools to agents from UI) | ✅ **Complete** — 31 tools in executor.ts, Tools tab at `/admin/conductor/agents/tools` | Live |
 | **Knowledge Module** (knowledge graph, data import) | ✅ **Complete** — KnowledgePanel, `platform_knowledge_chunks` (768-dim), 18 categories, RAG injection | Phase 4 complete |
 | **Analytics Module** (workflow analytics, agent performance) | ✅ **Complete** — IntelligencePanel (17 sub-tabs), 14 daily metrics tables, all pg_cron jobs live | Phase 3 complete |
 | **Monitoring Module** (real-time agent status, live monitoring) | ✅ **Complete** — MiningPanel, shadow vs live analytics, GoLiveReadiness, conformance deviations | Phase 5 complete |
@@ -525,7 +525,7 @@ CONDUCTOR — WORKFLOW INVENTORY
 | 5 seeded workflow processes | migrations 338–339 | 1 | ✅ Live |
 | ChatPanel (AI mutations on canvas) | Workflows canvas | 1 | ✅ Live |
 | SpecialistAgentRunner (ReAct loop + memory + MCP) | `lib/agent-studio/SpecialistAgentRunner.ts` | 2+7+8 | ✅ Live |
-| 24 analyst tools + MCP tool routing | `lib/agent-studio/tools/executor.ts` | 2–3+8 | ✅ Live |
+| 31 analyst tools + MCP tool routing | `lib/agent-studio/tools/executor.ts` | 2–3+8 | ✅ Live |
 | AgentManagementPanel + AgentChatPanel | `components/feature/conductor/` | 2 | ✅ Live |
 | **TeamRuntime v2** (LangGraph StateGraph + PostgresSaver + CircuitBreaker + HITL) | `lib/workflow/team-runtime/TeamRuntime.ts` | 6A | ✅ Live |
 | CircuitBreaker (extracted from CAS) | `lib/workflow/team-runtime/CircuitBreaker.ts` | 6A | ✅ Live |
@@ -3842,6 +3842,14 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 | `DELETE` | `/api/admin/workflow/execute/[executionId]` | Admin | Cancel running execution |
 | `POST` | `/api/admin/workflow/execute/[executionId]/resume` | Admin | Resume paused execution |
 | `POST` | `/api/admin/workflow/execute/task/[taskId]/complete` | Admin | Complete HITL task (approve/reject) |
+| `POST` | `/api/admin/workflow/execute/command` | Admin | Execute workflow command (pause/resume/cancel) |
+| `GET` | `/api/admin/workflow/briefing` | Admin | AI-generated workflow briefing summary |
+| `GET` | `/api/admin/workflow/health` | Admin | Workflow engine health stats |
+| `GET` | `/api/admin/workflow/processes/[id]/shadow-stats` | Admin | Shadow run statistics for a process |
+| `GET` | `/api/admin/workflow/templates` | Admin | List workflow templates |
+| `POST` | `/api/admin/workflow/templates` | Admin | Create new workflow template |
+| `PATCH` | `/api/admin/workflow/templates/[id]` | Admin | Update workflow template |
+| `DELETE` | `/api/admin/workflow/templates/[id]` | Admin | Delete workflow template |
 | `GET` | `/api/admin/workflow/exceptions` | Admin | List exception queue (filterable by domain/severity) |
 | `POST` | `/api/admin/workflow/exceptions/[id]/claim` | Admin | Claim exception for review |
 | `POST` | `/api/admin/workflow/exceptions/[id]/resolve` | Admin | Resolve exception with resolution text |
@@ -3863,6 +3871,7 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 | `DELETE` | `/api/admin/teams/[id]` | Admin | Deactivate Team (system Teams protected) |
 | `POST` | `/api/admin/teams/[id]/run` | Admin | Trigger on-demand Team run |
 | `GET` | `/api/admin/teams/[id]/runs` | Admin | List recent Team runs with `agent_team_run_outputs` |
+| `POST` | `/api/admin/agents/[id]/stream` | Admin | Stream agent chat response (SSE) |
 | `GET` | `/api/admin/tools` | Admin | List registered tools in tool registry |
 | `POST` | `/api/admin/tools` | Admin | Register new tool with schema validation |
 | `DELETE` | `/api/admin/tools/[id]` | Admin | Deactivate tool |
@@ -3898,14 +3907,15 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/api/platform/user-context/[profileId]` | Auth | PlatformUserContext fetch (Redis-cached 5 min) |
-| `POST` | `/api/platform/intent` | Auth | Intent classification for Operations query |
+| `GET` | `/api/platform/user-context/[profile_id]` | Auth | PlatformUserContext fetch (Redis-cached 5 min) |
+| `POST` | `/api/admin/conductor/classify-intent` | Admin | Intent classification for Operations/Conductor query bar |
 | `GET` | `/api/admin/conductor/knowledge` | Admin | List platform knowledge chunks |
 | `POST` | `/api/admin/conductor/knowledge` | Admin | Add knowledge chunk |
 | `DELETE` | `/api/admin/conductor/knowledge/[id]` | Admin | Remove knowledge chunk |
-| `GET` | `/api/admin/autonomy` | Admin | Per-process autonomy config + accuracy |
-| `PATCH` | `/api/admin/autonomy/[processId]` | Admin | Approve/reject tier calibration proposal |
-| `GET` | `/api/admin/network` | Admin | Network intelligence (referral depth, velocity) |
+| `POST` | `/api/admin/conductor/knowledge/preview-rag` | Admin | Preview RAG retrieval for a query |
+| `GET` | `/api/admin/conductor/autonomy` | Admin | Per-process autonomy config + accuracy |
+| `PATCH` | `/api/admin/conductor/autonomy/[processId]` | Admin | Approve/reject tier calibration proposal |
+| `GET` | `/api/admin/network/intelligence` | Admin | Network intelligence (referral depth, velocity) |
 
 ### Phase 5 — Process Mining
 
@@ -3922,6 +3932,7 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 |--------|-------|------|-------------|
 | `POST` | `/api/admin/teams/[id]/runs/[runId]/resume` | Admin | Resume HITL-paused team run (approve/reject) |
 | `GET` | `/api/admin/teams/runs` | Admin | List all team runs across teams (with status filtering) |
+| `DELETE` | `/api/admin/teams/runs/[id]` | Admin | Delete a team run record |
 | `GET` | `/api/admin/cas/agents/status` | Admin | Agent status check (legacy — redirects internally) |
 | `POST` | `/api/admin/cas/resume-workflow` | Admin | Resume CAS workflow (legacy — delegates to TeamRuntime) |
 

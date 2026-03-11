@@ -165,11 +165,11 @@ export async function buildPlatformUserContext(userId: string): Promise<Platform
       .limit(1)
       .single(),
 
-    // Referrals (as referrer)
+    // Referrals (as referrer — agent_id is the referrer, renamed from referrer_id in migration 052)
     supabase
       .from('referrals')
       .select('status, commission_amount_pence')
-      .eq('referrer_id', userId),
+      .eq('agent_id', userId),
 
     // AI agent active
     supabase

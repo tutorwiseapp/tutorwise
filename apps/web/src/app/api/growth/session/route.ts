@@ -64,11 +64,11 @@ async function fetchGrowthMetrics(
         .eq('tutor_id', userId)
         .eq('status', 'confirmed'),
 
-      // Referrals
+      // Referrals (agent_id is the referrer, renamed from referrer_id in migration 052)
       supabase
         .from('referrals')
         .select('status, commission_amount_pence')
-        .eq('referrer_id', userId),
+        .eq('agent_id', userId),
 
       // AI Tutor
       supabase

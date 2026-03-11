@@ -18,6 +18,9 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await authClient.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { data: profile } = await authClient.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const supabase = await createServiceRoleClient();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
@@ -50,6 +53,9 @@ export async function POST(request: NextRequest) {
     const authClient = await createClient();
     const { data: { user }, error: authError } = await authClient.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { data: profile } = await authClient.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const supabase = await createServiceRoleClient();
 

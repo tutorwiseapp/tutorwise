@@ -27,14 +27,14 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin (role check)
+    // Check admin access
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if (!profile?.is_admin) {
       return NextResponse.json({ message: 'Forbidden: Admin access required' }, { status: 403 });
     }
 

@@ -22,6 +22,19 @@ export async function GET() {
       );
     }
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.is_admin) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden', code: 'ADMIN_REQUIRED' },
+        { status: 403 }
+      );
+    }
+
     const { data, error } = await supabase
       .from('workflow_processes')
       .select('id, name, description, category, execution_mode, created_at, updated_at')
@@ -59,6 +72,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
         { status: 401 }
+      );
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.is_admin) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden', code: 'ADMIN_REQUIRED' },
+        { status: 403 }
       );
     }
 
