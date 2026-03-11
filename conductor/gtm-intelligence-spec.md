@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md)
+Related: [`conductor-solution-design.md`](./conductor-solution-design.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md)
 
 > **This document is the capstone spec.** It does not replace the individual intelligence specs — it defines how they connect into two coherent Conductor use cases: the **GTM Lifecycle** and the **Referral Lifecycle**.
 
@@ -465,11 +465,11 @@ Workflow triggers (if alert flags fire):
 
 ## 14. Authoritative Migration Sequence
 
-This is the single source of truth for all intelligence spec migrations. Migrations 353–363 are reserved for Conductor Feature Intelligence Specs (per `conductor-solution-design-v3.md` v3.7). Referral migrations follow at 364–365.
+This is the single source of truth for all intelligence spec migrations. Migrations 353–363 are reserved for Conductor Feature Intelligence Specs (per `conductor-solution-design.md` v3.7). Referral migrations follow at 364–365.
 
 | Migration | Spec | Table / Object Created | pg_cron UTC |
 |-----------|------|----------------------|-------------|
-| 353–363 | Feature Intelligence Specs | (reserved — per conductor-solution-design-v3.md) | — |
+| 353–363 | Feature Intelligence Specs | (reserved — per conductor-solution-design.md) | — |
 | 355 | CaaS | `caas_platform_metrics_daily` | 05:30 |
 | 356 | Resources | `resources_platform_metrics_daily` | 04:30 |
 | 357 | SEO | `seo_platform_metrics_daily` | 05:00 |
@@ -505,4 +505,4 @@ All intelligence specs in the GTM + Referral system:
 
 ---
 
-*Version 1.0 — GTM Lifecycle meta-spec. Two Conductor use cases: GTM Lifecycle (6 stages + Signal + CaaS + VirtualSpace) and Referral Lifecycle (parallel track). Feeds into `conductor-solution-design-v3.md` Phase 3 implementation.*
+*Version 1.0 — GTM Lifecycle meta-spec. Two Conductor use cases: GTM Lifecycle (6 stages + Signal + CaaS + VirtualSpace) and Referral Lifecycle (parallel track). Feeds into `conductor-solution-design.md` Phase 3 implementation.*

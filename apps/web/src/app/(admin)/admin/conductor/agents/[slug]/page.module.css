@@ -158,25 +158,54 @@
   cursor: not-allowed;
 }
 
-/* ── History ── */
+/* ── Right column ── */
 .historyColumn {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Scrollable content below the tab bar */
+.columnContent {
+  flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.historyTitle {
+/* Tab switcher */
+.rightTabs {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  font-weight: 600;
+  gap: 2px;
+  padding: 0.5rem 0.75rem 0;
+  border-bottom: 1px solid #1f2937;
+  background: #111827;
+  flex-shrink: 0;
+}
+
+.rightTab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 500;
   color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding-bottom: 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.rightTab:hover { color: #9ca3af; }
+.rightTabActive {
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
+  font-weight: 600;
 }
 
 .refreshRunsBtn {
@@ -255,3 +284,221 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+/* ── Memory tab ── */
+
+.memoryTab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.memorySection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.memorySectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.memoryCount {
+  background: #1f2937;
+  color: #9ca3af;
+  font-size: 0.65rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Episode cards */
+.episodeCard {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.episodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.outcomeTag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.episodeSummary {
+  flex: 1;
+  font-size: 0.75rem;
+  color: #d1d5db;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.episodeMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  color: #4b5563;
+  flex-shrink: 0;
+}
+
+.episodeBody {
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid #1f2937;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.episodeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.episodeFieldLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.episodeFieldValue {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+.entityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.entityTag {
+  font-size: 0.62rem;
+  color: #a78bfa;
+  background: #1e1040;
+  border: 1px solid #4c1d95;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.actedOn {
+  font-size: 0.68rem;
+  color: #6b7280;
+}
+
+.memoryDeleteBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #374151;
+  color: #6b7280;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: border-color 0.15s, color 0.15s;
+}
+.memoryDeleteBtn:hover { border-color: #ef4444; color: #ef4444; }
+.memoryDeleteBtn:disabled { opacity: 0.4; cursor: default; }
+
+/* Fact cards */
+.factCard {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 7px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.factTriple {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.factSubject {
+  color: #e9d5ff;
+  font-weight: 600;
+}
+
+.factRelation {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 0.7rem;
+}
+
+.factObject {
+  color: #93c5fd;
+  font-weight: 500;
+}
+
+.factContext {
+  font-size: 0.72rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.factFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.1rem;
+}
+
+.factConfidence {
+  font-size: 0.65rem;
+  color: #4b5563;
+}
+
+.factInvalidateBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: none;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.factInvalidateBtn:hover { border-color: #ef4444; color: #ef4444; }
+.factInvalidateBtn:disabled { opacity: 0.4; cursor: default; }

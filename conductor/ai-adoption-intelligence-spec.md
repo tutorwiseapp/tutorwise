@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`ai-studio-intelligence-spec.md`](./ai-studio-intelligence-spec.md) · [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`ai-studio-intelligence-spec.md`](./ai-studio-intelligence-spec.md) · [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: Tutorwise has two AI subscription products — Sage Pro (client-facing AI tutoring) and Growth Agent (advisor for all roles). It also has an AI marketplace layer where AI tutors take bookings (`booking_type = 'ai_agent'`). Without Conductor intelligence, AI subscription churn goes undetected, the free-to-paid conversion funnel has no monitoring, and AI marketplace performance is invisible until it's reflected in GMV.
 

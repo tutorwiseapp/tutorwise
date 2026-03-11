@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain } from 'lucide-react';
+import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain, UserCheck } from 'lucide-react';
 import styles from './MonitoringPanel.module.css';
 
 // --- Types ---
@@ -30,6 +30,19 @@ interface ActiveExecution {
   process_name?: string;
 }
 
+interface PendingApproval {
+  id: string;
+  started_at: string;
+  execution_context: {
+    team_id: string;
+    team_slug: string;
+    team_name: string;
+    task: string;
+    pattern: 'supervisor' | 'pipeline' | 'swarm';
+    trigger_type: string;
+  } | null;
+}
+
 interface PlatformHealth {
   failedWebhooks: number;
   shadowDivergences: number;
@@ -50,6 +63,117 @@ function timeAgo(iso: string): string {
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+// --- Pending Approvals Section ---
+
+const PATTERN_LABEL: Record<string, string> = {
+  supervisor: 'supervisor',
+  pipeline: 'pipeline',
+  swarm: 'swarm',
+};
+
+function PendingApprovals() {
+  const queryClient = useQueryClient();
+
+  const { data: approvals = [], isFetching, refetch } = useQuery({
+    queryKey: ['pending-approvals'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/workflow/execute?status=awaiting_approval&limit=20');
+      const data = await res.json();
+      return (data.executions ?? []) as PendingApproval[];
+    },
+    staleTime: 20_000,
+    refetchInterval: 20_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const resumeMutation = useMutation({
+    mutationFn: async ({ runId, teamId, approved }: { runId: string; teamId: string; approved: boolean }) => {
+      const res = await fetch(`/api/admin/teams/${teamId}/runs/${runId}/resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approved }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? 'Resume failed');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-approvals'] });
+      queryClient.invalidateQueries({ queryKey: ['active-executions'] });
+    },
+  });
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.sectionTitle}>
+          <UserCheck size={14} />
+          Pending Approval
+          {approvals.length > 0 && (
+            <span className={`${styles.badge} ${styles.badgeAmber}`}>{approvals.length}</span>
+          )}
+        </div>
+        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
+          <RefreshCw size={12} />
+        </button>
+      </div>
+
+      {isFetching && approvals.length === 0 && <div className={styles.loading}>Loading…</div>}
+
+      {!isFetching && approvals.length === 0 && (
+        <div className={styles.empty}>
+          <CheckCircle size={20} className={styles.emptyIcon} />
+          No runs awaiting approval
+        </div>
+      )}
+
+      {approvals.map((run) => {
+        const ctx = run.execution_context;
+        const teamId = ctx?.team_id ?? '';
+        const isThisPending = resumeMutation.isPending && (resumeMutation.variables as { runId: string })?.runId === run.id;
+
+        return (
+          <div key={run.id} className={styles.approvalRow}>
+            <div className={styles.approvalBody}>
+              <div className={styles.approvalTeam}>
+                {ctx?.team_name ?? 'Unknown team'}
+                {ctx?.pattern && (
+                  <span className={`${styles.patternBadge} ${styles[`pattern_${ctx.pattern}` as keyof typeof styles]}`}>
+                    {PATTERN_LABEL[ctx.pattern] ?? ctx.pattern}
+                  </span>
+                )}
+              </div>
+              {ctx?.task && (
+                <div className={styles.approvalTask}>
+                  {ctx.task.length > 120 ? `${ctx.task.slice(0, 120)}…` : ctx.task}
+                </div>
+              )}
+              <div className={styles.approvalMeta}>{timeAgo(run.started_at)}</div>
+            </div>
+            <div className={styles.approvalActions}>
+              <button
+                className={`${styles.actionBtn} ${styles.approveBtn}`}
+                onClick={() => resumeMutation.mutate({ runId: run.id, teamId, approved: true })}
+                disabled={isThisPending || resumeMutation.isPending}
+              >
+                Approve
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.rejectBtn}`}
+                onClick={() => resumeMutation.mutate({ runId: run.id, teamId, approved: false })}
+                disabled={isThisPending || resumeMutation.isPending}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // --- Exception Queue Section ---
@@ -305,6 +429,7 @@ export function MonitoringPanel() {
     <div className={styles.container}>
       <div className={styles.columns}>
         <div className={styles.leftCol}>
+          <PendingApprovals />
           <ExceptionQueue />
           <ActiveWorkflows />
         </div>

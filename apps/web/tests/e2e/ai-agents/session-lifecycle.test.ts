@@ -34,13 +34,13 @@ async function createTestSession() {
   await supabase
     .from('profiles')
     .update({ caas_score: 80 })
-    .eq('id', tutor.user.id);
+    .eq('id', tutor.user!.id);
 
   // Create AI tutor
   const { data: aiTutor } = await supabase
     .from('ai_agents')
     .insert({
-      owner_id: tutor.user.id,
+      owner_id: tutor.user!.id,
       display_name: 'Test Session Tutor',
       subject: 'Mathematics',
       description: 'Test tutor',
@@ -60,9 +60,9 @@ async function createTestSession() {
   });
 
   return {
-    tutorId: tutor.user.id,
+    tutorId: tutor.user!.id,
     aiAgentId: aiTutor!.id,
-    clientId: client.user.id,
+    clientId: client.user!.id,
   };
 }
 

@@ -58,6 +58,21 @@ const BuildCanvas = dynamic(
   }
 );
 
+const SimulationPanel = dynamic(
+  () => import('@/components/feature/conductor/SimulationPanel').then((m) => ({ default: m.SimulationPanel })),
+  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading Simulation…</div> }
+);
+
+const EvalPanel = dynamic(
+  () => import('@/components/feature/conductor/EvalPanel').then((m) => ({ default: m.EvalPanel })),
+  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading Eval…</div> }
+);
+
+const MCPPanel = dynamic(
+  () => import('@/components/feature/conductor/MCPPanel').then((m) => ({ default: m.MCPPanel })),
+  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading Integrations…</div> }
+);
+
 // Tabs in lifecycle order: Design → Build → Execute → Observe
 const TABS: { id: DiscoveryTab; label: string }[] = [
   // Design
@@ -69,8 +84,11 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
   { id: 'teams',       label: 'Teams' },
   { id: 'spaces',      label: 'Spaces' },
   { id: 'knowledge',   label: 'Knowledge' },
+  { id: 'integrations',label: 'Integrations' },
   // Execute
   { id: 'execution',   label: 'Execution' },
+  { id: 'simulation',  label: 'Simulation' },
+  { id: 'eval',        label: 'Eval' },
   // Observe
   { id: 'monitoring',  label: 'Monitoring' },
   { id: 'intelligence',label: 'Intelligence' },
@@ -80,8 +98,8 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
 // Lifecycle stages with their tab IDs
 const STAGES: { label: string; tabs: DiscoveryTab[]; number: number }[] = [
   { number: 1, label: 'Design',  tabs: ['workflows', 'discovery'] },
-  { number: 2, label: 'Build',   tabs: ['build', 'agents', 'teams', 'spaces', 'knowledge'] },
-  { number: 3, label: 'Execute', tabs: ['execution'] },
+  { number: 2, label: 'Build',   tabs: ['build', 'agents', 'teams', 'spaces', 'knowledge', 'integrations'] },
+  { number: 3, label: 'Execute', tabs: ['execution', 'simulation', 'eval'] },
   { number: 4, label: 'Observe', tabs: ['monitoring', 'intelligence', 'mining'] },
 ];
 
@@ -182,6 +200,22 @@ export default function ConductorPage() {
         </ErrorBoundary>
       )}
 
+      {activeTab === 'simulation' && (
+        <ErrorBoundary fallback={<TabError tab="Simulation" />}>
+          <div className={styles.executionContainer}>
+            <SimulationPanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {activeTab === 'eval' && (
+        <ErrorBoundary fallback={<TabError tab="Eval" />}>
+          <div className={styles.executionContainer}>
+            <EvalPanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
       {activeTab === 'agents' && (
         <ErrorBoundary fallback={<TabError tab="Agents" />}>
           <div className={styles.agentsContainer}>
@@ -210,6 +244,14 @@ export default function ConductorPage() {
         <ErrorBoundary fallback={<TabError tab="Knowledge" />}>
           <div className={styles.intelligenceContainer}>
             <KnowledgePanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {activeTab === 'integrations' && (
+        <ErrorBoundary fallback={<TabError tab="Integrations" />}>
+          <div className={styles.executionContainer}>
+            <MCPPanel />
           </div>
         </ErrorBoundary>
       )}

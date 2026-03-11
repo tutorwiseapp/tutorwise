@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 ---
 

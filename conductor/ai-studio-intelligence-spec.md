@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`ai-adoption-intelligence-spec.md`](./ai-adoption-intelligence-spec.md) · [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`ai-adoption-intelligence-spec.md`](./ai-adoption-intelligence-spec.md) · [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: AI Studio is the creator lifecycle for tutors who build AI versions of themselves. Where the GTM Lifecycle covers a human tutor's journey to their first booking, the AI Studio Lifecycle covers an AI agent's journey from creation to active income generation. It is the supply-side counterpart to the AI Marketplace (demand-side) and the AI Adoption spec (subscription demand-side).
 

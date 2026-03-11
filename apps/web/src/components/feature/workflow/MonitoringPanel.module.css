@@ -246,6 +246,92 @@
   margin-top: 4px;
 }
 
+/* Amber badge variant (pending approvals) */
+.badgeAmber {
+  background: #d97706;
+}
+
+/* Approval rows */
+.approvalRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-bg-light, #f9fafb);
+}
+.approvalRow:last-child { border-bottom: none; }
+
+.approvalBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.approvalTeam {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.approvalTask {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.approvalMeta {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 4px;
+}
+
+.approvalActions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.approveBtn {
+  background: #16a34a;
+  color: #fff;
+  border-color: transparent;
+}
+.approveBtn:hover:not(:disabled) { background: #15803d; }
+.approveBtn:disabled { opacity: 0.5; cursor: default; }
+
+.rejectBtn {
+  background: none;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.rejectBtn:hover:not(:disabled) { background: #fef2f2; }
+.rejectBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* Pattern badges */
+.patternBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+.pattern_supervisor {
+  color: #7c3aed;
+  background: #ede9fe;
+}
+.pattern_pipeline {
+  color: #0891b2;
+  background: #e0f2fe;
+}
+.pattern_swarm {
+  color: #d97706;
+  background: #fef3c7;
+}
+
 /* Operational briefing */
 .briefingTime {
   font-size: 11px;

@@ -52,7 +52,7 @@ const PALETTE_GROUPS: { group: string; items: PaletteItem[] }[] = [
   {
     group: 'Agents',
     items: [
-      { type: 'agent', label: 'Specialist Agent', description: 'Run a CAS specialist agent', icon: Brain, cssClass: 'agent' },
+      { type: 'agent', label: 'Specialist Agent', description: 'Run a specialist agent from the Agent Registry', icon: Brain, cssClass: 'agent' },
     ],
   },
   {

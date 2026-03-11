@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: Listings are the supply-side product. A tutor's listing is what appears in search results and what a client books. Listing quality (CaaS score, completeness, pricing) directly determines marketplace conversion and GMV.
 
@@ -13,7 +13,7 @@ Related: [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md
 
 ## 1. Purpose
 
-Listings are the unit of supply on the marketplace. Every booking traces back to a listing. Without Conductor intelligence on listings, quality degradation happens silently — listings go stale, pricing drifts out of market, active tutors leave listings incomplete, and high-converting listing types are underused. The Listing Quality Nudge workflow (already planned in conductor-solution-design-v3.md) needs intelligence data to target the right listings at the right time.
+Listings are the unit of supply on the marketplace. Every booking traces back to a listing. Without Conductor intelligence on listings, quality degradation happens silently — listings go stale, pricing drifts out of market, active tutors leave listings incomplete, and high-converting listing types are underused. The Listing Quality Nudge workflow (already planned in conductor-solution-design.md) needs intelligence data to target the right listings at the right time.
 
 **Three outputs:**
 
@@ -278,7 +278,7 @@ New panel added to `/admin/listings`.
 
 ## 8. Conductor Workflow: Listing Quality Nudge (Enhancement)
 
-The planned **Listing Quality Nudge** workflow (conductor-solution-design-v3.md) is enhanced with the completeness score.
+The planned **Listing Quality Nudge** workflow (conductor-solution-design.md) is enhanced with the completeness score.
 
 **Enhanced trigger logic:**
 

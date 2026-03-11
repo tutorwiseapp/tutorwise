@@ -5,12 +5,16 @@
  *
  * Phase 4A: RAG augmentation — queries platform_knowledge_chunks before each run
  * to inject relevant knowledge into the system prompt.
+ *
+ * Phase 7 (migration 386): Episodic memory — injects relevant past runs + active facts
+ * into the system prompt. Records a new episode + extracts facts after each run.
  */
 
 import { createServiceRoleClient } from '@/utils/supabase/server';
 import { getAIService } from '@/lib/ai';
 import { generateEmbedding } from '@/lib/services/embeddings';
 import { executeTool } from './tools/executor';
+import { agentMemoryService } from './AgentMemoryService';
 
 // ── Agent → knowledge category mapping (Phase 4A) ────────────────────────────
 // Maps agent slugs to the most relevant platform_knowledge_chunks category.
@@ -51,13 +55,14 @@ interface SpecialistAgent {
   config: AgentConfig;
 }
 
-const TOOL_CALL_PATTERN = /TOOL_CALL:\s*(\w+)\s+(\{[\s\S]*?\})/g;
+const TOOL_CALL_PATTERN = /TOOL_CALL:\s*([\w:]+)\s+(\{[\s\S]*?\})/g;
 const MAX_TOOL_ROUNDS = 5;
 
 function buildSystemPrompt(
   agent: SpecialistAgent,
   toolDescriptions: string,
-  knowledgeBlock?: string
+  knowledgeBlock?: string,
+  memoryBlock?: string
 ): string {
   const config = agent.config ?? {};
   const skills = (config.skills ?? []).join(', ') || 'general analysis';
@@ -65,11 +70,14 @@ function buildSystemPrompt(
   const knowledgeSection = knowledgeBlock
     ? `\nPLATFORM KNOWLEDGE (relevant context for this task):\n${knowledgeBlock}\n`
     : '';
+  const memorySection = memoryBlock
+    ? `\nPAST EXPERIENCE (your own memory from similar previous runs):\n${memoryBlock}\n`
+    : '';
 
   return `You are ${agent.name}, a ${agent.role} specialist at Tutorwise (${agent.department}).
 ${agent.description ?? ''}
 
-Skills: ${skills}${instructions}${knowledgeSection}
+Skills: ${skills}${instructions}${knowledgeSection}${memorySection}
 Available tools:
 ${toolDescriptions}
 
@@ -104,26 +112,54 @@ async function fetchKnowledgeBlock(agentSlug: string, prompt: string): Promise<s
 }
 
 async function loadToolDescriptions(toolSlugs: string[]): Promise<string> {
-  if (!toolSlugs.length) return '(no tools available)';
-
   const supabase = await createServiceRoleClient();
-  const { data } = await supabase
-    .from('analyst_tools')
-    .select('slug, name, description, input_schema')
-    .in('slug', toolSlugs)
-    .eq('status', 'active');
+  const lines: string[] = [];
 
-  return (data ?? [])
-    .map((t) => {
+  // Built-in tools
+  if (toolSlugs.length > 0) {
+    const { data } = await supabase
+      .from('analyst_tools')
+      .select('slug, name, description, input_schema')
+      .in('slug', toolSlugs)
+      .eq('status', 'active');
+
+    for (const t of data ?? []) {
       const schema = t.input_schema as { properties?: Record<string, { type: string }> } | null;
       const params = schema?.properties ? Object.keys(schema.properties).join(', ') : '';
-      return `  ${t.slug}: ${t.description}${params ? ` (params: ${params})` : ''}`;
-    })
-    .join('\n');
+      lines.push(`  ${t.slug}: ${t.description}${params ? ` (params: ${params})` : ''}`);
+    }
+  }
+
+  // MCP tools — load enabled tools from all active connections
+  const { data: mcpTools } = await supabase
+    .from('mcp_tool_catalog')
+    .select('qualified_slug, description, input_schema, connection_id')
+    .eq('enabled', true);
+
+  if (mcpTools && mcpTools.length > 0) {
+    // Fetch connection names for labelling
+    const connIds = [...new Set(mcpTools.map((t) => t.connection_id))];
+    const { data: conns } = await supabase
+      .from('mcp_connections')
+      .select('id, name')
+      .in('id', connIds)
+      .eq('status', 'active');
+    const connNameMap = new Map((conns ?? []).map((c) => [c.id, c.name]));
+
+    for (const t of mcpTools) {
+      const connName = connNameMap.get(t.connection_id);
+      if (!connName) continue; // skip tools from inactive connections
+      const schema = t.input_schema as { properties?: Record<string, { type: string }> } | null;
+      const params = schema?.properties ? Object.keys(schema.properties).join(', ') : '';
+      lines.push(`  ${t.qualified_slug}: [${connName}] ${t.description}${params ? ` (params: ${params})` : ''}`);
+    }
+  }
+
+  return lines.length > 0 ? lines.join('\n') : '(no tools available)';
 }
 
 export class SpecialistAgentRunner {
-  async run(agentId: string, prompt: string, triggerType: string = 'manual'): Promise<AgentRunResult> {
+  async run(agentId: string, prompt: string, triggerType: string = 'manual', options?: { contextProfileId?: string }): Promise<AgentRunResult> {
     const startTime = Date.now();
     const supabase = await createServiceRoleClient();
 
@@ -137,11 +173,12 @@ export class SpecialistAgentRunner {
     if (error || !agent) throw new Error(`Agent not found: ${agentId}`);
 
     const toolSlugs: string[] = (agent.config as AgentConfig)?.tools ?? [];
-    const [toolDescriptions, knowledgeBlock] = await Promise.all([
+    const [toolDescriptions, knowledgeBlock, memoryBlock] = await Promise.all([
       loadToolDescriptions(toolSlugs),
       fetchKnowledgeBlock(agent.slug, prompt),
+      agentMemoryService.fetchMemoryBlock(agent.slug, prompt),
     ]);
-    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions, knowledgeBlock);
+    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions, knowledgeBlock, memoryBlock);
 
     const ai = getAIService();
     const toolsCalled: AgentRunResult['toolsCalled'] = [];
@@ -171,7 +208,11 @@ export class SpecialistAgentRunner {
         const [, slug, rawInput] = match;
         try {
           const input = JSON.parse(rawInput) as Record<string, unknown>;
-          const output = await executeTool(slug, input);
+          const output = await executeTool(slug, input, {
+            profileId: options?.contextProfileId,
+            agentSlug: agent.slug,
+            runId,
+          });
           toolsCalled.push({ slug, input, output });
           toolResults.push(`TOOL_RESULT: ${slug}\n${JSON.stringify(output, null, 2)}`);
         } catch (err) {
@@ -196,6 +237,20 @@ export class SpecialistAgentRunner {
         duration_ms: durationMs,
       })
       .eq('id', runId);
+
+    // Phase 7: Record episode + extract facts (non-blocking, fail-silently)
+    agentMemoryService.recordEpisode({
+      agentSlug: agent.slug,
+      runId,
+      task: prompt,
+      outputText,
+      toolsCalled,
+    }).catch(() => {});
+    agentMemoryService.extractAndStoreFacts({
+      agentSlug: agent.slug,
+      runId,
+      outputText,
+    }).catch(() => {});
 
     return { outputText, toolsCalled, durationMs, runId };
   }

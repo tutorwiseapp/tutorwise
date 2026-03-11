@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) · [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) · [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: The GTM Lifecycle ends at the first payout. Retention is everything that happens after. This spec defines how Conductor monitors the post-acquisition lifecycle for all four user roles (tutor, client, agent, organisation), detects churn signals before they become churn events, and triggers the right intervention at the right time.
 

@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Send, Brain, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  ArrowLeft, Send, Brain, ChevronDown, ChevronUp,
+  RefreshCw, Trash2, BookOpen, Layers,
+} from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 
@@ -25,10 +28,33 @@ interface RunHistory {
   created_at: string;
 }
 
+interface MemoryEpisode {
+  id: string;
+  task_summary: string;
+  outcome_summary: string;
+  outcome_type: string;
+  entities: string[] | null;
+  was_acted_on: boolean | null;
+  created_at: string;
+}
+
+interface MemoryFact {
+  id: string;
+  subject: string;
+  relation: string;
+  object: string;
+  context: string | null;
+  confidence: number;
+  valid_until: string | null;
+  created_at: string;
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
+
+type RightTab = 'runs' | 'memory';
 
 async function fetchAgentBySlug(slug: string): Promise<SpecialistAgent | null> {
   const res = await fetch(`/api/admin/agents?status=active`);
@@ -44,6 +70,21 @@ async function fetchRunHistory(agentId: string): Promise<RunHistory[]> {
   return json.data;
 }
 
+async function fetchMemory(agentId: string): Promise<{ episodes: MemoryEpisode[]; facts: MemoryFact[] }> {
+  const res = await fetch(`/api/admin/agents/${agentId}/memory`);
+  const json = await res.json() as { success: boolean; data: { episodes: MemoryEpisode[]; facts: MemoryFact[] } };
+  if (!json.success) throw new Error('Failed to load memory');
+  return json.data;
+}
+
+const OUTCOME_COLORS: Record<string, string> = {
+  escalation: '#ef4444',
+  alert:       '#f97316',
+  recommendation: '#3b82f6',
+  synthesis:   '#a78bfa',
+  analysis:    '#6b7280',
+};
+
 export default function AgentChatPage() {
   const { slug } = useParams() as { slug: string };
   const queryClient = useQueryClient();
@@ -51,6 +92,8 @@ export default function AgentChatPage() {
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [expandedRun, setExpandedRun] = useState<string | null>(null);
+  const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
+  const [rightTab, setRightTab] = useState<RightTab>('runs');
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { data: agent, isLoading: agentLoading, error: agentError } = useQuery({
@@ -66,6 +109,36 @@ export default function AgentChatPage() {
     enabled: !!agent?.id,
     staleTime: 30_000,
     retry: false,
+  });
+
+  const { data: memory, isFetching: memoryFetching, refetch: refetchMemory } = useQuery({
+    queryKey: ['admin-agent-memory', agent?.id],
+    queryFn: () => fetchMemory(agent!.id),
+    enabled: !!agent?.id && rightTab === 'memory',
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const deleteEpisodeMutation = useMutation({
+    mutationFn: async (episodeId: string) => {
+      const res = await fetch(
+        `/api/admin/agents/${agent!.id}/memory?type=episode&recordId=${episodeId}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Delete failed');
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agent-memory', agent?.id] }),
+  });
+
+  const deleteFactMutation = useMutation({
+    mutationFn: async (factId: string) => {
+      const res = await fetch(
+        `/api/admin/agents/${agent!.id}/memory?type=fact&recordId=${factId}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Delete failed');
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agent-memory', agent?.id] }),
   });
 
   useEffect(() => {
@@ -138,6 +211,9 @@ export default function AgentChatPage() {
     );
   }
 
+  const episodes = memory?.episodes ?? [];
+  const facts = memory?.facts ?? [];
+
   return (
     <div className={styles.page}>
       <div className={styles.chatColumn}>
@@ -190,38 +266,171 @@ export default function AgentChatPage() {
         </div>
       </div>
 
+      {/* ── Right column ── */}
       <div className={styles.historyColumn}>
-        <div className={styles.historyTitle}>
-          Run History
+        {/* Tab switcher */}
+        <div className={styles.rightTabs}>
+          <button
+            className={`${styles.rightTab} ${rightTab === 'runs' ? styles.rightTabActive : ''}`}
+            onClick={() => setRightTab('runs')}
+          >
+            <Layers size={12} /> Runs
+          </button>
+          <button
+            className={`${styles.rightTab} ${rightTab === 'memory' ? styles.rightTabActive : ''}`}
+            onClick={() => setRightTab('memory')}
+          >
+            <BookOpen size={12} /> Memory
+          </button>
           <button
             className={styles.refreshRunsBtn}
-            onClick={() => refetchRuns()}
-            disabled={runsFetching}
+            onClick={() => rightTab === 'runs' ? refetchRuns() : refetchMemory()}
+            disabled={rightTab === 'runs' ? runsFetching : memoryFetching}
             title="Refresh"
+            style={{ marginLeft: 'auto' }}
           >
-            <RefreshCw size={12} className={runsFetching ? styles.spinning : undefined} />
+            <RefreshCw size={12} className={(rightTab === 'runs' ? runsFetching : memoryFetching) ? styles.spinning : undefined} />
           </button>
         </div>
-        {runs.length === 0 ? (
-          <div className={styles.historyEmpty}>No runs yet</div>
-        ) : (
-          runs.map((run) => (
-            <div key={run.id} className={styles.runCard}>
-              <button
-                className={styles.runHeader}
-                onClick={() => setExpandedRun(expandedRun === run.id ? null : run.id)}
-              >
-                <span className={styles.runPrompt}>{run.input_prompt.slice(0, 60)}{run.input_prompt.length > 60 ? '…' : ''}</span>
-                <span className={styles.runMeta}>
-                  {run.duration_ms ? `${(run.duration_ms / 1000).toFixed(1)}s` : '—'}
-                  {expandedRun === run.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                </span>
-              </button>
-              {expandedRun === run.id && run.output_text && (
-                <div className={styles.runOutput}>{run.output_text}</div>
+
+        {/* ── Runs tab ── */}
+        {rightTab === 'runs' && (
+          <div className={styles.columnContent}>
+            {runs.length === 0 ? (
+              <div className={styles.historyEmpty}>No runs yet</div>
+            ) : (
+              runs.map((run) => (
+                <div key={run.id} className={styles.runCard}>
+                  <button
+                    className={styles.runHeader}
+                    onClick={() => setExpandedRun(expandedRun === run.id ? null : run.id)}
+                  >
+                    <span className={styles.runPrompt}>{run.input_prompt.slice(0, 60)}{run.input_prompt.length > 60 ? '…' : ''}</span>
+                    <span className={styles.runMeta}>
+                      {run.duration_ms ? `${(run.duration_ms / 1000).toFixed(1)}s` : '—'}
+                      {expandedRun === run.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                    </span>
+                  </button>
+                  {expandedRun === run.id && run.output_text && (
+                    <div className={styles.runOutput}>{run.output_text}</div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ── Memory tab ── */}
+        {rightTab === 'memory' && (
+          <div className={styles.columnContent}>
+          <div className={styles.memoryTab}>
+            {/* Episodes */}
+            <div className={styles.memorySection}>
+              <div className={styles.memorySectionLabel}>
+                Episodes
+                <span className={styles.memoryCount}>{episodes.length}</span>
+              </div>
+              {episodes.length === 0 ? (
+                <div className={styles.historyEmpty}>No episodes yet</div>
+              ) : (
+                episodes.map((ep) => (
+                  <div key={ep.id} className={styles.episodeCard}>
+                    <button
+                      className={styles.episodeHeader}
+                      onClick={() => setExpandedEpisode(expandedEpisode === ep.id ? null : ep.id)}
+                    >
+                      <span
+                        className={styles.outcomeTag}
+                        style={{ background: OUTCOME_COLORS[ep.outcome_type] ?? '#6b7280' }}
+                      >
+                        {ep.outcome_type}
+                      </span>
+                      <span className={styles.episodeSummary}>
+                        {ep.task_summary.slice(0, 55)}{ep.task_summary.length > 55 ? '…' : ''}
+                      </span>
+                      <span className={styles.episodeMeta}>
+                        {new Date(ep.created_at).toLocaleDateString()}
+                        {expandedEpisode === ep.id ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+                      </span>
+                    </button>
+                    {expandedEpisode === ep.id && (
+                      <div className={styles.episodeBody}>
+                        <div className={styles.episodeField}>
+                          <span className={styles.episodeFieldLabel}>Task</span>
+                          <span className={styles.episodeFieldValue}>{ep.task_summary}</span>
+                        </div>
+                        <div className={styles.episodeField}>
+                          <span className={styles.episodeFieldLabel}>Outcome</span>
+                          <span className={styles.episodeFieldValue}>{ep.outcome_summary}</span>
+                        </div>
+                        {ep.entities && ep.entities.length > 0 && (
+                          <div className={styles.entityTags}>
+                            {ep.entities.map((e) => (
+                              <span key={e} className={styles.entityTag}>{e}</span>
+                            ))}
+                          </div>
+                        )}
+                        {ep.was_acted_on !== null && (
+                          <div className={styles.actedOn}>
+                            {ep.was_acted_on ? '✓ acted on' : '✗ not acted on'}
+                          </div>
+                        )}
+                        <button
+                          className={styles.memoryDeleteBtn}
+                          onClick={() => {
+                            if (confirm('Delete this episode?')) deleteEpisodeMutation.mutate(ep.id);
+                          }}
+                          disabled={deleteEpisodeMutation.isPending}
+                        >
+                          <Trash2 size={11} /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
               )}
             </div>
-          ))
+
+            {/* Facts */}
+            <div className={styles.memorySection}>
+              <div className={styles.memorySectionLabel}>
+                Active Facts
+                <span className={styles.memoryCount}>{facts.length}</span>
+              </div>
+              {facts.length === 0 ? (
+                <div className={styles.historyEmpty}>No active facts yet</div>
+              ) : (
+                facts.map((fact) => (
+                  <div key={fact.id} className={styles.factCard}>
+                    <div className={styles.factTriple}>
+                      <span className={styles.factSubject}>{fact.subject}</span>
+                      <span className={styles.factRelation}>{fact.relation}</span>
+                      <span className={styles.factObject}>{fact.object}</span>
+                    </div>
+                    {fact.context && (
+                      <div className={styles.factContext}>{fact.context}</div>
+                    )}
+                    <div className={styles.factFooter}>
+                      <span className={styles.factConfidence}>
+                        {Math.round(fact.confidence * 100)}% confidence
+                      </span>
+                      <button
+                        className={styles.factInvalidateBtn}
+                        onClick={() => {
+                          if (confirm('Invalidate this fact?')) deleteFactMutation.mutate(fact.id);
+                        }}
+                        disabled={deleteFactMutation.isPending}
+                        title="Invalidate fact"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          </div>
         )}
       </div>
     </div>

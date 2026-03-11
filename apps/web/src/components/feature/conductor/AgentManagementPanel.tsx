@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw } from 'lucide-react';
+import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw, CheckCircle2, X } from 'lucide-react';
 import Link from 'next/link';
 import styles from './AgentManagementPanel.module.css';
 import { AgentChatPanel } from './AgentChatPanel';
+import { useDiscoveryStore } from '@/components/feature/workflow/discovery-store';
+import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
 
 interface SpecialistAgent {
   id: string;
@@ -41,6 +43,8 @@ const PATTERN_LABELS: Record<string, string> = {
 export function AgentManagementPanel() {
   const queryClient = useQueryClient();
   const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent | null>(null);
+  const [runBanner, setRunBanner] = useState<string | null>(null);
+  const setActiveTab = useDiscoveryStore(s => s.setActiveTab);
 
   const { data: agents = [], isLoading: loadingAgents, refetch: refetchAgents } = useQuery({
     queryKey: ['admin-agents'],
@@ -95,12 +99,28 @@ export function AgentManagementPanel() {
       });
       return team.name;
     },
-    onSuccess: () => alert('Team run started. Check run history for results.'),
+    onSuccess: (teamName) => {
+      setRunBanner(teamName);
+      setTimeout(() => setRunBanner(null), 12_000);
+    },
   });
 
   return (
     <div className={styles.outer}>
     <div className={styles.container}>
+      {runBanner && (
+        <div className={styles.runBanner}>
+          <CheckCircle2 size={14} className={styles.bannerIcon} />
+          <span><strong>{runBanner}</strong> run complete —</span>
+          <button className={styles.bannerLink} onClick={() => setActiveTab('simulation' as DiscoveryTab)}>
+            View output in Simulation →
+          </button>
+          <button className={styles.bannerClose} onClick={() => setRunBanner(null)}>
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
       {/* ── Agents Registry ── */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>

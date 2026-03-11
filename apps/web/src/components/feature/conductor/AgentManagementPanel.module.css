@@ -216,6 +216,7 @@
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -225,4 +226,39 @@
   color: var(--color-text-light, #6b7280);
   margin-top: auto;
   padding-top: 0.25rem;
+}
+
+/* Run complete banner */
+.runBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #15803d;
+}
+.bannerIcon { flex-shrink: 0; color: #16a34a; }
+.bannerLink {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary, #006c67);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.bannerLink:hover { color: var(--color-primary-hover, #005a55); }
+.bannerClose {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #16a34a;
+  padding: 0;
 }

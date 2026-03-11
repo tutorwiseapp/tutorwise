@@ -1,7 +1,10 @@
 # Conductor v3 — Architecture Audit
 
+> ⚠️ **Superseded** — This audit was conducted against the v3 design (2026-03-07). All critical gaps identified here have been resolved in `conductor-solution-design.md` v4.1 (current). Retained as historical record only.
+
 **Date**: 2026-03-07
-**Document audited**: `conductor-solution-design-v3.md`
+**Document audited**: `conductor-solution-design.md` (was `conductor-solution-design-v3.md` at audit time)
+**Status**: Superseded by v4.1 — all gaps resolved
 
 ---
 

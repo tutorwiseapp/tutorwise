@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`retention-intelligence-spec.md`](./retention-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`retention-intelligence-spec.md`](./retention-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: An organisation on Tutorwise is worth 5–10x a solo tutor in LTV — it brings an entire tutor network onto the platform, creates compounding referral effects, and generates delegation revenue through agents. Without Conductor intelligence, high-value solo operators who are ready to become org founders are never identified or nudged. This spec defines how Conductor converts the platform's most productive solo tutors and agents into organisation creators.
 

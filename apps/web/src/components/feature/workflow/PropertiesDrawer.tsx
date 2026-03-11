@@ -385,7 +385,7 @@ export function PropertiesDrawer({
                       className={styles.input}
                       value={(handlerConfig.team_slug as string) || ''}
                       onChange={(e) => handleConfigFieldChange('team_slug', e.target.value)}
-                      placeholder="e.g., cas-team"
+                      placeholder="e.g., devops-team"
                     />
                   </div>
                   <div className={styles.field}>

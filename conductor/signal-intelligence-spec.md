@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **See also**: The Content Intelligence Loop (§9) describes how Resources, SEO, and Signal form a single unified pipeline in Conductor — the most powerful way to deploy all three features.
 

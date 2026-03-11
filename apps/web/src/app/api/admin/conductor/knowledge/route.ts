@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { generateEmbeddingForStorage } from '@/lib/services/embeddings';
 
 export const dynamic = 'force-dynamic';
@@ -14,10 +14,11 @@ export const dynamic = 'force-dynamic';
 /** GET /api/admin/conductor/knowledge — list all chunks */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const authClient = await createClient();
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const supabase = await createServiceRoleClient();
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
 
@@ -46,9 +47,11 @@ export async function GET(request: NextRequest) {
 /** POST /api/admin/conductor/knowledge — create chunk + generate embedding */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const authClient = await createClient();
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const supabase = await createServiceRoleClient();
 
     const body = await request.json();
     const { title, content, category, source_ref, tags } = body;

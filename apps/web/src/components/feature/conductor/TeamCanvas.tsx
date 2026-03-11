@@ -16,6 +16,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useQuery } from '@tanstack/react-query';
 import { Bot, Play, Flag, Users, StickyNote, RefreshCw, X, Info, ArrowRight } from 'lucide-react';
+import { UnifiedSelect } from '@/app/components/ui/forms';
 import dagre from '@dagrejs/dagre';
 import { CanvasNode, FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasNodeActionsContext, CanvasContextMenu } from '@/components/feature/canvas';
 import type { CanvasNodeProps, ContextMenuItem } from '@/components/feature/canvas';
@@ -322,8 +323,8 @@ export function TeamCanvas({ executionState }: TeamCanvasProps) {
     return teams.find((t) => t.id === selectedTeamId) ?? teams[0];
   }, [teams, selectedTeamId]);
 
-  // CAS live status — poll every 12s, only active when CAS built-in team is shown
-  const isCasTeam = selectedTeam?.built_in === true && selectedTeam?.slug === 'cas-team';
+  // DevOps Team live status — poll every 12s, only active when DevOps built-in team is shown
+  const isCasTeam = selectedTeam?.built_in === true && selectedTeam?.slug === 'devops-team';
   const { data: casStatus } = useQuery({
     queryKey: ['cas-agent-status'],
     queryFn: fetchCasStatus,
@@ -483,47 +484,37 @@ export function TeamCanvas({ executionState }: TeamCanvasProps) {
 
         <Panel position="top-left">
           <div className={styles.toolbar}>
-            <select
-              className={styles.teamSelect}
+            <UnifiedSelect
+              size="sm"
               value={selectedTeam?.id ?? ''}
-              onChange={(e) => {
-                setSelectedTeamId(e.target.value);
+              onChange={(v) => {
+                setSelectedTeamId(String(v));
                 setDrawerNode(null);
               }}
-            >
-              {spaces && spaces.length > 0 ? (
-                <>
-                  {spaces.map((space) => {
-                    const spaceTeams = teams.filter((t) => t.space_id === space.id);
-                    if (spaceTeams.length === 0) return null;
-                    return (
-                      <optgroup key={space.id} label={space.name}>
-                        {spaceTeams.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name}{t.built_in ? ' ★' : ''}
-                          </option>
-                        ))}
-                      </optgroup>
-                    );
-                  })}
-                  {teams.filter((t) => !t.space_id).length > 0 && (
-                    <optgroup label="Unassigned">
-                      {teams.filter((t) => !t.space_id).map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}{t.built_in ? ' ★' : ''}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </>
-              ) : (
-                teams.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}{t.built_in ? ' ★' : ''}
-                  </option>
-                ))
-              )}
-            </select>
+              placeholder="Select a team…"
+              options={
+                spaces && spaces.length > 0
+                  ? [
+                      ...spaces.flatMap((space) => {
+                        const spaceTeams = teams.filter((t) => t.space_id === space.id);
+                        return spaceTeams.map((t) => ({
+                          value: t.id,
+                          label: `${space.name} / ${t.name}`,
+                        }));
+                      }),
+                      ...teams
+                        .filter((t) => !t.space_id)
+                        .map((t) => ({
+                          value: t.id,
+                          label: `Unassigned / ${t.name}`,
+                        })),
+                    ]
+                  : teams.map((t) => ({
+                      value: t.id,
+                      label: t.name,
+                    }))
+              }
+            />
 
             {patternLabel && (
               <span className={`${styles.patternBadge} ${patternClass}`}>
@@ -532,7 +523,7 @@ export function TeamCanvas({ executionState }: TeamCanvasProps) {
             )}
 
             {isCasTeam && (
-              <span className={styles.liveBadge} title="Polling CAS runtime every 12s">
+              <span className={styles.liveBadge} title="Polling DevOps Team agent status every 12s">
                 <span className={styles.liveDot} />
                 Live
               </span>

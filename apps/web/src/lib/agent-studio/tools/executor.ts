@@ -1084,7 +1084,20 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
   },
 };
 
-export async function executeTool(slug: string, input: Record<string, unknown>): Promise<unknown> {
+export async function executeTool(
+  slug: string,
+  input: Record<string, unknown>,
+  context?: { profileId?: string; agentSlug?: string; runId?: string }
+): Promise<unknown> {
+  // MCP tool — namespaced with ':'  (e.g. 'jira:jira_listIssues')
+  if (slug.includes(':')) {
+    const { getMCPClientManager } = await import('@/lib/mcp/MCPClientManager');
+    const [connectionSlug, ...toolParts] = slug.split(':');
+    const toolName = toolParts.join(':');
+    return getMCPClientManager().callTool(connectionSlug, toolName, input, context);
+  }
+
+  // Built-in tool
   const fn = TOOL_EXECUTORS[slug];
   if (!fn) throw new Error(`Unknown tool: ${slug}`);
   return fn(input);

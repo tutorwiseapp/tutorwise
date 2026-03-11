@@ -4,7 +4,7 @@
 **Date:** March 2, 2026
 **Owner:** Michael Quan
 **Status:** Draft — Pending Review
-**Parent Document:** `fuchsia/process-studio-solution-design.md`
+**Parent Document:** `conductor/conductor-solution-design.md (supersedes fuchsia/process-studio-solution-design.md, deleted)`
 
 ### Revision History
 
@@ -110,7 +110,7 @@ Today, TutorWise has **26+ status-based state machines, 300 API routes, 10 cron 
 - Users stay in the same context when switching between discovery and design
 - "Import to Canvas" seamlessly loads into the adjacent canvas
 - Follows the existing `HubTabs` pattern (underline style tabs)
-- No new route needed — same `/admin/process-studio` page
+- No new route needed — same `/admin/conductor` page
 
 ### 3.5 Implementation Approach — Phased
 
@@ -197,12 +197,12 @@ Today, TutorWise has **26+ status-based state machines, 300 API routes, 10 cron 
 **Implementation:**
 ```
 Client triggers scan:
-  POST /api/process-studio/discovery/scan { sourceTypes: ['status_enum'] }
-  POST /api/process-studio/discovery/scan { sourceTypes: ['cas_workflow'] }
-  POST /api/process-studio/discovery/scan { sourceTypes: ['cron_job'] }
-  POST /api/process-studio/discovery/scan { sourceTypes: ['onboarding'] }
-  POST /api/process-studio/discovery/scan { sourceTypes: ['api_route'] }
-  POST /api/process-studio/discovery/scan { sourceTypes: ['db_trigger'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['status_enum'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['cas_workflow'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['cron_job'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['onboarding'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['api_route'] }
+  POST /api/workflow/discovery/scan { sourceTypes: ['db_trigger'] }
 
   → 6 parallel requests, each within Vercel timeout
   → Results appear progressively as each completes
@@ -703,7 +703,7 @@ scanner/
 └── types.ts                    # Scanner-specific types
 ```
 
-**Location:** `apps/web/src/lib/process-studio/scanner/`
+**Location:** `apps/web/src/lib/workflow/scanner/`
 
 ### 7.2 Scanner Interface
 
@@ -765,7 +765,7 @@ type DiscoveryAnalysisState = 'preview' | 'analysed' | 'direct_mapped';
 The AI analyzer converts raw discoveries into ProcessNode[]/ProcessEdge[] graphs:
 
 ```typescript
-// apps/web/src/lib/process-studio/scanner/ai-analyzer.ts
+// apps/web/src/lib/workflow/scanner/ai-analyzer.ts
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -810,7 +810,7 @@ async function analyzeToWorkflow(rawContent: string, context: string): Promise<{
 }
 ```
 
-**Shared utilities reused from `apps/web/src/app/api/process-studio/parse/route.ts`:**
+**Shared utilities reused from `apps/web/src/app/api/workflow/parse/route.ts`:**
 - `validateWorkflow()` — validates node/edge structure
 - `toReactFlowFormat()` — converts to ReactFlow format with positions
 - `VALID_TYPES` set — validates node types
@@ -826,7 +826,7 @@ async function analyzeToWorkflow(rawContent: string, context: string): Promise<{
 ### 7.5 Scanner Orchestrator
 
 ```typescript
-// apps/web/src/lib/process-studio/scanner/index.ts
+// apps/web/src/lib/workflow/scanner/index.ts
 
 class ScannerService {
   private scanners: Map<SourceType, SourceScanner>;
@@ -904,7 +904,7 @@ class ScannerService {
 ### 7.6 Template Overlap Detector
 
 ```typescript
-// apps/web/src/lib/process-studio/scanner/overlap-detector.ts
+// apps/web/src/lib/workflow/scanner/overlap-detector.ts
 
 interface TemplateOverlap {
   templateId: string;
@@ -952,25 +952,25 @@ async function detectOverlap(
 
 ### 8.1 Discovery Routes
 
-**Base path:** `/api/process-studio/discovery/`
+**Base path:** `/api/workflow/discovery/`
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/process-studio/discovery` | List all discovery results (with filters) |
-| `POST` | `/api/process-studio/discovery/scan` | Trigger Pass 1 scan (per source type) |
-| `POST` | `/api/process-studio/discovery/[id]/analyse` | Trigger Pass 2 AI analysis for one result |
-| `POST` | `/api/process-studio/discovery/analyse-batch` | Trigger Pass 2 AI analysis for multiple results |
-| `GET` | `/api/process-studio/discovery/scans` | List scan history |
-| `POST` | `/api/process-studio/discovery/[id]/import` | Import single result to canvas / saved process |
-| `POST` | `/api/process-studio/discovery/import-batch` | Import selected results as saved processes |
-| `POST` | `/api/process-studio/discovery/[id]/update-template` | Auto-update an outdated template from discovery |
-| `PATCH` | `/api/process-studio/discovery/[id]` | Update result (e.g., dismiss) |
-| `DELETE` | `/api/process-studio/discovery/[id]` | Delete a discovery result |
+| `GET` | `/api/workflow/discovery` | List all discovery results (with filters) |
+| `POST` | `/api/workflow/discovery/scan` | Trigger Pass 1 scan (per source type) |
+| `POST` | `/api/workflow/discovery/[id]/analyse` | Trigger Pass 2 AI analysis for one result |
+| `POST` | `/api/workflow/discovery/analyse-batch` | Trigger Pass 2 AI analysis for multiple results |
+| `GET` | `/api/workflow/discovery/scans` | List scan history |
+| `POST` | `/api/workflow/discovery/[id]/import` | Import single result to canvas / saved process |
+| `POST` | `/api/workflow/discovery/import-batch` | Import selected results as saved processes |
+| `POST` | `/api/workflow/discovery/[id]/update-template` | Auto-update an outdated template from discovery |
+| `PATCH` | `/api/workflow/discovery/[id]` | Update result (e.g., dismiss) |
+| `DELETE` | `/api/workflow/discovery/[id]` | Delete a discovery result |
 
 ### 8.2 Scan Trigger Endpoint (Per-Source)
 
 ```typescript
-// POST /api/process-studio/discovery/scan
+// POST /api/workflow/discovery/scan
 // Called once per source type to stay within Vercel timeout limits.
 // Client sends 6 parallel requests for a full scan.
 
@@ -993,7 +993,7 @@ interface ScanResponse {
 ### 8.2b Analyse Endpoint (Pass 2 — AI On Demand)
 
 ```typescript
-// POST /api/process-studio/discovery/[id]/analyse
+// POST /api/workflow/discovery/[id]/analyse
 // Triggers Gemini AI analysis for a single unanalysed discovery result.
 
 interface AnalyseResponse {
@@ -1013,7 +1013,7 @@ interface AnalyseResponse {
 ### 8.2c Update Template Endpoint
 
 ```typescript
-// POST /api/process-studio/discovery/[id]/update-template
+// POST /api/workflow/discovery/[id]/update-template
 // Auto-updates an existing template with discovered workflow's nodes/edges.
 
 interface UpdateTemplateResponse {
@@ -1030,7 +1030,7 @@ interface UpdateTemplateResponse {
 ### 8.3 Import Endpoint
 
 ```typescript
-// POST /api/process-studio/discovery/[id]/import
+// POST /api/workflow/discovery/[id]/import
 
 interface ImportResponse {
   success: boolean;
@@ -1048,7 +1048,7 @@ interface ImportResponse {
 ### 8.4 Batch Import Endpoint (Selective)
 
 ```typescript
-// POST /api/process-studio/discovery/import-batch
+// POST /api/workflow/discovery/import-batch
 
 interface BatchImportRequest {
   discoveryIds: string[];     // Selected IDs to import (from checkbox selection)
@@ -1068,7 +1068,7 @@ interface BatchImportResponse {
 ### 8.5 List Discovery Results Endpoint
 
 ```typescript
-// GET /api/process-studio/discovery?source_type=cron_job&confidence=high&status=discovered
+// GET /api/workflow/discovery?source_type=cron_job&confidence=high&status=discovered
 
 interface DiscoveryListResponse {
   success: boolean;
@@ -1098,7 +1098,7 @@ All discovery routes require admin authentication via `is_admin()`.
 ### 9.1 File Structure
 
 ```
-apps/web/src/components/feature/process-studio/
+apps/web/src/components/feature/workflow/
 ├── (existing files — unchanged)
 ├── DiscoveryPanel.tsx              # Main discovery panel
 ├── DiscoveryPanel.module.css       # Panel styles
@@ -1185,7 +1185,7 @@ Each card shows:
 
 ### 9.4 DiscoveryToolbar
 
-- **Refresh button**: Triggers `POST /api/process-studio/discovery/scan`
+- **Refresh button**: Triggers `POST /api/workflow/discovery/scan`
 - **Scan status**: "Scanning..." with spinner during active scan, "Last scan: X min ago" when idle
 - **Source filter**: Dropdown to filter by source type (All / Status Enums / Cron Jobs / Onboarding / CAS / API Routes / DB Triggers)
 - **Confidence filter**: Dropdown to filter by confidence level (All / High / Medium / Low)
@@ -1220,7 +1220,7 @@ Each card shows:
 The discovery state is added as a **separate Zustand store** (not merged into the existing `useProcessStudioStore`) to maintain separation of concerns:
 
 ```typescript
-// apps/web/src/components/feature/process-studio/discovery-store.ts
+// apps/web/src/components/feature/workflow/discovery-store.ts
 
 import { create } from 'zustand';
 import type { DiscoveryResult, SourceType, ConfidenceLevel, TemplateOverlap } from './discovery-types';
@@ -1280,11 +1280,11 @@ interface DiscoveryStore {
 
 ```typescript
 // Server state — discovery operations
-useDiscoveryListQuery()                    // GET /api/process-studio/discovery
-useDiscoveryScanMutation()                 // POST /api/process-studio/discovery/scan
-useDiscoveryImportMutation(id)             // POST /api/process-studio/discovery/[id]/import
-useDiscoveryBatchImportMutation()          // POST /api/process-studio/discovery/import-batch
-useDiscoveryDismissMutation(id)            // PATCH /api/process-studio/discovery/[id]
+useDiscoveryListQuery()                    // GET /api/workflow/discovery
+useDiscoveryScanMutation()                 // POST /api/workflow/discovery/scan
+useDiscoveryImportMutation(id)             // POST /api/workflow/discovery/[id]/import
+useDiscoveryBatchImportMutation()          // POST /api/workflow/discovery/import-batch
+useDiscoveryDismissMutation(id)            // PATCH /api/workflow/discovery/[id]
 ```
 
 ---
@@ -1383,7 +1383,7 @@ Client (Discovery Panel):
 
 ### 12.1 Page-Level Changes
 
-The only existing file modified is the Process Studio **page** (`apps/web/src/app/(admin)/admin/process-studio/page.tsx`):
+The only existing file modified is the Process Studio **page** (`apps/web/src/app/(admin)/admin/conductor/page.tsx`):
 
 ```typescript
 // Existing tab structure
@@ -1428,9 +1428,9 @@ The following utilities from the existing parse route are extracted to a shared 
 
 | Utility | Current Location | Shared Location |
 |---------|-----------------|----------------|
-| `validateWorkflow()` | `parse/route.ts` | `lib/process-studio/validation.ts` |
-| `toReactFlowFormat()` | `parse/route.ts` | `lib/process-studio/format.ts` |
-| `VALID_TYPES` | `parse/route.ts` | `lib/process-studio/constants.ts` |
+| `validateWorkflow()` | `parse/route.ts` | `lib/workflow/validation.ts` |
+| `toReactFlowFormat()` | `parse/route.ts` | `lib/workflow/ (format utilities)` |
+| `VALID_TYPES` | `parse/route.ts` | `lib/workflow/ (constants)` |
 
 This extraction is a **refactor** that moves code without changing behaviour. The parse route imports from the shared location.
 
@@ -1445,19 +1445,19 @@ This extraction is a **refactor** that moves code without changing behaviour. Th
 | Task | Files | Effort |
 |------|-------|--------|
 | Create `workflow_discovery_results` + `workflow_discovery_scans` tables | `tools/database/migrations/334_create_workflow_discovery.sql` | Small |
-| Extract shared validation utilities from parse route | `lib/process-studio/validation.ts`, `lib/process-studio/format.ts` | Small |
-| Create scanner types and interface (two-pass, isStructured) | `lib/process-studio/scanner/types.ts` | Small |
-| Create CAS workflow scanner (direct mapping) | `lib/process-studio/scanner/sources/cas-workflow-scanner.ts` | Medium |
-| Create status enum scanner (direct mapping) | `lib/process-studio/scanner/sources/status-enum-scanner.ts` | Medium |
-| Create onboarding scanner (direct mapping) | `lib/process-studio/scanner/sources/onboarding-scanner.ts` | Medium |
-| Create template overlap detector | `lib/process-studio/scanner/overlap-detector.ts` | Medium |
-| Create scanner service orchestrator (per-source) | `lib/process-studio/scanner/index.ts` | Medium |
-| Create discovery API routes (list, scan, import, batch, dismiss, update-template) | `app/api/process-studio/discovery/` | Medium |
-| Create DiscoveryCard component (with checkbox, state badges, template overlap) | `components/feature/process-studio/DiscoveryCard.tsx` | Medium |
-| Create DiscoveryToolbar component (refresh, filters, select all, progress) | `components/feature/process-studio/DiscoveryToolbar.tsx` | Small |
-| Create DiscoveryPanel component (domain grouping, batch bar) | `components/feature/process-studio/DiscoveryPanel.tsx` | Medium |
-| Create discovery Zustand store (selection, progress, overlaps) | `components/feature/process-studio/discovery-store.ts` | Medium |
-| Add Discovery tab to Process Studio page | `app/(admin)/admin/process-studio/page.tsx` | Small |
+| Extract shared validation utilities from parse route | `lib/workflow/validation.ts`, `lib/workflow/ (format utilities)` | Small |
+| Create scanner types and interface (two-pass, isStructured) | `lib/workflow/scanner/types.ts` | Small |
+| Create CAS workflow scanner (direct mapping) | `lib/workflow/scanner/sources/cas-workflow-scanner.ts` | Medium |
+| Create status enum scanner (direct mapping) | `lib/workflow/scanner/sources/status-enum-scanner.ts` | Medium |
+| Create onboarding scanner (direct mapping) | `lib/workflow/scanner/sources/onboarding-scanner.ts` | Medium |
+| Create template overlap detector | `lib/workflow/scanner/overlap-detector.ts` | Medium |
+| Create scanner service orchestrator (per-source) | `lib/workflow/scanner/index.ts` | Medium |
+| Create discovery API routes (list, scan, import, batch, dismiss, update-template) | `app/api/workflow/discovery/` | Medium |
+| Create DiscoveryCard component (with checkbox, state badges, template overlap) | `components/feature/workflow/DiscoveryCard.tsx` | Medium |
+| Create DiscoveryToolbar component (refresh, filters, select all, progress) | `components/feature/workflow/DiscoveryToolbar.tsx` | Small |
+| Create DiscoveryPanel component (domain grouping, batch bar) | `components/feature/workflow/DiscoveryPanel.tsx` | Medium |
+| Create discovery Zustand store (selection, progress, overlaps) | `components/feature/workflow/discovery-store.ts` | Medium |
+| Add Discovery tab to Process Studio page | `app/(admin)/admin/conductor/page.tsx` | Small |
 
 **Deliverable:** Users click "Refresh", see CAS workflows + status enums + onboarding flows discovered instantly (no AI wait), select checkboxes, and import selected to canvas. Outdated templates flagged with [Update Template] action.
 
@@ -1467,11 +1467,11 @@ This extraction is a **refactor** that moves code without changing behaviour. Th
 
 | Task | Files | Effort |
 |------|-------|--------|
-| Create AI analyzer (Gemini integration) | `lib/process-studio/scanner/ai-analyzer.ts` | Medium |
-| Create cron job scanner (Pass 1 preview + Pass 2 AI) | `lib/process-studio/scanner/sources/cron-job-scanner.ts` | Medium |
-| Create API route scanner (Pass 1 preview + Pass 2 AI) | `lib/process-studio/scanner/sources/api-route-scanner.ts` | Large |
-| Create analyse API endpoint (Pass 2 trigger) | `app/api/process-studio/discovery/[id]/analyse/route.ts` | Small |
-| Create analyse-batch API endpoint | `app/api/process-studio/discovery/analyse-batch/route.ts` | Small |
+| Create AI analyzer (Gemini integration) | `lib/workflow/scanner/ai-analyzer.ts` | Medium |
+| Create cron job scanner (Pass 1 preview + Pass 2 AI) | `lib/workflow/scanner/sources/cron-job-scanner.ts` | Medium |
+| Create API route scanner (Pass 1 preview + Pass 2 AI) | `lib/workflow/scanner/sources/api-route-scanner.ts` | Large |
+| Create analyse API endpoint (Pass 2 trigger) | `app/api/workflow/discovery/[id]/analyse/route.ts` | Small |
+| Create analyse-batch API endpoint | `app/api/workflow/discovery/analyse-batch/route.ts` | Small |
 | Add "Analyse" and "Analyse All" buttons to UI | Update `DiscoveryCard.tsx`, `DiscoveryToolbar.tsx` | Small |
 | Add source type and confidence filters | Update `DiscoveryToolbar.tsx` | Small |
 
@@ -1483,7 +1483,7 @@ This extraction is a **refactor** that moves code without changing behaviour. Th
 
 | Task | Files | Effort |
 |------|-------|--------|
-| Create DB trigger scanner | `lib/process-studio/scanner/sources/db-trigger-scanner.ts` | Medium |
+| Create DB trigger scanner | `lib/workflow/scanner/sources/db-trigger-scanner.ts` | Medium |
 | Add scan history UI | Update `DiscoveryPanel.tsx` | Small |
 | Enhance AI prompts for better confidence scoring | Update `ai-analyzer.ts` | Medium |
 | Add deduplication hints (cross-scanner relationship detection) | Update scanner service | Medium |
@@ -1659,11 +1659,11 @@ This extraction is a **refactor** that moves code without changing behaviour. Th
 
 | Document | Location | Relevance |
 |----------|----------|-----------|
-| Process Studio Solution Design | `fuchsia/process-studio-solution-design.md` | Parent document — architecture, types, conventions |
-| Process Studio Types | `apps/web/src/components/feature/process-studio/types.ts` | ProcessNode, ProcessEdge, ProcessStepData |
-| Process Studio Store | `apps/web/src/components/feature/process-studio/store.ts` | Existing Zustand store pattern |
+| Process Studio Solution Design | `conductor/conductor-solution-design.md (supersedes fuchsia/process-studio-solution-design.md, deleted)` | Parent document — architecture, types, conventions |
+| Process Studio Types | `apps/web/src/components/feature/workflow/types.ts` | ProcessNode, ProcessEdge, ProcessStepData |
+| Process Studio Store | `apps/web/src/components/feature/workflow/store.ts` | Existing Zustand store pattern |
 | Connections Realtime Hook | `apps/web/src/app/hooks/useConnectionsRealtime.tsx` | Supabase Realtime subscription pattern |
-| Parse Route | `apps/web/src/app/api/process-studio/parse/route.ts` | Gemini AI + validation utilities |
+| Parse Route | `apps/web/src/app/api/workflow/parse/route.ts` | Gemini AI + validation utilities |
 | CAS Code Scanner | `cas/agents/analyst/src/modules/code-scanner.ts` | Glob-based file scanning pattern |
 | Status Types | `apps/web/src/types/index.ts` | Status enums to discover |
 | CAS Workflows | `cas/packages/core/src/workflows/TutorWiseWorkflows.ts` | WorkflowDefinition objects |

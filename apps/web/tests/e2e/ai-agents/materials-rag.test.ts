@@ -34,12 +34,12 @@ async function createTestAITutor() {
   await supabase
     .from('profiles')
     .update({ caas_score: 80 })
-    .eq('id', authUser.user.id);
+    .eq('id', authUser.user!.id);
 
   const { data: aiTutor } = await supabase
     .from('ai_agents')
     .insert({
-      owner_id: authUser.user.id,
+      owner_id: authUser.user!.id,
       display_name: 'Test RAG Tutor',
       subject: 'Mathematics',
       description: 'Test tutor for RAG',
@@ -51,7 +51,7 @@ async function createTestAITutor() {
     .single();
 
   return {
-    ownerId: authUser.user.id,
+    ownerId: authUser.user!.id,
     aiAgentId: aiTutor!.id,
     email,
   };

@@ -15,7 +15,7 @@
 | 3.1 | 2026-03-03 | Renamed Deploy → Execution throughout; tab label confirmed as "Execution"; file renamed to process-execution-solution-design.md; closed IWorkflowRuntime gap |
 | 3.2 | 2026-03-03 | Major revision: corrected priority ordering (Tutor Approval first, Booking Lifecycle in shadow); removed EduPay from all handler definitions; renamed commission.payout → commission.create; split Booking Lifecycle into Human Tutor + AI Tutor templates; added Referral Attribution as subprocess; added Shadow Mode section; added operator abstraction notes |
 
-**Parent Document:** `fuchsia/process-studio-solution-design.md`
+**Parent Document:** `conductor/conductor-solution-design.md` *(supersedes `fuchsia/process-studio-solution-design.md`, deleted)*
 
 ---
 
@@ -318,7 +318,7 @@ The compiler walks the `ProcessEdge[]` array to build the graph topology dynamic
 
 The registry maps the `handler` string on a node to a real integration function. This is the layer that makes action nodes actually *do* something.
 
-**`ProcessStepData` extension** (addition to existing type in `apps/web/src/components/feature/process-studio/types.ts`):
+**`ProcessStepData` extension** (addition to existing type in `apps/web/src/components/feature/workflow/types.ts`):
 
 ```typescript
 interface ProcessStepData {
@@ -389,7 +389,7 @@ Nodes do not all complete synchronously. The `completion_mode` field on each nod
 4. LangGraph Checkpoint persists state; execution suspends
 5. Stripe fires POST /api/webhooks/stripe
 6. Webhook handler looks up workflow_tasks by payment_intent_id
-7. Calls POST /api/admin/process-studio/execute/[threadId]/resume
+7. Calls POST /api/admin/workflow/execute/[threadId]/resume
 8. Runtime reloads checkpoint and continues to next node
 ```
 
@@ -401,7 +401,7 @@ Nodes do not all complete synchronously. The `completion_mode` field on each nod
 3. LangGraph Checkpoint persists state; execution suspends
 4. AI Tutor runs the session — student + AI interact
 5. Session end fires Supabase Realtime event on workflow_tasks
-6. Realtime handler calls POST /api/admin/process-studio/execute/[threadId]/resume
+6. Realtime handler calls POST /api/admin/workflow/execute/[threadId]/resume
 7. Runtime reloads checkpoint, passes { session_duration, outcome } into context
 8. Continues to review.request node
 ```
@@ -522,7 +522,7 @@ CREATE INDEX idx_ckb_embedding ON cas_knowledge_base
 
 ## 7. API Routes
 
-**Base path:** `/api/admin/process-studio/execute/`
+**Base path:** `/api/admin/workflow/execute/`
 
 All routes require admin authentication (`is_admin()` enforced via RLS on underlying tables). Placed under `/api/admin/` to match the existing admin API namespace.
 
@@ -541,7 +541,7 @@ All routes require admin authentication (`is_admin()` enforced via RLS on underl
 
 ## 8. Frontend: The Execution Tab
 
-**Location:** Third tab within `/admin/process-studio` — added to the existing `DiscoveryTab` union type:
+**Location:** Third tab within `/admin/conductor` — added to the existing `DiscoveryTab` union type:
 
 ```typescript
 // discovery-store.ts
@@ -675,7 +675,7 @@ Five phases. The first two go live immediately with zero payment risk. The Booki
 |----------|-----------|
 | `PlatformWorkflowRuntime` is separate from `LangGraphRuntime` | CAS runtime is production-critical and CAS-specific. Sharing a base class would require refactoring working code for zero benefit. |
 | `PlatformWorkflowRuntime` implements `IWorkflowRuntime`, not `AgentRuntimeInterface` | `AgentRuntimeInterface` is a 22-method contract built around CAS agent concepts (`agentId`, `registerAgent`, `listAgents`, `getAgentStatus`). None of those concepts apply to workflow execution. Implementing it would require ~15 stub methods that will never be called, creating a misleading contract. `IWorkflowRuntime` defines exactly the 4 methods the execution engine uses. Phase 5 observability integration uses direct writes to `cas_metrics_timeseries`, not a shared interface. |
-| API base path: `/api/admin/process-studio/execute/` | Matches admin API namespace. "Execute" is precise; "deploy" is already taken by Vercel deploys in the Engineer agent. |
+| API base path: `/api/admin/workflow/execute/` | Matches admin API namespace. "Execute" is precise; "deploy" is already taken by Vercel deploys in the Engineer agent. |
 | Execution is the third tab label, not a separate route | Consistent with Design/Discovery tab pattern. Zero new routing infrastructure. Tab value in store: `'execution'`. |
 | No `tenant_id` | Platform is single-tenant. Adding `tenant_id NOT NULL` with no reference target is not future-proofing — it is a broken column. Add in a dedicated SaaS migration when a `tenants` table exists. |
 | Idempotency keys enforced in `NodeHandlerRegistry` | Double-charging a student is a production incident. Idempotency cannot be left to individual handler implementations. |
@@ -702,7 +702,7 @@ These are estimates for **AI-assisted implementation** (Claude Code) — not hum
 | `WorkflowCompiler` — `ProcessNode[]` → `StateGraph<BusinessWorkflowState>` | `runtime/WorkflowCompiler.ts` | 2.0 |
 | `NodeHandlerRegistry` + Phase 1 handlers (`caas.score`, `rules.evaluate`, `profile.activate`, `notification.send`, `commission.query_available`, `stripe.validate_connect_account`, `stripe.connect_payout`) | `runtime/NodeHandlerRegistry.ts` + `handlers/*.ts` | 1.75 |
 | Idempotency enforcement for `stripe.connect_payout` | `handlers/stripe.ts` | 0.25 |
-| API routes: `/start`, `/[threadId]/resume`, `/task/[taskId]/complete`, `/[executionId]` (DELETE), `PATCH /[processId]/execution-mode` | `api/admin/process-studio/execute/` | 1.5 |
+| API routes: `/start`, `/[threadId]/resume`, `/task/[taskId]/complete`, `/[executionId]` (DELETE), `PATCH /[processId]/execution-mode` | `api/admin/conductor/execute/` | 1.5 |
 | Supabase Webhook trigger: `profiles.status → 'under_review'` → `/execute/start` | Supabase dashboard config + route handler | 0.5 |
 | Seed `Tutor Approval` + `Commission Payout` templates (`execution_mode = 'live'`) in migration 338 | migration SQL + seed data | 0.5 |
 | Disable `process-batch-payouts` cron when Commission Payout template goes live | `app/api/cron/process-batch-payouts/route.ts` | 0.25 |
@@ -720,7 +720,7 @@ These are estimates for **AI-assisted implementation** (Claude Code) — not hum
 | `ApprovalDrawer` component + AI recommendation via `getAIService()` | `ApprovalDrawer.tsx` | 1.0 |
 | Shadow mode toggle UI + divergence alert panel | `ExecutionModeToggle.tsx`, `ShadowDivergencePanel.tsx` | 1.0 |
 | NLI command bar + `POST /execute/command` route | `ExecutionCommandBar.tsx` + API route | 1.0 |
-| API routes: `GET /` (list), `GET /[executionId]` (detail) | `api/admin/process-studio/execute/` | 0.5 |
+| API routes: `GET /` (list), `GET /[executionId]` (detail) | `api/admin/conductor/execute/` | 0.5 |
 | **Phase 2 Total** | | **~8.0 h** |
 
 ### Phase 3 — Booking Lifecycle in Shadow Mode

@@ -1,0 +1,430 @@
+/* EvalPanel */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg-page, #fff);
+}
+
+/* ── Stats bar ────────────────────────────────────────────────────────────── */
+
+.statsBar {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-light, #f9fafb);
+  flex-shrink: 0;
+}
+
+.statCard {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 3px;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.agentPickerWrap {
+  flex: 1;
+  max-width: 380px;
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.runAllBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  background: var(--color-primary, #006c67);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.runAllBtn:hover:not(:disabled) { background: var(--color-primary-hover, #005a55); }
+.runAllBtn:disabled { opacity: 0.6; cursor: default; }
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.15s, color 0.15s;
+}
+.clearBtn:hover:not(:disabled) { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.clearBtn:disabled { opacity: 0.5; cursor: default; }
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-primary, #006c67);
+  border-radius: 7px;
+  background: none;
+  color: var(--color-primary, #006c67);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.addBtn:hover:not(:disabled) { background: var(--color-primary-light, #e6f0f0); }
+.addBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Add form ─────────────────────────────────────────────────────────────── */
+
+.addForm {
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.addFormTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+
+.addFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.labelHint {
+  font-weight: 400;
+  text-transform: none;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.textInput {
+  padding: 7px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-primary, #111827);
+  background: #fff;
+  font-family: inherit;
+}
+.textInput:focus { outline: none; border-color: var(--color-primary, #006c67); }
+
+.textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-primary, #111827);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  background: #fff;
+}
+.textarea:focus { outline: none; border-color: var(--color-primary, #006c67); }
+
+.addFormActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addSubmitBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 16px;
+  background: var(--color-primary, #006c67);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.addSubmitBtn:hover:not(:disabled) { background: var(--color-primary-hover, #005a55); }
+.addSubmitBtn:disabled { opacity: 0.6; cursor: default; }
+
+.cancelBtn {
+  background: none;
+  border: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary, #6b7280);
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cancelBtn:hover { border-color: var(--color-text-secondary, #6b7280); }
+
+/* ── Scrollable content ───────────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  min-height: 200px;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-align: center;
+  font-size: 14px;
+}
+
+.emptySub {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: -4px;
+}
+
+.addBtnLarge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 18px;
+  border: 1px solid var(--color-primary, #006c67);
+  border-radius: 7px;
+  background: none;
+  color: var(--color-primary, #006c67);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.addBtnLarge:hover { background: var(--color-primary-light, #e6f0f0); }
+
+/* ── Test case table ──────────────────────────────────────────────────────── */
+
+.caseTable {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.caseHeader,
+.caseRow {
+  display: grid;
+  grid-template-columns: 24px 1fr 200px 80px 80px 100px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+}
+
+.caseHeader {
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.caseRow {
+  border-bottom: 1px solid var(--color-bg-light, #f9fafb);
+  cursor: default;
+  transition: background 0.1s;
+}
+.caseRow:last-of-type { border-bottom: none; }
+.caseRow:hover { background: var(--color-bg-light, #f9fafb); }
+
+.caseStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.caseName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caseKeywords {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noKeywords {
+  color: var(--color-text-tertiary, #9ca3af);
+  font-style: italic;
+}
+
+.caseDuration {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-family: monospace;
+}
+
+.caseTime {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.caseActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.notRunDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border, #e5e7eb);
+  display: inline-block;
+}
+
+/* Row action buttons */
+.expandBtn,
+.runCaseBtn,
+.deleteCaseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.15s, color 0.15s;
+}
+.expandBtn:hover { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.runCaseBtn:hover:not(:disabled) { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.runCaseBtn:disabled { opacity: 0.5; cursor: default; }
+.deleteCaseBtn:hover { border-color: #fca5a5; color: #dc2626; }
+
+/* ── Expanded result row ──────────────────────────────────────────────────── */
+
+.caseExpanded {
+  padding: 12px 20px 14px;
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.keywordChecks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.kwCheck {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.kwFound {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.kwMissing {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.outputText {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-text-primary, #111827);
+  white-space: pre-wrap;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+/* ── Shared ───────────────────────────────────────────────────────────────── */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }

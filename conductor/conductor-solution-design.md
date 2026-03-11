@@ -1,7 +1,24 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 3.9 — Four additional Conductor use cases added: Retention/LTV Lifecycle, AI Product Adoption, Organisation Conversion, and AI Studio Creator Lifecycle; migrations 366–369; specs index expanded to 14 intelligence specs
-**Date**: 2026-03-09
-**Status**: Phased implementation plan
+**Version**: 4.2 — Phase 6 complete (TeamRuntime v2 + CAS soft-decommission + HITL + governance stubs); migrations 383–385 applied
+**Date**: 2026-03-11
+**Status**: Active platform — Phases 0–6 complete; Phase 7 = cas_* hard DELETE (eligible 2026-06-11); next architectural layer = Graphiti Memory
+
+> **Document Index — Conductor folder**
+>
+> | Document | Purpose |
+> |---|---|
+> | **This file** `conductor-solution-design.md` | Engineering implementation reference — all phases, API routes, DB schema, migrations |
+> | [`AI-Digital-Workforce-Blueprint.md`](./AI-Digital-Workforce-Blueprint.md) | Internal architecture reference — iPOM/DevOps isomorphism, vocabulary (Agent Registry, Digital Workforce, Digital Force, Conductor, Build Canvas) |
+> | [`publish/01-technical-white-paper.md`](./publish/01-technical-white-paper.md) | Enterprise-facing technical white paper (clean, no internal implementation details) |
+> | [`publish/02-investor-thesis.md`](./publish/02-investor-thesis.md) | Investor narrative — market timing, moat, flywheel, founder thesis |
+> | [`publish/00-publishing-plan.md`](./publish/00-publishing-plan.md) | Publishing plan — venues, remaining work checklist, messaging anchors |
+> | [`conductor-professional-assessment.md`](./conductor-professional-assessment.md) | Market comparison — Temporal, LangGraph, Camunda, n8n, CrewAI, Copilot Studio |
+> | [`conductor-gdpr-retention-policy.md`](./conductor-gdpr-retention-policy.md) | GDPR retention policy for Conductor data tables |
+> | [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md) | Growth Score formula for all 4 user roles |
+> | [`gtm-intelligence-spec.md`](./gtm-intelligence-spec.md) | GTM Lifecycle capstone spec — links all 6 stages + referral |
+> | 14 intelligence specs | Feature-level agent tools, metrics tables, pg_cron, admin panels — see [specs index](#feature-intelligence-specs-index) |
+> | [`process-execution-solution-design.md`](./process-execution-solution-design.md) | Workflow execution engine design (PlatformWorkflowRuntime, LangGraph, shadow/HITL) |
+> | [`process-discovery-solution-design.md`](./process-discovery-solution-design.md) | Process discovery design (4-phase scanner) |
 
 ---
 
@@ -214,20 +231,21 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 
 | Fuschia Module | Tutorwise Status | Verdict |
 |---------------|-----------------|---------|
-| **Workflow Designer** (ReactFlow canvas, node palette, templates) | 85% — missing node palette drag-to-create, edge labels, versioning | Fix gaps, keep foundation |
-| **Workflow Execution** (LangGraph, pause/resume, HITL) | **95% — Tutorwise AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer | Fuschia uses flat YAML; keep ours |
-| **Agent Designer** (visual canvas to design agent org, assign tools) | **15%** — CAS WorkflowVisualizer provides ReactFlow agent pipeline visualization; no general-purpose agent creation UI | Build Phase 2 on existing CAS canvas foundation |
-| **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | **0% → Phase 2** — Fuschia supports single topology; Tutorwise extends with 3 patterns + generic AgentTeamState + dynamic TeamRuntime | **Tutorwise will surpass Fuschia** — DB-configurable topology without code deploy |
-| **Agent Templates** (pre-built specialist team configs) | 0% | Build with Phase 2 |
-| **Tool Registry** (register/assign tools to agents from UI) | 0% — tools are hardcoded in TypeScript | Build with Phase 2 |
-| **Knowledge Module** (knowledge graph, data import) | 20% — hardcoded in agent prompts | Phase 3 |
-| **Analytics Module** (workflow analytics, agent performance) | 50% — execution tracking exists; no dashboard | Phase 3 |
-| **Monitoring Module** (real-time WebSocket agent thoughts, live status) | 60% — CAS dashboard exists; no real-time streaming | Phase 3 |
-| **Process Mining** (conformance checking, pattern detection) | **70% — Tutorwise AHEAD** — 4-phase code scanner; Fuschia's process mining is a placeholder UI | Enhance, don't replace |
-| **Intent Agent** (DSPy natural language → workflow/agent trigger) | 0% | Phase 4 |
-| **Value Streams** (end-to-end value delivery mapping) | 0% | Phase 4 / Roadmap |
-| **Graphiti Memory** (temporal episodic memory for agents) | 0% | Roadmap |
-| **MCP Integration** (Model Context Protocol tool bridge) | 0% | Roadmap |
+| **Workflow Designer** (ReactFlow canvas, node palette, templates) | ✅ **Complete** — 7 node types, drag-to-canvas palette, WorkflowCanvas, TemplateSelector, ChatPanel, auto-layout | Ahead — shadow/live promotion model exceeds Fuschia |
+| **Workflow Execution** (LangGraph, pause/resume, HITL) | ✅ **AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer, conformance checking | Fuschia uses flat YAML; our LangGraph approach is more powerful |
+| **Agent Designer** (visual canvas to design agent org, assign tools) | ✅ **Complete** — AgentManagementPanel, agent chat, BuildCanvas/BuildPropertiesDrawer | Build Canvas surpasses Fuschia — 3-level hierarchy (Space→Team→Agent) |
+| **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | ✅ **AHEAD** — TeamRuntime (native async/await — ⚠️ Phase 6 upgrades to LangGraph StateGraph), 3 patterns, DB-configurable topology, TeamCanvas | **Tutorwise surpasses Fuschia** — Phase 6 upgrades to correct LangGraph + PostgresSaver implementation |
+| **Agent Registry** (Agent Registry = Agents + Teams + Spaces) | ✅ **UNIQUE** — No Fuschia equivalent. iPOM hierarchy (Space→Team→Agent), 5 built-in spaces, 11 agents | Tutorwise-original architecture — see AI-Digital-Workforce-Blueprint.md |
+| **Build Canvas** (visual drag-and-drop org composer) | ✅ **UNIQUE** — BuildCanvas, BuildPalette (3-level drill), BuildPropertiesDrawer, build-store | No Fuschia equivalent. Inspired by Helm/Docker Compose for agent topologies |
+| **Tool Registry** (register/assign tools to agents from UI) | ✅ **Complete** — 24 tools in executor.ts, Tools tab at `/admin/conductor/agents/tools` | Live |
+| **Knowledge Module** (knowledge graph, data import) | ✅ **Complete** — KnowledgePanel, `platform_knowledge_chunks` (768-dim), 18 categories, RAG injection | Phase 4 complete |
+| **Analytics Module** (workflow analytics, agent performance) | ✅ **Complete** — IntelligencePanel (17 sub-tabs), 14 daily metrics tables, all pg_cron jobs live | Phase 3 complete |
+| **Monitoring Module** (real-time agent status, live monitoring) | ✅ **Complete** — MiningPanel, shadow vs live analytics, GoLiveReadiness, conformance deviations | Phase 5 complete |
+| **Process Mining** (conformance checking, pattern detection) | ✅ **AHEAD** — ConformanceChecker, `conformance_deviations` table, shadow-reconcile cron, promote workflow | Phase 5 complete |
+| **Intent Agent** (natural language → workflow/agent trigger) | ✅ **Complete** — IntentDetector (`lib/conductor/IntentDetector.ts`), ExecutionCommandBar routing | Phase 4 complete |
+| **Value Streams** (end-to-end value delivery mapping) | Roadmap | Covered partially by GTM Lifecycle (6-stage funnel) |
+| **Graphiti Memory** (temporal episodic memory for agents) | Roadmap | Next architectural layer — see AI-Digital-Workforce-Blueprint.md roadmap |
+| **MCP Integration** (Model Context Protocol tool bridge) | Roadmap | Natural extension of Tool Registry |
 
 ---
 
@@ -449,21 +467,41 @@ CONDUCTOR — WORKFLOW INVENTORY
 | **AI Agent Studio** | Marketplace AI agents (student/client-facing) | Lifecycle events (`agent.created`, `agent.published`) |
 | **Admin Command Center** | Human interface for the autonomous platform | Exception queue consumer + HITL approval interface |
 
-### What's Already Built (Do Not Rebuild)
+### What's Built — All Phases Complete (v4.0)
 
-| Item | Location | Status |
-|------|----------|--------|
-| Conductor designer (ReactFlow) | `apps/web/src/components/feature/workflow/` | ✅ Live |
-| 7 node types + 11 handlers | `workflow/handlers/` | ✅ Live |
-| PlatformWorkflowRuntime (LangGraph) | `apps/web/src/lib/workflow/runtime/` | ✅ Live |
-| LangGraph PostgreSQL checkpointing | `cas-checkpointer.ts` | ✅ Live |
-| HITL ApprovalDrawer | `workflow/components/` | ✅ Live |
-| Shadow mode (design/shadow/live) | `workflow_processes.execution_mode` | ✅ Live |
-| Process Discovery (4 phases) | `workflow/discovery/` | ✅ Live |
-| CAS WorkflowVisualizer (ReactFlow) | `cas/packages/core/src/admin/` | ✅ Live — to merge |
-| CAS 9 agents | `cas/agents/` | ✅ Live — to expose |
-| 5 seeded workflow processes | migrations 338-339 | ✅ Live |
-| ChatPanel (AI mutations on canvas) | Workflows canvas | ✅ Live |
+| Item | Location | Phase | Status |
+|------|----------|-------|--------|
+| Conductor designer (ReactFlow) | `components/feature/workflow/` | 0 | ✅ Live |
+| 7 node types + 11 handlers | `workflow/handlers/` | 0 | ✅ Live |
+| PlatformWorkflowRuntime (LangGraph) | `lib/workflow/runtime/` | 1 | ✅ Live |
+| LangGraph PostgreSQL checkpointing | `cas-checkpointer.ts` | 1 | ✅ Live |
+| HITL ApprovalDrawer | `workflow/components/` | 1 | ✅ Live |
+| Shadow mode (design/shadow/live) | `workflow_processes.execution_mode` | 1 | ✅ Live |
+| Process Discovery (4 phases) | `workflow/discovery/` | 1 | ✅ Live |
+| 5 seeded workflow processes | migrations 338–339 | 1 | ✅ Live |
+| ChatPanel (AI mutations on canvas) | Workflows canvas | 1 | ✅ Live |
+| SpecialistAgentRunner (ReAct loop) | `lib/agent-studio/SpecialistAgentRunner.ts` | 2 | ✅ Live |
+| 24 analyst tools | `lib/agent-studio/tools/executor.ts` | 2–3 | ✅ Live |
+| AgentManagementPanel + AgentChatPanel | `components/feature/conductor/` | 2 | ✅ Live |
+| TeamRuntime (native async/await — NOT LangGraph) | `lib/workflow/team-runtime/TeamRuntime.ts` | 2 | ✅ Live |
+| TeamCanvas (ReactFlow, 3 patterns) | `components/feature/conductor/TeamCanvas.tsx` | 2 | ✅ Live |
+| SpacesPanel (drag-and-drop) | `components/feature/conductor/SpacesPanel.tsx` | 2 | ✅ Live |
+| 11 built-in specialist agents | `specialist_agents` table, migrations 348+374+382 | 2–3 | ✅ Live |
+| 5 built-in agent spaces | `agent_spaces` table, migrations 373+382 | 2 | ✅ Live |
+| Platform Intelligence (14 specs) | `components/feature/conductor/IntelligencePanel.tsx` | 3 | ✅ Live |
+| 14 daily metrics tables + pg_cron | migrations 355–369 | 3 | ✅ Live |
+| Platform Knowledge Base | `components/feature/conductor/KnowledgePanel.tsx` | 4 | ✅ Live |
+| IntentDetector | `lib/conductor/IntentDetector.ts` | 4 | ✅ Live |
+| PlatformUserContext + Redis cache | `lib/platform/user-context.ts` | 4 | ✅ Live |
+| Network Intelligence page | `/admin/network/` | 4 | ✅ Live |
+| Learning Loop (decision_outcomes) | migrations 377–378 | 4 | ✅ Live |
+| TierCalibrationPanel | `components/feature/conductor/TierCalibrationPanel.tsx` | 4 | ✅ Live |
+| ConformanceChecker | `lib/process-studio/conformance/ConformanceChecker.ts` | 5 | ✅ Live |
+| MiningPanel (conformance + shadow + promote) | `components/feature/conductor/MiningPanel.tsx` | 5 | ✅ Live |
+| **Build Canvas** (unified org canvas) | `components/feature/conductor/BuildCanvas.tsx` | 5B | ✅ Live |
+| **BuildPalette** (drag-to-canvas agent palette) | `components/feature/conductor/BuildPalette.tsx` | 5B | ✅ Live |
+| **BuildPropertiesDrawer** (right-side edit form) | `components/feature/conductor/BuildPropertiesDrawer.tsx` | 5B | ✅ Live |
+| **build-store** (Zustand nav — 3 levels) | `components/feature/conductor/build-store.ts` | 5B | ✅ Live |
 
 ---
 
@@ -1464,9 +1502,11 @@ interface AgentTeamState {
 }
 ```
 
-#### TeamRuntime — Dynamic LangGraph Compilation
+#### TeamRuntime — Native async/await (NOT LangGraph)
 
-A new runtime (`TeamRuntime`) sits alongside `PlatformWorkflowRuntime`. At execution time it reads the Team's `nodes` + `edges` from `agent_teams` table and compiles a LangGraph `StateGraph` dynamically — no code change needed to add, remove, or rewire Agents in a Team.
+> **Implementation correction (v4.0)**: The original spec proposed dynamic LangGraph StateGraph compilation. The actual implementation uses native async/await — simpler, more debuggable, no LangGraph dependency for team execution. `PlatformWorkflowRuntime` (workflows) still uses LangGraph; `TeamRuntime` (teams) does not.
+
+A new runtime (`TeamRuntime`) sits alongside `PlatformWorkflowRuntime`. At execution time it reads the Team's `nodes` + `edges` from `agent_teams` table and executes agents directly using async/await — no code change needed to add, remove, or rewire Agents in a Team.
 
 ```typescript
 // apps/web/src/lib/ipom-studio/team-runtime/
@@ -2509,6 +2549,348 @@ SHADOW MONITORING — BOOKING LIFECYCLE (Human Tutor)
 
 ---
 
+## Phase 5B — Build Canvas (Build Tab + Agent Registry)
+**Goal**: A unified editable organisational canvas where admins can visually compose the Digital Workforce — seeing all Spaces, drilling into Teams, placing Agents, and editing properties in a right-side form — without writing code.
+**Status**: ✅ Complete (2026-03-11)
+**Dependency**: Phase 2 (Agents + Teams + Spaces live)
+
+> **Architecture context**: See [`AI-Digital-Workforce-Blueprint.md`](./AI-Digital-Workforce-Blueprint.md) for the full iPOM/DevOps conceptual framework that this feature implements. The Build Canvas is the Helm/Docker Compose equivalent — a declarative visual editor for agent topologies.
+
+### iPOM Vocabulary (formalised in v4.0)
+
+| Term | Definition |
+|---|---|
+| **Agent Registry** | The trio of Agents + Teams + Spaces — the authoritative catalogue of what agents exist, how they are grouped, and what domain owns them. Equivalent to a container registry (ECR/Docker Registry). |
+| **Digital Workforce** | The collective noun for all AI agents operating on the platform. Defined in the Registry, composed in the Build Canvas, scheduled by Conductor, delivered to users via Sage/Marketplace. |
+| **Digital Force** | External/brand-facing term for the same concept — the deployable force of AI workers offered to enterprises. |
+| **Space** | Department/domain boundary (K8s namespace equivalent). Built-in: go-to-market, engineering, operations, analytics, marketing. |
+| **Team** | Co-located group of agents with a shared coordination pattern (Pod equivalent). Patterns: Supervisor / Pipeline / Swarm. |
+| **Agent** | Atomic unit of capability (container image equivalent). Defined once, instantiated many times across runs. |
+| **Build Canvas** | Visual drag-and-drop editor for composing agent topologies (Helm/Compose equivalent). 3-level drill-down: All Spaces → Space → Team. |
+
+### Three-Level Hierarchy
+
+```
+Level 0  — All Spaces   (space nodes on canvas, click to drill in)
+Level 1  — Space        (team nodes within a space, click to drill in)
+Level 2  — Team         (agent nodes within a team, drag from left palette)
+
+Breadcrumb: [All Spaces] > [Engineering] > [CAS Team]
+```
+
+### New Files
+
+| File | Purpose |
+|---|---|
+| `components/feature/conductor/BuildCanvas.tsx` | Main 3-panel canvas — left palette + ReactFlow center + right properties drawer. Toolbar with breadcrumb, save, fit-view. Level-appropriate nodes + drag-to-canvas. |
+| `components/feature/conductor/BuildPalette.tsx` | Left panel — agents grouped by department (dynamic from `agent.department`). Drag handle. `DEPARTMENT_COLORS` map (16 departments). `KNOWN_DEPARTMENTS` exported for dropdowns. New Agent inline form. |
+| `components/feature/conductor/BuildPropertiesDrawer.tsx` | Right panel — edit form for selected node (space/team/agent). Saves via existing PATCH/PUT APIs. No new routes. |
+| `components/feature/conductor/build-store.ts` | Zustand store — `level` (0/1/2), `spaceId/spaceName`, `teamId/teamName`, `selectedNodeId/Type`, `isDirty`. Actions: `drillToSpace`, `drillToTeam`, `drillUp`, `selectNode`, `setDirty`. |
+| `components/feature/conductor/BuildCanvas.module.css` | Layout: `.wrapper`, `.leftPanel`, `.canvasArea`, `.rightPanel`, `.toolbar`, `.breadcrumb`, `.backButton` (matches WorkflowCanvas teal style), `.palette`, `.paletteGroup`, `.paletteAgent`. |
+
+### Modified Files
+
+- `discovery-store.ts` — `DiscoveryTab` type extended with `'build'`
+- `conductor/page.tsx` — `'build'` tab added to TABS + Stage 2 Build; dynamic import for BuildCanvas
+
+### Conductor Tab Structure (v4.0 — 11 tabs, 4 stages)
+
+```
+Stage 1 — Design:   [Workflows]  [Discovery]
+Stage 2 — Build:    [Build]  [Agents]  [Teams]  [Spaces]  [Knowledge]
+Stage 3 — Execute:  [Execution]
+Stage 4 — Observe:  [Monitoring]  [Intelligence]  [Mining]
+```
+
+### APIs Used (all existing — no new routes for Build Canvas)
+
+| Action | Route |
+|---|---|
+| List spaces | `GET /api/admin/spaces` |
+| Update space | `PATCH /api/admin/spaces/{id}` |
+| List teams | `GET /api/admin/teams` |
+| Update team topology | `PUT /api/admin/teams/{id}` |
+| List agents | `GET /api/admin/agents` |
+| Update agent | `PUT /api/admin/agents/{id}` |
+
+### Migration 382 — Activate Scheduled Agents + Marketing Space
+
+```sql
+-- INSERT (not UPDATE) because agents were not in DB despite migration 350 spec
+INSERT INTO specialist_agents (slug, name, role, department, description, status, built_in, config)
+VALUES
+  ('market-intelligence', 'Market Intelligence', ..., 'Marketing', ..., 'active', true, '{...}'),
+  ('retention-monitor',   'Retention Monitor',   ..., 'Analytics', ..., 'active', true, '{...}'),
+  ('operations-monitor',  'Operations Monitor',  ..., 'Operations', ..., 'active', true, '{...}')
+ON CONFLICT (slug) DO UPDATE SET status = 'active';
+
+INSERT INTO agent_spaces (slug, name, description, color, built_in)
+VALUES ('marketing', 'Marketing', 'Brand, content, SEO, campaigns', '#ec4899', true)
+ON CONFLICT (slug) DO NOTHING;
+```
+
+### Key Implementation Notes
+
+- **Empty state panels rendered INSIDE ReactFlow** — `<Panel>` components only render when ReactFlow has non-zero dimensions. Empty states as external divs with `height:100%` collapsed ReactFlow to zero. Fixed by using `<Panel position="top-center">` overlays.
+- **Back button CSS** — must use `--color-primary` (#006C67 teal) border/text, hover inverts. Pattern inherited from WorkflowCanvas.module.css.
+- **Department groupings are dynamic** — `BuildPalette` groups agents by `agent.department` via `reduce()`. Only the `DEPARTMENT_COLORS` map is predefined (16 departments). Adding a new department field on an agent automatically creates a new group.
+- **TeamRuntime uses native async/await (technical debt)** — NOT LangGraph StateGraph as the original Phase 2 spec required. The actual implementation in `lib/workflow/team-runtime/TeamRuntime.ts` uses plain async/await — no checkpointing, no HITL support inside teams, no autonomy tier participation, no CircuitBreaker protection. **Phase 6A corrects this** by rewriting TeamRuntime as a proper LangGraph StateGraph with PostgresSaver and CircuitBreaker.
+
+---
+
+## Phase 6 — Unified Execution Substrate (TeamRuntime v2 + CAS Decommission)
+**Goal**: Unify all three parallel execution engines under a single LangGraph + PostgresSaver substrate. Migrate the DevOps Team to a correct implementation of the original spec. Retire the CAS runtime and `/admin/cas` dashboard.
+**Status**: Planned — trigger: *before any production workflow executes a `cas_agent` node with `team_slug` set*
+**Estimate**: ~58h across 5 sub-phases
+**Dependency**: Phase 5 complete (conformance + monitoring live)
+
+---
+
+### Why Phase 6 — The Architectural Problem
+
+The platform currently has **three parallel execution engines**, built at different times:
+
+| Engine | Location | Pattern | Checkpointing | CircuitBreaker |
+|--------|----------|---------|---------------|---------------|
+| `PlatformWorkflowRuntime` | `lib/process-studio/runtime/` | LangGraph + PostgresSaver | ✅ Full | ❌ None |
+| `CAS LangGraphRuntime` | `cas/packages/core/src/runtime/` | LangGraph + LangGraphSupabaseAdapter | ✅ Partial | ✅ Full (CircuitBreaker + RetryUtility) |
+| `TeamRuntime` | `lib/workflow/team-runtime/TeamRuntime.ts` | Native async/await | ❌ None | ❌ None |
+
+**The TeamRuntime is the most critical gap.** The original Phase 2 spec called for LangGraph StateGraph — the correct design. The implementation used plain async/await as a shortcut. This means:
+- Team runs have no checkpoint — a crash mid-run loses all progress
+- No HITL support inside teams (agents cannot pause for admin approval)
+- No autonomy tier participation (team runs bypass `process_autonomy_config`)
+- No run visibility in Conductor Monitoring (no `workflow_executions` row)
+
+Phase 6 fixes this permanently by building **TeamRuntime v2** and retiring the CAS runtime.
+
+---
+
+### Architectural Decision — Option B (TeamRuntime v2)
+
+Two options were evaluated:
+
+**Option A — Adapt CAS LangGraphRuntime for TeamRuntime**
+- Migrate `LangGraphSupabaseAdapter` to work with `AgentTeamState` schema
+- Impedance mismatch: CAS checkpointing assumes CAS message format; AgentTeamState has `handoff_history`, `agent_results`, `coordinator_output` — different shape
+- Result: two slightly-different LangGraph adaptors maintained in parallel
+
+**Option B — Build TeamRuntime v2 (extract CAS patterns)** ✅ **Chosen**
+- Extract `CircuitBreaker` + `RetryUtility` from `cas/packages/core/src/runtime/`
+- Use `PostgresSaver` directly (same as `PlatformWorkflowRuntime` — one operational model)
+- Build correct `AgentTeamState` as a LangGraph `StateGraph` (what the spec always intended)
+- CAS `LangGraphRuntime` is then redundant → retire it
+
+Option B wins because:
+1. **Unified operational model** — all execution visible through one lens (Conductor Monitoring)
+2. **Correct AgentTeamState schema** — no adapter, no translation layer
+3. **One PostgresSaver instance** — same connection pool, same DB, same monitoring
+4. **Clean retirement path** — CAS runtime has no reason to exist once Option B is live
+
+---
+
+### Reliability Analysis
+
+Before Phase 6 is built, two engineering items are non-negotiable in TeamRuntime v2:
+
+**1. CircuitBreaker (from CAS — required)**
+The CAS `CircuitBreaker` (`cas/packages/core/src/runtime/`) opens after 5 AI call failures in 60 seconds, staying open for 30 seconds before half-open retry. Without it, a provider outage causes runaway concurrent AI calls that exhaust the connection pool and inflate costs. TeamRuntime v2 must import this pattern — not reinvent it.
+
+**2. Build-time topology validation**
+TeamRuntime v2 must validate the team topology (nodes, edges, coordinator_slug) at `run()` time, before any LangGraph StateGraph is compiled. Invalid topologies (missing coordinator, orphan nodes, cycle in pipeline) should throw a clear error, not a cryptic LangGraph runtime error.
+
+**Two acceptable-risk items** (mitigate post-launch):
+- **AgentTeamState message trimming**: Long-running teams accumulate messages in state; add `MAX_MESSAGES_PER_AGENT = 50` trim in the state reducer before Phase 6C goes live
+- **PlatformWorkflowRuntime CircuitBreaker**: The Workflow execution engine has no CircuitBreaker either — acceptable at current scale; add in Phase 6A alongside TeamRuntime v2
+
+---
+
+### Scalability Ladder
+
+PostgresSaver uses the non-pooling port 5432 (session mode). Current ceiling and upgrade path:
+
+| Stage | Concurrent team runs | What changes |
+|-------|---------------------|-------------|
+| **Current** | ~50 | `PostgresSaver` + aws-1-eu-west-2 port 5432 — adequate for Phase 6 launch |
+| **~100 concurrent** | pgBouncer transaction mode | Configure Supabase connection pooler for LangGraph (requires advisory lock compatibility check) |
+| **~1,000 concurrent** | Redis checkpoint layer | Replace `PostgresSaver` with `RedisSaver` (Upstash serverless, ~£30/month); PostgreSQL retains the audit log only |
+| **~10,000+ concurrent** | Temporal | Dedicated workflow orchestration platform; Conductor becomes a Temporal worker manager |
+
+At current Tutorwise scale (<5 concurrent team runs), PostgresSaver is the right choice with no tuning required.
+
+---
+
+### Sub-Phases
+
+#### Phase 6A — TeamRuntime v2: LangGraph StateGraph Implementation (~20h)
+**What**: Rewrite `TeamRuntime` as a proper LangGraph `StateGraph` using `PostgresSaver`.
+
+| Task | Hours | File |
+|------|-------|------|
+| Extract `CircuitBreaker` + `RetryUtility` from `cas/packages/core/src/runtime/` into `lib/workflow/team-runtime/` | 3h | new: `team-runtime/CircuitBreaker.ts` |
+| Define `AgentTeamState` as LangGraph `Annotation.Root` (handoff_history, agent_results, coordinator_output, messages) | 2h | `team-runtime/AgentTeamState.ts` (rewrite) |
+| Implement `SupervisorGraph`: parallel agent nodes → synthesis node; coordinator decides which agents to invoke | 4h | `team-runtime/patterns/SupervisorGraph.ts` |
+| Implement `PipelineGraph`: topological sort of nodes → sequential execution; `NEXT_AGENT` output determines route | 3h | `team-runtime/patterns/PipelineGraph.ts` |
+| Implement `SwarmGraph`: dynamic NEXT_AGENT routing; agents can hand off to any other agent | 3h | `team-runtime/patterns/SwarmGraph.ts` |
+| Wire `TeamRuntime.run()` to select correct graph pattern + compile + invoke with `PostgresSaver` thread | 3h | `team-runtime/TeamRuntime.ts` (rewrite) |
+| Write `workflow_executions` row for each team run (same table as PlatformWorkflowRuntime) | 2h | `team-runtime/TeamRuntime.ts` |
+
+**Deliverable**: `TeamRuntime.run()` produces a LangGraph StateGraph execution, checkpointed to `workflow_executions`, with CircuitBreaker protection.
+
+**Callers that change**:
+- `POST /api/admin/teams/[id]/run` — no interface change; internal execution improves
+- `cas-agent.ts` handler (`team_slug` path) — no interface change; now checkpointed
+
+#### Phase 6B — DevOps Team Agent Config Population (~8h)
+**What**: Populate production-quality system prompts and tool assignments for all 9 DevOps Team agents. Currently agents have skeletal configs from Phase 2 seeds.
+
+| Task | Hours | Notes |
+|------|-------|-------|
+| Director system prompt — strategic decomposition, objective routing to Planner | 1.5h | Write + test in agent chat `/admin/conductor/agents/director` |
+| Planner system prompt — task breakdown, specialist allocation, dependency ordering | 1.5h | |
+| Developer + Engineer system prompts — code generation, PR descriptions, architecture | 1h | |
+| Tester + QA system prompts — test coverage analysis, quality gate descriptions | 1h | |
+| Security system prompt — threat modelling, dependency audit, OWASP check | 1h | |
+| Marketer system prompt — campaign drafts, copy, A/B variants | 1h | |
+| Analyst system prompt — data summaries, metrics interpretation, platform health | 1h | |
+
+**Deliverable**: All 9 DevOps Team agents have production-quality prompts; team can complete a `task: "Audit security posture of auth flow"` request end-to-end.
+
+#### Phase 6C — DevOps Team Migration to TeamRuntime v2 (~12h)
+**What**: Validate that the DevOps Team topology works correctly under the new TeamRuntime v2 (Phase 6A must be complete first). Fix any topology or state issues.
+
+| Task | Hours | Notes |
+|------|-------|-------|
+| End-to-end test: run DevOps Team via `/api/admin/teams/devops-team/run` under TeamRuntime v2 | 2h | Verify checkpoint written, all 9 agents invoked, `team_result` correct |
+| HITL integration: add `human_review` conditional edge in SupervisorGraph (Director can pause for admin approval) | 4h | Uses same ApprovalDrawer as PlatformWorkflowRuntime |
+| Monitoring integration: DevOps Team runs visible in MiningPanel + Execution tab | 2h | Already works if `workflow_executions` row is written in Phase 6A |
+| `cas-agent.ts` handler smoke test with `team_slug: 'devops-team'` inside a live workflow | 2h | |
+| AgentTeamState message trimming: `MAX_MESSAGES_PER_AGENT = 50` trim in state reducer | 2h | Prevents state bloat in long-running Swarm patterns |
+
+**Deliverable**: DevOps Team is the first team running on TeamRuntime v2. Production-ready, monitored, HITL-capable.
+
+#### Phase 6D — CAS Admin Dashboard → Conductor Monitoring Merge (~10h)
+**What**: Redirect `/admin/cas` → `/admin/conductor`. Migrate the CAS run log view and agent status panel into Conductor's existing Monitoring/Execution tabs.
+
+| Task | Hours | Notes |
+|------|-------|-------|
+| Add "DevOps Team" section to Conductor Monitoring tab (team run history, per-agent status) | 4h | Query `agent_team_run_outputs` + `workflow_executions` |
+| Redirect `/admin/cas` → `/admin/conductor?tab=monitoring` with 301 | 1h | `apps/web/src/app/(admin)/admin/cas/` route change |
+| Stop writing to `cas_agent_status` from new TeamRuntime v2 (v2 uses `agent_team_run_outputs` only) | 2h | Remove `cas_agent_status` upsert from TeamRuntime v2 |
+| Migration 384: deprecate `cas_agent_status`, `cas_agent_events`, `cas_agent_logs` (add `deprecated_at` column, don't DROP yet) | 2h | Safe — data preserved for 90-day retention window |
+| Admin sidebar: remove CAS link, update to point to Conductor > Monitoring | 1h | `AdminSidebar.tsx` |
+
+**Deliverable**: `/admin/cas` is gone. All DevOps Team monitoring lives in Conductor. CAS tables soft-deprecated (not dropped).
+
+#### Phase 6E — Governance Integration (~8h)
+**What**: TeamRuntime v2 participates in the autonomy governance system (same as PlatformWorkflowRuntime).
+
+| Task | Hours | Notes |
+|------|-------|-------|
+| `process_autonomy_config` lookup in TeamRuntime v2: check if team has an autonomy config before run | 2h | Falls back to 'supervised' if no config exists |
+| Write `decision_rationale` jsonb to `workflow_executions` for each team run | 2h | Records which agents were invoked, what tools were called |
+| `decision_outcomes` stubs: write outcome stub at run completion (pending admin validation) | 2h | Same pattern as `writeDecisionOutcomeStubs()` in PlatformWorkflowRuntime |
+| TierCalibrationPanel: expose team runs in the autonomy calibration view | 2h | Filter `workflow_executions WHERE process_type = 'team'` in the panel query |
+
+**Deliverable**: Team runs participate in the learning loop. Accuracy is tracked. Autonomy tiers apply to teams, not just workflows.
+
+---
+
+### Dependency Graph
+
+```
+Phase 6A (TeamRuntime v2)
+    │
+    ├──▶ Phase 6C (DevOps Team migration)
+    │         │
+    │         └──▶ Phase 6E (governance integration)
+    │
+    └──▶ Phase 6D (CAS dashboard merge) [can start in parallel with 6C]
+
+Phase 6B (agent configs) ── independent, can run in parallel with 6A
+```
+
+**Critical path**: 6A → 6C → 6E (40h)
+**Can parallelise**: 6B alongside 6A, 6D alongside 6C
+
+---
+
+### What Gets Retired
+
+| Component | Location | Retirement Step |
+|-----------|----------|----------------|
+| `LangGraphRuntime.ts` | `cas/packages/core/src/runtime/` | Phase 6A — no longer needed; CircuitBreaker extracted |
+| `LangGraphSupabaseAdapter.ts` | `cas/packages/core/src/runtime/` | Phase 6A — replaced by standard `PostgresSaver` |
+| `RuntimeFactory.ts` | `cas/packages/core/src/runtime/` | Phase 6A — now returns `TeamRuntime v2` pattern |
+| `AgentRuntimeFactory.create()` calls | any caller in `cas/` | Phase 6A — callers repoint to `TeamRuntime.run()` |
+| `/admin/cas` dashboard | `apps/web/src/app/(admin)/admin/cas/` | Phase 6D — 301 redirect to `/admin/conductor` |
+| `cas_agent_status` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
+| `cas_agent_events` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
+| `cas_agent_logs` table | DB | Phase 6D — soft-deprecated; Phase 7 DROP |
+
+> **Note**: The `cas_*` tables are not dropped in Phase 6 — they are soft-deprecated with a `deprecated_at` column. A 90-day window allows any downstream queries referencing them to be identified and updated. Migration 384 marks them; migration 385+ drops them.
+
+---
+
+### Platform After Phase 6
+
+```
+BEFORE PHASE 6 — Three parallel engines
+┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│ PlatformWorkflow     │  │ CAS LangGraph        │  │ TeamRuntime          │
+│ Runtime              │  │ Runtime              │  │ (async/await)        │
+│ LangGraph +          │  │ LangGraph +          │  │ No checkpointing     │
+│ PostgresSaver        │  │ LangGraphSupabase    │  │ No CircuitBreaker    │
+│ No CircuitBreaker    │  │ Adapter +            │  │ No governance        │
+│                      │  │ CircuitBreaker       │  │                      │
+└──────────────────────┘  └──────────────────────┘  └──────────────────────┘
+
+AFTER PHASE 6 — One unified substrate
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Unified Execution Substrate                                             │
+│                                                                         │
+│  LangGraph StateGraph + PostgresSaver + CircuitBreaker                  │
+│                                                                         │
+│  PlatformWorkflowRuntime    TeamRuntime v2         SpecialistAgent      │
+│  (Workflows)                (Teams)                Runner               │
+│       │                          │                 (Agents)             │
+│       └──────────────────────────┴─────────────────────┘               │
+│                    All runs → workflow_executions                       │
+│                    All monitored in Conductor Monitoring                │
+│                    All participate in autonomy governance               │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Phase 6 Testing
+
+| Test Type | Scope | Tool |
+|-----------|-------|------|
+| Unit tests | `SupervisorGraph`, `PipelineGraph`, `SwarmGraph` — known topology → correct StateGraph nodes + edges | Jest |
+| Unit tests | `CircuitBreaker` — 5 failures in 60s → OPEN; 30s → HALF_OPEN; success → CLOSED | Jest |
+| Integration test | TeamRuntime v2 full run (DevOps Team): `TeamRuntime.run('devops-team', task)` → checkpoint written, `team_result` populated | Jest + test DB |
+| Integration test | `cas-agent.ts` handler with `team_slug` inside a live workflow — verify team run is checkpointed | Jest |
+| Manual | HITL inside team: Director pauses → ApprovalDrawer appears → admin approves → execution continues | QA checklist |
+| Manual | `/admin/cas` redirects to `/admin/conductor?tab=monitoring` | QA checklist |
+| Manual | DevOps Team run visible in Conductor Execution + Monitoring tabs | QA checklist |
+| Regression | All existing Workflows still execute correctly (PlatformWorkflowRuntime unchanged) | Jest |
+| Regression | All existing Teams (non-DevOps) still execute via TeamRuntime v2 (no behaviour change) | Jest |
+
+---
+
+### Phase 6 Success Criteria
+
+| Criterion | How to verify |
+|-----------|--------------|
+| Zero `async/await` TeamRuntime code in production | `grep -r "TeamRuntime" --include="*.ts"` — all paths lead to LangGraph |
+| DevOps Team run produces a `workflow_executions` checkpoint row | Query `workflow_executions WHERE metadata->>'team_slug' = 'devops-team'` |
+| CircuitBreaker trips correctly under simulated outage | Jest unit test — 5 failures → OPEN state confirmed |
+| `/admin/cas` returns 301 | `curl -I /admin/cas` → Location: /admin/conductor |
+| CAS tables have `deprecated_at` set | `SELECT deprecated_at FROM cas_agent_status LIMIT 1` |
+
+---
+
 ## Roadmap (Future — Not Phased)
 
 Mark these as future — not required for core product:
@@ -3421,7 +3803,9 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | **Phase 3** | Intelligence: platform events, knowledge pipelines, admin AI, analytics, monitoring | 90–110h | After Phase 2 |
 | **Phase 4** | Knowledge base, intent detection, PlatformUserContext, learning loop | 60–70h | After Phase 3 |
 | **Phase 5** | Process mining enhancement, conformance checking, go-live monitoring | 25–35h | After Phase 4 |
-| **Total** | | **385–445h** | |
+| **Phase 5B** | Build Canvas — Agent Registry visual editor (Spaces → Teams → Agents), BuildPalette, BuildPropertiesDrawer | 30–40h | After Phase 2 |
+| **Phase 6** | TeamRuntime v2 (LangGraph StateGraph), CAS decommission, DevOps Team migration, governance integration | ~58h | After Phase 5B |
+| **Total** | | **473–543h** | |
 
 ### Detailed Phase 1 Task Table
 
@@ -3873,7 +4257,7 @@ CAS stops being a standalone admin section. Its functionality is absorbed into C
 
 | Document | Purpose | Status |
 |----------|---------|--------|
-| [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md) | **This document — master reference** | Active |
+| [`conductor-solution-design.md`](./conductor-solution-design.md) | **This document — master reference** | Active |
 | [`conductor-gdpr-retention-policy.md`](./conductor-gdpr-retention-policy.md) | GDPR retention policy, Article 22 obligations | Active |
 | [`conductor-growth-score-all-roles.md`](./conductor-growth-score-all-roles.md) | Growth Score formula for all 4 roles | Active |
 | [`conductor-v3-audit.md`](./conductor-v3-audit.md) | Architecture audit, critical gaps, scoring | Active |

@@ -1,14 +1,12 @@
+/**
+ * GET /api/admin/cas/agents/status
+ *
+ * Phase 6D: Legacy CAS agent status endpoint. Still functional —
+ * reads from cas_agent_status table. CAS tables will be retired in Phase 6D migration.
+ * New monitoring is via /api/admin/agents/* (specialist_agents) and workflow_executions.
+ */
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-
-export interface CasAgentStatus {
-  agent_id: string;
-  status: 'running' | 'paused' | 'stopped' | 'error';
-  last_activity_at: string | null;
-  error_message: string | null;
-  metadata: Record<string, unknown>;
-  updated_at: string;
-}
 
 export async function GET() {
   try {
@@ -21,9 +19,15 @@ export async function GET() {
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true, data: data ?? [] });
+    return NextResponse.json(
+      { success: true, data: data ?? [], _deprecated: 'Use /api/admin/agents for agent management' },
+      { headers: { Deprecation: 'true', Link: '</api/admin/agents>; rel="successor-version"' } }
+    );
   } catch (err) {
     console.error('[GET /api/admin/cas/agents/status]', err);
-    return NextResponse.json({ success: false, error: 'Failed to fetch CAS agent status' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch CAS agent status' },
+      { status: 500 }
+    );
   }
 }

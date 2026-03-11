@@ -61,8 +61,10 @@ The DUAA received Royal Assent in 2025. Key changes relevant to Conductor:
 | **T1 — Automated Decision Records** | Article 22-applicable decisions with rationale | `workflow_executions`, `decision_outcomes` |
 | **T2 — Operational Events** | Cross-system events, session loads, pipeline events | `platform_events`, `pipeline_jobs` |
 | **T3 — Derived Scores** | Computed metrics, not raw personal data | `growth_scores` |
-| **T4 — Agent Telemetry** | Fine-grained AI agent turn data | `cas_agent_events` |
+| **T4 — Agent Telemetry** | Fine-grained AI agent turn data | `cas_agent_events` *(deprecated Phase 6D)*, `agent_run_outputs`, `agent_team_run_outputs` |
 | **T5 — Cost Attribution** | Operational cost records, minimal PII | `platform_ai_costs` |
+| **T6 — Knowledge Base** | Platform-curated content chunks for RAG; no direct PII | `platform_knowledge_chunks` |
+| **T7 — Process Analytics** | Conformance deviations, detected patterns; linked to execution IDs not profile IDs | `conformance_deviations`, `process_patterns` |
 
 ### 2.2 Which Tables Contain Personal Data
 
@@ -73,7 +75,12 @@ The DUAA received Royal Assent in 2025. Key changes relevant to Conductor:
 | `platform_events` | YES | `entity_id` (often `profile_id`) | NO (operational) |
 | `pipeline_jobs` | NO | source IDs only | NO |
 | `growth_scores` | YES | `user_id` | YES (when score gates platform features); NO (when advisory only) |
-| `cas_agent_events` | YES | `user_id` (session context) | NO |
+| `cas_agent_events` | YES | `user_id` (session context) | NO — *(deprecated Phase 6D; migrate to `agent_run_outputs`)* |
+| `agent_run_outputs` | YES | `user_id`, `execution_id` (indirect) | NO |
+| `agent_team_run_outputs` | YES | `team_id`, `execution_id` (indirect) | NO |
+| `platform_knowledge_chunks` | NO | Platform content only | NO |
+| `conformance_deviations` | NO (indirect via execution) | `execution_id → profile_id` via FK | NO |
+| `process_patterns` | NO | Aggregated patterns | NO |
 | `platform_ai_costs` | Minimal | `execution_id` (indirect) | NO |
 | `workflow_exceptions` | YES | `execution_id → profile_id` | YES (contested decisions) |
 
@@ -91,7 +98,12 @@ The DUAA received Royal Assent in 2025. Key changes relevant to Conductor:
 | `platform_events` | **12 months** | Aggregate + delete | Operational, not Article 22. 12 months covers seasonal analysis and incident investigation. |
 | `pipeline_jobs` | **30 days** | Delete after processing | Internal queue mechanics, minimal PII, no compliance obligation. |
 | `growth_scores` | **6 months** | Delete (historical snapshots) | Derived cache. But see note below on score-triggered decisions. |
-| `cas_agent_events` | **90 days** | Export for fine-tuning if flagged, then delete | High-volume, fine-grained; short retention aligns with operational purpose (fine-tuning, debugging). |
+| `cas_agent_events` | **90 days** | Export for fine-tuning if flagged, then delete | High-volume, fine-grained; short retention aligns with operational purpose. *(Deprecated Phase 6D — replaced by `agent_run_outputs`)* |
+| `agent_run_outputs` | **90 days** | Delete | Specialist agent turn data. Same treatment as `cas_agent_events`. |
+| `agent_team_run_outputs` | **90 days** | Delete | Team run summaries. Short retention; handoff_history not PII. |
+| `platform_knowledge_chunks` | **Indefinite (until replaced)** | Supersede rather than archive | Knowledge base content; no personal data; retained as long as actively used for RAG. |
+| `conformance_deviations` | **12 months** | Delete | Linked to executions; no direct PII; operational audit data. |
+| `process_patterns` | **12 months** | Delete | Aggregated mining patterns; no PII. |
 | `platform_ai_costs` | **24 months** | Archive at 12 months | Cost attribution for financial reporting, no direct PII. |
 
 > **Growth Score note**: If Growth Score gate thresholds are used to restrict platform access (e.g. score < 20 removes featured placement), the score snapshot at the time of that decision becomes part of the decision rationale and should be stored in `workflow_executions.decision_rationale` — not just in `growth_scores`. The `growth_scores` table itself remains a 6-month cache.

@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: VirtualSpace is the session delivery layer — where the booked tuition actually happens. It is the direct quality-of-experience surface. Conductor intelligence here detects session failure patterns, adoption gaps, and free help engagement.
 

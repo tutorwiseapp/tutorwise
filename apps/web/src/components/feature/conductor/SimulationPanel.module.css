@@ -1,0 +1,714 @@
+/* SimulationPanel */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg-page, #fff);
+}
+
+/* ── Stats bar ────────────────────────────────────────────────────────────── */
+
+.statsBar {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-bg-light, #f9fafb);
+  flex-shrink: 0;
+}
+
+.statCard {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-top: 3px;
+}
+
+/* ── Sub-nav ──────────────────────────────────────────────────────────────── */
+
+.subNav {
+  display: flex;
+  gap: 2px;
+  padding: 8px 20px 0;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.subNavBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.subNavBtn:hover { color: var(--color-text-primary, #111827); }
+.subNavActive {
+  color: var(--color-primary, #006c67);
+  border-bottom-color: var(--color-primary, #006c67);
+  font-weight: 600;
+}
+
+/* ── Scrollable content area ─────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ── Run sub-tab ─────────────────────────────────────────────────────────── */
+
+.runTab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 720px;
+}
+
+.runForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.formRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.select {
+  padding: 7px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-primary, #111827);
+  background: #fff;
+  cursor: pointer;
+}
+.select:focus { outline: none; border-color: var(--color-primary, #006c67); }
+.select:disabled { opacity: 0.6; cursor: default; }
+
+.textarea {
+  padding: 9px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-primary, #111827);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.textarea:focus { outline: none; border-color: var(--color-primary, #006c67); }
+
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  min-height: 44px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+}
+.toggleBtn:hover { border-color: var(--color-primary, #006c67); }
+.toggleOn {
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #15803d;
+}
+.toggleDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: #dc2626;
+  padding: 8px 10px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+}
+
+.runFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.runBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  background: var(--color-primary, #006c67);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.runBtn:hover:not(:disabled) { background: var(--color-primary-hover, #005a55); }
+.runBtn:disabled { opacity: 0.6; cursor: default; }
+
+.secondaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: none;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.secondaryBtn:hover { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+
+/* ── Run result ───────────────────────────────────────────────────────────── */
+
+.runResult {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resultMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resultDuration {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.resultText {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--color-text-primary, #111827);
+  white-space: pre-wrap;
+}
+
+/* ── Status badge ─────────────────────────────────────────────────────────── */
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+.statusCompleted { color: #16a34a; background: #f0fdf4; border-color: #bbf7d0; }
+.statusFailed    { color: #dc2626; background: #fef2f2; border-color: #fca5a5; }
+.statusRunning   { color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
+.statusWaiting   { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+
+/* ── Agent outputs ────────────────────────────────────────────────────────── */
+
+.agentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.agentToggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.agentToggle:hover { color: var(--color-primary, #006c67); }
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agentOutputRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  background: var(--color-bg-light, #f9fafb);
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.agentMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agentSlug {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--color-text-primary, #111827);
+}
+
+.agentDuration {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.agentBarTrack {
+  height: 4px;
+  background: var(--color-border, #e5e7eb);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.agentBarFill {
+  height: 100%;
+  background: var(--color-primary, #006c67);
+  border-radius: 2px;
+  min-width: 4px;
+  transition: width 0.3s ease;
+}
+
+.agentOutputText {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* ── Output sub-tab ───────────────────────────────────────────────────────── */
+
+.outputTab {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 5px 10px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-text-primary, #111827);
+  background: #fff;
+  cursor: pointer;
+}
+.filterSelect:focus { outline: none; border-color: var(--color-primary, #006c67); }
+
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+}
+.refreshBtn:hover { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.refreshBtn:disabled { opacity: 0.5; cursor: default; }
+
+.filterCount {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #9ca3af);
+  margin-left: auto;
+}
+
+.outputTable {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.outputHeader,
+.outputRow {
+  display: grid;
+  grid-template-columns: 28px 120px 1fr 130px 70px 80px 72px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+}
+
+.outputHeader {
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.outputRow {
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-bg-light, #f9fafb);
+  transition: background 0.1s;
+}
+.outputRow:last-of-type { border-bottom: none; }
+.outputRow:hover { background: var(--color-bg-light, #f9fafb); }
+
+.rowExpand { color: var(--color-text-tertiary, #9ca3af); display: flex; align-items: center; }
+.rowTeam { font-size: 12px; font-weight: 600; color: var(--color-text-primary, #111827); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rowTask { font-size: 12px; color: var(--color-text-secondary, #6b7280); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rowStatus { display: flex; align-items: center; }
+.rowDuration { font-size: 12px; color: var(--color-text-tertiary, #9ca3af); font-family: monospace; }
+.rowTime { font-size: 11px; color: var(--color-text-tertiary, #9ca3af); }
+.rowActions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+.outputExpanded {
+  padding: 12px 20px 16px;
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.expandedMeta {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+.expandedLabel { font-weight: 600; color: var(--color-text-secondary, #6b7280); }
+.runIdText { font-family: monospace; }
+
+.expandedTask {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.5;
+}
+
+.rerunBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.15s, color 0.15s;
+}
+.rerunBtn:hover { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.rerunBtn:disabled { opacity: 0.5; cursor: default; }
+
+.deleteRunBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.15s, color 0.15s;
+}
+.deleteRunBtn:hover { border-color: #fca5a5; color: #dc2626; }
+
+/* ── Scenarios sub-tab ────────────────────────────────────────────────────── */
+
+.scenariosTab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scenariosToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.runAllBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: var(--color-primary, #006c67);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.runAllBtn:hover:not(:disabled) { background: var(--color-primary-hover, #005a55); }
+.runAllBtn:disabled { opacity: 0.6; cursor: default; }
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #dc2626;
+  cursor: pointer;
+}
+.clearBtn:hover { background: #fef2f2; }
+
+/* Run All progress */
+.runAllProgress {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--color-bg-light, #f9fafb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+.closeProgressBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.closeProgressBtn:hover { color: var(--color-primary, #006c67); }
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--color-bg-light, #f9fafb);
+  font-size: 12px;
+}
+.progressRow:last-child { border-bottom: none; }
+.progressDotGray {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+.progressName { color: var(--color-text-primary, #111827); }
+
+/* Scenario sections */
+.scenariosSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.scenariosSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.scenarioPack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.packLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+.noTeamWarning {
+  font-size: 11px;
+  font-weight: 400;
+  color: #d97706;
+}
+
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.scenarioCard {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s;
+}
+.scenarioCard:hover { border-color: var(--color-primary-accent, #4caead); }
+
+.scenarioCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.scenarioName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+}
+.lastRunDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.scenarioTeamLabel {
+  font-size: 11px;
+  color: var(--color-primary, #006c67);
+  font-weight: 500;
+}
+.scenarioTask {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+  line-height: 1.5;
+}
+.scenarioCardActions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.scenarioRunBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 10px;
+  height: 28px;
+  background: var(--color-primary, #006c67);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.scenarioRunBtn:hover:not(:disabled) { background: var(--color-primary-hover, #005a55); }
+.scenarioRunBtn:disabled { opacity: 0.6; cursor: default; }
+
+.scenarioLoadBtn,
+.scenarioDeleteBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  color: var(--color-text-secondary, #6b7280);
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.scenarioLoadBtn:hover:not(:disabled) { border-color: var(--color-primary, #006c67); color: var(--color-primary, #006c67); }
+.scenarioDeleteBtn:hover { border-color: #fca5a5; color: #dc2626; }
+.scenarioLoadBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Shared ───────────────────────────────────────────────────────────────── */
+
+.empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.8s linear infinite; }

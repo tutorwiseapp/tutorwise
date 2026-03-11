@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`marketplace-intelligence-spec.md`](./marketplace-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`caas-intelligence-spec.md`](./caas-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Go-to-market pipeline**: Bookings is Stage 5 — the revenue event. Everything upstream (Resources → SEO → Signal → Marketplace) exists to drive a booking. Conductor intelligence here closes the loop: detecting failure patterns, protecting revenue, and optimising the session lifecycle.
 

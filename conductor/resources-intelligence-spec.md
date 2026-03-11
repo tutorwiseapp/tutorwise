@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Go-to-market pipeline**: Resources is Stage 1 of the Content Intelligence Loop — create → SEO optimise → Signal measure → Marketplace land → Booking convert. Everything starts here.
 

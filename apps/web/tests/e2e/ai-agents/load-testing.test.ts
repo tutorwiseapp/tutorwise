@@ -31,10 +31,10 @@ async function createTestTutor(index: number) {
   await supabase
     .from('profiles')
     .update({ caas_score: 90 }) // Elite tier (50 AI tutors)
-    .eq('id', authUser.user.id);
+    .eq('id', authUser.user!.id);
 
   return {
-    id: authUser.user.id,
+    id: authUser.user!.id,
     email,
   };
 }
@@ -186,8 +186,8 @@ describe.skip('AI Tutor Load Testing', () => {
               password: 'TestPassword123!',
               email_confirm: true,
             });
-            clientIds.push(data.user.id);
-            return data.user.id;
+            clientIds.push(data.user!.id);
+            return data.user!.id;
           })
         );
 
@@ -256,13 +256,13 @@ describe.skip('AI Tutor Load Testing', () => {
               password: 'TestPassword123!',
               email_confirm: true,
             });
-            tutorIds.push(client.user.id);
+            tutorIds.push(client.user!.id);
 
             const { data } = await supabase
               .from('ai_agent_sessions')
               .insert({
                 agent_id: aiTutor!.id,
-                client_id: client.user.id,
+                client_id: client.user!.id,
                 status: 'active',
                 started_at: new Date().toISOString(),
               })
@@ -427,13 +427,13 @@ describe.skip('AI Tutor Load Testing', () => {
             password: 'TestPassword123!',
             email_confirm: true,
           });
-          tutorIds.push(client.user.id);
+          tutorIds.push(client.user!.id);
 
           return supabase
             .from('ai_agent_sessions')
             .insert({
               agent_id: aiTutor!.id,
-              client_id: client.user.id,
+              client_id: client.user!.id,
               status: 'active',
               started_at: new Date().toISOString(),
             })
@@ -500,13 +500,13 @@ describe.skip('AI Tutor Load Testing', () => {
               password: 'TestPassword123!',
               email_confirm: true,
             });
-            tutorIds.push(client.user.id);
+            tutorIds.push(client.user!.id);
 
             return supabase
               .from('ai_agent_sessions')
               .insert({
                 agent_id: aiTutor!.id,
-                client_id: client.user.id,
+                client_id: client.user!.id,
                 status: 'active',
                 started_at: new Date().toISOString(),
               });

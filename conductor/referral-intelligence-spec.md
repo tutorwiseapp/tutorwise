@@ -526,7 +526,7 @@ interface ReferralAnalyticsResponse {
 
 ## 8. Network Intelligence Page — Full Spec (Phase 4)
 
-Extends `§4C-ii` from `conductor-solution-design-v3.md`. Route: `/admin/network/`.
+Extends `§4C-ii` from `conductor-solution-design.md`. Route: `/admin/network/`.
 
 ### 8A. Page Layout
 
@@ -701,7 +701,7 @@ Two new Conductor workflow processes using the referral funnel data:
 
 ### Process: Stuck Referral Recovery
 
-Already seeded in Phase 2 (`conductor-solution-design-v3.md §3, line 3123`). This uses:
+Already seeded in Phase 2 (`conductor-solution-design.md §3, line 3123`). This uses:
 - **Trigger**: referral `status = 'Referred'` AND `created_at < now() - interval '7 days'`
 - **Action**: Resend personalised email via Resend with referrer's name in subject line
 - **Rate limit**: max 2 reminders, 7d apart (existing `last_reminder_sent_at` + `reminder_count` on referrals)
@@ -787,4 +787,4 @@ Following the established sequence (latest applied: 343, iPOM plan uses 344–35
 
 ---
 
-*Version 1.0 — Referral Intelligence spec. Feeds into `conductor-solution-design-v3.md` §4C-ii (Network Intelligence) and Phase 3 Retention Monitor agent.*
+*Version 1.0 — Referral Intelligence spec. Feeds into `conductor-solution-design.md` §4C-ii (Network Intelligence) and Phase 3 Retention Monitor agent.*

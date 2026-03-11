@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`signal-intelligence-spec.md`](./signal-intelligence-spec.md) · [`seo-intelligence-spec.md`](./seo-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Go-to-market pipeline**: Marketplace is Stage 4 — organic traffic from Resources/SEO lands here, Signal attributes it, and this is where search intent converts to a booking enquiry. The Home page is the entry point for direct traffic and referral links.
 
@@ -423,7 +423,7 @@ interface MarketplaceIntelligenceResponse {
 
 ### Existing: Listing Quality Nudge (Phase 2)
 
-Already planned in conductor-solution-design-v3.md. This workflow is triggered by the Market Intelligence agent when `listing_quality_low` alert fires:
+Already planned in conductor-solution-design.md. This workflow is triggered by the Market Intelligence agent when `listing_quality_low` alert fires:
 
 ```
 Trigger: Market Intelligence agent → listing_quality_low alert

@@ -31,12 +31,12 @@ async function createTestAITutorForSubscription() {
   await supabase
     .from('profiles')
     .update({ caas_score: 80 })
-    .eq('id', authUser.user.id);
+    .eq('id', authUser.user!.id);
 
   const { data: aiTutor } = await supabase
     .from('ai_agents')
     .insert({
-      owner_id: authUser.user.id,
+      owner_id: authUser.user!.id,
       display_name: 'Subscription Test Tutor',
       subject: 'Mathematics',
       description: 'Test tutor',
@@ -48,7 +48,7 @@ async function createTestAITutorForSubscription() {
     .single();
 
   return {
-    ownerId: authUser.user.id,
+    ownerId: authUser.user!.id,
     aiAgentId: aiTutor!.id,
     email,
   };
@@ -375,7 +375,7 @@ describe.skip('Stripe Subscriptions for AI Tutors', () => {
       expect(aiTutor?.status).toBe('unpublished');
 
       // Cleanup
-      await supabase.auth.admin.deleteUser(client.user.id);
+      await supabase.auth.admin.deleteUser(client.user!.id);
     });
 
     it('should restore AI tutor on payment recovery', async () => {

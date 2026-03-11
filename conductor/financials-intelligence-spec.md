@@ -5,7 +5,7 @@
 **Status**: Draft — for review
 **Author**: Architecture
 
-Related: [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design-v3.md`](./conductor-solution-design-v3.md)
+Related: [`bookings-intelligence-spec.md`](./bookings-intelligence-spec.md) · [`referral-intelligence-spec.md`](./referral-intelligence-spec.md) · [`conductor-solution-design.md`](./conductor-solution-design.md)
 
 > **Role in the platform**: Financials is the revenue engine. Every booking creates transactions. Commission Payout is the only live Conductor workflow today. Intelligence here protects platform revenue, detects clearing failures, and monitors payout health.
 
