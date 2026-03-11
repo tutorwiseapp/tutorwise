@@ -375,9 +375,118 @@
   margin-left: auto;
 }
 
-/* Command bar wrapper */
+/* Command bar */
 .commandSection {
   margin-bottom: 1.5rem;
+}
+
+.commandForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #dfe1e5;
+  border-radius: 8px;
+  padding: 10px 10px 10px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.commandForm:focus-within {
+  border-color: #4CAEAD;
+  box-shadow: 0 4px 12px rgba(76, 174, 173, 0.15);
+}
+
+.commandInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #202124;
+  background: transparent;
+  resize: none;
+  max-height: 120px;
+  font-family: inherit;
+  padding: 6px 0;
+}
+
+.commandInput:focus {
+  outline: 2px solid #4CAEAD;
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.commandInput::placeholder {
+  color: #9aa0a6;
+}
+
+.commandSubmit {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #4CAEAD;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.commandSubmit:hover:not(:disabled) {
+  background: #3A9B9A;
+  transform: translateY(-1px);
+}
+
+.commandSubmit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.quickChip {
+  padding: 8px 16px;
+  border: 1px solid #dfe1e5;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #5f6368;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.quickChip:hover:not(:disabled) {
+  border-color: #4CAEAD;
+  color: #006C67;
+  background: #E0F2F1;
+}
+
+.quickChip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.commandResult {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 8px 0 0 0;
+  padding: 0 4px;
+}
+
+.briefMeta {
+  font-size: 0.75rem;
+  color: #9ca3af;
 }
 
 /* Error state */
