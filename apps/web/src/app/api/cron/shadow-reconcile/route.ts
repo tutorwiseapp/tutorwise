@@ -168,6 +168,45 @@ export async function GET(request: NextRequest) {
 
   console.log('[Shadow Reconcile] Complete:', results);
 
+  // HITL timeout detection: flag pending HITL tasks older than 24 hours
+  try {
+    const hitlCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: stuckTasks } = await supabase
+      .from('workflow_tasks')
+      .select('id, name, execution_id, node_id, created_at')
+      .eq('status', 'pending')
+      .eq('completion_mode', 'hitl')
+      .lt('created_at', hitlCutoff)
+      .limit(50);
+
+    for (const task of stuckTasks ?? []) {
+      // Check if we already wrote an exception for this task
+      const { count: existingCount } = await supabase
+        .from('workflow_exceptions')
+        .select('id', { count: 'exact', head: true })
+        .eq('source', 'hitl_timeout')
+        .eq('source_entity_id', task.id);
+
+      if ((existingCount ?? 0) > 0) continue;
+
+      const hoursStuck = Math.floor((Date.now() - new Date(task.created_at).getTime()) / 3600000);
+      const { writeException } = await import('@/lib/workflow/exception-writer');
+      await writeException({
+        supabase,
+        source: 'hitl_timeout',
+        severity: hoursStuck > 72 ? 'high' : 'medium',
+        title: `HITL task pending for ${hoursStuck}h: ${task.name || task.node_id}`,
+        description: `Task ${task.id.slice(0, 8)} has been awaiting human approval for ${hoursStuck} hours`,
+        sourceEntityType: 'workflow_task',
+        sourceEntityId: task.id,
+        context: { execution_id: task.execution_id, hours_stuck: hoursStuck },
+      });
+    }
+  } catch (hitlError) {
+    console.error('[shadow-reconcile] HITL timeout check error:', hitlError);
+    // Non-fatal — continue
+  }
+
   // Phase 5: Batch conformance check for executions completed in the last hour
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();

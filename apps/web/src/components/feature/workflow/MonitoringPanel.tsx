@@ -8,15 +8,16 @@ import styles from './MonitoringPanel.module.css';
 
 interface WorkflowException {
   id: string;
-  execution_id: string | null;
-  severity: 'high' | 'medium' | 'low';
-  domain: string;
-  ai_recommendation: string | null;
-  confidence_score: number | null;
-  evidence_count: number | null;
+  source: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: string;
+  source_entity_type: string | null;
+  source_entity_id: string | null;
+  title: string;
+  description: string | null;
+  context: Record<string, unknown>;
   claimed_by: string | null;
   claimed_at: string | null;
-  resolved_at: string | null;
   created_at: string;
 }
 
@@ -44,13 +45,25 @@ interface PendingApproval {
 }
 
 interface PlatformHealth {
+  workflows: {
+    running: number;
+    failed24h: number;
+    shadowDivergences: number;
+  };
+  hitl: {
+    pendingCount: number;
+  };
+  exceptions: {
+    openCount: number;
+    criticalCount: number;
+  };
   failedWebhooks: number;
-  shadowDivergences: number;
 }
 
 // --- Helpers ---
 
 const SEVERITY_CONFIG: Record<string, { color: string; label: string }> = {
+  critical: { color: '#991b1b', label: 'Critical' },
   high: { color: '#dc2626', label: 'High' },
   medium: { color: '#d97706', label: 'Medium' },
   low: { color: '#16a34a', label: 'Low' },
@@ -194,21 +207,22 @@ function ExceptionQueue() {
     refetchOnWindowFocus: true,
   });
 
-  const claimMutation = useMutation({
-    mutationFn: (exceptionId: string) =>
-      fetch(`/api/admin/workflow/exceptions/${exceptionId}/claim`, { method: 'POST' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-exceptions'] }),
-  });
-
-  const resolveMutation = useMutation({
-    mutationFn: async (exceptionId: string) => {
-      const resolution = window.prompt('Resolution notes (optional):');
-      if (resolution === null) throw new Error('cancelled');
-      await fetch(`/api/admin/workflow/exceptions/${exceptionId}/resolve`, {
-        method: 'POST',
+  const exceptionAction = useMutation({
+    mutationFn: async ({ id, action, resolution, resolution_type }: {
+      id: string;
+      action: 'claim' | 'resolve' | 'dismiss' | 'escalate';
+      resolution?: string;
+      resolution_type?: string;
+    }) => {
+      const res = await fetch(`/api/admin/workflow/exceptions/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resolution }),
+        body: JSON.stringify({ action, resolution, resolution_type }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? 'Action failed');
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-exceptions'] }),
   });
@@ -237,22 +251,17 @@ function ExceptionQueue() {
       {exceptions.map((ex) => {
         const sv = SEVERITY_CONFIG[ex.severity] ?? SEVERITY_CONFIG.low;
         return (
-          <div key={ex.id} className={styles.exceptionRow}>
+          <div key={ex.id} className={styles.exceptionRow} role="listitem" aria-label={`${sv.label} severity exception: ${ex.title}`}>
             <div className={styles.exceptionSeverity} style={{ background: sv.color }}>
               {sv.label}
             </div>
             <div className={styles.exceptionBody}>
-              <div className={styles.exceptionDomain}>{ex.domain}</div>
-              {ex.ai_recommendation && (
-                <div className={styles.exceptionRec}>{ex.ai_recommendation}</div>
+              <div className={styles.exceptionDomain}>{ex.title}</div>
+              {ex.description && (
+                <div className={styles.exceptionRec}>{ex.description}</div>
               )}
               <div className={styles.exceptionMeta}>
-                {ex.confidence_score != null && (
-                  <span>Confidence: {ex.confidence_score}%</span>
-                )}
-                {ex.evidence_count != null && (
-                  <span>{ex.evidence_count} signals</span>
-                )}
+                <span>{ex.source.replace(/_/g, ' ')}</span>
                 <span>{timeAgo(ex.created_at)}</span>
               </div>
             </div>
@@ -260,19 +269,43 @@ function ExceptionQueue() {
               {!ex.claimed_by && (
                 <button
                   className={styles.actionBtn}
-                  onClick={() => claimMutation.mutate(ex.id)}
-                  disabled={claimMutation.isPending}
+                  onClick={() => exceptionAction.mutate({ id: ex.id, action: 'claim' })}
+                  disabled={exceptionAction.isPending}
+                  aria-label={`Claim exception: ${ex.title}`}
                 >
                   Claim
                 </button>
               )}
               <button
                 className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
-                onClick={() => resolveMutation.mutate(ex.id)}
-                disabled={resolveMutation.isPending}
+                onClick={() => {
+                  const resolution = window.prompt('Resolution notes (optional):');
+                  if (resolution === null) return;
+                  exceptionAction.mutate({ id: ex.id, action: 'resolve', resolution });
+                }}
+                disabled={exceptionAction.isPending}
+                aria-label={`Resolve exception: ${ex.title}`}
               >
                 Resolve
               </button>
+              <button
+                className={styles.actionBtn}
+                onClick={() => exceptionAction.mutate({ id: ex.id, action: 'dismiss' })}
+                disabled={exceptionAction.isPending}
+                aria-label={`Dismiss exception: ${ex.title}`}
+              >
+                Dismiss
+              </button>
+              {ex.severity === 'critical' || ex.severity === 'high' ? (
+                <button
+                  className={`${styles.actionBtn} ${styles.actionBtnEscalate}`}
+                  onClick={() => exceptionAction.mutate({ id: ex.id, action: 'escalate' })}
+                  disabled={exceptionAction.isPending}
+                  aria-label={`Escalate exception: ${ex.title}`}
+                >
+                  Escalate
+                </button>
+              ) : null}
             </div>
           </div>
         );
@@ -368,12 +401,20 @@ function PlatformHealthSection() {
 
       {health && (
         <div className={styles.healthGrid}>
+          <div className={`${styles.healthCard} ${health.workflows.running > 0 ? styles.healthCardOk : styles.healthCardOk}`}>
+            <div className={styles.healthValue}>{health.workflows.running}</div>
+            <div className={styles.healthLabel}>Running workflows</div>
+          </div>
+          <div className={`${styles.healthCard} ${health.workflows.failed24h > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
+            <div className={styles.healthValue}>{health.workflows.failed24h}</div>
+            <div className={styles.healthLabel}>Failed (24h)</div>
+          </div>
           <div className={`${styles.healthCard} ${health.failedWebhooks > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
             <div className={styles.healthValue}>{health.failedWebhooks}</div>
             <div className={styles.healthLabel}>Failed webhooks (DLQ)</div>
           </div>
-          <div className={`${styles.healthCard} ${health.shadowDivergences > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
-            <div className={styles.healthValue}>{health.shadowDivergences}</div>
+          <div className={`${styles.healthCard} ${health.workflows.shadowDivergences > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
+            <div className={styles.healthValue}>{health.workflows.shadowDivergences}</div>
             <div className={styles.healthLabel}>Shadow divergences</div>
           </div>
         </div>

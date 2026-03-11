@@ -167,6 +167,11 @@
   border-color: transparent;
 }
 .actionBtnPrimary:hover { background: var(--color-primary-hover, #005a55); }
+.actionBtnEscalate {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.actionBtnEscalate:hover { background: #fef2f2; }
 
 /* Active execution rows */
 .executionRow {
