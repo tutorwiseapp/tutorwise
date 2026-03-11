@@ -22,6 +22,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const { data: execution } = await supabase
       .from('workflow_executions')
       .select(`
@@ -56,6 +59,9 @@ export async function DELETE(
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     await workflowRuntime.cancel(executionId);
 
