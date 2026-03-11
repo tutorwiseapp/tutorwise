@@ -30,9 +30,9 @@ export default function AdminSidebar() {
 
   // Admin navigation menu (NO ICONS - text only, following AppSidebar pattern)
   const navItems: NavItem[] = [
-    { href: '/admin', label: 'Dashboard' },
     { href: '/admin/operations', label: 'Operations' },
     { href: '/admin/conductor', label: 'Conductor' },
+    { href: '/admin', label: 'Dashboard' },
     {
       href: '/admin/signal',
       label: 'Signal',
