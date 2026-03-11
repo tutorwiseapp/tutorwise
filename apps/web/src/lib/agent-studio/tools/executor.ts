@@ -984,17 +984,18 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .order('snapshot_date', { ascending: false })
         .limit(14),
 
+      // NOTE: referrals.agent_id is the referrer (renamed from referrer_id in migration 052)
       supabase
         .from('referrals')
-        .select('referrer_id, commission_amount_pence')
+        .select('agent_id, commission_amount_pence')
         .eq('status', 'converted'),
     ]);
 
     // Aggregate top referrers
     const referrerMap: Record<string, number> = {};
     for (const r of (topReferrersRes.data ?? []) as any[]) {
-      if (r.referrer_id) {
-        referrerMap[r.referrer_id] = (referrerMap[r.referrer_id] ?? 0) + (r.commission_amount_pence ?? 0);
+      if (r.agent_id) {
+        referrerMap[r.agent_id] = (referrerMap[r.agent_id] ?? 0) + (r.commission_amount_pence ?? 0);
       }
     }
     const topReferrerIds = Object.entries(referrerMap)

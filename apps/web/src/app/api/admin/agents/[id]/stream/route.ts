@@ -24,6 +24,11 @@ export async function POST(
     return new Response('Unauthorized', { status: 401 });
   }
 
+  const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+  if (!adminProfile?.is_admin) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
   const { id } = await params;
   const body = await request.json().catch(() => ({})) as { prompt?: string };
 

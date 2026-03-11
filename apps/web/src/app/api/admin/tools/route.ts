@@ -14,6 +14,9 @@ export async function GET(_request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const { data, error } = await supabase
       .from('analyst_tools')
       .select('id, slug, name, description, category, input_schema, return_type, built_in, status, created_at')
@@ -33,6 +36,9 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await request.json() as {
       slug: string;

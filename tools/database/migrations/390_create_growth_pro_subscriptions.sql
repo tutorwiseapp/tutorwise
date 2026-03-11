@@ -1,5 +1,5 @@
 -- ===================================================================
--- Migration: 343_create_growth_pro_subscriptions.sql
+-- Migration: 390_create_growth_pro_subscriptions.sql (originally 343, renumbered to avoid conflicts)
 -- Purpose: Subscription tracking for Growth Agent Pro tier
 -- Version: v1.0
 -- Date: 2026-03-05

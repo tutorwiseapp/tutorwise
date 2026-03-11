@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
           const { data: referrals } = await supabase
             .from('referrals')
             .select('id, status, created_at')
-            .eq('referrer_id', agent.id)
+            .eq('agent_id', agent.id)
             .gte('created_at', weekStart.toISOString())
             .lte('created_at', weekEnd.toISOString());
 
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
           const { count: totalActiveReferrals } = await supabase
             .from('referrals')
             .select('id', { count: 'exact' })
-            .eq('referrer_id', agent.id)
+            .eq('agent_id', agent.id)
             .neq('status', 'Expired');
 
           // Get commission this week
@@ -223,12 +223,12 @@ export async function GET(request: NextRequest) {
           const { count: totalReferrals } = await supabase
             .from('referrals')
             .select('id', { count: 'exact' })
-            .eq('referrer_id', agent.id);
+            .eq('agent_id', agent.id);
 
           const { count: convertedTotal } = await supabase
             .from('referrals')
             .select('id', { count: 'exact' })
-            .eq('referrer_id', agent.id)
+            .eq('agent_id', agent.id)
             .eq('status', 'Converted');
 
           const conversionRate = (totalReferrals || 0) > 0
