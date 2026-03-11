@@ -46,12 +46,25 @@ const TeamCanvas = dynamic(
   }
 );
 
+const BuildCanvas = dynamic(
+  () => import('@/components/feature/conductor/BuildCanvas').then((m) => ({ default: m.BuildCanvas })),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ padding: 40, textAlign: 'center', color: '#9ca3af' }}>
+        Loading Build canvas…
+      </div>
+    ),
+  }
+);
+
 // Tabs in lifecycle order: Design → Build → Execute → Observe
 const TABS: { id: DiscoveryTab; label: string }[] = [
   // Design
   { id: 'workflows',    label: 'Workflows' },
   { id: 'discovery',   label: 'Discovery' },
   // Build
+  { id: 'build',       label: 'Build' },
   { id: 'agents',      label: 'Agents' },
   { id: 'teams',       label: 'Teams' },
   { id: 'spaces',      label: 'Spaces' },
@@ -67,7 +80,7 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
 // Lifecycle stages with their tab IDs
 const STAGES: { label: string; tabs: DiscoveryTab[]; number: number }[] = [
   { number: 1, label: 'Design',  tabs: ['workflows', 'discovery'] },
-  { number: 2, label: 'Build',   tabs: ['agents', 'teams', 'spaces', 'knowledge'] },
+  { number: 2, label: 'Build',   tabs: ['build', 'agents', 'teams', 'spaces', 'knowledge'] },
   { number: 3, label: 'Execute', tabs: ['execution'] },
   { number: 4, label: 'Observe', tabs: ['monitoring', 'intelligence', 'mining'] },
 ];
@@ -197,6 +210,14 @@ export default function ConductorPage() {
         <ErrorBoundary fallback={<TabError tab="Knowledge" />}>
           <div className={styles.intelligenceContainer}>
             <KnowledgePanel />
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {activeTab === 'build' && (
+        <ErrorBoundary fallback={<TabError tab="Build" />}>
+          <div className={styles.canvasContainer}>
+            <BuildCanvas />
           </div>
         </ErrorBoundary>
       )}

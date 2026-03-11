@@ -11,6 +11,7 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Layers, Users, Plus, RefreshCw, Trash2, X, Check, ChevronDown, GripVertical } from 'lucide-react';
 import { useDiscoveryStore } from '@/components/feature/workflow/discovery-store';
+import { UnifiedSelect } from '@/app/components/ui/forms';
 import styles from './SpacesPanel.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ interface TeamCardProps {
 }
 
 function TeamCard({ team, onRemove, removingDisabled, spaces, onAssign, onNavigate, overlay = false }: TeamCardProps) {
+  const [assignValue, setAssignValue] = useState('');
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: team.id,
     data: { team },
@@ -113,20 +115,14 @@ function TeamCard({ team, onRemove, removingDisabled, spaces, onAssign, onNaviga
       <div className={styles.teamFooter}>
         <span>{team.nodes.length} agents</span>
         {spaces && onAssign && (
-          <div className={styles.assignWrap}>
-            <select
-              className={styles.assignSelect}
-              value=""
-              disabled={removingDisabled}
-              onChange={(e) => { if (e.target.value) onAssign(e.target.value); }}
-            >
-              <option value="" disabled>Move to space…</option>
-              {spaces.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-            <ChevronDown size={11} className={styles.selectChevron} />
-          </div>
+          <UnifiedSelect
+            value={assignValue}
+            placeholder="Move to space…"
+            disabled={removingDisabled}
+            onChange={(v) => { setAssignValue(''); if (v) onAssign(v as string); }}
+            options={(spaces ?? []).map((s) => ({ value: s.id, label: s.name }))}
+            size="xs"
+          />
         )}
       </div>
     </div>
@@ -152,6 +148,7 @@ function DroppableLane({ id, children, empty }: { id: string; children: React.Re
 export function SpacesPanel() {
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [addTeamValues, setAddTeamValues] = useState<Record<string, string>>({});
   const [activeTeam, setActiveTeam] = useState<AgentTeam | null>(null);
   const navigateToTeam = useDiscoveryStore((s) => s.navigateToTeam);
 
@@ -375,19 +372,16 @@ export function SpacesPanel() {
                   </div>
                   <div className={styles.laneActions}>
                     {availableTeams.length > 0 && (
-                      <div className={styles.addTeamWrap}>
-                        <select
-                          className={styles.addTeamSelect}
-                          value=""
-                          onChange={(e) => { if (e.target.value) assignTeamMutation.mutate({ teamId: e.target.value, spaceId: space.id }); }}
-                        >
-                          <option value="" disabled>+ Add team</option>
-                          {availableTeams.map((t) => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={12} className={styles.selectChevron} />
-                      </div>
+                      <UnifiedSelect
+                        value={addTeamValues[space.id] ?? ''}
+                        placeholder="+ Add team"
+                        onChange={(v) => {
+                          setAddTeamValues((prev) => ({ ...prev, [space.id]: '' }));
+                          if (v) assignTeamMutation.mutate({ teamId: v as string, spaceId: space.id });
+                        }}
+                        options={availableTeams.map((t) => ({ value: t.id, label: t.name }))}
+                        size="xs"
+                      />
                     )}
                     {!space.built_in && (
                       <button

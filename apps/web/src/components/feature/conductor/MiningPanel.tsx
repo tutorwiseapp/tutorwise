@@ -7,6 +7,7 @@ import {
   RefreshCw, Layers, BarChart2, Shield,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { UnifiedSelect } from '@/app/components/ui/forms';
 import styles from './MiningPanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -573,22 +574,13 @@ export function MiningPanel() {
               <RefreshCw size={14} className={activeQuery.isFetching ? styles.spinning : undefined} />
             </button>
           )}
-          <select
-            className={styles.select}
+          <UnifiedSelect
             value={selectedProcessId ?? ''}
-            onChange={(e) => {
-              setSelectedProcessId(e.target.value || null);
-              setActiveSubTab('analytics');
-            }}
-          >
-            <option value="">Select a process…</option>
-            {processes.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-                {p.execution_mode !== 'live' ? ` (${p.execution_mode})` : ''}
-              </option>
-            ))}
-          </select>
+            placeholder="Select a process…"
+            onChange={(v) => { setSelectedProcessId((v as string) || null); setActiveSubTab('analytics'); }}
+            options={processes.map((p) => ({ value: p.id, label: p.name + (p.execution_mode !== 'live' ? ` (${p.execution_mode})` : '') }))}
+            size="sm"
+          />
         </div>
       </div>
 

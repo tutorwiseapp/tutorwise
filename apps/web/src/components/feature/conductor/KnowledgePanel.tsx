@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit2, Save, X, Search, BookOpen, RefreshCw } from 'lucide-react';
+import { UnifiedSelect } from '@/app/components/ui/forms';
 import styles from './KnowledgePanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -123,15 +124,12 @@ function ChunkForm({
         </div>
         <div className={styles.formField}>
           <label className={styles.formLabel}>Category</label>
-          <select
-            className={styles.formSelect}
+          <UnifiedSelect
             value={form.category}
-            onChange={(e) => set('category', e.target.value as KnowledgeCategory)}
-          >
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+            onChange={(v) => set('category', v as KnowledgeCategory)}
+            options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+            size="sm"
+          />
         </div>
         <div className={styles.formField}>
           <label className={styles.formLabel}>Source Ref</label>
@@ -227,16 +225,13 @@ function RagPreview() {
           placeholder="Enter a test query to see which chunks match…"
           onKeyDown={(e) => e.key === 'Enter' && runPreview()}
         />
-        <select
-          className={styles.filterSelect}
+        <UnifiedSelect
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">All categories</option>
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+          placeholder="All categories"
+          onChange={(v) => setCategory(v as string)}
+          options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+          size="sm"
+        />
         <button
           className={styles.ragBtn}
           onClick={runPreview}
@@ -414,16 +409,13 @@ export function KnowledgePanel() {
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.toolbarLeft}>
-          <select
-            className={styles.filterSelect}
+          <UnifiedSelect
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            <option value="">All categories</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+            placeholder="All categories"
+            onChange={(v) => setFilterCategory(v as string)}
+            options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+            size="sm"
+          />
           <button
             className={styles.iconBtn}
             onClick={() => refetch()}

@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       edges?: unknown[];
       coordinator_slug?: string;
       config?: Record<string, unknown>;
+      space_id?: string | null;
     };
 
     if (!body.slug || !body.name) {
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
         edges: body.edges ?? [],
         coordinator_slug: body.coordinator_slug ?? null,
         config: body.config ?? {},
+        space_id: body.space_id ?? null,
         created_by: user.id,
       })
       .select('id, slug, name')

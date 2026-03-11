@@ -115,7 +115,7 @@
   transition: transform 0.15s, border-color 0.15s;
 }
 .colorSwatch:hover      { transform: scale(1.15); }
-.colorSwatchActive      { border-color: #111827; transform: scale(1.15); }
+.colorSwatchActive      { border-color: var(--color-primary, #006c67); transform: scale(1.15); }
 
 .formInput {
   padding: 0.45rem 0.7rem;

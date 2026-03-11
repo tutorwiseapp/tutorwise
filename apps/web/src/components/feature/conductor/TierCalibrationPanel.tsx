@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Target, CheckCircle, XCircle, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { UnifiedSelect } from '@/app/components/ui/forms';
 import styles from './TierCalibrationPanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -168,16 +169,13 @@ function ProcessCard({ config }: { config: AutonomyConfig }) {
       {/* Manual tier change */}
       <div className={styles.tierControls}>
         <span className={styles.tierControlLabel}>Manual tier:</span>
-        <select
-          className={styles.tierSelect}
+        <UnifiedSelect
           value={selectedTier}
-          onChange={(e) => setSelectedTier(e.target.value as AutonomyTier)}
+          onChange={(v) => setSelectedTier(v as AutonomyTier)}
+          options={TIER_OPTIONS.map((t) => ({ value: t, label: TIER_CONFIG[t].label }))}
           disabled={isBusy}
-        >
-          {TIER_OPTIONS.map((t) => (
-            <option key={t} value={t}>{TIER_CONFIG[t].label}</option>
-          ))}
-        </select>
+          size="sm"
+        />
         <button
           className={styles.applyBtn}
           onClick={() => actionMutation.mutate({ action: 'set_tier', tier: selectedTier })}
