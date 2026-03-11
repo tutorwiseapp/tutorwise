@@ -51,6 +51,22 @@ export async function POST(
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('[execute/resume]', message);
+
+    // Write exception for resume failure (fire-and-forget)
+    const { executionId: execId } = await props.params;
+    import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
+      const supa = await createClient();
+      writeException({
+        supabase: supa,
+        source: 'workflow_failure',
+        severity: 'high',
+        title: `Workflow execution resume failed`,
+        description: message,
+        sourceEntityType: 'workflow_execution',
+        sourceEntityId: execId,
+      });
+    }).catch(() => {});
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

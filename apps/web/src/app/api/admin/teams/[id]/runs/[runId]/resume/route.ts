@@ -45,9 +45,24 @@ export async function POST(
 
     return NextResponse.json({ success: true, data: result });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal server error' },
-      { status: 500 }
-    );
+    const message = err instanceof Error ? err.message : 'Internal server error';
+
+    // Write exception for team resume failure (fire-and-forget)
+    const { id: teamId, runId: rId } = await params;
+    import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
+      const supa = await createClient();
+      writeException({
+        supabase: supa,
+        source: 'team_error',
+        severity: 'high',
+        title: `Team run resume failed`,
+        description: message,
+        sourceEntityType: 'agent_team_run_output',
+        sourceEntityId: rId,
+        context: { teamId: teamId, runId: rId },
+      });
+    }).catch(() => {});
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

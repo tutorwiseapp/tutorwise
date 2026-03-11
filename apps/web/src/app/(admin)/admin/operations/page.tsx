@@ -8,7 +8,7 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, ArrowUp } from 'lucide-react';
+import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, ArrowUp, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
@@ -119,7 +119,7 @@ export default function AdminOperationsPage() {
     refetchInterval: 30_000,
   });
 
-  // Brief — AI-generated, expensive; stale 15min, passive poll 30min, revalidate on focus
+  // Brief — AI-generated, expensive; stale 30min, passive poll 30min, revalidate on focus; only fetch on overview tab
   const { data: briefData, isLoading: briefLoading, isFetching: briefFetching } = useQuery<BriefData>({
     queryKey: ['admin', 'operations', 'brief'],
     queryFn: async () => {
@@ -128,6 +128,7 @@ export default function AdminOperationsPage() {
       if (!json.success) throw new Error(json.error);
       return json.data;
     },
+    enabled: tabFilter === 'overview',
     staleTime: 30 * 60_000,
     refetchOnWindowFocus: true,
     refetchInterval: 30 * 60_000,
@@ -150,7 +151,7 @@ export default function AdminOperationsPage() {
   });
 
   // Exceptions — full list, only when tab active; poll every 20s (matches MonitoringPanel pattern)
-  const { data: exceptionsData } = useQuery<{ data: ExceptionItem[]; total: number }>({
+  const { data: exceptionsData, isError: exceptionsError } = useQuery<{ data: ExceptionItem[]; total: number }>({
     queryKey: ['admin', 'operations', 'exceptions'],
     queryFn: async () => {
       const res = await fetch('/api/admin/operations/exceptions?status=open&limit=50');
@@ -166,8 +167,9 @@ export default function AdminOperationsPage() {
   });
 
   // Exception actions
+  type ExceptionAction = 'claim' | 'resolve' | 'dismiss';
   const exceptionAction = useMutation({
-    mutationFn: async ({ id, action, resolution }: { id: string; action: string; resolution?: string }) => {
+    mutationFn: async ({ id, action, resolution }: { id: string; action: ExceptionAction; resolution?: string }) => {
       const res = await fetch(`/api/admin/operations/exceptions/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -177,7 +179,9 @@ export default function AdminOperationsPage() {
       if (!json.success) throw new Error(json.error);
       return json.data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      const labels: Record<ExceptionAction, string> = { claim: 'Claimed', resolve: 'Resolved', dismiss: 'Dismissed' };
+      toast.success(`Exception ${labels[variables.action] ?? 'updated'}`);
       queryClient.invalidateQueries({ queryKey: ['admin', 'operations', 'health'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'operations', 'exceptions'] });
     },
@@ -416,7 +420,7 @@ export default function AdminOperationsPage() {
               <div className={styles.briefSection}>
                 <div className={styles.briefHeader}>
                   <h3 className={styles.briefTitle}>AI Operations Brief</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div className={styles.briefHeaderActions}>
                     {briefFetching && !briefLoading && !refreshBrief.isPending && <Loader2 size={12} className={styles.spinner} style={{ color: '#9ca3af' }} />}
                     {briefData && <span className={styles.briefMeta}>Generated {timeAgo(briefData.generatedAt)}</span>}
                     <button
@@ -449,7 +453,12 @@ export default function AdminOperationsPage() {
                   <span className={styles.panelBadge}>{exceptionsData.total}</span>
                 )}
               </h3>
-              {!exceptionsData || exceptionsData.data.length === 0 ? (
+              {exceptionsError ? (
+                <div className={styles.errorState}>
+                  <XCircle size={16} />
+                  <span>Failed to load exceptions. Try refreshing the page.</span>
+                </div>
+              ) : !exceptionsData || exceptionsData.data.length === 0 ? (
                 <p className={styles.emptyState}>No open exceptions</p>
               ) : (
                 <ul className={styles.exceptionList}>
@@ -468,7 +477,7 @@ export default function AdminOperationsPage() {
                           {ex.claimed_by_profile && ` · claimed by ${ex.claimed_by_profile.full_name}`}
                         </p>
                         {ex.description && (
-                          <p className={styles.exceptionMeta} style={{ marginTop: '0.25rem', color: '#6b7280' }}>
+                          <p className={styles.exceptionDescription}>
                             {ex.description}
                           </p>
                         )}
@@ -484,13 +493,22 @@ export default function AdminOperationsPage() {
                           </button>
                         )}
                         {(ex.status === 'open' || ex.status === 'claimed') && (
-                          <button
-                            className={styles.resolveBtn}
-                            onClick={() => exceptionAction.mutate({ id: ex.id, action: 'resolve', resolution: 'Resolved from Operations queue' })}
-                            disabled={exceptionAction.isPending}
-                          >
-                            Resolve
-                          </button>
+                          <>
+                            <button
+                              className={styles.resolveBtn}
+                              onClick={() => exceptionAction.mutate({ id: ex.id, action: 'resolve', resolution: 'Resolved from Operations queue' })}
+                              disabled={exceptionAction.isPending}
+                            >
+                              Resolve
+                            </button>
+                            <button
+                              className={styles.dismissBtn}
+                              onClick={() => exceptionAction.mutate({ id: ex.id, action: 'dismiss' })}
+                              disabled={exceptionAction.isPending}
+                            >
+                              Dismiss
+                            </button>
+                          </>
                         )}
                       </div>
                     </li>

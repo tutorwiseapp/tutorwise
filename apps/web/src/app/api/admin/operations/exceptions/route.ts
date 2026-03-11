@@ -16,12 +16,27 @@ export async function GET(request: NextRequest) {
     const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    const VALID_STATUSES = ['open', 'claimed', 'resolved', 'dismissed'] as const;
+    const VALID_SEVERITIES = ['low', 'medium', 'high', 'critical'] as const;
+    const VALID_SOURCES = ['workflow_failure', 'agent_error', 'conformance_deviation', 'webhook_failure', 'shadow_divergence', 'hitl_timeout', 'team_error'] as const;
+
     const { searchParams } = request.nextUrl;
-    const status = searchParams.get('status'); // open, claimed, resolved, dismissed
-    const severity = searchParams.get('severity'); // low, medium, high, critical
+    const status = searchParams.get('status');
+    const severity = searchParams.get('severity');
     const source = searchParams.get('source');
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50'), 100);
-    const offset = parseInt(searchParams.get('offset') ?? '0');
+
+    if (status && !(VALID_STATUSES as readonly string[]).includes(status)) {
+      return NextResponse.json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` }, { status: 400 });
+    }
+    if (severity && !(VALID_SEVERITIES as readonly string[]).includes(severity)) {
+      return NextResponse.json({ error: `Invalid severity. Must be one of: ${VALID_SEVERITIES.join(', ')}` }, { status: 400 });
+    }
+    if (source && !(VALID_SOURCES as readonly string[]).includes(source)) {
+      return NextResponse.json({ error: `Invalid source. Must be one of: ${VALID_SOURCES.join(', ')}` }, { status: 400 });
+    }
+
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') ?? '50') || 50, 1), 100);
+    const offset = Math.max(parseInt(searchParams.get('offset') ?? '0') || 0, 0);
 
     let query = supabase
       .from('workflow_exceptions')

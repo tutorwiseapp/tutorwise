@@ -67,6 +67,22 @@ export async function POST(
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('[execute/task/complete]', message);
+
+    // Write exception for task completion failure (fire-and-forget)
+    const { taskId: tId } = await props.params;
+    import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
+      const supa = await createClient();
+      writeException({
+        supabase: supa,
+        source: 'hitl_timeout',
+        severity: 'high',
+        title: `HITL task completion failed`,
+        description: message,
+        sourceEntityType: 'workflow_task',
+        sourceEntityId: tId,
+      });
+    }).catch(() => {});
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

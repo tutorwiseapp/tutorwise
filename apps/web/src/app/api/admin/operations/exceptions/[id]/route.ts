@@ -52,13 +52,20 @@ export async function PATCH(
 
     const body = await request.json();
     const { action, resolution, resolution_type } = body as {
-      action: 'claim' | 'resolve' | 'dismiss';
+      action: string;
       resolution?: string;
-      resolution_type?: 'fixed' | 'dismissed' | 'escalated' | 'auto_resolved';
+      resolution_type?: string;
     };
 
-    if (!action) {
-      return NextResponse.json({ error: 'action is required (claim | resolve | dismiss)' }, { status: 400 });
+    const VALID_ACTIONS = ['claim', 'resolve', 'dismiss'] as const;
+    const VALID_RESOLUTION_TYPES = ['fixed', 'dismissed', 'escalated', 'auto_resolved'] as const;
+
+    if (!action || !(VALID_ACTIONS as readonly string[]).includes(action)) {
+      return NextResponse.json({ error: `action is required and must be one of: ${VALID_ACTIONS.join(', ')}` }, { status: 400 });
+    }
+
+    if (resolution_type && !(VALID_RESOLUTION_TYPES as readonly string[]).includes(resolution_type)) {
+      return NextResponse.json({ error: `resolution_type must be one of: ${VALID_RESOLUTION_TYPES.join(', ')}` }, { status: 400 });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,7 +86,7 @@ export async function PATCH(
           resolved_by: user.id,
           resolved_at: new Date().toISOString(),
           resolution: resolution ?? null,
-          resolution_type: resolution_type ?? 'fixed',
+          resolution_type: (resolution_type as 'fixed' | 'dismissed' | 'escalated' | 'auto_resolved') ?? 'fixed',
         };
         break;
 

@@ -96,6 +96,7 @@ INSTRUCTIONS:
 - Keep the entire brief under 400 words
 - Do not use markdown headers, just bullet points and short paragraphs`,
       temperature: 0.3,
+      maxTokens: 1024,
     });
 
     cachedBrief = {

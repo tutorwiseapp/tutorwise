@@ -120,13 +120,6 @@
   }
 }
 
-.statCard {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1.25rem;
-}
-
 .statCardClickable {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -311,6 +304,15 @@
   background: #ecfdf5;
 }
 
+.dismissBtn {
+  composes: claimBtn;
+  color: #6b7280;
+}
+
+.dismissBtn:hover {
+  background: #f3f4f6;
+}
+
 /* Agent status list */
 .agentList {
   list-style: none;
@@ -377,6 +379,12 @@
 .commandForm:focus-within {
   border-color: #4CAEAD;
   box-shadow: 0 4px 12px rgba(76, 174, 173, 0.15);
+}
+
+.commandInput:focus {
+  outline: 2px solid #4CAEAD;
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 
 .commandInput {
@@ -460,6 +468,32 @@
   padding: 0 4px;
 }
 
+/* Error state */
+.errorState {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  color: #dc2626;
+  font-size: 0.8125rem;
+  background: #fef2f2;
+  border-radius: 0.375rem;
+}
+
+/* Brief header actions */
+.briefHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Exception description */
+.exceptionDescription {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+}
+
 /* Empty state */
 .emptyState {
   text-align: center;
@@ -520,10 +554,6 @@
   }
 
   .briefSection {
-    padding: 1rem;
-  }
-
-  .statCard {
     padding: 1rem;
   }
 

@@ -195,34 +195,61 @@ export class SpecialistAgentRunner {
 
     // ReAct loop — up to MAX_TOOL_ROUNDS
     let outputText = '';
-    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const result = await ai.generate({ systemPrompt, userPrompt });
-      outputText = result.content;
+    try {
+      for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+        const result = await ai.generate({ systemPrompt, userPrompt });
+        outputText = result.content;
 
-      // Extract tool calls
-      const matches = [...outputText.matchAll(TOOL_CALL_PATTERN)];
-      if (!matches.length) break;
+        // Extract tool calls
+        const matches = [...outputText.matchAll(TOOL_CALL_PATTERN)];
+        if (!matches.length) break;
 
-      const toolResults: string[] = [];
-      for (const match of matches) {
-        const [, slug, rawInput] = match;
-        try {
-          const input = JSON.parse(rawInput) as Record<string, unknown>;
-          const output = await executeTool(slug, input, {
-            profileId: options?.contextProfileId,
-            agentSlug: agent.slug,
-            runId,
-          });
-          toolsCalled.push({ slug, input, output });
-          toolResults.push(`TOOL_RESULT: ${slug}\n${JSON.stringify(output, null, 2)}`);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          toolResults.push(`TOOL_ERROR: ${slug}\n${msg}`);
+        const toolResults: string[] = [];
+        for (const match of matches) {
+          const [, slug, rawInput] = match;
+          try {
+            const input = JSON.parse(rawInput) as Record<string, unknown>;
+            const output = await executeTool(slug, input, {
+              profileId: options?.contextProfileId,
+              agentSlug: agent.slug,
+              runId,
+            });
+            toolsCalled.push({ slug, input, output });
+            toolResults.push(`TOOL_RESULT: ${slug}\n${JSON.stringify(output, null, 2)}`);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            toolResults.push(`TOOL_ERROR: ${slug}\n${msg}`);
+          }
         }
-      }
 
-      // Append tool results to conversation
-      userPrompt = `${outputText}\n\n${toolResults.join('\n\n')}\n\nPlease continue your analysis based on the tool results above.`;
+        // Append tool results to conversation
+        userPrompt = `${outputText}\n\n${toolResults.join('\n\n')}\n\nPlease continue your analysis based on the tool results above.`;
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      const durationMs = Date.now() - startTime;
+
+      // Mark run as failed
+      await supabase
+        .from('agent_run_outputs')
+        .update({ output_text: `Error: ${errorMsg}`, status: 'failed', duration_ms: durationMs })
+        .eq('id', runId);
+
+      // Write exception (fire-and-forget)
+      import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+        writeException({
+          supabase,
+          source: 'agent_error',
+          severity: 'high',
+          title: `Agent "${agent.name}" failed during execution`,
+          description: errorMsg,
+          sourceEntityType: 'specialist_agent',
+          sourceEntityId: agent.id,
+          context: { agentSlug: agent.slug, runId, triggerType, prompt: prompt.slice(0, 500) },
+        })
+      ).catch(() => {});
+
+      throw err;
     }
 
     const durationMs = Date.now() - startTime;
