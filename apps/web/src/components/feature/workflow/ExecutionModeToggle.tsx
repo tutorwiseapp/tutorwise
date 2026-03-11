@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import styles from './ExecutionModeToggle.module.css';
 
 type ExecutionMode = 'design' | 'shadow' | 'live';
@@ -58,11 +59,16 @@ export function ExecutionModeToggle({
         body: JSON.stringify({ mode: nextMode }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || 'Failed to change execution mode');
+        return;
+      }
       if (data.mode) {
         onModeChanged(data.mode as ExecutionMode);
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[ExecutionModeToggle] Mode change failed:', err);
+      toast.error('Failed to change execution mode');
     } finally {
       setIsSaving(false);
     }

@@ -12,10 +12,10 @@ import { processNudges } from '@/lib/workflow/nudge-scheduler';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  const secret = request.headers.get('x-cron-secret');
+  const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronSecret || secret !== cronSecret) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

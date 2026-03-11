@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { ExecutionModeToggle } from './ExecutionModeToggle';
 import type { WorkflowProcess } from './types';
 import styles from './GoLiveReadiness.module.css';
@@ -42,8 +43,9 @@ export function GoLiveReadiness({ process, onModeChanged }: GoLiveReadinessProps
       const res = await fetch(`/api/admin/workflow/processes/${process.id}/shadow-stats`);
       const data = await res.json();
       if (data.success) setStats(data.data as ShadowStats);
-    } catch {
-      // ignore
+    } catch (err) {
+      console.warn('[GoLiveReadiness] Failed to fetch shadow stats:', err);
+      toast.error('Failed to load shadow stats');
     } finally {
       setLoading(false);
     }

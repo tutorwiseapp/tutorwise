@@ -8,8 +8,9 @@ import { createServiceRoleClient } from '@/utils/supabase/server';
 import { getMCPClientManager } from '@/lib/mcp/MCPClientManager';
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-cron-secret');
-  if (secret !== process.env.CRON_SECRET) {
+  const authHeader = req.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

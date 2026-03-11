@@ -50,7 +50,10 @@ export function ApprovalDrawer({
     })
       .then((r) => r.json())
       .then((d) => setAiRec(d.result?.message ?? null))
-      .catch(() => setAiRec(null))
+      .catch((err) => {
+        console.warn('[ApprovalDrawer] AI recommendation fetch failed:', err);
+        setAiRec(null);
+      })
       .finally(() => setIsLoadingAi(false));
   }, [task.name, executionContext]);
 
