@@ -448,7 +448,8 @@ export function MiningPanel() {
       return (json.data ?? json) as WorkflowProcess[];
     },
     staleTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
   });
 
   const processes: WorkflowProcess[] = processesQuery.data ?? [];
@@ -465,7 +466,7 @@ export function MiningPanel() {
     enabled: !!selectedProcessId && activeSubTab === 'analytics',
     staleTime: 5 * 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const conformanceQuery = useQuery({
@@ -479,7 +480,7 @@ export function MiningPanel() {
     enabled: !!selectedProcessId && activeSubTab === 'conformance',
     staleTime: 5 * 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const shadowQuery = useQuery({
@@ -493,7 +494,7 @@ export function MiningPanel() {
     enabled: !!selectedProcessId && activeSubTab === 'shadow',
     staleTime: 5 * 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   // Mark deviation as expected

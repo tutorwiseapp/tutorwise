@@ -481,6 +481,7 @@ function BuildAgentChat({ agent }: { agent: { id: string; name: string; role: st
       return json.data as AgentRunRecord[];
     },
     staleTime: 30_000,
+    refetchOnWindowFocus: true,
     enabled: showHistory,
   });
 
@@ -641,18 +642,23 @@ function BuildCanvasInner() {
     queryKey: ['build-spaces'],
     queryFn: fetchSpaces,
     staleTime: 60_000,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
   });
 
   const { data: teams, isLoading: teamsLoading, refetch: refetchTeams } = useQuery({
     queryKey: ['build-teams'],
     queryFn: fetchTeams,
     staleTime: 60_000,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
   });
 
   const { data: agents, isLoading: agentsLoading } = useQuery({
     queryKey: ['build-agents'],
     queryFn: fetchAgents,
     staleTime: 5 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   // No inline `= []` default — that creates a new array reference every render,
@@ -663,6 +669,7 @@ function BuildCanvasInner() {
     enabled: level === 2,
     refetchInterval: 15_000,
     staleTime: 10_000,
+    refetchOnWindowFocus: true,
   });
 
   const isLoading = level === 0 ? spacesLoading : level === 1 ? teamsLoading : agentsLoading;

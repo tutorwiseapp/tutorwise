@@ -31,6 +31,8 @@ export default function AdminSidebar() {
   // Admin navigation menu (NO ICONS - text only, following AppSidebar pattern)
   const navItems: NavItem[] = [
     { href: '/admin', label: 'Dashboard' },
+    { href: '/admin/operations', label: 'Operations' },
+    { href: '/admin/conductor', label: 'Conductor' },
     {
       href: '/admin/signal',
       label: 'Signal',
@@ -72,7 +74,6 @@ export default function AdminSidebar() {
     { href: '/admin/sage', label: 'Sage AI Tutor' },
     { href: '/admin/growth', label: 'AI Growth' },
     { href: '/admin/lexi', label: 'Lexi AI Agent' },
-    { href: '/admin/conductor', label: 'Conductor' },
     { href: '/admin/network', label: 'Network Intelligence' },
     { href: '/admin/bookings', label: 'Bookings' },
     { href: '/admin/referrals', label: 'Referrals' },

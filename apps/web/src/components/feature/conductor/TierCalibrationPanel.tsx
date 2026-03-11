@@ -206,7 +206,7 @@ export function TierCalibrationPanel() {
     },
     staleTime: 3 * 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const proposalCount = configs.filter(

@@ -284,9 +284,12 @@ export function EvalPanel() {
     queryFn: async () => {
       const res = await fetch('/api/admin/agents');
       const json = await res.json() as { success: boolean; data: SpecialistAgent[] };
-      return json.success ? json.data : [];
+      if (!json.success) throw new Error('Failed to load agents');
+      return json.data;
     },
     staleTime: 60_000,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
   });
 
   const selectedAgent = agents.find(a => a.id === selectedAgentId) ?? null;

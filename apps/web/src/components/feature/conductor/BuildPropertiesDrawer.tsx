@@ -143,6 +143,7 @@ function TeamForm({ data, saveTrigger, onStateChange, onSaved }: { data: TeamDat
       return json.data as { id: string; name: string }[];
     },
     staleTime: 60_000,
+    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {

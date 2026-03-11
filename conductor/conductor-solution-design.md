@@ -1,7 +1,7 @@
 # Tutorwise Conductor — Intelligent Operations Platform
-**Version**: 5.0 — Phases 0–8 complete; migrations 348–388 applied
+**Version**: 5.1 — Phases 0–9 complete; migrations 348–389 applied
 **Date**: 2026-03-11
-**Status**: Active platform — Phases 0–8 complete (TeamRuntime v2, DevOps Team, Agent Episodic Memory, MCP Integration Framework); cas_* hard DELETE eligible 2026-06-11
+**Status**: Active platform — Phases 0–9 complete (TeamRuntime v2, DevOps Team, Agent Episodic Memory, MCP Integration Framework, Admin Operations); cas_* hard DELETE eligible 2026-06-11
 
 > **Document Index — Conductor folder**
 >
@@ -41,6 +41,7 @@
   - [Phase 6 — Unified Execution Substrate (TeamRuntime v2 + CAS Decommission)](#phase-6--unified-execution-substrate-teamruntime-v2--cas-decommission)
   - [Phase 7 — Agent Episodic Memory](#phase-7--agent-episodic-memory)
   - [Phase 8 — MCP Integration Framework](#phase-8--mcp-integration-framework)
+  - [Phase 9 — Admin Operations](#phase-9--admin-operations)
 - [Roadmap (Future — Not Phased)](#roadmap-future--not-phased)
 - **Reference**
   - [Testing Strategy](#testing-strategy)
@@ -273,7 +274,7 @@ Fuschia has **8 distinct modules**. Tutorwise's position against each:
 | Fuschia Module | Tutorwise Status | Verdict |
 |---------------|-----------------|---------|
 | **Workflow Designer** (ReactFlow canvas, node palette, templates) | ✅ **Complete** — 7 node types, drag-to-canvas palette, WorkflowCanvas, TemplateSelector, ChatPanel, auto-layout | Ahead — shadow/live promotion model exceeds Fuschia |
-| **Workflow Execution** (LangGraph, pause/resume, HITL) | ✅ **AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer, conformance checking | Fuschia uses flat YAML; our LangGraph approach is more powerful |
+| **Workflow Execution** (LangGraph, pause/resume, HITL) | ✅ **AHEAD** — PostgreSQL checkpointing, shadow mode, 11 typed handlers, HITL ApprovalDrawer, conformance checking | Fuschia uses flat YAML; Conductor LangGraph approach is more powerful |
 | **Agent Designer** (visual canvas to design agent org, assign tools) | ✅ **Complete** — AgentManagementPanel, agent chat, BuildCanvas/BuildPropertiesDrawer | Build Canvas surpasses Fuschia — 3-level hierarchy (Space→Team→Agent) |
 | **Agent Teams** (multi-agent Supervisor/Pipeline/Swarm patterns) | ✅ **AHEAD** — TeamRuntime v2 (LangGraph StateGraph + PostgresSaver + CircuitBreaker), 3 patterns, DB-configurable topology, TeamCanvas, HITL interrupt()/resume() | **Tutorwise surpasses Fuschia** — Phase 6 complete: correct LangGraph + PostgresSaver + HITL + governance |
 | **Agent Registry** (Agent Registry = Agents + Teams + Spaces) | ✅ **UNIQUE** — No Fuschia equivalent. iPOM hierarchy (Space→Team→Agent), 5 built-in spaces, 11 agents | Tutorwise-original architecture — see AI-Digital-Workforce-Blueprint.md |
@@ -508,7 +509,7 @@ CONDUCTOR — WORKFLOW INVENTORY
 | **Lexi** | Help bot + admin conversational interface | Bridge + admin mode with operational tools |
 | **Growth** | Advisory agent + platform-wide signal source | Bridge — audit, session, action, score events |
 | **AI Agent Studio** | Marketplace AI agents (student/client-facing) | Lifecycle events (`agent.created`, `agent.published`) |
-| **Admin Command Center** | Human interface for the autonomous platform | Exception queue consumer + HITL approval interface |
+| **Admin Operations** (`/admin/operations`) | Human interface for the autonomous platform — daily AI brief, platform health, exception queue, agent status, command bar | Exception queue consumer + HITL approval + operational monitoring |
 
 ### What's Built — All Phases Complete (v5.0)
 
@@ -556,6 +557,8 @@ CONDUCTOR — WORKFLOW INVENTORY
 | **MCPPanel** (admin UI — connections, catalog, exec log) | `components/feature/conductor/MCPPanel.tsx` | 8 | ✅ Live |
 | **SimulationPanel** (scenario runner) | `components/feature/conductor/SimulationPanel.tsx` | — | ✅ Live |
 | **EvalPanel** (agent evaluation) | `components/feature/conductor/EvalPanel.tsx` | — | ✅ Live |
+| **Admin Operations** (daily brief, health, exceptions, command bar) | `/admin/operations/` + `/api/admin/operations/*` | 9 | ✅ Live |
+| **workflow_exceptions** table (unified exception queue) | migration 389 | 9 | ✅ Live |
 
 ---
 
@@ -1003,10 +1006,10 @@ ADMIN SIDEBAR — Before vs After
                                  ── Settings / Shared Fields
 ```
 
-**Admin Command Center** — the new primary admin homepage:
+**Admin Operations** — dedicated operations page (separate from existing admin dashboard):
 
 ```
-/admin/  — Admin Command Center
+/admin/operations/  — Admin Operations
 
   ┌─────────────────────────────────────────────────────────────┐
   │  Good morning. Platform brief — Thursday 5 March            │
@@ -2163,7 +2166,7 @@ Two Conductor use cases: **GTM Lifecycle** (stages 1–6 + Signal + CaaS + Virtu
 | Admin Intelligence: weekly tier calibration proposals | 4 | Reads `process_autonomy_config`. Proposes tier changes. Admin approves. |
 | Exception escalation: 48h unclaimed → email admin | 2 | Resend email. `escalated_at` set. |
 | Lexi admin mode | 5 | `is_admin()` check. Admin-scoped tools + system prompt. |
-| Admin query bar on Command Center | 3 | Entry point → Lexi admin mode. |
+| Admin query bar on Operations | 3 | Entry point → Lexi admin mode. |
 | Admin query caching (Redis, 1h TTL) | 3 | Common queries cached. Key: intent hash + date bucket. |
 | Real-time monitoring WebSocket | 8 | Live node-by-node progress. Agent status stream. Exception queue live feed. |
 | Analytics dashboard (3 tabs: Workflows / Agents / Platform) | 10 | Charts, funnels, tool usage, cost per agent. |
@@ -2208,7 +2211,7 @@ interface IntentResult {
 ```
 INTENT DETECTION FLOW
 
-  Admin types in Command Center query bar:
+  Admin types in Operations query bar:
   "show me at-risk tutors this week"
           │
           ▼
@@ -2238,7 +2241,7 @@ INTENT DETECTION FLOW
                   → Lexi answers with operational tools
 ```
 
-Intent routing is integrated into the Command Center query bar (Phase 3). Phase 4 upgrades the classifier from simple keyword → `getAIService().generateJSON()` for semantic intent detection with confidence scoring.
+Intent routing is integrated into the Operations query bar (Phase 3). Phase 4 upgrades the classifier from simple keyword → `getAIService().generateJSON()` for semantic intent detection with confidence scoring.
 
 Chat input on the unified `/admin/workflow` dashboard routes through intent detection first.
 
@@ -2452,7 +2455,7 @@ measure-nudge-outcomes            — every 3 days: check nudge sent 14d ago, co
 | Knowledge base admin UI | 5 | Add/edit/delete knowledge chunks. Preview RAG retrieval. Source tagging. |
 | Agents query knowledge base at runtime | 5 | Agents use `getAIService()` with context from platform_knowledge_chunks to augment system prompt. |
 | Intent Detection (`IntentDetector.classify()`) | 8 | `getAIService().generateJSON<IntentResult>()`. Confidence-based routing: agent / workflow / analytics / general. |
-| Intent routing in Command Center query bar | 5 | Routes to agent chat, workflow trigger, analytics nav, or Lexi fallback based on intent result. |
+| Intent routing in Operations query bar | 5 | Routes to agent chat, workflow trigger, analytics nav, or Lexi fallback based on intent result. |
 | `PlatformUserContext` API + server-side fetch | 6 | `GET /api/platform/user-context/[profile_id]`. 5-min Redis cache. Full schema with financials, bookings, agent state, signals. |
 | PlatformUserContext injected into all conversational agents | 4 | Sage, Lexi, Growth receive context at session start. No tool calls needed for basic platform state. |
 | Cross-agent handoff (sessionStorage encoding) | 3 | Handing-off agent encodes context. Receiving agent reads on mount and pre-populates system prompt. |
@@ -3091,6 +3094,50 @@ Three sub-tabs in Conductor Integrations tab:
 | **Google Classroom** | `oauth_delegated` (per-user) | `classroom_listCourses`, `classroom_getStudents`, `classroom_getAssignments` |
 | **Jira/Confluence** | `api_key` (org-wide Basic Auth) | `jira_listIssues`, `jira_createIssue`, `confluence_searchPages` |
 
+## Phase 9 — Admin Operations
+
+**Goal**: Provide the admin team with a dedicated operational hub — daily AI brief, platform health dashboard, unified exception queue, and command bar with intent routing. Replaces the specced "Admin Command Center" with a cleaner additive approach.
+
+**Status**: ✅ COMPLETE (2026-03-11)
+
+### Architecture
+
+```
+/admin/operations/          ← NEW page (3 tabs: Overview, Exceptions, Agents)
+/admin/                     ← existing dashboard (UNCHANGED)
+/admin/conductor/           ← existing (UNCHANGED)
+
+API routes:
+  GET  /api/admin/operations/brief           — AI daily brief (cached, ?refresh=true)
+  GET  /api/admin/operations/health           — platform health (workflows, agents, HITL, exceptions)
+  GET  /api/admin/operations/exceptions       — exception queue (filterable)
+  GET  /api/admin/operations/exceptions/[id]  — exception detail
+  PATCH /api/admin/operations/exceptions/[id] — claim / resolve / dismiss
+```
+
+### Key Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| Operations page | `app/(admin)/admin/operations/page.tsx` | 3-tab layout: Overview, Exceptions, Agents |
+| AI Brief API | `app/api/admin/operations/brief/route.ts` | Queries all 12 daily metrics tables + operational status, synthesises via `getAIService().generate()` |
+| Health API | `app/api/admin/operations/health/route.ts` | Running workflows, failed 24h, pending HITL, open exceptions, agent status |
+| Exceptions API | `app/api/admin/operations/exceptions/` | CRUD for `workflow_exceptions` table |
+| `workflow_exceptions` table | migration 389 | Unified queue — 7 source types, 4 severities, claim/resolve lifecycle |
+| `ExecutionCommandBar` | Reused from `components/feature/workflow/` | Intent routing via `IntentDetector` — routes to agents, workflows, or analytics |
+
+### Exception Sources
+
+| Source | Trigger |
+|--------|---------|
+| `workflow_failure` | Workflow execution fails |
+| `agent_error` | Specialist agent run error |
+| `team_error` | Team run failure |
+| `conformance_deviation` | Conformance checker flags deviation above threshold |
+| `webhook_failure` | Webhook delivery failure |
+| `shadow_divergence` | Shadow execution diverges from expected path |
+| `hitl_timeout` | HITL task unclaimed for >48h |
+
 ---
 
 ## Roadmap (Future — Not Phased)
@@ -3579,7 +3626,7 @@ CREATE TABLE platform_knowledge_chunks (
 
 ## Current Migration Sequence
 
-Latest applied: **388**. Next available: **389**.
+Latest applied: **389**. Next available: **390**.
 
 ```
 Phase 1 — Consolidation
@@ -3635,6 +3682,7 @@ Phase 7 — Agent Episodic Memory
 Phase 8 — MCP Integration Framework
   387 — MCP core: mcp_connections + mcp_tool_catalog (with CASCADE) + mcp-health-check pg_cron (every 5 min)
   388 — MCP audit: mcp_tool_executions table
+  389 — workflow_exceptions: unified exception queue (source, severity, claimed_by, resolution lifecycle)
 ```
 
 ---
@@ -3825,28 +3873,36 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 
 ### Phase 3 — Intelligence Layer
 
+> **Note:** The original spec planned centralised `/api/admin/intelligence/*` and `/api/admin/analytics/*` routes.
+> The actual implementation uses **14 domain-specific intelligence endpoints** at `/api/admin/{domain}/intelligence`.
+> Platform events bus and platform console were deferred — their functionality is covered by Admin Operations (Phase 9).
+
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `POST` | `/api/admin/platform-events` | Admin | Publish platform event (for testing) |
-| `GET` | `/api/admin/platform-events` | Admin | Query event log (by source, entity, date) |
-| `GET` | `/api/admin/platform-console` | Admin | Platform health dashboard data |
-| `GET` | `/api/admin/intelligence/brief` | Admin | Admin Intelligence daily brief |
-| `POST` | `/api/admin/intelligence/query` | Admin | Ad-hoc intelligence query (Lexi admin mode) |
-| `GET` | `/api/admin/growth-scores` | Admin | Platform-wide Growth Score distribution |
-| `GET` | `/api/admin/growth-scores/[profileId]` | Admin | Individual Growth Score with component breakdown |
-| `GET` | `/api/admin/analytics/overview` | Admin | KPI dashboard (bookings, revenue, tutors, sessions) |
-| `GET` | `/api/admin/analytics/marketplace` | Admin | Marketplace health (conversion, supply/demand) |
-| `GET` | `/api/admin/analytics/agents` | Admin | AI agent usage and performance |
+| `GET` | `/api/admin/caas/intelligence` | Admin | CaaS health metrics (via `query_caas_health` tool) |
+| `GET` | `/api/admin/resources/intelligence` | Admin | Resources health (articles, readiness scores) |
+| `GET` | `/api/admin/seo/intelligence` | Admin | SEO health (rankings, traffic, keywords) |
+| `GET` | `/api/admin/signal/intelligence` | Admin | Signal intelligence (platform analytics) |
+| `GET` | `/api/admin/bookings/intelligence` | Admin | Booking pipeline health |
+| `GET` | `/api/admin/listings/intelligence` | Admin | Listing health (completeness, conversions) |
+| `GET` | `/api/admin/financials/intelligence` | Admin | Financial health (revenue, payouts, disputes) |
+| `GET` | `/api/admin/virtualspace/intelligence` | Admin | VirtualSpace session metrics |
+| `GET` | `/api/admin/referrals/intelligence` | Admin | Referral funnel metrics |
+| `GET` | `/api/admin/retention/intelligence` | Admin | Retention cohort metrics |
+| `GET` | `/api/admin/ai/intelligence` | Admin | AI adoption metrics |
+| `GET` | `/api/admin/organisations/intelligence` | Admin | Org conversion metrics |
+| `GET` | `/api/admin/network/intelligence` | Admin | Network intelligence (referral depth, velocity) |
+| `GET` | `/api/admin/marketplace/intelligence` | Admin | Marketplace supply/demand gap |
 
 ### Phase 4 — Knowledge + Learning
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
 | `GET` | `/api/platform/user-context/[profileId]` | Auth | PlatformUserContext fetch (Redis-cached 5 min) |
-| `POST` | `/api/platform/intent` | Auth | Intent classification for Command Center query |
-| `GET` | `/api/admin/knowledge` | Admin | List platform knowledge chunks |
-| `POST` | `/api/admin/knowledge` | Admin | Add knowledge chunk |
-| `DELETE` | `/api/admin/knowledge/[id]` | Admin | Remove knowledge chunk |
+| `POST` | `/api/platform/intent` | Auth | Intent classification for Operations query |
+| `GET` | `/api/admin/conductor/knowledge` | Admin | List platform knowledge chunks |
+| `POST` | `/api/admin/conductor/knowledge` | Admin | Add knowledge chunk |
+| `DELETE` | `/api/admin/conductor/knowledge/[id]` | Admin | Remove knowledge chunk |
 | `GET` | `/api/admin/autonomy` | Admin | Per-process autonomy config + accuracy |
 | `PATCH` | `/api/admin/autonomy/[processId]` | Admin | Approve/reject tier calibration proposal |
 | `GET` | `/api/admin/network` | Admin | Network intelligence (referral depth, velocity) |
@@ -3888,6 +3944,16 @@ Complete list of HTTP routes introduced or modified by Conductor across all phas
 | `GET` | `/api/admin/mcp/tools` | Admin | List all MCP tools (across connections) |
 | `PUT` | `/api/admin/mcp/tools/[id]` | Admin | Enable/disable MCP tool |
 | `GET` | `/api/admin/mcp/executions` | Admin | List MCP tool execution history |
+
+### Phase 9 — Admin Operations
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| `GET` | `/api/admin/operations/brief` | Admin | AI-generated daily operations brief (cached, ?refresh=true to regenerate) |
+| `GET` | `/api/admin/operations/health` | Admin | Platform health stats (workflows, agents, exceptions, HITL) |
+| `GET` | `/api/admin/operations/exceptions` | Admin | List exceptions (filterable by status, severity, source) |
+| `GET` | `/api/admin/operations/exceptions/[id]` | Admin | Get exception detail |
+| `PATCH` | `/api/admin/operations/exceptions/[id]` | Admin | Claim, resolve, or dismiss exception |
 
 ---
 
@@ -4010,7 +4076,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
   CAS Team (9 agents, code)         Handler schema registry + form UI
   HITL ApprovalDrawer               Workflow versioning (migration 347)
   Shadow mode                       Workflow validation
-  Process Discovery                 Admin Command Center redesign
+  Process Discovery                 Admin Operations redesign
   LangGraph checkpointing           Migration 346 production fixes
                                     Cross-workflow coordination
                                     Bridge files (growth, workflow)
@@ -4024,7 +4090,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
     Tool Registry (DB-backed)       pipeline_jobs queue + pg_cron
     Agent templates + seeding       Admin Intelligence Agent
     Agent deployment + chat UI      AI tier routing
-    Growth Advisor migration          Admin Command Center redesign
+    Growth Advisor migration          Admin Operations redesign
     Unified agent_subscriptions     Lexi admin mode
     Parameterised /api/agents/[type]AI cost attribution table
     Agent → Workflow integration    Real-time monitoring WebSocket
@@ -4076,7 +4142,7 @@ CONDUCTOR BUILD SEQUENCE v3.4
 | Handler schema registry + form-based config UI | 8 | Replace free-form JSON. Registry maps handler → required fields. Dynamic form. |
 | Process versioning (migration 347) | 6 | `workflow_process_versions` table. Snapshot on publish. Rollback. Auto-save 5 min → `draft_nodes/draft_edges` columns (not a version row). |
 | Workflow validation (pre-publish checks) | 4 | Block publish if: no trigger, no end, orphan nodes, condition single edge. Warn if: no description. |
-| Admin Command Center redesign | 8 | AI brief widget, exception queue (claimed_by), autonomous ops summary, Lexi query bar |
+| Admin Operations redesign | 8 | AI brief widget, exception queue (claimed_by), autonomous ops summary, Lexi query bar |
 | Navigation reframe (admin sidebar) | 4 | Autonomy-first structure. Domain pages move to Management section. |
 | Template CRUD from UI | 6 | Save as template, clone, edit metadata, delete (system templates protected) |
 | Migration 346 production fixes | 4 | Dedup index, DLQ retry pg_cron, fallback polling pg_cron |
@@ -4285,7 +4351,7 @@ PHASE DEPENDENCY GRAPH
   CAS WorkflowVisualizer → Workflows canvas
   Process versioning (migration 347)
   Cross-workflow coordination + bridge files
-  Admin Command Center redesign
+  Admin Operations redesign
   Migration 346 production fixes
                 │
                 ▼
@@ -4315,7 +4381,7 @@ PHASE DEPENDENCY GRAPH
   PHASE 4 (~67h) ─── requires Phase 3
   ───────────────────────────────────────────────────────────
   Platform Knowledge Base (pgvector)
-  Intent Detection + Command Center routing
+  Intent Detection + Operations routing
   PlatformUserContext (Redis-cached)
   Cross-agent handoff (Sage/Lexi/Growth)
   Learning Loop (decision_outcomes)

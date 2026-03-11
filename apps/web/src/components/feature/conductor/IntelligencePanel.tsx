@@ -815,6 +815,7 @@ function ProcessMiningIntelSection() {
       return (data.data ?? []) as Array<{ id: string; name: string; execution_mode?: string }>;
     },
     staleTime: 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const topProcesses = processes.slice(0, 5);
@@ -838,6 +839,7 @@ function ProcessMiningIntelSection() {
     enabled: topProcesses.length > 0,
     staleTime: 5 * 60_000,
     retry: false,
+    refetchOnWindowFocus: true,
   });
 
   if (isFetching && Object.keys(analyticsMap).length === 0) {
@@ -928,6 +930,7 @@ function GTMLifecycleSection() {
     },
     staleTime: 5 * 60_000,
     retry: false,
+    refetchOnWindowFocus: true,
   });
   const stageData = queryResult?.stageData ?? {} as Record<string, any>;
   const failedKeySet = new Set(queryResult?.failedKeys ?? []);
@@ -1225,7 +1228,7 @@ export function IntelligencePanel() {
     staleTime: 5 * 60_000,   // 5 min — analytics don't need constant refresh
     retry: false,             // don't auto-retry 500s — admin can manually refresh
     refetchOnMount: true,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const currentTab = INTEL_TABS.find((t) => t.id === activeTab)!;

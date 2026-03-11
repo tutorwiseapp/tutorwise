@@ -302,7 +302,7 @@ export function KnowledgePanel() {
     },
     staleTime: 2 * 60_000,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   // ── Create ─────────────────────────────────────────────────────────────────

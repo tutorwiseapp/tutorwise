@@ -301,12 +301,14 @@ export function TeamCanvas({ executionState }: TeamCanvasProps) {
     queryKey: ['admin-agents'],
     queryFn: fetchAgents,
     staleTime: 5 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const { data: spaces } = useQuery({
     queryKey: ['admin-spaces'],
     queryFn: fetchSpaces,
     staleTime: 5 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const agentMap = useMemo(() => {

@@ -1,0 +1,116 @@
+/**
+ * GET    /api/admin/operations/exceptions/[id] — Get exception detail
+ * PATCH  /api/admin/operations/exceptions/[id] — Claim, resolve, or dismiss exception
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { data, error } = await supabase
+      .from('workflow_exceptions')
+      .select('*, claimed_by_profile:profiles!workflow_exceptions_claimed_by_fkey(full_name)')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const body = await request.json();
+    const { action, resolution, resolution_type } = body as {
+      action: 'claim' | 'resolve' | 'dismiss';
+      resolution?: string;
+      resolution_type?: 'fixed' | 'dismissed' | 'escalated' | 'auto_resolved';
+    };
+
+    if (!action) {
+      return NextResponse.json({ error: 'action is required (claim | resolve | dismiss)' }, { status: 400 });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let update: Record<string, any> = {};
+
+    switch (action) {
+      case 'claim':
+        update = {
+          status: 'claimed',
+          claimed_by: user.id,
+          claimed_at: new Date().toISOString(),
+        };
+        break;
+
+      case 'resolve':
+        update = {
+          status: 'resolved',
+          resolved_by: user.id,
+          resolved_at: new Date().toISOString(),
+          resolution: resolution ?? null,
+          resolution_type: resolution_type ?? 'fixed',
+        };
+        break;
+
+      case 'dismiss':
+        update = {
+          status: 'dismissed',
+          resolved_by: user.id,
+          resolved_at: new Date().toISOString(),
+          resolution: resolution ?? 'Dismissed by admin',
+          resolution_type: 'dismissed',
+        };
+        break;
+
+      default:
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('workflow_exceptions')
+      .update(update)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

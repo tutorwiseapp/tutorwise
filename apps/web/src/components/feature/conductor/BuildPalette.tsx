@@ -283,6 +283,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
       return (json.data as SpecialistAgentSummary[]).filter((a) => a.status === 'active');
     },
     staleTime: 5 * 60_000,
+    refetchOnWindowFocus: true,
   });
 
   const grouped = (agents ?? []).reduce<Record<string, SpecialistAgentSummary[]>>((acc, agent) => {

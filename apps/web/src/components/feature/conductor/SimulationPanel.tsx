@@ -841,6 +841,7 @@ export function SimulationPanel() {
       return json.data as TeamRun[];
     },
     staleTime: 15_000,
+    refetchOnMount: 'always' as const,
     refetchInterval: 30_000,
     refetchOnWindowFocus: true,
   });
@@ -854,6 +855,8 @@ export function SimulationPanel() {
       return json.data as AgentTeam[];
     },
     staleTime: 60_000,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
   });
 
   const handleLoadScenario = (teamId: string, task: string) => {
