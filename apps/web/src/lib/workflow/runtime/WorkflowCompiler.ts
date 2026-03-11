@@ -312,6 +312,19 @@ export class WorkflowCompiler {
           })
           .eq('id', taskId);
 
+        import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+          writeException({
+            supabase,
+            source: 'workflow_failure',
+            severity: 'medium',
+            title: `Task failed: ${node.data.label ?? node.id}`,
+            description: message,
+            sourceEntityType: 'workflow_task',
+            sourceEntityId: taskId,
+            context: { error: message, node_id: node.id, execution_id: state.executionId },
+          })
+        ).catch(() => {});
+
         return {
           currentNodeId: node.id,
           errors: [{ nodeId: node.id, error: message, attemptCount: 1 }],

@@ -259,6 +259,7 @@ class TeamRuntime {
       };
     } catch (err) {
       const durationMs = Date.now() - startTime;
+      const message = err instanceof Error ? err.message : String(err);
       await Promise.all([
         supabase
           .from('agent_team_run_outputs')
@@ -269,6 +270,19 @@ class TeamRuntime {
           .update({ status: 'failed', completed_at: new Date().toISOString() })
           .eq('id', runId),
       ]);
+      // Fire-and-forget exception for Operations queue
+      import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+        writeException({
+          supabase,
+          source: 'team_error',
+          severity: 'high',
+          title: `Team run failed: ${team.name ?? team.slug}`,
+          description: message,
+          sourceEntityType: 'agent_team_run_outputs',
+          sourceEntityId: runId,
+          context: { error: message, team_slug: team.slug, task, trigger_type: triggerType },
+        })
+      ).catch(() => {});
       throw err;
     }
   }
@@ -367,6 +381,7 @@ class TeamRuntime {
       };
     } catch (err) {
       const durationMs = Date.now() - startTime;
+      const message = err instanceof Error ? err.message : String(err);
       await Promise.all([
         supabase
           .from('agent_team_run_outputs')
@@ -377,6 +392,18 @@ class TeamRuntime {
           .update({ status: 'failed', completed_at: new Date().toISOString() })
           .eq('id', runId),
       ]);
+      import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+        writeException({
+          supabase,
+          source: 'team_error',
+          severity: 'high',
+          title: `Team resume failed: ${teamSlug}`,
+          description: message,
+          sourceEntityType: 'agent_team_run_outputs',
+          sourceEntityId: runId,
+          context: { error: message, team_slug: teamSlug, action: approved ? 'approved' : 'rejected' },
+        })
+      ).catch(() => {});
       throw err;
     }
   }

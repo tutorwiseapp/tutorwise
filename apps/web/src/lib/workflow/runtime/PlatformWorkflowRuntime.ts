@@ -136,6 +136,19 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
         .update({ status: 'failed', completed_at: new Date().toISOString() })
         .eq('id', executionId);
 
+      import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+        writeException({
+          supabase,
+          source: 'workflow_failure',
+          severity: 'high',
+          title: `Workflow execution failed`,
+          description: message,
+          sourceEntityType: 'workflow_execution',
+          sourceEntityId: executionId,
+          context: { error: message, process_id: processId },
+        })
+      ).catch(() => {});
+
       throw err;
     }
 
@@ -220,6 +233,19 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
         .from('workflow_executions')
         .update({ status: 'failed', completed_at: new Date().toISOString() })
         .eq('id', execution.id);
+
+      import('@/lib/workflow/exception-writer').then(({ writeException }) =>
+        writeException({
+          supabase,
+          source: 'workflow_failure',
+          severity: 'high',
+          title: `Workflow resume failed`,
+          description: message,
+          sourceEntityType: 'workflow_execution',
+          sourceEntityId: execution.id,
+          context: { error: message, thread_id: threadId },
+        })
+      ).catch(() => {});
 
       throw err;
     }

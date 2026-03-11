@@ -145,7 +145,21 @@ export async function GET(request: NextRequest) {
         .eq('id', execution.id);
 
       results.reconciled++;
-      if (issues.length > 0) results.diverged++;
+      if (issues.length > 0) {
+        results.diverged++;
+        // Write shadow divergence exception
+        const { writeException } = await import('@/lib/workflow/exception-writer');
+        await writeException({
+          supabase,
+          source: 'shadow_divergence',
+          severity: issues.length > 3 ? 'high' : 'medium',
+          title: `Shadow divergence: ${processName || 'Unknown process'}`,
+          description: `${issues.length} issue(s) detected`,
+          sourceEntityType: 'workflow_execution',
+          sourceEntityId: execution.id,
+          context: { issues },
+        });
+      }
     } catch (err) {
       console.error(`[Shadow Reconcile] Failed for execution ${execution.id}:`, err);
       results.errors++;
@@ -201,6 +215,19 @@ export async function GET(request: NextRequest) {
           actual_node_id: dev.actualNextId,
         }));
         await supabase.from('conformance_deviations').insert(rows);
+
+        // Write conformance exception
+        const { writeException } = await import('@/lib/workflow/exception-writer');
+        await writeException({
+          supabase,
+          source: 'conformance_deviation',
+          severity: result.deviations.length > 3 ? 'high' : 'medium',
+          title: `Conformance deviation: ${result.deviations.length} issue(s)`,
+          description: result.deviations.map(d => `${d.type} at ${d.nodeId}`).join(', '),
+          sourceEntityType: 'workflow_execution',
+          sourceEntityId: exec.id,
+          context: { process_id: exec.process_id, deviation_count: result.deviations.length },
+        });
       }
       // Even if no deviations, we skip inserting anything — the execution is conformant
     }

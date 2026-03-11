@@ -169,6 +169,22 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('[workflow webhook]', message);
+
+    // Write webhook failure exception (fire-and-forget)
+    try {
+      const supa = await createServiceRoleClient();
+      const { writeException } = await import('@/lib/workflow/exception-writer');
+      await writeException({
+        supabase: supa,
+        source: 'webhook_failure',
+        severity: 'high',
+        title: `Webhook processing failed`,
+        description: message,
+        sourceEntityType: 'webhook',
+        context: { error: message },
+      });
+    } catch { /* fail-silent */ }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
