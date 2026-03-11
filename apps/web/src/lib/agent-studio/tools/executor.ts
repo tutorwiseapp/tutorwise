@@ -169,11 +169,11 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const { data, error } = await supabase
       .from('workflow_exceptions')
       .insert({
-        severity: input.severity as string ?? 'medium',
-        domain: input.domain as string,
+        source: 'agent_error' as const,
+        severity: (input.severity as string) ?? 'medium',
         title: input.title as string,
-        ai_recommendation: input.ai_recommendation as string ?? null,
-        confidence_score: input.confidence_score as number ?? null,
+        description: input.ai_recommendation as string ?? null,
+        context: input.domain ? { domain: input.domain } : {},
       })
       .select('id')
       .single();

@@ -29,7 +29,7 @@ export async function GET() {
     ] = await Promise.all([
       // Running workflow executions
       supabase.from('workflow_executions')
-        .select('id, process_id, status, started_at', { count: 'exact' })
+        .select('id', { count: 'exact', head: true })
         .eq('status', 'running'),
 
       // Failed executions in last 24h
@@ -80,7 +80,7 @@ export async function GET() {
 
       // Recent team runs (last 24h)
       supabase.from('agent_team_run_outputs')
-        .select('id, team_id, status, created_at')
+        .select('id, team_id, status, created_at, team:agent_teams!team_id(name)')
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false })
         .limit(10),
@@ -91,7 +91,6 @@ export async function GET() {
       data: {
         workflows: {
           running: runningExecutions.count ?? 0,
-          runningDetails: runningExecutions.data ?? [],
           failed24h: failedExecutions24h.count ?? 0,
           shadowDivergences: shadowExecutions.count ?? 0,
         },

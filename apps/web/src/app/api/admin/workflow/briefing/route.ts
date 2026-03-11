@@ -5,14 +5,21 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createServiceRoleClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { getAIService } from '@/lib/ai';
 
 export const revalidate = 3600; // 1 hour
 
 export async function GET() {
   try {
-    const supabase = await createServiceRoleClient();
+    // Auth check
+    const authSupabase = await createClient();
+    const { data: { user }, error: authError } = await authSupabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: adminProfile } = await authSupabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const supabase = createServiceRoleClient();
 
     // Gather metrics in parallel
     const [executionsResult, exceptionsResult, divergencesResult, webhooksResult] = await Promise.all([
@@ -24,7 +31,7 @@ export async function GET() {
       supabase
         .from('workflow_exceptions')
         .select('severity', { count: 'exact' })
-        .is('resolved_at', null),
+        .in('status', ['open', 'claimed']),
       supabase
         .from('workflow_executions')
         .select('id', { count: 'exact', head: true })

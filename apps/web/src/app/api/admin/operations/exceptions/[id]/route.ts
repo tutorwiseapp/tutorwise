@@ -97,14 +97,25 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
+    // State-transition guard: only allow valid transitions
+    let statusGuard: string[];
+    switch (action) {
+      case 'claim': statusGuard = ['open']; break;
+      case 'resolve': statusGuard = ['open', 'claimed']; break;
+      case 'dismiss': statusGuard = ['open', 'claimed']; break;
+      default: statusGuard = []; break;
+    }
+
     const { data, error } = await supabase
       .from('workflow_exceptions')
       .update(update)
       .eq('id', id)
+      .in('status', statusGuard)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
+    if (!data) return NextResponse.json({ error: 'Exception not found or invalid state transition' }, { status: 409 });
 
     return NextResponse.json({ success: true, data });
   } catch (err) {

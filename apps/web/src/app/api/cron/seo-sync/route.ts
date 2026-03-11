@@ -38,8 +38,8 @@ function verifyCronSecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret) {
-    console.warn('CRON_SECRET not configured - cron endpoint is unsecured');
-    return true; // Allow if no secret configured (development)
+    console.warn('CRON_SECRET not configured - rejecting request');
+    return false;
   }
 
   if (!authHeader) {

@@ -168,7 +168,7 @@ export async function processNudges(): Promise<NudgeReport> {
           supabase
             .from('bookings')
             .select('id', { count: 'exact', head: true })
-            .eq('tutor_profile_id', profile.id)
+            .eq('tutor_id', profile.id)
             .gte('created_at', since30d),
           supabase
             .from('listings')

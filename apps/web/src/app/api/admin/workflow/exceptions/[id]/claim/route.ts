@@ -1,6 +1,6 @@
 /**
  * POST /api/admin/workflow/exceptions/[id]/claim
- * Claims an exception for the current admin (15-min soft lock).
+ * Claims an exception for the current admin.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,16 +16,25 @@ export async function POST(
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('workflow_exceptions')
-      .update({ claimed_by: user.id, claimed_at: new Date().toISOString() })
+      .update({
+        status: 'claimed',
+        claimed_by: user.id,
+        claimed_at: new Date().toISOString(),
+      })
       .eq('id', id)
-      .is('resolved_at', null);
+      .eq('status', 'open')
+      .select('id')
+      .maybeSingle();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Exception not found or already claimed/resolved' }, { status: 404 });
 
     return NextResponse.json({ success: true });
   } catch (err) {

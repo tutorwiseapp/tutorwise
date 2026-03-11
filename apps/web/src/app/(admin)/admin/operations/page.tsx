@@ -9,6 +9,7 @@ import React, { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, ArrowUp } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 import type { IntentResult } from '@/lib/conductor/IntentDetector';
@@ -44,7 +45,7 @@ interface HealthData {
     recentRuns24h: Array<{ id: string; agent_slug: string; status: string; created_at: string }>;
   };
   teams: {
-    recentRuns24h: Array<{ id: string; team_id: string; status: string; created_at: string }>;
+    recentRuns24h: Array<{ id: string; team_id: string; status: string; created_at: string; team: { name: string } | null }>;
   };
 }
 
@@ -65,6 +66,14 @@ interface ExceptionItem {
   claimed_by_profile: { full_name: string } | null;
   created_at: string;
 }
+
+const QUICK_ACTIONS = [
+  { label: 'Show at-risk tutors', command: 'Show at-risk tutors' },
+  { label: 'Platform health', command: 'Show platform health overview' },
+  { label: 'Run commission payout', command: 'Run commission payout' },
+  { label: 'Referral analytics', command: 'Show referral analytics' },
+  { label: 'Booking pipeline', command: 'Show booking pipeline health' },
+];
 
 function timeAgo(dateStr: string | null): string {
   if (!dateStr) return 'never';
@@ -96,7 +105,7 @@ export default function AdminOperationsPage() {
   }, [router, searchParams]);
 
   // Health data — core operational pulse, poll every 30s, always fresh on mount/focus
-  const { data: healthData, isLoading: healthLoading, isFetching: healthFetching, refetch: refetchHealth } = useQuery<HealthData>({
+  const { data: healthData, isLoading: healthLoading } = useQuery<HealthData>({
     queryKey: ['admin', 'operations', 'health'],
     queryFn: async () => {
       const res = await fetch('/api/admin/operations/health');
@@ -119,7 +128,7 @@ export default function AdminOperationsPage() {
       if (!json.success) throw new Error(json.error);
       return json.data;
     },
-    staleTime: 15 * 60_000,
+    staleTime: 30 * 60_000,
     refetchOnWindowFocus: true,
     refetchInterval: 30 * 60_000,
   });
@@ -134,14 +143,19 @@ export default function AdminOperationsPage() {
     onSuccess: (data) => {
       queryClient.setQueryData(['admin', 'operations', 'brief'], data);
     },
+    onError: (err) => {
+      console.error('[Operations] Brief refresh failed:', err);
+      toast.error('Failed to refresh brief');
+    },
   });
 
   // Exceptions — full list, only when tab active; poll every 20s (matches MonitoringPanel pattern)
-  const { data: exceptionsData, isFetching: exceptionsFetching, refetch: refetchExceptions } = useQuery<{ data: ExceptionItem[]; total: number }>({
+  const { data: exceptionsData } = useQuery<{ data: ExceptionItem[]; total: number }>({
     queryKey: ['admin', 'operations', 'exceptions'],
     queryFn: async () => {
       const res = await fetch('/api/admin/operations/exceptions?status=open&limit=50');
       const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to load exceptions');
       return { data: json.data ?? [], total: json.total ?? 0 };
     },
     enabled: tabFilter === 'exceptions',
@@ -164,9 +178,12 @@ export default function AdminOperationsPage() {
       return json.data;
     },
     onSuccess: () => {
-      // Invalidate all operations queries — health stats + exception list update together
       queryClient.invalidateQueries({ queryKey: ['admin', 'operations', 'health'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'operations', 'exceptions'] });
+    },
+    onError: (err) => {
+      console.error('[Operations] Exception action failed:', err);
+      toast.error(err instanceof Error ? err.message : 'Action failed');
     },
   });
 
@@ -174,14 +191,6 @@ export default function AdminOperationsPage() {
   const [command, setCommand] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [lastMessage, setLastMessage] = useState<string | null>(null);
-
-  const QUICK_ACTIONS = [
-    { label: 'Show at-risk tutors', command: 'Show at-risk tutors' },
-    { label: 'Platform health', command: 'Show platform health overview' },
-    { label: 'Run commission payout', command: 'Run commission payout' },
-    { label: 'Referral analytics', command: 'Show referral analytics' },
-    { label: 'Booking pipeline', command: 'Show booking pipeline health' },
-  ];
 
   const handleCommand = useCallback(async (input: string) => {
     if (!input.trim() || isRunning) return;
@@ -223,7 +232,8 @@ export default function AdminOperationsPage() {
       const data = await res.json();
       setLastMessage(data.result?.message ?? data.error ?? 'No response');
       setCommand('');
-    } catch {
+    } catch (err) {
+      console.error('[Operations] Command failed:', err);
       setLastMessage('Failed to send command');
     } finally {
       setIsRunning(false);
@@ -306,7 +316,7 @@ export default function AdminOperationsPage() {
               {healthLoading ? (
                 <div className={styles.loading}><Loader2 size={16} className={styles.spinner} /> Loading health data...</div>
               ) : healthData ? (
-                /* healthFetching = background revalidation (data already shown, silently refreshing) */
+                /* Stats cards — click to navigate */
                 <>
                   <div className={styles.statsGrid}>
                     <div className={styles.statCardClickable} onClick={() => router.push('/admin/conductor?tab=execution')}>
@@ -390,7 +400,7 @@ export default function AdminOperationsPage() {
                         <ul className={styles.agentList}>
                           {healthData.agents.active.map((agent) => (
                             <li key={agent.slug} className={styles.agentItem}>
-                              <span className={`${styles.agentDot} ${agent.last_run_at ? styles.agentActive : styles.agentIdle}`} />
+                              <span className={`${styles.agentDot} ${agent.status === 'active' && agent.last_run_at ? styles.agentActive : styles.agentIdle}`} />
                               <span className={styles.agentName}>{agent.name}</span>
                               <span className={styles.agentLastRun}>{timeAgo(agent.last_run_at)}</span>
                             </li>
@@ -504,7 +514,7 @@ export default function AdminOperationsPage() {
                       <ul className={styles.agentList}>
                         {healthData.agents.active.map((agent) => (
                           <li key={agent.slug} className={styles.agentItem}>
-                            <span className={`${styles.agentDot} ${agent.last_run_at ? styles.agentActive : styles.agentIdle}`} />
+                            <span className={`${styles.agentDot} ${agent.status === 'active' && agent.last_run_at ? styles.agentActive : styles.agentIdle}`} />
                             <span className={styles.agentName}>{agent.name}</span>
                             <span className={styles.agentLastRun}>{timeAgo(agent.last_run_at)}</span>
                           </li>
@@ -529,7 +539,7 @@ export default function AdminOperationsPage() {
                         {healthData.teams.recentRuns24h.map((run) => (
                           <li key={run.id} className={styles.agentItem}>
                             <span className={`${styles.agentDot} ${run.status === 'completed' ? styles.agentActive : styles.agentIdle}`} />
-                            <span className={styles.agentName}>Team: {run.team_id}</span>
+                            <span className={styles.agentName}>Team: {run.team?.name ?? run.team_id.slice(0, 8)}</span>
                             <span className={styles.agentLastRun}>{run.status} · {timeAgo(run.created_at)}</span>
                           </li>
                         ))}

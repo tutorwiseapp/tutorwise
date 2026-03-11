@@ -1,5 +1,8 @@
 -- Migration 389: workflow_exceptions — unified exception queue for Admin Operations
 -- Sources: workflow failures, agent errors, conformance deviations, webhook failures, shadow divergences
+-- NOTE: Migration 346 created an earlier version of this table. Drop + recreate with new schema.
+
+DROP TABLE IF EXISTS workflow_exceptions CASCADE;
 
 CREATE TABLE workflow_exceptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

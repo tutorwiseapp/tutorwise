@@ -23,6 +23,7 @@ interface FailedWebhook {
   payload: Record<string, unknown>;
   retry_count: number;
   max_retries: number;
+  last_retry_at: string | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
 
   const { data: candidates, error } = await supabase
     .from('failed_webhooks')
-    .select('id, url, method, headers, payload, retry_count, max_retries')
+    .select('id, url, method, headers, payload, retry_count, max_retries, last_retry_at')
     .in('status', ['failed', 'retrying'])
     .lt('retry_count', 5);
 
@@ -56,11 +57,14 @@ export async function GET(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
   for (const webhook of candidates as FailedWebhook[]) {
-    // Exponential backoff: wait 2^retry_count minutes since creation (approximation)
-    // Simple guard: skip if retry_count suggests we should wait
-    if (webhook.retry_count > 0) {
-      // Already retried — conservative: allow all pending retries in this batch
-      // Full backoff tracking would need last_retry_at column comparison
+    // Exponential backoff: wait 2^retry_count minutes since last retry
+    if (webhook.retry_count > 0 && webhook.last_retry_at) {
+      const lastRetry = new Date(webhook.last_retry_at).getTime();
+      const backoffMs = Math.pow(2, webhook.retry_count) * 60_000; // 2^n minutes
+      if (now.getTime() - lastRetry < backoffMs) {
+        results.skipped++;
+        continue;
+      }
     }
 
     const isWorkflowWebhook = webhook.url === '/api/webhooks/workflow';

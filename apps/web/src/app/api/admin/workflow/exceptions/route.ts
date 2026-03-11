@@ -15,11 +15,13 @@ export async function GET() {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { data, error } = await supabase
       .from('workflow_exceptions')
-      .select('id, execution_id, severity, domain, ai_recommendation, confidence_score, evidence_count, claimed_by, claimed_at, resolved_at, created_at')
-      .is('resolved_at', null)
+      .select('id, source, severity, status, source_entity_type, source_entity_id, title, description, context, claimed_by, claimed_at, created_at')
+      .in('status', ['open', 'claimed'])
       .order('created_at', { ascending: false })
       .limit(100);
 

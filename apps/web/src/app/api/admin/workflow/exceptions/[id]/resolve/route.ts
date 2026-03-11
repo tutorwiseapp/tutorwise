@@ -16,21 +16,28 @@ export async function POST(
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
     const body = await request.json().catch(() => ({})) as { resolution?: string };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('workflow_exceptions')
       .update({
+        status: 'resolved',
         resolved_at: new Date().toISOString(),
         resolved_by: user.id,
         resolution: body.resolution ?? null,
+        resolution_type: 'fixed',
       })
       .eq('id', id)
-      .is('resolved_at', null);
+      .in('status', ['open', 'claimed'])
+      .select('id')
+      .maybeSingle();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) return NextResponse.json({ error: 'Exception not found or already resolved' }, { status: 404 });
 
     return NextResponse.json({ success: true });
   } catch (err) {

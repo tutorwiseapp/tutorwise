@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     // Gather operational status
     const [activeExecutions, pendingTasks, openExceptions, recentAgentRuns] = await Promise.all([
       supabase.from('workflow_executions').select('id, status', { count: 'exact', head: true }).eq('status', 'running'),
-      supabase.from('workflow_tasks').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('workflow_tasks').select('id', { count: 'exact', head: true }).eq('status', 'pending').eq('completion_mode', 'hitl'),
       supabase.from('workflow_exceptions').select('id', { count: 'exact', head: true }).in('status', ['open', 'claimed']),
       supabase.from('agent_run_outputs').select('id, agent_slug, status, created_at').order('created_at', { ascending: false }).limit(10),
     ]);
