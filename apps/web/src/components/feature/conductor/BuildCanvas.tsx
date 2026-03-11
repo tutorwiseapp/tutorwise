@@ -1571,22 +1571,6 @@ function BuildCanvasInner() {
             <div className={styles.dropOverlay}>Drop agent here</div>
           )}
 
-          {isLoading && nodes.length === 0 && (
-            <div className={styles.emptyState}>
-              <RefreshCw size={20} className={styles.spinning} />
-              Loading…
-            </div>
-          )}
-
-          {!isLoading && nodes.length === 0 && (
-            <div className={styles.emptyState}>
-              <Building2 size={32} className={styles.emptyIcon} />
-              <span>
-                {level === 0 ? 'No spaces found.' : level === 1 ? 'No teams in this space.' : 'No agents in this team. Drag from the left panel.'}
-              </span>
-            </div>
-          )}
-
           <BuildNodeCallbacksCtx.Provider value={buildNodeCallbacks}>
             <ReactFlow
               nodes={nodes}
@@ -1622,6 +1606,27 @@ function BuildCanvasInner() {
                 zoomable
                 pannable
               />
+              {/* Empty state — inside ReactFlow so back button Panel is always visible */}
+              {!isLoading && nodes.length === 0 && (
+                <Panel position="top-center">
+                  <div className={styles.emptyState}>
+                    <Building2 size={32} className={styles.emptyIcon} />
+                    <span>
+                      {level === 0 ? 'No spaces found.' : level === 1 ? 'No teams in this space.' : 'No agents in this team. Drag from the left panel.'}
+                    </span>
+                  </div>
+                </Panel>
+              )}
+              {isLoading && nodes.length === 0 && (
+                <Panel position="top-center">
+                  <div className={styles.emptyState}>
+                    <RefreshCw size={20} className={styles.spinning} />
+                    Loading…
+                  </div>
+                </Panel>
+              )}
+
+              {/* Back button — levels 1 and 2 only (not on spaces root) */}
               {level >= 1 && (
                 <Panel position="top-left">
                   <button className={styles.backButton} onClick={drillUp} title="Go up one level">
