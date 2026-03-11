@@ -898,22 +898,25 @@
 /* ── Back button (ReactFlow Panel top-left) ─────────────────────────────────── */
 
 .backButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  background: var(--color-surface, #fff);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-primary, #111827);
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--color-white, #fff);
+  border: 1.5px solid var(--color-primary, #006C67);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-primary, #006C67);
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  font-weight: var(--font-weight-semibold, 600);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: background 0.15s;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, color 0.15s;
 }
 .backButton:hover {
-  background: var(--color-surface-hover, #f3f4f6);
+  background: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
 }
 
 /* ── Drop overlay ────────────────────────────────────────────────────────────── */
