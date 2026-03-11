@@ -32,7 +32,17 @@ const DEPARTMENT_COLORS: Record<string, string> = {
   Engineering:  '#6366f1',
   Strategy:     '#7c3aed',
   Management:   '#0891b2',
+  Operations:   '#14b8a6',
+  Finance:      '#10b981',
+  HR:           '#f97316',
+  Legal:        '#64748b',
+  Product:      '#6366f1',
+  Sales:        '#0ea5e9',
+  Support:      '#84cc16',
 };
+
+// Known departments available in the New Agent dropdown
+export const KNOWN_DEPARTMENTS = Object.keys(DEPARTMENT_COLORS);
 
 const FALLBACK_PALETTE = [
   '#3b82f6', '#8b5cf6', '#14b8a6', '#f59e0b',
@@ -161,7 +171,7 @@ function NewAgentForm({ onDone, onAddToCanvas }: NewAgentFormProps) {
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
-  const [department, setDepartment] = useState('');
+  const [department, setDepartment] = useState('Engineering');
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -194,7 +204,12 @@ function NewAgentForm({ onDone, onAddToCanvas }: NewAgentFormProps) {
       <label className={styles.formLabel}>New Agent</label>
       <input className={styles.formInput} placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
       <input className={styles.formInput} placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
-      <input className={styles.formInput} placeholder="Department" value={department} onChange={(e) => setDepartment(e.target.value)} />
+      <UnifiedSelect
+        value={department}
+        onChange={(v) => setDepartment(v as string)}
+        options={KNOWN_DEPARTMENTS.map((d) => ({ value: d, label: d }))}
+        size="sm"
+      />
       <div className={styles.formRow}>
         <button className={styles.formSaveBtn} onClick={() => mutation.mutate()} disabled={!name.trim() || mutation.isPending}>
           {mutation.isPending ? 'Creating…' : 'Create'}
