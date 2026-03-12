@@ -50,14 +50,15 @@ export async function POST(
     // Write exception for team resume failure (fire-and-forget)
     const { id: teamId, runId: rId } = await params;
     import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
-      const supa = await createClient();
+      const { createServiceRoleClient: createSRC } = await import('@/utils/supabase/server');
+      const supa = createSRC();
       writeException({
         supabase: supa,
         source: 'team_error',
         severity: 'high',
         title: `Team run resume failed`,
         description: message,
-        sourceEntityType: 'agent_team_run_output',
+        sourceEntityType: 'agent_team_run_outputs',
         sourceEntityId: rId,
         context: { teamId: teamId, runId: rId },
       });

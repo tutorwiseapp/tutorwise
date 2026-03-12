@@ -166,14 +166,26 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
   async flag_for_review(input) {
     const supabase = await createServiceRoleClient();
 
+    const VALID_SEVERITIES = ['low', 'medium', 'high', 'critical'] as const;
+    const rawSeverity = (input.severity as string) ?? 'medium';
+    const severity = VALID_SEVERITIES.includes(rawSeverity as typeof VALID_SEVERITIES[number])
+      ? rawSeverity
+      : 'medium';
+
+    // Accept both old field names (ai_recommendation, domain) and new (description, context)
+    const description = (input.description as string) ?? (input.ai_recommendation as string) ?? null;
+    const context = input.context
+      ? (input.context as Record<string, unknown>)
+      : input.domain ? { domain: input.domain } : {};
+
     const { data, error } = await supabase
       .from('workflow_exceptions')
       .insert({
         source: 'agent_error' as const,
-        severity: (input.severity as string) ?? 'medium',
+        severity,
         title: input.title as string,
-        description: input.ai_recommendation as string ?? null,
-        context: input.domain ? { domain: input.domain } : {},
+        description,
+        context,
       })
       .select('id')
       .single();

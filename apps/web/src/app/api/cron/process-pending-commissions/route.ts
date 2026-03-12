@@ -63,7 +63,8 @@ export async function GET(request: NextRequest) {
       `)
       .eq('type', 'Referral Commission')
       .eq('status', 'clearing')
-      .lt('created_at', clearingCutoff.toISOString());
+      .lt('created_at', clearingCutoff.toISOString())
+      .limit(1000);
 
     if (error) {
       console.error('[Process Pending] Failed to fetch pending commissions:', error);

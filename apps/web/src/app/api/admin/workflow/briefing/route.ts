@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 import { getAIService } from '@/lib/ai';
 
-export const revalidate = 3600; // 1 hour
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -16,7 +16,7 @@ export async function GET() {
     const authSupabase = await createClient();
     const { data: { user }, error: authError } = await authSupabase.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { data: adminProfile } = await authSupabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    const { data: adminProfile } = await authSupabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const supabase = createServiceRoleClient();

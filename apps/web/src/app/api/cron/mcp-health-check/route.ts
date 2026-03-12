@@ -27,8 +27,13 @@ export async function POST(req: NextRequest) {
   const manager = getMCPClientManager();
   const results: Record<string, boolean> = {};
 
-  for (const conn of connections) {
-    results[conn.slug] = await manager.healthCheck(conn.slug);
+  try {
+    for (const conn of connections) {
+      results[conn.slug] = await manager.healthCheck(conn.slug);
+    }
+  } catch (err) {
+    console.error('[mcp-health-check] Unexpected error:', err);
+    return NextResponse.json({ checked: Object.keys(results).length, results, error: 'partial' }, { status: 207 });
   }
 
   return NextResponse.json({ checked: connections.length, results });

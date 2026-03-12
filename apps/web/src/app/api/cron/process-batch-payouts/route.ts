@@ -7,7 +7,7 @@
  * pay out all available referral commissions to agents.
  */
 
-import { createClient } from '@/utils/supabase/server';
+import { createServiceRoleClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createConnectPayout, canReceivePayouts } from '@/lib/stripe/payouts';
 import { sendPayoutProcessedEmail } from '@/lib/email/commission-available';
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = await createClient();
+  const supabase = await createServiceRoleClient();
 
   try {
     // Check if Commission Payout workflow is live — delegate to engine
@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
         )
       `)
       .eq('type', 'Referral Commission')
-      .eq('status', 'available');
+      .eq('status', 'available')
+      .limit(1000);
 
     if (error) {
       console.error('[Batch Payout] Failed to fetch available commissions:', error);

@@ -157,7 +157,8 @@ class TeamRuntime {
       .select('id')
       .single();
 
-    const runId = runRow?.id ?? crypto.randomUUID();
+    if (!runRow?.id) throw new Error(`TeamRuntime: failed to create run record for team ${teamSlug}`);
+    const runId = runRow.id;
 
     // 3. Insert workflow_executions row (Conductor Monitoring)
     await supabase.from('workflow_executions').insert({
@@ -518,8 +519,22 @@ class TeamRuntime {
               reason: 'specialist output ready',
               timestamp: new Date().toISOString(),
             });
-          } catch {
-            outputs[slug] = `[Error: agent ${slug} failed]`;
+          } catch (err) {
+            const errMsg = err instanceof Error ? err.message : String(err);
+            outputs[slug] = `[Error: agent ${slug} failed — ${errMsg}]`;
+            // Write exception for visibility in Operations queue
+            import('@/lib/workflow/exception-writer').then(({ writeException }) => {
+              const svc = createServiceRoleClient();
+              writeException({
+                supabase: svc,
+                source: 'agent_error',
+                severity: 'medium',
+                title: `Specialist "${slug}" failed during team run`,
+                description: errMsg,
+                sourceEntityType: 'specialist_agent',
+                sourceEntityId: agentId,
+              });
+            }).catch(() => {});
           }
         })
       );

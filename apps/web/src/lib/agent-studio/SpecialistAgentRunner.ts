@@ -191,7 +191,8 @@ export class SpecialistAgentRunner {
       .select('id')
       .single();
 
-    const runId = runRow?.id ?? '';
+    const runId = runRow?.id;
+    if (!runId) throw new Error(`SpecialistAgentRunner: failed to create run record for agent ${agent.slug}`);
 
     // ReAct loop — up to MAX_TOOL_ROUNDS
     let outputText = '';

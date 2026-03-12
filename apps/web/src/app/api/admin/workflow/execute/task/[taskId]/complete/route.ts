@@ -71,7 +71,8 @@ export async function POST(
     // Write exception for task completion failure (fire-and-forget)
     const { taskId: tId } = await props.params;
     import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
-      const supa = await createClient();
+      const { createServiceRoleClient: createSRC } = await import('@/utils/supabase/server');
+      const supa = createSRC();
       writeException({
         supabase: supa,
         source: 'hitl_timeout',

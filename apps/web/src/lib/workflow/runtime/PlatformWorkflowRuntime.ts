@@ -224,6 +224,9 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
           .from('workflow_executions')
           .update({ status: 'completed', completed_at: new Date().toISOString() })
           .eq('id', execution.id);
+
+        // Phase 4D: Write decision_outcomes stubs for learning loop measurement
+        await writeDecisionOutcomeStubs(supabase, execution.id, execution.process_id).catch(() => {});
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

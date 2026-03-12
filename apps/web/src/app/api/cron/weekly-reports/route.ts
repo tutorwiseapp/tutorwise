@@ -67,7 +67,8 @@ export async function GET(request: NextRequest) {
       .from('profiles')
       .select('id, full_name, email')
       .or('active_role.eq.tutor,roles.cs.{tutor}')
-      .not('email', 'is', null);
+      .not('email', 'is', null)
+      .limit(5000);
 
     if (tutorError) {
       console.error('[Weekly Reports] Failed to fetch tutors:', tutorError);
@@ -169,7 +170,8 @@ export async function GET(request: NextRequest) {
       .from('profiles')
       .select('id, full_name, email')
       .or('active_role.eq.agent,roles.cs.{agent}')
-      .not('email', 'is', null);
+      .not('email', 'is', null)
+      .limit(5000);
 
     if (agentError) {
       console.error('[Weekly Reports] Failed to fetch agents:', agentError);

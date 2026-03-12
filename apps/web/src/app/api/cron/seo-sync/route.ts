@@ -17,7 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { syncGSCPerformance } from '@/services/seo/gsc-sync';
 import { trackPriorityKeywords } from '@/services/seo/rank-tracking';
 import { analyzeAllContent } from '@/services/seo/content-quality';
-import { createClient } from '@/utils/supabase/server';
+import { createServiceRoleClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max execution time
@@ -135,7 +135,7 @@ async function analyzeContent(): Promise<SyncResult> {
  * Log sync results to database
  */
 async function logSyncResults(results: SyncResult[]): Promise<void> {
-  const supabase = await createClient();
+  const supabase = await createServiceRoleClient();
 
   const successCount = results.filter((r) => r.success).length;
   const failureCount = results.filter((r) => !r.success).length;
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
  * GET endpoint for health check
  */
 export async function GET(_request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createServiceRoleClient();
 
   // Get last sync timestamp
   const { data: settings } = await supabase
