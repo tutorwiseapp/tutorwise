@@ -1,12 +1,13 @@
 /**
  * Filename: apps/web/src/app/components/resources/layout/ResourceLeftSidebar.tsx
- * Purpose: Left sidebar navigation (320px) for resource categories
+ * Purpose: Left sidebar navigation (320px) for resource categories — dynamic from DB
  * Created: 2026-01-15
+ * Updated: 2026-03-12 — replaced hardcoded placeholder articles with real DB data
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './ResourceLeftSidebar.module.css';
@@ -28,64 +29,56 @@ interface ResourceLeftSidebarProps {
   onLinkClick?: () => void;
 }
 
-const CATEGORIES: Category[] = [
-  {
-    name: 'For Clients',
-    slug: 'for-clients',
-    articles: [
-      { title: 'How to Find the Perfect Tutor', slug: 'how-to-find-perfect-tutor' },
-      { title: 'GCSE Exam Preparation Guide', slug: 'gcse-exam-prep-guide' },
-      { title: 'Choosing Between Online and In-Person', slug: 'online-vs-in-person-tutoring' },
-    ],
-  },
-  {
-    name: 'For Tutors',
-    slug: 'for-tutors',
-    articles: [
-      { title: 'Building a Successful Tutoring Business', slug: 'building-successful-tutoring-business' },
-      { title: 'How to Price Your Tutoring Services', slug: 'how-to-price-tutoring-services' },
-      { title: 'Marketing Yourself as a Tutor', slug: 'marketing-yourself-as-tutor' },
-    ],
-  },
-  {
-    name: 'For Agents',
-    slug: 'for-agents',
-    articles: [
-      { title: 'Growing Your Tutoring Agency', slug: 'growing-tutoring-agency' },
-      { title: 'Recruiting Quality Tutors', slug: 'recruiting-quality-tutors' },
-      { title: 'Managing Multiple Tutors Effectively', slug: 'managing-multiple-tutors' },
-    ],
-  },
-  {
-    name: 'Education Insights',
-    slug: 'education-insights',
-    articles: [
-      { title: 'UK Tutoring Market 2026', slug: 'uk-tutoring-market-2026' },
-      { title: 'Impact of AI on Education', slug: 'impact-of-ai-on-education' },
-      { title: 'Future of Private Tutoring', slug: 'future-of-private-tutoring' },
-    ],
-  },
-  {
-    name: 'Company News',
-    slug: 'company-news',
-    articles: [
-      { title: 'Platform Updates', slug: 'platform-updates' },
-      { title: 'New Features', slug: 'new-features' },
-    ],
-  },
-  {
-    name: 'Thought Leadership',
-    slug: 'thought-leadership',
-    articles: [],
-  },
-];
+const CATEGORY_META: Record<string, string> = {
+  'for-clients': 'For Clients',
+  'for-tutors': 'For Tutors',
+  'for-agents': 'For Agents',
+  'education-insights': 'Education Insights',
+  'company-news': 'Company News',
+  'thought-leadership': 'Thought Leadership',
+};
+
+const AUDIENCE_MAP: Record<string, string[]> = {
+  clients: ['for-clients'],
+  tutors: ['for-tutors'],
+  agents: ['for-agents'],
+};
 
 export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebarProps = {}) {
   const pathname = usePathname();
   const [audienceFilter, setAudienceFilter] = useState<AudienceFilter>('all');
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(CATEGORIES.map((cat) => cat.slug))
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch('/api/resources/articles')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data?.articles) return;
+        const articles = data.articles as { title: string; slug: string; category: string }[];
+
+        // Group by category
+        const grouped: Record<string, Article[]> = {};
+        for (const a of articles) {
+          if (!grouped[a.category]) grouped[a.category] = [];
+          grouped[a.category].push({ title: a.title, slug: a.slug });
+        }
+
+        // Build categories in display order, only include those with articles
+        const orderedSlugs = Object.keys(CATEGORY_META);
+        const cats: Category[] = orderedSlugs
+          .filter((slug) => grouped[slug] && grouped[slug].length > 0)
+          .map((slug) => ({
+            name: CATEGORY_META[slug] || slug,
+            slug,
+            articles: grouped[slug],
+          }));
+
+        setCategories(cats);
+        setExpandedCategories(new Set(cats.map((c) => c.slug)));
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleCategory = (categorySlug: string) => {
     setExpandedCategories((prev) => {
@@ -99,9 +92,15 @@ export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebar
     });
   };
 
-  const isArticleActive = (categorySlug: string, articleSlug: string) => {
+  const isArticleActive = (_categorySlug: string, articleSlug: string) => {
     return pathname === `/resources/${articleSlug}`;
   };
+
+  // Filter categories by audience
+  const filteredCategories =
+    audienceFilter === 'all'
+      ? categories
+      : categories.filter((cat) => AUDIENCE_MAP[audienceFilter]?.includes(cat.slug));
 
   return (
     <div className={styles.sidebar}>
@@ -138,7 +137,7 @@ export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebar
 
       {/* Category Navigation */}
       <nav className={styles.categoryNav}>
-        {CATEGORIES.map((category) => {
+        {filteredCategories.map((category) => {
           const isExpanded = expandedCategories.has(category.slug);
 
           return (
