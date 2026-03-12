@@ -27,6 +27,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'for-agents': 'For Agents',
   'education-insights': 'Education Insights',
   'company-news': 'Company News',
+  'thought-leadership': 'Thought Leadership',
 };
 
 const CATEGORIES = [
@@ -35,6 +36,7 @@ const CATEGORIES = [
   { slug: 'for-agents', label: 'For Agents', description: 'Building teams, recruitment, scaling agencies' },
   { slug: 'education-insights', label: 'Education Insights', description: 'Industry trends, research, analysis' },
   { slug: 'company-news', label: 'Company News', description: 'Platform updates, new features, announcements' },
+  { slug: 'thought-leadership', label: 'Thought Leadership', description: 'AI orchestration, DevOps patterns, industry perspectives' },
 ];
 
 function CategoryTag({ category }: { category: string }) {

@@ -227,6 +227,11 @@
   color: #6b21a8;
 }
 
+.categoryTag[data-category="thought-leadership"] {
+  background-color: #c7d2fe;
+  color: #3730a3;
+}
+
 .readTime {
   font-size: 0.75rem;
   color: #9ca3af;

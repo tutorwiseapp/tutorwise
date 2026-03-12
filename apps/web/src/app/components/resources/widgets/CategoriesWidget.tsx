@@ -40,6 +40,12 @@ const CATEGORIES = [
     count: 6,
     description: 'Platform updates, new features',
   },
+  {
+    name: 'Thought Leadership',
+    slug: 'thought-leadership',
+    count: 0,
+    description: 'AI orchestration, DevOps patterns',
+  },
 ];
 
 export default function CategoriesWidget() {

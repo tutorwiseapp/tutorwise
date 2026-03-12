@@ -73,6 +73,11 @@ const CATEGORIES: Category[] = [
       { title: 'New Features', slug: 'new-features' },
     ],
   },
+  {
+    name: 'Thought Leadership',
+    slug: 'thought-leadership',
+    articles: [],
+  },
 ];
 
 export default function ResourceLeftSidebar({ onLinkClick }: ResourceLeftSidebarProps = {}) {

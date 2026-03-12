@@ -252,6 +252,7 @@ function generateHashtags(category: string, content: string, limit: number): str
     'content-marketing': ['#contentmarketing', '#marketing', '#education'],
     'about-tutorwise': ['#tutorwise', '#aboutus', '#edtech'],
     'company-news': ['#companynews', '#announcement', '#tutorwise'],
+    'thought-leadership': ['#thoughtleadership', '#AIagents', '#DevOps', '#orchestration'],
   };
 
   // Start with category-based hashtags

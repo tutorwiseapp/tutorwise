@@ -44,6 +44,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'content-marketing': '#fbcfe8',
   'about-tutorwise': '#bfdbfe',
   'company-news': '#e9d5ff',
+  'thought-leadership': '#c7d2fe',
 };
 
 export default function ArticlesTable() {
@@ -287,6 +288,7 @@ export default function ArticlesTable() {
         { value: 'content-marketing', label: 'Content Marketing' },
         { value: 'about-tutorwise', label: 'About Tutorwise' },
         { value: 'company-news', label: 'Company News' },
+        { value: 'thought-leadership', label: 'Thought Leadership' },
       ],
     },
     {

@@ -96,6 +96,7 @@ const CATEGORIES = [
   { value: 'content-marketing', label: 'Content Marketing' },
   { value: 'about-tutorwise', label: 'About Tutorwise' },
   { value: 'company-news', label: 'Company News' },
+  { value: 'thought-leadership', label: 'Thought Leadership' },
 ];
 
 const STATUSES = [

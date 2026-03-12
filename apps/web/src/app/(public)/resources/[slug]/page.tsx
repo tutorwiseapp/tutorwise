@@ -8,6 +8,11 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeHighlight from 'rehype-highlight';
 import { createClient } from '@/utils/supabase/server';
 import ArticleStructuredData from '@/app/components/resources/ArticleStructuredData';
 import SaveArticleButton from '@/app/components/resources/SaveArticleButton';
@@ -42,6 +47,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'for-agents': 'For Agents',
   'education-insights': 'Education Insights',
   'company-news': 'Company News',
+  'thought-leadership': 'Thought Leadership',
 };
 
 // Fetch article from database
@@ -211,8 +217,15 @@ export default async function BlogArticlePage(props: { params: Promise<{ slug: s
 
       {/* Article Content */}
       <div className={styles.content}>
-        {/* TODO: Replace with MDX rendering */}
-        <div dangerouslySetInnerHTML={{ __html: article.content?.replace(/\n/g, '<br />') || '' }} />
+        <MDXRemote
+          source={article.content || ''}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+              rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings, rehypeHighlight],
+            },
+          }}
+        />
       </div>
 
       {/* Tags */}

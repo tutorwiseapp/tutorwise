@@ -87,6 +87,11 @@
   color: #6b21a8;
 }
 
+.categoryBadge[data-category='thought-leadership'] {
+  background-color: #c7d2fe;
+  color: #3730a3;
+}
+
 .title {
   font-size: 2.5rem;
   font-weight: 700;

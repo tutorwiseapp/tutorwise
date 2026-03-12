@@ -52,6 +52,11 @@ const CATEGORY_INFO: Record<
     description: 'Latest updates about Tutorwise platform features and announcements.',
     icon: '📰',
   },
+  'thought-leadership': {
+    label: 'Thought Leadership',
+    description: 'AI orchestration, DevOps patterns, and industry perspectives from our engineering team.',
+    icon: '💡',
+  },
 };
 
 // Fetch articles by category

@@ -49,6 +49,7 @@ const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] 
     label: 'Product',
     tabs: [
       { id: 'caas',             label: 'CaaS',        icon: Users },
+      { id: 'org_conversion',   label: 'Orgs',        icon: Building2 },
       { id: 'ai_adoption',      label: 'AI Adoption', icon: Bot },
       { id: 'ai_studio',        label: 'AI Studio',   icon: Layers },
       { id: 'virtualspace',     label: 'VirtualSpace', icon: Monitor },
@@ -67,7 +68,6 @@ const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] 
     id: 'platform',
     label: 'Platform',
     tabs: [
-      { id: 'org_conversion',   label: 'Orgs',           icon: Building2 },
       { id: 'tier_calibration', label: 'Autonomy',       icon: Target },
       { id: 'process_mining',   label: 'Process Mining', icon: GitBranch },
     ],

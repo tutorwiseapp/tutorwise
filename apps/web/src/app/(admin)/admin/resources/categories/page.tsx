@@ -34,6 +34,7 @@ const CATEGORIES = [
   { name: 'Content Marketing', slug: 'content-marketing', count: 0, color: '#fbcfe8' },
   { name: 'About Tutorwise', slug: 'about-tutorwise', count: 0, color: '#bfdbfe' },
   { name: 'Company News', slug: 'company-news', count: 2, color: '#e9d5ff' },
+  { name: 'Thought Leadership', slug: 'thought-leadership', count: 0, color: '#c7d2fe' },
 ];
 
 export default function BlogCategoriesPage() {
