@@ -1095,6 +1095,102 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       summary: `${enriched.length} processes tracked. ${pendingProposals.length} need attention.`,
     };
   },
+
+  // ── Phase 3: Onboarding Intelligence (Use Case 7) ──────────────────────────
+
+  async query_onboarding_health(input) {
+    const supabase = await createServiceRoleClient();
+    const days = (input.days as number) ?? 30;
+
+    const [latest, midAbandoned, verifiedNoRole] = await Promise.all([
+      supabase
+        .from('onboarding_platform_metrics_daily')
+        .select('*')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('onboarding_sessions')
+        .select('id', { count: 'exact', head: true })
+        .is('completed_at', null)
+        .gt('current_step', 0)
+        .lt('last_active', new Date(Date.now() - 3 * 86400000).toISOString()),
+      supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('email_verified', true)
+        .is('primary_role', null)
+        .lt('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+    ]);
+
+    if (latest.error) throw new Error(latest.error.message);
+    const m = latest.data;
+
+    const buildFunnel = (prefix: string) => {
+      if (!m) return null;
+      const signups = (m as any)[`${prefix}_signups_30d`] ?? 0;
+      const verified = (m as any)[`${prefix}_verified_30d`] ?? 0;
+      const role = (m as any)[`${prefix}_role_selected_30d`] ?? 0;
+      const profile = (m as any)[`${prefix}_profile_complete_30d`] ?? 0;
+      const setup = (m as any)[`${prefix}_value_setup_30d`] ?? 0;
+      const activated = (m as any)[`${prefix}_activated_30d`] ?? 0;
+      return {
+        signups, verified, role_selected: role,
+        profile_complete: profile, value_setup: setup, activated,
+        verified_pct: signups > 0 ? Math.round((verified / signups) * 1000) / 10 : 0,
+        profile_complete_pct: role > 0 ? Math.round((profile / role) * 1000) / 10 : 0,
+        value_setup_pct: profile > 0 ? Math.round((setup / profile) * 1000) / 10 : 0,
+        activated_pct: setup > 0 ? Math.round((activated / setup) * 1000) / 10 : 0,
+        overall_conversion_pct: (m as any)[`${prefix}_conversion_pct`] ?? null,
+      };
+    };
+
+    const alerts: { type: string; severity: string; message: string; action: string }[] = [];
+    if (m) {
+      if (m.tutor_conversion_pct != null && Number(m.tutor_conversion_pct) < 25)
+        alerts.push({ type: 'activation_low', severity: 'warning', message: `Tutor onboarding conversion ${m.tutor_conversion_pct}% — below 25% threshold`, action: 'Review tutor funnel; identify biggest drop-off stage' });
+      if (m.client_conversion_pct != null && Number(m.client_conversion_pct) < 25)
+        alerts.push({ type: 'activation_low', severity: 'warning', message: `Client onboarding conversion ${m.client_conversion_pct}% — below 25% threshold`, action: 'Review client funnel; identify biggest drop-off stage' });
+      if ((m.approval_pending ?? 0) + (m.approval_under_review ?? 0) > 20)
+        alerts.push({ type: 'approval_bottleneck', severity: 'warning', message: `${(m.approval_pending ?? 0) + (m.approval_under_review ?? 0)} tutors in approval pipeline`, action: 'Review Tutor Approval queue; consider auto-approve for high CaaS scores' });
+      if (m.approval_median_hours != null && Number(m.approval_median_hours) > 48)
+        alerts.push({ type: 'approval_slow', severity: 'critical', message: `Median tutor approval time ${m.approval_median_hours}h — exceeds 48h SLA`, action: 'Immediate admin queue review; SLA breach' });
+      if ((m.mid_onboarding_abandoned ?? 0) > 30)
+        alerts.push({ type: 'abandonment_spike', severity: 'warning', message: `${m.mid_onboarding_abandoned} users stalled mid-onboarding`, action: 'Check for UX regressions; review onboarding step where abandonment concentrates' });
+    }
+
+    return {
+      funnel: {
+        tutor: buildFunnel('tutor'),
+        client: buildFunnel('client'),
+        agent: buildFunnel('agent'),
+        organisation: buildFunnel('org'),
+      },
+      approval_pipeline: {
+        pending: m?.approval_pending ?? 0,
+        under_review: m?.approval_under_review ?? 0,
+        approved_30d: m?.approval_approved_30d ?? 0,
+        rejected_30d: m?.approval_rejected_30d ?? 0,
+        median_hours: m?.approval_median_hours ?? null,
+      },
+      time_to_activate: {
+        tutor_median_days: m?.tutor_time_to_activate_median_days ?? null,
+        client_median_days: m?.client_time_to_activate_median_days ?? null,
+      },
+      abandonment: {
+        mid_onboarding: midAbandoned.count ?? (m?.mid_onboarding_abandoned ?? 0),
+        post_onboarding_no_setup: m?.post_onboarding_no_setup ?? 0,
+        verified_no_role: verifiedNoRole.count ?? (m?.verified_no_role ?? 0),
+      },
+      biggest_dropoff: {
+        tutor: m?.tutor_biggest_dropoff_stage ?? null,
+        client: m?.client_biggest_dropoff_stage ?? null,
+      },
+      alerts,
+      metric_date: m?.metric_date ?? null,
+      days,
+    };
+  },
 };
 
 export async function executeTool(

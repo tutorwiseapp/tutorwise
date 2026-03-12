@@ -64,6 +64,7 @@ const QUICK_ACTIONS = [
   { label: 'GTM performance', command: 'Show go-to-market performance' },
   { label: 'Referral analytics', command: 'Show referral analytics' },
   { label: 'Booking pipeline', command: 'Show booking pipeline health' },
+  { label: 'Onboarding funnel', command: 'Show onboarding funnel health' },
 ];
 
 interface ExceptionItem {

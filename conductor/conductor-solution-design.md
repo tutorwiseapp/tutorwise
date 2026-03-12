@@ -727,10 +727,11 @@ Fourteen intelligence specs (2026-03-08/09) across six Conductor use cases + one
 | [ai-adoption-intelligence-spec.md](./ai-adoption-intelligence-spec.md) | AI Product Adoption | Market Intelligence | `query_ai_adoption_health` | 367 | 18h |
 | [org-conversion-intelligence-spec.md](./org-conversion-intelligence-spec.md) | Org Conversion | Operations Monitor | `query_org_conversion_health` | 368 | 18h |
 | [ai-studio-intelligence-spec.md](./ai-studio-intelligence-spec.md) | AI Studio Creator | Market Intelligence | `query_ai_studio_health` | 369 | 20h |
+| [onboarding-intelligence-spec.md](./onboarding-intelligence-spec.md) | User Onboarding | Operations Monitor | `query_onboarding_health` | 387 | 20h |
 
-**Post-acquisition subtotal: ~78h Phase 3** (+ ~16h Phase 4 = ~94h)
+**Post-acquisition subtotal: ~98h Phase 3** (+ ~16h Phase 4 = ~114h)
 
-**Total across all 14 specs: ~297h Phase 3 + ~50h Phase 4 = ~347h**
+**Total across all 15 specs: ~317h Phase 3 + ~50h Phase 4 = ~367h**
 
 ### pg_cron Schedule — All Intelligence Metrics (UTC)
 
@@ -750,6 +751,7 @@ Fourteen intelligence specs (2026-03-08/09) across six Conductor use cases + one
 | 10:00 | AI Adoption platform metrics | 367 |
 | 10:30 | Org Conversion platform metrics | 368 |
 | 11:00 | AI Studio platform metrics | 369 |
+| 04:00 | Onboarding platform metrics | 387 |
 
 > **Professional Assessment**: See [`conductor-professional-assessment.md`](./conductor-professional-assessment.md) for full market comparison (Temporal, LangGraph, Camunda, n8n, CrewAI, Microsoft Copilot Studio), honest weaknesses, lab research comparison, and solo-founder + Claude execution model analysis.
 
@@ -3656,8 +3658,8 @@ Phase 3 — Feature Intelligence Layer (platform metrics + daily pg_cron jobs)
   363 — VirtualSpace: virtualspace_platform_metrics_daily + compute_virtualspace_platform_metrics() pg_cron 08:00
 
 pg_cron schedule (Phase 3 intelligence jobs, all UTC):
-  04:30 Resources  05:00 SEO  05:30 CaaS  06:00 Marketplace  06:30 Bookings
-  07:00 Listings   07:30 Financials       08:00 VirtualSpace  08:30 Referral
+  04:00 Onboarding  04:30 Resources  05:00 SEO  05:30 CaaS  06:00 Marketplace  06:30 Bookings
+  07:00 Listings    07:30 Financials             08:00 VirtualSpace  08:30 Referral
 
 Phase 4 — Knowledge, Intent, Context & Learning
   373 — Agent Spaces: agent_spaces table + space_id FK on agent_teams
@@ -3765,7 +3767,7 @@ Eight specialist agents pre-seeded (8 CAS built-ins with `built_in = true`, plus
   "name": "Operations Monitor Agent",
   "description": "Monitors platform health: at-risk tutors (inactivity, low ratings), session completion rates, support queue depth. Runs every 6 hours.",
   "schedule": "0 */6 * * *",
-  "tools": ["query_tutor_activity", "query_session_completion_rates", "query_support_queue", "query_rating_trends", "query_caas_health", "flag_exception"],
+  "tools": ["query_tutor_activity", "query_session_completion_rates", "query_support_queue", "query_rating_trends", "query_caas_health", "query_onboarding_health", "flag_exception"],
   "system_prompt_template": "You are a platform operations monitor for Tutorwise. Identify tutors at risk of churning (no sessions in 30 days, declining ratings, incomplete profiles). Identify operational anomalies: session completion rates <85%, support queue >50 open tickets, rating average dropping >0.5 in 14 days.",
   "output_format": "structured_json",
   "autonomy_level": "supervised",

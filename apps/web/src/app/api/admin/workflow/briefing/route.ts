@@ -22,7 +22,7 @@ export async function GET() {
     const supabase = createServiceRoleClient();
 
     // Gather metrics in parallel
-    const [executionsResult, exceptionsResult, divergencesResult, webhooksResult] = await Promise.all([
+    const [executionsResult, exceptionsResult, divergencesResult, webhooksResult, onboardingResult] = await Promise.all([
       supabase
         .from('workflow_executions')
         .select('status', { count: 'exact' })
@@ -41,6 +41,12 @@ export async function GET() {
         .from('failed_webhooks')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'failed'),
+      supabase
+        .from('onboarding_platform_metrics_daily')
+        .select('tutor_conversion_pct, client_conversion_pct, approval_pending, approval_under_review, mid_onboarding_abandoned, tutor_biggest_dropoff_stage')
+        .order('metric_date', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
     const executions = executionsResult.data ?? [];
@@ -51,12 +57,17 @@ export async function GET() {
     const unresolvedExceptions = exceptionsResult.count ?? 0;
     const shadowDivergences = divergencesResult.count ?? 0;
     const failedWebhooks = webhooksResult.count ?? 0;
+    const ob = onboardingResult.data;
+
+    const onboardingLine = ob
+      ? `\n- Onboarding: tutor conversion ${ob.tutor_conversion_pct ?? '?'}%, client conversion ${ob.client_conversion_pct ?? '?'}%, ${(ob.approval_pending ?? 0) + (ob.approval_under_review ?? 0)} in approval pipeline, ${ob.mid_onboarding_abandoned ?? 0} stalled mid-onboarding${ob.tutor_biggest_dropoff_stage ? `, tutor drop-off at ${ob.tutor_biggest_dropoff_stage}` : ''}`
+      : '';
 
     const userPrompt = `Platform metrics for the last 24 hours:
 - Workflow executions: ${running} running, ${paused} paused (awaiting human approval), ${completed} completed, ${failed} failed
 - Unresolved exceptions: ${unresolvedExceptions}
 - Shadow mode divergences: ${shadowDivergences}
-- Failed webhook deliveries (DLQ): ${failedWebhooks}
+- Failed webhook deliveries (DLQ): ${failedWebhooks}${onboardingLine}
 
 Write a concise 2-3 sentence operational briefing for the admin team. Focus on: overall health, anything requiring immediate attention, and one actionable recommendation. Be direct and factual.`;
 

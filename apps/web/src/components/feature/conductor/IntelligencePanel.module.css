@@ -8,7 +8,46 @@
   overflow: hidden;
 }
 
-/* ── Sub-tab bar — mirrors conductor page .navTabs pattern ──────────────── */
+/* ── Category bar (tier 1) ─────────────────────────────────────────────── */
+
+.categoryBar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 1rem;
+  background: var(--color-white, #fff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.categoryTab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #6b7280);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.categoryTab:hover {
+  color: var(--color-text-primary, #111827);
+}
+
+.categoryTabActive {
+  color: var(--color-primary, #006c67);
+  border-bottom-color: var(--color-primary, #006c67);
+}
+
+/* ── Sub-tab bar (tier 2) — mirrors conductor page .navTabs pattern ──── */
 
 .tabBar {
   display: flex;

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
   List, DollarSign, Monitor, Share2, Activity, BarChart2,
-  Heart, Bot, Building2, Layers, Target, GitBranch, Route,
+  Heart, Bot, Building2, Layers, Target, GitBranch, Route, UserPlus,
 } from 'lucide-react';
 import { TierCalibrationPanel } from './TierCalibrationPanel';
 import styles from './IntelligencePanel.module.css';
@@ -16,28 +16,74 @@ type IntelTab =
   | 'gtm'
   | 'caas' | 'resources' | 'seo' | 'signal' | 'marketplace'
   | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral'
-  | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio'
+  | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio' | 'onboarding'
   | 'tier_calibration' | 'process_mining';
 
-const INTEL_TABS: { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
-  { id: 'gtm',          label: 'GTM Lifecycle', icon: Route },
-  { id: 'caas',          label: 'CaaS',        icon: Users },
-  { id: 'resources',    label: 'Resources',   icon: BookOpen },
-  { id: 'seo',          label: 'SEO',         icon: Search },
-  { id: 'signal',       label: 'Signal',      icon: Activity },
-  { id: 'marketplace',  label: 'Marketplace', icon: ShoppingCart },
-  { id: 'listings',     label: 'Listings',    icon: List },
-  { id: 'bookings',     label: 'Bookings',    icon: TrendingUp },
-  { id: 'financials',   label: 'Financials',  icon: DollarSign },
-  { id: 'virtualspace', label: 'VirtualSpace',icon: Monitor },
-  { id: 'referral',     label: 'Referral',    icon: Share2 },
-  { id: 'retention',    label: 'Retention',   icon: Heart },
-  { id: 'ai_adoption',  label: 'AI Adoption', icon: Bot },
-  { id: 'org_conversion', label: 'Orgs',      icon: Building2 },
-  { id: 'ai_studio',    label: 'AI Studio',   icon: Layers },
-  { id: 'tier_calibration', label: 'Autonomy', icon: Target },
-  { id: 'process_mining', label: 'Process Mining', icon: GitBranch },
+type IntelTabDef = { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> };
+
+type IntelCategory = 'business' | 'growth' | 'content' | 'trust' | 'platform';
+
+const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] }[] = [
+  {
+    id: 'business',
+    label: 'Business',
+    tabs: [
+      { id: 'gtm',          label: 'GTM Lifecycle', icon: Route },
+      { id: 'marketplace',  label: 'Marketplace', icon: ShoppingCart },
+      { id: 'listings',     label: 'Listings',    icon: List },
+      { id: 'bookings',     label: 'Bookings',    icon: TrendingUp },
+      { id: 'financials',   label: 'Financials',  icon: DollarSign },
+    ],
+  },
+  {
+    id: 'growth',
+    label: 'Growth',
+    tabs: [
+      { id: 'onboarding',       label: 'Onboarding',  icon: UserPlus },
+      { id: 'referral',         label: 'Referral',    icon: Share2 },
+      { id: 'org_conversion',   label: 'Orgs',        icon: Building2 },
+      { id: 'ai_adoption',      label: 'AI Adoption', icon: Bot },
+      { id: 'retention',        label: 'Retention',   icon: Heart },
+    ],
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    tabs: [
+      { id: 'resources',    label: 'Resources',   icon: BookOpen },
+      { id: 'seo',          label: 'SEO',         icon: Search },
+      { id: 'signal',       label: 'Signal',      icon: Activity },
+    ],
+  },
+  {
+    id: 'trust',
+    label: 'Trust',
+    tabs: [
+      { id: 'caas',         label: 'CaaS',        icon: Users },
+    ],
+  },
+  {
+    id: 'platform',
+    label: 'Platform',
+    tabs: [
+      { id: 'virtualspace',     label: 'VirtualSpace',   icon: Monitor },
+      { id: 'ai_studio',        label: 'AI Studio',      icon: Layers },
+      { id: 'tier_calibration', label: 'Autonomy',       icon: Target },
+      { id: 'process_mining',   label: 'Process Mining', icon: GitBranch },
+    ],
+  },
 ];
+
+// Flat list for lookups
+const INTEL_TABS: IntelTabDef[] = INTEL_CATEGORIES.flatMap(c => c.tabs);
+
+// Reverse lookup: tab → category
+const TAB_TO_CATEGORY = new Map<IntelTab, IntelCategory>();
+for (const cat of INTEL_CATEGORIES) {
+  for (const tab of cat.tabs) {
+    TAB_TO_CATEGORY.set(tab.id, cat.id);
+  }
+}
 
 // Tabs with their own internal data fetching (skip standard useQuery)
 const SELF_FETCHING_TABS: Set<IntelTab> = new Set(['gtm', 'tier_calibration', 'process_mining']);
@@ -58,6 +104,7 @@ const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
   ai_adoption:   '/api/admin/ai/intelligence?view=adoption',
   org_conversion:'/api/admin/organisations/intelligence',
   ai_studio:         '/api/admin/ai/intelligence?view=studio',
+  onboarding:        '/api/admin/onboarding/intelligence',
   tier_calibration:  null,  // self-fetching via TierCalibrationPanel
   process_mining:    null,  // self-fetching via ProcessMiningIntelSection
 };
@@ -676,6 +723,94 @@ function AIAdoptionSection({ data }: { data: any }) {
 
 // ── Org Conversion Section ───────────────────────────────────────────────────
 
+// ── Onboarding Intelligence Section ──────────────────────────────────────────
+
+function OnboardingSection({ data }: { data: any }) {
+  const funnel = data?.funnel;
+  const approval = data?.approval_pipeline;
+  const tta = data?.time_to_activate;
+  const abandon = data?.abandonment;
+  const dropoff = data?.biggest_dropoff;
+  const alerts: any[] = data?.alerts ?? [];
+
+  if (!funnel) return <InlineEmpty icon={UserPlus} message="No onboarding metrics yet." hint="Populates daily at 04:00 UTC" />;
+
+  const renderFunnel = (label: string, f: any) => {
+    if (!f) return null;
+    return (
+      <tr key={label}>
+        <td style={{ fontWeight: 500 }}>{label}</td>
+        <td>{fmt(f.signups)}</td>
+        <td>{fmt(f.verified)} <small style={{ color: '#9ca3af' }}>({fmtPct(f.verified_pct)})</small></td>
+        <td>{fmt(f.role_selected)}</td>
+        <td>{fmt(f.profile_complete)} <small style={{ color: '#9ca3af' }}>({fmtPct(f.profile_complete_pct)})</small></td>
+        <td>{fmt(f.value_setup)} <small style={{ color: '#9ca3af' }}>({fmtPct(f.value_setup_pct)})</small></td>
+        <td>{fmt(f.activated)} <small style={{ color: '#9ca3af' }}>({fmtPct(f.activated_pct)})</small></td>
+      </tr>
+    );
+  };
+
+  return (
+    <div>
+      <h4 className={styles.subHeading}>Conversion Funnel (30d)</h4>
+      <div style={{ overflowX: 'auto' }}>
+        <table className={styles.compactTable}>
+          <thead>
+            <tr>
+              <th>Role</th><th>Signup</th><th>Verified</th><th>Role</th>
+              <th>Profile</th><th>Setup</th><th>Activated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renderFunnel('Tutors', funnel.tutor)}
+            {renderFunnel('Clients', funnel.client)}
+            {renderFunnel('Agents', funnel.agent)}
+            {renderFunnel('Orgs', funnel.organisation)}
+          </tbody>
+        </table>
+      </div>
+      {(dropoff?.tutor || dropoff?.client) && (
+        <div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: '#d97706' }}>
+          {dropoff.tutor && <div>Tutor biggest drop-off: <strong>{dropoff.tutor}</strong></div>}
+          {dropoff.client && <div>Client biggest drop-off: <strong>{dropoff.client}</strong></div>}
+        </div>
+      )}
+      <h4 className={styles.subHeading}>Tutor Approval Pipeline</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Pending" value={fmt(approval?.pending)} />
+        <StatCard label="Under Review" value={fmt(approval?.under_review)} />
+        <StatCard label="Approved (30d)" value={fmt(approval?.approved_30d)} />
+        <StatCard label="Rejected (30d)" value={fmt(approval?.rejected_30d)} />
+        <StatCard label="Median Approval" value={approval?.median_hours != null ? `${Number(approval.median_hours).toFixed(1)}h` : '—'} sub="target < 48h" />
+      </div>
+      <h4 className={styles.subHeading}>Time to Activation (median)</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Tutors" value={tta?.tutor_median_days != null ? `${Number(tta.tutor_median_days).toFixed(1)}d` : '—'} />
+        <StatCard label="Clients" value={tta?.client_median_days != null ? `${Number(tta.client_median_days).toFixed(1)}d` : '—'} />
+      </div>
+      <h4 className={styles.subHeading}>Abandonment Signals</h4>
+      <div className={styles.statGrid}>
+        <StatCard label="Mid-Onboarding Stalled" value={fmt(abandon?.mid_onboarding)} sub="inactive > 3d" />
+        <StatCard label="No Setup After Complete" value={fmt(abandon?.post_onboarding_no_setup)} sub="completed but no listing/prefs > 7d" />
+        <StatCard label="Verified, No Role" value={fmt(abandon?.verified_no_role)} sub="email verified > 7d, no role" />
+      </div>
+      {alerts.length > 0 && (
+        <>
+          <h4 className={styles.subHeading}>Alerts</h4>
+          <div>
+            {alerts.map((a: any, i: number) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
+                <AlertBadge severity={a.severity} />
+                <strong>{a.message}</strong>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function OrgConversionSection({ data }: { data: any }) {
   const pipeline = data?.candidate_pipeline;
   const newOrgs = data?.new_orgs;
@@ -1196,6 +1331,7 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
     case 'ai_adoption':    return <AIAdoptionSection data={data} />;
     case 'org_conversion': return <OrgConversionSection data={data} />;
     case 'ai_studio':          return <AIStudioSection data={data} />;
+    case 'onboarding':         return <OnboardingSection data={data} />;
     case 'tier_calibration':   return <TierCalibrationPanel />;
     case 'process_mining':     return <ProcessMiningIntelSection />;
   }
@@ -1204,7 +1340,24 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
 // ── Main Panel ───────────────────────────────────────────────────────────────
 
 export function IntelligencePanel() {
-  const [activeTab, setActiveTab] = useState<IntelTab>('caas');
+  const [activeCategory, setActiveCategory] = useState<IntelCategory>('business');
+  const [activeTab, setActiveTab] = useState<IntelTab>('gtm');
+
+  const activeCategoryDef = INTEL_CATEGORIES.find(c => c.id === activeCategory)!;
+
+  const handleCategoryChange = (cat: IntelCategory) => {
+    setActiveCategory(cat);
+    // Auto-select first tab in new category
+    const catDef = INTEL_CATEGORIES.find(c => c.id === cat)!;
+    setActiveTab(catDef.tabs[0].id);
+  };
+
+  const handleTabChange = (tab: IntelTab) => {
+    setActiveTab(tab);
+    // Keep category in sync
+    const cat = TAB_TO_CATEGORY.get(tab);
+    if (cat && cat !== activeCategory) setActiveCategory(cat);
+  };
 
   const isSelfFetching = SELF_FETCHING_TABS.has(activeTab);
 
@@ -1235,13 +1388,26 @@ export function IntelligencePanel() {
 
   return (
     <div className={styles.panel}>
-      {/* Sub-tab bar */}
+      {/* Category bar (tier 1) */}
+      <div className={styles.categoryBar}>
+        {INTEL_CATEGORIES.map(({ id, label }) => (
+          <button
+            key={id}
+            className={`${styles.categoryTab} ${activeCategory === id ? styles.categoryTabActive : ''}`}
+            onClick={() => handleCategoryChange(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sub-tab bar (tier 2) — shows tabs for active category */}
       <div className={styles.tabBar}>
-        {INTEL_TABS.map(({ id, label, icon: Icon }) => (
+        {activeCategoryDef.tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             className={`${styles.tab} ${activeTab === id ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(id)}
+            onClick={() => handleTabChange(id)}
           >
             <Icon size={13} />
             {label}
