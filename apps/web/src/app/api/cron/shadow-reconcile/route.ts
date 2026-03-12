@@ -23,6 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 // Only check executions that completed at least this long ago (ms)
 const RECONCILE_DELAY_MS = 5 * 60 * 1000; // 5 minutes
@@ -68,7 +69,35 @@ export async function GET(request: NextRequest) {
   const results = { reconciled: 0, diverged: 0, errors: 0 };
   const now = new Date().toISOString();
 
-  for (const execution of (candidates as unknown) as ShadowExecution[]) {
+  const typedCandidates = (candidates as unknown) as ShadowExecution[];
+
+  // Batch-fetch bookings and profiles to avoid N+1 queries
+  const bookingIds = typedCandidates
+    .filter(e => ((e.process as { name: string } | null)?.name ?? '').startsWith('Booking Lifecycle'))
+    .map(e => e.execution_context.booking_id as string)
+    .filter(Boolean);
+  const profileIds = typedCandidates
+    .filter(e => ((e.process as { name: string } | null)?.name ?? '') === 'Tutor Approval')
+    .map(e => e.execution_context.profile_id as string)
+    .filter(Boolean);
+
+  const [bookingsResult, commissionsResult, profilesResult] = await Promise.all([
+    bookingIds.length > 0
+      ? supabase.from('bookings').select('id, payment_status').in('id', bookingIds)
+      : Promise.resolve({ data: [] as { id: string; payment_status: string }[] }),
+    bookingIds.length > 0
+      ? supabase.from('transactions').select('booking_id').in('booking_id', bookingIds).eq('type', 'Tutoring Payout')
+      : Promise.resolve({ data: [] as { booking_id: string }[] }),
+    profileIds.length > 0
+      ? supabase.from('profiles').select('id, status').in('id', profileIds)
+      : Promise.resolve({ data: [] as { id: string; status: string }[] }),
+  ]);
+
+  const bookingsMap = new Map((bookingsResult.data ?? []).map(b => [b.id, b]));
+  const commissionBookingIds = new Set((commissionsResult.data ?? []).map(t => t.booking_id));
+  const profilesMap = new Map((profilesResult.data ?? []).map(p => [p.id, p]));
+
+  for (const execution of typedCandidates) {
     try {
       const issues: string[] = [];
       const processName = (execution.process as { name: string } | null)?.name ?? '';
@@ -81,12 +110,7 @@ export async function GET(request: NextRequest) {
         if (!bookingId) {
           issues.push('execution_context missing booking_id');
         } else {
-          // Check booking payment status
-          const { data: booking } = await supabase
-            .from('bookings')
-            .select('id, payment_status')
-            .eq('id', bookingId)
-            .maybeSingle();
+          const booking = bookingsMap.get(bookingId);
 
           if (!booking) {
             issues.push(`booking ${bookingId} not found in DB`);
@@ -94,14 +118,7 @@ export async function GET(request: NextRequest) {
             issues.push(`booking ${bookingId} payment_status = '${booking.payment_status}' (expected 'Paid')`);
           }
 
-          // Check that a commission transaction was created
-          const { count: commissionCount } = await supabase
-            .from('transactions')
-            .select('id', { count: 'exact', head: true })
-            .eq('booking_id', bookingId)
-            .eq('type', 'Tutoring Payout');
-
-          if ((commissionCount ?? 0) === 0) {
+          if (!commissionBookingIds.has(bookingId)) {
             issues.push(`no Tutoring Payout transaction found for booking ${bookingId}`);
           }
         }
@@ -114,17 +131,11 @@ export async function GET(request: NextRequest) {
         if (!profileId) {
           issues.push('execution_context missing profile_id');
         } else {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('id, status')
-            .eq('id', profileId)
-            .maybeSingle();
+          const profile = profilesMap.get(profileId);
 
           if (!profile) {
             issues.push(`profile ${profileId} not found`);
           } else if (profile.status === 'under_review') {
-            // Still under_review after engine completed — likely a HITL approval is pending, not a real divergence
-            // Only flag if it's been a very long time (> 24h)
             const completedAt = new Date(execution.completed_at).getTime();
             const hoursSinceComplete = (Date.now() - completedAt) / 3600000;
             if (hoursSinceComplete > 24) {
@@ -215,7 +226,8 @@ export async function GET(request: NextRequest) {
       .select('id, process_id, workflow_processes(nodes, edges)')
       .eq('status', 'completed')
       .eq('is_shadow', false)
-      .gte('completed_at', oneHourAgo);
+      .gte('completed_at', oneHourAgo)
+      .limit(200);
 
     for (const exec of recentlyCompleted ?? []) {
       // Skip if already checked (conformance_deviations has a row for this execution)
@@ -283,7 +295,8 @@ export async function GET(request: NextRequest) {
       .select('process_id')
       .eq('status', 'completed')
       .eq('is_shadow', false)
-      .gte('completed_at', oneHourAgo);
+      .gte('completed_at', oneHourAgo)
+      .limit(500);
 
     const distinctProcessIds = [
       ...new Set((recentExecs ?? []).map((r: { process_id: string }) => r.process_id)),

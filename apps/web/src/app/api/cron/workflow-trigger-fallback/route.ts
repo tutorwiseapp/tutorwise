@@ -17,6 +17,7 @@ import { createServiceRoleClient } from '@/utils/supabase/server';
 import { workflowRuntime } from '@/lib/workflow/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 const STUCK_THRESHOLD_MINUTES = 60;
 

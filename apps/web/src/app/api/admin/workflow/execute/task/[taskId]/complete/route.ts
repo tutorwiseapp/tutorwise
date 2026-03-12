@@ -23,26 +23,28 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const body = await request.json();
     const { decision = 'approve', result_data = {} } = body as {
       decision?: string;
       result_data?: Record<string, unknown>;
     };
 
-    // Look up the execution thread ID via the task
+    // Atomically claim the task — prevents double-completion race
     const { data: task } = await supabase
       .from('workflow_tasks')
-      .select('execution_id, status')
+      .update({ status: 'running', started_at: new Date().toISOString() })
       .eq('id', taskId)
-      .single();
+      .eq('status', 'paused')
+      .select('execution_id, status')
+      .maybeSingle();
 
     if (!task) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
-    }
-
-    if (task.status !== 'paused') {
+      // Could be not found OR already claimed by another request
       return NextResponse.json(
-        { error: `Task is not paused — current status: ${task.status}` },
+        { error: 'Task not found or no longer paused (may have been completed by another request)' },
         { status: 409 }
       );
     }

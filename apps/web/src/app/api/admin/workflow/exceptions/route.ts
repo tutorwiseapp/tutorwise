@@ -67,6 +67,11 @@ export async function GET(request: NextRequest) {
       total: count ?? 0,
       limit,
       offset,
+      filters: {
+        status: status ?? 'open,claimed (default)',
+        severity: severity ?? 'all',
+        source: source ?? 'all',
+      },
     });
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal server error' }, { status: 500 });

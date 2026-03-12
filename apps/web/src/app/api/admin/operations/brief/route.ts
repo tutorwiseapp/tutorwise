@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 // In-memory cache (per-instance; fine for single-server / Vercel function)
 let cachedBrief: { date: string; brief: string; generatedAt: string } | null = null;
+const REFRESH_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes between refreshes
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +28,14 @@ export async function GET(request: NextRequest) {
     // Return cached brief if same day and not forcing refresh
     if (cachedBrief && cachedBrief.date === today && !refresh) {
       return NextResponse.json({ success: true, data: cachedBrief, cached: true });
+    }
+
+    // Rate-limit refresh: prevent regeneration more than once per 5 minutes
+    if (refresh && cachedBrief?.generatedAt) {
+      const elapsed = Date.now() - new Date(cachedBrief.generatedAt).getTime();
+      if (elapsed < REFRESH_COOLDOWN_MS) {
+        return NextResponse.json({ success: true, data: cachedBrief, cached: true, cooldown: true });
+      }
     }
 
     // Gather intelligence from all domain metrics tables
@@ -61,6 +70,14 @@ export async function GET(request: NextRequest) {
       supabase.from('workflow_exceptions').select('id', { count: 'exact', head: true }).in('status', ['open', 'claimed']),
       supabase.from('agent_run_outputs').select('id, agent_slug, status, created_at').order('created_at', { ascending: false }).limit(10),
     ]);
+
+    // Log metric query errors (non-fatal — AI can handle null domains)
+    const metricResults = { bookings, listings, financials, retention, caas, marketplace, seo, aiAdoption };
+    for (const [domain, result] of Object.entries(metricResults)) {
+      if (result.error) {
+        console.warn(`[operations/brief] ${domain} metrics query failed:`, result.error.message);
+      }
+    }
 
     const metricsContext = JSON.stringify({
       date: metricDate,

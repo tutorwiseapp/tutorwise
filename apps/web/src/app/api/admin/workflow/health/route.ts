@@ -71,7 +71,8 @@ export async function GET() {
       supabase.from('specialist_agents')
         .select('slug, name, status, last_run_at')
         .eq('status', 'active')
-        .order('last_run_at', { ascending: false }),
+        .order('last_run_at', { ascending: false })
+        .limit(50),
 
       supabase.from('agent_run_outputs')
         .select('id, agent_slug, status, created_at')

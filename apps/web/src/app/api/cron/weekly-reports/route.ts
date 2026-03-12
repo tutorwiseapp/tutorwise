@@ -16,6 +16,7 @@ import {
 } from '@/lib/email-templates/reports';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 /**
  * GET /api/cron/weekly-reports

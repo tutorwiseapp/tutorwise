@@ -23,6 +23,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const body = await request.json();
     const { decision = 'complete', result_data = {} } = body as {
       decision?: string;
@@ -55,7 +58,8 @@ export async function POST(
     // Write exception for resume failure (fire-and-forget)
     const { executionId: execId } = await props.params;
     import('@/lib/workflow/exception-writer').then(async ({ writeException }) => {
-      const supa = await createClient();
+      const { createServiceRoleClient: createSRC } = await import('@/utils/supabase/server');
+      const supa = createSRC();
       writeException({
         supabase: supa,
         source: 'workflow_failure',

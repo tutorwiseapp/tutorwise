@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sendCommissionAvailableEmail } from '@/lib/email/commission-available';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 const CLEARING_PERIOD_DAYS = 7;
 

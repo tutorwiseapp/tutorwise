@@ -19,6 +19,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const { command } = await request.json() as { command: string };
     if (!command?.trim()) {
       return NextResponse.json({ error: 'command is required' }, { status: 400 });

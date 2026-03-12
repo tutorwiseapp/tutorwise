@@ -110,20 +110,16 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
       // Invoke — runs until completion or first interrupt
       await compiledGraph.invoke(initialState, threadConfig);
 
-      // Check if still paused (interrupted) or completed
-      const { data: updatedExecution } = await supabase
+      // Atomically mark completed only if still running (prevents race with concurrent pause/cancel)
+      const { data: completedRow } = await supabase
         .from('workflow_executions')
-        .select('status')
+        .update({ status: 'completed', completed_at: new Date().toISOString() })
         .eq('id', executionId)
-        .single();
+        .eq('status', 'running')
+        .select('id')
+        .maybeSingle();
 
-      if (updatedExecution?.status === 'running') {
-        // No interrupt occurred — mark completed
-        await supabase
-          .from('workflow_executions')
-          .update({ status: 'completed', completed_at: new Date().toISOString() })
-          .eq('id', executionId);
-
+      if (completedRow) {
         // Phase 4D: Write decision_outcomes stubs for learning loop measurement
         await writeDecisionOutcomeStubs(supabase, executionId, processId).catch(() => {});
       }
@@ -134,7 +130,8 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
       await supabase
         .from('workflow_executions')
         .update({ status: 'failed', completed_at: new Date().toISOString() })
-        .eq('id', executionId);
+        .eq('id', executionId)
+        .eq('status', 'running');
 
       import('@/lib/workflow/exception-writer').then(({ writeException }) =>
         writeException({
@@ -199,11 +196,18 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
 
     const threadConfig = { configurable: { thread_id: threadId } };
 
-    // Mark execution back to running
-    await supabase
+    // Atomically mark execution back to running (only if currently paused)
+    const { data: resumedRow } = await supabase
       .from('workflow_executions')
       .update({ status: 'running' })
-      .eq('id', execution.id);
+      .eq('id', execution.id)
+      .eq('status', 'paused')
+      .select('id')
+      .maybeSingle();
+
+    if (!resumedRow) {
+      throw new Error(`PlatformWorkflowRuntime.resume: execution ${execution.id} is not paused`);
+    }
 
     try {
       // Resume with the decision payload
@@ -212,19 +216,16 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
         threadConfig
       );
 
-      // If no further interrupt — mark completed
-      const { data: updatedExecution } = await supabase
+      // Atomically mark completed only if still running (prevents race with concurrent pause/cancel)
+      const { data: completedRow } = await supabase
         .from('workflow_executions')
-        .select('status')
+        .update({ status: 'completed', completed_at: new Date().toISOString() })
         .eq('id', execution.id)
-        .single();
+        .eq('status', 'running')
+        .select('id')
+        .maybeSingle();
 
-      if (updatedExecution?.status === 'running') {
-        await supabase
-          .from('workflow_executions')
-          .update({ status: 'completed', completed_at: new Date().toISOString() })
-          .eq('id', execution.id);
-
+      if (completedRow) {
         // Phase 4D: Write decision_outcomes stubs for learning loop measurement
         await writeDecisionOutcomeStubs(supabase, execution.id, execution.process_id).catch(() => {});
       }
@@ -235,7 +236,8 @@ export class PlatformWorkflowRuntime implements IWorkflowRuntime {
       await supabase
         .from('workflow_executions')
         .update({ status: 'failed', completed_at: new Date().toISOString() })
-        .eq('id', execution.id);
+        .eq('id', execution.id)
+        .eq('status', 'running');
 
       import('@/lib/workflow/exception-writer').then(({ writeException }) =>
         writeException({

@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 interface FailedWebhook {
   id: string;

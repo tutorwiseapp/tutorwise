@@ -106,14 +106,21 @@ export async function PATCH(
         statusGuard = ['open', 'claimed'];
         break;
 
-      case 'escalate':
+      case 'escalate': {
+        // Read current escalation_count to increment
+        const { data: current } = await supabase
+          .from('workflow_exceptions')
+          .select('escalation_count')
+          .eq('id', id)
+          .single();
         update = {
           escalated_at: new Date().toISOString(),
-          escalation_count: 1, // Will be incremented by trigger if needed
+          escalation_count: ((current?.escalation_count as number) ?? 0) + 1,
           resolution_type: 'escalated',
         };
         statusGuard = ['open', 'claimed'];
         break;
+      }
 
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

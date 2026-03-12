@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { processNudges } from '@/lib/workflow/nudge-scheduler';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

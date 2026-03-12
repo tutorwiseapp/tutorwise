@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/utils/supabase/server';
 import { getMCPClientManager } from '@/lib/mcp/MCPClientManager';
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;

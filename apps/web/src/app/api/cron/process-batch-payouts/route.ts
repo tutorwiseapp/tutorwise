@@ -14,6 +14,7 @@ import { sendPayoutProcessedEmail } from '@/lib/email/commission-available';
 import { workflowRuntime } from '@/lib/workflow/runtime/PlatformWorkflowRuntime';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
 const MIN_PAYOUT_AMOUNT = 25; // £25 minimum
 
