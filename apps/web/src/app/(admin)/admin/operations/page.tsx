@@ -6,14 +6,14 @@
  */
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, ArrowUp, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
 import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import { ExecutionCommandBar } from '@/components/feature/workflow/ExecutionCommandBar';
+import type { IntentResult } from '@/lib/conductor/IntentDetector';
 import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -52,8 +52,19 @@ interface HealthData {
 }
 
 interface BriefData {
-  briefing: string;
+  date: string;
+  brief: string;
+  generatedAt: string;
 }
+
+const QUICK_ACTIONS = [
+  { label: 'Show at-risk tutors', command: 'Show at-risk tutors' },
+  { label: 'Platform health', command: 'Show platform health overview' },
+  { label: 'Run commission payout', command: 'Run commission payout' },
+  { label: 'GTM performance', command: 'Show go-to-market performance' },
+  { label: 'Referral analytics', command: 'Show referral analytics' },
+  { label: 'Booking pipeline', command: 'Show booking pipeline health' },
+];
 
 interface ExceptionItem {
   id: string;
@@ -111,29 +122,30 @@ export default function AdminOperationsPage() {
     refetchInterval: 30_000,
   });
 
-  // Brief — from Conductor workflow briefing API
+  // Brief — comprehensive AI brief from operations/brief (8 domain metrics + operations status)
   const { data: briefData, isLoading: briefLoading, isFetching: briefFetching } = useQuery<BriefData>({
-    queryKey: ['workflow-briefing'],
+    queryKey: ['admin', 'operations', 'brief'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/workflow/briefing');
+      const res = await fetch('/api/admin/operations/brief');
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       return json.data;
     },
     enabled: tabFilter === 'overview',
-    staleTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 60_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30 * 60_000,
   });
 
   const refreshBrief = useMutation({
     mutationFn: async () => {
-      const res = await fetch('/api/admin/workflow/briefing');
+      const res = await fetch('/api/admin/operations/brief?refresh=true');
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       return json.data;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['workflow-briefing'], data);
+      queryClient.setQueryData(['admin', 'operations', 'brief'], data);
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : 'Failed to refresh brief');
@@ -180,6 +192,63 @@ export default function AdminOperationsPage() {
     },
   });
 
+  // Inline command bar state
+  const [command, setCommand] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
+
+  const handleCommand = useCallback(async (input: string) => {
+    if (!input.trim() || isRunning) return;
+    setIsRunning(true);
+    setLastMessage(null);
+
+    try {
+      const classifyRes = await fetch('/api/admin/conductor/classify-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input }),
+      });
+
+      if (classifyRes.ok) {
+        const { data: intent } = await classifyRes.json() as { data: IntentResult };
+
+        if (intent.confidence >= 0.7) {
+          if (intent.intent === 'query_agent' && intent.target_agent_slug) {
+            router.push(`/admin/conductor/agents/${intent.target_agent_slug}${intent.prompt ? `?prompt=${encodeURIComponent(intent.prompt)}` : ''}`);
+            setLastMessage(`Routing to ${intent.target_agent_slug} agent...`);
+            setCommand('');
+            return;
+          }
+          if (intent.intent === 'view_analytics') {
+            router.push('/admin/conductor?tab=intelligence');
+            setLastMessage(`Opening ${intent.analytics_tab ?? 'intelligence'} view...`);
+            setCommand('');
+            return;
+          }
+        }
+      }
+
+      // Fallback
+      const res = await fetch('/api/admin/workflow/execute/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: input }),
+      });
+      const data = await res.json();
+      setLastMessage(data.result?.message ?? data.error ?? 'No response');
+      setCommand('');
+    } catch {
+      setLastMessage('Failed to send command');
+    } finally {
+      setIsRunning(false);
+    }
+  }, [isRunning, router]);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    handleCommand(command);
+  }, [command, handleCommand]);
+
   return (
     <ErrorBoundary>
       <HubPageLayout
@@ -209,17 +278,41 @@ export default function AdminOperationsPage() {
         }
       >
         <div className={styles.container}>
-          {/* Command Bar — reuses Conductor ExecutionCommandBar component */}
+          {/* Command Bar — conversational input */}
           <div className={styles.commandSection}>
-            <ExecutionCommandBar
-              onResult={(msg) => toast(msg)}
-              onNavigateToAgent={(slug, prompt) => {
-                router.push(`/admin/conductor/agents/${slug}${prompt ? `?prompt=${encodeURIComponent(prompt)}` : ''}`);
-              }}
-              onNavigateToTab={(tab) => {
-                router.push(`/admin/conductor?tab=${tab}`);
-              }}
-            />
+            <form className={styles.commandForm} onSubmit={handleSubmit}>
+              <textarea
+                className={styles.commandInput}
+                value={command}
+                onChange={(e) => setCommand(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleCommand(command);
+                  }
+                }}
+                placeholder='e.g. "Show at-risk tutors" or "Run commission payout" or "Show referral analytics"'
+                rows={1}
+                disabled={isRunning}
+                aria-label="Operations command input"
+              />
+              <button className={styles.commandSubmit} type="submit" disabled={isRunning || !command.trim()} aria-label="Send command">
+                {isRunning ? <Loader2 size={18} className={styles.spinner} /> : <ArrowUp size={18} />}
+              </button>
+            </form>
+            <div className={styles.quickActions}>
+              {QUICK_ACTIONS.map((action) => (
+                <button
+                  key={action.label}
+                  className={styles.quickChip}
+                  onClick={() => handleCommand(action.command)}
+                  disabled={isRunning}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+            {lastMessage && <p className={styles.commandResult}>{lastMessage}</p>}
           </div>
 
           {tabFilter === 'overview' && (
@@ -358,6 +451,7 @@ export default function AdminOperationsPage() {
                   <h3 className={styles.briefTitle}>AI Operations Brief</h3>
                   <div className={styles.briefHeaderActions}>
                     {briefFetching && !briefLoading && !refreshBrief.isPending && <Loader2 size={12} className={styles.spinner} style={{ color: '#9ca3af' }} />}
+                    {briefData && <span className={styles.briefMeta}>Generated {timeAgo(briefData.generatedAt)}</span>}
                     <button
                       className={styles.refreshBtn}
                       onClick={() => refreshBrief.mutate()}
@@ -371,8 +465,8 @@ export default function AdminOperationsPage() {
                 </div>
                 {briefLoading ? (
                   <div className={styles.loading}><Loader2 size={14} className={styles.spinner} /> Generating brief...</div>
-                ) : briefData?.briefing ? (
-                  <div className={styles.briefContent}>{briefData.briefing}</div>
+                ) : briefData?.brief ? (
+                  <div className={styles.briefContent}>{briefData.brief}</div>
                 ) : (
                   <p className={styles.briefEmpty}>No brief available. Click Refresh to generate.</p>
                 )}
