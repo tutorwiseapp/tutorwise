@@ -21,14 +21,23 @@ type IntelTab =
 
 type IntelTabDef = { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> };
 
-type IntelCategory = 'business' | 'growth' | 'content' | 'trust' | 'platform';
+type IntelCategory = 'growth' | 'revenue' | 'product' | 'content' | 'platform';
 
 const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] }[] = [
   {
-    id: 'business',
-    label: 'Business',
+    id: 'growth',
+    label: 'Growth',
     tabs: [
       { id: 'gtm',          label: 'GTM Lifecycle', icon: Route },
+      { id: 'onboarding',   label: 'Onboarding',   icon: UserPlus },
+      { id: 'referral',     label: 'Referral',      icon: Share2 },
+      { id: 'retention',    label: 'Retention',     icon: Heart },
+    ],
+  },
+  {
+    id: 'revenue',
+    label: 'Revenue',
+    tabs: [
       { id: 'marketplace',  label: 'Marketplace', icon: ShoppingCart },
       { id: 'listings',     label: 'Listings',    icon: List },
       { id: 'bookings',     label: 'Bookings',    icon: TrendingUp },
@@ -36,14 +45,13 @@ const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] 
     ],
   },
   {
-    id: 'growth',
-    label: 'Growth',
+    id: 'product',
+    label: 'Product',
     tabs: [
-      { id: 'onboarding',       label: 'Onboarding',  icon: UserPlus },
-      { id: 'referral',         label: 'Referral',    icon: Share2 },
-      { id: 'org_conversion',   label: 'Orgs',        icon: Building2 },
+      { id: 'caas',             label: 'CaaS',        icon: Users },
       { id: 'ai_adoption',      label: 'AI Adoption', icon: Bot },
-      { id: 'retention',        label: 'Retention',   icon: Heart },
+      { id: 'ai_studio',        label: 'AI Studio',   icon: Layers },
+      { id: 'virtualspace',     label: 'VirtualSpace', icon: Monitor },
     ],
   },
   {
@@ -56,18 +64,10 @@ const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] 
     ],
   },
   {
-    id: 'trust',
-    label: 'Trust',
-    tabs: [
-      { id: 'caas',         label: 'CaaS',        icon: Users },
-    ],
-  },
-  {
     id: 'platform',
     label: 'Platform',
     tabs: [
-      { id: 'virtualspace',     label: 'VirtualSpace',   icon: Monitor },
-      { id: 'ai_studio',        label: 'AI Studio',      icon: Layers },
+      { id: 'org_conversion',   label: 'Orgs',           icon: Building2 },
       { id: 'tier_calibration', label: 'Autonomy',       icon: Target },
       { id: 'process_mining',   label: 'Process Mining', icon: GitBranch },
     ],
@@ -1340,7 +1340,7 @@ function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
 // ── Main Panel ───────────────────────────────────────────────────────────────
 
 export function IntelligencePanel() {
-  const [activeCategory, setActiveCategory] = useState<IntelCategory>('business');
+  const [activeCategory, setActiveCategory] = useState<IntelCategory>('growth');
   const [activeTab, setActiveTab] = useState<IntelTab>('gtm');
 
   const activeCategoryDef = INTEL_CATEGORIES.find(c => c.id === activeCategory)!;
