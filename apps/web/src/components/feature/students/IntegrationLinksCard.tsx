@@ -1,34 +1,51 @@
 /**
  * IntegrationLinksCard.tsx
- * Integration management card for student accounts (v5.0)
+ * Integration management card for user accounts (v5.0+)
  * Shows available integrations like Google Classroom with Connect/Disconnect buttons
- * Visible only to users with 'student' role
+ * Visible to users with 'student' or 'tutor' role
  */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { GraduationCap } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import styles from './IntegrationLinksCard.module.css';
+
+// Write scopes required for full functionality
+const REQUIRED_WRITE_SCOPES = [
+  'https://www.googleapis.com/auth/classroom.courses',
+  'https://www.googleapis.com/auth/classroom.coursework.students',
+];
 
 interface Integration {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  Icon: React.ComponentType<{ size?: number; className?: string }>;
   connected: boolean;
-  platformName: string; // Backend platform identifier
+  needsReconnect: boolean; // True if connected but missing required scopes
+  externalEmail: string | null;
+  platformName: string;
 }
 
-export default function IntegrationLinksCard() {
+interface IntegrationLinksCardProps {
+  userRole?: string;
+}
+
+export default function IntegrationLinksCard({ userRole = 'student' }: IntegrationLinksCardProps) {
   const searchParams = useSearchParams();
   const [integrations, setIntegrations] = useState<Integration[]>([
     {
       id: 'google-classroom',
       name: 'Google Classroom',
-      description: 'Sync your classes and assignments automatically',
-      icon: '📚',
+      description: userRole === 'tutor'
+        ? 'Create classes and post session summaries for your students'
+        : 'Sync your classes and assignments automatically',
+      Icon: GraduationCap,
       connected: false,
+      needsReconnect: false,
+      externalEmail: null,
       platformName: 'google_classroom',
     },
   ]);
@@ -49,9 +66,7 @@ export default function IntegrationLinksCard() {
         type: 'success',
         text: `Successfully connected ${platform.replace('_', ' ')}!`,
       });
-      // Refresh integration status
       fetchIntegrations();
-      // Clear message after 5 seconds
       setTimeout(() => setStatusMessage(null), 5000);
     } else if (integration === 'error') {
       setStatusMessage({
@@ -68,15 +83,33 @@ export default function IntegrationLinksCard() {
       const supabase = createClient();
       const { data: links, error } = await supabase
         .from('student_integration_links')
-        .select('platform_name');
+        .select('platform_name, scopes, external_email, is_active');
 
       if (!error && links) {
-        const connectedPlatforms = new Set(links.map(link => link.platform_name));
+        const linkMap = new Map(
+          links.map(link => [link.platform_name, link])
+        );
+
         setIntegrations(prev =>
-          prev.map(integration => ({
-            ...integration,
-            connected: connectedPlatforms.has(integration.platformName),
-          }))
+          prev.map(integration => {
+            const link = linkMap.get(integration.platformName);
+            if (!link || !link.is_active) {
+              return { ...integration, connected: false, needsReconnect: false, externalEmail: null };
+            }
+
+            // Check if existing scopes include required write scopes
+            const currentScopes = link.scopes || [];
+            const hasWriteScopes = REQUIRED_WRITE_SCOPES.every(
+              scope => currentScopes.includes(scope)
+            );
+
+            return {
+              ...integration,
+              connected: true,
+              needsReconnect: !hasWriteScopes,
+              externalEmail: link.external_email || null,
+            };
+          })
         );
       }
     } catch (error) {
@@ -96,7 +129,6 @@ export default function IntegrationLinksCard() {
       const integration = integrations.find(i => i.id === integrationId);
       if (!integration) return;
 
-      // Call backend API to initiate OAuth flow
       const response = await fetch(`/api/integrations/connect/${integration.platformName}`, {
         method: 'POST',
       });
@@ -113,7 +145,6 @@ export default function IntegrationLinksCard() {
 
       const data = await response.json();
 
-      // Redirect to OAuth consent page
       if (data.authorization_url) {
         window.location.href = data.authorization_url;
       }
@@ -168,11 +199,12 @@ export default function IntegrationLinksCard() {
       <div className={styles.header}>
         <h3 className={styles.title}>Integrations</h3>
         <p className={styles.subtitle}>
-          Connect your learning platforms to sync progress automatically
+          {userRole === 'tutor'
+            ? 'Connect platforms to manage classes and share session summaries'
+            : 'Connect your learning platforms to sync progress automatically'}
         </p>
       </div>
 
-      {/* Status Message */}
       {statusMessage && (
         <div className={`${styles.statusMessage} ${styles[statusMessage.type]}`}>
           {statusMessage.text}
@@ -183,17 +215,34 @@ export default function IntegrationLinksCard() {
         {integrations.map(integration => (
           <div key={integration.id} className={styles.integrationItem}>
             <div className={styles.integrationInfo}>
-              <span className={styles.integrationIcon}>{integration.icon}</span>
+              <span className={styles.integrationIcon}>
+                <integration.Icon size={24} />
+              </span>
               <div className={styles.integrationDetails}>
-                <h4 className={styles.integrationName}>{integration.name}</h4>
+                <h4 className={styles.integrationName}>
+                  {integration.name}
+                  {integration.externalEmail && (
+                    <span className={styles.connectedEmail}> ({integration.externalEmail})</span>
+                  )}
+                </h4>
                 <p className={styles.integrationDescription}>
-                  {integration.description}
+                  {integration.needsReconnect
+                    ? 'Reconnect to enable full access (new permissions required)'
+                    : integration.description}
                 </p>
               </div>
             </div>
 
             <div className={styles.integrationActions}>
-              {integration.connected ? (
+              {integration.needsReconnect ? (
+                <button
+                  onClick={() => handleConnect(integration.id)}
+                  disabled={isConnecting === integration.id}
+                  className={`${styles.button} ${styles.buttonReconnect}`}
+                >
+                  {isConnecting === integration.id ? 'Connecting...' : 'Reconnect'}
+                </button>
+              ) : integration.connected ? (
                 <button
                   onClick={() => handleDisconnect(integration.id)}
                   disabled={isConnecting === integration.id}
@@ -215,12 +264,12 @@ export default function IntegrationLinksCard() {
         ))}
       </div>
 
-      {/* Info Box */}
       <div className={styles.infoBox}>
         <strong>Why connect?</strong>
         <p>
-          Linking your accounts allows tutors and guardians to track your progress
-          across multiple platforms in one place.
+          {userRole === 'tutor'
+            ? 'Linking your Google Classroom account lets you create classes for recurring students and auto-post session summaries after lessons.'
+            : 'Linking your accounts allows tutors and guardians to track your progress across multiple platforms in one place.'}
         </p>
       </div>
     </div>

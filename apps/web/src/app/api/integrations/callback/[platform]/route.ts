@@ -1,6 +1,6 @@
 /**
  * GET /api/integrations/callback/[platform]
- * Purpose: OAuth callback endpoint for external platform integrations (v5.0)
+ * Purpose: OAuth callback endpoint for external platform integrations (v5.0+)
  *
  * This endpoint handles the OAuth callback from the external platform,
  * exchanges the authorization code for access/refresh tokens, and stores
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ platf
     }
 
     const tokens = await tokenResponse.json();
-    const { access_token, refresh_token, scope } = tokens;
+    const { access_token, refresh_token, expires_in, scope } = tokens;
 
     if (!access_token) {
       return NextResponse.redirect(
@@ -130,20 +130,30 @@ export async function GET(request: NextRequest, props: { params: Promise<{ platf
 
     const userInfo = await userInfoResponse.json();
     const external_user_id = userInfo.id || userInfo.sub;
+    const external_email = userInfo.email || null;
 
-    // 7. Store or update integration link in database
+    // 7. Calculate token expiry
+    const token_expires_at = expires_in
+      ? new Date(Date.now() + expires_in * 1000).toISOString()
+      : null;
+
+    // 8. Store or update integration link in database
     const { error: upsertError } = await supabase
       .from('student_integration_links')
       .upsert({
-        student_profile_id: user.id,
+        profile_id: user.id,
         platform_name: platform,
+        integration_type: platform.toUpperCase(),
         external_user_id,
+        external_email,
         auth_token: access_token,
         refresh_token: refresh_token || null,
+        token_expires_at,
         scopes: scope ? scope.split(' ') : [],
+        is_active: true,
         linked_at: new Date().toISOString(),
       }, {
-        onConflict: 'student_profile_id,platform_name',
+        onConflict: 'profile_id,platform_name',
       });
 
     if (upsertError) {
@@ -153,15 +163,15 @@ export async function GET(request: NextRequest, props: { params: Promise<{ platf
       );
     }
 
-    // 8. TODO: Log to audit_log
-    // await logAuditEvent({
-    //   action: 'INTEGRATION_CONNECTED',
-    //   user_id: user.id,
-    //   resource_type: 'integration',
-    //   resource_id: platform,
-    // });
+    // 9. Log to audit_log
+    await supabase.from('audit_log').insert({
+      profile_id: user.id,
+      action_type: 'integration.connected',
+      module: 'integrations',
+      details: { platform, external_user_id, external_email },
+    });
 
-    // 9. Redirect back to settings with success message
+    // 10. Redirect back to settings with success message
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}/account/settings?integration=success&platform=${platform}`
     );

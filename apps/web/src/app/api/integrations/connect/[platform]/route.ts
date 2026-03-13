@@ -1,10 +1,10 @@
 /**
  * POST /api/integrations/connect/[platform]
- * Purpose: Initiate OAuth flow for external platform integration (v5.0)
+ * Purpose: Initiate OAuth flow for external platform integration (v5.0+)
  *
  * This endpoint generates the OAuth consent URL for the specified platform
- * (e.g., google_classroom). The student will be redirected to this URL to
- * authorize Tutorwise to access their learning platform data.
+ * (e.g., google_classroom). The user (student or tutor) will be redirected
+ * to this URL to authorize Tutorwise to access their learning platform data.
  *
  * Supported platforms:
  * - google_classroom: Google Classroom integration
@@ -22,8 +22,9 @@ const OAUTH_CONFIGS = {
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
     scopes: [
-      'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+      'https://www.googleapis.com/auth/classroom.courses',
+      'https://www.googleapis.com/auth/classroom.coursework.students',
+      'https://www.googleapis.com/auth/classroom.rosters.readonly',
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email',
     ],
@@ -55,9 +56,9 @@ export async function POST(request: NextRequest, props: { params: Promise<{ plat
       .eq('id', user.id)
       .single();
 
-    if (profileError || !profile || profile.role !== 'student') {
+    if (profileError || !profile || !['student', 'tutor'].includes(profile.role)) {
       return NextResponse.json(
-        { error: 'Only students can connect learning platform integrations' },
+        { error: 'Only students and tutors can connect learning platform integrations' },
         { status: 403 }
       );
     }

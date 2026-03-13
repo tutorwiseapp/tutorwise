@@ -169,10 +169,10 @@ export default function SettingsPage() {
       }
     >
       <div className={styles.content}>
-        {/* v5.0: Student Integrations - Only visible to student role */}
-        {activeRole === 'student' && (
+        {/* v5.0+: Integrations - Visible to student and tutor roles */}
+        {activeRole && ['student', 'tutor'].includes(activeRole) && (
           <div style={{ marginBottom: 'var(--space-4, 32px)' }}>
-            <IntegrationLinksCard />
+            <IntegrationLinksCard userRole={activeRole} />
           </div>
         )}
 
