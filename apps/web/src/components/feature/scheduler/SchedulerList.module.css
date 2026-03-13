@@ -1,0 +1,76 @@
+/**
+ * Filename: SchedulerList.module.css
+ * Purpose: Styles for SchedulerList component — All Items tab
+ * Created: 2026-03-13
+ */
+
+/* Title cell with color indicator bar */
+.titleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.colorBar {
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.titleText {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+/* Type badge */
+.typeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Scheduled at cell */
+.dateText {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+/* Recurrence cell */
+.recurrenceText {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.recurrenceEmpty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Tags cell */
+.tagsWrapper {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.tagsMore {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.tagsEmpty {
+  color: #9ca3af;
+}

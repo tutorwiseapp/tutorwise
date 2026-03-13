@@ -1,0 +1,120 @@
+/**
+ * Filename: SchedulerJobs.module.css
+ * Purpose: Styles for SchedulerJobs component — Jobs tab
+ * Created: 2026-03-13
+ */
+
+/* Job name cell */
+.jobTitle {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.jobEndpoint {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+  font-family: monospace;
+}
+
+/* Schedule column — monospace cron expression */
+.cronExpression {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background-color: #f3f4f6;
+  color: #374151;
+  font-family: monospace;
+}
+
+/* Type badge */
+.typeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.typeHttp {
+  background-color: rgba(37, 99, 235, 0.09);
+  color: #2563eb;
+}
+
+.typeSql {
+  background-color: rgba(217, 119, 6, 0.09);
+  color: #d97706;
+}
+
+/* Last run cell */
+.lastRunWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.lastRunStatus {
+  display: inline-block;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.lastRunOk {
+  background-color: rgba(22, 163, 74, 0.09);
+  color: #16a34a;
+}
+
+.lastRunErr {
+  background-color: rgba(220, 38, 38, 0.09);
+  color: #dc2626;
+}
+
+.lastRunDate {
+  color: #4b5563;
+}
+
+.lastRunDuration {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.lastRunNever {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Next run cell */
+.nextRunText {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.nextRunEmpty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 48px 16px;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  margin: 0 auto 12px;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.emptyDescription {
+  font-size: 13px;
+}

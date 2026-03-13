@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react';
 import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import styles from './SchedulerHistory.module.css';
 
 interface RunRecord {
   id: string;
@@ -143,18 +144,7 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
   ];
 
   const toolbarActions = filterItemId ? (
-    <button
-      onClick={onClearFilter}
-      style={{
-        fontSize: '12px',
-        padding: '4px 10px',
-        borderRadius: '4px',
-        border: '1px solid #e5e7eb',
-        backgroundColor: '#fef3c7',
-        color: '#92400e',
-        cursor: 'pointer',
-      }}
-    >
+    <button onClick={onClearFilter} className={styles.filteredBadge}>
       Filtered to one job — clear
     </button>
   ) : undefined;
@@ -166,15 +156,15 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       width: '60px',
       render: (row) => {
         if (row.status === 'completed') {
-          return <CheckCircle2 size={16} style={{ color: '#16a34a' }} />;
+          return <CheckCircle2 size={16} className={styles.statusCompleted} />;
         }
         if (row.status === 'failed') {
-          return <XCircle size={16} style={{ color: '#dc2626' }} />;
+          return <XCircle size={16} className={styles.statusFailed} />;
         }
         if (row.status === 'running') {
-          return <Loader2 size={16} style={{ color: '#2563eb', animation: 'spin 1s linear infinite' }} />;
+          return <Loader2 size={16} className={styles.statusRunning} />;
         }
-        return <Clock size={16} style={{ color: '#9ca3af' }} />;
+        return <Clock size={16} className={styles.statusPending} />;
       },
     },
     {
@@ -183,18 +173,11 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       render: (row) => {
         const color = TYPE_COLORS[row.item_type] || '#6b7280';
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 500 }}>{row.item_title}</span>
+          <div className={styles.itemWrapper}>
+            <span className={styles.itemTitle}>{row.item_title}</span>
             <span
-              style={{
-                display: 'inline-block',
-                padding: '1px 6px',
-                borderRadius: '3px',
-                fontSize: '10px',
-                fontWeight: 500,
-                backgroundColor: `${color}18`,
-                color,
-              }}
+              className={styles.itemTypeBadge}
+              style={{ backgroundColor: `${color}18`, color }}
             >
               {TYPE_LABELS[row.item_type] || row.item_type}
             </span>
@@ -209,7 +192,7 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       width: '160px',
       hideOnMobile: true,
       render: (row) => (
-        <span style={{ fontSize: '13px', color: '#4b5563' }}>
+        <span className={styles.dateText}>
           {format(new Date(row.started_at), 'd MMM yyyy HH:mm:ss')}
         </span>
       ),
@@ -220,7 +203,7 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       width: '100px',
       hideOnMobile: true,
       render: (row) => (
-        <span style={{ fontSize: '13px', color: row.duration_ms != null ? '#4b5563' : '#9ca3af' }}>
+        <span className={row.duration_ms != null ? styles.durationText : styles.durationEmpty}>
           {formatDuration(row.duration_ms)}
         </span>
       ),
@@ -231,7 +214,7 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       width: '80px',
       hideOnTablet: true,
       render: (row) => (
-        <span style={{ fontSize: '13px', color: row.attempt > 1 ? '#f59e0b' : '#9ca3af' }}>
+        <span className={row.attempt > 1 ? styles.attemptRetry : styles.attemptFirst}>
           {row.attempt}
         </span>
       ),
@@ -242,13 +225,10 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
       hideOnTablet: true,
       render: (row) => {
         if (!row.error) {
-          return <span style={{ fontSize: '13px', color: '#9ca3af' }}>{'\u2014'}</span>;
+          return <span className={styles.errorEmpty}>{'\u2014'}</span>;
         }
         return (
-          <span
-            style={{ fontSize: '12px', color: '#dc2626', maxWidth: '240px', display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-            title={row.error}
-          >
+          <span className={styles.errorText} title={row.error}>
             {row.error.slice(0, 120)}
           </span>
         );
@@ -257,10 +237,10 @@ export default function SchedulerHistory({ filterItemId, onClearFilter }: Schedu
   ];
 
   const emptyState = (
-    <div style={{ textAlign: 'center', padding: '48px 16px', color: '#6b7280' }}>
-      <Clock size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-      <p style={{ fontWeight: 500, marginBottom: '4px' }}>No execution history</p>
-      <p style={{ fontSize: '13px' }}>Runs will appear here once the scheduler service processes items.</p>
+    <div className={styles.emptyState}>
+      <Clock size={32} className={styles.emptyIcon} />
+      <p className={styles.emptyTitle}>No execution history</p>
+      <p className={styles.emptyDescription}>Runs will appear here once the scheduler service processes items.</p>
     </div>
   );
 

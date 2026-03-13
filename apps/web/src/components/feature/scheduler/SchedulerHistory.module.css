@@ -1,0 +1,125 @@
+/**
+ * Filename: SchedulerHistory.module.css
+ * Purpose: Styles for SchedulerHistory component — History tab
+ * Created: 2026-03-13
+ */
+
+/* Status icon column */
+.statusCompleted {
+  color: #16a34a;
+}
+
+.statusFailed {
+  color: #dc2626;
+}
+
+.statusRunning {
+  color: #2563eb;
+  animation: spin 1s linear infinite;
+}
+
+.statusPending {
+  color: #9ca3af;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Item cell */
+.itemWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemTitle {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.itemTypeBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Started at cell */
+.dateText {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+/* Duration cell */
+.durationText {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.durationEmpty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Attempt cell */
+.attemptRetry {
+  font-size: 13px;
+  color: #f59e0b;
+}
+
+.attemptFirst {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Error cell */
+.errorText {
+  font-size: 12px;
+  color: #dc2626;
+  max-width: 240px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.errorEmpty {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Toolbar — filtered badge */
+.filteredBadge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background-color: #fef3c7;
+  color: #92400e;
+  cursor: pointer;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 48px 16px;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  margin: 0 auto 12px;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.emptyDescription {
+  font-size: 13px;
+}

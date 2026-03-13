@@ -11,7 +11,10 @@ import { HubDataTable } from '@/app/components/hub/data';
 import type { Column, PaginationConfig } from '@/app/components/hub/data';
 import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
 import type { MenuAction } from '@/app/components/ui/actions/VerticalDotsMenu';
+import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import type { StatusVariant } from '@/app/components/admin/badges/StatusBadge';
 import type { ScheduledItem } from './SchedulerCalendar';
+import styles from './SchedulerList.module.css';
 
 const TYPE_LABELS: Record<string, string> = {
   content: 'Content',
@@ -33,13 +36,16 @@ const TYPE_COLORS: Record<string, string> = {
   sql_func: '#d97706',
 };
 
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  scheduled: { bg: '#ccfbf1', text: '#0d9488' },
-  in_progress: { bg: '#dbeafe', text: '#2563eb' },
-  completed: { bg: '#dcfce7', text: '#16a34a' },
-  failed: { bg: '#fee2e2', text: '#dc2626' },
-  cancelled: { bg: '#f3f4f6', text: '#6b7280' },
-};
+function getSchedulerStatusVariant(status: string): StatusVariant {
+  switch (status) {
+    case 'scheduled': return 'scheduled';
+    case 'in_progress': return 'in_progress';
+    case 'completed': return 'completed';
+    case 'cancelled': return 'cancelled';
+    case 'failed': return 'error';
+    default: return 'neutral';
+  }
+}
 
 const STATUS_LABELS: Record<string, string> = {
   scheduled: 'Scheduled',
@@ -131,17 +137,9 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
       render: (row) => {
         const color = row.color || TYPE_COLORS[row.type] || '#6b7280';
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              style={{
-                width: '4px',
-                height: '24px',
-                borderRadius: '2px',
-                backgroundColor: color,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontWeight: 500 }}>{row.title}</span>
+          <div className={styles.titleCell}>
+            <div className={styles.colorBar} style={{ backgroundColor: color }} />
+            <span className={styles.titleText}>{row.title}</span>
           </div>
         );
       },
@@ -155,15 +153,8 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
         const color = TYPE_COLORS[row.type] || '#6b7280';
         return (
           <span
-            style={{
-              display: 'inline-block',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: 500,
-              backgroundColor: `${color}18`,
-              color,
-            }}
+            className={styles.typeBadge}
+            style={{ backgroundColor: `${color}18`, color }}
           >
             {TYPE_LABELS[row.type] || row.type}
           </span>
@@ -177,7 +168,7 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
       width: '160px',
       hideOnMobile: true,
       render: (row) => (
-        <span style={{ fontSize: '13px', color: '#4b5563' }}>
+        <span className={styles.dateText}>
           {format(new Date(row.scheduled_at), 'd MMM yyyy HH:mm')}
         </span>
       ),
@@ -185,25 +176,14 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
     {
       key: 'status',
       label: 'Status',
-      width: '110px',
-      render: (row) => {
-        const colors = STATUS_COLORS[row.status] || STATUS_COLORS.scheduled;
-        return (
-          <span
-            style={{
-              display: 'inline-block',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: 500,
-              backgroundColor: colors.bg,
-              color: colors.text,
-            }}
-          >
-            {STATUS_LABELS[row.status] || row.status}
-          </span>
-        );
-      },
+      width: '130px',
+      render: (row) => (
+        <StatusBadge
+          variant={getSchedulerStatusVariant(row.status)}
+          label={STATUS_LABELS[row.status] || row.status}
+          size="sm"
+        />
+      ),
     },
     {
       key: 'recurrence',
@@ -211,7 +191,7 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
       width: '120px',
       hideOnTablet: true,
       render: (row) => (
-        <span style={{ fontSize: '13px', color: row.recurrence ? '#4b5563' : '#9ca3af' }}>
+        <span className={row.recurrence ? styles.recurrenceText : styles.recurrenceEmpty}>
           {row.recurrence || '\u2014'}
         </span>
       ),
@@ -222,28 +202,16 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
       width: '180px',
       hideOnTablet: true,
       render: (row) => {
-        if (!row.tags || row.tags.length === 0) return <span style={{ color: '#9ca3af' }}>{'\u2014'}</span>;
+        if (!row.tags || row.tags.length === 0) return <span className={styles.tagsEmpty}>{'\u2014'}</span>;
         const visible = row.tags.slice(0, 3);
         const remaining = row.tags.length - 3;
         return (
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+          <div className={styles.tagsWrapper}>
             {visible.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  display: 'inline-block',
-                  padding: '1px 6px',
-                  borderRadius: '3px',
-                  fontSize: '11px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#4b5563',
-                }}
-              >
-                {tag}
-              </span>
+              <span key={tag} className={styles.tag}>{tag}</span>
             ))}
             {remaining > 0 && (
-              <span style={{ fontSize: '11px', color: '#9ca3af' }}>+{remaining} more</span>
+              <span className={styles.tagsMore}>+{remaining} more</span>
             )}
           </div>
         );
@@ -251,8 +219,8 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
     },
     {
       key: 'actions',
-      label: '',
-      width: '48px',
+      label: 'Actions',
+      width: '100px',
       render: (row) => {
         const actions: MenuAction[] = [
           { label: 'View Details', onClick: () => onItemClick(row) },
