@@ -69,7 +69,7 @@ export async function POST(
         sourceEntityType: 'workflow_execution',
         sourceEntityId: execId,
       });
-    }).catch(() => {});
+    }).catch((err) => { console.error('[execution-resume] Exception write failed:', err); });
 
     return NextResponse.json({ error: message }, { status: 500 });
   }

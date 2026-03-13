@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import styles from './ExecutionModeToggle.module.css';
 
 type ExecutionMode = 'design' | 'shadow' | 'live';

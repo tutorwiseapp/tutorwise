@@ -85,8 +85,9 @@ CREATE INDEX IF NOT EXISTS idx_wt_execution_started
 -- 4. Seed query_process_patterns analyst tool
 -- ============================================================================
 
-INSERT INTO analyst_tools (name, description, input_schema, built_in, status)
+INSERT INTO analyst_tools (slug, name, description, input_schema, built_in, status)
 VALUES (
+  'query_process_patterns',
   'query_process_patterns',
   'Query AI-discovered process patterns: rejection clusters, bottlenecks, path anomalies, and recurring deviations. Returns top patterns by confidence with process context.',
   '{

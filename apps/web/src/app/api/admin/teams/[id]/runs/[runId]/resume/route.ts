@@ -62,7 +62,7 @@ export async function POST(
         sourceEntityId: rId,
         context: { teamId: teamId, runId: rId },
       });
-    }).catch(() => {});
+    }).catch((err) => { console.error('[team-resume] Exception write failed:', err); });
 
     return NextResponse.json({ error: message }, { status: 500 });
   }

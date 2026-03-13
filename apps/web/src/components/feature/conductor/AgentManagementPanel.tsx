@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw, CheckCircle2, X } from 'lucide-react';
 import Link from 'next/link';
@@ -44,6 +44,7 @@ export function AgentManagementPanel() {
   const queryClient = useQueryClient();
   const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent | null>(null);
   const [runBanner, setRunBanner] = useState<string | null>(null);
+  const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setActiveTab = useDiscoveryStore(s => s.setActiveTab);
 
   const { data: agents = [], isLoading: loadingAgents, refetch: refetchAgents } = useQuery({
@@ -100,8 +101,9 @@ export function AgentManagementPanel() {
       return team.name;
     },
     onSuccess: (teamName) => {
+      if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
       setRunBanner(teamName);
-      setTimeout(() => setRunBanner(null), 12_000);
+      bannerTimeoutRef.current = setTimeout(() => setRunBanner(null), 12_000);
     },
   });
 

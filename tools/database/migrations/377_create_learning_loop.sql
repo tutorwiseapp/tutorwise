@@ -124,7 +124,7 @@ SELECT cron.schedule(
          WHERE we2.id = do.execution_id AND d.created_at > we2.completed_at)
       WHEN do.outcome_metric = 'active_30d' THEN
         (SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM bookings b
-         JOIN workflow_executions we2 ON we2.target_entity_id = b.tutor_profile_id
+         JOIN workflow_executions we2 ON we2.target_entity_id = b.tutor_id
          WHERE we2.id = do.execution_id
            AND b.created_at > we2.completed_at
            AND b.created_at < we2.completed_at + interval '30 days')
@@ -182,7 +182,7 @@ SELECT cron.schedule(
     outcome_value = CASE
       WHEN do.outcome_metric = 'nudge_converted' THEN
         (SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM bookings b
-         JOIN workflow_executions we2 ON we2.target_entity_id = b.tutor_profile_id
+         JOIN workflow_executions we2 ON we2.target_entity_id = b.tutor_id
          WHERE we2.id = do.execution_id
            AND b.created_at > we2.completed_at
            AND b.created_at < we2.completed_at + interval '14 days'
