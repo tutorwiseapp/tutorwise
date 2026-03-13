@@ -144,7 +144,8 @@ export async function getUpcomingReminders(
     .eq('status', 'pending')
     .gte('bookings.session_start_time', reminderTimeStart.toISOString())
     .lte('bookings.session_start_time', reminderTimeEnd.toISOString())
-    .in('bookings.status', ['Confirmed']); // Only send reminders for confirmed bookings
+    .in('bookings.status', ['Confirmed'])
+    .limit(200); // Safety cap — prevent unbounded result sets
 
   if (error) {
     console.error('[Reminder Scheduler] Failed to fetch upcoming reminders:', error);

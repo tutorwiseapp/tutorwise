@@ -35,14 +35,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createServiceRoleClient();
+  const supabase = await createServiceRoleClient();
   const now = new Date();
 
   const { data: candidates, error } = await supabase
     .from('failed_webhooks')
     .select('id, url, method, headers, payload, retry_count, max_retries, last_retry_at')
     .in('status', ['failed', 'retrying'])
-    .lt('retry_count', 5);
+    .lt('retry_count', 5)
+    .limit(50);
 
   if (error) {
     console.error('[DLQ Retry] Failed to fetch candidates:', error);
@@ -71,17 +72,27 @@ export async function GET(request: NextRequest) {
     const isWorkflowWebhook = webhook.url === '/api/webhooks/workflow';
 
     if (!isWorkflowWebhook) {
-      // Stripe webhooks: cannot re-verify signature. Mark as dead after noting for manual review.
-      // Stripe's own retry mechanism handles these if we returned 500 to Stripe.
-      // DLQ entries with url=/api/webhooks/stripe are for manual admin review only.
       results.skipped++;
       continue;
     }
 
-    // Re-POST workflow webhook to ourselves
     const webhookSecret = process.env.PROCESS_STUDIO_WEBHOOK_SECRET;
     if (!webhookSecret) {
       console.error('[DLQ Retry] PROCESS_STUDIO_WEBHOOK_SECRET not set — cannot retry workflow webhooks');
+      results.skipped++;
+      continue;
+    }
+
+    // Atomic claim: set status to 'claiming' to prevent concurrent retries
+    const { data: claimed } = await supabase
+      .from('failed_webhooks')
+      .update({ status: 'retrying', last_retry_at: now.toISOString() })
+      .eq('id', webhook.id)
+      .in('status', ['failed', 'retrying'])
+      .select('id')
+      .single();
+
+    if (!claimed) {
       results.skipped++;
       continue;
     }
@@ -106,20 +117,20 @@ export async function GET(request: NextRequest) {
         results.resolved++;
       } else {
         const nextCount = webhook.retry_count + 1;
-        const newStatus = nextCount >= webhook.max_retries ? 'dead' : 'retrying';
+        const newStatus = nextCount >= webhook.max_retries ? 'dead' : 'failed';
         await supabase
           .from('failed_webhooks')
-          .update({ retry_count: nextCount, last_retry_at: now.toISOString(), status: newStatus })
+          .update({ retry_count: nextCount, status: newStatus })
           .eq('id', webhook.id);
         if (newStatus === 'dead') results.dead++;
       }
     } catch (err) {
       console.error(`[DLQ Retry] Failed to retry webhook ${webhook.id}:`, err);
       const nextCount = webhook.retry_count + 1;
-      const newStatus = nextCount >= webhook.max_retries ? 'dead' : 'retrying';
+      const newStatus = nextCount >= webhook.max_retries ? 'dead' : 'failed';
       await supabase
         .from('failed_webhooks')
-        .update({ retry_count: nextCount, last_retry_at: now.toISOString(), status: newStatus })
+        .update({ retry_count: nextCount, status: newStatus })
         .eq('id', webhook.id);
       if (newStatus === 'dead') results.dead++;
     }
