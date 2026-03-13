@@ -142,8 +142,8 @@ import { getProfileImageUrl } from '@/lib/utils/profile';
 ```
 
 **Integration Points**:
-- **File**: `apps/web/src/app/components/feature/messages/ConversationList.tsx` (line 98-102)
-- **File**: `apps/web/src/app/components/feature/messages/ChatThread.tsx` (line 275-280)
+- **File**: `apps/web/src/components/feature/messages/ConversationList.tsx` (line 98-102)
+- **File**: `apps/web/src/components/feature/messages/ChatThread.tsx` (line 275-280)
 - **File**: `apps/web/src/app/api/messages/conversations/route.ts` (line 37-38)
 
 **What Gets Used**:
@@ -296,7 +296,7 @@ export const AblyChannels = {
 - **File**: `apps/web/src/lib/ably.ts` - Configuration
 - **File**: `apps/web/src/app/hooks/useAblyTyping.tsx` - Typing hook
 - **File**: `apps/web/src/app/hooks/useAblyPresence.tsx` - Presence hook
-- **File**: `apps/web/src/app/components/feature/messages/ChatThread.tsx` (line 67-159)
+- **File**: `apps/web/src/components/feature/messages/ChatThread.tsx` (line 67-159)
 
 **Performance Optimizations**:
 - Typing debounce: 500ms (reduces API calls)
@@ -521,7 +521,7 @@ if (!hasConnection) {
 ```
 
 **Integration Points**:
-- **File**: `apps/web/src/app/components/feature/messages/ChatThread.tsx` (line 14)
+- **File**: `apps/web/src/components/feature/messages/ChatThread.tsx` (line 14)
 - **Purpose**: Error notifications for failed message sends
 
 **Notification Types**:
@@ -1007,8 +1007,8 @@ No explicit migration files found in codebase, but inferred schema:
 | File | Purpose |
 |------|---------|
 | `apps/web/src/app/(authenticated)/messages/page.tsx` | Main messages hub (Gold Standard) |
-| `apps/web/src/app/components/feature/messages/ChatThread.tsx` | Real-time chat interface |
-| `apps/web/src/app/components/feature/messages/ConversationList.tsx` | WhatsApp-style sidebar |
+| `apps/web/src/components/feature/messages/ChatThread.tsx` | Real-time chat interface |
+| `apps/web/src/components/feature/messages/ConversationList.tsx` | WhatsApp-style sidebar |
 | `apps/web/src/app/hooks/useAblyTyping.tsx` | Typing indicator hook |
 | `apps/web/src/app/hooks/useAblyPresence.tsx` | Presence tracking hook |
 | `apps/web/src/lib/ably.ts` | Ably client configuration |

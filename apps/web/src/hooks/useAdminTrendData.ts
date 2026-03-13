@@ -18,7 +18,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
 import type { MetricName } from './useAdminMetric';
-import type { TrendDataPoint } from '@/app/components/hub/charts';
+import type { TrendDataPoint } from '@/components/hub/charts';
 
 export interface UseAdminTrendDataOptions {
   metric: MetricName;

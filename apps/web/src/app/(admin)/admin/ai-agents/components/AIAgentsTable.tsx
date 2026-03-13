@@ -20,14 +20,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig, BulkAction } from '@/components/hub/data';
 import AdminAIAgentDetailModal from './AdminAIAgentDetailModal';
 import { Bot, Activity, DollarSign } from 'lucide-react';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './AIAgentsTable.module.css';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 

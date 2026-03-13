@@ -921,7 +921,7 @@ function validateCookie(cookieValue) {
 
 **UI Component:**
 ```typescript
-// File: apps/web/src/app/components/SignupForm.tsx
+// File: apps/web/src/components/SignupForm.tsx
 
 <FormField>
   <Label htmlFor="referralCode">
@@ -1933,7 +1933,7 @@ export async function GET(request: NextRequest) {
 
 ### 12.1 Referral Dashboard Component
 
-**File:** `apps/web/src/app/components/feature/account/ReferralDashboard.tsx`
+**File:** `apps/web/src/components/feature/account/ReferralDashboard.tsx`
 
 ```typescript
 'use client';
@@ -2068,7 +2068,7 @@ export function ReferralDashboard({ referralCode }: { referralCode: string }) {
 
 ### 12.2 Delegation Configuration Component
 
-**File:** `apps/web/src/app/components/feature/listings/DelegationSettings.tsx`
+**File:** `apps/web/src/components/feature/listings/DelegationSettings.tsx`
 
 ```typescript
 'use client';
@@ -2580,7 +2580,7 @@ SELECT activate_commission_tier(
 
 **Implementation**:
 - Database: [apps/api/migrations/120_add_fraud_detection.sql](../../../apps/api/migrations/120_add_fraud_detection.sql)
-- Frontend: [apps/web/src/app/components/feature/fraud/FraudDashboard.tsx](../../../apps/web/src/app/components/feature/fraud/FraudDashboard.tsx)
+- Frontend: [apps/web/src/components/feature/fraud/FraudDashboard.tsx](../../../apps/web/src/components/feature/fraud/FraudDashboard.tsx)
 
 ### 17.3 Partnership Onboarding
 
@@ -2605,7 +2605,7 @@ SELECT activate_commission_tier(
 
 **Implementation**:
 - Database: [apps/api/migrations/121_add_partnership_onboarding.sql](../../../apps/api/migrations/121_add_partnership_onboarding.sql)
-- Frontend: [apps/web/src/app/components/feature/partnerships/PartnershipOnboardingForm.tsx](../../../apps/web/src/app/components/feature/partnerships/PartnershipOnboardingForm.tsx)
+- Frontend: [apps/web/src/components/feature/partnerships/PartnershipOnboardingForm.tsx](../../../apps/web/src/components/feature/partnerships/PartnershipOnboardingForm.tsx)
 
 ### 17.4 Client Referral Monetization
 
@@ -2706,10 +2706,10 @@ SELECT activate_commission_tier(
 | **QR Code API** | `apps/web/src/app/api/referrals/qr/route.ts` | ✅ Created | QR code generation for partnerships |
 | **Referral Context** | `apps/web/src/utils/referral/context.ts` | ✅ Created | Helper functions for signup metadata |
 | **E2E Tests** | `apps/web/tests/e2e/referrals/hierarchical-attribution.test.ts` | ✅ Created | 11 comprehensive attribution tests |
-| **Dashboard Widget** | `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` | ✅ Created | KPI tracking, attribution breakdown, recent referrals |
-| **Delegation UI** | `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx` | ✅ Created | Commission delegation settings interface |
-| **Fraud Dashboard** | `apps/web/src/app/components/feature/fraud/FraudDashboard.tsx` | ✅ Created | Admin fraud signal investigation interface |
-| **Partnership Form** | `apps/web/src/app/components/feature/partnerships/PartnershipOnboardingForm.tsx` | ✅ Created | Offline partner application form |
+| **Dashboard Widget** | `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` | ✅ Created | KPI tracking, attribution breakdown, recent referrals |
+| **Delegation UI** | `apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx` | ✅ Created | Commission delegation settings interface |
+| **Fraud Dashboard** | `apps/web/src/components/feature/fraud/FraudDashboard.tsx` | ✅ Created | Admin fraud signal investigation interface |
+| **Partnership Form** | `apps/web/src/components/feature/partnerships/PartnershipOnboardingForm.tsx` | ✅ Created | Offline partner application form |
 | **Implementation Guide** | `docs/feature/referrals/HIERARCHICAL-ATTRIBUTION-IMPLEMENTATION.md` | ✅ Created | Technical implementation details |
 | **Environment Setup** | `docs/feature/referrals/ENVIRONMENT-SETUP.md` | ✅ Created | Secret management, rotation procedures |
 | **Deployment Guide** | `docs/feature/referrals/DEPLOYMENT-GUIDE.md` | ✅ Created | 30-minute production deployment plan |

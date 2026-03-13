@@ -443,8 +443,8 @@ Add real-time support:
 
 ## Related Documentation
 
-- [SnapshotModal Implementation](../../apps/web/src/app/components/help-centre/modals/SnapshotModal.tsx)
-- [GetHelpModal Implementation](../../apps/web/src/app/components/help-centre/modals/GetHelpModal.tsx)
+- [SnapshotModal Implementation](../../apps/web/src/components/help-centre/modals/SnapshotModal.tsx)
+- [GetHelpModal Implementation](../../apps/web/src/components/help-centre/modals/GetHelpModal.tsx)
 - [Jira REST API Documentation](https://developer.atlassian.com/cloud/jira/platform/rest/v3/)
 
 ---

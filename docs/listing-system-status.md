@@ -162,7 +162,7 @@ Listing Form (pre-fill on create) ✅
 
 **File**: [lib/utils/templateGenerator.ts](apps/web/src/lib/utils/templateGenerator.ts)
 
-**Integration**: [TutorOnboardingWizard.tsx:357-373](apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx#L357-L373)
+**Integration**: [TutorOnboardingWizard.tsx:357-373](apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx#L357-L373)
 
 ```typescript
 // After tutor completes onboarding
@@ -213,7 +213,7 @@ if (!hasTemplates) {
 
 **Files**:
 - [lib/utils/wizardUtils.ts](apps/web/src/lib/utils/wizardUtils.ts) - Core draft logic
-- [CreateListingWizard.tsx](apps/web/src/app/components/listings/CreateListingWizard.tsx) - Uses auto-save hook
+- [CreateListingWizard.tsx](apps/web/src/components/listings/CreateListingWizard.tsx) - Uses auto-save hook
 
 **Architecture**:
 ```
@@ -302,7 +302,7 @@ const handleSubmit = async (data: Partial<CreateListingInput>) => {
 **Files**:
 - [my-listings/create/page.tsx](apps/web/src/app/my-listings/create/page.tsx) - Create page
 - [my-listings/[id]/edit/page.tsx](apps/web/src/app/my-listings/[id]/edit/page.tsx) - Edit page
-- [wizard-steps/CreateListings.tsx](apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx) - Main form (250+ lines)
+- [wizard-steps/CreateListings.tsx](apps/web/src/components/listings/wizard-steps/CreateListings.tsx) - Main form (250+ lines)
 
 **Form Fields** (25+ fields organized in 10 groups):
 
@@ -349,7 +349,7 @@ const handleSubmit = async (data: Partial<CreateListingInput>) => {
 - ✅ subjects: min 1 required
 - ✅ hourly_rate: required
 
-**Image Upload**: [ImageUpload.tsx](apps/web/src/app/components/listings/ImageUpload.tsx)
+**Image Upload**: [ImageUpload.tsx](apps/web/src/components/listings/ImageUpload.tsx)
 - ✅ Drag and drop
 - ✅ Multiple images
 - ✅ Preview grid

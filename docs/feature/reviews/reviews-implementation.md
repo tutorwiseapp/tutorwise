@@ -85,7 +85,7 @@ Populates snapshot fields from booking data
 Triggers early publication check after successful insert
 
 ### React Components
-Location: `/apps/web/src/app/components/feature/reviews/`
+Location: `/apps/web/src/components/feature/reviews/`
 
 **PendingReviewCard.tsx**
 Displays review task in hub card format

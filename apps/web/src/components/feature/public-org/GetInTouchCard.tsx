@@ -13,8 +13,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Card from '@/app/components/ui/data-display/Card';
-import Button from '@/app/components/ui/actions/Button';
+import Card from '@/components/ui/data-display/Card';
+import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import { JoinTeamModal } from './JoinTeamModal';
 import styles from './GetInTouchCard.module.css';

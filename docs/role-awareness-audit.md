@@ -84,7 +84,7 @@ Currently, many pages and components are hardcoded for tutors/providers. This do
 
 **Files to Update:**
 - `/apps/web/src/app/page.tsx`
-- `/apps/web/src/app/components/marketplace/HeroSection.tsx`
+- `/apps/web/src/components/marketplace/HeroSection.tsx`
 
 ---
 
@@ -117,7 +117,7 @@ Currently, many pages and components are hardcoded for tutors/providers. This do
 - Role switcher should be more prominent for multi-role users
 
 **Files to Update:**
-- `/apps/web/src/app/components/layout/NavMenu.tsx`
+- `/apps/web/src/components/layout/NavMenu.tsx`
 - Consider creating role-specific navigation configs
 
 ---

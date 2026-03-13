@@ -7,7 +7,7 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import HelpCentreLayoutClient from '@/app/components/help-centre/layout/HelpCentreLayoutClient';
+import HelpCentreLayoutClient from '@/components/help-centre/layout/HelpCentreLayoutClient';
 
 // Enhanced SEO Metadata (Critical for help article discoverability)
 export const metadata: Metadata = {

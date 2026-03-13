@@ -180,7 +180,7 @@ await supabase.from('transactions').insert({
 
 ### 3. UI Component
 
-**File**: [`apps/web/src/app/components/feature/financials/TransactionDetailModal.tsx`](apps/web/src/app/components/feature/financials/TransactionDetailModal.tsx:119-132)
+**File**: [`apps/web/src/components/feature/financials/TransactionDetailModal.tsx`](apps/web/src/components/feature/financials/TransactionDetailModal.tsx:119-132)
 
 ```typescript
 // Add Service Context section (Migrations 107, 110)
@@ -283,7 +283,7 @@ ORDER BY total_earned DESC;
 | `apps/api/migrations/run-migration-111.mjs` | 47 | Migration runner |
 | `apps/web/src/types/index.ts` | 1 | Add agent_name type |
 | `apps/web/src/app/api/webhooks/stripe/route.ts` | 6 | Add to webhook handlers |
-| `apps/web/src/app/components/feature/financials/TransactionDetailModal.tsx` | 2 | Display agent in UI |
+| `apps/web/src/components/feature/financials/TransactionDetailModal.tsx` | 2 | Display agent in UI |
 
 **Total**: 7 files, ~470 lines
 

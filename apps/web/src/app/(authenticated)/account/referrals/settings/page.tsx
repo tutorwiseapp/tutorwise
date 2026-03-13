@@ -10,9 +10,9 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
-import DelegationSettingsPanel from '@/app/components/feature/referrals/content/DelegationSettingsPanel';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { HubPageLayout, HubHeader } from '@/components/hub/layout';
+import DelegationSettingsPanel from '@/components/feature/referrals/content/DelegationSettingsPanel';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
 
 export default function ReferralSettingsPage() {

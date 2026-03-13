@@ -33,7 +33,7 @@ Created a new migration that adds:
 
 ### 2. CreateListings Component Updates
 
-**File**: [apps/web/src/app/components/feature/listings/wizard-steps/CreateListings.tsx](apps/web/src/app/components/feature/listings/wizard-steps/CreateListings.tsx)
+**File**: [apps/web/src/components/feature/listings/wizard-steps/CreateListings.tsx](apps/web/src/components/feature/listings/wizard-steps/CreateListings.tsx)
 
 #### Key Changes:
 1. **Added React Query integration**
@@ -196,7 +196,7 @@ console.log('Active Role:', activeRole, 'Context:', listingContext);
 ## Related Files
 
 - [Migration 172](tools/database/migrations/172_add_listing_shared_fields.sql)
-- [CreateListings Component](apps/web/src/app/components/feature/listings/wizard-steps/CreateListings.tsx)
+- [CreateListings Component](apps/web/src/components/feature/listings/wizard-steps/CreateListings.tsx)
 - [sharedFields API](apps/web/src/lib/api/sharedFields.ts)
 - [Admin Configurations Page](apps/web/src/app/(admin)/admin/configurations/page.tsx)
 

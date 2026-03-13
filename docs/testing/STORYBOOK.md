@@ -257,10 +257,10 @@ src/
 ## Existing Stories
 
 ### UI Components
-- [Button](../apps/web/src/app/components/ui/Button.stories.tsx) - All button variants
-- [Card](../apps/web/src/app/components/ui/Card.stories.tsx) - Card layouts
-- [StatusBadge](../apps/web/src/app/components/ui/StatusBadge.stories.tsx) - Status indicators
-- [Tabs](../apps/web/src/app/components/ui/Tabs.stories.tsx) - Tab navigation
+- [Button](../apps/web/src/components/ui/Button.stories.tsx) - All button variants
+- [Card](../apps/web/src/components/ui/Card.stories.tsx) - Card layouts
+- [StatusBadge](../apps/web/src/components/ui/StatusBadge.stories.tsx) - Status indicators
+- [Tabs](../apps/web/src/components/ui/Tabs.stories.tsx) - Tab navigation
 
 ## Troubleshooting
 

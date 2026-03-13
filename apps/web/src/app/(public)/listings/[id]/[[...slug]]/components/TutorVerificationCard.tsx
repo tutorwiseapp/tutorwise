@@ -6,7 +6,7 @@
 'use client';
 
 import { Mail, Smartphone, CreditCard, ShieldCheck, Check } from 'lucide-react';
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './TutorVerificationCard.module.css';
 
 interface TutorVerificationCardProps {

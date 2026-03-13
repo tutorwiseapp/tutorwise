@@ -63,7 +63,7 @@ The **Claude Code Development Process (CCDP)** is Anthropic's methodology adapte
 - **Business Logic Review**: Understand educational platform workflows
 
 #### **Tools & Files:**
-- Read existing components in `src/app/components/`
+- Read existing components in `src/components/`
 - Review `src/app/contexts/UserProfileContext.tsx` for role management
 - Analyze payment flows in `src/app/payments/`
 - Study design patterns in existing CSS modules
@@ -107,7 +107,7 @@ The **Claude Code Development Process (CCDP)** is Anthropic's methodology adapte
 
 #### **Implementation Standards:**
 - **File Structure**: Follow Next.js 13+ app directory conventions
-- **Component Patterns**: Use existing patterns from `src/app/components/`
+- **Component Patterns**: Use existing patterns from `src/components/`
 - **Styling**: CSS modules with consistent variable usage
 - **State Management**: Integrate with existing context providers
 - **Error Handling**: Follow established error patterns
@@ -228,7 +228,7 @@ The **Claude Code Development Process (CCDP)** is Anthropic's methodology adapte
 ### **Code Documentation**
 ```typescript
 /*
- * Filename: src/app/components/example/Component.tsx
+ * Filename: src/components/example/Component.tsx
  * Purpose: Brief description of component purpose
  * Change History:
  * C001 - YYYY-MM-DD : HH:MM - Initial creation

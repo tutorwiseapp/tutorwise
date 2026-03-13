@@ -20,7 +20,7 @@ Please add subjects to your profile before creating a listing.
 **URL**: `http://localhost:3000/my-listings/[listing-id]/edit`
 
 **Root Cause**:
-- [CreateListings.tsx:255](apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx#L255) had overly strict validation
+- [CreateListings.tsx:255](apps/web/src/components/listings/wizard-steps/CreateListings.tsx#L255) had overly strict validation
 - Checked `profileSubjects.length === 0` and blocked user entirely
 - Not role-aware (only checked `tutor` subjects, not `agent` or `client`)
 - Validation ran before profile data fully loaded
@@ -42,7 +42,7 @@ Please add subjects to your profile before creating a listing.
 
 ### ✅ Fix 1: Remove Overly Strict Validation
 
-**File**: [apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx](apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx)
+**File**: [apps/web/src/components/listings/wizard-steps/CreateListings.tsx](apps/web/src/components/listings/wizard-steps/CreateListings.tsx)
 
 **Changes**:
 
@@ -189,7 +189,7 @@ npx tsc --noEmit
 
 ### Files Modified
 
-1. **[CreateListings.tsx](apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx)**
+1. **[CreateListings.tsx](apps/web/src/components/listings/wizard-steps/CreateListings.tsx)**
    - Added `activeRole` from `useUserProfile()`
    - Made profile data loading role-aware (lines 78-95)
    - Removed blocking validation check (lines 255-257)

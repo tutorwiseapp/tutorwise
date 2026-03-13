@@ -20,7 +20,7 @@
 
 ### Fix 1: Load Agent & Tutor Data in useEffect (CRITICAL)
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Line**: 148-154
 
 **Current Code**:
@@ -82,7 +82,7 @@ useEffect(() => {
 
 ###Fix 2: Replace Agent Stub with Full Implementation (CRITICAL)
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 508-522
 
 **Action**: Replace the stub with full 16-field display
@@ -98,7 +98,7 @@ useEffect(() => {
 
 ### Fix 3: Update Save Logic to Handle Agent/Tutor Fields
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 172-200 (handleSaveField function)
 
 **Current**: Only handles `bio` and `dbs_certificate`, shows "coming soon" for others

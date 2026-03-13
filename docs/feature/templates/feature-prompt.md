@@ -477,7 +477,7 @@ const handleButtonClick = useCallback(() => handleClick(id), [id]);
 | **Service Layer** | `apps/web/src/lib/api/[feature].ts` | Core business logic |
 | **API Routes** | `apps/web/src/app/api/[feature]/route.ts` | REST endpoints |
 | **Types** | `apps/web/src/types/index.ts` | TypeScript interfaces |
-| **Components** | `apps/web/src/app/components/feature/[feature]/` | UI components |
+| **Components** | `apps/web/src/components/feature/[feature]/` | UI components |
 | **Database** | `apps/api/migrations/XXX_[feature].sql` | Schema definition |
 | **Tests** | `apps/web/src/__tests__/[feature].test.ts` | Unit tests |
 

@@ -10,10 +10,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Button from '@/components/ui/actions/Button';
 import {
   Save,
   Eye,
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
 import styles from './page.module.css';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 
 export const dynamic = 'force-dynamic';
 

@@ -5,8 +5,8 @@
  */
 
 import Link from 'next/link';
-import Container from '@/app/components/layout/Container';
-import Button from '@/app/components/ui/actions/Button';
+import Container from '@/components/layout/Container';
+import Button from '@/components/ui/actions/Button';
 import styles from './page.module.css';
 
 export default function AboutTutorwisePage() {

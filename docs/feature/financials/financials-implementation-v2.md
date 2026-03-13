@@ -459,7 +459,7 @@ transitionClearingToAvailable();
 
 ### Pattern 7: Displaying Transaction with Context (Component)
 
-**File**: `apps/web/src/app/components/feature/financials/TransactionCard.tsx`
+**File**: `apps/web/src/components/feature/financials/TransactionCard.tsx`
 
 This pattern demonstrates rendering transaction context fields without needing to JOIN bookings or listings.
 

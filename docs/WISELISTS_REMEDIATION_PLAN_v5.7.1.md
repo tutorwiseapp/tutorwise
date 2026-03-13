@@ -70,7 +70,7 @@ Create a modal flow that allows users to select an existing wiselist or create a
 ### Implementation Plan
 
 #### Step 1.1: Create WiselistSelectionModal Component
-**File**: `apps/web/src/app/components/wiselists/WiselistSelectionModal.tsx`
+**File**: `apps/web/src/components/wiselists/WiselistSelectionModal.tsx`
 
 ```typescript
 /**
@@ -257,7 +257,7 @@ export default function WiselistSelectionModal({
 ```
 
 #### Step 1.2: Create Modal Styles
-**File**: `apps/web/src/app/components/wiselists/WiselistSelectionModal.module.css`
+**File**: `apps/web/src/components/wiselists/WiselistSelectionModal.module.css`
 
 ```css
 /* Wiselist Selection Modal Styles */
@@ -458,7 +458,7 @@ export default function WiselistSelectionModal({
 
 #### Step 1.3: Update Listing Cards to Use Modal
 **Files to Update**:
-- `apps/web/src/app/components/marketplace/ListingCard.tsx`
+- `apps/web/src/components/marketplace/ListingCard.tsx`
 - `apps/web/src/app/listings/[id]/[[...slug]]/components/ListingDetailsColumn.tsx`
 
 **Changes**: Replace the heart icon's `onClick` handler to open the modal instead of toggling local state.
@@ -999,7 +999,7 @@ Redesign WiselistItemCard component to match the specification provided in the C
 ### Implementation Plan
 
 #### Step 5.1: Update WiselistItemCard Component
-**File**: `apps/web/src/app/components/wiselists/WiselistItemCard.tsx`
+**File**: `apps/web/src/components/wiselists/WiselistItemCard.tsx`
 
 **Target Layout**:
 ```
@@ -1196,7 +1196,7 @@ export default function WiselistItemCard({
 ```
 
 #### Step 5.2: Update Styles to Match Specification
-**File**: `apps/web/src/app/components/wiselists/WiselistItemCard.module.css`
+**File**: `apps/web/src/components/wiselists/WiselistItemCard.module.css`
 
 ```css
 /* HubRowCard v1.3 Specification */
@@ -1508,8 +1508,8 @@ After implementation, track these KPIs to measure success:
 ## Appendix: File Checklist
 
 ### New Files to Create
-- [ ] `apps/web/src/app/components/wiselists/WiselistSelectionModal.tsx`
-- [ ] `apps/web/src/app/components/wiselists/WiselistSelectionModal.module.css`
+- [ ] `apps/web/src/components/wiselists/WiselistSelectionModal.tsx`
+- [ ] `apps/web/src/components/wiselists/WiselistSelectionModal.module.css`
 - [ ] `apps/api/migrations/089_wiselist_caas_trigger.sql`
 - [ ] `apps/web/src/lib/email/templates/wiselist-invitation.ts` (optional)
 
@@ -1518,10 +1518,10 @@ After implementation, track these KPIs to measure success:
 - [ ] `apps/web/src/app/api/wiselists/[id]/collaborators/route.ts`
 - [ ] `apps/web/src/app/api/stripe/create-booking-checkout/route.ts`
 - [ ] `apps/web/src/app/api/webhooks/stripe/route.ts`
-- [ ] `apps/web/src/app/components/marketplace/ListingCard.tsx`
+- [ ] `apps/web/src/components/marketplace/ListingCard.tsx`
 - [ ] `apps/web/src/app/listings/[id]/[[...slug]]/components/ListingDetailsColumn.tsx`
-- [ ] `apps/web/src/app/components/wiselists/WiselistItemCard.tsx`
-- [ ] `apps/web/src/app/components/wiselists/WiselistItemCard.module.css`
+- [ ] `apps/web/src/components/wiselists/WiselistItemCard.tsx`
+- [ ] `apps/web/src/components/wiselists/WiselistItemCard.module.css`
 - [ ] CaaS worker/service (v5.8 integration)
 
 ### Database Changes

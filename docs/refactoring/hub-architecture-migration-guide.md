@@ -40,11 +40,11 @@ Execute the move:
 
 Validation:
 
-Check apps/web/src/app/components/ui/. You should see folders like actions, branding, forms.
+Check apps/web/src/components/ui/. You should see folders like actions, branding, forms.
 
-Check apps/web/src/app/components/hub/sidebar/cards. You should see files like HubStatsCard.tsx (renamed from SidebarStatsWidget).
+Check apps/web/src/components/hub/sidebar/cards. You should see files like HubStatsCard.tsx (renamed from SidebarStatsWidget).
 
-Check apps/web/src/app/components/layout/sidebars. This folder should be largely empty or gone.
+Check apps/web/src/components/layout/sidebars. This folder should be largely empty or gone.
 
 🔄 Phase 2: Update Imports (Codemod)
 

@@ -10,7 +10,7 @@ Before writing any code, verify:
 
 - [ ] **Read related documentation**
   - Check `/DEVELOPMENT-WORKFLOW-IMPROVEMENTS.md`
-  - Check `/apps/web/src/app/components/ui/README.md` for UI components
+  - Check `/apps/web/src/components/ui/README.md` for UI components
   - Check feature-specific docs in `/cas/docs/`
 
 - [ ] **Understand the task requirements**
@@ -24,7 +24,7 @@ Before writing any code, verify:
   Grep: pattern="<similar-feature-name>" output_mode="files_with_matches"
   
   # Check what components exist
-  Glob: apps/web/src/app/components/**/*.tsx
+  Glob: apps/web/src/components/**/*.tsx
   ```
 
 ---
@@ -36,19 +36,19 @@ Before writing any code, verify:
 - [ ] **Check if UI primitives exist first**
   ```bash
   # Before importing Button, Input, etc., verify they exist:
-  Read: apps/web/src/app/components/ui/Button.tsx
-  Read: apps/web/src/app/components/ui/form/Input.tsx
+  Read: apps/web/src/components/ui/Button.tsx
+  Read: apps/web/src/components/ui/form/Input.tsx
   ```
 
 - [ ] **If primitives missing, create them first**
-  - Follow template in `/apps/web/src/app/components/ui/README.md`
+  - Follow template in `/apps/web/src/components/ui/README.md`
   - Build bottom-up: primitives → composite → feature components
 
 - [ ] **Use consistent import paths**
   ```typescript
   // ✅ Correct
-  import Button from '@/app/components/ui/Button';
-  import Input from '@/app/components/ui/form/Input';
+  import Button from '@/components/ui/Button';
+  import Input from '@/components/ui/form/Input';
   
   // ❌ Wrong
   import Button from '../../../ui/Button';  // Relative paths
@@ -256,10 +256,10 @@ Added new form.
 
 ```bash
 # Find similar components
-Glob: apps/web/src/app/components/**/*<keyword>*.tsx
+Glob: apps/web/src/components/**/*<keyword>*.tsx
 
 # Check if UI component exists
-Read: apps/web/src/app/components/ui/<ComponentName>.tsx
+Read: apps/web/src/components/ui/<ComponentName>.tsx
 
 # Check if package installed
 Read: apps/web/package.json
@@ -320,7 +320,7 @@ Bash: git add apps/web/package.json apps/web/package-lock.json
 ## 📚 Related Documentation
 
 - `/DEVELOPMENT-WORKFLOW-IMPROVEMENTS.md` - Full workflow guide
-- `/apps/web/src/app/components/ui/README.md` - UI component library
+- `/apps/web/src/components/ui/README.md` - UI component library
 - `/cas/docs/cas-implementation-tracker.md` - Task tracking
 - `/cas/README.md` - CAS architecture
 

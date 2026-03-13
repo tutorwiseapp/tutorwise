@@ -622,7 +622,7 @@ export async function GET(
 
 ### 5.1 Update Signup Form
 
-**File**: `/apps/web/src/app/components/feature/auth/SignupForm.tsx` (assumed location)
+**File**: `/apps/web/src/components/feature/auth/SignupForm.tsx` (assumed location)
 
 **Changes Required**:
 1. Read `tutorwise_referral` cookie client-side
@@ -1252,7 +1252,7 @@ git push origin feature/hierarchical-attribution
 vercel deploy --staging
 
 # Day 5: Deploy signup form updates
-git add apps/web/src/app/components/feature/auth/SignupForm.tsx
+git add apps/web/src/components/feature/auth/SignupForm.tsx
 git add apps/web/src/utils/cookies.ts
 git commit -m "feat(referrals): Pass cookie metadata to signup for hierarchical attribution"
 git push origin feature/hierarchical-attribution

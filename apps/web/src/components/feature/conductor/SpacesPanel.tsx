@@ -11,7 +11,7 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Layers, Users, Plus, RefreshCw, Trash2, X, Check, ChevronDown, GripVertical } from 'lucide-react';
 import { useDiscoveryStore } from '@/components/feature/workflow/discovery-store';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './SpacesPanel.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

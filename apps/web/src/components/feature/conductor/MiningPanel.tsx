@@ -7,7 +7,7 @@ import {
   RefreshCw, Layers, BarChart2, Shield,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './MiningPanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────

@@ -15,7 +15,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './page.module.css';
 
 interface SEOStats {

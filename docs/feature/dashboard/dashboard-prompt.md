@@ -181,7 +181,7 @@ return NextResponse.json(kpis);
 
 **Purpose**: Display different KPI cards based on user role
 
-**Location**: `apps/web/src/app/components/feature/dashboard/widgets/KPIGrid.tsx`
+**Location**: `apps/web/src/components/feature/dashboard/widgets/KPIGrid.tsx`
 
 **Logic**:
 ```typescript

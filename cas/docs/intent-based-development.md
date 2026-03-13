@@ -84,7 +84,7 @@ Agent creators define the "what" via the builder form:
 
 The system handles everything else: prompt engineering, RAG setup, teaching strategy, quality tracking.
 
-**Source:** `apps/web/src/app/components/feature/ai-agents/builder/AIAgentBuilderForm.tsx`
+**Source:** `apps/web/src/components/feature/ai-agents/builder/AIAgentBuilderForm.tsx`
 
 ---
 

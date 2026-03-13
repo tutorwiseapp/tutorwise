@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDetailModal } from '@/app/components/hub/modal';
+import { HubDetailModal } from '@/components/hub/modal';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import type { ProfileReview } from '@/types/reviews';
 import styles from './AdminReviewDetailModal.module.css';

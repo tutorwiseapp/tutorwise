@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import PersonalInfoStep, { PersonalInfoData } from '@/app/components/feature/onboarding/shared/steps/PersonalInfoStep';
+import PersonalInfoStep, { PersonalInfoData } from '@/components/feature/onboarding/shared/steps/PersonalInfoStep';
 import styles from '../../page.module.css';
 
 // CaaS Points

@@ -20,7 +20,7 @@ export const revalidate = 300; // 5 minutes
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
-import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
+import { PublicPageShell } from '@/components/layout/PublicPageShell';
 import { OrganisationHeroSection } from '@/components/feature/public-org/OrganisationHeroSection';
 import { OrganisationStatsCard } from '@/components/feature/public-org/OrganisationStatsCard';
 import { TeamMembersCard } from '@/components/feature/public-org/TeamMembersCard';

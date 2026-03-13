@@ -10,8 +10,8 @@
 import React, { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { FileText, TrendingUp, TrendingDown, Clock, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import styles from './WalletLedgerModal.module.css';

@@ -15,20 +15,20 @@ import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
-import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
-import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
-import EduPaySavingsWidget from '@/app/components/feature/edupay/EduPaySavingsWidget';
-import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
-import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
-import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
-import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
-import EduPayLoanProfileModal from '@/app/components/feature/edupay/EduPayLoanProfileModal';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import EduPayStatsWidget from '@/components/feature/edupay/EduPayStatsWidget';
+import EduPayProjectionWidget from '@/components/feature/edupay/EduPayProjectionWidget';
+import EduPayLoanProfileWidget from '@/components/feature/edupay/EduPayLoanProfileWidget';
+import EduPaySavingsWidget from '@/components/feature/edupay/EduPaySavingsWidget';
+import EduPayHelpWidget from '@/components/feature/edupay/EduPayHelpWidget';
+import EduPayVideoWidget from '@/components/feature/edupay/EduPayVideoWidget';
+import EduPayLedgerCard from '@/components/feature/edupay/EduPayLedgerCard';
+import EduPayConversionModal from '@/components/feature/edupay/EduPayConversionModal';
+import EduPayLoanProfileModal from '@/components/feature/edupay/EduPayLoanProfileModal';
 import {
   getEduPayWallet,
   getEduPayLedger,
@@ -37,8 +37,8 @@ import {
   getSavingsSummary,
 } from '@/lib/api/edupay';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 type TabFilter = 'all' | 'pending' | 'available' | 'converted';
 type DateRangeType = 'all' | '30days' | '3months' | '1year';

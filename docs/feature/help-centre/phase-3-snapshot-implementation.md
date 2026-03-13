@@ -15,9 +15,9 @@ The Snapshot Modal provides users with an intuitive way to report technical issu
 ## ✅ Completed Components
 
 ### 1. **Frontend Components**
-- ✅ [SnapshotModal.tsx](../../../apps/web/src/app/components/help-centre/modals/SnapshotModal.tsx) - Main modal component
-- ✅ [SnapshotModal.module.css](../../../apps/web/src/app/components/help-centre/modals/SnapshotModal.module.css) - Design system-aligned styles
-- ✅ [QuickActionsWidget.tsx](../../../apps/web/src/app/components/help-centre/widgets/QuickActionsWidget.tsx) - "Report a Problem" trigger
+- ✅ [SnapshotModal.tsx](../../../apps/web/src/components/help-centre/modals/SnapshotModal.tsx) - Main modal component
+- ✅ [SnapshotModal.module.css](../../../apps/web/src/components/help-centre/modals/SnapshotModal.module.css) - Design system-aligned styles
+- ✅ [QuickActionsWidget.tsx](../../../apps/web/src/components/help-centre/widgets/QuickActionsWidget.tsx) - "Report a Problem" trigger
 - ✅ Progressive capture levels (minimal/standard/diagnostic)
 - ✅ Screenshot capture with html2canvas
 - ✅ User-controlled data sharing preferences
@@ -29,7 +29,7 @@ The Snapshot Modal provides users with an intuitive way to report technical issu
 - ✅ [Database Migration](../../../tools/database/migrations/094_create_help_support_snapshots.sql) - Supabase table schema
 
 ### 3. **Modal Design Improvements**
-- ✅ [ConnectionRequestModal](../../../apps/web/src/app/components/feature/network/ConnectionRequestModal.tsx) improvements:
+- ✅ [ConnectionRequestModal](../../../apps/web/src/components/feature/network/ConnectionRequestModal.tsx) improvements:
   - Close button updated to Lucide React `<X>` icon
   - ESC key handler and body scroll prevention
   - TypeScript type safety for search results
@@ -226,7 +226,7 @@ Users control what data is shared via checkboxes in the modal.
 ## 📝 Usage Example
 
 ```tsx
-import SnapshotModal from '@/app/components/help-centre/modals/SnapshotModal';
+import SnapshotModal from '@/components/help-centre/modals/SnapshotModal';
 
 export default function HelpCentrePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);

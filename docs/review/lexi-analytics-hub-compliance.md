@@ -61,7 +61,7 @@ function StatCard({ title, value, icon }: StatCardProps) {
 **Standard (Signal Analytics)**:
 ```tsx
 /* ✅ CORRECT - Use HubKPICard + HubKPIGrid */
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard } from '@/components/hub/charts';
 import { MessageSquare, FileText, Users, BarChart } from 'lucide-react';
 
 <HubKPIGrid>
@@ -209,7 +209,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 -import { ChevronRight, Star, Bot } from 'lucide-react';
 +import { MessageSquare, FileText, Users, BarChart, ThumbsUp, ThumbsDown } from 'lucide-react';
-+import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
++import { HubKPIGrid, HubKPICard } from '@/components/hub/charts';
 import styles from './FeaturedAITutorsSection.module.css';
 ```
 
@@ -557,12 +557,12 @@ After applying fixes, verify:
 ## 📚 Reference Files
 
 ### Hub Components (Standards)
-- `apps/web/src/app/components/hub/layout/HubPageLayout.tsx` - Page wrapper
-- `apps/web/src/app/components/hub/layout/HubHeader.tsx` - White header standard
-- `apps/web/src/app/components/hub/layout/HubTabs.tsx` - Tab navigation
-- `apps/web/src/app/components/hub/sidebar/HubSidebar.tsx` - 4-card sidebar
-- `apps/web/src/app/components/hub/charts/HubKPICard.tsx` - **Metric card standard** ⭐
-- `apps/web/src/app/components/hub/charts/HubKPIGrid.tsx` - **Metric grid wrapper** ⭐
+- `apps/web/src/components/hub/layout/HubPageLayout.tsx` - Page wrapper
+- `apps/web/src/components/hub/layout/HubHeader.tsx` - White header standard
+- `apps/web/src/components/hub/layout/HubTabs.tsx` - Tab navigation
+- `apps/web/src/components/hub/sidebar/HubSidebar.tsx` - 4-card sidebar
+- `apps/web/src/components/hub/charts/HubKPICard.tsx` - **Metric card standard** ⭐
+- `apps/web/src/components/hub/charts/HubKPIGrid.tsx` - **Metric grid wrapper** ⭐
 
 ### Compliant Examples (Using HubKPICard)
 - `apps/web/src/app/(admin)/admin/signal/page.tsx` - **BEST reference** (lines 270-295) ⭐

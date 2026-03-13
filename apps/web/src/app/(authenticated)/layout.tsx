@@ -21,7 +21,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AppSidebar from '@/app/components/layout/AppSidebar';
+import AppSidebar from '@/components/layout/AppSidebar';
 import styles from './layout.module.css';
 
 interface AuthenticatedLayoutProps {

@@ -386,32 +386,32 @@ export function ExampleCard({ record }: { record: ExampleType }) {
 Based on code review, these components need standardization:
 
 **❌ Shows Full UUID** (change to truncated):
-1. `apps/web/src/app/components/feature/bookings/BookingCard.tsx`
+1. `apps/web/src/components/feature/bookings/BookingCard.tsx`
    - Line 120-129: Shows full `booking.id`
    - **Fix**: Use `formatIdForDisplay(booking.id)`
 
 **⚠️ Inconsistent Implementation** (standardize):
-2. `apps/web/src/app/components/admin/widgets/AdminActivityWidget.tsx`
+2. `apps/web/src/components/admin/widgets/AdminActivityWidget.tsx`
    - Uses `resource_id.substring(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(activity.resource_id)`
 
-3. `apps/web/src/app/components/hub/cards/PendingReviewCard.tsx`
+3. `apps/web/src/components/hub/cards/PendingReviewCard.tsx`
    - Uses `task.id.substring(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(task.id)`
 
-4. `apps/web/src/app/components/profile/cards/ProfileCard.tsx`
+4. `apps/web/src/components/profile/cards/ProfileCard.tsx`
    - Uses `agent.id?.slice(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(agent.id)`
 
-5. `apps/web/src/app/components/feature/transactions/TransactionCard.tsx`
+5. `apps/web/src/components/feature/transactions/TransactionCard.tsx`
    - Uses `transaction.id.slice(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(transaction.id)`
 
-6. `apps/web/src/app/components/referral/ReferralCard.tsx`
+6. `apps/web/src/components/referral/ReferralCard.tsx`
    - Uses `referral.id.substring(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(referral.id)`
 
-7. `apps/web/src/app/components/connections/ConnectionCard.tsx`
+7. `apps/web/src/components/connections/ConnectionCard.tsx`
    - Uses `connection.id.substring(0, 8)` (no `#` prefix)
    - **Fix**: Use `formatIdForDisplay(connection.id)`
 

@@ -478,7 +478,7 @@ async function [patternName]() {
 #### Components
 | Component | File |
 |-----------|------|
-| `[Feature]Card.tsx` | [components/feature/[feature]/[Feature]Card.tsx](../../apps/web/src/app/components/feature/[feature]/[Feature]Card.tsx) |
+| `[Feature]Card.tsx` | [components/feature/[feature]/[Feature]Card.tsx](../../apps/web/src/components/feature/[feature]/[Feature]Card.tsx) |
 
 #### Database
 | Migration | Purpose |

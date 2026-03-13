@@ -17,19 +17,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
-import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
-import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
-import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
-import IntegrationLinksCard from '@/app/components/feature/students/IntegrationLinksCard';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import AccountCompletenessWidget from '@/components/feature/account/AccountCompletenessWidget';
+import AccountHelpWidget from '@/components/feature/account/AccountHelpWidget';
+import AccountTipWidget from '@/components/feature/account/AccountTipWidget';
+import AccountVideoWidget from '@/components/feature/account/AccountVideoWidget';
+import IntegrationLinksCard from '@/components/feature/students/IntegrationLinksCard';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import AccountHeroHeader from '@/components/feature/account/AccountHeroHeader';
+import Button from '@/components/ui/actions/Button';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 export default function SettingsPage() {
   const { activeRole, profile } = useUserProfile();

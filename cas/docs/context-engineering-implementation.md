@@ -136,7 +136,7 @@ tutorwise/
 The automated tool performs several analyses:
 
 1. **Component Structure Analysis**
-   - Scans `apps/web/src/app/components/`
+   - Scans `apps/web/src/components/`
    - Extracts imports, exports, and relationships
    - Identifies CSS modules and component patterns
 

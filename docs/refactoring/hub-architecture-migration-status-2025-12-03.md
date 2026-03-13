@@ -22,7 +22,7 @@ The codebase has successfully completed the file reorganization (Phase 1), estab
 The repository now has a **clean 3-tier component hierarchy**:
 
 ```
-apps/web/src/app/components/
+apps/web/src/components/
 ├── hub/                    # NEW: Hub Primitives (Layout Shells)
 │   ├── layout/            # HubPageLayout, HubHeader, HubTabs, HubPagination
 │   ├── sidebar/           # HubSidebar, SidebarWidget components
@@ -65,14 +65,14 @@ apps/web/src/app/components/
 ### Import Path Cleanup
 
 ✅ **All imports standardized to new paths:**
-- `@/app/components/hub/layout` → HubPageLayout, HubHeader, HubTabs, HubPagination
-- `@/app/components/hub/sidebar` → HubSidebar, SidebarWidget
-- `@/app/components/feature/*` → Domain-specific components
-- `@/app/components/ui/*` → Atomic UI primitives
+- `@/components/hub/layout` → HubPageLayout, HubHeader, HubTabs, HubPagination
+- `@/components/hub/sidebar` → HubSidebar, SidebarWidget
+- `@/components/feature/*` → Domain-specific components
+- `@/components/ui/*` → Atomic UI primitives
 
 **Import metrics:**
-- Old path `@/app/components/ui/hub-layout`: **0 references** ✅
-- New path `@/app/components/hub/layout`: **26 references** ✅
+- Old path `@/components/ui/hub-layout`: **0 references** ✅
+- New path `@/components/hub/layout`: **26 references** ✅
 
 ---
 
@@ -161,7 +161,7 @@ Despite reorganization, **legacy components remain in the codebase**:
 
 #### Legacy Sidebar Components (Should be removed after migration)
 ```
-apps/web/src/app/components/layout/sidebars/
+apps/web/src/components/layout/sidebars/
 ├── AppSidebar.module.css    (ACTIVE - Fixed left sidebar, keep)
 ├── AppSidebar.tsx           (ACTIVE - Fixed left sidebar, keep)
 ├── ContextualSidebar.*      (LEGACY - Replace with HubSidebar)
@@ -175,7 +175,7 @@ apps/web/src/app/components/layout/sidebars/
 **Action Required**: After all pages migrate to HubSidebar, delete old ContextualSidebar components.
 
 #### Legacy Hub Layout Components (Already cleaned - verified 0 imports)
-✅ **DELETED**: All old `apps/web/src/app/components/ui/hub-layout/*` components have been removed.
+✅ **DELETED**: All old `apps/web/src/components/ui/hub-layout/*` components have been removed.
 
 ---
 
@@ -263,8 +263,8 @@ apps/web/src/app/components/layout/sidebars/
 
 1. Delete legacy sidebar components:
    ```bash
-   rm -rf apps/web/src/app/components/layout/sidebars/ContextualSidebar.*
-   rm -rf apps/web/src/app/components/layout/sidebars/components/Sidebar*
+   rm -rf apps/web/src/components/layout/sidebars/ContextualSidebar.*
+   rm -rf apps/web/src/components/layout/sidebars/components/Sidebar*
    ```
 
 2. Update documentation to reflect hub architecture as the **only** pattern

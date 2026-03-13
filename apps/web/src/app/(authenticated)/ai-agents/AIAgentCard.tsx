@@ -8,11 +8,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/app/components/ui/actions/Button';
-import ConfirmDialog from '@/app/components/ui/feedback/ConfirmDialog';
-import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
-import AgentTypeBadge from '@/app/components/ai-agents/AgentTypeBadge';
-import type { AgentType } from '@/app/components/ai-agents/AgentTypeBadge';
+import Button from '@/components/ui/actions/Button';
+import ConfirmDialog from '@/components/ui/feedback/ConfirmDialog';
+import HubDetailCard from '@/components/hub/content/HubDetailCard/HubDetailCard';
+import AgentTypeBadge from '@/components/ai-agents/AgentTypeBadge';
+import type { AgentType } from '@/components/ai-agents/AgentTypeBadge';
 import getProfileImageUrl from '@/lib/utils/image';
 import { getInitials } from '@/lib/utils/initials';
 

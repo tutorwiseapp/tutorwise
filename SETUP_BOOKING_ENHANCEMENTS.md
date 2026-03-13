@@ -141,28 +141,28 @@ These are **optional** and can be implemented as needed:
 - Display preview of generated instances
 - Manage series (pause/resume/cancel)
 
-**Location:** `apps/web/src/app/components/feature/bookings/RecurringBookingForm.tsx`
+**Location:** `apps/web/src/components/feature/bookings/RecurringBookingForm.tsx`
 
 ### 2. Availability Exceptions Manager
 - Calendar view for managing exception dates
 - Quick add UK bank holidays button
 - Time range picker for partial blocks
 
-**Location:** `apps/web/src/app/components/feature/availability/ExceptionDatesManager.tsx`
+**Location:** `apps/web/src/components/feature/availability/ExceptionDatesManager.tsx`
 
 ### 3. Cancellation Warning Modal
 - Shows refund calculation preview
 - Displays late cancellation warnings
 - Repeat offender alerts
 
-**Location:** `apps/web/src/app/components/feature/bookings/CancellationWarningModal.tsx`
+**Location:** `apps/web/src/components/feature/bookings/CancellationWarningModal.tsx`
 
 ### 4. Quick Rating Prompt
 - 5-star picker after session completion
 - "Skip for now" option
 - Link to full review form
 
-**Location:** `apps/web/src/app/components/feature/bookings/QuickRatingPrompt.tsx`
+**Location:** `apps/web/src/components/feature/bookings/QuickRatingPrompt.tsx`
 
 ## 📊 Monitoring & Maintenance
 

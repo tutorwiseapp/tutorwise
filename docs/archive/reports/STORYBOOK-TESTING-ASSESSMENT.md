@@ -86,7 +86,7 @@ All scripts properly configured and ready to use.
 **Actual Count:** **0 stories**
 
 **No story files found in:**
-- `apps/web/src/app/components/`
+- `apps/web/src/components/`
 - `apps/web/src/components/`
 - `apps/web/src/stories/`
 - Any subdirectories
@@ -318,7 +318,7 @@ Component Development Flow:
 
 Based on the codebase audit, these components should have Storybook stories:
 
-### UI Components (apps/web/src/app/components/ui/)
+### UI Components (apps/web/src/components/ui/)
 
 **Priority 1 - Core UI:**
 1. ✅ Button - Primary, Secondary, Disabled, Loading states
@@ -336,7 +336,7 @@ Based on the codebase audit, these components should have Storybook stories:
 9. ✅ Input fields with validation states
 10. ✅ Select/Dropdown components
 
-### Feature Components (apps/web/src/app/components/)
+### Feature Components (apps/web/src/components/)
 
 **Priority 4 - Onboarding:**
 11. ✅ OnboardingWizard - All steps
@@ -808,7 +808,7 @@ Storybook is **fully configured but completely unutilized**. This is a **signifi
 **Step 1: Create a story file**
 ```bash
 # For Button component
-touch apps/web/src/app/components/ui/Button.stories.tsx
+touch apps/web/src/components/ui/Button.stories.tsx
 ```
 
 **Step 2: Write basic story**

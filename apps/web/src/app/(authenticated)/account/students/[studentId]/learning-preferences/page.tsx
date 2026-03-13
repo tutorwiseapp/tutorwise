@@ -10,17 +10,17 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ProfessionalInfoForm from '@/app/components/feature/account/ProfessionalInfoForm';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
-import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
-import { HubPageLayout, HubTabs, HubHeader } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import Button from '@/app/components/ui/actions/Button';
+import ProfessionalInfoForm from '@/components/feature/account/ProfessionalInfoForm';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import AccountCompletenessWidget from '@/components/feature/account/AccountCompletenessWidget';
+import AccountHelpWidget from '@/components/feature/account/AccountHelpWidget';
+import { HubPageLayout, HubTabs, HubHeader } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import Button from '@/components/ui/actions/Button';
 import type { Profile } from '@/types';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 async function getStudentProfile(studentId: string): Promise<Profile> {
   const response = await fetch(`/api/profiles/${studentId}`);

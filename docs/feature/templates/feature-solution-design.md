@@ -572,7 +572,7 @@ See [references-section-template.md](../templates/references-section-template.md
 - **Database**: `apps/api/migrations/XXX_[feature].sql`
 - **Service Layer**: `apps/web/src/lib/api/[feature].ts`
 - **API Routes**: `apps/web/src/app/api/[feature]/route.ts`
-- **Components**: `apps/web/src/app/components/feature/[feature]/`
+- **Components**: `apps/web/src/components/feature/[feature]/`
 - **Types**: `apps/web/src/types/index.ts`
 
 ---

@@ -89,7 +89,7 @@ blog_article_metrics (
 - Real-time event streaming
 
 #### 2. Social Sharing UI (Manual Only)
-**Location**: `apps/web/src/app/components/ui/feedback/ShareModal.tsx`
+**Location**: `apps/web/src/components/ui/feedback/ShareModal.tsx`
 
 **Platforms Supported**:
 - LinkedIn (`linkedin.com/sharing/share-offsite`)

@@ -12,10 +12,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
+import Button from '@/components/ui/actions/Button';
 import ArticleEditorForm from '../components/ArticleEditorForm';
 import styles from './page.module.css';
 

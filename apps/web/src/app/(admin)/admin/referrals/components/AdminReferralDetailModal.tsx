@@ -15,9 +15,9 @@
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal/HubDetailModal/HubDetailModal';
-import Button from '@/app/components/ui/actions/Button';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal/HubDetailModal/HubDetailModal';
+import Button from '@/components/ui/actions/Button';
 import { Referral } from '@/types';
 import styles from './AdminReferralDetailModal.module.css';
 import { formatIdForDisplay } from '@/lib/utils/formatId';

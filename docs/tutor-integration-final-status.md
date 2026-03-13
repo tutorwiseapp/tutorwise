@@ -16,7 +16,7 @@ Successfully implemented the most critical fix (Fix 1) to save tutor onboarding 
 
 ### Fix 1: TutorOnboardingWizard Saves to professional_details.tutor ✅ COMPLETE
 
-**File**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 290-338)
+**File**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 290-338)
 
 **What Changed**:
 - Tutor onboarding now saves data to `professional_details.tutor` (in ADDITION to `onboarding_progress.provider`)
@@ -233,12 +233,12 @@ Error: Unexpected token `div`. Expected jsx identifier
 ## Files Modified
 
 ### Successfully Modified:
-1. ✅ `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+1. ✅ `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
    - Added 48 lines (lines 290-338)
    - Saves onboarding data to `professional_details.tutor`
 
 ### Attempted But Reverted:
-2. ❌ `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+2. ❌ `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
    - Attempted to add data loading and save logic
    - Caused JSX syntax errors
    - Reverted to original via `git checkout`

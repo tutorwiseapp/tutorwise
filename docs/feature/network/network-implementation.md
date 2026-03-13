@@ -108,7 +108,7 @@ open http://localhost:3000/network
 // apps/web/src/lib/api/network.ts
 
 import { createClient } from '@/utils/supabase/client';
-import type { Connection } from '@/app/components/feature/network/ConnectionCard';
+import type { Connection } from '@/components/feature/network/ConnectionCard';
 
 export async function getMyConnections(): Promise<Connection[]> {
   const supabase = createClient();

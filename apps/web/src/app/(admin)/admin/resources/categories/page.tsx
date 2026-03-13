@@ -7,12 +7,12 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
+import Button from '@/components/ui/actions/Button';
 import styles from './page.module.css';
 
 // Force dynamic rendering

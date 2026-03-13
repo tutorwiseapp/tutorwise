@@ -11,11 +11,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 import { Building2, Users, Percent, AlertTriangle, Check, X, Edit2 } from 'lucide-react';
 import styles from './page.module.css';
 

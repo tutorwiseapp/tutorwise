@@ -11,12 +11,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter } from '@/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { formatDate as formatDateUtil, calculateDaysRemaining } from '@/lib/utils/format-date';
 import { Filter as FilterIcon } from 'lucide-react';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import AdminOrganisationDetailModal from './AdminOrganisationDetailModal';
 import AdvancedFiltersDrawer, { type AdvancedFilters } from './AdvancedFiltersDrawer';
 import styles from './OrganisationsTable.module.css';

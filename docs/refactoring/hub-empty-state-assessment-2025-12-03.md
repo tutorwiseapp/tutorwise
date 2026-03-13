@@ -1,6 +1,6 @@
 # HubEmptyState Component Assessment
 **Date**: 2025-12-03
-**Component**: `apps/web/src/app/components/hub/content/HubEmptyState.tsx`
+**Component**: `apps/web/src/components/hub/content/HubEmptyState.tsx`
 **Status**: ⚠️ Implementation Issues Found
 
 ---
@@ -24,7 +24,7 @@ A `HubEmptyState` component was created to centralize empty state UI across hub 
 ### File Structure
 
 ```
-apps/web/src/app/components/hub/content/
+apps/web/src/components/hub/content/
 ├── HubEmptyState.tsx           ❌ Implementation broken
 ├── HubEmptyState.module.css    ✅ Well-designed CSS
 ├── HubRowCard/
@@ -96,14 +96,14 @@ export default function HubEmptyState({ title, description, actionLabel, onActio
 
 **Current Import (Line 31):**
 ```tsx
-import HubEmptyState from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubEmptyState from '@/components/hub/content/HubRowCard/HubRowCard';
 ```
 
 **Problem**: Imports from `HubRowCard/HubRowCard` instead of `HubEmptyState`
 
 **Correct Import:**
 ```tsx
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 ```
 
 **Why This Happened**: Likely auto-import error or copy-paste mistake.
@@ -126,11 +126,11 @@ export default function HubEmptyState({ ... }) { ... }
 
 ### Issue #4: Missing Barrel Export
 
-**Current State**: No `apps/web/src/app/components/hub/content/index.ts` file exists.
+**Current State**: No `apps/web/src/components/hub/content/index.ts` file exists.
 
 **Expected** (following hub/layout/index.ts pattern):
 ```tsx
-// apps/web/src/app/components/hub/content/index.ts
+// apps/web/src/components/hub/content/index.ts
 export { default as HubEmptyState } from './HubEmptyState';
 export { default as HubRowCard } from './HubRowCard/HubRowCard';
 export { default as StatsRow } from './HubRowCard/StatsRow';
@@ -390,7 +390,7 @@ All 5 migrated hub pages **duplicate the same empty state CSS**:
 
 ### Priority 1: Fix Component Implementation ⚠️ CRITICAL
 
-**File**: `apps/web/src/app/components/hub/content/HubEmptyState.tsx`
+**File**: `apps/web/src/components/hub/content/HubEmptyState.tsx`
 
 **Changes Required:**
 
@@ -402,14 +402,14 @@ All 5 migrated hub pages **duplicate the same empty state CSS**:
 
 ```tsx
 /**
- * Filename: apps/web/src/app/components/hub/content/HubEmptyState.tsx
+ * Filename: apps/web/src/components/hub/content/HubEmptyState.tsx
  * Purpose: Centralized empty state component for all hub pages
  * Created: 2025-12-03
  * Pattern: Replaces 200+ lines of duplicated empty state CSS across hub pages
  */
 
 import React from 'react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import styles from './HubEmptyState.module.css';
 
 interface HubEmptyStateProps {
@@ -456,19 +456,19 @@ export default function HubEmptyState({
 **Change:**
 ```tsx
 // Before (WRONG):
-import HubEmptyState from '@/app/components/hub/content/HubRowCard/HubRowCard';
+import HubEmptyState from '@/components/hub/content/HubRowCard/HubRowCard';
 
 // After (CORRECT):
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 ```
 
 ### Priority 3: Create Barrel Export
 
-**File**: `apps/web/src/app/components/hub/content/index.ts` (NEW FILE)
+**File**: `apps/web/src/components/hub/content/index.ts` (NEW FILE)
 
 ```tsx
 /**
- * Filename: apps/web/src/app/components/hub/content/index.ts
+ * Filename: apps/web/src/components/hub/content/index.ts
  * Purpose: Barrel export for Hub content components
  */
 
@@ -480,10 +480,10 @@ export { default as StatsRow } from './HubRowCard/StatsRow';
 **Then update imports across pages:**
 ```tsx
 // Before:
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 
 // After (cleaner):
-import { HubEmptyState } from '@/app/components/hub/content';
+import { HubEmptyState } from '@/components/hub/content';
 ```
 
 ### Priority 4: Migrate Existing Pages

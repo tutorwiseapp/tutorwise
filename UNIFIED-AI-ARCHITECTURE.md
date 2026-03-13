@@ -336,7 +336,7 @@ Priority 3: Sage global knowledge (fallback)
 | `apps/web/src/lib/ai-agents/**` | **NEW** | ✅ Complete |
 | `apps/web/src/lib/ai-tutors/manager.ts` | ⚠️ To deprecate | Use adapter |
 | `apps/web/src/app/api/ai-tutors/**` | ⏳ To update | Use adapter |
-| `apps/web/src/app/components/feature/ai-tutors/**` | ⏳ To update | Phase 4 |
+| `apps/web/src/components/feature/ai-tutors/**` | ⏳ To update | Phase 4 |
 
 ---
 

@@ -12,15 +12,15 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter } from '@/components/hub/data';
 import { AdminReviewDetailModal } from './AdminReviewDetailModal';
 import { AdvancedFiltersDrawer } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import type { ProfileReview } from '@/types/reviews';
 import styles from './ReviewsTable.module.css';
 import { Star, StarOff, CheckCircle, XCircle, Filter as FilterIcon } from 'lucide-react';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 

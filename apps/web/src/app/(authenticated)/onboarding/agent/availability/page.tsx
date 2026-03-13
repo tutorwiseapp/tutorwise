@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import AvailabilityStep, { AvailabilityData } from '@/app/components/feature/onboarding/shared/steps/AvailabilityStep';
+import AvailabilityStep, { AvailabilityData } from '@/components/feature/onboarding/shared/steps/AvailabilityStep';
 import styles from '../../page.module.css';
 
 // CaaS Points

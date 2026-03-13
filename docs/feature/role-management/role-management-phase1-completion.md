@@ -34,7 +34,7 @@ interface UserProfileContextType {
 ```
 
 #### 2. RoleSwitcher Component
-**File:** `src/app/components/layout/RoleSwitcher.tsx`
+**File:** `src/components/layout/RoleSwitcher.tsx`
 
 **Key Features:**
 - Visual dropdown interface with role-specific styling
@@ -51,7 +51,7 @@ interface UserProfileContextType {
 - Loading states during role transitions
 
 #### 3. Header Integration
-**File:** `src/app/components/layout/Header.tsx`
+**File:** `src/components/layout/Header.tsx`
 
 **Updates:**
 - Integrated RoleSwitcher component between logo and user menu
@@ -167,9 +167,9 @@ The foundation is set for:
 
 #### Key Files Modified/Created
 1. `src/app/contexts/UserProfileContext.tsx` - Enhanced with role management
-2. `src/app/components/layout/RoleSwitcher.tsx` - New role switching component
-3. `src/app/components/layout/Header.tsx` - Integrated role switcher
-4. `src/app/components/layout/Header.module.css` - Added headerActions styling
+2. `src/components/layout/RoleSwitcher.tsx` - New role switching component
+3. `src/components/layout/Header.tsx` - Integrated role switcher
+4. `src/components/layout/Header.module.css` - Added headerActions styling
 5. `src/app/dashboard/page.tsx` - Updated with role-aware titles
 
 #### Dependencies Used

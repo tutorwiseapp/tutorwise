@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Play } from 'lucide-react';
-import { VideoModal } from '@/app/components/ui/feedback/VideoModal';
+import { VideoModal } from '@/components/ui/feedback/VideoModal';
 import styles from './AboutCard.module.css';
 
 interface AboutCardProps {

@@ -25,7 +25,7 @@
   - Form validation
   - Draft/Publish workflow
 
-**File:** `apps/web/src/app/components/feature/ai-tutors/builder/AITutorBuilderForm.tsx`
+**File:** `apps/web/src/components/feature/ai-tutors/builder/AITutorBuilderForm.tsx`
 
 **Decision:** We dropped the 4-step wizard approach in favor of a simpler single-page form that follows existing Tutorwise patterns. This reduces complexity and improves creation time (<10 minutes).
 

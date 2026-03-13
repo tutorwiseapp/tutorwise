@@ -194,8 +194,8 @@ Each deployment creates `.sadd/vinite-<feature>.json`:
   "applied_by": "sadd-apply-feature.sh",
   "branch": "sadd/ui-components-v1.2.0-20251005-130857",
   "files_applied": [
-    "src/app/components/ui/Button.tsx",
-    "src/app/components/ui/Button.module.css",
+    "src/components/ui/Button.tsx",
+    "src/components/ui/Button.module.css",
     ...
   ]
 }

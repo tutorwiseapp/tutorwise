@@ -117,7 +117,7 @@ apps/web/next-env.d.ts                             |   1 -
  .../app/(authenticated)/wiselists/page.module.css  |  10 +-
  .../web/src/app/(authenticated)/wiselists/page.tsx |  65 ++++----
  .../components/wiselists/WiselistCard.module.css   | 158 ++++++++++++--------
- .../src/app/components/wiselists/WiselistCard.tsx  | 164 +++++++++++++--------
+ .../src/components/wiselists/WiselistCard.tsx  | 164 +++++++++++++--------
  apps/web/src/app/layout.tsx                        |   8 +-
  apps/web/src/lib/api/wiselists.ts                  |  52 ++++---
  apps/web/src/pages/_document.tsx                   |  19 ---
@@ -129,8 +129,8 @@ apps/web/next-env.d.ts                             |   1 -
 M	apps/web/next-env.d.ts
 M	apps/web/src/app/(authenticated)/wiselists/page.module.css
 M	apps/web/src/app/(authenticated)/wiselists/page.tsx
-M	apps/web/src/app/components/wiselists/WiselistCard.module.css
-M	apps/web/src/app/components/wiselists/WiselistCard.tsx
+M	apps/web/src/components/wiselists/WiselistCard.module.css
+M	apps/web/src/components/wiselists/WiselistCard.tsx
 M	apps/web/src/app/layout.tsx
 M	apps/web/src/lib/api/wiselists.ts
 D	apps/web/src/pages/_document.tsx
@@ -160,8 +160,8 @@ D	apps/web/src/pages/_document.tsx
 - `apps/web/next-env.d.ts`
 - `apps/web/src/app/(authenticated)/wiselists/page.module.css`
 - `apps/web/src/app/(authenticated)/wiselists/page.tsx`
-- `apps/web/src/app/components/wiselists/WiselistCard.module.css`
-- `apps/web/src/app/components/wiselists/WiselistCard.tsx`
+- `apps/web/src/components/wiselists/WiselistCard.module.css`
+- `apps/web/src/components/wiselists/WiselistCard.tsx`
 - `apps/web/src/app/layout.tsx`
 - `apps/web/src/lib/api/wiselists.ts`
 

@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
 
 ### Permission Gate Component
 ```typescript
-import PermissionGate from '@/app/components/admin/PermissionGate';
+import PermissionGate from '@/components/admin/PermissionGate';
 
 <PermissionGate resource="seo" action="create">
   <Button>Create Hub</Button>
@@ -174,7 +174,7 @@ import PermissionGate from '@/app/components/admin/PermissionGate';
 
 ### Role Gate Component
 ```typescript
-import RoleGate from '@/app/components/admin/RoleGate';
+import RoleGate from '@/components/admin/RoleGate';
 
 <RoleGate role="superadmin">
   <DangerousButton>Delete All</DangerousButton>
@@ -240,11 +240,11 @@ import RoleGate from '@/app/components/admin/RoleGate';
 - Hooks: `apps/web/src/lib/rbac/hooks.ts`
 
 ### Components
-- Sidebar: `apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx`
-- Layout: `apps/web/src/app/components/admin/layout/AdminLayout.tsx`
-- Widgets: `apps/web/src/app/components/admin/widgets/`
-- Modals: `apps/web/src/app/components/admin/modals/`
-- Gates: `apps/web/src/app/components/admin/PermissionGate.tsx`, `RoleGate.tsx`
+- Sidebar: `apps/web/src/components/admin/sidebar/AdminSidebar.tsx`
+- Layout: `apps/web/src/components/admin/layout/AdminLayout.tsx`
+- Widgets: `apps/web/src/components/admin/widgets/`
+- Modals: `apps/web/src/components/admin/modals/`
+- Gates: `apps/web/src/components/admin/PermissionGate.tsx`, `RoleGate.tsx`
 
 ### Pages
 - Overview: `apps/web/src/app/(admin)/admin/page.tsx`

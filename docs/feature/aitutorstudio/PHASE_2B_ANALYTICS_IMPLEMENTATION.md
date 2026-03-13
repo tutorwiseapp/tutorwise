@@ -362,14 +362,14 @@ export type MetricName =
 import { useState } from 'react';
 import { useAdminProfile } from '@/lib/rbac';
 import { useAdminMetric, useAdminTrendData } from '@/lib/hooks/useAdminMetrics';
-import HubPageLayout from '@/app/components/admin/hub-layout/HubPageLayout';
-import HubHeader from '@/app/components/admin/hub-layout/HubHeader';
-import HubTabs from '@/app/components/admin/hub-layout/HubTabs';
-import HubSidebar from '@/app/components/admin/hub-layout/HubSidebar';
-import HubKPIGrid from '@/app/components/admin/hub-layout/HubKPIGrid';
-import HubKPICard from '@/app/components/admin/hub-layout/HubKPICard';
-import { ErrorBoundary } from '@/app/components/ui/feedback/ErrorBoundary';
-import ChartSkeleton from '@/app/components/admin/charts/ChartSkeleton';
+import HubPageLayout from '@/components/admin/hub-layout/HubPageLayout';
+import HubHeader from '@/components/admin/hub-layout/HubHeader';
+import HubTabs from '@/components/admin/hub-layout/HubTabs';
+import HubSidebar from '@/components/admin/hub-layout/HubSidebar';
+import HubKPIGrid from '@/components/admin/hub-layout/HubKPIGrid';
+import HubKPICard from '@/components/admin/hub-layout/HubKPICard';
+import { ErrorBoundary } from '@/components/ui/feedback/ErrorBoundary';
+import ChartSkeleton from '@/components/admin/charts/ChartSkeleton';
 
 // Import chart components
 import AITutorGrowthChart from './components/charts/AITutorGrowthChart';
@@ -382,11 +382,11 @@ import AITutorsTable from './components/AITutorsTable';
 import AdminAITutorCreateTab from './components/AdminAITutorCreateTab';
 
 // Hub widgets
-import StatsWidget from '@/app/components/admin/hub-layout/widgets/StatsWidget';
-import LimitsWidget from '@/app/components/admin/hub-layout/widgets/LimitsWidget';
-import HelpWidget from '@/app/components/admin/hub-layout/widgets/HelpWidget';
-import TipsWidget from '@/app/components/admin/hub-layout/widgets/TipsWidget';
-import VideoWidget from '@/app/components/admin/hub-layout/widgets/VideoWidget';
+import StatsWidget from '@/components/admin/hub-layout/widgets/StatsWidget';
+import LimitsWidget from '@/components/admin/hub-layout/widgets/LimitsWidget';
+import HelpWidget from '@/components/admin/hub-layout/widgets/HelpWidget';
+import TipsWidget from '@/components/admin/hub-layout/widgets/TipsWidget';
+import VideoWidget from '@/components/admin/hub-layout/widgets/VideoWidget';
 
 export default function AdminAITutorsPage() {
   const [activeTab, setActiveTab] = useState('overview');

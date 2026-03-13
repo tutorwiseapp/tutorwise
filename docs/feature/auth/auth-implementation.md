@@ -65,7 +65,7 @@ const protectedRoutes = [
 ```typescript
 // File: apps/web/src/app/your-new-route/page.tsx
 
-import ProtectedRoute from '@/app/components/feature/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/feature/auth/ProtectedRoute';
 
 export default function YourPage() {
   return (
@@ -619,7 +619,7 @@ await supabase.auth.signInWithOAuth({
 - Login: [apps/web/src/app/login/page.tsx](../../../apps/web/src/app/login/page.tsx)
 - Signup: [apps/web/src/app/signup/page.tsx](../../../apps/web/src/app/signup/page.tsx)
 - Callback: [apps/web/src/app/auth/callback/route.ts](../../../apps/web/src/app/auth/callback/route.ts)
-- ProtectedRoute: [apps/web/src/app/components/feature/auth/ProtectedRoute.tsx](../../../apps/web/src/app/components/feature/auth/ProtectedRoute.tsx)
+- ProtectedRoute: [apps/web/src/components/feature/auth/ProtectedRoute.tsx](../../../apps/web/src/components/feature/auth/ProtectedRoute.tsx)
 - Context: [apps/web/src/app/contexts/UserProfileContext.tsx](../../../apps/web/src/app/contexts/UserProfileContext.tsx)
 - Middleware: [apps/web/src/middleware.ts](../../../apps/web/src/middleware.ts)
 

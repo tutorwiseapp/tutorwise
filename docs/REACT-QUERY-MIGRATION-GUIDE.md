@@ -343,10 +343,10 @@ module.exports = withPWA({
 
 ### Reference Implementation:
 - `apps/web/src/app/(authenticated)/listings/page.tsx` - Migrated page
-- `apps/web/src/app/components/listings/ListingsSkeleton.tsx` - Loading skeleton
-- `apps/web/src/app/components/listings/ListingsError.tsx` - Error fallback
+- `apps/web/src/components/listings/ListingsSkeleton.tsx` - Loading skeleton
+- `apps/web/src/components/listings/ListingsError.tsx` - Error fallback
 - `apps/web/src/app/providers/QueryProvider.tsx` - React Query config
-- `apps/web/src/app/components/ErrorBoundary.tsx` - Global error boundary
+- `apps/web/src/components/ErrorBoundary.tsx` - Global error boundary
 
 ---
 

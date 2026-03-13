@@ -531,7 +531,7 @@ apps/web/src/app/(authenticated)/edupay/
 └── savings/
     └── page.tsx                      ← Savings page (route: /edupay/savings)
 
-apps/web/src/app/components/feature/edupay/
+apps/web/src/components/feature/edupay/
 ├── EduPayStatsWidget.tsx             ← HubStatsCard: EP balance + GBP value
 ├── EduPayStatsWidget.module.css
 ├── EduPaySavingsWidget.tsx           ← HubStatsCard: ISA/Savings summary
@@ -606,21 +606,21 @@ action is surfaced via `HubEmptyState` in the main content area when no loan pro
 
 **Required imports (top of `page.tsx`):**
 ```typescript
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
-import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
-import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
-import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
-import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
-import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
-import EduPayConversionModal from '@/app/components/feature/edupay/EduPayConversionModal';
+import EduPayStatsWidget from '@/components/feature/edupay/EduPayStatsWidget';
+import EduPayProjectionWidget from '@/components/feature/edupay/EduPayProjectionWidget';
+import EduPayLoanProfileWidget from '@/components/feature/edupay/EduPayLoanProfileWidget';
+import EduPayHelpWidget from '@/components/feature/edupay/EduPayHelpWidget';
+import EduPayLedgerCard from '@/components/feature/edupay/EduPayLedgerCard';
+import EduPayConversionModal from '@/components/feature/edupay/EduPayConversionModal';
 ```
 
 ---
@@ -974,7 +974,7 @@ interface EduPayLedgerCardProps {
 
 #### EduPayConversionModal
 
-**File:** `apps/web/src/app/components/feature/edupay/EduPayConversionModal.tsx`
+**File:** `apps/web/src/components/feature/edupay/EduPayConversionModal.tsx`
 
 **Trigger:** "Convert EP" primary button in header actions.
 
@@ -1049,7 +1049,7 @@ interface Props {
 
 #### EduPayLoanProfileModal
 
-**File:** `apps/web/src/app/components/feature/edupay/EduPayLoanProfileModal.tsx`
+**File:** `apps/web/src/components/feature/edupay/EduPayLoanProfileModal.tsx`
 
 **Triggers:**
 - `HubEmptyState` "Set Up Loan Profile" button (when `!loanProfile`)
@@ -1098,7 +1098,7 @@ All values sourced from `6-DESIGN-SYSTEM.md`:
 
 ### 17.10 Navigation Entry Point
 
-EduPay is a **top-level item** in [AppSidebar.tsx](apps/web/src/app/components/layout/AppSidebar.tsx) with its own sub-items for Wallet, Cashback, and Savings.
+EduPay is a **top-level item** in [AppSidebar.tsx](apps/web/src/components/layout/AppSidebar.tsx) with its own sub-items for Wallet, Cashback, and Savings.
 
 ```typescript
 // AppSidebar.tsx — EduPay top-level with sub-items
@@ -1259,17 +1259,17 @@ import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import EduPayStatsWidget from '@/app/components/feature/edupay/EduPayStatsWidget';
-import EduPayProjectionWidget from '@/app/components/feature/edupay/EduPayProjectionWidget';
-import EduPayLoanProfileWidget from '@/app/components/feature/edupay/EduPayLoanProfileWidget';
-import EduPayHelpWidget from '@/app/components/feature/edupay/EduPayHelpWidget';
-import EduPayVideoWidget from '@/app/components/feature/edupay/EduPayVideoWidget';
-import EduPayLedgerCard from '@/app/components/feature/edupay/EduPayLedgerCard';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import EduPayStatsWidget from '@/components/feature/edupay/EduPayStatsWidget';
+import EduPayProjectionWidget from '@/components/feature/edupay/EduPayProjectionWidget';
+import EduPayLoanProfileWidget from '@/components/feature/edupay/EduPayLoanProfileWidget';
+import EduPayHelpWidget from '@/components/feature/edupay/EduPayHelpWidget';
+import EduPayVideoWidget from '@/components/feature/edupay/EduPayVideoWidget';
+import EduPayLedgerCard from '@/components/feature/edupay/EduPayLedgerCard';
 import {
   getEduPayWallet,
   getEduPayLedger,
@@ -1277,8 +1277,8 @@ import {
   getLoanProfile,
 } from '@/lib/api/edupay';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 type TabFilter = 'all' | 'pending' | 'available' | 'converted';
 type DateRangeType = 'all' | '30days' | '3months' | '1year';

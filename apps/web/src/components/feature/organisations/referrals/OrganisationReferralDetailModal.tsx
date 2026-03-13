@@ -8,10 +8,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './OrganisationReferralDetailModal.module.css';
 

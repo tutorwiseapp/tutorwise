@@ -58,9 +58,9 @@ Added 7 snapshot fields to `bookings` table:
 1. **Database**: `apps/api/migrations/104_add_booking_snapshot_fields.sql`
 2. **Types**: `apps/web/src/types/index.ts` - Updated Booking interface
 3. **API**: `apps/web/src/lib/api/bookings.ts` - Updated createBooking()
-4. **UI**: `apps/web/src/app/components/feature/bookings/BookingCard.tsx`
-5. **UI**: `apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx`
-6. **UI**: `apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx`
+4. **UI**: `apps/web/src/components/feature/bookings/BookingCard.tsx`
+5. **UI**: `apps/web/src/components/feature/reviews/PendingReviewCard.tsx`
+6. **UI**: `apps/web/src/components/feature/bookings/BookingDetailModal.tsx`
 
 ### Benefits
 ✅ Booking avatars now show correct subject colors (orange/yellow/blue/green/purple/grey)
@@ -97,7 +97,7 @@ Added 6 snapshot fields to `profile_reviews` table:
 1. **Database**: `apps/api/migrations/105_add_review_snapshot_fields.sql`
 2. **Types**: `apps/web/src/types/reviews.ts` - Updated ProfileReview interface
 3. **API**: `apps/web/src/app/api/reviews/submit/route.ts` - Updated review creation
-4. **UI**: `apps/web/src/app/components/feature/reviews/ProfileReviewCard.tsx`
+4. **UI**: `apps/web/src/components/feature/reviews/ProfileReviewCard.tsx`
 
 ### Benefits
 ✅ Reviews show service context even if booking deleted
@@ -193,7 +193,7 @@ Profile items: 0
    - Cache listing/profile data when adding items
 
 2. **UI Components**: Update to use cached fields gracefully
-   - Files: `apps/web/src/app/components/feature/wiselists/*Card.tsx`
+   - Files: `apps/web/src/components/feature/wiselists/*Card.tsx`
    - Show cached data with "(deleted)" indicator if source missing
    - Use cached_subjects for subject-based avatars
 

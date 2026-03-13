@@ -93,7 +93,7 @@ Phase 1 successfully aligns the user dashboard with admin dashboard architecture
 
 ### Phase 1.4: Dashboard KPI Migration ✅
 
-**Modified:** `apps/web/src/app/components/feature/dashboard/performance/KPIGrid.tsx`
+**Modified:** `apps/web/src/components/feature/dashboard/performance/KPIGrid.tsx`
 
 **Changes:**
 - Changed from `data: KPIData` prop to `userId: string` prop
@@ -121,7 +121,7 @@ Phase 1 successfully aligns the user dashboard with admin dashboard architecture
 
 ### Phase 1.5: Standardized Widget Wrappers ✅
 
-**Created:** `apps/web/src/app/components/feature/dashboard/widgets/`
+**Created:** `apps/web/src/components/feature/dashboard/widgets/`
 
 **Widgets:**
 1. `UserStatsWidget.tsx` - Wraps `HubStatsCard`
@@ -208,12 +208,12 @@ Phase 1 successfully aligns the user dashboard with admin dashboard architecture
 6. `scripts/run-migrations-and-backfill.mts` (170 lines)
 
 **Widgets:**
-7. `apps/web/src/app/components/feature/dashboard/widgets/UserStatsWidget.tsx`
-8. `apps/web/src/app/components/feature/dashboard/widgets/UserTipWidget.tsx`
-9. `apps/web/src/app/components/feature/dashboard/widgets/UserHelpWidget.tsx`
-10. `apps/web/src/app/components/feature/dashboard/widgets/UserVideoWidget.tsx`
-11. `apps/web/src/app/components/feature/dashboard/widgets/UserActivityWidget.tsx`
-12. `apps/web/src/app/components/feature/dashboard/widgets/index.ts`
+7. `apps/web/src/components/feature/dashboard/widgets/UserStatsWidget.tsx`
+8. `apps/web/src/components/feature/dashboard/widgets/UserTipWidget.tsx`
+9. `apps/web/src/components/feature/dashboard/widgets/UserHelpWidget.tsx`
+10. `apps/web/src/components/feature/dashboard/widgets/UserVideoWidget.tsx`
+11. `apps/web/src/components/feature/dashboard/widgets/UserActivityWidget.tsx`
+12. `apps/web/src/components/feature/dashboard/widgets/index.ts`
 
 **Documentation:**
 13. `docs/feature/dashboard/WIDGET_ALIGNMENT.md` (300+ lines)
@@ -222,7 +222,7 @@ Phase 1 successfully aligns the user dashboard with admin dashboard architecture
 
 ### Modified Files (2)
 
-1. `apps/web/src/app/components/feature/dashboard/performance/KPIGrid.tsx`
+1. `apps/web/src/components/feature/dashboard/performance/KPIGrid.tsx`
    - Changed prop interface from `data` to `userId`
    - Replaced consolidated API with `useUserMetric` hooks
    - Added trend indicators and historical comparison

@@ -171,7 +171,7 @@ INSERT INTO public.transactions (
 ### Components Created
 
 **ReferralAssetWidget.tsx**
-- Location: `apps/web/src/app/components/referrals/ReferralAssetWidget.tsx`
+- Location: `apps/web/src/components/referrals/ReferralAssetWidget.tsx`
 - Variants: `onboarding` | `dashboard`
 - Tabs: Link, QR Code, Embed
 - Features:
@@ -222,7 +222,7 @@ const embedCode = `<a href="${referralUrl}" target="_blank" rel="noopener norefe
 ### Integration Points
 
 **1. Onboarding Completion (Launchpad)**
-- File: `apps/web/src/app/components/onboarding/steps/CompletionStep.tsx`
+- File: `apps/web/src/components/onboarding/steps/CompletionStep.tsx`
 - Flow:
   1. Show success message: "Welcome to Tutorwise!"
   2. 1.5s transition delay
@@ -249,7 +249,7 @@ const embedCode = `<a href="${referralUrl}" target="_blank" rel="noopener norefe
 
 ### Commission Delegation Dropdown
 
-**File:** `apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx`
+**File:** `apps/web/src/components/listings/wizard-steps/CreateListings.tsx`
 
 **Implementation:**
 ```typescript
@@ -374,7 +374,7 @@ return response;
 
 ### ReferralCard Component Refactor
 
-**File:** `apps/web/src/app/components/referrals/ReferralCard.tsx`
+**File:** `apps/web/src/components/referrals/ReferralCard.tsx`
 
 **Changes:**
 - Converted from Tailwind utility classes to CSS modules
@@ -395,7 +395,7 @@ return response;
 </span>
 ```
 
-**File:** `apps/web/src/app/components/referrals/ReferralCard.module.css`
+**File:** `apps/web/src/components/referrals/ReferralCard.module.css`
 
 **Design System Variables Applied:**
 ```css

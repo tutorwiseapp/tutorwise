@@ -109,7 +109,7 @@ const response = await fetch('/api/profile', {
 
 ### Current Status: ⚠️ 70% Complete (Advanced but Untested)
 
-**File:** [apps/web/src/app/components/onboarding/OnboardingWizard.tsx](apps/web/src/app/components/onboarding/OnboardingWizard.tsx)
+**File:** [apps/web/src/components/onboarding/OnboardingWizard.tsx](apps/web/src/components/onboarding/OnboardingWizard.tsx)
 
 ### What Works ✅
 - Multi-step wizard architecture (welcome → role selection → role details → completion)
@@ -150,8 +150,8 @@ if (navigator.sendBeacon) {
 
 #### 3. Role-Specific Forms Completion (Priority 2)
 **Files:**
-- [TutorOnboardingWizard.tsx](apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx)
-- [AgentOnboardingWizard.tsx](apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx)
+- [TutorOnboardingWizard.tsx](apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx)
+- [AgentOnboardingWizard.tsx](apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx)
 - Client onboarding (no dedicated wizard found)
 
 **Missing:**

@@ -22,9 +22,9 @@ Enhance user dashboard UI/UX to match admin dashboard quality with visual indica
 - Minimal layout impact: 36px horizontal space (24px icon + 12px gap)
 
 **Files:**
-- [KPIGrid.tsx](../../../apps/web/src/app/components/feature/dashboard/performance/KPIGrid.tsx:142) - Passes `trend` prop
-- [HubKPICard.tsx](../../../apps/web/src/app/components/hub/charts/HubKPICard.tsx:57-63) - Renders trend icons
-- [HubKPICard.module.css](../../../apps/web/src/app/components/hub/charts/HubKPICard.module.css:92-114) - Trend styles
+- [KPIGrid.tsx](../../../apps/web/src/components/feature/dashboard/performance/KPIGrid.tsx:142) - Passes `trend` prop
+- [HubKPICard.tsx](../../../apps/web/src/components/hub/charts/HubKPICard.tsx:57-63) - Renders trend icons
+- [HubKPICard.module.css](../../../apps/web/src/components/hub/charts/HubKPICard.module.css:92-114) - Trend styles
 
 **Example:**
 ```tsx

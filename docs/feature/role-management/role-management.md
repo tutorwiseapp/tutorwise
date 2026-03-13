@@ -28,7 +28,7 @@ interface UserProfileContextType {
 ```
 
 ### 3. Navigation Integration
-**Location**: `apps/web/src/app/components/layout/NavMenu.tsx`
+**Location**: `apps/web/src/components/layout/NavMenu.tsx`
 **Purpose**: Role switching UI in main navigation
 
 Key Features:
@@ -38,7 +38,7 @@ Key Features:
 - Conditional rendering based on user's available roles
 
 ### 4. Role Switcher Component
-**Location**: `apps/web/src/app/components/layout/RoleSwitcher.tsx`
+**Location**: `apps/web/src/components/layout/RoleSwitcher.tsx`
 **Purpose**: Standalone role switching component
 
 ## Role Management Flow

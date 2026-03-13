@@ -35,14 +35,14 @@ This creates confusion and inconsistency. We should use `full_name` everywhere.
 6. `apps/web/src/types/index.ts` - App-specific types
 
 **React Components (2 files):**
-7. `apps/web/src/app/components/listings/wizard-steps/Step1BasicInfo.tsx`
-8. `apps/web/src/app/components/listings/CreateListingWizard.tsx`
+7. `apps/web/src/components/listings/wizard-steps/Step1BasicInfo.tsx`
+8. `apps/web/src/components/listings/CreateListingWizard.tsx`
 
 **API & Services (1 file):**
 9. `apps/web/src/lib/api/listings.ts`
 
 **Display Components (1 file):**
-10. `apps/web/src/app/components/marketplace/TutorCard.tsx`
+10. `apps/web/src/components/marketplace/TutorCard.tsx`
 
 ## Migration Strategy
 

@@ -241,7 +241,7 @@ export async function PATCH(
 
 ## 🎨 **Step 4: Create Featured Section Component**
 
-**File:** `apps/web/src/app/components/marketplace/FeaturedAITutorsSection.tsx`
+**File:** `apps/web/src/components/marketplace/FeaturedAITutorsSection.tsx`
 
 ```typescript
 /**
@@ -256,7 +256,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import { Bot, Star } from 'lucide-react';
 import styles from './FeaturedAITutorsSection.module.css';
 
@@ -377,7 +377,7 @@ export default function FeaturedAITutorsSection() {
 }
 ```
 
-**File:** `apps/web/src/app/components/marketplace/FeaturedAITutorsSection.module.css`
+**File:** `apps/web/src/components/marketplace/FeaturedAITutorsSection.module.css`
 
 ```css
 .featuredSection {
@@ -567,7 +567,7 @@ export default function FeaturedAITutorsSection() {
 
 ```typescript
 // Add import
-import FeaturedAITutorsSection from '@/app/components/marketplace/FeaturedAITutorsSection';
+import FeaturedAITutorsSection from '@/components/marketplace/FeaturedAITutorsSection';
 
 // Add section (after hero, before other sections)
 export default function HomePage() {

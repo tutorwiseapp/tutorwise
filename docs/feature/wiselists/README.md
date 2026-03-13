@@ -210,7 +210,7 @@
 
 **Discovered via code analysis** (not documented in old status file):
 
-**Components** (10 files in `apps/web/src/app/components/feature/wiselists/`):
+**Components** (10 files in `apps/web/src/components/feature/wiselists/`):
 
 **Core Components**:
 - `WiselistCard.tsx` - Display wiselist preview card
@@ -397,7 +397,7 @@
 - `apps/web/src/app/api/wiselists/**` (6 route files)
 
 ### Components
-- `apps/web/src/app/components/feature/wiselists/**` (10 components)
+- `apps/web/src/components/feature/wiselists/**` (10 components)
 
 ### Pages
 - `apps/web/src/app/(authenticated)/wiselists/page.tsx` (Hub)

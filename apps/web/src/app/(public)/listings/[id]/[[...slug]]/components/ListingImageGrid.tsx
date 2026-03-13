@@ -7,8 +7,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Modal from '@/app/components/ui/feedback/Modal';
-import Button from '@/app/components/ui/actions/Button';
+import Modal from '@/components/ui/feedback/Modal';
+import Button from '@/components/ui/actions/Button';
 import styles from './ListingImageGrid.module.css';
 
 interface ListingImageGridProps {

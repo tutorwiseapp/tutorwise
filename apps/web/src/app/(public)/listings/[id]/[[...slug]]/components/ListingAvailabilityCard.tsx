@@ -6,7 +6,7 @@
 'use client';
 
 import { Check, X, Lightbulb } from 'lucide-react';
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './ListingAvailabilityCard.module.css';
 
 interface AvailabilityPeriod {

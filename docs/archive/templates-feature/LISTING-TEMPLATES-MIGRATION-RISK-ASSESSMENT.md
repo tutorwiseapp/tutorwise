@@ -313,9 +313,9 @@ If your production database is already migrated correctly:
    - [apps/web/src/types/index.ts](apps/web/src/types/index.ts) uses `full_name`
 
 2. **Components Updated:**
-   - [Step1BasicInfo.tsx](apps/web/src/app/components/listings/wizard-steps/Step1BasicInfo.tsx) uses `formData.full_name`
-   - [CreateListingWizard.tsx](apps/web/src/app/components/listings/CreateListingWizard.tsx) uses `full_name`
-   - [TutorCard.tsx](apps/web/src/app/components/marketplace/TutorCard.tsx) uses `full_name`
+   - [Step1BasicInfo.tsx](apps/web/src/components/listings/wizard-steps/Step1BasicInfo.tsx) uses `formData.full_name`
+   - [CreateListingWizard.tsx](apps/web/src/components/listings/CreateListingWizard.tsx) uses `full_name`
+   - [TutorCard.tsx](apps/web/src/components/marketplace/TutorCard.tsx) uses `full_name`
 
 3. **API Updated:**
    - [listings.ts](apps/web/src/lib/api/listings.ts) passes `full_name`

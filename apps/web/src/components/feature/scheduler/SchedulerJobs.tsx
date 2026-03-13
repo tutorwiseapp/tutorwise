@@ -9,12 +9,12 @@ import React, { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Clock } from 'lucide-react';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column } from '@/app/components/hub/data';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
-import type { MenuAction } from '@/app/components/ui/actions/VerticalDotsMenu';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
-import type { StatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import type { MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import type { StatusVariant } from '@/components/admin/badges/StatusBadge';
 import styles from './SchedulerJobs.module.css';
 
 interface JobItem {

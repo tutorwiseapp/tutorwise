@@ -20,7 +20,7 @@ Successfully optimized Dashboard and Settings pages to achieve 100% compliance w
 ## Files Modified
 
 ### 1. Container Component
-**File:** [/apps/web/src/app/components/layout/Container.module.css](apps/web/src/app/components/layout/Container.module.css)
+**File:** [/apps/web/src/components/layout/Container.module.css](apps/web/src/components/layout/Container.module.css)
 
 **Changes:**
 - ❌ **Before:** Desktop-first with `max-width` media queries
@@ -54,7 +54,7 @@ Successfully optimized Dashboard and Settings pages to achieve 100% compliance w
 ---
 
 ### 2. PageHeader Component
-**File:** [/apps/web/src/app/components/ui/PageHeader.module.css](apps/web/src/app/components/ui/PageHeader.module.css)
+**File:** [/apps/web/src/components/ui/PageHeader.module.css](apps/web/src/components/ui/PageHeader.module.css)
 
 **Changes:**
 - Added responsive typography scaling

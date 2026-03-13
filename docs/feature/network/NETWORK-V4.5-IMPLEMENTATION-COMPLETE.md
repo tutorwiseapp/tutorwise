@@ -183,7 +183,7 @@ export function rateLimitError(result: RateLimitResult)
 
 #### 4.1 ConnectionCard Component
 
-**File:** `apps/web/src/app/components/network/ConnectionCard.tsx`
+**File:** `apps/web/src/components/network/ConnectionCard.tsx`
 
 **Props:**
 ```typescript
@@ -216,7 +216,7 @@ interface ConnectionCardProps {
 
 #### 4.2 ConnectionRequestModal Component
 
-**File:** `apps/web/src/app/components/network/ConnectionRequestModal.tsx`
+**File:** `apps/web/src/components/network/ConnectionRequestModal.tsx`
 
 **Features:**
 - ✅ Two-tab interface (Search Users | Invite by Email)

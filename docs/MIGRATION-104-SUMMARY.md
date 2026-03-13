@@ -92,9 +92,9 @@ After running the migration:
 ### Modified Files (5)
 1. `apps/web/src/types/index.ts` - Added snapshot fields to Booking interface
 2. `apps/web/src/lib/api/bookings.ts` - Updated createBooking() and Booking interface
-3. `apps/web/src/app/components/feature/bookings/BookingCard.tsx` - Uses booking.subjects[0]
-4. `apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx` - Shows booking subject
-5. `apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx` - Shows all snapshot fields
+3. `apps/web/src/components/feature/bookings/BookingCard.tsx` - Uses booking.subjects[0]
+4. `apps/web/src/components/feature/reviews/PendingReviewCard.tsx` - Shows booking subject
+5. `apps/web/src/components/feature/bookings/BookingDetailModal.tsx` - Shows all snapshot fields
 
 ## Benefits
 

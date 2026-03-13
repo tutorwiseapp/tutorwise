@@ -222,8 +222,8 @@ JIRA_REQUEST_TYPE_ID=2                    # "Ask a question" request type
 
 | File | Purpose |
 |------|---------|
-| [SnapshotModal.tsx](apps/web/src/app/components/help-centre/modals/SnapshotModal.tsx) | User-facing modal component |
-| [QuickActionsWidget.tsx](apps/web/src/app/components/help-centre/widgets/QuickActionsWidget.tsx) | "Report a Problem" button |
+| [SnapshotModal.tsx](apps/web/src/components/help-centre/modals/SnapshotModal.tsx) | User-facing modal component |
+| [QuickActionsWidget.tsx](apps/web/src/components/help-centre/widgets/QuickActionsWidget.tsx) | "Report a Problem" button |
 | [snapshot/route.ts](apps/web/src/app/api/help-centre/support/snapshot/route.ts) | API endpoint for submission |
 | [jira-service-desk-sync.ts](apps/web/src/lib/integrations/jira-service-desk-sync.ts) | Service Desk integration |
 | [094_create_help_support_snapshots.sql](tools/database/migrations/094_create_help_support_snapshots.sql) | Database schema |

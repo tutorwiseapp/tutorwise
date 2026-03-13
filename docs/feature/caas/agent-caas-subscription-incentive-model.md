@@ -1339,7 +1339,7 @@ export const CaaSVersions = {
 ### Agent Dashboard Score Display
 
 ```tsx
-// File: apps/web/src/app/components/dashboard/AgentCaaSScoreCard.tsx
+// File: apps/web/src/components/dashboard/AgentCaaSScoreCard.tsx
 
 interface AgentCaaSBreakdown {
   team_quality_development: number;

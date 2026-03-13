@@ -134,7 +134,7 @@ tutorName="John Doe" | isWaitingForProfile=false
 To compare Option 1 (main) vs Option 2 (feature):
 ```bash
 # View Option 1 (current production)
-git diff main feature/option2-context-aware-step1 -- apps/web/src/app/components/listings/wizard-steps/Step1BasicInfo.tsx
+git diff main feature/option2-context-aware-step1 -- apps/web/src/components/listings/wizard-steps/Step1BasicInfo.tsx
 
 # Switch between branches
 git checkout main                                  # Option 1

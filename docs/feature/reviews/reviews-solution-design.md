@@ -1260,7 +1260,7 @@ Connect review feedback to tutor certification programs, continuing education re
 
 ### Code Locations
 - API Routes: `/apps/web/src/app/api/reviews/`
-- React Components: `/apps/web/src/app/components/feature/reviews/`
+- React Components: `/apps/web/src/components/feature/reviews/`
 - Type Definitions: `/apps/web/src/types/reviews.ts`
 - Notification System: `/apps/web/src/lib/review-notifications.ts`
 - Reviews Hub Page: `/apps/web/src/app/(authenticated)/reviews/page.tsx`

@@ -7,11 +7,11 @@
 
 import React, { useState } from 'react';
 import { Rocket, BarChart2, Search, CheckCircle2, Bot, Tag, FileText, Map, ArrowRight, ExternalLink } from 'lucide-react';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget } from '@/app/components/admin/widgets';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget } from '@/components/admin/widgets';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
 
 // Force dynamic rendering

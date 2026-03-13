@@ -11,12 +11,12 @@ It combines the **Superior Logic** of `PersonalInfoForm.tsx` (Auto-save) with th
 
 # Reference Sources
 
-1. **Logic Source:** `apps/web/src/app/components/profile/PersonalInfoForm.tsx`
+1. **Logic Source:** `apps/web/src/components/profile/PersonalInfoForm.tsx`
   - *Key Feature:* `editingField` state, `handleBlur` auto-save, individual field management.
-2. **Visual Source:** `apps/web/src/app/components/ui/hub-form/HubForm.tsx`
+2. **Visual Source:** `apps/web/src/components/ui/hub-form/HubForm.tsx`
   - *Key Feature:* 2-column grid, 24px spacing, standardized labels.
 
-# Phase 1: Finalize Core UI (`apps/web/src/app/components/ui/hub-form/`)
+# Phase 1: Finalize Core UI (`apps/web/src/components/ui/hub-form/`)
 
 1. `HubForm.module.css` Updates (The "Clean" Look):
   1. `.root`: REMOVE `box-shadow`, `border`, `background-color`, `border-radius`. It should be a transparent container.
@@ -31,7 +31,7 @@ It combines the **Superior Logic** of `PersonalInfoForm.tsx` (Auto-save) with th
 
 # Phase 2: Create Organisation Form (The Hybrid Logic Transplant)
 
-Create `apps/web/src/app/components/organisation/tabs/OrganisationInfoForm.tsx`.
+Create `apps/web/src/components/organisation/tabs/OrganisationInfoForm.tsx`.
 
 - **Task:** Clone the logic from `PersonalInfoForm` but map it to Organisation data.
 - **Requirements:**
@@ -44,7 +44,7 @@ Create `apps/web/src/app/components/organisation/tabs/OrganisationInfoForm.tsx`.
 
 # Phase 3: Refactor Profile Form (Visual Upgrade)
 
-Update `apps/web/src/app/components/profile/PersonalInfoForm.tsx`.
+Update `apps/web/src/components/profile/PersonalInfoForm.tsx`.
 
 - **Task:** Apply the `HubForm` visual wrappers to the existing logic. Wrap the existing profile fields in the new `<HubForm>` components.
 - **Changes:**

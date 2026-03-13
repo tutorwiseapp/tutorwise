@@ -11,7 +11,7 @@ import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import { Providers } from './providers'; // --- THIS IS THE FIX ---
-import Layout from './components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 import "./globals.css";
 
 const poppins = Poppins({

@@ -12,14 +12,14 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
-import { AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import { HubKPIGrid, HubKPICard } from '@/components/hub/charts';
+import { AdminStatsWidget, AdminTipWidget } from '@/components/admin/widgets';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import { FileText, TrendingUp, Users, DollarSign, AlertCircle } from 'lucide-react';
 import styles from './page.module.css';
 

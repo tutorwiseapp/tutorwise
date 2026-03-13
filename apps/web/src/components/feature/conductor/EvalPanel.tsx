@@ -17,7 +17,7 @@ import {
   Play, Plus, Trash2, ChevronDown, ChevronRight,
   CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical,
 } from 'lucide-react';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './EvalPanel.module.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

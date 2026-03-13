@@ -243,15 +243,15 @@ Tutor creates listing → Sets delegate_commission_to_profile_id to Store A → 
 - [MobileBottomCTA.tsx](../../apps/web/src/app/listings/[id]/[[...slug]]/components/MobileBottomCTA.tsx) - Fixed bottom CTA on mobile
 
 **Creation Wizard**:
-- [CreateListingWizard.tsx](../../apps/web/src/app/components/feature/listings/CreateListingWizard.tsx) - Multi-step form orchestrator
-- [AvailabilityFormSection.tsx](../../apps/web/src/app/components/feature/listings/AvailabilityFormSection.tsx) - Recurring and one-time slots
-- [ImageUpload.tsx](../../apps/web/src/app/components/feature/listings/ImageUpload.tsx) - Hero and gallery image uploader
+- [CreateListingWizard.tsx](../../apps/web/src/components/feature/listings/CreateListingWizard.tsx) - Multi-step form orchestrator
+- [AvailabilityFormSection.tsx](../../apps/web/src/components/feature/listings/AvailabilityFormSection.tsx) - Recurring and one-time slots
+- [ImageUpload.tsx](../../apps/web/src/components/feature/listings/ImageUpload.tsx) - Hero and gallery image uploader
 
 **Sidebar Widgets**:
-- [ListingStatsWidget.tsx](../../apps/web/src/app/components/feature/listings/ListingStatsWidget.tsx) - Total listings, views, bookings
-- [ListingHelpWidget.tsx](../../apps/web/src/app/components/feature/listings/ListingHelpWidget.tsx) - Help links
-- [ListingTipWidget.tsx](../../apps/web/src/app/components/feature/listings/ListingTipWidget.tsx) - Best practice tips
-- [ListingVideoWidget.tsx](../../apps/web/src/app/components/feature/listings/ListingVideoWidget.tsx) - Tutorial videos
+- [ListingStatsWidget.tsx](../../apps/web/src/components/feature/listings/ListingStatsWidget.tsx) - Total listings, views, bookings
+- [ListingHelpWidget.tsx](../../apps/web/src/components/feature/listings/ListingHelpWidget.tsx) - Help links
+- [ListingTipWidget.tsx](../../apps/web/src/components/feature/listings/ListingTipWidget.tsx) - Best practice tips
+- [ListingVideoWidget.tsx](../../apps/web/src/components/feature/listings/ListingVideoWidget.tsx) - Tutorial videos
 
 **API Utilities**:
 - [lib/api/listings.ts](../../apps/web/src/lib/api/listings.ts) - getMyListings(), publishListing(), unpublishListing(), deleteListing()

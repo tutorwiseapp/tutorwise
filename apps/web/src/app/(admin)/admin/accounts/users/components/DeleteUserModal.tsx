@@ -15,8 +15,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/components/ui/actions/Button';
 import { AlertTriangle, User as UserIcon, Mail, Calendar, Shield } from 'lucide-react';
 import styles from './DeleteUserModal.module.css';
 

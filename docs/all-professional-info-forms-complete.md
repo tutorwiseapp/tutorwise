@@ -2,13 +2,13 @@
 
 **Date**: 2025-10-27
 **Status**: All Three Role Forms Complete
-**File**: [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+**File**: [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 ---
 
 ## Executive Summary
 
-Successfully implemented complete professional info forms for all three user roles (Client, Agent, Tutor) in the unified [ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx) component. All forms now display complete field sets with data auto-populated from onboarding.
+Successfully implemented complete professional info forms for all three user roles (Client, Agent, Tutor) in the unified [ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx) component. All forms now display complete field sets with data auto-populated from onboarding.
 
 ---
 
@@ -347,7 +347,7 @@ const sessionDurationOptions = [...];
 
 ## Files Modified
 
-### [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+### [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 **Total Lines**: 1088 lines
 **Changes**:
 - Lines 105-165: Client field options constants (~60 lines added)
@@ -435,7 +435,7 @@ const sessionDurationOptions = [...];
 
 ## Conclusion
 
-All three professional info forms (Client, Agent, Tutor) are now fully implemented in [ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx). The implementation follows a consistent architecture with role-based rendering, unified data loading, and appropriate display patterns for each role type.
+All three professional info forms (Client, Agent, Tutor) are now fully implemented in [ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx). The implementation follows a consistent architecture with role-based rendering, unified data loading, and appropriate display patterns for each role type.
 
 **Current Status**:
 - ✅ Client: 10 fields, READ-ONLY display + bio editable

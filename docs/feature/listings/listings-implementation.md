@@ -102,7 +102,7 @@ apps/api/migrations/
 
 ### Component Breakdown
 
-**CreateListingWizard** (apps/web/src/app/components/feature/listings/CreateListingWizard.tsx)
+**CreateListingWizard** (apps/web/src/components/feature/listings/CreateListingWizard.tsx)
 - Multi-step form (5 steps)
 - Progress indicator
 - Draft auto-save

@@ -199,7 +199,7 @@ const enrichedProfile = {
 
 **Purpose**: Show up to 5 recent listings with count badge
 
-**Location**: `apps/web/src/app/components/feature/public-profile/ServicesCard.tsx`
+**Location**: `apps/web/src/components/feature/public-profile/ServicesCard.tsx`
 
 **Logic**:
 ```typescript
@@ -226,7 +226,7 @@ const displayedListings = filteredListings.slice(0, MAX_LISTINGS_SHOWN);
 
 **Purpose**: Log unique profile views for analytics dashboard
 
-**Location**: `apps/web/src/app/components/feature/public-profile/ProfileViewTracker.tsx`
+**Location**: `apps/web/src/components/feature/public-profile/ProfileViewTracker.tsx`
 
 **Logic**:
 ```typescript
@@ -260,10 +260,10 @@ useEffect(() => {
 
 ```typescript
 // 1. Create component
-// apps/web/src/app/components/feature/public-profile/CertificationsCard.tsx
+// apps/web/src/components/feature/public-profile/CertificationsCard.tsx
 'use client';
 
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './CertificationsCard.module.css';
 
 export function CertificationsCard({ profile }: { profile: Profile }) {
@@ -306,7 +306,7 @@ export function CertificationsCard({ profile }: { profile: Profile }) {
 .cardContent { padding: 16px; }
 
 // 3. Add to page.tsx
-import { CertificationsCard } from '@/app/components/feature/public-profile/CertificationsCard';
+import { CertificationsCard } from '@/components/feature/public-profile/CertificationsCard';
 
 <div className={styles.mainColumn}>
   <AboutCard profile={enrichedProfile} />
@@ -349,7 +349,7 @@ const enrichedProfile = {
 **Requirement**: Show 10 listings instead of 5
 
 ```typescript
-// apps/web/src/app/components/feature/public-profile/ServicesCard.tsx
+// apps/web/src/components/feature/public-profile/ServicesCard.tsx
 // Line 36
 const MAX_LISTINGS_SHOWN = 5; // Change to 10
 ```

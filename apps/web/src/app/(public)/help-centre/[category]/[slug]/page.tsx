@@ -13,10 +13,10 @@ import { Metadata } from 'next';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import { getArticleBySlug, getAllArticles } from '@/lib/help-centre/articles';
-import CalloutBox from '@/app/components/help-centre/mdx/CalloutBox';
-import CodeBlock from '@/app/components/help-centre/mdx/CodeBlock';
-import VideoEmbed from '@/app/components/help-centre/mdx/VideoEmbed';
-import Tabs, { Tab } from '@/app/components/help-centre/mdx/Tabs';
+import CalloutBox from '@/components/help-centre/mdx/CalloutBox';
+import CodeBlock from '@/components/help-centre/mdx/CodeBlock';
+import VideoEmbed from '@/components/help-centre/mdx/VideoEmbed';
+import Tabs, { Tab } from '@/components/help-centre/mdx/Tabs';
 import styles from './page.module.css';
 
 interface ArticlePageProps {

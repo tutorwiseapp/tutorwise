@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { HubPageLayout, HubHeader } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader } from '@/components/hub/layout';
 import {
   WorkflowCanvas,
   DiscoveryPanel,
@@ -16,7 +16,7 @@ import { SpacesPanel } from '@/components/feature/conductor/SpacesPanel';
 import { KnowledgePanel } from '@/components/feature/conductor/KnowledgePanel';
 import { MiningPanel } from '@/components/feature/conductor/MiningPanel';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 

@@ -7,12 +7,12 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { format } from 'date-fns';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, PaginationConfig } from '@/app/components/hub/data';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
-import type { MenuAction } from '@/app/components/ui/actions/VerticalDotsMenu';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
-import type { StatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, PaginationConfig } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import type { MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import type { StatusVariant } from '@/components/admin/badges/StatusBadge';
 import type { ScheduledItem } from './SchedulerCalendar';
 import styles from './SchedulerList.module.css';
 

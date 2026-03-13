@@ -1068,7 +1068,7 @@ Use of Funds: £3M-£5M for scale, expansion, enterprise sales
 **Quick Wins (1-2 months) - Add £200k-£300k valuation:**
 
 1. ✅ **Fix Role Guard Bug**
-   - Remove 'client' from listing page guards ([CreateListings.tsx:77](apps/web/src/app/components/listings/wizard-steps/CreateListings.tsx#L77))
+   - Remove 'client' from listing page guards ([CreateListings.tsx:77](apps/web/src/components/listings/wizard-steps/CreateListings.tsx#L77))
    - Impact: Prevents user confusion, improves UX
 
 2. ✅ **Add Draft Save Indicator**

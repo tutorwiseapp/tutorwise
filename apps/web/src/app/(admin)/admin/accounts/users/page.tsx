@@ -9,14 +9,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 import { Users, UserCog, Shield } from 'lucide-react';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import UsersTable from './components/UsersTable';
 import styles from './page.module.css';
 

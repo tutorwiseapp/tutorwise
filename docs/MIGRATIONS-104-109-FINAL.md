@@ -407,10 +407,10 @@ ORDER BY total_revenue DESC;
 17. ✅ `apps/web/src/app/api/webhooks/stripe/route.ts` - Webhook handlers copy context
 
 ### UI Components (4 files)
-18. `apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx`
-19. `apps/web/src/app/components/feature/wiselists/SavedItemCard.tsx`
-20. `apps/web/src/app/components/feature/reviews/ProfileReviewCard.tsx`
-21. `apps/web/src/app/components/feature/financials/TransactionDetailModal.tsx`
+18. `apps/web/src/components/feature/bookings/BookingDetailModal.tsx`
+19. `apps/web/src/components/feature/wiselists/SavedItemCard.tsx`
+20. `apps/web/src/components/feature/reviews/ProfileReviewCard.tsx`
+21. `apps/web/src/components/feature/financials/TransactionDetailModal.tsx`
 
 **Total**: 21 files modified/created
 

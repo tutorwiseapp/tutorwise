@@ -10,8 +10,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
-import HubKanbanBoard from '@/app/components/hub/kanban/HubKanbanBoard';
-import type { KanbanColumn } from '@/app/components/hub/kanban/HubKanbanBoard';
+import HubKanbanBoard from '@/components/hub/kanban/HubKanbanBoard';
+import type { KanbanColumn } from '@/components/hub/kanban/HubKanbanBoard';
 import { Inbox, ListTodo, PlayCircle, CheckCircle, CheckCircle2 } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
 import toast from 'react-hot-toast';

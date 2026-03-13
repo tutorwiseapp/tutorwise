@@ -83,10 +83,10 @@ psql your_database_url < tools/database/migrations/175_create_blog_seo_analytics
 
 4. **Add GoogleAnalytics Component to Layout**
 
-   Edit `/Users/michaelquan/projects/tutorwise/apps/web/src/app/components/layout/Layout.tsx`:
+   Edit `/Users/michaelquan/projects/tutorwise/apps/web/src/components/layout/Layout.tsx`:
 
    ```typescript
-   import GoogleAnalytics from '@/app/components/analytics/GoogleAnalytics';
+   import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
    export default function Layout({ children }: LayoutProps) {
      return (
@@ -105,9 +105,9 @@ psql your_database_url < tools/database/migrations/175_create_blog_seo_analytics
    - You should see your visit tracked
 
 **Files involved:**
-- `apps/web/src/app/components/analytics/GoogleAnalytics.tsx` (already created)
+- `apps/web/src/components/analytics/GoogleAnalytics.tsx` (already created)
 - `apps/web/.env.local` (you need to edit)
-- `apps/web/src/app/components/layout/Layout.tsx` (you need to edit)
+- `apps/web/src/components/layout/Layout.tsx` (you need to edit)
 
 ---
 
@@ -225,7 +225,7 @@ psql your_database_url < tools/database/migrations/175_create_blog_seo_analytics
 **Priority:** MEDIUM
 **Time:** 5 minutes
 
-Edit `/Users/michaelquan/projects/tutorwise/apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx`:
+Edit `/Users/michaelquan/projects/tutorwise/apps/web/src/components/admin/sidebar/AdminSidebar.tsx`:
 
 Add to the blog section:
 

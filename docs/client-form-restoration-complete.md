@@ -8,7 +8,7 @@
 
 ## Summary
 
-Successfully restored the client professional info form in [ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx) which had been reduced to a stub showing "Additional client-specific fields coming soon...". The form now displays all 10 client professional fields with data auto-populated from onboarding.
+Successfully restored the client professional info form in [ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx) which had been reduced to a stub showing "Additional client-specific fields coming soon...". The form now displays all 10 client professional fields with data auto-populated from onboarding.
 
 ---
 
@@ -217,7 +217,7 @@ User sees complete learning profile
 
 ## Files Modified
 
-### [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+### [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 **Lines Modified**:
 - 105-165: Added client field options constants

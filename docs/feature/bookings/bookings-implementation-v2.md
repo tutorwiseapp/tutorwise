@@ -1270,7 +1270,7 @@ retryFailedWebhooks();
 **Scenario**: Display booking history without needing listing JOIN.
 
 ```typescript
-// Component: apps/web/src/app/components/feature/bookings/BookingHistory.tsx
+// Component: apps/web/src/components/feature/bookings/BookingHistory.tsx
 export function BookingHistory() {
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['bookings', 'history'],

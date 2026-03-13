@@ -80,7 +80,7 @@ interface RolePreferences {
 
 #### 1.2 Role Switching Interface Component
 
-**File:** `src/app/components/layout/RoleSwitcher.tsx`
+**File:** `src/components/layout/RoleSwitcher.tsx`
 
 **Design Specifications:**
 - Header-mounted dropdown component

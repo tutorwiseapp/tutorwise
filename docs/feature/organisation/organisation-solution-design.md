@@ -884,7 +884,7 @@ COMMENT ON FUNCTION get_team_performance IS 'v7.0: Performance Analytics - Team 
 
 ### 3. Component Architecture
 
-**MemberCard** (`apps/web/src/app/components/feature/organisation/MemberCard.tsx`):
+**MemberCard** (`apps/web/src/components/feature/organisation/MemberCard.tsx`):
 ```typescript
 interface MemberCardProps {
   member: OrganisationMember;
@@ -935,7 +935,7 @@ interface StatsWidgetProps {
 
 ### 4. Subscription Components (v7.0)
 
-**SubscriptionRequired** (`apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx`):
+**SubscriptionRequired** (`apps/web/src/components/feature/organisation/SubscriptionRequired.tsx`):
 
 ```typescript
 interface SubscriptionRequiredProps {
@@ -1999,12 +1999,12 @@ SELECT * FROM get_team_performance(:org_id);
   - Added subscription check blocking non-Premium users (lines 444-469)
 
 **UI Components**:
-- `apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx` (163 lines)
+- `apps/web/src/components/feature/organisation/SubscriptionRequired.tsx` (163 lines)
   - Trial signup screen with 6 Premium features listed
   - £50/month pricing display
   - Handles different states: no subscription, canceled, past_due, unpaid
   - "Start Free Trial" CTA button
-- `apps/web/src/app/components/feature/organisation/SubscriptionRequired.module.css` (113 lines)
+- `apps/web/src/components/feature/organisation/SubscriptionRequired.module.css` (113 lines)
 
 **API Routes**:
 - `apps/web/src/app/api/stripe/checkout/trial/route.ts` (95 lines)

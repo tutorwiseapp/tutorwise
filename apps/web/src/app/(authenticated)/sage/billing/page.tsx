@@ -9,16 +9,16 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Button from '@/components/ui/actions/Button';
 import { useSageBilling } from '@/app/hooks/useSageBilling';
 import SageSubscriptionWidget from '@/components/feature/sage/widgets/SageSubscriptionWidget';
 import SageHelpWidget from '@/components/feature/sage/widgets/SageHelpWidget';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
 import styles from './page.module.css';
 
 function CardBrandBadge({ brand }: { brand: string }) {

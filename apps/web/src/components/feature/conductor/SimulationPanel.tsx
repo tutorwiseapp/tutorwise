@@ -7,7 +7,7 @@ import {
   History, BookOpen, Save, Trash2, RotateCcw,
   CheckCircle2, XCircle, Loader2, ArrowRight,
 } from 'lucide-react';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './SimulationPanel.module.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

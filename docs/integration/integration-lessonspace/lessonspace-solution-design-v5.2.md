@@ -152,7 +152,7 @@ The integration surfaces primarily on the **Booking Card** and **Booking Details
 
 #### 5.1 The Booking Card Update
 
-- **File:** `apps/web/src/app/components/bookings/BookingCard.tsx`
+- **File:** `apps/web/src/components/bookings/BookingCard.tsx`
 - **State:**
   - **Upcoming (> 15 mins):** Show "Scheduled for \[Time\]". Button disabled.
   - **Ready (Start Time +/- 15 mins):** Show **primary "Join Lesson" button**.

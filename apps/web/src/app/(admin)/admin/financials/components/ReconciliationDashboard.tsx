@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, RefreshCw, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './ReconciliationDashboard.module.css';
 

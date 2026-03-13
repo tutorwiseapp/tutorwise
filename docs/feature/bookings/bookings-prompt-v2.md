@@ -178,7 +178,7 @@ CaaS integration happens via database triggers that insert tutor_id into caas_re
 
 **Main Hub Page**: [apps/web/src/app/(authenticated)/bookings/page.tsx](../../../apps/web/src/app/(authenticated)/bookings/page.tsx) - Gold Standard Hub with 3x3 widget grid using HubPageLayout component
 
-**Core Components**: [apps/web/src/app/components/feature/bookings/](../../../apps/web/src/app/components/feature/bookings/) - Contains 9 components including BookingCard, BookingDetailModal, BookingStatsWidget, UpcomingSessionWidget, help/tip/video widgets, skeleton, and error states
+**Core Components**: [apps/web/src/components/feature/bookings/](../../../apps/web/src/components/feature/bookings/) - Contains 9 components including BookingCard, BookingDetailModal, BookingStatsWidget, UpcomingSessionWidget, help/tip/video widgets, skeleton, and error states
 
 **API Routes**:
 - [apps/web/src/app/api/bookings/route.ts](../../../apps/web/src/app/api/bookings/route.ts) - GET (fetch bookings) and POST (create booking) endpoints with role-based filtering

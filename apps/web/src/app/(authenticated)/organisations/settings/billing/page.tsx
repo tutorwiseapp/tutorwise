@@ -19,12 +19,12 @@ import {
   createOrganisationCardCheckoutSession,
   type OrganisationCard,
 } from '@/lib/api/organisation';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Button from '@/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
-import OrganisationStatsWidget from '@/app/components/feature/organisations/sidebar/OrganisationStatsWidget';
-import OrganisationHelpWidget from '@/app/components/feature/organisations/sidebar/OrganisationHelpWidget';
+import OrganisationStatsWidget from '@/components/feature/organisations/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/components/feature/organisations/sidebar/OrganisationHelpWidget';
 import { getTrialStatus } from '@/lib/stripe/organisation-trial-status';
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';

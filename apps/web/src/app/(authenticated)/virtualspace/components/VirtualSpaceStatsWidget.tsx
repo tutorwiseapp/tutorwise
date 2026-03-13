@@ -13,7 +13,7 @@
 'use client';
 
 import React from 'react';
-import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+import HubStatsCard, { StatRow } from '@/components/hub/sidebar/cards/HubStatsCard';
 
 interface VirtualSpaceStatsWidgetProps {
   active?: number;

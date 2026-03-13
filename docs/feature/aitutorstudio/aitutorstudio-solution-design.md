@@ -1185,10 +1185,10 @@ POST   /api/webhook/stripe                Stripe webhooks (subscription events)
 ```tsx
 // apps/web/src/app/(authenticated)/studio/page.tsx
 
-import HubDataTable from '@/app/components/hub/data/HubDataTable';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubTrendChart from '@/app/components/hub/charts/HubTrendChart';
-import HubCategoryBreakdownChart from '@/app/components/hub/charts/HubCategoryBreakdownChart';
+import HubDataTable from '@/components/hub/data/HubDataTable';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubTrendChart from '@/components/hub/charts/HubTrendChart';
+import HubCategoryBreakdownChart from '@/components/hub/charts/HubCategoryBreakdownChart';
 
 export default function StudioPage() {
   return (
@@ -1435,9 +1435,9 @@ export default function StudioPage() {
 **IMPORTANT:** AI Tutor Studio MUST follow Tutorwise's Hub Architecture patterns and UI standards.
 
 **Reference Documents:**
-- **Hub UI Standards**: `apps/web/src/app/components/hub/HUB-UI-STANDARDS.md`
+- **Hub UI Standards**: `apps/web/src/components/hub/HUB-UI-STANDARDS.md`
 - **Hub Layout**: `apps/web/src/app/(authenticated)/layout.tsx` (3-column layout)
-- **Hub Components**: `apps/web/src/app/components/hub/`
+- **Hub Components**: `apps/web/src/components/hub/`
 
 **Hub Architecture Overview:**
 

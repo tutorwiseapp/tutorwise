@@ -9,7 +9,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import HubStatsCard, { type StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+import HubStatsCard, { type StatRow } from '@/components/hub/sidebar/cards/HubStatsCard';
 import type { GrowthProSubscription } from '@/lib/stripe/growth-pro-subscription';
 
 interface GrowthStatsWidgetProps {

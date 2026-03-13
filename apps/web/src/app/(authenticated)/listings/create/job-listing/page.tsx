@@ -12,15 +12,15 @@ import { useRoleGuard } from '@/app/hooks/useRoleGuard';
 import { createListing } from '@/lib/api/listings';
 import type { CreateListingInput } from '@tutorwise/shared-types';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import ListingsHeader from '@/app/components/feature/listings/create/widgets/ListingsHeader';
-import ListingsStatsWidget from '@/app/components/feature/listings/create/widgets/ListingsStatsWidget';
-import ListingsHelpWidget from '@/app/components/feature/listings/create/widgets/ListingsHelpWidget';
-import ListingsTipWidget from '@/app/components/feature/listings/create/widgets/ListingsTipWidget';
-import ListingsVideoWidget from '@/app/components/feature/listings/create/widgets/ListingsVideoWidget';
-import JobListingForm from '@/app/components/feature/listings/create/agent/JobListingForm';
+import { HubPageLayout, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import ListingsHeader from '@/components/feature/listings/create/widgets/ListingsHeader';
+import ListingsStatsWidget from '@/components/feature/listings/create/widgets/ListingsStatsWidget';
+import ListingsHelpWidget from '@/components/feature/listings/create/widgets/ListingsHelpWidget';
+import ListingsTipWidget from '@/components/feature/listings/create/widgets/ListingsTipWidget';
+import ListingsVideoWidget from '@/components/feature/listings/create/widgets/ListingsVideoWidget';
+import JobListingForm from '@/components/feature/listings/create/agent/JobListingForm';
 import styles from './page.module.css';
 
 export default function CreateJobListingPage() {

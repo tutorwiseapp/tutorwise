@@ -40,10 +40,10 @@ Successfully implemented all 4 student profile pages with full functionality, st
 
 ### 4. ✅ Student-Specific Widgets
 **Files Created**:
-- `apps/web/src/app/components/feature/students/StudentProfileCard.tsx`
-- `apps/web/src/app/components/feature/students/StudentProfileCard.module.css`
-- `apps/web/src/app/components/feature/students/StudentStatsWidget.tsx`
-- `apps/web/src/app/components/feature/students/StudentStatsWidget.module.css`
+- `apps/web/src/components/feature/students/StudentProfileCard.tsx`
+- `apps/web/src/components/feature/students/StudentProfileCard.module.css`
+- `apps/web/src/components/feature/students/StudentStatsWidget.tsx`
+- `apps/web/src/components/feature/students/StudentStatsWidget.module.css`
 
 **StudentProfileCard**:
 - Shows student avatar (or initials placeholder)

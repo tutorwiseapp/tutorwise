@@ -18,10 +18,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import { Linkedin, Facebook, Instagram, Globe } from 'lucide-react';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import DatePicker from '@/app/components/ui/forms/DatePicker';
-import TimePicker from '@/app/components/ui/forms/TimePicker';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import DatePicker from '@/components/ui/forms/DatePicker';
+import TimePicker from '@/components/ui/forms/TimePicker';
 import PlatformPreview from './PlatformPreview';
 import SEOScore from './SEOScore';
 import ContentTemplates from './ContentTemplates';

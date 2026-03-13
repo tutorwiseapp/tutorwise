@@ -13,15 +13,15 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useRoleGuard } from '@/app/hooks/useRoleGuard';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AIAgentBuilderForm from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
-import type { AIAgentFormData } from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
-import AIAgentStatsWidget from '@/app/components/feature/ai-agents/AIAgentStatsWidget';
-import AIAgentLimitsWidget from '@/app/components/feature/ai-agents/AIAgentLimitsWidget';
-import AIAgentHelpWidget from '@/app/components/feature/ai-agents/AIAgentHelpWidget';
-import AIAgentTipsWidget from '@/app/components/feature/ai-agents/AIAgentTipsWidget';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import AIAgentBuilderForm from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import type { AIAgentFormData } from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import AIAgentStatsWidget from '@/components/feature/ai-agents/AIAgentStatsWidget';
+import AIAgentLimitsWidget from '@/components/feature/ai-agents/AIAgentLimitsWidget';
+import AIAgentHelpWidget from '@/components/feature/ai-agents/AIAgentHelpWidget';
+import AIAgentTipsWidget from '@/components/feature/ai-agents/AIAgentTipsWidget';
 import toast from 'react-hot-toast';
 
 interface AITutor {

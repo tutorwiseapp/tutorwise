@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Save, RefreshCw, MousePointerClick } from 'lucide-react';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import { useBuildStore } from './build-store';
 import styles from './BuildPropertiesDrawer.module.css';
 

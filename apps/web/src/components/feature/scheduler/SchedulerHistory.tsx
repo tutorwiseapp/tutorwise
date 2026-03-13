@@ -9,8 +9,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/components/hub/data';
 import styles from './SchedulerHistory.module.css';
 
 interface RunRecord {

@@ -10,14 +10,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column } from '@/components/hub/data';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { formatDate as formatDateUtil, calculateDaysRemaining } from '@/lib/utils/format-date';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './SageProSubscriptionsTable.module.css';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 
 // Sage Pro Subscription interface

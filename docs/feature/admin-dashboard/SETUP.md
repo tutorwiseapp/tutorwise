@@ -183,8 +183,8 @@ export async function POST(request: NextRequest) {
 ### Permission-Gated UI Components
 
 ```typescript
-import PermissionGate from '@/app/components/admin/PermissionGate';
-import RoleGate from '@/app/components/admin/RoleGate';
+import PermissionGate from '@/components/admin/PermissionGate';
+import RoleGate from '@/components/admin/RoleGate';
 
 // Show UI only if user has permission
 <PermissionGate resource="seo" action="create">

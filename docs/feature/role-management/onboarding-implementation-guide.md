@@ -17,7 +17,7 @@ This guide provides detailed technical implementation instructions for the user 
 
 ### Existing System Integration Points
 - **UserProfileContext**: `/apps/web/src/app/contexts/UserProfileContext.tsx`
-- **RoleSwitcher**: `/apps/web/src/app/components/layout/RoleSwitcher.tsx`
+- **RoleSwitcher**: `/apps/web/src/components/layout/RoleSwitcher.tsx`
 - **Database Schema**: Supabase with existing `profiles` table
 - **Type Definitions**: `/apps/web/src/types/index.ts`
 
@@ -391,7 +391,7 @@ useOnboardingStore.subscribe(
 #### 1.4 Main Onboarding Flow Component
 
 ```typescript
-// apps/web/src/app/components/onboarding/OnboardingFlow.tsx
+// apps/web/src/components/onboarding/OnboardingFlow.tsx
 'use client';
 
 import React, { useEffect } from 'react';
@@ -612,7 +612,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 #### 2.1 Subject Selection Component
 
 ```typescript
-// apps/web/src/app/components/onboarding/steps/SubjectSelection.tsx
+// apps/web/src/components/onboarding/steps/SubjectSelection.tsx
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -818,7 +818,7 @@ export const SubjectSelection: React.FC<SubjectSelectionProps> = ({
 #### 2.2 Shared Components
 
 ```typescript
-// apps/web/src/app/components/onboarding/shared/ProgressIndicator.tsx
+// apps/web/src/components/onboarding/shared/ProgressIndicator.tsx
 'use client';
 
 import React from 'react';
@@ -859,7 +859,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 ```
 
 ```typescript
-// apps/web/src/app/components/onboarding/shared/StepNavigation.tsx
+// apps/web/src/components/onboarding/shared/StepNavigation.tsx
 'use client';
 
 import React from 'react';
@@ -1319,7 +1319,7 @@ describe('OnboardingStore', () => {
 ```typescript
 // tests/onboarding/OnboardingFlow.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { OnboardingFlow } from '@/app/components/onboarding/OnboardingFlow';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
 describe('OnboardingFlow', () => {
   it('should complete subject selection step', async () => {

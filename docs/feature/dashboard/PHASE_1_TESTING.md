@@ -279,7 +279,7 @@ Comprehensive testing checklist to verify all Phase 1 changes are working correc
 
 ### File Structure Tests
 
-- [ ] Directory `apps/web/src/app/components/feature/dashboard/widgets/` exists
+- [ ] Directory `apps/web/src/components/feature/dashboard/widgets/` exists
 - [ ] `UserStatsWidget.tsx` exists
 - [ ] `UserTipWidget.tsx` exists
 - [ ] `UserHelpWidget.tsx` exists
@@ -295,7 +295,7 @@ Comprehensive testing checklist to verify all Phase 1 changes are working correc
     UserStatsWidget,
     UserTipWidget,
     UserHelpWidget
-  } from '@/app/components/feature/dashboard/widgets';
+  } from '@/components/feature/dashboard/widgets';
   ```
 
 - [ ] `UserStatsWidget` wraps `HubStatsCard`

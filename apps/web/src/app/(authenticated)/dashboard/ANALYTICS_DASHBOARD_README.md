@@ -189,7 +189,7 @@ const [activeTab, setActiveTab] = useState<'overview' | 'analytics'>('overview')
 
 ### ProfileViewsTrendChart
 
-**File**: `apps/web/src/app/components/feature/dashboard/widgets/ProfileViewsTrendChart.tsx`
+**File**: `apps/web/src/components/feature/dashboard/widgets/ProfileViewsTrendChart.tsx`
 
 **Props**:
 ```typescript
@@ -207,7 +207,7 @@ interface ProfileViewsTrendChartProps {
 
 ### ReferrerSourcesChart
 
-**File**: `apps/web/src/app/components/feature/dashboard/widgets/ReferrerSourcesChart.tsx`
+**File**: `apps/web/src/components/feature/dashboard/widgets/ReferrerSourcesChart.tsx`
 
 **Props**:
 ```typescript
@@ -381,10 +381,10 @@ Run `097_analytics_helper_functions.sql` in Supabase SQL Editor to install the o
 ## Related Files
 
 **Components**:
-- `apps/web/src/app/components/feature/dashboard/widgets/ProfileViewsTrendChart.tsx`
-- `apps/web/src/app/components/feature/dashboard/widgets/ProfileViewsTrendChart.module.css`
-- `apps/web/src/app/components/feature/dashboard/widgets/ReferrerSourcesChart.tsx`
-- `apps/web/src/app/components/feature/dashboard/widgets/ReferrerSourcesChart.module.css`
+- `apps/web/src/components/feature/dashboard/widgets/ProfileViewsTrendChart.tsx`
+- `apps/web/src/components/feature/dashboard/widgets/ProfileViewsTrendChart.module.css`
+- `apps/web/src/components/feature/dashboard/widgets/ReferrerSourcesChart.tsx`
+- `apps/web/src/components/feature/dashboard/widgets/ReferrerSourcesChart.module.css`
 
 **API Routes**:
 - `apps/web/src/app/api/dashboard/profile-views-trend/route.ts`

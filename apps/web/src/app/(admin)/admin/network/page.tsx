@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
 import { Network, Building2, GitBranch, TrendingUp } from 'lucide-react';
 import styles from './page.module.css';
 

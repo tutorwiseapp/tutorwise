@@ -11,7 +11,7 @@ Fixed all critical bugs, improved data architecture, added proper empty states, 
 
 ### 1.1 Fixed `user.id` vs `profile?.id` Bug
 **Issue**: PerformanceView was using `user.id` instead of `profile?.id`, causing infinite loading
-**Location**: [PerformanceView.tsx:62-73](apps/web/src/app/components/feature/referrals/PerformanceView.tsx#L62-L73)
+**Location**: [PerformanceView.tsx:62-73](apps/web/src/components/feature/referrals/PerformanceView.tsx#L62-L73)
 
 **Before**:
 ```typescript
@@ -40,7 +40,7 @@ const { data: agentData } = await supabase
 
 ### 1.2 Removed Duplicate Data Fetching
 **Issue**: Component was re-fetching referrals data already provided by parent
-**Location**: [PerformanceView.tsx:100-241](apps/web/src/app/components/feature/referrals/PerformanceView.tsx#L100-L241)
+**Location**: [PerformanceView.tsx:100-241](apps/web/src/components/feature/referrals/PerformanceView.tsx#L100-L241)
 
 **Before**:
 - Parent page fetches referrals via React Query
@@ -116,7 +116,7 @@ All chart components now have encouraging empty states:
 ## Priority 3: Responsive Layout ✅
 
 ### 3.1 Updated PerformanceView.module.css
-**Location**: [PerformanceView.module.css](apps/web/src/app/components/feature/referrals/PerformanceView.module.css)
+**Location**: [PerformanceView.module.css](apps/web/src/components/feature/referrals/PerformanceView.module.css)
 
 **Before**:
 ```css
@@ -167,7 +167,7 @@ All chart components now have encouraging empty states:
 
 ### 3.2 Fixed Scrolling Issue
 **Issue**: User couldn't scroll to bottom of Performance tab
-**Location**: [HubPageLayout.module.css:33-50](apps/web/src/app/components/hub/layout/HubPageLayout.module.css#L33-L50)
+**Location**: [HubPageLayout.module.css:33-50](apps/web/src/components/hub/layout/HubPageLayout.module.css#L33-L50)
 
 **Before**:
 ```css
@@ -199,7 +199,7 @@ All chart components now have encouraging empty states:
 ## Priority 4: Data Quality Documentation ✅
 
 ### 4.1 Created Comprehensive Documentation
-**Location**: [DATA_QUALITY_REQUIREMENTS.md](apps/web/src/app/components/feature/referrals/DATA_QUALITY_REQUIREMENTS.md)
+**Location**: [DATA_QUALITY_REQUIREMENTS.md](apps/web/src/components/feature/referrals/DATA_QUALITY_REQUIREMENTS.md)
 
 **Documented Requirements**:
 1. ✅ Attribution Method - Already tracked
@@ -281,7 +281,7 @@ sublabel={stats?.total_signups ? `${stats.signup_rate.toFixed(1)}% conversion` :
 
 ## Fixed HubPageLayout.module.css Scrolling
 **Issue**: `.contentContainer` had `padding-bottom: 2rem` but user updated to `5rem`
-**Location**: [HubPageLayout.module.css:49](apps/web/src/app/components/hub/layout/HubPageLayout.module.css#L49)
+**Location**: [HubPageLayout.module.css:49](apps/web/src/components/hub/layout/HubPageLayout.module.css#L49)
 
 **Final Value**: `padding-bottom: 5rem` (user's preference)
 
@@ -292,33 +292,33 @@ sublabel={stats?.total_signups ? `${stats.signup_rate.toFixed(1)}% conversion` :
 ## Summary of File Changes
 
 ### Modified Files:
-1. ✅ [PerformanceView.tsx](apps/web/src/app/components/feature/referrals/PerformanceView.tsx)
+1. ✅ [PerformanceView.tsx](apps/web/src/components/feature/referrals/PerformanceView.tsx)
    - Fixed user.id → profile.id bug
    - Removed duplicate fetching
    - Added error handling
    - Calculate all data from props
 
-2. ✅ [PerformanceView.module.css](apps/web/src/app/components/feature/referrals/PerformanceView.module.css)
+2. ✅ [PerformanceView.module.css](apps/web/src/components/feature/referrals/PerformanceView.module.css)
    - Matched Organisation Performance responsive patterns
    - Mobile-first breakpoints (640px, 1025px)
 
-3. ✅ [ReferralPerformanceKPIGrid.tsx](apps/web/src/app/components/feature/referrals/ReferralPerformanceKPIGrid.tsx)
+3. ✅ [ReferralPerformanceKPIGrid.tsx](apps/web/src/components/feature/referrals/ReferralPerformanceKPIGrid.tsx)
    - Updated variant colors (neutral, info, success)
    - Conditional sublabels
 
-4. ✅ [ReferralAttributionBreakdown.tsx](apps/web/src/app/components/feature/referrals/ReferralAttributionBreakdown.tsx)
+4. ✅ [ReferralAttributionBreakdown.tsx](apps/web/src/components/feature/referrals/ReferralAttributionBreakdown.tsx)
    - Updated to Tutorwise teal color scheme
 
-5. ✅ [ReferralConversionTrend.tsx](apps/web/src/app/components/feature/referrals/ReferralConversionTrend.tsx)
+5. ✅ [ReferralConversionTrend.tsx](apps/web/src/components/feature/referrals/ReferralConversionTrend.tsx)
    - Updated to tutor green & teal colors
 
-6. ✅ [HubPageLayout.module.css](apps/web/src/app/components/hub/layout/HubPageLayout.module.css)
+6. ✅ [HubPageLayout.module.css](apps/web/src/components/hub/layout/HubPageLayout.module.css)
    - Fixed scrolling: `height: 100%` → `min-height: 100%`
    - Content flex: `flex: 1` → `flex: 1 1 auto`
    - Bottom padding: `5rem` (user preference)
 
 ### Created Files:
-7. ✅ [DATA_QUALITY_REQUIREMENTS.md](apps/web/src/app/components/feature/referrals/DATA_QUALITY_REQUIREMENTS.md)
+7. ✅ [DATA_QUALITY_REQUIREMENTS.md](apps/web/src/components/feature/referrals/DATA_QUALITY_REQUIREMENTS.md)
    - Comprehensive data tracking documentation
    - Implementation priorities
    - Testing checklist

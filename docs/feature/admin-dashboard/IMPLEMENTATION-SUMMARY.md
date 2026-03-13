@@ -92,61 +92,61 @@ Created a complete admin dashboard foundation with:
 
 ### Admin Components (13 files)
 
-9. **apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx**
+9. **apps/web/src/components/admin/sidebar/AdminSidebar.tsx**
    - Admin navigation sidebar
    - Text-only design (no icons)
    - Expandable sections
    - Matches AppSidebar pattern
 
-10. **apps/web/src/app/components/admin/sidebar/AdminSidebar.module.css**
+10. **apps/web/src/components/admin/sidebar/AdminSidebar.module.css**
     - Sidebar styles
 
-11. **apps/web/src/app/components/admin/layout/AdminLayout.tsx**
+11. **apps/web/src/components/admin/layout/AdminLayout.tsx**
     - Wrapper providing sidebar + content area
 
-12. **apps/web/src/app/components/admin/layout/AdminLayout.module.css**
+12. **apps/web/src/components/admin/layout/AdminLayout.module.css**
     - Layout styles
 
-13. **apps/web/src/app/components/admin/widgets/AdminStatsWidget.tsx**
+13. **apps/web/src/components/admin/widgets/AdminStatsWidget.tsx**
     - Reusable stats display widget
 
-14. **apps/web/src/app/components/admin/widgets/AdminHelpWidget.tsx**
+14. **apps/web/src/components/admin/widgets/AdminHelpWidget.tsx**
     - Contextual help text widget
 
-15. **apps/web/src/app/components/admin/widgets/AdminTipWidget.tsx**
+15. **apps/web/src/components/admin/widgets/AdminTipWidget.tsx**
     - Best practices tips widget
 
-16. **apps/web/src/app/components/admin/widgets/AdminVideoWidget.tsx**
+16. **apps/web/src/components/admin/widgets/AdminVideoWidget.tsx**
     - Tutorial video link widget
 
-17. **apps/web/src/app/components/admin/widgets/index.ts**
+17. **apps/web/src/components/admin/widgets/index.ts**
     - Re-exports all widgets
 
-18. **apps/web/src/app/components/admin/modals/GrantAdminModal.tsx**
+18. **apps/web/src/components/admin/modals/GrantAdminModal.tsx**
     - Modal for granting admin access
     - Email input, role selection, reason textarea
     - Hierarchy-aware role dropdown
 
-19. **apps/web/src/app/components/admin/modals/RevokeAdminModal.tsx**
+19. **apps/web/src/components/admin/modals/RevokeAdminModal.tsx**
     - Confirmation modal for revoking admin access
     - Danger warnings, reason textarea
 
-20. **apps/web/src/app/components/admin/modals/ChangeRoleModal.tsx**
+20. **apps/web/src/components/admin/modals/ChangeRoleModal.tsx**
     - Modal for changing admin user's role
     - Current role display, new role dropdown
 
-21. **apps/web/src/app/components/admin/modals/GrantAdminModal.module.css**
+21. **apps/web/src/components/admin/modals/GrantAdminModal.module.css**
     - Shared styles for all modals
     - Modal layout, form elements, badges
 
-22. **apps/web/src/app/components/admin/modals/index.ts**
+22. **apps/web/src/components/admin/modals/index.ts**
     - Re-exports all modals
 
-23. **apps/web/src/app/components/admin/PermissionGate.tsx**
+23. **apps/web/src/components/admin/PermissionGate.tsx**
     - Component to show/hide UI based on permissions
     - Uses usePermission() hook
 
-24. **apps/web/src/app/components/admin/RoleGate.tsx**
+24. **apps/web/src/components/admin/RoleGate.tsx**
     - Component to show/hide UI based on roles
     - Uses useAdminProfile() hook
 
@@ -605,7 +605,7 @@ DROP FUNCTION IF EXISTS log_admin_action;
 ```bash
 # Remove admin components
 rm -rf apps/web/src/app/(admin)/admin
-rm -rf apps/web/src/app/components/admin
+rm -rf apps/web/src/components/admin
 rm -rf apps/web/src/lib/rbac
 rm -rf apps/web/src/app/api/admin
 

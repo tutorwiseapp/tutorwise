@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { getMyOrganisation } from '@/lib/api/organisation';
-import type { HubTab } from '@/app/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
 import { ORGANISATION_SETTINGS_TABS, type OrganisationSettingsTabId } from '@/app/config/organisationSettingsConfig';
 
 interface UseOrganisationSettingsOptions {

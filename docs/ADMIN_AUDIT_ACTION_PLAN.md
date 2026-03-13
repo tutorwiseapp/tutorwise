@@ -86,7 +86,7 @@ export function exportToCSV<T>(
 ### 2.2 Create Shared StatusBadge Component
 **Purpose**: Eliminate 300+ lines of duplicated badge logic
 
-**Create File**: `/apps/web/src/app/components/admin/badges/StatusBadge.tsx`
+**Create File**: `/apps/web/src/components/admin/badges/StatusBadge.tsx`
 
 ```typescript
 'use client';
@@ -120,7 +120,7 @@ export default function StatusBadge({
 }
 ```
 
-**Create File**: `/apps/web/src/app/components/admin/badges/StatusBadge.module.css`
+**Create File**: `/apps/web/src/components/admin/badges/StatusBadge.module.css`
 
 ```css
 .badge {
@@ -337,13 +337,13 @@ export function useTableState(options: TableStateOptions = {}) {
 ### 2.5 Standardize AdvancedFiltersDrawer
 **Purpose**: Consolidate 6 nearly identical implementations (900 lines) into 1 generic component
 
-**Create File**: `/apps/web/src/app/components/hub/filters/AdvancedFiltersDrawer.tsx`
+**Create File**: `/apps/web/src/components/hub/filters/AdvancedFiltersDrawer.tsx`
 
 ```typescript
 'use client';
 
 import React from 'react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import { X } from 'lucide-react';
 import styles from './AdvancedFiltersDrawer.module.css';
 

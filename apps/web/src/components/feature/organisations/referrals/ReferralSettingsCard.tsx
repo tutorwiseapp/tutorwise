@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { SkeletonLine, SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { SkeletonLine, SkeletonRect } from '@/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralSettingsCard.module.css';
 
 interface ReferralConfig {

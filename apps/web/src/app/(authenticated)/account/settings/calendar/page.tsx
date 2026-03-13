@@ -10,15 +10,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import AccountCompletenessWidget from '@/app/components/feature/account/AccountCompletenessWidget';
-import AccountHelpWidget from '@/app/components/feature/account/AccountHelpWidget';
-import AccountTipWidget from '@/app/components/feature/account/AccountTipWidget';
-import AccountVideoWidget from '@/app/components/feature/account/AccountVideoWidget';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import AccountCompletenessWidget from '@/components/feature/account/AccountCompletenessWidget';
+import AccountHelpWidget from '@/components/feature/account/AccountHelpWidget';
+import AccountTipWidget from '@/components/feature/account/AccountTipWidget';
+import AccountVideoWidget from '@/components/feature/account/AccountVideoWidget';
+import AccountHeroHeader from '@/components/feature/account/AccountHeroHeader';
+import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import type { CalendarConnection } from '@/types';
 import styles from './page.module.css';

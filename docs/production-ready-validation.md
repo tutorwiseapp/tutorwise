@@ -43,8 +43,8 @@ This release fixes critical authentication and onboarding issues that were intro
 - ✅ `apps/web/src/app/auth/callback/route.ts` - Added improved error handling
 
 ### Onboarding System
-- ✅ `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx` - Now sets provider role
-- ✅ `apps/web/src/app/components/onboarding/steps/CompletionStep.tsx` - Simplified (removed polling)
+- ✅ `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx` - Now sets provider role
+- ✅ `apps/web/src/components/onboarding/steps/CompletionStep.tsx` - Simplified (removed polling)
 - ✅ `apps/web/src/app/onboarding/tutor/page.tsx` - Clean redirect to dashboard
 - ✅ `apps/web/src/app/contexts/UserProfileContext.tsx` - Cleaned debug logs
 

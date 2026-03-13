@@ -203,7 +203,7 @@
 
 ## Files Modified
 
-### [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+### [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 **Changes**:
 

@@ -142,7 +142,7 @@ npm run dev
 ### References to These Routes
 - `apps/web/src/app/delete-account/page.tsx` (uses /api/auth/logout)
 - `vercel.json` (cron job triggers /api/caas-worker)
-- `apps/web/src/app/components/feature/dashboard/widgets/CaaSScoreWidget.tsx` (uses /api/caas/[profile_id])
+- `apps/web/src/components/feature/dashboard/widgets/CaaSScoreWidget.tsx` (uses /api/caas/[profile_id])
 
 ---
 

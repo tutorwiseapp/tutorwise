@@ -6,7 +6,7 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import Footer from '@/app/components/layout/Footer';
+import Footer from '@/components/layout/Footer';
 
 // SEO Metadata for Terms of Service page
 export const metadata: Metadata = {

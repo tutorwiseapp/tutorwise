@@ -8,8 +8,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { AlertTriangle, CheckCircle2, FileText } from 'lucide-react';
 import styles from './MarkCompletedModal.module.css';

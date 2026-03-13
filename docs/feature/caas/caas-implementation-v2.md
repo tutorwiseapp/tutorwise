@@ -27,7 +27,7 @@ Version 5.9 adds Bucket 6 (Social Impact) to reward tutors who contribute to edu
 3. **[types.ts](../../../apps/web/src/lib/services/caas/types.ts)** - Added `completed_free_sessions_count` to PerformanceStats
 4. **[115_add_caas_score_to_profiles.sql](../../../apps/api/migrations/115_add_caas_score_to_profiles.sql)** - Denormalization (earlier v5.5 work)
 5. **[UserProfileContext.tsx](../../../apps/web/src/app/contexts/UserProfileContext.tsx)** - Simplified JOIN logic (earlier v5.5 work)
-6. **[AccountHeroHeader.tsx](../../../apps/web/src/app/components/feature/account/AccountHeroHeader.tsx)** - Updated variable naming (earlier v5.5 work)
+6. **[AccountHeroHeader.tsx](../../../apps/web/src/components/feature/account/AccountHeroHeader.tsx)** - Updated variable naming (earlier v5.5 work)
 7. **[caas-implementation-v2.md](./caas-implementation-v2.md)** - This document (updated with v5.9 report)
 8. **[README.md](./README.md), [caas-solution-design-v2.md](./caas-solution-design-v2.md), [caas-prompt-v2.md](./caas-prompt-v2.md)** - Documentation updates
 

@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
+import HubComplexCard from '@/components/hub/sidebar/cards/HubComplexCard';
 import styles from './GrowthHelpWidget.module.css';
 
 export default function GrowthHelpWidget() {

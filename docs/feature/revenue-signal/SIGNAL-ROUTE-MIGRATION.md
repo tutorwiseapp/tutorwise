@@ -198,7 +198,7 @@ if (!hasPermission) {
 
 ### 3. Navigation Changes
 
-**File:** `apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx`
+**File:** `apps/web/src/components/admin/sidebar/AdminSidebar.tsx`
 
 **Changes Made:**
 

@@ -63,11 +63,11 @@ apps/web/src/
 
 ```typescript
 // 1. Create component file
-// File: apps/web/src/app/components/feature/public-profile/CertificationsCard.tsx
+// File: apps/web/src/components/feature/public-profile/CertificationsCard.tsx
 
 'use client';
 
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import type { Profile } from '@/types';
 import styles from './CertificationsCard.module.css';
 
@@ -105,7 +105,7 @@ export function CertificationsCard({ profile, isOwnProfile = false }: Certificat
 
 ```css
 /* 2. Create styles file
-   File: apps/web/src/app/components/feature/public-profile/CertificationsCard.module.css */
+   File: apps/web/src/components/feature/public-profile/CertificationsCard.module.css */
 
 .certificationsCard {
   padding: 0 !important;
@@ -171,7 +171,7 @@ export function CertificationsCard({ profile, isOwnProfile = false }: Certificat
 // 3. Add to page.tsx
 // File: apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx
 
-import { CertificationsCard } from '@/app/components/feature/public-profile/CertificationsCard';
+import { CertificationsCard } from '@/components/feature/public-profile/CertificationsCard';
 
 // ... in JSX (add to main column)
 <div className={styles.mainColumn}>
@@ -251,7 +251,7 @@ const enrichedProfile = {
 
 ```typescript
 // Update RoleStatsCard component to display response_rate
-// File: apps/web/src/app/components/feature/public-profile/RoleStatsCard.tsx
+// File: apps/web/src/components/feature/public-profile/RoleStatsCard.tsx
 
 // Add to stats array
 {
@@ -268,7 +268,7 @@ const enrichedProfile = {
 
 **Requirement**: Show 10 listings instead of 5
 
-**File**: `apps/web/src/app/components/feature/public-profile/ServicesCard.tsx`
+**File**: `apps/web/src/components/feature/public-profile/ServicesCard.tsx`
 
 ```typescript
 // Line 36
@@ -286,7 +286,7 @@ const MAX_LISTINGS_SHOWN = 10;
 
 **Requirement**: Display "Viewing Your Profile" badge when viewing own profile
 
-**File**: `apps/web/src/app/components/feature/public-profile/ProfileHeroSection.tsx`
+**File**: `apps/web/src/components/feature/public-profile/ProfileHeroSection.tsx`
 
 ```typescript
 // Add to props
@@ -323,7 +323,7 @@ interface ProfileHeroSectionProps {
 
 **Requirement**: Add "Service Type" filter to ServicesCard
 
-**File**: `apps/web/src/app/components/feature/public-profile/ServicesCard.tsx`
+**File**: `apps/web/src/components/feature/public-profile/ServicesCard.tsx`
 
 ```typescript
 // Add prop
@@ -356,13 +356,13 @@ const totalCount = filteredListings.length;
 
 **Requirement**: Add "Share Profile" button to GetInTouchCard with referral link
 
-**File**: `apps/web/src/app/components/feature/public-profile/GetInTouchCard.tsx`
+**File**: `apps/web/src/components/feature/public-profile/GetInTouchCard.tsx`
 
 ```typescript
 'use client';
 
 import { useState } from 'react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import { Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -587,7 +587,7 @@ console.log('Calculated Rating:', averageRating);
 
 ```typescript
 // Check component import
-import { YourCard } from '@/app/components/feature/public-profile/YourCard';
+import { YourCard } from '@/components/feature/public-profile/YourCard';
 // NOT: import YourCard from '...'  (missing named export)
 
 // Check JSX placement
@@ -650,7 +650,7 @@ const { data: viewData } = await supabase
 import dynamic from 'next/dynamic';
 
 const SimilarProfilesCard = dynamic(
-  () => import('@/app/components/feature/public-profile/SimilarProfilesCard')
+  () => import('@/components/feature/public-profile/SimilarProfilesCard')
     .then(mod => ({ default: mod.SimilarProfilesCard })),
   { loading: () => <CardSkeleton /> }
 );
@@ -709,7 +709,7 @@ const enrichedProfile = {
 ## Related Files
 
 - Main Page: [apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx](../../../../apps/web/src/app/public-profile/[id]/[[...slug]]/page.tsx)
-- Components: [apps/web/src/app/components/feature/public-profile/](../../../../apps/web/src/app/components/feature/public-profile/)
+- Components: [apps/web/src/components/feature/public-profile/](../../../../apps/web/src/components/feature/public-profile/)
 - Types: [packages/shared-types/src/profile.ts](../../../../packages/shared-types/src/profile.ts)
 - Slugify: [apps/web/src/lib/utils/slugify.ts](../../../../apps/web/src/lib/utils/slugify.ts)
 

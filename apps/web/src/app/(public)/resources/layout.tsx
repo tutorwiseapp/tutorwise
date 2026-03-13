@@ -6,7 +6,7 @@
 
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import ResourceLayoutClient from '@/app/components/resources/layout/ResourceLayoutClient';
+import ResourceLayoutClient from '@/components/resources/layout/ResourceLayoutClient';
 
 // SEO Metadata for Resources
 export const metadata: Metadata = {

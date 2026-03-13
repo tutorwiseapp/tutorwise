@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+import HubStatsCard, { StatRow } from '@/components/hub/sidebar/cards/HubStatsCard';
 
 interface SageProgressWidgetProps {
   studentId?: string;

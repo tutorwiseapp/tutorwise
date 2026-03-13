@@ -15,13 +15,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import Container from '@/components/layout/Container';
+import PageHeader from '@/components/ui/data-display/PageHeader';
 import authStyles from '@/app/styles/auth.module.css';
-import Button from '@/app/components/ui/actions/Button';
-import Input from '@/app/components/ui/forms/Input';
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import Message from '@/app/components/ui/feedback/Message';
+import Button from '@/components/ui/actions/Button';
+import Input from '@/components/ui/forms/Input';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import Message from '@/components/ui/feedback/Message';
 
 // Password strength calculation helper
 const calculatePasswordStrength = (password: string) => {

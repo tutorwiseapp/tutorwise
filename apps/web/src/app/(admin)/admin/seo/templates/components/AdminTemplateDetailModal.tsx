@@ -22,9 +22,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal';
-import Button from '@/app/components/ui/actions/Button';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal';
+import Button from '@/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
 import { CheckSquare, Copy, Edit, Trash2 } from 'lucide-react';
 import styles from './AdminTemplateDetailModal.module.css';

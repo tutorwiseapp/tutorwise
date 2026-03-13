@@ -61,7 +61,7 @@ Updated 3 locations:
 3. **Booking insert** (line 100): Added `available_free_help: listing?.available_free_help || false`
 
 ### 4. UI Component
-**File**: [apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx](apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx) (line 92)
+**File**: [apps/web/src/components/feature/bookings/BookingDetailModal.tsx](apps/web/src/components/feature/bookings/BookingDetailModal.tsx) (line 92)
 
 Added to "Service Details" section:
 ```typescript

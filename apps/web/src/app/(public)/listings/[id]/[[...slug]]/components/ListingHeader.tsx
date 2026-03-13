@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Star, Heart, Share2, Gift } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
-import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
+import StatusBadge from '@/components/ui/data-display/StatusBadge';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './ListingHeader.module.css';

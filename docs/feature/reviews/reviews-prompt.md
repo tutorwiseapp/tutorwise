@@ -46,10 +46,10 @@ When modifying the feature:
 - `/apps/web/src/app/api/reviews/submit/route.ts` - Review submission
 
 ### Components
-- `/apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx` - Review task display
-- `/apps/web/src/app/components/feature/reviews/ProfileReviewCard.tsx` - Review display
-- `/apps/web/src/app/components/feature/reviews/ReviewSubmissionModal.tsx` - Submission interface
-- `/apps/web/src/app/components/feature/reviews/ReviewStatsWidget.tsx` - Statistics sidebar
+- `/apps/web/src/components/feature/reviews/PendingReviewCard.tsx` - Review task display
+- `/apps/web/src/components/feature/reviews/ProfileReviewCard.tsx` - Review display
+- `/apps/web/src/components/feature/reviews/ReviewSubmissionModal.tsx` - Submission interface
+- `/apps/web/src/components/feature/reviews/ReviewStatsWidget.tsx` - Statistics sidebar
 - `/apps/web/src/app/(authenticated)/reviews/page.tsx` - Main reviews hub
 
 ### Utilities
@@ -758,7 +758,7 @@ Validate and sanitize inputs on submission (defense-in-depth)
   ├── session/[session_id]/route.ts
   └── submit/route.ts
 
-/apps/web/src/app/components/feature/reviews/
+/apps/web/src/components/feature/reviews/
   ├── PendingReviewCard.tsx
   ├── ProfileReviewCard.tsx
   ├── ReviewSubmissionModal.tsx
@@ -790,7 +790,7 @@ Validate and sanitize inputs on submission (defense-in-depth)
 ### Related Features
 ```
 /apps/web/src/app/api/bookings/ (triggers review sessions)
-/apps/web/src/app/components/feature/bookings/ (booking completion flow)
+/apps/web/src/components/feature/bookings/ (booking completion flow)
 /tools/caas/ (consumes review metrics for credibility scores)
 ```
 

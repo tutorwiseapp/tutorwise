@@ -153,9 +153,9 @@ c14d729 fix: enforce onboarding redirect on middleware database errors
 M	.github/workflows/ci.yml
 M	.github/workflows/deploy.yml
 A	RAILWAY_DEPLOYMENT_FIX.md
-M	apps/web/src/app/components/onboarding/OnboardingWizard.tsx
-A	apps/web/src/app/components/onboarding/steps/CompletionStep.module.css
-M	apps/web/src/app/components/onboarding/steps/CompletionStep.tsx
+M	apps/web/src/components/onboarding/OnboardingWizard.tsx
+A	apps/web/src/components/onboarding/steps/CompletionStep.module.css
+M	apps/web/src/components/onboarding/steps/CompletionStep.tsx
 M	docker-compose.yml
 R088	apps/api/railway.json	railway.json
 ```
@@ -182,14 +182,14 @@ R088	apps/api/railway.json	railway.json
 ### Files Added
 
 - `RAILWAY_DEPLOYMENT_FIX.md`
-- `apps/web/src/app/components/onboarding/steps/CompletionStep.module.css`
+- `apps/web/src/components/onboarding/steps/CompletionStep.module.css`
 
 ### Files Modified
 
 - `.github/workflows/ci.yml`
 - `.github/workflows/deploy.yml`
-- `apps/web/src/app/components/onboarding/OnboardingWizard.tsx`
-- `apps/web/src/app/components/onboarding/steps/CompletionStep.tsx`
+- `apps/web/src/components/onboarding/OnboardingWizard.tsx`
+- `apps/web/src/components/onboarding/steps/CompletionStep.tsx`
 - `docker-compose.yml`
 
 

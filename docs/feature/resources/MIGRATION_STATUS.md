@@ -27,7 +27,7 @@ Comprehensive migration of all "Blog" branding to "Resources" across the entire 
 ### Files Updated
 
 #### Admin Navigation
-- ✅ [AdminSidebar.tsx:45](apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx#L45)
+- ✅ [AdminSidebar.tsx:45](apps/web/src/components/admin/sidebar/AdminSidebar.tsx#L45)
   - Changed: `label: 'Blog'` → `label: 'Resources'`
   - Keeps `/admin/blog` URLs intact (Phase 4 will handle URL changes)
 
@@ -658,7 +658,7 @@ git push origin main
 ### Changes Made
 
 1. **Directory renamed:**
-   - `apps/web/src/app/components/blog` → `apps/web/src/app/components/resources`
+   - `apps/web/src/components/blog` → `apps/web/src/components/resources`
 
 2. **Layout files renamed:**
    - `BlogLayout.tsx` → `ResourceLayout.tsx`
@@ -668,7 +668,7 @@ git push origin main
    - `BlogLayoutClient.tsx` → `ResourceLayoutClient.tsx`
 
 3. **All imports updated automatically:**
-   - `@/app/components/blog/*` → `@/app/components/resources/*`
+   - `@/components/blog/*` → `@/components/resources/*`
    - CSS class names: `.blogLayout` → `.resourceLayout`
 
 ---

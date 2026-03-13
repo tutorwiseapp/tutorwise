@@ -166,7 +166,7 @@ export const config = {
 
 ### 1. Update useBlogAttribution → useSignalTracking
 
-**File**: `apps/web/src/app/components/blog/embeds/useSignalTracking.ts` (RENAME from useBlogAttribution.ts)
+**File**: `apps/web/src/components/blog/embeds/useSignalTracking.ts` (RENAME from useBlogAttribution.ts)
 
 ```typescript
 import { useCallback } from 'react';
@@ -233,7 +233,7 @@ export function useSignalTracking() {
 
 ### 2. Update TutorEmbed Component
 
-**File**: `apps/web/src/app/components/blog/embeds/TutorEmbed.tsx`
+**File**: `apps/web/src/components/blog/embeds/TutorEmbed.tsx`
 
 **Changes**:
 ```typescript
@@ -258,19 +258,19 @@ export default function TutorEmbed({ ... }) {
 
 ### 3. Update ListingGrid Component
 
-**File**: `apps/web/src/app/components/blog/embeds/ListingGrid.tsx`
+**File**: `apps/web/src/components/blog/embeds/ListingGrid.tsx`
 
 **Changes**: Same as TutorEmbed (import rename only)
 
 ### 4. Update TutorCarousel Component
 
-**File**: `apps/web/src/app/components/blog/embeds/TutorCarousel.tsx`
+**File**: `apps/web/src/components/blog/embeds/TutorCarousel.tsx`
 
 **Changes**: Same as TutorEmbed (import rename only)
 
 ### 5. Update SaveArticleButton Component
 
-**File**: `apps/web/src/app/components/blog/SaveArticleButton.tsx`
+**File**: `apps/web/src/components/blog/SaveArticleButton.tsx`
 
 **Changes**:
 ```typescript

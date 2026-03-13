@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Trash2, Edit2, Save, X, Search, BookOpen, RefreshCw } from 'lucide-react';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './KnowledgePanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────

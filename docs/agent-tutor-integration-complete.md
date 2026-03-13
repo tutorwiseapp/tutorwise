@@ -16,7 +16,7 @@ Successfully implemented complete professional info integration for both Agent a
 
 ### ✅ Fix 1: Tutor Onboarding Saves to professional_details.tutor
 
-**File**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**File**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 **Lines**: 290-338
 **Status**: ✅ COMPLETE
 
@@ -26,7 +26,7 @@ Tutor onboarding now saves 8 fields to `professional_details.tutor`:
 
 ### ✅ Fix 2: Load Agent & Tutor Data in Profile Form
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 148-187 (useEffect), 115-148 (initial state)
 **Status**: ✅ COMPLETE
 
@@ -38,7 +38,7 @@ Tutor onboarding now saves 8 fields to `professional_details.tutor`:
 
 ### ✅ Fix 3: Complete Agent Professional Info Display
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 560-704
 **Status**: ✅ COMPLETE
 
@@ -170,12 +170,12 @@ Tutor section displays all fields (existing UI)
 ## Files Modified
 
 ### 1. TutorOnboardingWizard.tsx
-**Location**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**Location**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 **Changes**: Added 48 lines (290-338)
 **Purpose**: Save tutor onboarding to `professional_details.tutor`
 
 ### 2. ProfessionalInfoForm.tsx
-**Location**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**Location**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Changes**:
 - Lines 115-148: Added agent fields to initial state (+17 fields)
 - Lines 148-187: Enhanced useEffect to load agent+tutor data (+40 lines)

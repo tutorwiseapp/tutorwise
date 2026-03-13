@@ -83,8 +83,8 @@ if (!canViewAITutors) {
 // After (active):
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
-import { HubTrendChart } from '@/app/components/hub/charts';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { HubTrendChart } from '@/components/hub/charts';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 ```
 
 **2. Enabled metric hooks:**

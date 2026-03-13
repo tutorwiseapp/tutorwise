@@ -16,7 +16,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useQuery } from '@tanstack/react-query';
 import { Bot, Play, Flag, Users, StickyNote, RefreshCw, X, Info, ArrowRight } from 'lucide-react';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import dagre from '@dagrejs/dagre';
 import { CanvasNode, FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasNodeActionsContext, CanvasContextMenu } from '@/components/feature/canvas';
 import type { CanvasNodeProps, ContextMenuItem } from '@/components/feature/canvas';

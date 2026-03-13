@@ -8,10 +8,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal/HubDetailModal/HubDetailModal';
-import Button from '@/app/components/ui/actions/Button';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal/HubDetailModal/HubDetailModal';
+import Button from '@/components/ui/actions/Button';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { ExternalLink, User, CheckCircle, XCircle } from 'lucide-react';
 import styles from './AdminPayoutDetailModal.module.css';

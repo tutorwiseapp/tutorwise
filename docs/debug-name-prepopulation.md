@@ -19,7 +19,7 @@ All backend systems are confirmed working:
 
 ### 🔍 Debug Logging Added
 
-I've added comprehensive debug logging to [TutorPersonalInfoStep.tsx](apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx):
+I've added comprehensive debug logging to [TutorPersonalInfoStep.tsx](apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx):
 
 **Location:** Lines 45-110
 

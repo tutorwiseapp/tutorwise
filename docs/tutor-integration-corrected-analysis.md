@@ -21,7 +21,7 @@ Thank you for the screenshot - it showed me the truth!
 
 ### ✅ Tutor Professional Info UI EXISTS
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx` (lines 1166-1459)
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx` (lines 1166-1459)
 
 The tutor section displays ~16 fields:
 1. Bio/About (textarea)
@@ -199,7 +199,7 @@ PROFILE SAVING:
 
 ### Fix 1: Update TutorOnboardingWizard Save Location (30 min)
 
-**File**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**File**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 
 **Change lines 273-340**:
 
@@ -278,7 +278,7 @@ await updateOnboardingProgress({
 
 ### Fix 2: Add Tutor Data Loading to ProfessionalInfoForm (15 min)
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Update useEffect at lines 349-401**:
 
@@ -329,7 +329,7 @@ useEffect(() => {
 
 ### Fix 3: Implement Tutor Field Save Logic (45 min)
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Replace "coming soon" stub at lines 549-554**:
 
@@ -373,7 +373,7 @@ else if (['status', 'academic_qualifications', 'key_stages',
 
 ### Fix 4: Add Tutor Availability Auto-Save (15 min)
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Update useEffect at lines 411-462**:
 

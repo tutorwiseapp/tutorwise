@@ -65,7 +65,7 @@ tools/database/migrations/
 
 ### Updated Files
 ```
-apps/web/src/app/components/feature/ai-tutors/builder/
+apps/web/src/components/feature/ai-tutors/builder/
 └── AITutorBuilderForm.tsx  ✅ Added isAdminMode prop
 
 apps/web/src/lib/ai-tutors/

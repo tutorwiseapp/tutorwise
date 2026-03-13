@@ -11,18 +11,18 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import SageHelpWidget from '../../../../components/feature/sage/widgets/SageHelpWidget';
 import SageTipsWidget from '../../../../components/feature/sage/widgets/SageTipsWidget';
 import SageVideoWidget from '../../../../components/feature/sage/widgets/SageVideoWidget';
 import styles from '../page.module.css';
 import materialsStyles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 const ITEMS_PER_PAGE = 12;
 

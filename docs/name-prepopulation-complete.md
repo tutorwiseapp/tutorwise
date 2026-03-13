@@ -49,7 +49,7 @@ With full_name: 8 ✅
 ```
 
 ### 4. ✅ Pre-fill Logic (Clean)
-**File:** `apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
+**File:** `apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
 
 Simple, professional code:
 ```typescript
@@ -125,7 +125,7 @@ Full Name: Sarah Jones ✅
 1. ✅ `apps/web/src/app/signup/page.tsx` - First/Last name fields
 2. ✅ `apps/api/migrations/018_final_working_trigger_with_names.sql` - Working trigger
 3. ✅ `apps/api/migrations/019_backfill_missing_names.sql` - Backfill existing data
-4. ✅ `apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx` - Clean pre-fill logic
+4. ✅ `apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx` - Clean pre-fill logic
 
 ## Action Required
 

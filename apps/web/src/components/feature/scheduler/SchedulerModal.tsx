@@ -7,15 +7,15 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import { HubForm } from '@/app/components/hub/form/HubForm';
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import Input from '@/app/components/ui/forms/Input';
-import Textarea from '@/app/components/ui/forms/Textarea';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import DatePicker from '@/app/components/ui/forms/DatePicker';
-import TimePicker from '@/app/components/ui/forms/TimePicker';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import { HubForm } from '@/components/hub/form/HubForm';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import Input from '@/components/ui/forms/Input';
+import Textarea from '@/components/ui/forms/Textarea';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import DatePicker from '@/components/ui/forms/DatePicker';
+import TimePicker from '@/components/ui/forms/TimePicker';
+import Button from '@/components/ui/actions/Button';
 import { ExternalLink } from 'lucide-react';
 import type { ScheduledItem } from './SchedulerCalendar';
 import modalStyles from './SchedulerModal.module.css';

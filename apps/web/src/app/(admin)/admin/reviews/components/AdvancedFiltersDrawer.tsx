@@ -9,8 +9,8 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import UnifiedMultiSelect from '@/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 import styles from './AdvancedFiltersDrawer.module.css';
 

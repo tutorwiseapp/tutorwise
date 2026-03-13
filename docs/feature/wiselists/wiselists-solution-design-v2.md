@@ -1251,10 +1251,10 @@ DELETE FROM profiles WHERE id = 'user-uuid';
 - `apps/web/src/app/api/wiselists/[id]/collaborators/[collabId]/route.ts`
 
 **UI Components** (10 files):
-- `apps/web/src/app/components/feature/wiselists/WiselistCard.tsx`
-- `apps/web/src/app/components/feature/wiselists/CreateWiselistModal.tsx`
-- `apps/web/src/app/components/feature/wiselists/AddToWiselistModal.tsx`
-- `apps/web/src/app/components/feature/wiselists/WiselistStatsWidget.tsx`
+- `apps/web/src/components/feature/wiselists/WiselistCard.tsx`
+- `apps/web/src/components/feature/wiselists/CreateWiselistModal.tsx`
+- `apps/web/src/components/feature/wiselists/AddToWiselistModal.tsx`
+- `apps/web/src/components/feature/wiselists/WiselistStatsWidget.tsx`
 - (6 more components)
 
 **Pages**:

@@ -127,13 +127,13 @@ This document defines the technical architecture and implementation strategy for
 
 Tutorwise has a **sophisticated Hub component system** used for user-facing pages:
 
-**HubPageLayout** (`/apps/web/src/app/components/hub/layout/HubPageLayout.tsx`):
+**HubPageLayout** (`/apps/web/src/components/hub/layout/HubPageLayout.tsx`):
 - Three-column layout: Header + Tabs + Content + Sidebar
 - Mobile-responsive with floating buttons and drawer sidebar
 - Comprehensive migration checklist in comments
 - Used by Network, Reviews, Organisation pages
 
-**HubSidebar** (`/apps/web/src/app/components/hub/sidebar/HubSidebar.tsx`):
+**HubSidebar** (`/apps/web/src/components/hub/sidebar/HubSidebar.tsx`):
 - Pure layout component (Tier 2)
 - Generic sidebar container with SidebarWidget utility
 - Widget system for modular content blocks
@@ -367,7 +367,7 @@ Tutorwise has a **sophisticated Hub component system** used for user-facing page
 - Handle sidebar collapse state
 - Provide admin context (current user, permissions)
 
-**File**: `/apps/web/src/app/components/admin/layout/AdminLayout.tsx`
+**File**: `/apps/web/src/components/admin/layout/AdminLayout.tsx`
 
 ```typescript
 interface AdminLayoutProps {
@@ -407,7 +407,7 @@ export default function AdminLayout({ children, breadcrumbs }: AdminLayoutProps)
 - Collapse toggle button
 - Mobile: Drawer overlay
 
-**File**: `/apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx`
+**File**: `/apps/web/src/components/admin/sidebar/AdminSidebar.tsx`
 
 **Navigation Structure**:
 ```typescript
@@ -466,7 +466,7 @@ const navigationGroups = [
 - Notifications (bell icon with unread count) - RIGHT
 - User menu (avatar, name, role, sign out) - RIGHT
 
-**File**: `/apps/web/src/app/components/admin/topbar/AdminTopBar.tsx`
+**File**: `/apps/web/src/components/admin/topbar/AdminTopBar.tsx`
 
 ```typescript
 interface AdminTopBarProps {
@@ -922,7 +922,7 @@ $$ LANGUAGE plpgsql;
 - Responsive (card view on mobile)
 - Export to CSV
 
-**File**: `/apps/web/src/app/components/admin/data-table/DataTable.tsx`
+**File**: `/apps/web/src/components/admin/data-table/DataTable.tsx`
 
 **Usage**:
 ```typescript
@@ -946,7 +946,7 @@ $$ LANGUAGE plpgsql;
 
 **Purpose**: Display key metrics with trend indicators.
 
-**File**: `/apps/web/src/app/components/admin/stats-card/StatsCard.tsx`
+**File**: `/apps/web/src/components/admin/stats-card/StatsCard.tsx`
 
 ```typescript
 interface StatsCardProps {
@@ -982,7 +982,7 @@ interface StatsCardProps {
 - Quick actions (e.g., "Create new hub")
 - Search results grouped by type
 
-**File**: `/apps/web/src/app/components/admin/command-palette/CommandPalette.tsx`
+**File**: `/apps/web/src/components/admin/command-palette/CommandPalette.tsx`
 
 **Implementation**: Use `cmdk` library by Paco Coursey (used by Vercel, Linear).
 
@@ -990,7 +990,7 @@ interface StatsCardProps {
 
 **Purpose**: Show bulk actions when rows are selected.
 
-**File**: `/apps/web/src/app/components/admin/bulk-actions/BulkActionToolbar.tsx`
+**File**: `/apps/web/src/components/admin/bulk-actions/BulkActionToolbar.tsx`
 
 ```typescript
 <BulkActionToolbar

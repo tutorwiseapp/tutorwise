@@ -45,7 +45,7 @@ packages/shared/
 
 **Files to Extract:**
 ```
-apps/web/src/app/components/ui/* → packages/shared/ui/src/
+apps/web/src/components/ui/* → packages/shared/ui/src/
 ```
 
 #### 1.3 Extract Supabase Config (Day 2)

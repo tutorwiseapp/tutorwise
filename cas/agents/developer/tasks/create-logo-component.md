@@ -20,7 +20,7 @@ Create a new, reusable `Logo` React component for the `tutorwise` web applicatio
     *   `cas/docs/proven-patterns.md`
 
 2.  **Component Implementation:**
-    *   Create a new file at `apps/web/src/app/components/shared/Logo.tsx`.
+    *   Create a new file at `apps/web/src/components/shared/Logo.tsx`.
     *   The component should render an SVG that represents the `tutorwise` logo.
     *   The SVG should use the `primary` color from the design system for its fill color. You should use the CSS variable `var(--color-primary)` for this.
 

@@ -33,10 +33,10 @@ professional_details: {
 ```
 
 **Used By**:
-- ✅ Tutor onboarding ([TutorOnboardingWizard.tsx:290-338](apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx#L290-L338))
-- ✅ Client onboarding ([ClientOnboardingWizard.tsx:225-266](apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx#L225-L266))
-- ✅ Agent onboarding ([AgentOnboardingWizard.tsx:247-292](apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx#L247-L292))
-- ✅ Profile management ([ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx))
+- ✅ Tutor onboarding ([TutorOnboardingWizard.tsx:290-338](apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx#L290-L338))
+- ✅ Client onboarding ([ClientOnboardingWizard.tsx:225-266](apps/web/src/components/onboarding/client/ClientOnboardingWizard.tsx#L225-L266))
+- ✅ Agent onboarding ([AgentOnboardingWizard.tsx:247-292](apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx#L247-L292))
+- ✅ Profile management ([ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx))
 
 **Benefits**:
 - Single source of truth (one row per user)
@@ -80,7 +80,7 @@ CREATE TABLE role_details (
 - ❌ [UserProfileContext.tsx:148-169](apps/web/src/app/contexts/UserProfileContext.tsx#L148-L169) - `getRoleDetails()` function
 - ❌ [account.ts:56-62](apps/web/src/lib/api/account.ts#L56-L62) - `getRoleDetails()` API
 - ❌ [account.ts:125-131](apps/web/src/lib/api/account.ts#L125-L131) - `saveRoleDetails()` API
-- ❌ [OnboardingWizard.tsx:256-262](apps/web/src/app/components/onboarding/OnboardingWizard.tsx#L256-L262) - Old onboarding
+- ❌ [OnboardingWizard.tsx:256-262](apps/web/src/components/onboarding/OnboardingWizard.tsx#L256-L262) - Old onboarding
 - ❌ **Listings integration** ([create/page.tsx:15-51](apps/web/src/app/my-listings/create/page.tsx#L15-L51))
 
 **Problems**:
@@ -115,7 +115,7 @@ if (roleDetails) {
 **But onboarding saves to NEW architecture:**
 
 ```typescript
-// apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx:326
+// apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx:326
 await supabase
   .from('profiles')
   .update({
@@ -186,7 +186,7 @@ Form has NO pre-filled data ❌
    }
    ```
 
-4. **[OnboardingWizard.tsx:256-262](apps/web/src/app/components/onboarding/OnboardingWizard.tsx#L256-L262)**
+4. **[OnboardingWizard.tsx:256-262](apps/web/src/components/onboarding/OnboardingWizard.tsx#L256-L262)**
    ```typescript
    const { error: roleDetailsError } = await supabase
      .from('role_details')  // ❌ OLD (legacy onboarding)
@@ -207,10 +207,10 @@ Form has NO pre-filled data ❌
 
 ### Files Using NEW `professional_details` Architecture
 
-1. **[TutorOnboardingWizard.tsx:290-338](apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx#L290-L338)** ✅
-2. **[ClientOnboardingWizard.tsx:225-266](apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx#L225-L266)** ✅
-3. **[AgentOnboardingWizard.tsx:247-292](apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx#L247-L292)** ✅
-4. **[ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)** ✅
+1. **[TutorOnboardingWizard.tsx:290-338](apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx#L290-L338)** ✅
+2. **[ClientOnboardingWizard.tsx:225-266](apps/web/src/components/onboarding/client/ClientOnboardingWizard.tsx#L225-L266)** ✅
+3. **[AgentOnboardingWizard.tsx:247-292](apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx#L247-L292)** ✅
+4. **[ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)** ✅
 
 ---
 
@@ -298,7 +298,7 @@ const getRoleDetails = async (role: Role): Promise<RoleDetails | null> => {
 1. Remove `getRoleDetails()` from UserProfileContext
 2. Remove `getRoleDetails()` from account.ts
 3. Remove `saveRoleDetails()` from account.ts
-4. Remove or archive [OnboardingWizard.tsx](apps/web/src/app/components/onboarding/OnboardingWizard.tsx) (old onboarding)
+4. Remove or archive [OnboardingWizard.tsx](apps/web/src/components/onboarding/OnboardingWizard.tsx) (old onboarding)
 5. Drop `role_details` table via migration
 6. Drop `onboarding_sessions` table via migration
 

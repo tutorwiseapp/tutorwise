@@ -49,7 +49,7 @@ Standardize user dashboard widgets to match admin dashboard architecture, ensuri
 
 ### Admin Widgets (Reference Pattern)
 ```
-apps/web/src/app/components/admin/widgets/
+apps/web/src/components/admin/widgets/
 ├── AdminStatsWidget.tsx        # Wraps HubStatsCard
 ├── AdminTipWidget.tsx          # Wraps HubTipCard
 ├── AdminHelpWidget.tsx         # Wraps HubComplexCard
@@ -60,7 +60,7 @@ apps/web/src/app/components/admin/widgets/
 
 ### User Widgets (New Structure)
 ```
-apps/web/src/app/components/feature/dashboard/widgets/
+apps/web/src/components/feature/dashboard/widgets/
 ├── UserStatsWidget.tsx         # Wraps HubStatsCard
 ├── UserTipWidget.tsx           # Wraps HubTipCard
 ├── UserHelpWidget.tsx          # Wraps HubComplexCard
@@ -77,7 +77,7 @@ apps/web/src/app/components/feature/dashboard/widgets/
 
 **Simple stats display:**
 ```tsx
-import { UserStatsWidget } from '@/app/components/feature/dashboard/widgets';
+import { UserStatsWidget } from '@/components/feature/dashboard/widgets';
 
 <UserStatsWidget
   title="My Statistics"
@@ -93,7 +93,7 @@ import { UserStatsWidget } from '@/app/components/feature/dashboard/widgets';
 
 **Quick tips and guidance:**
 ```tsx
-import { UserTipWidget } from '@/app/components/feature/dashboard/widgets';
+import { UserTipWidget } from '@/components/feature/dashboard/widgets';
 
 <UserTipWidget
   title="Pro Tip"
@@ -106,7 +106,7 @@ import { UserTipWidget } from '@/app/components/feature/dashboard/widgets';
 
 **Multi-paragraph help content:**
 ```tsx
-import { UserHelpWidget } from '@/app/components/feature/dashboard/widgets';
+import { UserHelpWidget } from '@/components/feature/dashboard/widgets';
 
 <UserHelpWidget
   title="Getting Started"
@@ -122,7 +122,7 @@ import { UserHelpWidget } from '@/app/components/feature/dashboard/widgets';
 
 **Embedded video tutorials:**
 ```tsx
-import { UserVideoWidget } from '@/app/components/feature/dashboard/widgets';
+import { UserVideoWidget } from '@/components/feature/dashboard/widgets';
 
 <UserVideoWidget
   title="Quick Tutorial"
@@ -135,7 +135,7 @@ import { UserVideoWidget } from '@/app/components/feature/dashboard/widgets';
 
 **Recent activity feed:**
 ```tsx
-import { UserActivityWidget } from '@/app/components/feature/dashboard/widgets';
+import { UserActivityWidget } from '@/components/feature/dashboard/widgets';
 
 <UserActivityWidget
   title="Recent Activity"

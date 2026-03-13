@@ -64,7 +64,7 @@ Exports 3 main functions:
 - Adds " (Copy)" suffix to title
 
 ### 4. Onboarding Integration
-**File:** `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**File:** `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 
 Templates are generated automatically after:
 1. ✅ Onboarding marked as completed
@@ -115,7 +115,7 @@ inquiry_count?: number;
 3. `apps/api/migrations/023_add_listing_template_fields.sql` - Database schema
 
 ### Modified Files
-1. `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx` - Added template generation
+1. `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx` - Added template generation
 2. `apps/web/src/app/my-listings/page.tsx` - Sort templates first
 3. `apps/web/src/app/my-listings/ListingCard.tsx` - Template badge & delete protection
 4. `apps/web/src/app/my-listings/ListingCard.module.css` - Badge styling

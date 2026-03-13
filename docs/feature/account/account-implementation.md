@@ -93,13 +93,13 @@ apps/api/
 
 ### Component Breakdown
 
-**PersonalInfoForm** (apps/web/src/app/components/feature/account/PersonalInfoForm.tsx)
+**PersonalInfoForm** (apps/web/src/components/feature/account/PersonalInfoForm.tsx)
 - Inline editing system (click-to-edit)
 - Auto-save on blur (150ms delay)
 - Keyboard shortcuts (Escape to cancel, Enter to save)
 - Sections: Name, Contact, Address, Emergency Contact
 
-**ProfessionalInfoForm** (apps/web/src/app/components/feature/account/ProfessionalInfoForm.tsx)
+**ProfessionalInfoForm** (apps/web/src/components/feature/account/ProfessionalInfoForm.tsx)
 - Role-aware form (2000+ lines for tutors)
 - JSONB storage for role-specific data
 - Complex nested fields (availability, qualifications)

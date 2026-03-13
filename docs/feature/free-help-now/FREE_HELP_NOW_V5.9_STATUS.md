@@ -101,8 +101,8 @@ The **Free Help Now (v5.9)** feature has been successfully implemented. This str
   - Pulsing animation for attention
   - Real-time session creation flow
   - Files:
-    - `apps/web/src/app/components/public-profile/ProfileHeroSection.tsx`
-    - `apps/web/src/app/components/public-profile/ProfileHeroSection.module.css`
+    - `apps/web/src/components/public-profile/ProfileHeroSection.tsx`
+    - `apps/web/src/components/public-profile/ProfileHeroSection.module.css`
 
 - [x] **TutorCard (Marketplace) Updates**
   - "Free Help Now" badge overlays profile image
@@ -110,8 +110,8 @@ The **Free Help Now (v5.9)** feature has been successfully implemented. This str
   - Pulsing animation
   - Lightbulb icon
   - Files:
-    - `apps/web/src/app/components/marketplace/TutorCard.tsx`
-    - `apps/web/src/app/components/marketplace/TutorCard.module.css`
+    - `apps/web/src/components/marketplace/TutorCard.tsx`
+    - `apps/web/src/components/marketplace/TutorCard.module.css`
 
 - [x] **AboutCard Updates**
   - "Community Tutor" badge in header
@@ -119,8 +119,8 @@ The **Free Help Now (v5.9)** feature has been successfully implemented. This str
   - Heart icon for community contribution
   - Fetches count from API
   - Files:
-    - `apps/web/src/app/components/public-profile/AboutCard.tsx`
-    - `apps/web/src/app/components/public-profile/AboutCard.module.css`
+    - `apps/web/src/components/public-profile/AboutCard.tsx`
+    - `apps/web/src/components/public-profile/AboutCard.module.css`
 
 ---
 
@@ -329,12 +329,12 @@ docs/features/free-help-now/FREE_HELP_NOW_V5.9_STATUS.md
 apps/web/src/app/(authenticated)/account/settings/page.tsx
 apps/web/src/app/(authenticated)/account/settings/page.module.css
 apps/web/src/app/contexts/UserProfileContext.tsx
-apps/web/src/app/components/public-profile/ProfileHeroSection.tsx
-apps/web/src/app/components/public-profile/ProfileHeroSection.module.css
-apps/web/src/app/components/marketplace/TutorCard.tsx
-apps/web/src/app/components/marketplace/TutorCard.module.css
-apps/web/src/app/components/public-profile/AboutCard.tsx
-apps/web/src/app/components/public-profile/AboutCard.module.css
+apps/web/src/components/public-profile/ProfileHeroSection.tsx
+apps/web/src/components/public-profile/ProfileHeroSection.module.css
+apps/web/src/components/marketplace/TutorCard.tsx
+apps/web/src/components/marketplace/TutorCard.module.css
+apps/web/src/components/public-profile/AboutCard.tsx
+apps/web/src/components/public-profile/AboutCard.module.css
 ```
 
 ---

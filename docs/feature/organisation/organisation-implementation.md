@@ -705,7 +705,7 @@ case 'invoice.payment_failed': {
 
 ### SubscriptionRequired Component
 
-**File**: `apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx` (163 lines)
+**File**: `apps/web/src/components/feature/organisation/SubscriptionRequired.tsx` (163 lines)
 
 **Purpose**: Block non-Premium users and show trial signup UI
 
@@ -1305,7 +1305,7 @@ await supabase
 
 The Performance Analytics tab provides Premium subscribers with comprehensive insights into their organization's performance through real-time metrics, trend analysis, and team comparison data.
 
-**File**: `apps/web/src/app/components/feature/organisation/OrganisationPerformanceTab.tsx` (430 lines)
+**File**: `apps/web/src/components/feature/organisation/OrganisationPerformanceTab.tsx` (430 lines)
 
 **Features**:
 - Period selector (This Month, This Quarter, This Year)
@@ -1592,7 +1592,7 @@ All 5 API routes follow the same security pattern:
 
 ## Performance Tab Component
 
-**File**: `apps/web/src/app/components/feature/organisation/OrganisationPerformanceTab.tsx` (430 lines)
+**File**: `apps/web/src/components/feature/organisation/OrganisationPerformanceTab.tsx` (430 lines)
 **Styles**: `OrganisationPerformanceTab.module.css` (335 lines)
 
 ### Component Structure
@@ -1681,7 +1681,7 @@ type TabType = 'team' | 'clients' | 'performance' | 'info';
 
 2. Added import:
 ```typescript
-import OrganisationPerformanceTab from '@/app/components/feature/organisation/OrganisationPerformanceTab';
+import OrganisationPerformanceTab from '@/components/feature/organisation/OrganisationPerformanceTab';
 ```
 
 3. Added tab to tabs array:

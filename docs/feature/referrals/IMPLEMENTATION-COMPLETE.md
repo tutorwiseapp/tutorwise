@@ -147,7 +147,7 @@ Time:        12.3s
 
 ### 6. Referral Dashboard Widget
 
-**File**: [apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx](../../../apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx)
+**File**: [apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx](../../../apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx)
 
 **Features**:
 - ✅ Real-time referral KPI cards (clicks, signups, conversions, commission earned)
@@ -189,7 +189,7 @@ Time:        12.3s
 
 ### 7. Commission Delegation Settings UI
 
-**File**: [apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx](../../../apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx)
+**File**: [apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx](../../../apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx)
 
 **Features**:
 - ✅ List all tutor's active/inactive listings
@@ -450,10 +450,10 @@ Automated payouts are now live:
 2. `apps/api/migrations/092_add_referral_performance_indexes.sql` (Migration)
 3. `apps/web/src/utils/referral/context.ts` (Utility)
 4. `apps/web/tests/e2e/referrals/hierarchical-attribution.test.ts` (Tests)
-5. `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` (Component)
-6. `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.module.css` (Styles)
-7. `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx` (Component)
-8. `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.module.css` (Styles)
+5. `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` (Component)
+6. `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.module.css` (Styles)
+7. `apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx` (Component)
+8. `apps/web/src/components/feature/referrals/DelegationSettingsPanel.module.css` (Styles)
 9. `docs/feature/referrals/HIERARCHICAL-ATTRIBUTION-IMPLEMENTATION.md` (Docs)
 10. `docs/feature/referrals/ENVIRONMENT-SETUP.md` (Docs)
 11. `docs/feature/referrals/DEPLOYMENT-GUIDE.md` (Docs)

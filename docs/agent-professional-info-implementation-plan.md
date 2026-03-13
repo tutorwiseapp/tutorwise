@@ -254,7 +254,7 @@ const agentData = {
 ```
 
 **Files Modified**:
-- `/apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx` (lines ~224-268)
+- `/apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx` (lines ~224-268)
 
 **Success Criteria**:
 - Agent onboarding saves to both `onboarding_progress.agent` and `professional_details.agent`
@@ -536,7 +536,7 @@ else if (['agency_name', 'agency_size', 'years_in_business', 'description',
 ```
 
 **Files Modified**:
-- `/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+- `/apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Success Criteria**:
 - All 16 agent fields render when `activeRole === 'agent'`
@@ -592,7 +592,7 @@ useEffect(() => {
 ```
 
 **Files Modified**:
-- `/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+- `/apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Success Criteria**:
 - Availability changes auto-save for agent role
@@ -659,12 +659,12 @@ useEffect(() => {
 - **Changes**: Expand `AgentProfessionalInfo` interface from 3 fields to 16 fields
 
 ### 2. Agent Onboarding
-- **File**: `/apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx`
+- **File**: `/apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx`
 - **Function**: `handleCapacitySubmit` (lines ~224-268)
 - **Changes**: Add mapping to `professional_details.agent`
 
 ### 3. Profile Form
-- **File**: `/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+- **File**: `/apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 - **Changes**:
   - Add 8 option arrays (services, specializations, levels, regions, etc.)
   - Add agent form state (16 fields)

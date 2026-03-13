@@ -38,28 +38,28 @@ import {
   dismissReminderForToday,
 } from '@/lib/stripe/organisation-trial-status';
 import { FEATURES } from '@/config/organisation-features';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import OrganisationStatsWidget from '@/app/components/feature/organisations/sidebar/OrganisationStatsWidget';
-import OrganisationHelpWidget from '@/app/components/feature/organisations/sidebar/OrganisationHelpWidget';
-import OrganisationTipWidget from '@/app/components/feature/organisations/sidebar/OrganisationTipWidget';
-import OrganisationVideoWidget from '@/app/components/feature/organisations/sidebar/OrganisationVideoWidget';
-import OrganisationInviteMemberModal from '@/app/components/feature/organisations/content/OrganisationInviteMemberModal';
-import OrganisationInfoTab from '@/app/components/feature/organisations/tabs/OrganisationInfoTab';
-import ManageMemberModal from '@/app/components/feature/organisations/content/ManageMemberModal';
-import MemberCard from '@/app/components/feature/organisations/content/MemberCard';
-import OrganisationStudentCard from '@/app/components/feature/organisations/content/OrganisationStudentCard';
-import OrganisationPerformanceTab from '@/app/components/feature/organisations/tabs/OrganisationPerformanceTab';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import OrganisationStatsWidget from '@/components/feature/organisations/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/components/feature/organisations/sidebar/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/components/feature/organisations/sidebar/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/components/feature/organisations/sidebar/OrganisationVideoWidget';
+import OrganisationInviteMemberModal from '@/components/feature/organisations/content/OrganisationInviteMemberModal';
+import OrganisationInfoTab from '@/components/feature/organisations/tabs/OrganisationInfoTab';
+import ManageMemberModal from '@/components/feature/organisations/content/ManageMemberModal';
+import MemberCard from '@/components/feature/organisations/content/MemberCard';
+import OrganisationStudentCard from '@/components/feature/organisations/content/OrganisationStudentCard';
+import OrganisationPerformanceTab from '@/components/feature/organisations/tabs/OrganisationPerformanceTab';
 // OrganisationReferralsTab removed - now has dedicated page at /organisation/[id]/referrals
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
-import SubscriptionRequired from '@/app/components/feature/organisations/content/SubscriptionRequired';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import HubDetailCard from '@/components/hub/content/HubDetailCard/HubDetailCard';
+import SubscriptionRequired from '@/components/feature/organisations/content/SubscriptionRequired';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import toast from 'react-hot-toast';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 import type { OrganisationMember } from '@/lib/api/organisation';
 
 type TabType = 'team' | 'clients' | 'recruitments' | 'performance' | 'info';

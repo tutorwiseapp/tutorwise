@@ -92,7 +92,7 @@ As of January 2026, the onboarding system uses a **shared component architecture
 
 **Before (Role-Specific Components)**:
 ```
-apps/web/src/app/components/feature/onboarding/
+apps/web/src/components/feature/onboarding/
 ├── tutor/steps/
 │   ├── TutorPersonalInfoStep.tsx          (~400 lines)
 │   ├── TutorAvailabilityStep.tsx          (~700 lines)
@@ -115,7 +115,7 @@ Problems:
 
 **After (Shared Components)**:
 ```
-apps/web/src/app/components/feature/onboarding/shared/steps/
+apps/web/src/components/feature/onboarding/shared/steps/
 ├── PersonalInfoStep.tsx           (~400 lines, all roles)
 ├── AvailabilityStep.tsx           (~700 lines, all roles)
 ├── ProfessionalDetailStep.tsx     (~600 lines, all roles)
@@ -147,7 +147,7 @@ interface PersonalInfoStepProps {
 }
 
 // Usage in page.tsx
-import PersonalInfoStep from '@/app/components/feature/onboarding/shared/steps/PersonalInfoStep';
+import PersonalInfoStep from '@/components/feature/onboarding/shared/steps/PersonalInfoStep';
 
 export default function TutorPersonalInfoPage() {
   return (
@@ -194,7 +194,7 @@ const getFields = (role: OnboardingRole) => {
 ### **Component Location**
 
 ```
-apps/web/src/app/components/feature/onboarding/
+apps/web/src/components/feature/onboarding/
 ├── shared/
 │   ├── steps/                         # Shared step components
 │   │   ├── PersonalInfoStep.tsx
@@ -966,8 +966,8 @@ ORDER BY dropoff_count DESC;
 - Onboarding pages: `apps/web/src/app/(authenticated)/onboarding/[role]/`
 - Draft API: `apps/web/src/app/api/onboarding/draft/`
 - Submission API: `apps/web/src/app/api/onboarding/[role]/submit/`
-- Shared step components: `apps/web/src/app/components/feature/onboarding/shared/steps/`
-- Legacy wizard: `apps/web/src/app/components/feature/onboarding/client/`
+- Shared step components: `apps/web/src/components/feature/onboarding/shared/steps/`
+- Legacy wizard: `apps/web/src/components/feature/onboarding/client/`
 
 ### **Database Migrations**
 - `080_create_onboarding_drafts.sql` - Create onboarding_drafts table

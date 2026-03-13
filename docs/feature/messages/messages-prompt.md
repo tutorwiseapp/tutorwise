@@ -19,7 +19,7 @@ Real-time chat system with WhatsApp-style UI, powered by Ably for instant messag
 - [page.tsx](../../../apps/web/src/app/(authenticated)/messages/page.tsx) - Gold Standard Hub with 2-pane layout
 
 **Components**:
-- `apps/web/src/app/components/feature/messages/*.tsx` (6 total)
+- `apps/web/src/components/feature/messages/*.tsx` (6 total)
 - ChatThread, ConversationList, InboxStatsWidget, Help/Tip widgets
 
 **Custom Hooks**:

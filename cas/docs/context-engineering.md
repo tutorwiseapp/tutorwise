@@ -73,7 +73,7 @@ import type { User } from '@tutorwise/shared-types'
  * @fileoverview NavMenu component with role switching functionality
  * @context Used in main layout for authenticated users
  * @dependencies Radix UI, UserProfileContext, role management
- * @related apps/web/src/app/components/layout/RoleSwitcher.tsx
+ * @related apps/web/src/components/layout/RoleSwitcher.tsx
  * @updated 2025-09-27 - Added role switching integration
  */
 ```

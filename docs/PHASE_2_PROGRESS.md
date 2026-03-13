@@ -34,7 +34,7 @@ exportToCSV(data, columns, 'filename');
 
 **Usage Example:**
 ```typescript
-import StatusBadge, { getBookingStatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge, { getBookingStatusVariant } from '@/components/admin/badges/StatusBadge';
 
 <StatusBadge variant={getBookingStatusVariant(status)} />
 // Or with custom label:
@@ -214,7 +214,7 @@ For each table, follow this pattern:
 **Step 1: Update Imports**
 ```typescript
 // Add these imports:
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 ```

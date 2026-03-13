@@ -19,7 +19,7 @@ The user reported that the client and agent professional info forms were not wor
 ## Solution Implemented
 
 ### 1. Updated EditingField Type ✅
-**File**: [ProfessionalInfoForm.tsx:19-31](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx#L19-L31)
+**File**: [ProfessionalInfoForm.tsx:19-31](apps/web/src/components/profile/ProfessionalInfoForm.tsx#L19-L31)
 
 Added all client and agent field names to the `EditingField` type to enable editing:
 
@@ -37,7 +37,7 @@ type EditingField = 'bio' | 'status' | 'academic_qualifications' | ...
 ```
 
 ### 2. Converted Client Form to Editable Fields ✅
-**File**: [ProfessionalInfoForm.tsx:651-706](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx#L651-L706)
+**File**: [ProfessionalInfoForm.tsx:651-706](apps/web/src/components/profile/ProfessionalInfoForm.tsx#L651-L706)
 
 **Before** (READ-ONLY):
 ```tsx
@@ -74,7 +74,7 @@ type EditingField = 'bio' | 'status' | 'academic_qualifications' | ...
 - Two-column grids: education_level + learning_goals, budget_min + budget_max, sessions_per_week + session_duration
 
 ### 3. Converted Agent Form to Editable Fields ✅
-**File**: [ProfessionalInfoForm.tsx:710-756](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx#L710-L756)
+**File**: [ProfessionalInfoForm.tsx:710-756](apps/web/src/components/profile/ProfessionalInfoForm.tsx#L710-L756)
 
 **Before**: 145 lines of READ-ONLY divs showing "Not set"
 
@@ -107,7 +107,7 @@ type EditingField = 'bio' | 'status' | 'academic_qualifications' | ...
 - Can be added later if needed with proper multiselect options
 
 ### 4. Added Comprehensive Save Logic ✅
-**File**: [ProfessionalInfoForm.tsx:330-413](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx#L330-L413)
+**File**: [ProfessionalInfoForm.tsx:330-413](apps/web/src/components/profile/ProfessionalInfoForm.tsx#L330-L413)
 
 **Enhanced `handleSaveField` function** to support:
 - Profile-level fields (bio, dbs_certificate)
@@ -302,7 +302,7 @@ useEffect loads new data
 
 ## Files Modified
 
-### [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+### [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 **Lines Modified**:
 - Lines 19-31: Updated EditingField type (+12 lines)

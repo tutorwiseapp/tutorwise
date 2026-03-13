@@ -26,9 +26,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Booking } from '@/types';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal';
-import Button from '@/app/components/ui/actions/Button';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal';
+import Button from '@/components/ui/actions/Button';
 import { createClient } from '@/utils/supabase/client';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import styles from './AdminBookingDetailModal.module.css';

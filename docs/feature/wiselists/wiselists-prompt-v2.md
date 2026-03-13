@@ -742,7 +742,7 @@ const handleButtonClick = useCallback(() => handleDelete(id), [id]);
 | **Service Layer** | `apps/web/src/lib/api/wiselists.ts` | Core business logic (523 lines, 11 functions) |
 | **API Routes** | `apps/web/src/app/api/wiselists/` | 6 REST endpoint files |
 | **Types** | `apps/web/src/types/index.ts` | TypeScript interfaces (Wiselist, WiselistItem, etc.) |
-| **Components** | `apps/web/src/app/components/feature/wiselists/` | 10 UI components |
+| **Components** | `apps/web/src/components/feature/wiselists/` | 10 UI components |
 | **Database** | `apps/api/migrations/081-084_*.sql` | 4 migration files |
 | **Pages** | `apps/web/src/app/(authenticated)/wiselists/page.tsx` | Hub page |
 | **Public Page** | `apps/web/src/app/w/[slug]/page.tsx` | Public wiselist page (WIP) |

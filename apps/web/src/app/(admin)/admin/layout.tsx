@@ -10,7 +10,7 @@
 import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import AdminLayout from '@/app/components/admin/layout/AdminLayout';
+import AdminLayout from '@/components/admin/layout/AdminLayout';
 
 interface AdminRouteLayoutProps {
   children: ReactNode;

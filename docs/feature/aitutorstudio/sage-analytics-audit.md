@@ -723,7 +723,7 @@ Add to Overview tab after HubKPIGrid:
 )}
 
 // With ChartSkeleton
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 
 {isLoading && <ChartSkeleton height="320px" />}
 ```

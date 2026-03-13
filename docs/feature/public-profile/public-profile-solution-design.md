@@ -334,7 +334,7 @@ const { data: listings } = await supabase
 
 **Display Logic**:
 ```typescript
-// File: apps/web/src/app/components/feature/public-profile/ServicesCard.tsx
+// File: apps/web/src/components/feature/public-profile/ServicesCard.tsx
 // Lines: 36-66
 
 const MAX_LISTINGS_SHOWN = 5;
@@ -524,7 +524,7 @@ enrichedProfile.clients_worked_with = clientsWorkedWith;
 
 **Tracking Component**:
 ```typescript
-// File: apps/web/src/app/components/feature/public-profile/ProfileViewTracker.tsx
+// File: apps/web/src/components/feature/public-profile/ProfileViewTracker.tsx
 
 'use client';
 import { useEffect, useRef } from 'react';
@@ -618,7 +618,7 @@ interface Profile {
 
 **Display Component**:
 ```typescript
-// File: apps/web/src/app/components/feature/public-profile/VerificationCard.tsx
+// File: apps/web/src/components/feature/public-profile/VerificationCard.tsx
 
 export function VerificationCard({ profile }: VerificationCardProps) {
   const badges = [
@@ -1263,7 +1263,7 @@ const enrichedProfile = {
 
 **Purpose**: Show up to 5 recent listings with count badge
 
-**Location**: `apps/web/src/app/components/feature/public-profile/ServicesCard.tsx`
+**Location**: `apps/web/src/components/feature/public-profile/ServicesCard.tsx`
 
 **Features**:
 - MAX_LISTINGS_SHOWN = 5 constant
@@ -1360,7 +1360,7 @@ export function ServicesCard({ profile, listings = [], isOwnProfile = false, exc
 
 **Purpose**: Log unique profile views for analytics dashboard
 
-**Location**: `apps/web/src/app/components/feature/public-profile/ProfileViewTracker.tsx`
+**Location**: `apps/web/src/components/feature/public-profile/ProfileViewTracker.tsx`
 
 **Features**:
 - Client component (runs in browser)
@@ -1457,7 +1457,7 @@ export async function POST(req: Request) {
 
 **Purpose**: Sticky sidebar card with contact actions
 
-**Location**: `apps/web/src/app/components/feature/public-profile/GetInTouchCard.tsx`
+**Location**: `apps/web/src/components/feature/public-profile/GetInTouchCard.tsx`
 
 **CTAs**:
 - **Own Profile**: "Edit My Profile" → `/account/personal-info`
@@ -1581,7 +1581,7 @@ export function GetInTouchCard({ profile, currentUser }: GetInTouchCardProps) {
 ```typescript
 'use client';
 
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import type { Profile } from '@/types';
 import styles from './YourCard.module.css';
 
@@ -1947,10 +1947,10 @@ When adding new features to public profiles:
 
 ```typescript
 // 1. Create component
-// File: apps/web/src/app/components/feature/public-profile/CertificationsCard.tsx
+// File: apps/web/src/components/feature/public-profile/CertificationsCard.tsx
 'use client';
 
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './CertificationsCard.module.css';
 
 export function CertificationsCard({ profile }: { profile: Profile }) {
@@ -1993,7 +1993,7 @@ export function CertificationsCard({ profile }: { profile: Profile }) {
 .cardContent { padding: 16px; }
 
 // 3. Add to page.tsx
-import { CertificationsCard } from '@/app/components/feature/public-profile/CertificationsCard';
+import { CertificationsCard } from '@/components/feature/public-profile/CertificationsCard';
 
 <div className={styles.mainColumn}>
   <AboutCard profile={enrichedProfile} />

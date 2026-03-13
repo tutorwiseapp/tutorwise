@@ -17,7 +17,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';
-import SearchWidget from '@/app/components/help-centre/widgets/SearchWidget';
+import SearchWidget from '@/components/help-centre/widgets/SearchWidget';
 import { useSearchArticles } from '@/lib/hooks/useHelpCentre';
 import type { ArticleSearchResult } from './actions';
 import styles from './page.module.css';

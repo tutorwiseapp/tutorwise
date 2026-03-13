@@ -124,7 +124,7 @@ npx tsc --noEmit
 
 #### A. File Structure
 ```
-apps/web/src/app/components/[category]/
+apps/web/src/components/[category]/
 ├── ComponentName.tsx
 ├── ComponentName.module.css
 └── index.ts

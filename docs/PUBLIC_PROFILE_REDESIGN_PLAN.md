@@ -64,7 +64,7 @@ Container (max-width constrained)
 ### 2.1 Top Section Components
 
 #### **ProfileHeader Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/ProfileHeader.tsx`
+**File:** `apps/web/src/components/public-profile/ProfileHeader.tsx`
 
 **Purpose:** Replace simple "Public Profile" title with rich header
 
@@ -110,7 +110,7 @@ Container (max-width constrained)
 ---
 
 #### **HeroImageSection Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/HeroImageSection.tsx`
+**File:** `apps/web/src/components/public-profile/HeroImageSection.tsx`
 
 **Purpose:** Add visual appeal like listing page image grid
 
@@ -152,7 +152,7 @@ Container (max-width constrained)
 ### 2.2 Main Column Components
 
 #### **AboutSection Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/AboutSection.tsx`
+**File:** `apps/web/src/components/public-profile/AboutSection.tsx`
 
 **Purpose:** Rich introduction section (like listing page description)
 
@@ -222,7 +222,7 @@ Container (max-width constrained)
 ---
 
 #### **ServicesCard Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/ServicesCard.tsx`
+**File:** `apps/web/src/components/public-profile/ServicesCard.tsx`
 
 **Purpose:** Display active listings (like listing page related listings)
 
@@ -262,7 +262,7 @@ Container (max-width constrained)
 ---
 
 #### **ReviewsCard Component** (ENHANCED)
-**File:** `apps/web/src/app/components/public-profile/ReviewsCard.tsx`
+**File:** `apps/web/src/components/public-profile/ReviewsCard.tsx`
 
 **Purpose:** Display actual reviews (not hardcoded)
 
@@ -366,7 +366,7 @@ Container (max-width constrained)
 ---
 
 #### **VerificationCard Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/VerificationCard.tsx`
+**File:** `apps/web/src/components/public-profile/VerificationCard.tsx`
 
 **Purpose:** Show verification status (like listing page tutor verification)
 
@@ -453,7 +453,7 @@ Container (max-width constrained)
 ### 2.4 Related Section Components
 
 #### **SimilarProfilesCard Component** (NEW)
-**File:** `apps/web/src/app/components/public-profile/SimilarProfilesCard.tsx`
+**File:** `apps/web/src/components/public-profile/SimilarProfilesCard.tsx`
 
 **Purpose:** Recommendations (like listing page related listings)
 
@@ -606,7 +606,7 @@ return (
 
 **Action:** Mark as deprecated, add warning
 
-**File:** `apps/web/src/app/components/public-profile/PublicProfileLayout.tsx`
+**File:** `apps/web/src/components/public-profile/PublicProfileLayout.tsx`
 
 ```tsx
 /**
@@ -664,7 +664,7 @@ return (
 
 ### 6.1 Mobile Bottom CTA
 
-**File:** `apps/web/src/app/components/public-profile/MobileBottomCTA.tsx`
+**File:** `apps/web/src/components/public-profile/MobileBottomCTA.tsx`
 
 **Purpose:** Fixed bottom bar with "Book Session" CTA (like listing page)
 
@@ -838,7 +838,7 @@ const { data: listings } = await supabase
 
 ### New Files to Create
 ```
-apps/web/src/app/components/public-profile/
+apps/web/src/components/public-profile/
 ├── ProfileHeader.tsx                    (NEW - replaces simple title)
 ├── ProfileHeader.module.css             (NEW)
 ├── HeroImageSection.tsx                 (NEW - hero banner)
@@ -865,7 +865,7 @@ apps/web/src/app/public-profile/[id]/[[...slug]]/
 ├── page.tsx                             (MAJOR REFACTOR - new layout)
 └── page.module.css                      (REPLACE - 2-column grid)
 
-apps/web/src/app/components/public-profile/
+apps/web/src/components/public-profile/
 ├── PublicActionCard.tsx                 (ENHANCE - match ActionCard)
 ├── PublicActionCard.module.css          (ENHANCE)
 └── UnifiedProfileTabs.tsx               (DEPRECATE - split into sections)
@@ -873,7 +873,7 @@ apps/web/src/app/components/public-profile/
 
 ### Files to Deprecate
 ```
-apps/web/src/app/components/public-profile/
+apps/web/src/components/public-profile/
 ├── PublicProfileLayout.tsx              (DEPRECATE - use Container)
 └── PublicProfileLayout.module.css       (DEPRECATE)
 ```

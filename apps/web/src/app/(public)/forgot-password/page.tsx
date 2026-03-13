@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import Input from '@/app/components/ui/forms/Input';
-import Button from '@/app/components/ui/actions/Button';
-import Message from '@/app/components/ui/feedback/Message';
+import Container from '@/components/layout/Container';
+import PageHeader from '@/components/ui/data-display/PageHeader';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import Input from '@/components/ui/forms/Input';
+import Button from '@/components/ui/actions/Button';
+import Message from '@/components/ui/feedback/Message';
 import authStyles from '@/app/styles/auth.module.css';
 
 const ForgotPasswordPage = () => {

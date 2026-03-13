@@ -876,7 +876,7 @@ apps/web/src/lib/utils/
 
 ### Components
 ```
-apps/web/src/app/components/blog/
+apps/web/src/components/blog/
 ├── embeds/
 │   ├── TutorEmbed.tsx                              # Embed tutor profiles
 │   ├── ListingGrid.tsx                             # Embed marketplace listings

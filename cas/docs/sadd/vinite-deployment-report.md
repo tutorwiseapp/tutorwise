@@ -22,14 +22,14 @@
 ### Feature: UI Components v1.2.0
 
 **Files deployed to Vinite:**
-1. `src/app/components/ui/Button.tsx`
-2. `src/app/components/ui/Button.module.css`
-3. `src/app/components/ui/Card.tsx`
-4. `src/app/components/ui/Card.module.css`
-5. `src/app/components/ui/Tabs.tsx`
-6. `src/app/components/ui/Tabs.module.css`
-7. `src/app/components/ui/StatusBadge.tsx`
-8. `src/app/components/ui/StatusBadge.module.css`
+1. `src/components/ui/Button.tsx`
+2. `src/components/ui/Button.module.css`
+3. `src/components/ui/Card.tsx`
+4. `src/components/ui/Card.module.css`
+5. `src/components/ui/Tabs.tsx`
+6. `src/components/ui/Tabs.module.css`
+7. `src/components/ui/StatusBadge.tsx`
+8. `src/components/ui/StatusBadge.module.css`
 
 **Tracking File Created:**
 - `.sadd/vinite-ui-components.json` - Tracks deployment metadata
@@ -97,14 +97,14 @@ Files skipped: 0
 - `.sadd/vinite-ui-components.json` (24 lines added - tracking file)
 
 **New Files:**
-- `src/app/components/ui/Button.tsx` (from TutorWise)
-- `src/app/components/ui/Button.module.css`
-- `src/app/components/ui/Card.tsx`
-- `src/app/components/ui/Card.module.css`
-- `src/app/components/ui/Tabs.tsx`
-- `src/app/components/ui/Tabs.module.css`
-- `src/app/components/ui/StatusBadge.tsx`
-- `src/app/components/ui/StatusBadge.module.css`
+- `src/components/ui/Button.tsx` (from TutorWise)
+- `src/components/ui/Button.module.css`
+- `src/components/ui/Card.tsx`
+- `src/components/ui/Card.module.css`
+- `src/components/ui/Tabs.tsx`
+- `src/components/ui/Tabs.module.css`
+- `src/components/ui/StatusBadge.tsx`
+- `src/components/ui/StatusBadge.module.css`
 
 ---
 
@@ -151,7 +151,7 @@ git branch -D sadd/ui-components-v1.2.0-20251005-130857
 
 ### Issue 1: Feature Catalog Paths
 **Problem:** Catalog referenced non-existent paths (`apps/web/src/components/ui/`)  
-**Actual Path:** `apps/web/src/app/components/ui/`  
+**Actual Path:** `apps/web/src/components/ui/`  
 **Fix:** Updated `sadd-feature-catalog.json` with correct paths
 
 ### Issue 2: PROJECT_ROOT Calculation

@@ -118,25 +118,25 @@ apps/api/
 
 ### Component Breakdown
 
-**HeroSection** ([HeroSection.tsx](../../apps/web/src/app/components/feature/marketplace/HeroSection.tsx))
+**HeroSection** ([HeroSection.tsx](../../apps/web/src/components/feature/marketplace/HeroSection.tsx))
 - AI-powered natural language search bar
 - Advanced filters button with active filter count badge
 - Reset button to clear all filters
 - Prominent call-to-action design
 
-**RoleBasedHomepage** ([RoleBasedHomepage.tsx](../../apps/web/src/app/components/feature/marketplace/RoleBasedHomepage.tsx))
+**RoleBasedHomepage** ([RoleBasedHomepage.tsx](../../apps/web/src/components/feature/marketplace/RoleBasedHomepage.tsx))
 - Displays interleaved profiles and listings
 - Infinite scroll with "Load More" button
 - Role-specific messaging (client, tutor, agent, school)
 
-**MarketplaceListingCard** ([MarketplaceListingCard.tsx](../../apps/web/src/app/components/feature/marketplace/MarketplaceListingCard.tsx))
+**MarketplaceListingCard** ([MarketplaceListingCard.tsx](../../apps/web/src/components/feature/marketplace/MarketplaceListingCard.tsx))
 - Airbnb-inspired design (image-first)
 - Quick save to wiselist (heart icon)
 - Badge overlays (Free Help, Trial, Verification, Category)
 - Rating display
 - Instant book link
 
-**AdvancedFilters** ([AdvancedFilters.tsx](../../apps/web/src/app/components/feature/marketplace/AdvancedFilters.tsx))
+**AdvancedFilters** ([AdvancedFilters.tsx](../../apps/web/src/components/feature/marketplace/AdvancedFilters.tsx))
 - Mobile-responsive drawer
 - Rich filter controls (checkboxes, radio buttons, price inputs)
 - Active filter count display

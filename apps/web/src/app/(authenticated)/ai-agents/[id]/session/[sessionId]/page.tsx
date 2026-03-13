@@ -16,10 +16,10 @@
 
 import { use, useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAIAgentChat } from '@/app/components/feature/ai-agents/session/useAIAgentChat';
+import { useAIAgentChat } from '@/components/feature/ai-agents/session/useAIAgentChat';
 import LexiMarkdown from '@/components/feature/lexi/LexiMarkdown';
-import SessionTimer from '@/app/components/feature/ai-agents/session/SessionTimer';
-import ReviewModal from '@/app/components/feature/ai-agents/session/ReviewModal';
+import SessionTimer from '@/components/feature/ai-agents/session/SessionTimer';
+import ReviewModal from '@/components/feature/ai-agents/session/ReviewModal';
 import styles from './AIAgentSession.module.css';
 
 interface PageProps {

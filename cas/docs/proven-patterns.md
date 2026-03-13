@@ -20,7 +20,7 @@ This document outlines the proven architectural and structural patterns that sho
     ```tsx
     // apps/web/src/app/your-feature/page.tsx
     import styles from './page.module.css';
-    import { YourFeatureComponent } from '@/app/components/your-feature';
+    import { YourFeatureComponent } from '@/components/your-feature';
 
     export default function YourFeaturePage() {
       return (

@@ -32,10 +32,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Edit2, Trash2, X, Check } from 'lucide-react';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar, { SidebarWidget } from '@/app/components/hub/sidebar/HubSidebar';
-import HubToolbar from '@/app/components/hub/toolbar/HubToolbar';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar, { SidebarWidget } from '@/components/hub/sidebar/HubSidebar';
+import HubToolbar from '@/components/hub/toolbar/HubToolbar';
+import Button from '@/components/ui/actions/Button';
 import {
   fetchSharedFields,
   updateSharedField,

@@ -120,7 +120,7 @@ All chart and widget components MUST use the standardized teal header pattern:
 
 **Pattern**: `Hub{ComponentType}.tsx`
 
-**Location**: `apps/web/src/app/components/hub/charts/`
+**Location**: `apps/web/src/components/hub/charts/`
 
 **Available Components**:
 - `HubKPICard` - KPI metric cards with teal headers
@@ -141,7 +141,7 @@ All chart and widget components MUST use the standardized teal header pattern:
 ### 3.1 Feature Component Structure
 
 ```
-apps/web/src/app/components/feature/{feature}/
+apps/web/src/components/feature/{feature}/
 ├── {Feature}PerformanceTab.tsx     # Main performance view
 ├── {Feature}KPIGrid.tsx            # KPI metrics grid
 ├── {Feature}StatsWidget.tsx        # Sidebar stats widget
@@ -157,7 +157,7 @@ apps/web/src/app/components/feature/{feature}/
 ### 3.2 Hub Components Structure
 
 ```
-apps/web/src/app/components/hub/
+apps/web/src/components/hub/
 ├── charts/                         # Shared chart components
 │   ├── HubKPICard.tsx
 │   ├── HubKPIGrid.tsx
@@ -254,10 +254,10 @@ export type { DayData } from './HubCalendarHeatmap';
 
 ```tsx
 // CORRECT - Import from barrel
-import { HubKPICard, HubCalendarHeatmap, type DayData } from '@/app/components/hub/charts';
+import { HubKPICard, HubCalendarHeatmap, type DayData } from '@/components/hub/charts';
 
 // WRONG - Direct imports
-import HubKPICard from '@/app/components/hub/charts/HubKPICard';
+import HubKPICard from '@/components/hub/charts/HubKPICard';
 ```
 
 ---
@@ -340,7 +340,7 @@ Before merging any PR, verify:
 ### 10.1 Good Example - HubKPICard
 
 ```tsx
-// apps/web/src/app/components/hub/charts/HubKPICard.tsx
+// apps/web/src/components/hub/charts/HubKPICard.tsx
 'use client';
 
 import React from 'react';
@@ -376,7 +376,7 @@ export default function HubKPICard({ label, value, icon: Icon }: HubKPICardProps
 
 ```tsx
 // DON'T DO THIS
-// apps/web/src/app/components/feature/dashboard/widgets/DashboardKPICard.tsx
+// apps/web/src/components/feature/dashboard/widgets/DashboardKPICard.tsx
 // This duplicates HubKPICard - use Hub component instead!
 ```
 

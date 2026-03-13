@@ -712,12 +712,12 @@ return (data || []).map((item: any) => ({
 
 ### UI Components (8 files)
 - `apps/web/src/app/(authenticated)/my-students/page.tsx`
-- `apps/web/src/app/components/feature/students/StudentCard.tsx`
-- `apps/web/src/app/components/feature/students/StudentDetailModal.tsx`
-- `apps/web/src/app/components/feature/students/StudentInviteModal.tsx`
-- `apps/web/src/app/components/feature/students/StudentStatsWidget.tsx`
-- `apps/web/src/app/components/feature/students/MyStudentHelpWidget.tsx`
-- `apps/web/src/app/components/feature/students/IntegrationLinksCard.tsx`
+- `apps/web/src/components/feature/students/StudentCard.tsx`
+- `apps/web/src/components/feature/students/StudentDetailModal.tsx`
+- `apps/web/src/components/feature/students/StudentInviteModal.tsx`
+- `apps/web/src/components/feature/students/StudentStatsWidget.tsx`
+- `apps/web/src/components/feature/students/MyStudentHelpWidget.tsx`
+- `apps/web/src/components/feature/students/IntegrationLinksCard.tsx`
 - `apps/web/src/lib/api/students.ts`
 
 **Total Files Reviewed:** 17

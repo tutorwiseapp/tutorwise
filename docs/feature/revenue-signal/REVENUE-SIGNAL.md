@@ -412,11 +412,11 @@ CREATE TABLE blog_seo_summary (
 
 ### Google Analytics Integration
 
-**Component**: `apps/web/src/app/components/analytics/GoogleAnalytics.tsx`
+**Component**: `apps/web/src/components/analytics/GoogleAnalytics.tsx`
 
 ```typescript
 // Add to Layout.tsx
-import GoogleAnalytics from '@/app/components/analytics/GoogleAnalytics';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 
 export default function Layout({ children }: LayoutProps) {
   return (
@@ -1252,7 +1252,7 @@ apps/web/src/lib/utils/
 
 #### Components
 ```
-apps/web/src/app/components/
+apps/web/src/components/
 ├── analytics/
 │   └── GoogleAnalytics.tsx
 ├── blog/

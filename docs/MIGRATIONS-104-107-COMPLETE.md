@@ -36,9 +36,9 @@ Added 7 fields to `bookings` table:
 1. `apps/api/migrations/104_add_booking_snapshot_fields.sql`
 2. `apps/web/src/types/index.ts` (Booking interface)
 3. `apps/web/src/lib/api/bookings.ts` (createBooking API)
-4. `apps/web/src/app/components/feature/bookings/BookingCard.tsx`
-5. `apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx`
-6. `apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx`
+4. `apps/web/src/components/feature/bookings/BookingCard.tsx`
+5. `apps/web/src/components/feature/reviews/PendingReviewCard.tsx`
+6. `apps/web/src/components/feature/bookings/BookingDetailModal.tsx`
 
 ### Impact
 - ✅ Fixed grey avatar colors → now show subject-based colors (orange/yellow/blue/etc.)
@@ -62,7 +62,7 @@ Added 6 fields to `profile_reviews` table:
 1. `apps/api/migrations/105_add_review_snapshot_fields.sql`
 2. `apps/web/src/types/reviews.ts` (ProfileReview interface)
 3. `apps/web/src/app/api/reviews/submit/route.ts` (review creation API)
-4. `apps/web/src/app/components/feature/reviews/ProfileReviewCard.tsx`
+4. `apps/web/src/components/feature/reviews/ProfileReviewCard.tsx`
 
 ### Impact
 - ✅ Reviews now display subject information (e.g., "Mathematics tutor")

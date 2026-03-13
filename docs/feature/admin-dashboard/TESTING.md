@@ -217,8 +217,8 @@ Create a test file to verify permission gates work:
 ```typescript
 'use client';
 
-import PermissionGate from '@/app/components/admin/PermissionGate';
-import RoleGate from '@/app/components/admin/RoleGate';
+import PermissionGate from '@/components/admin/PermissionGate';
+import RoleGate from '@/components/admin/RoleGate';
 import { usePermission, useIsSuperadmin } from '@/lib/rbac';
 
 export default function TestPermissionsPage() {

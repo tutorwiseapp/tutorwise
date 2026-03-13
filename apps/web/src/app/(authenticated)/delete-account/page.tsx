@@ -15,13 +15,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import Container from '@/app/components/layout/Container';
-import Card from '@/app/components/ui/data-display/Card';
-import Button from '@/app/components/ui/actions/Button';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
-import Message from '@/app/components/ui/feedback/Message';
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import Input from '@/app/components/ui/forms/Input';
+import Container from '@/components/layout/Container';
+import Card from '@/components/ui/data-display/Card';
+import Button from '@/components/ui/actions/Button';
+import PageHeader from '@/components/ui/data-display/PageHeader';
+import Message from '@/components/ui/feedback/Message';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import Input from '@/components/ui/forms/Input';
 import styles from './page.module.css';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
 

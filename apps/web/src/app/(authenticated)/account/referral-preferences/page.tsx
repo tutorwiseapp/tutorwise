@@ -9,18 +9,18 @@
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import DelegationStatsWidget from '@/app/components/feature/referrals/sidebar/DelegationStatsWidget';
-import DelegationHelpWidget from '@/app/components/feature/referrals/sidebar/DelegationHelpWidget';
-import DelegationTipWidget from '@/app/components/feature/referrals/sidebar/DelegationTipWidget';
-import DelegationVideoWidget from '@/app/components/feature/referrals/sidebar/DelegationVideoWidget';
-import { HubPageLayout, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import AccountHeroHeader from '@/app/components/feature/account/AccountHeroHeader';
-import Button from '@/app/components/ui/actions/Button';
-import DelegationSettingsPanel from '@/app/components/feature/referrals/content/DelegationSettingsPanel';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import DelegationStatsWidget from '@/components/feature/referrals/sidebar/DelegationStatsWidget';
+import DelegationHelpWidget from '@/components/feature/referrals/sidebar/DelegationHelpWidget';
+import DelegationTipWidget from '@/components/feature/referrals/sidebar/DelegationTipWidget';
+import DelegationVideoWidget from '@/components/feature/referrals/sidebar/DelegationVideoWidget';
+import { HubPageLayout, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import AccountHeroHeader from '@/components/feature/account/AccountHeroHeader';
+import Button from '@/components/ui/actions/Button';
+import DelegationSettingsPanel from '@/components/feature/referrals/content/DelegationSettingsPanel';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 export default function ReferralPreferencesPage() {
   const { profile } = useUserProfile();

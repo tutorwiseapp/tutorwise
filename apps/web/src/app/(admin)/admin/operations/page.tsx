@@ -11,8 +11,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, ArrowUp, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import type { IntentResult } from '@/lib/conductor/IntentDetector';
 import styles from './page.module.css';
 

@@ -11,7 +11,7 @@
 **Reason**: Component folder and page routes use `auth`, not `authentication`
 
 **Codebase Evidence**:
-- Components: `apps/web/src/app/components/feature/auth/`
+- Components: `apps/web/src/components/feature/auth/`
 - Pages: `apps/web/src/app/auth/` (login, signup, forgot-password, etc.)
 
 **Impact**:
@@ -24,7 +24,7 @@
 **Reason**: Component folder is `students`, authenticated page is `my-students`
 
 **Codebase Evidence**:
-- Components: `apps/web/src/app/components/feature/students/`
+- Components: `apps/web/src/components/feature/students/`
 - Pages: `apps/web/src/app/(authenticated)/my-students/`
 
 **Impact**:
@@ -37,7 +37,7 @@
 
 **Codebase Evidence**:
 - Pages: `apps/web/src/app/marketplace/`
-- Components: `apps/web/src/app/components/feature/marketplace/`
+- Components: `apps/web/src/components/feature/marketplace/`
 
 **Impact**:
 - Feature index updated: `[marketplace](./marketplace/)`
@@ -48,7 +48,7 @@
 **Reason**: Component and page folders use `reviews`, duplicate folder removed
 
 **Codebase Evidence**:
-- Components: `apps/web/src/app/components/feature/reviews/`
+- Components: `apps/web/src/components/feature/reviews/`
 - Pages: `apps/web/src/app/(authenticated)/reviews/`
 - Existing docs: `reviews/reviews-solution-design-v4.5.md`
 
@@ -79,7 +79,7 @@ These folders now match the codebase exactly:
 13. **public-profile** - `apps/web/src/app/public-profile/`
 14. **referrals** - `apps/web/src/app/(authenticated)/referrals/`
 15. **reviews** - `apps/web/src/app/(authenticated)/reviews/` (consolidated)
-16. **students** - `apps/web/src/app/components/feature/students/` (renamed from student-onboarding)
+16. **students** - `apps/web/src/components/feature/students/` (renamed from student-onboarding)
 17. **wiselists** - `apps/web/src/app/(authenticated)/wiselists/`
 18. **wisespace** - `apps/web/src/app/(authenticated)/wisespace/`
 
@@ -171,7 +171,7 @@ These should be moved to `Docs/archived/`:
 **Rule**: Documentation folder names MUST match the primary codebase reference:
 
 1. **Component folder exists**: Use component folder name
-   - Example: `apps/web/src/app/components/feature/auth/` → `Docs/feature/auth/`
+   - Example: `apps/web/src/components/feature/auth/` → `Docs/feature/auth/`
 
 2. **Page route exists (no component)**: Use page route name
    - Example: `apps/web/src/app/marketplace/` → `Docs/feature/marketplace/`

@@ -21,7 +21,7 @@ After implementing client and agent form save logic, the tutor form was **missin
 ## Solution Implemented
 
 ### Added Tutor Field Save Logic ✅
-**File**: [ProfessionalInfoForm.tsx:405-427](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx#L405-L427)
+**File**: [ProfessionalInfoForm.tsx:405-427](apps/web/src/components/profile/ProfessionalInfoForm.tsx#L405-L427)
 
 **Added** tutor field handling with field name mapping:
 
@@ -340,7 +340,7 @@ profiles {
 
 ## Files Modified
 
-### 1. [apps/web/src/app/components/profile/ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+### 1. [apps/web/src/components/profile/ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 **Lines Modified**: 405-427
 **Changes**:

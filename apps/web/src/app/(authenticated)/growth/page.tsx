@@ -12,9 +12,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Button from '@/components/ui/actions/Button';
 import GrowthChat from '@/components/feature/growth/GrowthChat';
 import {
   GrowthStatsWidget,
@@ -25,7 +25,7 @@ import {
 } from '@/components/feature/growth/widgets';
 import { useGrowthBilling } from '@/app/hooks/useGrowthBilling';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 export default function GrowthPage() {
   const { profile, isLoading: profileLoading } = useUserProfile();

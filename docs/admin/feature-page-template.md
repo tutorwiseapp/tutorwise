@@ -1294,11 +1294,11 @@ Use the complete testing checklist from [Bookings Implementation Reference](./bo
 'use client';
 
 import React, { useState } from 'react';
-import { HubPageLayout } from '@/app/components/hub/layout';
-import { HubHeader, HubTabs, HubSidebar, HubKPIGrid, HubKPICard } from '@/app/components/hub';
-import { HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
-import { ErrorBoundary } from '@/app/components/ErrorBoundary';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin';
+import { HubPageLayout } from '@/components/hub/layout';
+import { HubHeader, HubTabs, HubSidebar, HubKPIGrid, HubKPICard } from '@/components/hub';
+import { HubTrendChart, HubCategoryBreakdownChart } from '@/components/hub/charts';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin';
 import { useAdminMetric } from '@/hooks/useAdminMetric';
 import {Feature}Table from './components/{Feature}Table';
 import styles from './page.module.css';

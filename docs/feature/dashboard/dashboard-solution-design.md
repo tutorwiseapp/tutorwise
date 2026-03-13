@@ -423,7 +423,7 @@ return NextResponse.json(earningsByWeek);
 **Purpose**: Display unread messages count and recent conversations
 
 **Key Files**:
-- `apps/web/src/app/components/feature/dashboard/widgets/MessagesWidget.tsx`
+- `apps/web/src/components/feature/dashboard/widgets/MessagesWidget.tsx`
 - `messages` table (future integration)
 
 **Mechanism**:
@@ -453,7 +453,7 @@ const unreadCount = messages?.length || 0;
 **Purpose**: Display next payout date and pending balance
 
 **Key Files**:
-- `apps/web/src/app/components/feature/dashboard/widgets/PayoutWidget.tsx`
+- `apps/web/src/components/feature/dashboard/widgets/PayoutWidget.tsx`
 - `transactions` table - Pending balances
 
 **Mechanism**:
@@ -544,10 +544,10 @@ return NextResponse.json([
 **Purpose**: Consistent header, tabs, and sidebar structure
 
 **Key Files**:
-- `apps/web/src/app/components/hub/layout/HubPageLayout.tsx`
-- `apps/web/src/app/components/hub/layout/HubHeader.tsx`
-- `apps/web/src/app/components/hub/layout/HubTabs.tsx`
-- `apps/web/src/app/components/hub/sidebar/HubSidebar.tsx`
+- `apps/web/src/components/hub/layout/HubPageLayout.tsx`
+- `apps/web/src/components/hub/layout/HubHeader.tsx`
+- `apps/web/src/components/hub/layout/HubTabs.tsx`
+- `apps/web/src/components/hub/sidebar/HubSidebar.tsx`
 
 **Mechanism**:
 

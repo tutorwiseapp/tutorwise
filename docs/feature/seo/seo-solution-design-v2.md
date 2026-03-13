@@ -905,10 +905,10 @@ export function generateItemListSchema(items: any[]) {
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import { generateBreadcrumbSchema, generateFAQSchema } from '@/lib/seo/generate-schema'
-import HubHero from '@/app/components/seo/HubHero'
-import HubContent from '@/app/components/seo/HubContent'
-import SpokeGrid from '@/app/components/seo/SpokeGrid'
-import FAQSection from '@/app/components/seo/FAQSection'
+import HubHero from '@/components/seo/HubHero'
+import HubContent from '@/components/seo/HubContent'
+import SpokeGrid from '@/components/seo/SpokeGrid'
+import FAQSection from '@/components/seo/FAQSection'
 
 export const revalidate = 3600 // 1 hour
 
@@ -1007,7 +1007,7 @@ export default async function HubPage({ params }: HubPageProps) {
 
 ### 4.2 Answer Capsule Component
 
-#### File: `apps/web/src/app/components/seo/AnswerCapsule.tsx`
+#### File: `apps/web/src/components/seo/AnswerCapsule.tsx`
 
 ```typescript
 'use client'
@@ -1054,8 +1054,8 @@ import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import { generateBreadcrumbSchema, generateItemListSchema } from '@/lib/seo/generate-schema'
 import { searchMarketplace } from '@/lib/api/marketplace'
-import AnswerCapsule from '@/app/components/seo/AnswerCapsule'
-import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid'
+import AnswerCapsule from '@/components/seo/AnswerCapsule'
+import MarketplaceGrid from '@/components/feature/marketplace/MarketplaceGrid'
 
 export const revalidate = 1800 // 30 minutes
 
@@ -1225,8 +1225,8 @@ export default async function SEOAdminLayout({
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
-import { Button } from '@/app/components/ui/Button'
-import { DataTable } from '@/app/components/ui/DataTable'
+import { Button } from '@/components/ui/Button'
+import { DataTable } from '@/components/ui/DataTable'
 import HubEditorModal from './components/HubEditorModal'
 
 export default function HubManagerPage() {
@@ -1367,8 +1367,8 @@ export default function HubManagerPage() {
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
-import { Button } from '@/app/components/ui/Button'
-import { Card } from '@/app/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import AddCitationModal from './components/AddCitationModal'
 
 export default function CitationTrackerPage() {

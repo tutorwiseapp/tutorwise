@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, Clock, XCircle, ExternalLink, FileText } from 'lucide-react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './DisputesManagement.module.css';
 

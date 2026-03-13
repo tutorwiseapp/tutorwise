@@ -165,7 +165,7 @@ This specification defines a comprehensive user onboarding flow for Tutorwise th
 ### Component Architecture
 
 ```
-/apps/web/src/app/components/onboarding/
+/apps/web/src/components/onboarding/
 ├── OnboardingFlow.tsx              // Main orchestrator component
 ├── providers/
 │   └── OnboardingProvider.tsx      // Context for onboarding state

@@ -255,7 +255,7 @@ See [auth-solution-design.md](./auth-solution-design.md) for detailed integratio
 const protectedRoutes = ['/dashboard', '/messages'];
 
 // Component approach (client-side)
-import ProtectedRoute from '@/app/components/feature/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/feature/auth/ProtectedRoute';
 
 export default function MyPage() {
   return (

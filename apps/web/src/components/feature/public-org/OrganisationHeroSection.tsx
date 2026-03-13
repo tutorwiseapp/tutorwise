@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { Heart, Share2, Edit, Award, Users, Star, MapPin, Building2, Gift } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { ShareModal } from '@/app/components/ui/feedback/ShareModal';
+import { ShareModal } from '@/components/ui/feedback/ShareModal';
 import { quickSaveItem, isItemSaved } from '@/lib/api/wiselists';
 import { getInitials } from '@/lib/utils/initials';
 import styles from './OrganisationHeroSection.module.css';

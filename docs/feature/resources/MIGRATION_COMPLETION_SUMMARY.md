@@ -116,7 +116,7 @@ CREATE OR REPLACE VIEW blog_listing_links AS SELECT * FROM resource_listing_link
 
 **Before:**
 ```
-apps/web/src/app/components/blog/
+apps/web/src/components/blog/
 ├── layout/
 │   ├── BlogLayout.tsx
 │   ├── BlogLeftSidebar.tsx
@@ -130,7 +130,7 @@ apps/web/src/app/components/blog/
 
 **After:**
 ```
-apps/web/src/app/components/resources/
+apps/web/src/components/resources/
 ├── layout/
 │   ├── ResourceLayout.tsx
 │   ├── ResourceLeftSidebar.tsx

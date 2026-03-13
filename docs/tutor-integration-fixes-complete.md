@@ -17,7 +17,7 @@ Successfully implemented all 4 backend fixes to connect tutor onboarding data wi
 
 ### ✅ Fix 1: TutorOnboardingWizard Saves to professional_details.tutor
 
-**File**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**File**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 **Lines**: 290-338 (new code added)
 
 **What Changed**:
@@ -53,7 +53,7 @@ await updateOnboardingProgress(progressUpdate);
 
 ### ✅ Fix 2: ProfessionalInfoForm Loads Tutor Data
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 352, 387-398, 414-419 (modified useEffect)
 
 **What Changed**:
@@ -114,7 +114,7 @@ useEffect(() => {
 
 ### ✅ Fix 3: ProfessionalInfoForm Saves Tutor Fields
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 568-594 (replaced "coming soon" stub)
 
 **What Changed**:
@@ -160,7 +160,7 @@ else if (['status', 'academic_qualifications', 'key_stages',
 
 ### ✅ Fix 4: ProfessionalInfoForm Auto-Saves Tutor Availability
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Lines**: 429, 472-492, 497 (modified useEffect)
 
 **What Changed**:
@@ -469,14 +469,14 @@ When adding availability, you should see:
 ## Files Modified
 
 ### 1. TutorOnboardingWizard.tsx
-**Path**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**Path**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 **Changes**:
 - Added 48 lines of code (lines 290-338)
 - Saves onboarding data to `professional_details.tutor`
 - Maps all 8 onboarding fields to new structure
 
 ### 2. ProfessionalInfoForm.tsx
-**Path**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**Path**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 **Changes**:
 - Modified useEffect to load tutor data (lines 352, 387-398, 414-419)
 - Added tutor field save logic (lines 568-594)

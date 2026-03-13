@@ -368,7 +368,7 @@ Personal info fields are identical across all roles (no role-specific branching 
 
 ### 5.1 Critical Fix: Save Tutor Professional Data to Correct Location
 
-**File**: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+**File**: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 
 **Current Code** (lines 273-288):
 ```typescript
@@ -497,7 +497,7 @@ export interface TutorProfessionalInfo {
 
 ### 5.3 Critical Fix: Create Tutor Professional Info Section
 
-**File**: `apps/web/src/app/components/profile/TutorProfessionalInfoSection.tsx` (NEW FILE)
+**File**: `apps/web/src/components/profile/TutorProfessionalInfoSection.tsx` (NEW FILE)
 
 **Required Implementation**: ~600 lines following the pattern from ClientProfessionalInfoSection.tsx and AgentProfessionalInfoSection.tsx
 
@@ -511,7 +511,7 @@ export interface TutorProfessionalInfo {
 
 ### 5.4 Critical Fix: Add Tutor Section to ProfessionalInfoForm
 
-**File**: `apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Current Code**:
 ```typescript
@@ -695,17 +695,17 @@ For tutor professional info to be considered **fully integrated** with client an
 ## Appendix: File Locations
 
 ### Personal Info (Working)
-- Onboarding: `apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
-- Wizard: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 123-217)
-- Profile: `apps/web/src/app/components/profile/PersonalInfoForm.tsx`
+- Onboarding: `apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
+- Wizard: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 123-217)
+- Profile: `apps/web/src/components/profile/PersonalInfoForm.tsx`
 
 ### Professional Info (Broken)
 - Onboarding Steps:
-  - `apps/web/src/app/components/onboarding/tutor/TutorSubjectSelectionStep.tsx`
-  - `apps/web/src/app/components/onboarding/tutor/TutorQualificationsStep.tsx`
-  - `apps/web/src/app/components/onboarding/tutor/TutorAvailabilityStep.tsx`
-- Wizard: `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 251-340)
-- Profile: ❌ **DOES NOT EXIST** - needs `apps/web/src/app/components/profile/TutorProfessionalInfoSection.tsx`
+  - `apps/web/src/components/onboarding/tutor/TutorSubjectSelectionStep.tsx`
+  - `apps/web/src/components/onboarding/tutor/TutorQualificationsStep.tsx`
+  - `apps/web/src/components/onboarding/tutor/TutorAvailabilityStep.tsx`
+- Wizard: `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx` (lines 251-340)
+- Profile: ❌ **DOES NOT EXIST** - needs `apps/web/src/components/profile/TutorProfessionalInfoSection.tsx`
 
 ### Types
 - Interface: `apps/web/src/types/index.ts` (lines 189-203 - needs expansion to 19 fields)

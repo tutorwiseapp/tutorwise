@@ -9,11 +9,11 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/components/hub/data';
 import { Filter as FilterIcon } from 'lucide-react';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import { ADMIN_TABLE_DEFAULTS } from '@/constants/admin';
 import { formatIdForDisplay } from '@/lib/utils/formatId';

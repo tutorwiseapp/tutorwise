@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Award, Trophy, Star, Flame } from 'lucide-react';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 import styles from './ReferralAchievements.module.css';
 
 interface Achievement {

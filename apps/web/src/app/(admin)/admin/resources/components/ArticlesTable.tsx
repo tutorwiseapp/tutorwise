@@ -8,11 +8,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig, BulkAction } from '@/components/hub/data';
 import Link from 'next/link';
-import StatusBadge from '@/app/components/admin/badges/StatusBadge';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './ArticlesTable.module.css';
 
 interface Article {

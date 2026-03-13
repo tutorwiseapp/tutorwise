@@ -9,7 +9,7 @@ After thorough code review, **Phase 2 was already implemented correctly**. The P
 ## 🔍 Code Review Findings
 
 ### 1. Form Loads Data from `professional_details` ✅
-**File**: `apps/web/src/app/components/feature/account/ProfessionalInfoForm.tsx` (Lines 269-357)
+**File**: `apps/web/src/components/feature/account/ProfessionalInfoForm.tsx` (Lines 269-357)
 
 The `useEffect` hook correctly loads data from `profile.professional_details`:
 
@@ -59,7 +59,7 @@ useEffect(() => {
 ---
 
 ### 2. Form Saves Data to `professional_details` ✅
-**File**: `apps/web/src/app/components/feature/account/ProfessionalInfoForm.tsx` (Lines 429-544)
+**File**: `apps/web/src/components/feature/account/ProfessionalInfoForm.tsx` (Lines 429-544)
 
 The `handleSaveField` function correctly constructs `professional_details` updates:
 

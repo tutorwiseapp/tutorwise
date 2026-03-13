@@ -16,7 +16,7 @@ Updated the AI Tutor creation UI to support all 5 agent types with a new **Agent
 
 ### 1. **Agent Type Selector Component** ✅
 
-**File:** `apps/web/src/app/components/feature/ai-agents/AgentTypeSelector.tsx` (170 lines)
+**File:** `apps/web/src/components/feature/ai-agents/AgentTypeSelector.tsx` (170 lines)
 
 **Features:**
 - Two variants: **cards** (visual, for creation flow) and **radio** (compact, for filters)
@@ -38,7 +38,7 @@ Updated the AI Tutor creation UI to support all 5 agent types with a new **Agent
 
 ### 2. **AI Agent Builder Form** ✅
 
-**File:** `apps/web/src/app/components/feature/ai-agents/AIAgentBuilderForm.tsx` (470 lines)
+**File:** `apps/web/src/components/feature/ai-agents/AIAgentBuilderForm.tsx` (470 lines)
 
 **Features:**
 - **Two-step flow:**
@@ -260,9 +260,9 @@ const agentType: AIAgentType = 'study_buddy';
 
 ```typescript
 // Reuses existing components
-import SkillSelector from '@/app/components/feature/ai-tutors/SkillSelector';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import HubForm from '@/app/components/hub/form/HubForm';
+import SkillSelector from '@/components/feature/ai-tutors/SkillSelector';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import HubForm from '@/components/hub/form/HubForm';
 ```
 
 ---
@@ -359,10 +359,10 @@ AI Studio (NEW NAME)
 
 ### Created (5 files)
 
-1. `apps/web/src/app/components/feature/ai-agents/AgentTypeSelector.tsx` (170 lines)
-2. `apps/web/src/app/components/feature/ai-agents/AgentTypeSelector.module.css` (145 lines)
-3. `apps/web/src/app/components/feature/ai-agents/AIAgentBuilderForm.tsx` (470 lines)
-4. `apps/web/src/app/components/feature/ai-agents/AIAgentBuilderForm.module.css` (95 lines)
+1. `apps/web/src/components/feature/ai-agents/AgentTypeSelector.tsx` (170 lines)
+2. `apps/web/src/components/feature/ai-agents/AgentTypeSelector.module.css` (145 lines)
+3. `apps/web/src/components/feature/ai-agents/AIAgentBuilderForm.tsx` (470 lines)
+4. `apps/web/src/components/feature/ai-agents/AIAgentBuilderForm.module.css` (95 lines)
 5. `PHASE-4-UI-UPDATES.md` (this file)
 
 ### Modified (1 file)

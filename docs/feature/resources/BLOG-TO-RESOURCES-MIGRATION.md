@@ -73,8 +73,8 @@ Phase 5: Cleanup Legacy Code (Month 6)
 
 **Files to Update:**
 ```
-apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx
-apps/web/src/app/components/layout/Header.tsx (if exists)
+apps/web/src/components/admin/sidebar/AdminSidebar.tsx
+apps/web/src/components/layout/Header.tsx (if exists)
 apps/web/src/app/blog/layout.tsx (metadata)
 apps/web/src/app/(admin)/admin/blog/page.tsx (page title)
 ```
@@ -222,10 +222,10 @@ COMMENT ON FUNCTION get_article_performance_summary IS 'DEPRECATED: Use get_reso
 
 ```bash
 # Blog components → Resource components
-apps/web/src/app/components/blog/
-  → apps/web/src/app/components/resources/
+apps/web/src/components/blog/
+  → apps/web/src/components/resources/
 
-mv apps/web/src/app/components/blog apps/web/src/app/components/resources
+mv apps/web/src/components/blog apps/web/src/components/resources
 
 # Specific files:
 BlogLayout.tsx → ResourceLayout.tsx
@@ -239,12 +239,12 @@ ArticleStructuredData.tsx → ResourceStructuredData.tsx
 **Update imports in ALL files:**
 ```typescript
 // OLD
-import BlogLayout from '@/app/components/blog/layout/BlogLayout';
-import { ArticleCard } from '@/app/components/blog/ArticleCard';
+import BlogLayout from '@/components/blog/layout/BlogLayout';
+import { ArticleCard } from '@/components/blog/ArticleCard';
 
 // NEW
-import ResourceLayout from '@/app/components/resources/layout/ResourceLayout';
-import { ResourceArticleCard } from '@/app/components/resources/ResourceArticleCard';
+import ResourceLayout from '@/components/resources/layout/ResourceLayout';
+import { ResourceArticleCard } from '@/components/resources/ResourceArticleCard';
 ```
 
 #### 3.2 Admin Components
@@ -408,7 +408,7 @@ tools/database/migrations/
 
 #### Frontend Components (25+ files)
 ```
-apps/web/src/app/components/resources/ (renamed from blog/)
+apps/web/src/components/resources/ (renamed from blog/)
 ├── layout/
 │   ├── ResourceLayout.tsx
 │   ├── ResourceLayoutClient.tsx
@@ -538,7 +538,7 @@ WHERE resource = 'blog';
 
 **Admin Sidebar:**
 ```typescript
-// apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx
+// apps/web/src/components/admin/sidebar/AdminSidebar.tsx
 
 const navItems: NavItem[] = [
   { href: '/admin', label: 'Dashboard' },
@@ -560,7 +560,7 @@ const navItems: NavItem[] = [
 
 **Public Header:**
 ```typescript
-// apps/web/src/app/components/layout/Header.tsx (if exists)
+// apps/web/src/components/layout/Header.tsx (if exists)
 
 <Link href="/resources">Resources</Link>
 ```

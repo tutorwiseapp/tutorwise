@@ -28,7 +28,7 @@ The Analyst Agent will first search the target codebase for existing features th
 
 **Methodology:**
 - **Keyword Analysis:** Use keywords from the task description (e.g., "wizard," "form," "table," "dashboard").
-- **Directory Scanning:** Scan relevant directories (e.g., `apps/web/src/app/components/`) for components with matching names.
+- **Directory Scanning:** Scan relevant directories (e.g., `apps/web/src/components/`) for components with matching names.
 - **Code Search:** Use `grep` or a similar tool to search for code patterns related to the feature.
 
 **Example:** For a "new listing wizard," the Analyst would identify the "onboarding wizard" as the primary analogous feature.

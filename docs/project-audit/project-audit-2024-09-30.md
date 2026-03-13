@@ -198,7 +198,7 @@ D	apps/web/src/app/api/stripe/verify-and-get-cards/route.ts
 D	apps/web/src/app/api/system-test/route.ts
 D	apps/web/src/app/api/user/delete/route.ts
 D	apps/web/src/app/api/visual-testing/route.ts
-M	apps/web/src/app/components/onboarding/OnboardingWizard.tsx
+M	apps/web/src/components/onboarding/OnboardingWizard.tsx
 A	docs/ai-change-management.md
 A	docs/deployment-process.md
 A	tools/change-management/ai-permission-system.js
@@ -235,7 +235,7 @@ A	tools/change-management/approval-workflow.js
 
 ### Files Modified
 
-- `apps/web/src/app/components/onboarding/OnboardingWizard.tsx`
+- `apps/web/src/components/onboarding/OnboardingWizard.tsx`
 
 ### Files Deleted
 

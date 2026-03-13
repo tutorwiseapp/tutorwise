@@ -12,7 +12,7 @@
 ## Files to Modify
 
 ### 1. Remove Settings from AppSideBar
-**File**: `apps/web/src/app/components/layout/sidebars/AppSidebar.tsx`
+**File**: `apps/web/src/components/layout/sidebars/AppSidebar.tsx`
 **Change**: Remove line 52: `{ href: '/settings', label: 'Settings' },`
 
 ### 2. Delete Legacy Settings Page
@@ -26,10 +26,10 @@
 **Files found with /settings references**:
 - `apps/web/src/lib/email.ts` - Check for any email links
 - `apps/web/src/middleware.ts` - May need redirect rule
-- `apps/web/src/app/components/caas/CaaSGuidanceWidget.tsx`
+- `apps/web/src/components/caas/CaaSGuidanceWidget.tsx`
 - `apps/web/src/app/(authenticated)/dashboard/page.tsx`
 - `apps/web/src/app/api/integrations/callback/[platform]/route.ts`
-- `apps/web/src/app/components/account/AccountTabs.tsx` - Ensure Settings tab points to `/account/settings`
+- `apps/web/src/components/account/AccountTabs.tsx` - Ensure Settings tab points to `/account/settings`
 
 ### 4. Add Middleware Redirect
 **File**: `apps/web/src/middleware.ts`

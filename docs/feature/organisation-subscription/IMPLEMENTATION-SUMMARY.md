@@ -81,7 +81,7 @@ subscription_data: {
 
 ### ✅ Phase 4: SubscriptionRequired Component Update
 
-**File**: [SubscriptionRequired.tsx](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx)
+**File**: [SubscriptionRequired.tsx](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.tsx)
 
 **Added Features**:
 
@@ -131,7 +131,7 @@ interface SubscriptionRequiredProps {
 
 ### ✅ Phase 5: CSS Updates
 
-**File**: [SubscriptionRequired.module.css](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.module.css)
+**File**: [SubscriptionRequired.module.css](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.module.css)
 
 **Added Styles**:
 
@@ -321,8 +321,8 @@ NEXT_PUBLIC_ENABLE_SUBSCRIPTION_PAYWALL=false
 ### Modified Files
 
 1. [organisation-subscription.ts](../../../apps/web/src/lib/stripe/organisation-subscription.ts) - Added configurable trial days
-2. [SubscriptionRequired.tsx](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx) - Added dismissal & export
-3. [SubscriptionRequired.module.css](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.module.css) - Added styles
+2. [SubscriptionRequired.tsx](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.tsx) - Added dismissal & export
+3. [SubscriptionRequired.module.css](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.module.css) - Added styles
 
 ---
 

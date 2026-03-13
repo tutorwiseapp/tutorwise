@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import HubComplexCard from '@/app/components/hub/sidebar/cards/HubComplexCard';
+import HubComplexCard from '@/components/hub/sidebar/cards/HubComplexCard';
 import type { GrowthProSubscription } from '@/lib/stripe/growth-pro-subscription';
 import styles from './GrowthSubscriptionWidget.module.css';
 

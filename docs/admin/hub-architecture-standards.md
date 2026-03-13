@@ -110,7 +110,7 @@ Features are implemented in phases:
 
 ## HubDataTable Component
 
-**Location**: `apps/web/src/app/components/hub/data/HubDataTable.tsx`
+**Location**: `apps/web/src/components/hub/data/HubDataTable.tsx`
 
 ### Complete API Reference
 
@@ -331,7 +331,7 @@ const renderMobileCard = (listing: Listing) => (
 
 ## HubDetailModal Component
 
-**Location**: `apps/web/src/app/components/hub/modal/HubDetailModal/HubDetailModal.tsx`
+**Location**: `apps/web/src/components/hub/modal/HubDetailModal/HubDetailModal.tsx`
 
 ### Complete API Reference
 
@@ -531,7 +531,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 ## HubPageLayout Component
 
-**Location**: `apps/web/src/app/components/hub/layout/HubPageLayout.tsx`
+**Location**: `apps/web/src/components/hub/layout/HubPageLayout.tsx`
 
 ### Complete API Reference
 
@@ -1451,7 +1451,7 @@ import { Booking, Listing, Review, Profile } from '@/types';
 ### Column Type Safety
 
 ```typescript
-import { Column } from '@/app/components/hub/data';
+import { Column } from '@/components/hub/data';
 
 const columns: Column<Listing>[] = [
   {

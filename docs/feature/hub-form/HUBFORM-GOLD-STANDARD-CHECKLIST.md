@@ -14,7 +14,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### 1. Select Dropdown Arrow (FIXED)
 **Issue**: Browser default dropdown arrow appears on select elements
-**Fix Location**: [HubForm.module.css:105-107](apps/web/src/app/components/ui/hub-form/HubForm.module.css#L105-L107)
+**Fix Location**: [HubForm.module.css:105-107](apps/web/src/components/ui/hub-form/HubForm.module.css#L105-L107)
 **Solution**:
 ```css
 .field select {
@@ -29,7 +29,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### 2. Input Box Height (FIXED)
 **Issue**: Inconsistent padding (0.75rem vs 10px 14px)
-**Fix Location**: [HubForm.module.css:96](apps/web/src/app/components/ui/hub-form/HubForm.module.css#L96)
+**Fix Location**: [HubForm.module.css:96](apps/web/src/components/ui/hub-form/HubForm.module.css#L96)
 **Solution**:
 ```css
 .field input,
@@ -44,7 +44,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### 3. Border-bottom Underlines (FIXED)
 **Issue**: OrganisationInfoForm had `border-bottom: 1px solid transparent` with hover effect
-**Fix Location**: [OrganisationInfoForm.module.css:79-90](apps/web/src/app/components/organisation/tabs/OrganisationInfoForm.module.css#L79-L90)
+**Fix Location**: [OrganisationInfoForm.module.css:79-90](apps/web/src/components/organisation/tabs/OrganisationInfoForm.module.css#L79-L90)
 **Decision**: **Option A (No border-bottom)** - Clean, minimal look
 **Solution**:
 ```css
@@ -60,7 +60,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### 4. "Saving..." Indicator Position (FIXED)
 **Issue**: Saving indicator showed for ALL fields, not just the edited one
-**Fix Location**: [PersonalInfoForm.tsx:245](apps/web/src/app/components/profile/PersonalInfoForm.tsx#L245)
+**Fix Location**: [PersonalInfoForm.tsx:245](apps/web/src/components/profile/PersonalInfoForm.tsx#L245)
 **Solution**:
 ```tsx
 {isSaving && editingField === field && (
@@ -74,7 +74,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### 5. Document Upload Border (FIXED)
 **Issue**: Document upload field had no border
-**Fix Location**: [PersonalInfoForm.module.css:182-195](apps/web/src/app/components/profile/PersonalInfoForm.module.css#L182-L195)
+**Fix Location**: [PersonalInfoForm.module.css:182-195](apps/web/src/components/profile/PersonalInfoForm.module.css#L182-L195)
 **Solution**:
 ```css
 .documentDisplay {
@@ -91,7 +91,7 @@ This checklist documents all fixes and standards for implementing new forms usin
 
 ### Component API
 ```tsx
-import HubForm from '@/app/components/ui/hub-form/HubForm';
+import HubForm from '@/components/ui/hub-form/HubForm';
 
 <HubForm.Root>
   <HubForm.Section title="Optional Section Title">
@@ -359,10 +359,10 @@ When implementing ProfessionalInfoForm following this checklist:
 
 ## 🔗 References
 
-- [HubForm.tsx](apps/web/src/app/components/ui/hub-form/HubForm.tsx)
-- [HubForm.module.css](apps/web/src/app/components/ui/hub-form/HubForm.module.css)
-- [PersonalInfoForm.tsx](apps/web/src/app/components/profile/PersonalInfoForm.tsx) (Gold Standard Reference)
-- [OrganisationInfoForm.tsx](apps/web/src/app/components/organisation/tabs/OrganisationInfoForm.tsx)
+- [HubForm.tsx](apps/web/src/components/ui/hub-form/HubForm.tsx)
+- [HubForm.module.css](apps/web/src/components/ui/hub-form/HubForm.module.css)
+- [PersonalInfoForm.tsx](apps/web/src/components/profile/PersonalInfoForm.tsx) (Gold Standard Reference)
+- [OrganisationInfoForm.tsx](apps/web/src/components/organisation/tabs/OrganisationInfoForm.tsx)
 
 ---
 

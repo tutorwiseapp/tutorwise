@@ -187,7 +187,7 @@ await stripe.checkout.sessions.create({
 
 ### 2. SubscriptionRequired Component
 
-[SubscriptionRequired.tsx:59](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx#L59)
+[SubscriptionRequired.tsx:59](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.tsx#L59)
 ```typescript
 // Title dynamically updates with trial days
 title: `Start Your ${trialDays}-Day Free Trial`,
@@ -281,7 +281,7 @@ NEXT_PUBLIC_SUBSCRIPTION_CURRENCY=USD
 | [organisation-features.ts](../../../apps/web/src/config/organisation-features.ts) | Feature flag configuration system |
 | [organisation-trial-status.ts](../../../apps/web/src/lib/stripe/organisation-trial-status.ts) | Trial status detection & smart popup logic |
 | [organisation-subscription.ts](../../../apps/web/src/lib/stripe/organisation-subscription.ts) | Stripe integration with configurable trial days |
-| [SubscriptionRequired.tsx](../../../apps/web/src/app/components/feature/organisation/SubscriptionRequired.tsx) | Updated modal with dismissal & export |
+| [SubscriptionRequired.tsx](../../../apps/web/src/components/feature/organisation/SubscriptionRequired.tsx) | Updated modal with dismissal & export |
 
 ---
 

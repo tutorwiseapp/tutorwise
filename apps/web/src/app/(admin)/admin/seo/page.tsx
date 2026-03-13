@@ -10,21 +10,21 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
+import Button from '@/components/ui/actions/Button';
 import { FileText, Link as LinkIcon, ExternalLink, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { usePermission } from '@/lib/rbac';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart } from '@/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import styles from './page.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages
 export const dynamic = 'force-dynamic';

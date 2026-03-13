@@ -14,10 +14,10 @@ import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { parseSearchQuery, queryToFilters } from '@/lib/services/gemini';
 import { getFeaturedItems, searchMarketplace, toMarketplaceItems } from '@/lib/api/marketplace';
-import HeroSection from '@/app/components/feature/marketplace/HeroSection';
-import BetaBanner from '@/app/components/feature/marketing/BetaBanner';
-import MarketplaceGrid from '@/app/components/feature/marketplace/MarketplaceGrid';
-import AdvancedFilters from '@/app/components/feature/marketplace/AdvancedFilters';
+import HeroSection from '@/components/feature/marketplace/HeroSection';
+import BetaBanner from '@/components/feature/marketing/BetaBanner';
+import MarketplaceGrid from '@/components/feature/marketplace/MarketplaceGrid';
+import AdvancedFilters from '@/components/feature/marketplace/AdvancedFilters';
 import type { SearchFilters } from '@/lib/services/savedSearches';
 import styles from './page.module.css';
 

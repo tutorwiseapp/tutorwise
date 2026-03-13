@@ -8,19 +8,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 import { Wallet, TrendingUp, RefreshCw, AlertCircle, Users, Banknote } from 'lucide-react';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/components/hub/charts';
 import { useAdminEduPayMetrics } from './hooks/useAdminEduPayMetrics';
 import { useAdminEduPayTrends } from './hooks/useAdminEduPayTrends';
 import WalletsTable from './components/WalletsTable';
 import ConversionsTable from './components/ConversionsTable';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages

@@ -65,7 +65,7 @@ Generic components are moved from root `ui/` to semantic subfolders.
 
 ### C. Feature Modules
 
-All domain logic moved to `src/app/components/feature/`.
+All domain logic moved to `src/components/feature/`.
 
 - `bookings/`
 - `listings/`
@@ -81,10 +81,10 @@ All domain logic moved to `src/app/components/feature/`.
 Run the following to establish the new hierarchy:
 
 ```
-mkdir -p apps/web/src/app/components/ui/{actions,branding,data-display,feedback,forms,navigation}
-mkdir -p apps/web/src/app/components/hub/{layout,sidebar/cards,content/HubRowCard,form,styles}
-mkdir -p apps/web/src/app/components/feature
-mkdir -p apps/web/src/app/components/layout
+mkdir -p apps/web/src/components/ui/{actions,branding,data-display,feedback,forms,navigation}
+mkdir -p apps/web/src/components/hub/{layout,sidebar/cards,content/HubRowCard,form,styles}
+mkdir -p apps/web/src/components/feature
+mkdir -p apps/web/src/components/layout
 
 ```
 

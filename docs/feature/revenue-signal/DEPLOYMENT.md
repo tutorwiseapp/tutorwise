@@ -391,9 +391,9 @@ if (!hasPermission) {
 
 **Files updated:**
 - `apps/web/src/app/(admin)/admin/blog/components/ArticlesTable.tsx`
-- `apps/web/src/app/components/blog/embeds/ListingGrid.tsx`
-- `apps/web/src/app/components/blog/embeds/index.ts`
-- `apps/web/src/app/components/blog/layout/BlogLeftSidebar.tsx`
+- `apps/web/src/components/blog/embeds/ListingGrid.tsx`
+- `apps/web/src/components/blog/embeds/index.ts`
+- `apps/web/src/components/blog/layout/BlogLeftSidebar.tsx`
 - `apps/web/src/types/index.ts`
 
 ---

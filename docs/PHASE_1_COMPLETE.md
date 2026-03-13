@@ -114,7 +114,7 @@ Update the Account > Professional Info page to read from and write to the new `p
 ### Tasks
 
 1. **Update ProfessionalInfoForm Component**
-   - **File**: `apps/web/src/app/components/feature/account/ProfessionalInfoForm.tsx`
+   - **File**: `apps/web/src/components/feature/account/ProfessionalInfoForm.tsx`
    - **Change**: Read initial values from `profile.professional_details.tutor` instead of `profile.*` columns
    - **Example**:
      ```typescript

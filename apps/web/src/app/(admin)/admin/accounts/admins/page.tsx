@@ -9,15 +9,15 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
+import Button from '@/components/ui/actions/Button';
 import { useAdminProfile } from '@/lib/rbac';
 import AdminsTable from './components/AdminsTable';
-import GrantAdminModal from '@/app/components/admin/modals/GrantAdminModal';
-import RevokeAdminModal from '@/app/components/admin/modals/RevokeAdminModal';
-import ChangeRoleModal from '@/app/components/admin/modals/ChangeRoleModal';
+import GrantAdminModal from '@/components/admin/modals/GrantAdminModal';
+import RevokeAdminModal from '@/components/admin/modals/RevokeAdminModal';
+import ChangeRoleModal from '@/components/admin/modals/ChangeRoleModal';
 import styles from './page.module.css';
 import type { AdminRole } from '@/lib/rbac/types';
 

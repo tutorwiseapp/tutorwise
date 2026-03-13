@@ -488,30 +488,30 @@ Implementation must strictly use `globals.css`.
 
 #### 4.1 New Core Components
 
-- `apps/web/src/app/components/layout/sidebars/components/SidebarStatsWidget.tsx`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarStatsWidget.module.css`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarActionWidget.tsx`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarActionWidget.module.css`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarComplexWidget.tsx`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarQuickActionsWidget.tsx`
-- `apps/web/src/app/components/layout/sidebars/components/SidebarQuickActionsWidget.module.css`
+- `apps/web/src/components/layout/sidebars/components/SidebarStatsWidget.tsx`
+- `apps/web/src/components/layout/sidebars/components/SidebarStatsWidget.module.css`
+- `apps/web/src/components/layout/sidebars/components/SidebarActionWidget.tsx`
+- `apps/web/src/components/layout/sidebars/components/SidebarActionWidget.module.css`
+- `apps/web/src/components/layout/sidebars/components/SidebarComplexWidget.tsx`
+- `apps/web/src/components/layout/sidebars/components/SidebarQuickActionsWidget.tsx`
+- `apps/web/src/components/layout/sidebars/components/SidebarQuickActionsWidget.module.css`
 
 #### 4.2 Feature Widgets (Updated)
 
 - **Network:**
-  - `apps/web/src/app/components/network/NetworkStatsWidget.tsx`
-  - `apps/web/src/app/components/network/NetworkConnectionWidget.tsx`
+  - `apps/web/src/components/network/NetworkStatsWidget.tsx`
+  - `apps/web/src/components/network/NetworkConnectionWidget.tsx`
 - **Organisation:**
-  - `apps/web/src/app/components/agency/AgencyStatsWidget.tsx`
-  - `apps/web/src/app/components/network/AgencyTutorWidget.tsx`
+  - `apps/web/src/components/agency/AgencyStatsWidget.tsx`
+  - `apps/web/src/components/network/AgencyTutorWidget.tsx`
 - **Reviews:**
-  - `apps/web/src/app/components/reviews/ReputationStatsWidget.tsx`
-  - `apps/web/src/app/components/reviews/ReputationReviewWidget.tsx`
+  - `apps/web/src/components/reviews/ReputationStatsWidget.tsx`
+  - `apps/web/src/components/reviews/ReputationReviewWidget.tsx`
 - **Account:**
-  - `apps/web/src/app/components/account/ProfileCompletenessWidget.tsx`
-  - `apps/web/src/app/components/account/AccountQuickActionsWidget.tsx`
+  - `apps/web/src/components/account/ProfileCompletenessWidget.tsx`
+  - `apps/web/src/components/account/AccountQuickActionsWidget.tsx`
 - **Payments:**
-  - `apps/web/src/app/components/payments/PaymentHelpWidget.tsx`
+  - `apps/web/src/components/payments/PaymentHelpWidget.tsx`
 - **My Students:**
-  - `apps/web/src/app/components/students/StudentStatsWidget.tsx`
-  - `apps/web/src/app/components/students/ClientStudentWidget.tsx`
+  - `apps/web/src/components/students/StudentStatsWidget.tsx`
+  - `apps/web/src/components/students/ClientStudentWidget.tsx`

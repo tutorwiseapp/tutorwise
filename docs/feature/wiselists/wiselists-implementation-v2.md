@@ -491,7 +491,7 @@ export async function getWiselistItems(wiselistId: string): Promise<WiselistItem
 
 ### Step 4: Update UI Components (45 minutes)
 
-**File**: `apps/web/src/app/components/feature/wiselists/AddToWiselistModal.tsx`
+**File**: `apps/web/src/components/feature/wiselists/AddToWiselistModal.tsx`
 
 ```typescript
 export function AddToWiselistModal({ item }: Props) {
@@ -519,7 +519,7 @@ export function AddToWiselistModal({ item }: Props) {
 }
 ```
 
-**File**: `apps/web/src/app/components/feature/wiselists/WiselistItemCard.tsx`
+**File**: `apps/web/src/components/feature/wiselists/WiselistItemCard.tsx`
 
 ```typescript
 export function WiselistItemCard({ item }: Props) {
@@ -738,7 +738,7 @@ export function canViewWiselist(
 
 ### Step 5: Update UI (10 minutes)
 
-**File**: `apps/web/src/app/components/feature/wiselists/CollaboratorRoleSelector.tsx`
+**File**: `apps/web/src/components/feature/wiselists/CollaboratorRoleSelector.tsx`
 
 ```typescript
 export function CollaboratorRoleSelector({ onChange }: Props) {
@@ -881,7 +881,7 @@ export async function POST(request: Request) {
 
 ### Step 4: Add Social Share Buttons (1 hour)
 
-**File**: `apps/web/src/app/components/feature/wiselists/WiselistShareButton.tsx`
+**File**: `apps/web/src/components/feature/wiselists/WiselistShareButton.tsx`
 
 ```typescript
 export function WiselistShareButton({ wiselist }: Props) {

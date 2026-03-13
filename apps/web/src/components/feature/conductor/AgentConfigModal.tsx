@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RotateCcw, Stamp } from 'lucide-react';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './AgentConfigModal.module.css';
 
 /* ── Types ── */

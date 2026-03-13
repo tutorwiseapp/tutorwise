@@ -39,7 +39,7 @@ Priority 4: New session signal → "session_{uuid}"
 - Organic signals: 30 days (session persistence)
 
 ### 2. Signal Tracking Hook
-**File**: `apps/web/src/app/components/blog/embeds/useSignalTracking.ts`
+**File**: `apps/web/src/components/blog/embeds/useSignalTracking.ts`
 
 **Purpose**: React hook for signal-based journey tracking (replaces useBlogAttribution)
 
@@ -89,7 +89,7 @@ All subsequent events linked to this signal
 ```
 
 ### 2. TutorEmbed Component
-**File**: `apps/web/src/app/components/blog/embeds/TutorEmbed.tsx`
+**File**: `apps/web/src/components/blog/embeds/TutorEmbed.tsx`
 
 **Changes**:
 - Import: `useBlogAttribution` → `useSignalTracking`
@@ -98,7 +98,7 @@ All subsequent events linked to this signal
 - Comment: Updated to mention `signal_events` table
 
 ### 3. ListingGrid Component
-**File**: `apps/web/src/app/components/blog/embeds/ListingGrid.tsx`
+**File**: `apps/web/src/components/blog/embeds/ListingGrid.tsx`
 
 **Changes**:
 - Import: `useBlogAttribution` → `useSignalTracking`
@@ -107,7 +107,7 @@ All subsequent events linked to this signal
 - Comment: Updated `blog_listing_links` → `signal_content_embeds`
 
 ### 4. TutorCarousel Component
-**File**: `apps/web/src/app/components/blog/embeds/TutorCarousel.tsx`
+**File**: `apps/web/src/components/blog/embeds/TutorCarousel.tsx`
 
 **Changes**:
 - Import: `useBlogAttribution` → `useSignalTracking`
@@ -399,20 +399,20 @@ API accepts both old and new formats:
 
 **Created** (2 files):
 - `apps/web/src/lib/utils/signalTracking.ts` - Signal ID generation utility
-- `apps/web/src/app/components/blog/embeds/useSignalTracking.ts` - Signal tracking hook
+- `apps/web/src/components/blog/embeds/useSignalTracking.ts` - Signal tracking hook
 
 **Modified** (6 files):
 - `apps/web/src/middleware.ts` - Distribution parameter extraction
-- `apps/web/src/app/components/blog/embeds/TutorEmbed.tsx` - Use signal tracking
-- `apps/web/src/app/components/blog/embeds/ListingGrid.tsx` - Use signal tracking
-- `apps/web/src/app/components/blog/embeds/TutorCarousel.tsx` - Use signal tracking
+- `apps/web/src/components/blog/embeds/TutorEmbed.tsx` - Use signal tracking
+- `apps/web/src/components/blog/embeds/ListingGrid.tsx` - Use signal tracking
+- `apps/web/src/components/blog/embeds/TutorCarousel.tsx` - Use signal tracking
 - `apps/web/src/app/api/blog/attribution/events/route.ts` - Write to signal_events
 
 **Kept (Unchanged)**:
-- `apps/web/src/app/components/blog/SaveArticleButton.tsx` - Event tracking in API route
+- `apps/web/src/components/blog/SaveArticleButton.tsx` - Event tracking in API route
 
 **Legacy (Replaced but still in repo)**:
-- `apps/web/src/app/components/blog/embeds/useBlogAttribution.ts` - Replaced by useSignalTracking
+- `apps/web/src/components/blog/embeds/useBlogAttribution.ts` - Replaced by useSignalTracking
 
 ---
 

@@ -9,10 +9,10 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/components/hub/data';
 import { CheckCircle2, XCircle, Filter as FilterIcon } from 'lucide-react';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './UsersTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import DeleteUserModal from './DeleteUserModal';

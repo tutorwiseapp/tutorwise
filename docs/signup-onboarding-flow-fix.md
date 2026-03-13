@@ -57,7 +57,7 @@ return NextResponse.redirect(`${requestUrl.origin}/onboarding`)
 
 ### 3. Form Pre-fill Logic ✅ ALREADY IMPLEMENTED
 
-**File:** `/apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
+**File:** `/apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx`
 
 **What it does:**
 The form already has pre-population logic (lines 49-75) that:
@@ -164,7 +164,7 @@ The "Database error saving new user" was caused by the `referral_id` column bein
 1. ✅ `/apps/api/migrations/011_update_handle_new_user_extract_names.sql` - Created & Executed
 2. ✅ `/apps/api/migrations/012_fix_handle_new_user_add_referral_id.sql` - Created & Executed
 3. ✅ `/apps/web/src/app/auth/callback/route.ts` - Modified (line 39)
-4. ✅ `/apps/web/src/app/components/onboarding/tutor/TutorPersonalInfoStep.tsx` - Already has pre-fill logic
+4. ✅ `/apps/web/src/components/onboarding/tutor/TutorPersonalInfoStep.tsx` - Already has pre-fill logic
 
 ## Files Referenced (No Changes)
 

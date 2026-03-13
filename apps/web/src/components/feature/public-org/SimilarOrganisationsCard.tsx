@@ -6,8 +6,8 @@
 'use client';
 
 import { ArrowRight } from 'lucide-react';
-import Card from '@/app/components/ui/data-display/Card';
-import MarketplaceOrganisationCard from '@/app/components/feature/marketplace/MarketplaceOrganisationCard';
+import Card from '@/components/ui/data-display/Card';
+import MarketplaceOrganisationCard from '@/components/feature/marketplace/MarketplaceOrganisationCard';
 import styles from './SimilarOrganisationsCard.module.css';
 
 interface Organisation {

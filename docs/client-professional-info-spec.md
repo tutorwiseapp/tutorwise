@@ -366,5 +366,5 @@ All fields are fully responsive:
 ---
 
 **Last Updated:** 2025-10-27
-**Implementation:** [ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+**Implementation:** [ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 **Type Definition:** [types/index.ts](apps/web/src/types/index.ts)

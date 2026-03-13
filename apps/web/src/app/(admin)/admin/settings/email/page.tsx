@@ -8,14 +8,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubForm from '@/app/components/hub/form/HubForm';
-import HubToggle from '@/app/components/hub/form/HubToggle';
-import { AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
-import Button from '@/app/components/ui/actions/Button';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubForm from '@/components/hub/form/HubForm';
+import HubToggle from '@/components/hub/form/HubToggle';
+import { AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
+import Button from '@/components/ui/actions/Button';
 import styles from './page.module.css';
 
 // Force dynamic rendering

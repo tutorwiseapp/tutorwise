@@ -240,8 +240,8 @@ Export to Sheets
 
 #### 4.1 File Structure
 
-- **Component:** `apps/web/src/app/components/ui/hub/HubRowCard.tsx`
-- **Styles:** `apps/web/src/app/components/ui/hub/HubRowCard.module.css`
+- **Component:** `apps/web/src/components/ui/hub/HubRowCard.tsx`
+- **Styles:** `apps/web/src/components/ui/hub/HubRowCard.module.css`
 
 #### 4.2 Props Interface
 

@@ -13,12 +13,12 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import HubDetailCard from '@/app/components/hub/content/HubDetailCard/HubDetailCard';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import HubDetailCard from '@/components/hub/content/HubDetailCard/HubDetailCard';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import {
   GrowthSubscriptionWidget,
   GrowthHelpWidget,
@@ -26,8 +26,8 @@ import {
 } from '@/components/feature/growth/widgets';
 import { useGrowthBilling } from '@/app/hooks/useGrowthBilling';
 import styles from '../page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 type SortType = 'date-desc' | 'date-asc' | 'questions';
 

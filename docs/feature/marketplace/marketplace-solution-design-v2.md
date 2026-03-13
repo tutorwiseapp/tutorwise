@@ -482,7 +482,7 @@ Frontend immediately updates heart icon (filled/unfilled) before API call comple
 
 **Implementation Reference**:
 - Backend: `apps/web/src/app/api/wiselists/quick-save/route.ts`
-- Frontend: `apps/web/src/app/components/feature/marketplace/MarketplaceListingCard.tsx:85-109`
+- Frontend: `apps/web/src/components/feature/marketplace/MarketplaceListingCard.tsx:85-109`
 
 ---
 
@@ -522,7 +522,7 @@ All marketplace listing cards render:
 The `?action=book` query param is the trigger signal for auto-opening modal on page load.
 
 **Implementation Reference**:
-- Link: `apps/web/src/app/components/feature/marketplace/MarketplaceListingCard.tsx`
+- Link: `apps/web/src/components/feature/marketplace/MarketplaceListingCard.tsx`
 - Modal trigger: `apps/web/src/app/(authenticated)/listings/[id]/[slug]/page.tsx`
 
 ---
@@ -591,7 +591,7 @@ Verification badges serve as trust signals, reducing perceived risk for first-ti
 - identity_verified: "Government ID Verified"
 - dbs_verified: "DBS Background Check Completed"
 
-**Implementation Reference**: `apps/web/src/app/components/feature/marketplace/MarketplaceListingCard.tsx:148-181`
+**Implementation Reference**: `apps/web/src/components/feature/marketplace/MarketplaceListingCard.tsx:148-181`
 
 ---
 

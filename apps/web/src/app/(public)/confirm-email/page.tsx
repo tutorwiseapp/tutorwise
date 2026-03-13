@@ -12,10 +12,10 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
-import Message from '@/app/components/ui/feedback/Message';
-import Button from '@/app/components/ui/actions/Button';
+import Container from '@/components/layout/Container';
+import PageHeader from '@/components/ui/data-display/PageHeader';
+import Message from '@/components/ui/feedback/Message';
+import Button from '@/components/ui/actions/Button';
 import authStyles from '@/app/styles/auth.module.css';
 
 function ConfirmEmailContent() {

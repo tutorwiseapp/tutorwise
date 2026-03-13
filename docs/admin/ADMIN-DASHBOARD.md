@@ -764,7 +764,7 @@ apps/web/src/app/(admin)/admin/
 
 ### **Shared Components**
 ```
-apps/web/src/app/components/
+apps/web/src/components/
 ├── admin/
 │   ├── sidebar/
 │   │   └── AdminSidebar.tsx  # Admin navigation
@@ -1089,8 +1089,8 @@ test('Admin can approve pending listing', async ({ page }) => {
 
 ### **Code Locations**
 - Admin pages: `apps/web/src/app/(admin)/admin/`
-- Admin components: `apps/web/src/app/components/admin/`
-- Hub components: `apps/web/src/app/components/hub/`
+- Admin components: `apps/web/src/components/admin/`
+- Hub components: `apps/web/src/components/hub/`
 - API routes: `apps/web/src/app/api/admin/`
 - Database migrations: `tools/database/migrations/`
 

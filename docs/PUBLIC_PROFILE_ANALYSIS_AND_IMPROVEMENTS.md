@@ -201,7 +201,7 @@ public-profile/[id]/[[...slug]]/page.tsx - Server component, SEO-optimized
 
 **Proposed:**
 ```tsx
-import Card from '@/app/components/ui/Card';
+import Card from '@/components/ui/Card';
 
 <ContextualSidebar>
   <Card>
@@ -402,7 +402,7 @@ const fetchListings = async () => {
 **Proposed Structure Option 1 (Keep Hybrid):**
 ```tsx
 // In page.tsx, conditionally render AppSidebar
-import { AppSidebar } from '@/app/components/layout/sidebars/AppSidebar';
+import { AppSidebar } from '@/components/layout/sidebars/AppSidebar';
 
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   // ... existing code

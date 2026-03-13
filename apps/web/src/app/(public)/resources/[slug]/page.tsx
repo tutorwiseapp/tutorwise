@@ -14,8 +14,8 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
 import { createClient } from '@/utils/supabase/server';
-import ArticleStructuredData from '@/app/components/resources/ArticleStructuredData';
-import SaveArticleButton from '@/app/components/resources/SaveArticleButton';
+import ArticleStructuredData from '@/components/resources/ArticleStructuredData';
+import SaveArticleButton from '@/components/resources/SaveArticleButton';
 import { generateTealAvatar } from '@/lib/utils/tealAvatar';
 import styles from './page.module.css';
 

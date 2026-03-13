@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import ProfessionalDetailStep from '@/app/components/feature/onboarding/shared/steps/ProfessionalDetailStep';
+import ProfessionalDetailStep from '@/components/feature/onboarding/shared/steps/ProfessionalDetailStep';
 import { ProfessionalDetailsData } from '@/types';
 import styles from '../../page.module.css';
 

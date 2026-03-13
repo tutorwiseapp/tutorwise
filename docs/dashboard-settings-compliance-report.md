@@ -214,8 +214,8 @@ The Onboarding System (and Listings) follow a **mobile-first responsive design p
 
 ## Files Modified
 
-1. `/apps/web/src/app/components/layout/Container.module.css` - Convert to mobile-first
-2. `/apps/web/src/app/components/ui/PageHeader.module.css` - Add responsive typography
+1. `/apps/web/src/components/layout/Container.module.css` - Convert to mobile-first
+2. `/apps/web/src/components/ui/PageHeader.module.css` - Add responsive typography
 3. `/apps/web/src/app/dashboard/page.tsx` - Use Card component
 4. `/apps/web/src/app/dashboard/page.module.css` - Responsive spacing
 5. `/apps/web/src/app/settings/page.module.css` - Optimize action bar

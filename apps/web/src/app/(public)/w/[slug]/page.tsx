@@ -13,7 +13,7 @@ import { createClient } from '@/utils/supabase/server';
 import type { WiselistWithDetails } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
-import ArticleCard from '@/app/components/resources/ArticleCard';
+import ArticleCard from '@/components/resources/ArticleCard';
 
 interface PageProps {
   params: Promise<{ slug: string }>;

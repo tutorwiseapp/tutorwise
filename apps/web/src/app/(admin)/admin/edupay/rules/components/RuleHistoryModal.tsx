@@ -10,8 +10,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/components/ui/actions/Button';
 import { History, User, Calendar, Edit3, Plus, ToggleLeft } from 'lucide-react';
 import styles from './RuleHistoryModal.module.css';
 

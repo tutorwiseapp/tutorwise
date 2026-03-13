@@ -15,11 +15,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import { SageChat } from '@/components/feature/sage';
 import SageProgressWidget from '../../../components/feature/sage/widgets/SageProgressWidget';
 import SageSubscriptionWidget from '../../../components/feature/sage/widgets/SageSubscriptionWidget';
@@ -28,8 +28,8 @@ import SageTipsWidget from '../../../components/feature/sage/widgets/SageTipsWid
 import SageVideoWidget from '../../../components/feature/sage/widgets/SageVideoWidget';
 import { useSageBilling } from '@/app/hooks/useSageBilling';
 import styles from './page.module.css';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 // Handoff context from Lexi
 interface HandoffContext {

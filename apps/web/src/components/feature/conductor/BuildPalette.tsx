@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Building2, Users, Bot } from 'lucide-react';
 import { toast } from 'sonner';
-import { UnifiedSelect } from '@/app/components/ui/forms';
+import { UnifiedSelect } from '@/components/ui/forms';
 import type { BuildLevel } from './build-store';
 import styles from './BuildPalette.module.css';
 

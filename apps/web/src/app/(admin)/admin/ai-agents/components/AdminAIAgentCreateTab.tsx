@@ -10,8 +10,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import AIAgentBuilderForm from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
-import type { AIAgentFormData } from '@/app/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import AIAgentBuilderForm from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
+import type { AIAgentFormData } from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
 import toast from 'react-hot-toast';
 import styles from './AdminAIAgentCreateTab.module.css';
 

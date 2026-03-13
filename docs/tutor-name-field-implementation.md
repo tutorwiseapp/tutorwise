@@ -74,8 +74,8 @@ Attempted to make Step1BasicInfo directly aware of UserProfileContext to handle 
 - Reverted in commit 423cc4a to restore stability
 
 ## Files Modified
-- `apps/web/src/app/components/listings/CreateListingWizard.tsx` (Option 1 implementation)
-- `apps/web/src/app/components/listings/wizard-steps/Step1BasicInfo.tsx` (unchanged - using original logic)
+- `apps/web/src/components/listings/CreateListingWizard.tsx` (Option 1 implementation)
+- `apps/web/src/components/listings/wizard-steps/Step1BasicInfo.tsx` (unchanged - using original logic)
 
 ## Testing
 - ✅ Local build passes

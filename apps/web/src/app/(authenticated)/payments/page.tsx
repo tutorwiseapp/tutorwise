@@ -26,14 +26,14 @@ import {
 import getStripe from '@/lib/utils/get-stripejs';
 import toast from 'react-hot-toast';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Card from '@/app/components/ui/data-display/Card';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Card from '@/components/ui/data-display/Card';
 import { getErrorMessage } from '@/lib/utils/getErrorMessage';
-import PaymentHelpWidget from '@/app/components/feature/payments/PaymentHelpWidget';
-import PaymentTipWidget from '@/app/components/feature/payments/PaymentTipWidget';
-import PaymentVideoWidget from '@/app/components/feature/payments/PaymentVideoWidget';
+import PaymentHelpWidget from '@/components/feature/payments/PaymentHelpWidget';
+import PaymentTipWidget from '@/components/feature/payments/PaymentTipWidget';
+import PaymentVideoWidget from '@/components/feature/payments/PaymentVideoWidget';
 import styles from './page.module.css';
 
 const PaymentsPageContent = () => {

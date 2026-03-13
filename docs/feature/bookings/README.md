@@ -302,12 +302,12 @@ Session occurs in WiseSpace → WiseSpace verifies completion → Updates bookin
 - [page.tsx](../../apps/web/src/app/(authenticated)/bookings/page.tsx) - Gold Standard Hub with 3x3 widget grid
 
 **Core Components** (11 total):
-- [BookingCard.tsx](../../apps/web/src/app/components/feature/bookings/BookingCard.tsx) - Individual booking display with scheduling status
-- [BookingDetailModal.tsx](../../apps/web/src/app/components/feature/bookings/BookingDetailModal.tsx) - Full detail view with scheduling fields
-- [SchedulingModal.tsx](../../apps/web/src/app/components/feature/bookings/SchedulingModal.tsx) - Date/time picker for propose/confirm flow (v6.0)
-- [SchedulingModal.module.css](../../apps/web/src/app/components/feature/bookings/SchedulingModal.module.css) - Scheduling modal styles
-- [BookingStatsWidget.tsx](../../apps/web/src/app/components/feature/bookings/BookingStatsWidget.tsx) - Statistics overview
-- [UpcomingSessionWidget.tsx](../../apps/web/src/app/components/feature/bookings/UpcomingSessionWidget.tsx) - Next session preview
+- [BookingCard.tsx](../../apps/web/src/components/feature/bookings/BookingCard.tsx) - Individual booking display with scheduling status
+- [BookingDetailModal.tsx](../../apps/web/src/components/feature/bookings/BookingDetailModal.tsx) - Full detail view with scheduling fields
+- [SchedulingModal.tsx](../../apps/web/src/components/feature/bookings/SchedulingModal.tsx) - Date/time picker for propose/confirm flow (v6.0)
+- [SchedulingModal.module.css](../../apps/web/src/components/feature/bookings/SchedulingModal.module.css) - Scheduling modal styles
+- [BookingStatsWidget.tsx](../../apps/web/src/components/feature/bookings/BookingStatsWidget.tsx) - Statistics overview
+- [UpcomingSessionWidget.tsx](../../apps/web/src/components/feature/bookings/UpcomingSessionWidget.tsx) - Next session preview
 - Plus 5 more widgets (help, tip, video, skeleton, error)
 
 **Scheduling Library** (v6.0):

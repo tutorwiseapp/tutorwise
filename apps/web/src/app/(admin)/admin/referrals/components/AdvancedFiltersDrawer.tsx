@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {

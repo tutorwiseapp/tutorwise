@@ -8,19 +8,19 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 import { Calendar, DollarSign, Clock } from 'lucide-react';
 import { usePermission } from '@/lib/rbac';
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type TrendDataPoint, type CategoryData } from '@/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import BookingsTable from './components/BookingsTable';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
 
 // Force dynamic rendering (no SSR/SSG) for admin pages

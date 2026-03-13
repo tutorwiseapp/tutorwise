@@ -257,10 +257,10 @@ export interface UnavailabilityPeriod {
 
 ## Files Modified
 
-1. **`/apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx`**
+1. **`/apps/web/src/components/onboarding/client/ClientOnboardingWizard.tsx`**
    - Lines 225-266: Added mapping to `professional_details.client`
 
-2. **`/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`**
+2. **`/apps/web/src/components/profile/ProfessionalInfoForm.tsx`**
    - Lines 230-259: Load client data in useEffect
    - Lines 268-299: Auto-save availability changes
    - Lines 283-313: Save all client fields in handleSaveField

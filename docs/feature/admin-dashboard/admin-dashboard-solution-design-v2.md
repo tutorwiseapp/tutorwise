@@ -106,7 +106,7 @@ AdminSidebar         Hub Components                  4-Card Pattern
 
 ### 3.1 AdminSidebar (NEW - Copy AppSidebar Pattern)
 
-**File**: `/apps/web/src/app/components/admin/sidebar/AdminSidebar.tsx`
+**File**: `/apps/web/src/components/admin/sidebar/AdminSidebar.tsx`
 
 **Pattern**: Exact copy of AppSidebar.tsx structure with admin navigation items.
 
@@ -223,7 +223,7 @@ export default function AdminSidebar() {
 
 ### 3.2 AdminLayout (NEW - Simple Wrapper)
 
-**File**: `/apps/web/src/app/components/admin/layout/AdminLayout.tsx`
+**File**: `/apps/web/src/components/admin/layout/AdminLayout.tsx`
 
 ```typescript
 'use client';
@@ -361,12 +361,12 @@ AdminSidebar Navigation
 import React, { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import Button from '@/app/components/ui/actions/Button';
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import Button from '@/components/ui/actions/Button';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 type StatusFilter = 'all' | 'published' | 'draft';
 type SortType = 'newest' | 'oldest' | 'name-asc' | 'name-desc';

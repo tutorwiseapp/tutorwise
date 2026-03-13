@@ -464,7 +464,7 @@ Console logs confirmation
 - [x] Initializes 8 enhanced fields as empty
 - [x] Keeps backward compatibility with `onboarding_progress.agent`
 
-**File**: `/apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx` (lines 247-292)
+**File**: `/apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx` (lines 247-292)
 
 **Mapping Code**:
 ```typescript
@@ -505,7 +505,7 @@ const agentData = {
 - [x] Copied full 234-line availability/unavailability calendar
 - [x] TypeScript compiles without errors
 
-**File**: `/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`
+**File**: `/apps/web/src/components/profile/ProfessionalInfoForm.tsx`
 
 **Lines Added**:
 - Option arrays: Lines 178-279 (~100 lines)
@@ -525,7 +525,7 @@ const agentData = {
 - [x] 500ms debounce to prevent excessive saves
 - [x] Separate logging for client vs agent
 
-**File**: `/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx` (lines 410-462)
+**File**: `/apps/web/src/components/profile/ProfessionalInfoForm.tsx` (lines 410-462)
 
 **Modified useEffect**:
 ```typescript
@@ -583,10 +583,10 @@ useEffect(() => {
 1. **`/apps/web/src/types/index.ts`**
    - Lines 198-221: Expanded `AgentProfessionalInfo` interface
 
-2. **`/apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx`**
+2. **`/apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx`**
    - Lines 247-292: Added mapping to `professional_details.agent`
 
-3. **`/apps/web/src/app/components/profile/ProfessionalInfoForm.tsx`**
+3. **`/apps/web/src/components/profile/ProfessionalInfoForm.tsx`**
    - Lines 178-279: Added 8 option arrays
    - Lines 314-329: Added agent form state
    - Lines 370-385: Added agent data loading

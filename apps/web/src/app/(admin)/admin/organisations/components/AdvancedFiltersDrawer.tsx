@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import styles from './AdvancedFiltersDrawer.module.css';
 
 export interface AdvancedFilters {

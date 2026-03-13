@@ -75,7 +75,7 @@ VALUES (
 Roles are correctly added when users complete role-specific onboarding:
 
 ### Client Role
-- **File:** `apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx`
+- **File:** `apps/web/src/components/onboarding/client/ClientOnboardingWizard.tsx`
 - **Line:** 211-217
 - **Code:**
 ```typescript
@@ -89,7 +89,7 @@ if (!currentRoles.includes('seeker')) {
 ```
 
 ### Tutor Role
-- **File:** `apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx`
+- **File:** `apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx`
 - **Line:** 291-303
 - **Code:**
 ```typescript

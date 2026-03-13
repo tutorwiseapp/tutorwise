@@ -131,7 +131,7 @@ If testing reveals any issues (unlikely):
 
 ## 💡 Why This Works
 
-Your [CreateListingWizard.tsx](apps/web/src/app/components/listings/CreateListingWizard.tsx) has **4 independent safeguards** that ensure `full_name` is always populated:
+Your [CreateListingWizard.tsx](apps/web/src/components/listings/CreateListingWizard.tsx) has **4 independent safeguards** that ensure `full_name` is always populated:
 
 1. **Loading Guard** (lines 274-282)
    ```typescript

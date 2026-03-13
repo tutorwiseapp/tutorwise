@@ -508,7 +508,7 @@ Homepage
 
 #### 3.3.2 Content Section Component Design
 
-**File**: `apps/web/src/app/components/seo/CategorySection.tsx`
+**File**: `apps/web/src/components/seo/CategorySection.tsx`
 
 ```typescript
 interface CategorySectionProps {

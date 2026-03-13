@@ -105,7 +105,7 @@ COMMENT ON FUNCTION get_referral_stats IS
 **File to Update**: `apps/web/src/app/(authenticated)/dashboard/page.tsx`
 
 ```typescript
-import ReferralDashboardWidget from '@/app/components/feature/dashboard/widgets/ReferralDashboardWidget';
+import ReferralDashboardWidget from '@/components/feature/dashboard/widgets/ReferralDashboardWidget';
 
 // Inside the dashboard page component:
 <ReferralDashboardWidget
@@ -124,7 +124,7 @@ import ReferralDashboardWidget from '@/app/components/feature/dashboard/widgets/
 **File to Create**: `apps/web/src/app/(authenticated)/account/referrals/settings/page.tsx`
 
 ```typescript
-import DelegationSettingsPanel from '@/app/components/feature/referrals/DelegationSettingsPanel';
+import DelegationSettingsPanel from '@/components/feature/referrals/DelegationSettingsPanel';
 
 export default async function ReferralSettingsPage() {
   const supabase = createClient();

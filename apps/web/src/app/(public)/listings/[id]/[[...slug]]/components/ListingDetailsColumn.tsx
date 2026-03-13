@@ -8,8 +8,8 @@
 import Image from 'next/image';
 import { Star, Check, Banknote, AlertTriangle, X } from 'lucide-react';
 import type { ListingV41 } from '@/types/listing-v4.1';
-import Card from '@/app/components/ui/data-display/Card';
-import Button from '@/app/components/ui/actions/Button';
+import Card from '@/components/ui/data-display/Card';
+import Button from '@/components/ui/actions/Button';
 import TutorVerificationCard from './TutorVerificationCard';
 import TutorCredibleStats from './TutorCredibleStats';
 import ListingAvailabilityCard from './ListingAvailabilityCard';

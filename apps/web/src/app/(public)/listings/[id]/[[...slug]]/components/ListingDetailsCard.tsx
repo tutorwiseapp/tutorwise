@@ -7,7 +7,7 @@
  */
 
 import type { ListingV41 } from '@/types/listing-v4.1';
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './ListingDetailsCard.module.css';
 
 interface ListingDetailsCardProps {

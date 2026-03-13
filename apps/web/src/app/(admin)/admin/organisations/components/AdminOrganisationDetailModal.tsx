@@ -11,8 +11,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import Button from '@/app/components/ui/actions/Button'; // ✅ Lesson #3: Use Button component
+import { HubDetailModal } from '@/components/hub/modal';
+import Button from '@/components/ui/actions/Button'; // ✅ Lesson #3: Use Button component
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import { formatDate, calculateDaysRemaining } from '@/lib/utils/format-date';
 import styles from './AdminOrganisationDetailModal.module.css';

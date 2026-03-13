@@ -28,17 +28,17 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig, BulkAction } from '@/app/components/hub/data';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig, BulkAction } from '@/components/hub/data';
 import { Booking } from '@/types';
-import BookingCard from '@/app/components/feature/bookings/BookingCard';
+import BookingCard from '@/components/feature/bookings/BookingCard';
 import AdminBookingDetailModal from './AdminBookingDetailModal';
 import { Filter as FilterIcon } from 'lucide-react';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './BookingsTable.module.css';
 import AdvancedFiltersDrawer, { AdvancedFilters } from './AdvancedFiltersDrawer';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
-import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant, getSchedulingStatusVariant } from '@/app/components/admin/badges/StatusBadge';
+import StatusBadge, { getBookingStatusVariant, getPaymentStatusVariant, getSchedulingStatusVariant } from '@/components/admin/badges/StatusBadge';
 import { exportToCSV, CSVFormatters, type CSVColumn } from '@/lib/utils/exportToCSV';
 import {
   ADMIN_TABLE_DEFAULTS,

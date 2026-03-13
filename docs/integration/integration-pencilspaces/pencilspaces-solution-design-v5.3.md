@@ -169,12 +169,12 @@ COMMENT ON COLUMN public.bookings.engagement_metrics IS 'v5.3: Stores Pencil Spa
 
 #### 6.1 The Booking Card
 
-- **File:** `apps/web/src/app/components/bookings/BookingCard.tsx`
+- **File:** `apps/web/src/components/bookings/BookingCard.tsx`
 - **Update:** The "Join Lesson" button logic is identical to the Lessonspace v5.2 design. It calls the `POST /launch` endpoint, and the user is redirected. All complexity is hidden on the backend.
 
 #### 6.2 The "Lesson Insights" Card (New)
 
-- **File:** `apps/web/src/app/components/bookings/LessonInsights.tsx`
+- **File:** `apps/web/src/components/bookings/LessonInsights.tsx`
 - **Location:** Booking Details Page (for Client and Tutor).
 - **Logic:** This component is the "payoff" for this integration. It renders the `engagement_metrics` from the `bookings` table.
 - **Display:**

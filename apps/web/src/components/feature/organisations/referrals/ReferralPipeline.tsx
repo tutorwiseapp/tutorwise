@@ -9,12 +9,12 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import HubKanbanBoard from '@/app/components/hub/kanban/HubKanbanBoard';
-import type { KanbanColumn } from '@/app/components/hub/kanban/HubKanbanBoard';
+import HubKanbanBoard from '@/components/hub/kanban/HubKanbanBoard';
+import type { KanbanColumn } from '@/components/hub/kanban/HubKanbanBoard';
 import { Users, Phone, Calendar, FileText, CheckCircle2, Briefcase } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
 import toast from 'react-hot-toast';
-import { SkeletonRect } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { SkeletonRect } from '@/components/ui/feedback/LoadingSkeleton';
 import styles from './ReferralPipeline.module.css';
 
 interface PipelineStage {

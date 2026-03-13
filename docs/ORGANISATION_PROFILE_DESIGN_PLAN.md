@@ -845,7 +845,7 @@ color: #475569
 Match the public-profile MobileBottomCTA exactly (already design-system compliant)
 
 **Reference Implementation:**
-`apps/web/src/app/components/feature/public-profile/MobileBottomCTA.module.css`
+`apps/web/src/components/feature/public-profile/MobileBottomCTA.module.css`
 
 **Proposed Changes:**
 

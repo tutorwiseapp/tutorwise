@@ -505,9 +505,9 @@ SELECT ... FROM signal_events;
 5. `tools/database/migrations/181_add_visibility_to_blog_article_saves.sql` → Update saves table
 
 **Component Files** (5 files):
-6. `apps/web/src/app/components/blog/embeds/TutorEmbed.tsx` → Add signal_id
-7. `apps/web/src/app/components/blog/embeds/ListingGrid.tsx` → Add signal_id
-8. `apps/web/src/app/components/blog/embeds/useBlogAttribution.ts` → Rename to useSignalTracking.ts
+6. `apps/web/src/components/blog/embeds/TutorEmbed.tsx` → Add signal_id
+7. `apps/web/src/components/blog/embeds/ListingGrid.tsx` → Add signal_id
+8. `apps/web/src/components/blog/embeds/useBlogAttribution.ts` → Rename to useSignalTracking.ts
 9. `apps/web/src/lib/utils/sessionTracking.ts` → Add getOrCreateSignalId()
 10. `apps/web/src/app/api/blog/saves/route.ts` → Update to signal_content_saves
 

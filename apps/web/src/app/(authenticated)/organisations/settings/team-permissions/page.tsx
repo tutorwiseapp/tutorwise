@@ -10,14 +10,14 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getOrganisationStats, getOrganisationSubscription } from '@/lib/api/organisation';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import Button from '@/app/components/ui/actions/Button';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import Button from '@/components/ui/actions/Button';
 import { useOrganisationSettings } from '@/app/hooks/useOrganisationSettings';
-import OrganisationStatsWidget from '@/app/components/feature/organisations/sidebar/OrganisationStatsWidget';
-import OrganisationHelpWidget from '@/app/components/feature/organisations/sidebar/OrganisationHelpWidget';
-import OrganisationTipWidget from '@/app/components/feature/organisations/sidebar/OrganisationTipWidget';
-import OrganisationVideoWidget from '@/app/components/feature/organisations/sidebar/OrganisationVideoWidget';
+import OrganisationStatsWidget from '@/components/feature/organisations/sidebar/OrganisationStatsWidget';
+import OrganisationHelpWidget from '@/components/feature/organisations/sidebar/OrganisationHelpWidget';
+import OrganisationTipWidget from '@/components/feature/organisations/sidebar/OrganisationTipWidget';
+import OrganisationVideoWidget from '@/components/feature/organisations/sidebar/OrganisationVideoWidget';
 import styles from './page.module.css';
 
 export default function TeamPermissionsSettingsPage() {

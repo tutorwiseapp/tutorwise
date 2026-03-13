@@ -80,10 +80,10 @@
 
 **Files Created/Modified:**
 - `apps/web/src/app/onboarding/page.tsx` (93 lines)
-- `apps/web/src/app/components/onboarding/OnboardingWizard.tsx` (150+ lines)
-- `apps/web/src/app/components/onboarding/steps/` (4 step components)
-- `apps/web/src/app/components/onboarding/tutor/` (5 tutor-specific components)
-- `apps/web/src/app/components/onboarding/agent/` (5 agent-specific components)
+- `apps/web/src/components/onboarding/OnboardingWizard.tsx` (150+ lines)
+- `apps/web/src/components/onboarding/steps/` (4 step components)
+- `apps/web/src/components/onboarding/tutor/` (5 tutor-specific components)
+- `apps/web/src/components/onboarding/agent/` (5 agent-specific components)
 
 **Status:** ⚠️ Advanced but Incomplete
 

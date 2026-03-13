@@ -15,9 +15,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import UnifiedMultiSelect from '@/components/ui/forms/UnifiedMultiSelect';
+import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import styles from './JoinTeamModal.module.css';
 

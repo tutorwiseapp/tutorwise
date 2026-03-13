@@ -26,16 +26,16 @@
 
 ### Sage Imports (✅ Target):
 ```typescript
-import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard, HubTrendChart, HubCategoryBreakdownChart, type CategoryData } from '@/components/hub/charts';
 import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
-import { ChartSkeleton } from '@/app/components/ui/feedback/LoadingSkeleton';
+import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import { Bot, Users, MessageSquare, DollarSign, TrendingUp, BookOpen, Clock, AlertTriangle } from 'lucide-react';
 ```
 
 ### Lexi Imports (❌ Current):
 ```typescript
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts'; // ❌ Missing HubTrendChart, HubCategoryBreakdownChart
+import { HubKPIGrid, HubKPICard } from '@/components/hub/charts'; // ❌ Missing HubTrendChart, HubCategoryBreakdownChart
 // ❌ NO useAdminMetric hook
 // ❌ NO useAdminTrendData hook
 // ❌ NO formatMetricChange helper

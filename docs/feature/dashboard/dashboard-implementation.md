@@ -96,7 +96,7 @@ apps/web/src/
 
 ### Component Breakdown
 
-**KPIGrid** (apps/web/src/app/components/feature/dashboard/widgets/KPIGrid.tsx)
+**KPIGrid** (apps/web/src/components/feature/dashboard/widgets/KPIGrid.tsx)
 - Displays 6 role-specific KPI cards
 - Grid layout: `repeat(auto-fit, minmax(280px, 1fr))`
 - Adapts content based on role (client/tutor/agent)
@@ -359,7 +359,7 @@ export async function GET(request: NextRequest) {
 ### Task 4: Render Earnings Trend Chart
 
 ```typescript
-// apps/web/src/app/components/feature/dashboard/widgets/EarningsTrendChart.tsx
+// apps/web/src/components/feature/dashboard/widgets/EarningsTrendChart.tsx
 
 'use client';
 
@@ -435,7 +435,7 @@ export default function EarningsTrendChart({ data, currency = 'GBP', showCompari
 ### Task 5: Create Booking Calendar Heatmap
 
 ```typescript
-// apps/web/src/app/components/feature/dashboard/widgets/BookingCalendarHeatmap.tsx
+// apps/web/src/components/feature/dashboard/widgets/BookingCalendarHeatmap.tsx
 
 'use client';
 
@@ -556,7 +556,7 @@ const { data: profileViewsTrendData } = useQuery({
 
 ```typescript
 // Wrap each chart in ErrorBoundary
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 
 <ErrorBoundary fallback={<div>Unable to load earnings chart</div>}>
   {isLoadingEarnings ? (
@@ -570,7 +570,7 @@ import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
 ### Task 8: Implement Role-Specific KPIs
 
 ```typescript
-// apps/web/src/app/components/feature/dashboard/widgets/KPIGrid.tsx
+// apps/web/src/components/feature/dashboard/widgets/KPIGrid.tsx
 
 export default function KPIGrid({ data, role, currency = 'GBP' }: KPIGridProps) {
   // TUTOR/AGENT KPIs

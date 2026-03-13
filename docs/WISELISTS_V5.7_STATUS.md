@@ -151,37 +151,37 @@ Wiselists v5.7 is a "Save & Share" feature that enables users to create curated 
 ## 5. UI Components ✅ (100% Complete)
 
 ### 5.1 Card Components
-- ✅ **WiselistCard** (`apps/web/src/app/components/wiselists/WiselistCard.tsx`)
+- ✅ **WiselistCard** (`apps/web/src/components/wiselists/WiselistCard.tsx`)
   - Display wiselist in card format
   - Share and delete actions
   - Visibility indicator (lock/globe)
   - Item and collaborator counts
 
-- ✅ **WiselistItemCard** (`apps/web/src/app/components/wiselists/WiselistItemCard.tsx`)
+- ✅ **WiselistItemCard** (`apps/web/src/components/wiselists/WiselistItemCard.tsx`)
   - Polymorphic rendering (profiles vs listings)
   - Remove button for owners/editors
   - User notes display
   - Added-by attribution
 
 ### 5.2 Sidebar Widgets
-- ✅ **CreateWiselistWidget** (`apps/web/src/app/components/wiselists/CreateWiselistWidget.tsx`)
+- ✅ **CreateWiselistWidget** (`apps/web/src/components/wiselists/CreateWiselistWidget.tsx`)
   - Inline form in sidebar
   - Name, description, visibility
   - Auto-refresh on create
 
-- ✅ **WiselistStatsWidget** (`apps/web/src/app/components/wiselists/WiselistStatsWidget.tsx`)
+- ✅ **WiselistStatsWidget** (`apps/web/src/components/wiselists/WiselistStatsWidget.tsx`)
   - Total wiselists count
   - Public wiselists count
   - Total items and collaborators
   - Auto-calculates from API
 
-- ✅ **ShareCollaborateWidget** (`apps/web/src/app/components/wiselists/ShareCollaborateWidget.tsx`)
+- ✅ **ShareCollaborateWidget** (`apps/web/src/components/wiselists/ShareCollaborateWidget.tsx`)
   - Copy share link (public wiselists)
   - Make wiselist public action
   - Invite collaborators by email
   - v4.3 referral integration
 
-- ✅ **SavedWiselistsWidget** (`apps/web/src/app/components/wiselists/SavedWiselistsWidget.tsx`)
+- ✅ **SavedWiselistsWidget** (`apps/web/src/components/wiselists/SavedWiselistsWidget.tsx`)
   - Shows 3 most recent wiselists
   - Quick links to wiselist detail
   - View all link
@@ -395,14 +395,14 @@ v4.9 commission payouts use referrer
 - `apps/web/src/lib/api/wiselists.ts`
 
 **Components (8)**:
-- `apps/web/src/app/components/wiselists/WiselistCard.tsx`
-- `apps/web/src/app/components/wiselists/WiselistCard.module.css`
-- `apps/web/src/app/components/wiselists/WiselistItemCard.tsx`
-- `apps/web/src/app/components/wiselists/WiselistItemCard.module.css`
-- `apps/web/src/app/components/wiselists/CreateWiselistWidget.tsx`
-- `apps/web/src/app/components/wiselists/WiselistStatsWidget.tsx`
-- `apps/web/src/app/components/wiselists/ShareCollaborateWidget.tsx`
-- `apps/web/src/app/components/wiselists/SavedWiselistsWidget.tsx`
+- `apps/web/src/components/wiselists/WiselistCard.tsx`
+- `apps/web/src/components/wiselists/WiselistCard.module.css`
+- `apps/web/src/components/wiselists/WiselistItemCard.tsx`
+- `apps/web/src/components/wiselists/WiselistItemCard.module.css`
+- `apps/web/src/components/wiselists/CreateWiselistWidget.tsx`
+- `apps/web/src/components/wiselists/WiselistStatsWidget.tsx`
+- `apps/web/src/components/wiselists/ShareCollaborateWidget.tsx`
+- `apps/web/src/components/wiselists/SavedWiselistsWidget.tsx`
 
 **Pages (5)**:
 - `apps/web/src/app/(authenticated)/wiselists/page.tsx`

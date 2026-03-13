@@ -24,9 +24,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { HubDetailModal } from '@/app/components/hub/modal';
-import type { DetailSection } from '@/app/components/hub/modal';
-import Button from '@/app/components/ui/actions/Button';
+import { HubDetailModal } from '@/components/hub/modal';
+import type { DetailSection } from '@/components/hub/modal';
+import Button from '@/components/ui/actions/Button';
 import styles from './UserDetailsModal.module.css';
 
 // User type matching UsersTable (extended with more fields)

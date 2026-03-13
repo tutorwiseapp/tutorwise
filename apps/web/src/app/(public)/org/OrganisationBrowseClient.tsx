@@ -17,7 +17,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, MapPin, Building2, Star, Users } from 'lucide-react';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './OrganisationBrowseClient.module.css';
 
 interface Organisation {

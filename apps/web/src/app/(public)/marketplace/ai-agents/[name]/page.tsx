@@ -21,21 +21,21 @@ export const revalidate = 300; // 5-minute cache
 
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
-import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
-import { AIAgentHeroSection } from '@/app/components/feature/ai-agents/public-profile/AIAgentHeroSection';
-import { AIAgentAboutCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentAboutCard';
-import { AIAgentWhatITeachCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentWhatITeachCard';
-import { AIAgentHowItWorksCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentHowItWorksCard';
-import { AIAgentReviewsCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentReviewsCard';
-import { AIAgentTrustCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentTrustCard';
-import { AIAgentStatsCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentStatsCard';
-import { AIAgentStartSessionCard } from '@/app/components/feature/ai-agents/public-profile/AIAgentStartSessionCard';
-import { SimilarAIAgentsCard } from '@/app/components/feature/ai-agents/public-profile/SimilarAIAgentsCard';
-import { AIAgentViewTracker } from '@/app/components/feature/ai-agents/public-profile/AIAgentViewTracker';
-import { AIAgentMobileBottomCTA } from '@/app/components/feature/ai-agents/public-profile/AIAgentMobileBottomCTA';
-import type { AIAgentPublicProfile } from '@/app/components/feature/ai-agents/public-profile/AIAgentHeroSection';
-import type { AIAgentReview } from '@/app/components/feature/ai-agents/public-profile/AIAgentReviewsCard';
-import type { SimilarAgent } from '@/app/components/feature/ai-agents/public-profile/SimilarAIAgentsCard';
+import { PublicPageShell } from '@/components/layout/PublicPageShell';
+import { AIAgentHeroSection } from '@/components/feature/ai-agents/public-profile/AIAgentHeroSection';
+import { AIAgentAboutCard } from '@/components/feature/ai-agents/public-profile/AIAgentAboutCard';
+import { AIAgentWhatITeachCard } from '@/components/feature/ai-agents/public-profile/AIAgentWhatITeachCard';
+import { AIAgentHowItWorksCard } from '@/components/feature/ai-agents/public-profile/AIAgentHowItWorksCard';
+import { AIAgentReviewsCard } from '@/components/feature/ai-agents/public-profile/AIAgentReviewsCard';
+import { AIAgentTrustCard } from '@/components/feature/ai-agents/public-profile/AIAgentTrustCard';
+import { AIAgentStatsCard } from '@/components/feature/ai-agents/public-profile/AIAgentStatsCard';
+import { AIAgentStartSessionCard } from '@/components/feature/ai-agents/public-profile/AIAgentStartSessionCard';
+import { SimilarAIAgentsCard } from '@/components/feature/ai-agents/public-profile/SimilarAIAgentsCard';
+import { AIAgentViewTracker } from '@/components/feature/ai-agents/public-profile/AIAgentViewTracker';
+import { AIAgentMobileBottomCTA } from '@/components/feature/ai-agents/public-profile/AIAgentMobileBottomCTA';
+import type { AIAgentPublicProfile } from '@/components/feature/ai-agents/public-profile/AIAgentHeroSection';
+import type { AIAgentReview } from '@/components/feature/ai-agents/public-profile/AIAgentReviewsCard';
+import type { SimilarAgent } from '@/components/feature/ai-agents/public-profile/SimilarAIAgentsCard';
 
 interface AIAgentPublicPageProps {
   params: Promise<{ name: string }>;

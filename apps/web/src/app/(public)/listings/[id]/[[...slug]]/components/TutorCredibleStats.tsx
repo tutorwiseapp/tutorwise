@@ -5,7 +5,7 @@
 
 'use client';
 
-import Card from '@/app/components/ui/data-display/Card';
+import Card from '@/components/ui/data-display/Card';
 import styles from './TutorCredibleStats.module.css';
 
 interface TutorCredibleStatsProps {

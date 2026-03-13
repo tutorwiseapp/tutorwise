@@ -56,10 +56,10 @@
 
 ```bash
 # Copy layout components
-cp -r apps/web/src/app/components/help-centre/layout apps/web/src/app/components/blog/
+cp -r apps/web/src/components/help-centre/layout apps/web/src/components/blog/
 
 # Rename files
-cd apps/web/src/app/components/blog/layout
+cd apps/web/src/components/blog/layout
 mv HelpCentreLayout.tsx BlogLayout.tsx
 mv HelpCentreLayoutClient.tsx BlogLayoutClient.tsx
 mv LeftSidebar.tsx BlogLeftSidebar.tsx
@@ -106,7 +106,7 @@ mv LeftSidebar.tsx BlogLeftSidebar.tsx
 
 ### Step 4: Create Blog Widgets (30 min)
 
-**Files**: `apps/web/src/app/components/blog/widgets/`
+**Files**: `apps/web/src/components/blog/widgets/`
 
 1. **PopularArticlesWidget.tsx**:
    - Shows 5 most-read articles
@@ -189,14 +189,14 @@ or check out our [curated list of top-rated GCSE Maths tutors](/w/best-gcse-math
 
 ```bash
 # 1. Copy layout structure from Help Centre
-cp -r apps/web/src/app/components/help-centre/layout apps/web/src/app/components/blog/
+cp -r apps/web/src/components/help-centre/layout apps/web/src/components/blog/
 
 # 2. Copy article page structure
 cp apps/web/src/app/help-centre/\[category\]/\[slug\]/page.tsx apps/web/src/app/blog/\[slug\]/page.tsx
 
 # 3. Copy widgets structure
-mkdir -p apps/web/src/app/components/blog/widgets
-cp apps/web/src/app/components/help-centre/widgets/PopularArticlesWidget.tsx apps/web/src/app/components/blog/widgets/
+mkdir -p apps/web/src/components/blog/widgets
+cp apps/web/src/components/help-centre/widgets/PopularArticlesWidget.tsx apps/web/src/components/blog/widgets/
 
 # 4. Update imports in all copied files
 # Find and replace:
@@ -211,7 +211,7 @@ cp apps/web/src/app/components/help-centre/widgets/PopularArticlesWidget.tsx app
 
 ### 1. Update Main Navigation
 
-**File**: `apps/web/src/app/components/layout/Header.tsx`
+**File**: `apps/web/src/components/layout/Header.tsx`
 
 Add "Blog" link to main navigation:
 ```typescript
@@ -220,7 +220,7 @@ Add "Blog" link to main navigation:
 
 ### 2. Update Footer
 
-**File**: `apps/web/src/app/components/layout/Footer.tsx`
+**File**: `apps/web/src/components/layout/Footer.tsx`
 
 Add blog link:
 ```html
@@ -353,8 +353,8 @@ Blog Structure:
 └── /blog/rss.xml                  → RSS feed
 
 Components:
-├── apps/web/src/app/components/blog/layout/     → 3-column layout
-├── apps/web/src/app/components/blog/widgets/    → Right sidebar widgets
+├── apps/web/src/components/blog/layout/     → 3-column layout
+├── apps/web/src/components/blog/widgets/    → Right sidebar widgets
 └── apps/web/src/content/blog/[category]/        → MDX article content
 
 Styles:

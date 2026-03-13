@@ -8,8 +8,8 @@ import { Metadata } from 'next';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import Container from '@/app/components/layout/Container';
-import PageHeader from '@/app/components/ui/data-display/PageHeader';
+import Container from '@/components/layout/Container';
+import PageHeader from '@/components/ui/data-display/PageHeader';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {

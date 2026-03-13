@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Download, FileSpreadsheet, Calendar, Filter, CheckCircle2 } from 'lucide-react';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import styles from './PayoutExportCard.module.css';
 
 interface PayoutExportCardProps {

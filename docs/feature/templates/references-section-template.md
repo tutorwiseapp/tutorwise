@@ -22,9 +22,9 @@
 #### Frontend Components
 | File | Path | Purpose |
 |------|------|---------|
-| Main Component | `apps/web/src/app/components/feature/[feature-name]/MainComponent.tsx` | Primary feature component |
-| Sub Component A | `apps/web/src/app/components/feature/[feature-name]/SubComponentA.tsx` | [Purpose] |
-| Styles | `apps/web/src/app/components/feature/[feature-name]/*.module.css` | Component styling |
+| Main Component | `apps/web/src/components/feature/[feature-name]/MainComponent.tsx` | Primary feature component |
+| Sub Component A | `apps/web/src/components/feature/[feature-name]/SubComponentA.tsx` | [Purpose] |
+| Styles | `apps/web/src/components/feature/[feature-name]/*.module.css` | Component styling |
 
 #### Pages & Routes
 | Route | File | Purpose |
@@ -204,7 +204,7 @@ git log --all --grep="[feature-name]"
 #### Test Locations
 | Type | Path | Coverage |
 |------|------|----------|
-| Unit Tests | `apps/web/src/app/components/feature/[feature]/__tests__/` | Component tests |
+| Unit Tests | `apps/web/src/components/feature/[feature]/__tests__/` | Component tests |
 | Integration | `apps/web/src/lib/api/__tests__/[feature].test.ts` | API tests |
 | E2E | `apps/web/e2e/[feature].spec.ts` | End-to-end tests |
 
@@ -335,7 +335,7 @@ grep -r "from.*[feature]" apps/web/src/
 | `GetInTouchCard.tsx` | Contact CTA (sticky sidebar) |
 | ... | (11 more components) |
 
-**Location**: `apps/web/src/app/components/feature/public-profile/`
+**Location**: `apps/web/src/components/feature/public-profile/`
 
 ### Page Routes
 - `/public-profile/[id]/[[...slug]]` - Main profile page
@@ -356,7 +356,7 @@ grep -r "from.*[feature]" apps/web/src/
 ### Git Commits
 ```bash
 # Latest commits
-git log --oneline --since="2025-12-01" -- apps/web/src/app/components/feature/public-profile/
+git log --oneline --since="2025-12-01" -- apps/web/src/components/feature/public-profile/
 ```
 
 ---

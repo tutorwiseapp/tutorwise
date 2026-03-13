@@ -94,21 +94,21 @@ if (activeRole === 'seeker') {
 **Updated File**: [apps/web/src/app/account/layout.tsx](apps/web/src/app/account/layout.tsx)
 - Removed "Professional Info" tab from account navigation
 
-**Replacement**: Users now edit professional info at `/profile` page using the unified [ProfessionalInfoForm.tsx](apps/web/src/app/components/profile/ProfessionalInfoForm.tsx)
+**Replacement**: Users now edit professional info at `/profile` page using the unified [ProfessionalInfoForm.tsx](apps/web/src/components/profile/ProfessionalInfoForm.tsx)
 
 ---
 
 ### 5. Removed Old OnboardingWizard ✅
 **Deleted Files**:
-- ❌ `apps/web/src/app/components/onboarding/OnboardingWizard.tsx`
-- ❌ `apps/web/src/app/components/onboarding/OnboardingProvider.tsx`
+- ❌ `apps/web/src/components/onboarding/OnboardingWizard.tsx`
+- ❌ `apps/web/src/components/onboarding/OnboardingProvider.tsx`
 
 **Why Removed**: These files wrote to the deprecated `role_details` table (line 259).
 
 **Replacement**: Role-specific onboarding wizards are used instead:
-- [TutorOnboardingWizard.tsx](apps/web/src/app/components/onboarding/tutor/TutorOnboardingWizard.tsx) ✅
-- [ClientOnboardingWizard.tsx](apps/web/src/app/components/onboarding/client/ClientOnboardingWizard.tsx) ✅
-- [AgentOnboardingWizard.tsx](apps/web/src/app/components/onboarding/agent/AgentOnboardingWizard.tsx) ✅
+- [TutorOnboardingWizard.tsx](apps/web/src/components/onboarding/tutor/TutorOnboardingWizard.tsx) ✅
+- [ClientOnboardingWizard.tsx](apps/web/src/components/onboarding/client/ClientOnboardingWizard.tsx) ✅
+- [AgentOnboardingWizard.tsx](apps/web/src/components/onboarding/agent/AgentOnboardingWizard.tsx) ✅
 
 All three save to `professional_details.{tutor|client|agent}`.
 
@@ -216,8 +216,8 @@ npx tsc --noEmit
 8. `apps/web/src/app/account/components/ClientProfessionalInfoForm.tsx`
 9. `apps/web/src/app/account/components/AgentProfessionalInfoForm.tsx`
 10. `apps/web/src/app/account/components/*.stories.tsx` (3 files)
-11. `apps/web/src/app/components/onboarding/OnboardingWizard.tsx`
-12. `apps/web/src/app/components/onboarding/OnboardingProvider.tsx`
+11. `apps/web/src/components/onboarding/OnboardingWizard.tsx`
+12. `apps/web/src/components/onboarding/OnboardingProvider.tsx`
 
 **Created**:
 13. [apps/api/migrations/026_drop_role_details_tables.sql](apps/api/migrations/026_drop_role_details_tables.sql)

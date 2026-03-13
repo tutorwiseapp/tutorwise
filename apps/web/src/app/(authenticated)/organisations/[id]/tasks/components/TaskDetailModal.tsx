@@ -11,8 +11,8 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import toast from 'react-hot-toast';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
 import styles from './CreateTaskModal.module.css';
 import detailStyles from './TaskDetailModal.module.css';
 

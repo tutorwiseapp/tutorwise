@@ -521,6 +521,6 @@ const getNetworkView = (role: Role) => {
 ## References
 
 - User Profile Context: `apps/web/src/app/contexts/UserProfileContext.tsx`
-- Navigation: `apps/web/src/app/components/layout/NavMenu.tsx`
+- Navigation: `apps/web/src/components/layout/NavMenu.tsx`
 - Dashboard: `apps/web/src/app/dashboard/page.tsx`
 - Profile: `apps/web/src/app/profile/page.tsx`

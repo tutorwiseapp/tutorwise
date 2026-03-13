@@ -9,12 +9,12 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
-import HubPageLayout from '@/app/components/hub/layout/HubPageLayout';
-import HubHeader from '@/app/components/hub/layout/HubHeader';
-import HubTabs from '@/app/components/hub/layout/HubTabs';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubDataTable from '@/app/components/hub/data/HubDataTable';
-import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import HubPageLayout from '@/components/hub/layout/HubPageLayout';
+import HubHeader from '@/components/hub/layout/HubHeader';
+import HubTabs from '@/components/hub/layout/HubTabs';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubDataTable from '@/components/hub/data/HubDataTable';
+import { AdminHelpWidget, AdminStatsWidget, AdminTipWidget } from '@/components/admin/widgets';
 import { Link as TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
 import styles from './page.module.css';
 

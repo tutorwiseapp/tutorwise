@@ -37,7 +37,7 @@ All automated implementation tasks have been finished. The blog is now **fully i
 - ✅ Improves rich snippet appearance in search
 
 **Files Created:**
-- `apps/web/src/app/components/blog/ArticleStructuredData.tsx`
+- `apps/web/src/components/blog/ArticleStructuredData.tsx`
 
 ### 4. Sitemaps & Crawling
 - ✅ Dynamic blog sitemap at `/blog/sitemap.xml`
@@ -59,7 +59,7 @@ All automated implementation tasks have been finished. The blog is now **fully i
 
 **Files Created:**
 - `tools/database/migrations/175_create_blog_seo_analytics_tables.sql`
-- `apps/web/src/app/components/analytics/GoogleAnalytics.tsx`
+- `apps/web/src/components/analytics/GoogleAnalytics.tsx`
 - `apps/web/src/app/api/blog/analytics/track/route.ts`
 - `apps/web/src/lib/seo/healthChecker.ts`
 

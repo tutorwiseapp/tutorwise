@@ -9,9 +9,9 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HubDataTable } from '@/app/components/hub/data';
-import type { Column, Filter, PaginationConfig } from '@/app/components/hub/data';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './AdminsTable.module.css';
 import type { AdminRole } from '@/lib/rbac/types';
 

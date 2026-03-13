@@ -229,19 +229,19 @@ Tutor clicks Request Payout → Check available balance >= £10 → Create Strip
 - [disputes/page.tsx](../../apps/web/src/app/(authenticated)/financials/disputes/page.tsx) - Dispute management (placeholder)
 
 **Core Components** (13 total):
-- [TransactionCard.tsx](../../apps/web/src/app/components/feature/financials/TransactionCard.tsx) - Individual transaction card with context details
-- [TransactionDetailModal.tsx](../../apps/web/src/app/components/feature/financials/TransactionDetailModal.tsx) - Full transaction details modal
-- [WalletBalanceWidget.tsx](../../apps/web/src/app/components/feature/financials/WalletBalanceWidget.tsx) - Available/Pending/Total balance widget
-- [BalanceSummaryWidget.tsx](../../apps/web/src/app/components/feature/financials/BalanceSummaryWidget.tsx) - Detailed balance breakdown
-- [PayoutCard.tsx](../../apps/web/src/app/components/feature/financials/PayoutCard.tsx) - Payout history card
-- [PayoutDetailModal.tsx](../../apps/web/src/app/components/feature/financials/PayoutDetailModal.tsx) - Payout details modal
-- [PayoutHelpWidget.tsx](../../apps/web/src/app/components/feature/financials/PayoutHelpWidget.tsx) - Help links
-- [PayoutTipWidget.tsx](../../apps/web/src/app/components/feature/financials/PayoutTipWidget.tsx) - Payout tips
-- [PayoutVideoWidget.tsx](../../apps/web/src/app/components/feature/financials/PayoutVideoWidget.tsx) - Tutorial videos
-- [DisputeCard.tsx](../../apps/web/src/app/components/feature/financials/DisputeCard.tsx) - Dispute card
-- [DisputeDetailModal.tsx](../../apps/web/src/app/components/feature/financials/DisputeDetailModal.tsx) - Dispute details modal
-- [DisputeHelpWidget.tsx](../../apps/web/src/app/components/feature/financials/DisputeHelpWidget.tsx) - Dispute help
-- [DisputeTipWidget.tsx](../../apps/web/src/app/components/feature/financials/DisputeTipWidget.tsx) - Dispute tips
+- [TransactionCard.tsx](../../apps/web/src/components/feature/financials/TransactionCard.tsx) - Individual transaction card with context details
+- [TransactionDetailModal.tsx](../../apps/web/src/components/feature/financials/TransactionDetailModal.tsx) - Full transaction details modal
+- [WalletBalanceWidget.tsx](../../apps/web/src/components/feature/financials/WalletBalanceWidget.tsx) - Available/Pending/Total balance widget
+- [BalanceSummaryWidget.tsx](../../apps/web/src/components/feature/financials/BalanceSummaryWidget.tsx) - Detailed balance breakdown
+- [PayoutCard.tsx](../../apps/web/src/components/feature/financials/PayoutCard.tsx) - Payout history card
+- [PayoutDetailModal.tsx](../../apps/web/src/components/feature/financials/PayoutDetailModal.tsx) - Payout details modal
+- [PayoutHelpWidget.tsx](../../apps/web/src/components/feature/financials/PayoutHelpWidget.tsx) - Help links
+- [PayoutTipWidget.tsx](../../apps/web/src/components/feature/financials/PayoutTipWidget.tsx) - Payout tips
+- [PayoutVideoWidget.tsx](../../apps/web/src/components/feature/financials/PayoutVideoWidget.tsx) - Tutorial videos
+- [DisputeCard.tsx](../../apps/web/src/components/feature/financials/DisputeCard.tsx) - Dispute card
+- [DisputeDetailModal.tsx](../../apps/web/src/components/feature/financials/DisputeDetailModal.tsx) - Dispute details modal
+- [DisputeHelpWidget.tsx](../../apps/web/src/components/feature/financials/DisputeHelpWidget.tsx) - Dispute help
+- [DisputeTipWidget.tsx](../../apps/web/src/components/feature/financials/DisputeTipWidget.tsx) - Dispute tips
 
 **API Utilities**:
 - [lib/api/financials.ts](../../apps/web/src/lib/api/financials.ts) - getFinancials() function

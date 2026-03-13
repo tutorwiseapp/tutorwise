@@ -66,9 +66,9 @@ All references to `display_name` replaced with `full_name` in:
   - `apps/web/src/app/api/stripe/create-checkout-session/route.ts`
 
 - Components:
-  - `apps/web/src/app/components/profile/ProfileCompletenessIndicator.tsx`
-  - `apps/web/src/app/components/ui/profile/ProfileCard.tsx`
-  - `apps/web/src/app/components/ui/profile/ProfileSidebar.tsx`
+  - `apps/web/src/components/profile/ProfileCompletenessIndicator.tsx`
+  - `apps/web/src/components/ui/profile/ProfileCard.tsx`
+  - `apps/web/src/components/ui/profile/ProfileSidebar.tsx`
   - `apps/web/src/app/dashboard/page.tsx`
   - `apps/web/src/app/profile/[id]/page.tsx`
   - `apps/web/src/app/profile/page.tsx`
@@ -171,16 +171,16 @@ Once the database migration is applied:
 ### Modified (17 files):
 - `packages/shared-types/src/index.ts`
 - `apps/web/src/types/index.ts`
-- `apps/web/src/app/components/listings/CreateListingWizard.tsx`
-- `apps/web/src/app/components/listings/wizard-steps/Step1BasicInfo.tsx`
-- `apps/web/src/app/components/onboarding/OnboardingWizard.tsx`
+- `apps/web/src/components/listings/CreateListingWizard.tsx`
+- `apps/web/src/components/listings/wizard-steps/Step1BasicInfo.tsx`
+- `apps/web/src/components/onboarding/OnboardingWizard.tsx`
 - `apps/web/src/app/api/profile/route.ts`
 - `apps/web/src/app/api/profiles/[id]/route.ts`
 - `apps/web/src/app/api/stripe/connect-account/route.ts`
 - `apps/web/src/app/api/stripe/create-checkout-session/route.ts`
-- `apps/web/src/app/components/profile/ProfileCompletenessIndicator.tsx`
-- `apps/web/src/app/components/ui/profile/ProfileCard.tsx`
-- `apps/web/src/app/components/ui/profile/ProfileSidebar.tsx`
+- `apps/web/src/components/profile/ProfileCompletenessIndicator.tsx`
+- `apps/web/src/components/ui/profile/ProfileCard.tsx`
+- `apps/web/src/components/ui/profile/ProfileSidebar.tsx`
 - `apps/web/src/app/dashboard/page.tsx`
 - `apps/web/src/app/profile/[id]/page.tsx`
 - `apps/web/src/app/profile/page.tsx`

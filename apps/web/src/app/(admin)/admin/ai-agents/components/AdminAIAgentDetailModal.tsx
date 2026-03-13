@@ -7,8 +7,8 @@
 'use client';
 
 import React from 'react';
-import Modal from '@/app/components/ui/feedback/Modal';
-import Button from '@/app/components/ui/actions/Button';
+import Modal from '@/components/ui/feedback/Modal';
+import Button from '@/components/ui/actions/Button';
 import styles from './AdminAIAgentDetailModal.module.css';
 
 interface AITutor {

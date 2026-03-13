@@ -31,7 +31,7 @@
 ### Component Layer (100% Complete - 4 of 4 done)
 
 #### ✅ 1. TutorProfessionalDetailStep (COMPLETE)
-**File**: [TutorProfessionalDetailStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorProfessionalDetailStep.tsx)
+**File**: [TutorProfessionalDetailStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorProfessionalDetailStep.tsx)
 
 **Implemented Features**:
 - ✅ onBlur save (150ms delay)
@@ -50,7 +50,7 @@
 - ✅ Auto-save (3-second debounce)
 
 #### ✅ 2. TutorPersonalInfoStep (COMPLETE)
-**File**: [TutorPersonalInfoStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorPersonalInfoStep.tsx)
+**File**: [TutorPersonalInfoStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorPersonalInfoStep.tsx)
 
 **Implemented Features**:
 - ✅ onBlur save (150ms delay)
@@ -65,7 +65,7 @@
 - ✅ Auto-save (3-second debounce)
 
 #### ✅ 3. TutorAvailabilityStep (COMPLETE)
-**File**: [TutorAvailabilityStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorAvailabilityStep.tsx)
+**File**: [TutorAvailabilityStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorAvailabilityStep.tsx)
 
 **Implemented Features**:
 - ✅ Immediate save on multiselect changes
@@ -81,7 +81,7 @@
 - ✅ Auto-save (3-second debounce)
 
 #### ✅ 4. TutorProfessionalVerificationStep (COMPLETE)
-**File**: [TutorProfessionalVerificationStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorProfessionalVerificationStep.tsx)
+**File**: [TutorProfessionalVerificationStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorProfessionalVerificationStep.tsx)
 
 **Implemented Features**:
 - ✅ onBlur save (150ms delay)
@@ -282,10 +282,10 @@ await supabase.from('role_details').upsert({
 
 ### Modified (8 files)
 1. [/hooks/useAutoSave.ts](apps/web/src/hooks/useAutoSave.ts) - Updated debounce to 3s
-2. [TutorProfessionalDetailStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorProfessionalDetailStep.tsx) - Complete implementation
-3. [TutorPersonalInfoStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorPersonalInfoStep.tsx) - Complete implementation
-4. [TutorAvailabilityStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorAvailabilityStep.tsx) - Complete implementation
-5. [TutorProfessionalVerificationStep.tsx](apps/web/src/app/components/feature/onboarding/tutor/TutorProfessionalVerificationStep.tsx) - Complete implementation
+2. [TutorProfessionalDetailStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorProfessionalDetailStep.tsx) - Complete implementation
+3. [TutorPersonalInfoStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorPersonalInfoStep.tsx) - Complete implementation
+4. [TutorAvailabilityStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorAvailabilityStep.tsx) - Complete implementation
+5. [TutorProfessionalVerificationStep.tsx](apps/web/src/components/feature/onboarding/tutor/TutorProfessionalVerificationStep.tsx) - Complete implementation
 6. [professional-details/page.tsx](apps/web/src/app/onboarding/tutor/professional-details/page.tsx) - Added write-through to role_details
 7. [verification/page.tsx](apps/web/src/app/onboarding/tutor/verification/page.tsx) - Added write-through to role_details
 8. [/PROGRESS_REPORT.md](PROGRESS_REPORT.md) - Updated with 100% completion status

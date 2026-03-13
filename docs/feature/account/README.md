@@ -222,13 +222,13 @@ User edits qualifications → Clicks save → Fetch previous CaaS score → upda
 - [settings/page.tsx](../../apps/web/src/app/(authenticated)/account/settings/page.tsx) - Settings grid with free help toggle
 
 **Core Components** (7 total):
-- [PersonalInfoForm.tsx](../../apps/web/src/app/components/feature/account/PersonalInfoForm.tsx) - Inline editing for personal fields
-- [ProfessionalInfoForm.tsx](../../apps/web/src/app/components/feature/account/ProfessionalInfoForm.tsx) - 2000+ line role-aware form
-- [AccountCard.tsx](../../apps/web/src/app/components/feature/account/AccountCard.tsx) - Profile completeness widget with avatar upload
-- [AccountHeroHeader.tsx](../../apps/web/src/app/components/feature/account/AccountHeroHeader.tsx) - Profile display (avatar, name, role, score)
-- [AccountHelpWidget.tsx](../../apps/web/src/app/components/feature/account/AccountHelpWidget.tsx) - Help links
-- [AccountTipWidget.tsx](../../apps/web/src/app/components/feature/account/AccountTipWidget.tsx) - Security tips
-- [AccountVideoWidget.tsx](../../apps/web/src/app/components/feature/account/AccountVideoWidget.tsx) - Video tutorials
+- [PersonalInfoForm.tsx](../../apps/web/src/components/feature/account/PersonalInfoForm.tsx) - Inline editing for personal fields
+- [ProfessionalInfoForm.tsx](../../apps/web/src/components/feature/account/ProfessionalInfoForm.tsx) - 2000+ line role-aware form
+- [AccountCard.tsx](../../apps/web/src/components/feature/account/AccountCard.tsx) - Profile completeness widget with avatar upload
+- [AccountHeroHeader.tsx](../../apps/web/src/components/feature/account/AccountHeroHeader.tsx) - Profile display (avatar, name, role, score)
+- [AccountHelpWidget.tsx](../../apps/web/src/components/feature/account/AccountHelpWidget.tsx) - Help links
+- [AccountTipWidget.tsx](../../apps/web/src/components/feature/account/AccountTipWidget.tsx) - Security tips
+- [AccountVideoWidget.tsx](../../apps/web/src/components/feature/account/AccountVideoWidget.tsx) - Video tutorials
 
 **API Utilities**:
 - [lib/api/profiles.ts](../../apps/web/src/lib/api/profiles.ts) - updateProfile(), updateRoleDetails() functions

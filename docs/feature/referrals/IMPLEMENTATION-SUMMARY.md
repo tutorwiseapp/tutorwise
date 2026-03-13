@@ -185,10 +185,10 @@ The entire **Hierarchical Attribution System** with UI integration has been succ
 4. `apps/web/src/utils/referral/context.ts`
 
 **Frontend Components**:
-5. `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx`
-6. `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.module.css`
-7. `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx`
-8. `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.module.css`
+5. `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx`
+6. `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.module.css`
+7. `apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx`
+8. `apps/web/src/components/feature/referrals/DelegationSettingsPanel.module.css`
 
 **Pages**:
 9. `apps/web/src/app/(authenticated)/account/referrals/settings/page.tsx`
@@ -212,8 +212,8 @@ The entire **Hierarchical Attribution System** with UI integration has been succ
 2. `apps/web/src/app/(authenticated)/dashboard/page.tsx` - Added ReferralDashboardWidget
 3. `docs/feature/referrals/referral-system-detail-v2.md` - Fixed corrupted diagram
 4. `docs/feature/referrals/referrals-solution-design-v2.md` - Updated to v6.0
-5. `apps/web/src/app/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` - Fixed import paths
-6. `apps/web/src/app/components/feature/referrals/DelegationSettingsPanel.tsx` - Fixed import paths, linting
+5. `apps/web/src/components/feature/dashboard/widgets/ReferralDashboardWidget.tsx` - Fixed import paths
+6. `apps/web/src/components/feature/referrals/DelegationSettingsPanel.tsx` - Fixed import paths, linting
 
 ---
 

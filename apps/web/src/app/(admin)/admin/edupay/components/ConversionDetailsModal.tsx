@@ -8,8 +8,8 @@
 'use client';
 
 import React from 'react';
-import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
-import Button from '@/app/components/ui/actions/Button';
+import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
+import Button from '@/components/ui/actions/Button';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import {
   CreditCard,

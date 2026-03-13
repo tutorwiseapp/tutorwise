@@ -9,12 +9,12 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import { AdminStatsWidget } from '@/app/components/admin/widgets';
-import ErrorBoundary from '@/app/components/ui/feedback/ErrorBoundary';
-import Button from '@/app/components/ui/actions/Button';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import { AdminStatsWidget } from '@/components/admin/widgets';
+import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
+import Button from '@/components/ui/actions/Button';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 import { Plus, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchedulerCalendar from '@/components/feature/scheduler/SchedulerCalendar';

@@ -17,9 +17,9 @@ import * as Ably from 'ably';
 import { ArrowLeft, Video, Save, CheckCircle, Share2, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
-import { EmbeddedWhiteboard } from '@/app/components/feature/virtualspace/EmbeddedWhiteboard';
+import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
 import type { VirtualSpaceSession } from '@/lib/virtualspace';
-import styles from '@/app/components/feature/virtualspace/VirtualSpaceHeader.module.css';
+import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
