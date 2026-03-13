@@ -1,7 +1,7 @@
 /**
  * Filename: HubRowCard.tsx
  * Purpose: Generic horizontal list card for all 9 Hubs
- * Path: /app/components/hub/content/HubRowCard/HubRowCard.tsx
+ * Path: /components/hub/content/HubRowCard/HubRowCard.tsx
  * Created: 2025-11-19
  *
  * Follows hub-row-card-ui-design-v1.md specification:

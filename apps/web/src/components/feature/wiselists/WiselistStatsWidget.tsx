@@ -1,7 +1,7 @@
 /**
  * Filename: WiselistStatsWidget.tsx
  * Purpose: Display wiselist statistics in sidebar (v5.7)
- * Path: /app/components/wiselists/WiselistStatsWidget.tsx
+ * Path: /components/wiselists/WiselistStatsWidget.tsx
  * Created: 2025-11-15
  * Updated: 2025-11-19 - Migrated to v2 design with HubStatsCard
  */

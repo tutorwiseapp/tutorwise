@@ -1,5 +1,5 @@
 /**
- * Filename: /app/components/hub/form/HubForm.tsx
+ * Filename: /components/hub/form/HubForm.tsx
  * Purpose: Gold Standard form layout for hub pages (Organisation, Profile, etc.)
  * Version: v3 (Borderless, Auto-save)
  * Created: 2025-11-20

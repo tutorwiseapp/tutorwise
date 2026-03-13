@@ -1,7 +1,7 @@
 /**
  * Filename: HubComplexKPICard.tsx
  * Purpose: Complex KPI card for displaying detailed information beyond simple metrics
- * Path: /app/components/hub/charts/HubComplexKPICard.tsx
+ * Path: /components/hub/charts/HubComplexKPICard.tsx
  * Created: 2026-02-26
  *
  * Use Cases:

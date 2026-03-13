@@ -1,7 +1,7 @@
 /**
  * Filename: HubDetailCard.tsx
  * Purpose: Detail-specific card component for detail pages (extends HubRowCard visual language)
- * Path: /app/components/hub/content/HubDetailCard/HubDetailCard.tsx
+ * Path: /components/hub/content/HubDetailCard/HubDetailCard.tsx
  * Created: 2025-12-05
  *
  * Design:

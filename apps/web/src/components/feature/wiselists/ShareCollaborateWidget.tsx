@@ -1,7 +1,7 @@
 /**
  * Filename: ShareCollaborateWidget.tsx
  * Purpose: Widget for sharing wiselist and managing collaborators (v5.7)
- * Path: /app/components/wiselists/ShareCollaborateWidget.tsx
+ * Path: /components/wiselists/ShareCollaborateWidget.tsx
  * Created: 2025-11-15
  */
 
