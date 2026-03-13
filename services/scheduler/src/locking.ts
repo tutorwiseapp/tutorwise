@@ -91,6 +91,7 @@ export async function reclaimStale(): Promise<number> {
          locked_at = NULL,
          updated_at = now()
      WHERE status = 'in_progress'
+       AND type != 'task'
        AND locked_at < now() - make_interval(mins := $1)
      RETURNING id, title, type`,
     [config.staleLockMinutes]

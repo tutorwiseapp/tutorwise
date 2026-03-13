@@ -9,11 +9,14 @@ import type { ScheduledItem, ExecutorResult } from '../types.js';
 
 // Allowlist of SQL functions that can be called — prevents SQL injection
 const ALLOWED_FUNCTIONS = new Set([
+  // Cleanup
   'cleanup_expired_slot_reservations',
+  // Growth + intelligence metrics
   'compute_growth_scores',
   'compute_caas_platform_metrics',
   'compute_resources_platform_metrics',
   'compute_article_readiness_score',
+  'compute_article_intelligence_scores',
   'compute_seo_platform_metrics',
   'compute_marketplace_platform_metrics',
   'compute_bookings_platform_metrics',
@@ -27,6 +30,24 @@ const ALLOWED_FUNCTIONS = new Set([
   'compute_org_conversion_platform_metrics',
   'compute_ai_studio_platform_metrics',
   'compute_onboarding_platform_metrics',
+  // Decision outcome measurement
+  'measure_tutor_approval_outcomes',
+  'measure_payout_outcomes',
+  'measure_nudge_outcomes',
+  // Subscription management
+  'sage_pro_monthly_quota_reset',
+  'sage_pro_file_cleanup',
+  // Analytics aggregation
+  'aggregate_daily_statistics',
+  'aggregate_user_statistics',
+  'aggregate_organisation_statistics',
+  'refresh_profile_view_counts',
+  'refresh_network_trust_metrics',
+  // Referrals
+  'refresh_referral_network_stats',
+  'expire_stale_referrals',
+  // Scheduler self-maintenance
+  'cleanup_scheduler_runs',
 ]);
 
 export async function executeSqlFunc(item: ScheduledItem): Promise<ExecutorResult> {

@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
         .from('scheduler_runs')
         .select('item_id, started_at, status, duration_ms')
         .in('item_id', jobIds)
-        .order('started_at', { ascending: false });
+        .order('started_at', { ascending: false })
+        .limit(200);
 
       if (runs) {
         // Keep only the latest run per item

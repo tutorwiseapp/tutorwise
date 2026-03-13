@@ -49,7 +49,7 @@ async function boot(): Promise<void> {
   }, RECOVERY_INTERVAL_MS);
 
   // 4. Start the poll loop
-  startLoop();
+  await startLoop();
 
   // 5. Start health check server
   startHealthServer();

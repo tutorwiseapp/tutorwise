@@ -14,9 +14,9 @@ let pool: pg.Pool | null = null;
 export function getPool(): pg.Pool {
   if (!pool) {
     // Strip sslmode param (Supabase adds it but node-pg handles SSL separately)
-    const cleanConn = config.databaseUrl
-      .replace(/[?&]sslmode=[^&]*/g, '')
-      .replace(/[?&]$/, '');
+    const url = new URL(config.databaseUrl);
+    url.searchParams.delete('sslmode');
+    const cleanConn = url.toString();
 
     pool = new Pool({
       connectionString: cleanConn,

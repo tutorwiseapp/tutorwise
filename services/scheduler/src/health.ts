@@ -5,7 +5,7 @@
 
 import http from 'node:http';
 import { config } from './config.js';
-import { stats } from './scheduler-loop.js';
+import { stats, getInProgressCount } from './scheduler-loop.js';
 import { logger } from './logger.js';
 
 let server: http.Server | null = null;
@@ -30,6 +30,7 @@ export function startHealthServer(): void {
         poll_count: stats.pollCount,
         items_processed_total: stats.itemsProcessedTotal,
         items_failed_total: stats.itemsFailedTotal,
+        items_in_progress: getInProgressCount(),
       });
 
       res.writeHead(statusCode, { 'Content-Type': 'application/json' });

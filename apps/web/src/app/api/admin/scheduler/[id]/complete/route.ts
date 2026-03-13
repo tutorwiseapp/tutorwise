@@ -28,7 +28,65 @@ export async function POST(_request: NextRequest, props: { params: Promise<{ id:
       return NextResponse.json({ error: 'Item not found' }, { status: 404 });
     }
 
-    // Mark as completed
+    // If recurring, update the same row in-place (matches scheduler service behavior)
+    if (item.recurrence) {
+      const now = new Date();
+      let nextDate: Date | null = null;
+
+      if (item.recurrence === 'cron' && item.cron_expression) {
+        // Parse cron expression to compute next fire time
+        try {
+          const cronParser = await import('cron-parser');
+          const interval = cronParser.default.parseExpression(item.cron_expression, {
+            currentDate: now,
+            tz: 'UTC',
+          });
+          nextDate = interval.next().toDate();
+        } catch {
+          // Invalid cron — fall through to complete without recurrence
+        }
+      } else {
+        nextDate = new Date(now);
+        switch (item.recurrence) {
+          case 'daily': nextDate.setDate(nextDate.getDate() + 1); break;
+          case 'weekly': nextDate.setDate(nextDate.getDate() + 7); break;
+          case 'biweekly': nextDate.setDate(nextDate.getDate() + 14); break;
+          case 'monthly': nextDate.setMonth(nextDate.getMonth() + 1); break;
+          default: nextDate = null;
+        }
+        // Preserve original time-of-day
+        if (nextDate) {
+          const orig = new Date(item.scheduled_at);
+          nextDate.setUTCHours(orig.getUTCHours(), orig.getUTCMinutes(), orig.getUTCSeconds(), 0);
+        }
+      }
+
+      const withinWindow = nextDate && (!item.recurrence_end || nextDate <= new Date(item.recurrence_end));
+
+      if (withinWindow && nextDate) {
+        // Reset for next cycle (same row — no duplicates)
+        const { data, error } = await supabase
+          .from('scheduled_items')
+          .update({
+            scheduled_at: nextDate.toISOString(),
+            status: 'scheduled',
+            attempt_count: 0,
+            locked_by: null,
+            locked_at: null,
+            started_at: null,
+            completed_at: new Date().toISOString(),
+            last_error: null,
+          })
+          .eq('id', id)
+          .select('*')
+          .single();
+
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ success: true, data, next_at: nextDate.toISOString() });
+      }
+    }
+
+    // Non-recurring or past recurrence end — mark as completed
     const { data, error } = await supabase
       .from('scheduled_items')
       .update({ status: 'completed', completed_at: new Date().toISOString() })
@@ -37,37 +95,6 @@ export async function POST(_request: NextRequest, props: { params: Promise<{ id:
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-    // If recurring, create next occurrence
-    if (item.recurrence) {
-      const nextDate = new Date(item.scheduled_at);
-
-      switch (item.recurrence) {
-        case 'daily': nextDate.setDate(nextDate.getDate() + 1); break;
-        case 'weekly': nextDate.setDate(nextDate.getDate() + 7); break;
-        case 'biweekly': nextDate.setDate(nextDate.getDate() + 14); break;
-        case 'monthly': nextDate.setMonth(nextDate.getMonth() + 1); break;
-      }
-
-      // Only create next if within recurrence window
-      const withinWindow = !item.recurrence_end || nextDate <= new Date(item.recurrence_end);
-
-      if (withinWindow) {
-        await supabase.from('scheduled_items').insert({
-          title: item.title,
-          description: item.description,
-          type: item.type,
-          scheduled_at: nextDate.toISOString(),
-          due_date: item.due_date,
-          recurrence: item.recurrence,
-          recurrence_end: item.recurrence_end,
-          metadata: item.metadata,
-          tags: item.tags,
-          color: item.color,
-          created_by: item.created_by,
-        });
-      }
-    }
 
     return NextResponse.json({ success: true, data });
   } catch (err) {

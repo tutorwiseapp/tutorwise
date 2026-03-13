@@ -30,7 +30,7 @@ export async function handleRecurrence(item: ScheduledItem): Promise<void> {
     }
   }
 
-  await query(
+  const result = await query(
     `UPDATE scheduled_items
      SET scheduled_at = $2,
          status = 'scheduled',
@@ -42,9 +42,15 @@ export async function handleRecurrence(item: ScheduledItem): Promise<void> {
          completed_at = NULL,
          last_error = NULL,
          updated_at = now()
-     WHERE id = $1`,
-    [item.id, nextAt.toISOString()]
+     WHERE id = $1
+       AND lock_version = $3`,
+    [item.id, nextAt.toISOString(), item.lock_version]
   );
+
+  if (result.rowCount === 0) {
+    logger.warn('recurrence_skipped_version_mismatch', { id: item.id, title: item.title });
+    return;
+  }
 
   logger.info('recurrence_scheduled', {
     id: item.id,

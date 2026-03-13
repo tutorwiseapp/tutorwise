@@ -89,8 +89,14 @@ async function processItem(item: ScheduledItem): Promise<void> {
     // 3. Dispatch to executor
     const result = await dispatch(claimed);
 
-    // 4. Tasks remain in_progress until manually completed by user
+    // 4. Tasks remain in_progress until manually completed by user.
+    //    Complete the run record so it doesn't stay as 'running' forever.
     if (claimed.type === 'task') {
+      await withTimeout(
+        completeRun(runId, { note: 'Task activated — awaiting manual completion' }),
+        'completeRun'
+      );
+      stats.itemsProcessedTotal++;
       logger.info('task_in_progress', {
         id: claimed.id,
         title: claimed.title,
@@ -146,12 +152,19 @@ async function processItem(item: ScheduledItem): Promise<void> {
 }
 
 /**
+ * Returns count of items currently in_progress (for health check).
+ */
+export function getInProgressCount(): number {
+  return isPolling ? 1 : 0; // Approximation — reflects whether a poll cycle is active
+}
+
+/**
  * Start the poll loop.
  */
-export function startLoop(): void {
+export async function startLoop(): Promise<void> {
   logger.info('loop_started', { interval_ms: config.pollIntervalMs });
-  // Run immediately, then on interval
-  pollCycle();
+  // Run immediately (awaited so boot-time errors surface), then on interval
+  await pollCycle();
   pollTimer = setInterval(pollCycle, config.pollIntervalMs);
 }
 

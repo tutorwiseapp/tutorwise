@@ -56,6 +56,27 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
+    // Validate status transitions — prevent bypassing the lock mechanism
+    if ('status' in updates) {
+      const validStatuses = ['scheduled', 'cancelled'];
+      if (!validStatuses.includes(updates.status as string)) {
+        return NextResponse.json(
+          { error: `Status can only be set to: ${validStatuses.join(', ')}. Use /complete endpoint for completion.` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validate cron expression if provided
+    if ('cron_expression' in updates && updates.cron_expression) {
+      try {
+        const cronParser = await import('cron-parser');
+        cronParser.default.parseExpression(updates.cron_expression as string);
+      } catch {
+        return NextResponse.json({ error: 'Invalid cron expression' }, { status: 400 });
+      }
+    }
+
     const { data, error } = await supabase
       .from('scheduled_items')
       .update(updates)

@@ -74,6 +74,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'title, type, and scheduled_at are required' }, { status: 400 });
     }
 
+    // Validate cron expression if provided
+    if (body.cron_expression) {
+      try {
+        const cronParser = await import('cron-parser');
+        cronParser.default.parseExpression(body.cron_expression);
+      } catch {
+        return NextResponse.json({ error: 'Invalid cron expression' }, { status: 400 });
+      }
+    }
+
     const { data, error } = await supabase
       .from('scheduled_items')
       .insert({
