@@ -5,10 +5,19 @@ import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, Send, Brain, ChevronDown, ChevronUp,
-  RefreshCw, Trash2, BookOpen, Layers,
+  RefreshCw, Trash2, BookOpen, Layers, Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
+import { AgentConfigModal } from '@/components/feature/conductor/AgentConfigModal';
+
+interface AgentConfig {
+  tools?: string[];
+  skills?: string[];
+  instructions?: string;
+  system_prompt_template?: string;
+  [key: string]: unknown;
+}
 
 interface SpecialistAgent {
   id: string;
@@ -17,6 +26,10 @@ interface SpecialistAgent {
   role: string;
   department: string;
   description: string | null;
+  config: AgentConfig;
+  seed_config?: AgentConfig | null;
+  status: 'active' | 'inactive';
+  built_in: boolean;
 }
 
 interface RunHistory {
@@ -94,6 +107,7 @@ export default function AgentChatPage() {
   const [expandedRun, setExpandedRun] = useState<string | null>(null);
   const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<RightTab>('runs');
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { data: agent, isLoading: agentLoading, error: agentError } = useQuery({
@@ -228,6 +242,13 @@ export default function AgentChatPage() {
               <div className={styles.agentRole}>{agent.role} · {agent.department}</div>
             </div>
           </div>
+          <button
+            className={styles.configBtn}
+            onClick={() => setShowConfigModal(true)}
+            title="Configure agent"
+          >
+            <Settings size={14} /> Configure
+          </button>
         </div>
 
         <div className={styles.messages}>
@@ -433,6 +454,14 @@ export default function AgentChatPage() {
           </div>
         )}
       </div>
+
+      {showConfigModal && (
+        <AgentConfigModal
+          mode="edit"
+          agent={agent as SpecialistAgent & { config: AgentConfig }}
+          onClose={() => setShowConfigModal(false)}
+        />
+      )}
     </div>
   );
 }

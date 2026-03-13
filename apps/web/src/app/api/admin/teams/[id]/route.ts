@@ -20,8 +20,37 @@ export async function PATCH(
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const body = await request.json() as { space_id?: string | null; status?: string };
+    const body = await request.json() as { action?: string; space_id?: string | null; status?: string };
 
+    // Seed actions
+    if (body.action && ['accept_seed', 'reset_seed'].includes(body.action)) {
+      const { data: team } = await supabase
+        .from('agent_teams')
+        .select('id, built_in, nodes, coordinator_slug, pattern, config, seed_config')
+        .eq('id', id)
+        .single();
+
+      if (!team) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+      if (!team.built_in) return NextResponse.json({ error: 'Seed actions only apply to built-in teams' }, { status: 400 });
+
+      if (body.action === 'accept_seed') {
+        const newSeed = { nodes: team.nodes, coordinator_slug: team.coordinator_slug, pattern: team.pattern };
+        const { error } = await supabase.from('agent_teams').update({ seed_config: newSeed }).eq('id', id);
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      } else {
+        if (!team.seed_config) return NextResponse.json({ error: 'No seed config available' }, { status: 400 });
+        const seed = team.seed_config as Record<string, unknown>;
+        const updates: Record<string, unknown> = {};
+        if (seed.nodes) updates.nodes = seed.nodes;
+        if (seed.coordinator_slug !== undefined) updates.coordinator_slug = seed.coordinator_slug;
+        if (seed.pattern) updates.pattern = seed.pattern;
+        const { error } = await supabase.from('agent_teams').update(updates).eq('id', id);
+        if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      return NextResponse.json({ success: true, action: body.action });
+    }
+
+    // Regular partial update
     const allowed: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if ('space_id' in body) allowed.space_id = body.space_id ?? null;
     if ('status' in body) allowed.status = body.status;

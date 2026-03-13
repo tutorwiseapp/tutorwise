@@ -2,12 +2,21 @@
 
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw, CheckCircle2, X } from 'lucide-react';
-import Link from 'next/link';
+import { Brain, Users, MessageCircle, Trash2, Play, Plus, RefreshCw, CheckCircle2, X, Settings } from 'lucide-react';
 import styles from './AgentManagementPanel.module.css';
 import { AgentChatPanel } from './AgentChatPanel';
+import { AgentConfigModal } from './AgentConfigModal';
+import { TeamConfigModal } from './TeamConfigModal';
 import { useDiscoveryStore } from '@/components/feature/workflow/discovery-store';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
+
+interface AgentConfig {
+  tools?: string[];
+  skills?: string[];
+  instructions?: string;
+  system_prompt_template?: string;
+  [key: string]: unknown;
+}
 
 interface SpecialistAgent {
   id: string;
@@ -16,6 +25,8 @@ interface SpecialistAgent {
   role: string;
   department: string;
   description: string | null;
+  config: AgentConfig;
+  seed_config?: AgentConfig | null;
   status: 'active' | 'inactive';
   built_in: boolean;
   updated_at: string;
@@ -27,7 +38,11 @@ interface AgentTeam {
   name: string;
   description: string | null;
   pattern: 'supervisor' | 'pipeline' | 'swarm';
-  nodes: Array<{ id: string; data: { agentSlug: string } }>;
+  nodes: Array<{ id: string; data: { agentSlug: string; [key: string]: unknown } }>;
+  edges: unknown[];
+  coordinator_slug: string | null;
+  config: Record<string, unknown>;
+  seed_config?: Record<string, unknown> | null;
   status: 'active' | 'inactive';
   built_in: boolean;
   space_id: string | null;
@@ -40,10 +55,16 @@ const PATTERN_LABELS: Record<string, string> = {
   swarm: 'Swarm',
 };
 
+type ModalState =
+  | { type: 'agent'; mode: 'create' | 'edit'; agent?: SpecialistAgent }
+  | { type: 'team'; mode: 'create' | 'edit'; team?: AgentTeam }
+  | null;
+
 export function AgentManagementPanel() {
   const queryClient = useQueryClient();
   const [selectedAgent, setSelectedAgent] = useState<SpecialistAgent | null>(null);
   const [runBanner, setRunBanner] = useState<string | null>(null);
+  const [modal, setModal] = useState<ModalState>(null);
   const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setActiveTab = useDiscoveryStore(s => s.setActiveTab);
 
@@ -135,9 +156,9 @@ export function AgentManagementPanel() {
             <button className={styles.iconBtn} onClick={() => refetchAgents()} title="Refresh">
               <RefreshCw size={14} />
             </button>
-            <Link href="/admin/conductor/agents/new" className={styles.addBtn}>
+            <button className={styles.addBtn} onClick={() => setModal({ type: 'agent', mode: 'create' })}>
               <Plus size={14} /> New Agent
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -154,6 +175,13 @@ export function AgentManagementPanel() {
                     {agent.built_in && <span className={styles.builtInBadge}>built-in</span>}
                   </div>
                   <div className={styles.cardActions}>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => setModal({ type: 'agent', mode: 'edit', agent })}
+                      title="Configure agent"
+                    >
+                      <Settings size={14} />
+                    </button>
                     <button
                       className={`${styles.actionBtn} ${selectedAgent?.id === agent.id ? styles.active : ''}`}
                       onClick={() => setSelectedAgent(selectedAgent?.id === agent.id ? null : agent)}
@@ -178,7 +206,7 @@ export function AgentManagementPanel() {
                   <div className={styles.agentDesc}>{agent.description}</div>
                 )}
                 <div className={styles.cardFooter}>
-                  Last updated {new Date(agent.updated_at).toLocaleDateString()}
+                  {(agent.config?.tools?.length ?? 0)} tools · updated {new Date(agent.updated_at).toLocaleDateString()}
                 </div>
               </div>
             ))}
@@ -198,9 +226,9 @@ export function AgentManagementPanel() {
             <button className={styles.iconBtn} onClick={() => refetchTeams()} title="Refresh">
               <RefreshCw size={14} />
             </button>
-            <Link href="/admin/conductor/teams/new" className={styles.addBtn}>
+            <button className={styles.addBtn} onClick={() => setModal({ type: 'team', mode: 'create' })}>
               <Plus size={14} /> New Team
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -218,6 +246,13 @@ export function AgentManagementPanel() {
                     <span className={styles.patternBadge}>{PATTERN_LABELS[team.pattern]}</span>
                   </div>
                   <div className={styles.cardActions}>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => setModal({ type: 'team', mode: 'edit', team })}
+                      title="Configure team"
+                    >
+                      <Settings size={14} />
+                    </button>
                     <button
                       className={styles.actionBtn}
                       onClick={() => runTeamMutation.mutate(team)}
@@ -252,6 +287,22 @@ export function AgentManagementPanel() {
     </div>
     {selectedAgent && (
       <AgentChatPanel agent={selectedAgent} onClose={() => setSelectedAgent(null)} />
+    )}
+
+    {/* Modals */}
+    {modal?.type === 'agent' && (
+      <AgentConfigModal
+        mode={modal.mode}
+        agent={modal.mode === 'edit' ? modal.agent : null}
+        onClose={() => setModal(null)}
+      />
+    )}
+    {modal?.type === 'team' && (
+      <TeamConfigModal
+        mode={modal.mode}
+        team={modal.mode === 'edit' ? modal.team : null}
+        onClose={() => setModal(null)}
+      />
     )}
     </div>
   );

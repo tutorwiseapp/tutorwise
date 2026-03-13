@@ -59,6 +59,22 @@
   color: #6b7280;
 }
 
+.configBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  background: none;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  padding: 0.35rem 0.7rem;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.configBtn:hover { border-color: #a78bfa; color: #e9d5ff; }
+
 .messages {
   flex: 1;
   overflow-y: auto;

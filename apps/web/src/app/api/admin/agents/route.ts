@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('specialist_agents')
-      .select('id, slug, name, role, department, description, config, status, built_in, created_at, updated_at')
+      .select('id, slug, name, role, department, description, config, seed_config, status, built_in, created_at, updated_at')
       .order('built_in', { ascending: false })
       .order('name');
 

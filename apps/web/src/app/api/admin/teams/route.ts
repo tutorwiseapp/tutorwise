@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('agent_teams')
-      .select('id, slug, name, description, pattern, nodes, edges, coordinator_slug, config, status, built_in, space_id, created_at, updated_at')
+      .select('id, slug, name, description, pattern, nodes, edges, coordinator_slug, config, seed_config, status, built_in, space_id, created_at, updated_at')
       .order('built_in', { ascending: false })
       .order('name');
 
