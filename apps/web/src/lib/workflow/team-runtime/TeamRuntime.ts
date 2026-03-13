@@ -502,7 +502,11 @@ class TeamRuntime {
         specialists.map(async (node) => {
           const slug = node.data.agentSlug;
           const agentId = agentIdBySlug[slug];
-          if (!agentId) return;
+          if (!agentId) {
+            console.warn(`[TeamRuntime] Supervisor: skipping agent "${slug}" — not found or inactive`);
+            outputs[slug] = `[Skipped: agent "${slug}" not found or inactive]`;
+            return;
+          }
 
           try {
             const result = await breaker.execute(() =>
@@ -616,7 +620,10 @@ class TeamRuntime {
       const nodeId = `agent_${i}`;
 
       graph.addNode(nodeId, async (state: AgentTeamState) => {
-        if (!agentId) return {};
+        if (!agentId) {
+          console.warn(`[TeamRuntime] Pipeline: skipping agent "${slug}" — not found or inactive`);
+          return {};
+        }
 
         const priorContext = Object.entries(state.outputs)
           .map(([s, o]) => `### ${s.toUpperCase()}\n${o}`)
@@ -677,7 +684,10 @@ class TeamRuntime {
     graph.addNode('swarm_step', async (state: AgentTeamState) => {
       const currentSlug = state.current_agent || startSlug;
       const agentId = agentIdBySlug[currentSlug];
-      if (!agentId) return { next_agent: null };
+      if (!agentId) {
+        console.warn(`[TeamRuntime] Swarm: skipping agent "${currentSlug}" — not found or inactive`);
+        return { next_agent: null };
+      }
 
       const priorContext = Object.entries(state.outputs)
         .map(([s, o]) => `### ${s.toUpperCase()}\n${o}`)

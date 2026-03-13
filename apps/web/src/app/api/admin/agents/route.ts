@@ -59,6 +59,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'slug, name, role are required' }, { status: 400 });
     }
 
+    if (!/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(body.slug)) {
+      return NextResponse.json({ error: 'slug must be 3-64 lowercase alphanumeric chars or hyphens, no leading/trailing hyphens' }, { status: 400 });
+    }
+
     const { data, error } = await supabase
       .from('specialist_agents')
       .insert({

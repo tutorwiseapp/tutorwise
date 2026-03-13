@@ -86,6 +86,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Cannot change slug of a built-in agent' }, { status: 403 });
     }
 
+    if (body.slug && !/^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(body.slug as string)) {
+      return NextResponse.json({ error: 'slug must be 3-64 lowercase alphanumeric chars or hyphens, no leading/trailing hyphens' }, { status: 400 });
+    }
+
     // Validate tool slugs if config.tools is being updated
     const config = body.config as { tools?: string[] } | undefined;
     if (config?.tools && config.tools.length > 0) {

@@ -206,7 +206,7 @@ export class SpecialistAgentRunner {
     // Insert run record (running state)
     const { data: runRow } = await supabase
       .from('agent_run_outputs')
-      .insert({ agent_id: agentId, trigger_type: triggerType, input_prompt: prompt, status: 'running' })
+      .insert({ agent_id: agent.id, trigger_type: triggerType, input_prompt: prompt, status: 'running' })
       .select('id')
       .single();
 
