@@ -55,8 +55,26 @@ interface SpecialistAgent {
   config: AgentConfig;
 }
 
-const TOOL_CALL_PATTERN = /TOOL_CALL:\s*([\w:]+)\s+(\{[\s\S]*?\})/g;
+const TOOL_CALL_LINE = /TOOL_CALL:\s*([\w:]+)\s+(\{.*)$/gm;
 const MAX_TOOL_ROUNDS = 5;
+
+/** Extract balanced JSON object from a string starting at `{`. Handles nested braces. */
+function extractBalancedJson(str: string): string | null {
+  if (str[0] !== '{') return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\' && inString) { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) return str.slice(0, i + 1); }
+  }
+  return null; // unbalanced
+}
 
 function buildSystemPrompt(
   agent: SpecialistAgent,
@@ -163,11 +181,12 @@ export class SpecialistAgentRunner {
     const startTime = Date.now();
     const supabase = await createServiceRoleClient();
 
-    // Load agent
+    // Load agent — accept both UUID and slug
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agentId);
     const { data: agent, error } = await supabase
       .from('specialist_agents')
       .select('id, slug, name, role, department, description, config')
-      .eq('id', agentId)
+      .eq(isUuid ? 'id' : 'slug', agentId)
       .single();
 
     if (error || !agent) throw new Error(`Agent not found: ${agentId}`);
@@ -201,13 +220,14 @@ export class SpecialistAgentRunner {
         const result = await ai.generate({ systemPrompt, userPrompt });
         outputText = result.content;
 
-        // Extract tool calls
-        const matches = [...outputText.matchAll(TOOL_CALL_PATTERN)];
-        if (!matches.length) break;
+        // Extract tool calls (with balanced JSON parsing for nested objects)
+        const lineMatches = [...outputText.matchAll(TOOL_CALL_LINE)];
+        if (!lineMatches.length) break;
 
         const toolResults: string[] = [];
-        for (const match of matches) {
-          const [, slug, rawInput] = match;
+        for (const match of lineMatches) {
+          const [, slug, rawJsonStart] = match;
+          const rawInput = extractBalancedJson(rawJsonStart) ?? rawJsonStart;
           try {
             const input = JSON.parse(rawInput) as Record<string, unknown>;
             const output = await executeTool(slug, input, {
@@ -286,10 +306,12 @@ export class SpecialistAgentRunner {
   async *stream(agentId: string, prompt: string): AsyncGenerator<string> {
     const supabase = await createServiceRoleClient();
 
+    // Load agent — accept both UUID and slug
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agentId);
     const { data: agent, error } = await supabase
       .from('specialist_agents')
       .select('id, slug, name, role, department, description, config')
-      .eq('id', agentId)
+      .eq(isUuid ? 'id' : 'slug', agentId)
       .single();
 
     if (error || !agent) {
@@ -298,8 +320,12 @@ export class SpecialistAgentRunner {
     }
 
     const toolSlugs: string[] = (agent.config as AgentConfig)?.tools ?? [];
-    const toolDescriptions = await loadToolDescriptions(toolSlugs);
-    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions);
+    const [toolDescriptions, knowledgeBlock, memoryBlock] = await Promise.all([
+      loadToolDescriptions(toolSlugs),
+      fetchKnowledgeBlock(agent.slug, prompt),
+      agentMemoryService.fetchMemoryBlock(agent.slug, prompt),
+    ]);
+    const systemPrompt = buildSystemPrompt(agent as SpecialistAgent, toolDescriptions, knowledgeBlock, memoryBlock);
 
     const ai = getAIService();
     for await (const chunk of ai.stream({ systemPrompt, userPrompt: prompt })) {

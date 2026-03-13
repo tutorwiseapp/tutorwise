@@ -591,15 +591,20 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       }
     }
 
-    const pricing = Object.values(buckets).map(({ subject: s, level: l, rates }) => ({
-      subject: s,
-      level: l,
-      count: rates.length,
-      min: Math.min(...rates),
-      max: Math.max(...rates),
-      avg: Math.round(rates.reduce((a, b) => a + b, 0) / rates.length),
-      p50: rates.sort((a, b) => a - b)[Math.floor(rates.length / 2)],
-    })).sort((a, b) => b.count - a.count).slice(0, 30);
+    const pricing = Object.values(buckets)
+      .filter(({ rates }) => rates.length > 0)
+      .map(({ subject: s, level: l, rates }) => {
+        const sorted = rates.sort((a, b) => a - b);
+        return {
+          subject: s,
+          level: l,
+          count: rates.length,
+          min: sorted[0],
+          max: sorted[sorted.length - 1],
+          avg: Math.round(rates.reduce((a, b) => a + b, 0) / rates.length),
+          p50: sorted[Math.floor(sorted.length / 2)],
+        };
+      }).sort((a, b) => b.count - a.count).slice(0, 30);
 
     return { pricing, subject: subject ?? 'all' };
   },

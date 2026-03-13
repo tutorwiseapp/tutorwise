@@ -5,9 +5,11 @@
 
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load .env.local from monorepo root (import.meta.dirname available in Node 21.2+)
-dotenv.config({ path: path.resolve(import.meta.dirname, '../../../.env.local') });
+// Load .env.local from monorepo root
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../../.env.local') });
 
 function required(key: string): string {
   const value = process.env[key];

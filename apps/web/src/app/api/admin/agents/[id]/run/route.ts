@@ -13,12 +13,22 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Allow scheduler service via CRON_SECRET (same pattern as /api/cron/* routes)
+    // Allow scheduler/cron via CRON_SECRET — accepts both:
+    //   authorization: Bearer <secret>  (standard pattern)
+    //   x-cron-secret: <secret>         (pg_cron net.http_post pattern)
     const authHeader = request.headers.get('authorization');
+    const cronHeader = request.headers.get('x-cron-secret');
     const cronSecret = process.env.CRON_SECRET;
-    const isSchedulerAuth = cronSecret && authHeader
-      ? authHeader.length === `Bearer ${cronSecret}`.length && timingSafeEqual(Buffer.from(authHeader), Buffer.from(`Bearer ${cronSecret}`))
-      : false;
+
+    let isSchedulerAuth = false;
+    if (cronSecret) {
+      const bearerToken = `Bearer ${cronSecret}`;
+      if (authHeader && authHeader.length === bearerToken.length) {
+        isSchedulerAuth = timingSafeEqual(Buffer.from(authHeader), Buffer.from(bearerToken));
+      } else if (cronHeader && cronHeader.length === cronSecret.length) {
+        isSchedulerAuth = timingSafeEqual(Buffer.from(cronHeader), Buffer.from(cronSecret));
+      }
+    }
 
     if (!isSchedulerAuth) {
       const supabase = await createClient();
@@ -30,11 +40,13 @@ export async function POST(
     }
 
     const { id } = await params;
-    const body = await request.json() as { prompt: string; trigger_type?: string };
+    const body = await request.json() as { prompt?: string; trigger?: string; trigger_type?: string };
 
-    if (!body.prompt) return NextResponse.json({ error: 'prompt is required' }, { status: 400 });
+    // Cron jobs send {"trigger":"schedule"} without a prompt — use a default
+    const triggerType = body.trigger_type ?? body.trigger ?? 'manual';
+    const prompt = body.prompt ?? `Run your scheduled analysis as ${id}. Use your tools to gather data and provide a comprehensive report.`;
 
-    const result = await specialistAgentRunner.run(id, body.prompt, body.trigger_type ?? 'manual');
+    const result = await specialistAgentRunner.run(id, prompt, triggerType);
 
     return NextResponse.json({ success: true, data: result });
   } catch (err) {

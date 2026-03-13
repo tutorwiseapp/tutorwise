@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Brain, RotateCcw, Stamp } from 'lucide-react';
+import { RotateCcw, Stamp } from 'lucide-react';
+import HubComplexModal from '@/app/components/hub/modal/HubComplexModal/HubComplexModal';
+import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
 import styles from './AgentConfigModal.module.css';
 
 /* ── Types ── */
@@ -202,7 +204,6 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
     onSuccess: (_data, action) => {
       queryClient.invalidateQueries({ queryKey: ['admin-agents'] });
       if (action === 'reset_seed') {
-        // Restore seed tools in local state
         setSelectedTools(seedTools);
       }
       setConfirmAction(null);
@@ -216,193 +217,193 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
   const isPending = saveMutation.isPending || seedMutation.isPending;
   const canSave = mode === 'create' ? (name.trim() && slug.trim() && role.trim()) : true;
 
+  const footerContent = (
+    <div className={styles.footerInner}>
+      {mode === 'edit' && agent?.built_in && (
+        <div className={styles.seedActions}>
+          <button className={styles.seedBtn} onClick={() => setConfirmAction('reset_seed')} disabled={isPending} title="Reset tools to seed defaults">
+            <RotateCcw size={14} /> Reset to Default
+          </button>
+          <button className={styles.seedBtn} onClick={() => setConfirmAction('accept_seed')} disabled={isPending} title="Accept current config as new seed">
+            <Stamp size={14} /> Accept as New Seed
+          </button>
+        </div>
+      )}
+      <div className={styles.footerSpacer} />
+      <button className={styles.cancelBtn} onClick={onClose} disabled={isPending}>Cancel</button>
+      <button className={styles.saveBtn} onClick={() => saveMutation.mutate()} disabled={isPending || !canSave}>
+        {isPending ? 'Saving...' : mode === 'create' ? 'Create Agent' : 'Save Changes'}
+      </button>
+    </div>
+  );
+
   return (
     <>
-      <div className={styles.overlay} onClick={onClose}>
-        <div className={styles.modal} onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className={styles.header}>
-            <div className={styles.headerTitle}>
-              <Brain size={18} />
-              {mode === 'create' ? 'New Agent' : `Configure ${agent?.name}`}
+      <HubComplexModal
+        isOpen={true}
+        onClose={onClose}
+        title={mode === 'create' ? 'New Agent' : `Configure ${agent?.name}`}
+        size="lg"
+        footer={footerContent}
+        isLoading={isPending}
+        loadingText="Saving changes..."
+        closeOnOverlayClick={!isPending}
+      >
+        <div className={styles.body}>
+          {error && <div className={styles.errorBanner}>{error}</div>}
+
+          {/* Identity fields */}
+          <div className={styles.fieldRow}>
+            <div className={styles.field}>
+              <label className={styles.label}>Name *</label>
+              <input className={styles.input} value={name} onChange={e => setName(e.target.value)} placeholder="Market Intelligence" disabled={isPending} />
             </div>
-            <button className={styles.closeBtn} onClick={onClose}>
-              <X size={18} />
-            </button>
+            <div className={styles.field}>
+              <label className={styles.label}>Slug</label>
+              <input className={styles.input} value={slug} onChange={e => setSlug(e.target.value)} placeholder="market-intelligence" disabled={mode === 'edit' || isPending} />
+            </div>
           </div>
 
-          {/* Body */}
-          <div className={styles.body}>
-            {error && <div className={styles.errorBanner}>{error}</div>}
-
-            {/* Identity fields */}
-            <div className={styles.fieldRow}>
-              <div className={styles.field}>
-                <label className={styles.label}>Name *</label>
-                <input className={styles.input} value={name} onChange={e => setName(e.target.value)} placeholder="Market Intelligence" disabled={isPending} />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label}>Slug</label>
-                <input className={styles.input} value={slug} onChange={e => setSlug(e.target.value)} placeholder="market-intelligence" disabled={mode === 'edit' || isPending} />
-              </div>
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.field}>
-                <label className={styles.label}>Role *</label>
-                <input className={styles.input} value={role} onChange={e => setRole(e.target.value)} placeholder="Market Intelligence Analyst" disabled={isPending} />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label}>Department</label>
-                <select className={styles.select} value={department} onChange={e => setDepartment(e.target.value)} disabled={isPending}>
-                  {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-            </div>
-
+          <div className={styles.fieldRow}>
             <div className={styles.field}>
-              <label className={styles.label}>Description</label>
-              <textarea className={styles.textarea} value={description} onChange={e => setDescription(e.target.value)} rows={2} placeholder="What this agent does..." disabled={isPending} />
+              <label className={styles.label}>Role *</label>
+              <input className={styles.input} value={role} onChange={e => setRole(e.target.value)} placeholder="Market Intelligence Analyst" disabled={isPending} />
             </div>
-
             <div className={styles.field}>
-              <label className={styles.label}>Custom Instructions</label>
-              <textarea className={styles.textarea} value={instructions} onChange={e => setInstructions(e.target.value)} rows={3} placeholder="Additional instructions for the agent's system prompt..." disabled={isPending} />
-            </div>
-
-            {/* Tools section */}
-            <div className={styles.toolsSection}>
-              <div className={styles.toolsSectionHeader}>
-                <div className={styles.toolsLabel}>
-                  Tools
-                  <span className={styles.toolsCount}>{selectedTools.length} selected</span>
-                </div>
-                {removedSeedTools.length > 0 && (
-                  <span className={styles.removedSummary}>
-                    {removedSeedTools.length} seed tool{removedSeedTools.length > 1 ? 's' : ''} removed
-                  </span>
-                )}
-              </div>
-
-              <input
-                className={styles.toolsSearch}
-                value={toolSearch}
-                onChange={e => setToolSearch(e.target.value)}
-                placeholder="Search tools..."
+              <label className={styles.label}>Department</label>
+              <UnifiedSelect
+                options={DEPARTMENTS.map(d => ({ value: d, label: d }))}
+                value={department}
+                onChange={v => setDepartment(String(v))}
                 disabled={isPending}
               />
+            </div>
+          </div>
 
-              <div className={styles.categoryChips}>
-                {CATEGORIES.map(cat => (
-                  <button
-                    key={cat}
-                    className={categoryFilter === cat ? styles.categoryChipActive : styles.categoryChip}
-                    onClick={() => setCategoryFilter(cat)}
-                  >
-                    {cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </button>
-                ))}
+          <div className={styles.field}>
+            <label className={styles.label}>Description</label>
+            <textarea className={styles.textarea} value={description} onChange={e => setDescription(e.target.value)} rows={2} placeholder="What this agent does..." disabled={isPending} />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Custom Instructions</label>
+            <textarea className={styles.textarea} value={instructions} onChange={e => setInstructions(e.target.value)} rows={3} placeholder="Additional instructions for the agent's system prompt..." disabled={isPending} />
+          </div>
+
+          {/* Tools section */}
+          <div className={styles.toolsSection}>
+            <div className={styles.toolsSectionHeader}>
+              <div className={styles.toolsLabel}>
+                Tools
+                <span className={styles.toolsCount}>{selectedTools.length} selected</span>
               </div>
+              {removedSeedTools.length > 0 && (
+                <span className={styles.removedSummary}>
+                  {removedSeedTools.length} seed tool{removedSeedTools.length > 1 ? 's' : ''} removed
+                </span>
+              )}
+            </div>
 
-              <div className={styles.toolsList}>
-                {filteredTools.length === 0 ? (
-                  <div className={styles.toolsEmpty}>No tools match your search</div>
-                ) : (
-                  filteredTools.map(tool => {
-                    const seedStatus = getToolSeedStatus(tool.slug);
-                    return (
-                      <label key={tool.slug} className={styles.toolRow}>
-                        <input
-                          type="checkbox"
-                          className={styles.toolCheckbox}
-                          checked={selectedTools.includes(tool.slug)}
-                          onChange={() => toggleTool(tool.slug)}
-                          disabled={isPending}
-                        />
-                        <div className={styles.toolInfo}>
-                          <span className={styles.toolSlug}>{tool.slug}</span>
-                          <span className={styles.toolDesc}>{tool.description}</span>
-                        </div>
-                        <div className={styles.toolBadges}>
-                          <span className={styles.toolCategoryBadge}>{tool.category}</span>
-                          {seedStatus === 'seed' && <span className={styles.seedOriginal}>seed</span>}
-                          {seedStatus === 'added' && <span className={styles.seedAdded}>added</span>}
-                        </div>
-                      </label>
-                    );
-                  })
-                )}
-                {/* Show removed seed tools that are currently hidden by filters */}
-                {removedSeedTools.map(slug => {
-                  const tool = allTools.find(t => t.slug === slug);
-                  if (!tool) return null;
-                  // Only show if not already in filtered list
-                  if (filteredTools.some(t => t.slug === slug)) return null;
+            <input
+              className={styles.toolsSearch}
+              value={toolSearch}
+              onChange={e => setToolSearch(e.target.value)}
+              placeholder="Search tools..."
+              disabled={isPending}
+            />
+
+            <div className={styles.categoryChips}>
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  className={categoryFilter === cat ? styles.categoryChipActive : styles.categoryChip}
+                  onClick={() => setCategoryFilter(cat)}
+                >
+                  {cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.toolsList}>
+              {filteredTools.length === 0 ? (
+                <div className={styles.toolsEmpty}>No tools match your search</div>
+              ) : (
+                filteredTools.map(tool => {
+                  const seedStatus = getToolSeedStatus(tool.slug);
                   return (
-                    <label key={slug} className={styles.toolRow} style={{ opacity: 0.6 }}>
+                    <label key={tool.slug} className={styles.toolRow}>
                       <input
                         type="checkbox"
                         className={styles.toolCheckbox}
-                        checked={false}
-                        onChange={() => toggleTool(slug)}
+                        checked={selectedTools.includes(tool.slug)}
+                        onChange={() => toggleTool(tool.slug)}
                         disabled={isPending}
                       />
                       <div className={styles.toolInfo}>
-                        <span className={styles.toolSlug}>{slug}</span>
+                        <span className={styles.toolSlug}>{tool.slug}</span>
                         <span className={styles.toolDesc}>{tool.description}</span>
                       </div>
                       <div className={styles.toolBadges}>
                         <span className={styles.toolCategoryBadge}>{tool.category}</span>
-                        <span className={styles.seedRemoved}>removed</span>
+                        {seedStatus === 'seed' && <span className={styles.seedOriginal}>seed</span>}
+                        {seedStatus === 'added' && <span className={styles.seedAdded}>added</span>}
                       </div>
                     </label>
                   );
-                })}
-              </div>
+                })
+              )}
+              {/* Show removed seed tools that are currently hidden by filters */}
+              {removedSeedTools.map(slug => {
+                const tool = allTools.find(t => t.slug === slug);
+                if (!tool) return null;
+                if (filteredTools.some(t => t.slug === slug)) return null;
+                return (
+                  <label key={slug} className={styles.toolRow} style={{ opacity: 0.6 }}>
+                    <input
+                      type="checkbox"
+                      className={styles.toolCheckbox}
+                      checked={false}
+                      onChange={() => toggleTool(slug)}
+                      disabled={isPending}
+                    />
+                    <div className={styles.toolInfo}>
+                      <span className={styles.toolSlug}>{slug}</span>
+                      <span className={styles.toolDesc}>{tool.description}</span>
+                    </div>
+                    <div className={styles.toolBadges}>
+                      <span className={styles.toolCategoryBadge}>{tool.category}</span>
+                      <span className={styles.seedRemoved}>removed</span>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
-
-          {/* Footer */}
-          <div className={styles.footer}>
-            {mode === 'edit' && agent?.built_in && (
-              <>
-                <button className={styles.seedBtn} onClick={() => setConfirmAction('reset_seed')} disabled={isPending} title="Reset tools to seed defaults">
-                  <RotateCcw size={13} /> Reset to Default
-                </button>
-                <button className={styles.seedBtn} onClick={() => setConfirmAction('accept_seed')} disabled={isPending} title="Accept current config as new seed">
-                  <Stamp size={13} /> Accept as New Seed
-                </button>
-              </>
-            )}
-            <div className={styles.footerSpacer} />
-            <button className={styles.cancelBtn} onClick={onClose} disabled={isPending}>Cancel</button>
-            <button className={styles.saveBtn} onClick={() => saveMutation.mutate()} disabled={isPending || !canSave}>
-              {isPending ? 'Saving...' : mode === 'create' ? 'Create Agent' : 'Save Changes'}
-            </button>
-          </div>
         </div>
-      </div>
+      </HubComplexModal>
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div className={styles.confirmOverlay} onClick={() => setConfirmAction(null)}>
-          <div className={styles.confirmDialog} onClick={e => e.stopPropagation()}>
-            <div className={styles.confirmTitle}>
-              {confirmAction === 'accept_seed' ? 'Accept as New Seed?' : 'Reset to Default?'}
-            </div>
-            <div className={styles.confirmText}>
-              {confirmAction === 'accept_seed'
-                ? 'This will set the current configuration as the new default for this agent. Future resets will restore to this configuration.'
-                : 'This will restore the agent\'s tools and configuration to the last accepted seed. Any changes since then will be lost.'}
-            </div>
-            <div className={styles.confirmActions}>
+        <HubComplexModal
+          isOpen={true}
+          onClose={() => setConfirmAction(null)}
+          title={confirmAction === 'accept_seed' ? 'Accept as New Seed?' : 'Reset to Default?'}
+          size="sm"
+          footer={
+            <div className={styles.confirmFooter}>
               <button className={styles.cancelBtn} onClick={() => setConfirmAction(null)}>Cancel</button>
               <button className={styles.saveBtn} onClick={() => seedMutation.mutate(confirmAction)} disabled={seedMutation.isPending}>
                 {seedMutation.isPending ? 'Processing...' : 'Confirm'}
               </button>
             </div>
+          }
+        >
+          <div className={styles.confirmBody}>
+            {confirmAction === 'accept_seed'
+              ? 'This will set the current configuration as the new default for this agent. Future resets will restore to this configuration.'
+              : 'This will restore the agent\'s tools and configuration to the last accepted seed. Any changes since then will be lost.'}
           </div>
-        </div>
+        </HubComplexModal>
       )}
     </>
   );

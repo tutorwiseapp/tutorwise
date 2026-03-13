@@ -88,7 +88,7 @@ CREATE INDEX IF NOT EXISTS idx_wt_execution_started
 INSERT INTO analyst_tools (slug, name, description, input_schema, built_in, status)
 VALUES (
   'query_process_patterns',
-  'query_process_patterns',
+  'Query Process Patterns',
   'Query AI-discovered process patterns: rejection clusters, bottlenecks, path anomalies, and recurring deviations. Returns top patterns by confidence with process context.',
   '{
     "type": "object",
@@ -108,7 +108,7 @@ VALUES (
   true,
   'active'
 )
-ON CONFLICT (name) DO UPDATE SET
+ON CONFLICT (slug) DO UPDATE SET
   description  = EXCLUDED.description,
   input_schema = EXCLUDED.input_schema,
   status       = EXCLUDED.status;

@@ -47,6 +47,7 @@ ON CONFLICT (slug) DO UPDATE SET
 -- ============================================================================
 
 INSERT INTO analyst_tools (
+  slug,
   name,
   description,
   input_schema,
@@ -55,6 +56,7 @@ INSERT INTO analyst_tools (
 )
 VALUES (
   'query_network_intelligence',
+  'Query Network Intelligence',
   'Query referral network health metrics: depth distribution, ghost rate, hub nodes, top referrers by LTV, and organisation health rankings.',
   '{
     "type": "object",
@@ -69,7 +71,7 @@ VALUES (
   true,
   'active'
 )
-ON CONFLICT (name) DO UPDATE SET
+ON CONFLICT (slug) DO UPDATE SET
   description  = EXCLUDED.description,
   input_schema = EXCLUDED.input_schema,
   status       = EXCLUDED.status;
@@ -79,6 +81,7 @@ ON CONFLICT (name) DO UPDATE SET
 -- ============================================================================
 
 INSERT INTO analyst_tools (
+  slug,
   name,
   description,
   input_schema,
@@ -87,6 +90,7 @@ INSERT INTO analyst_tools (
 )
 VALUES (
   'query_autonomy_calibration',
+  'Query Autonomy Calibration',
   'Read process autonomy configs with rolling accuracy from decision_outcomes. Identifies processes ready for tier promotion or demotion, and stores calibration proposals.',
   '{
     "type": "object",
@@ -101,7 +105,7 @@ VALUES (
   true,
   'active'
 )
-ON CONFLICT (name) DO UPDATE SET
+ON CONFLICT (slug) DO UPDATE SET
   description  = EXCLUDED.description,
   input_schema = EXCLUDED.input_schema,
   status       = EXCLUDED.status;
