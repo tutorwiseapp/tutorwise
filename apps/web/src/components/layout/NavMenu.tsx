@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/NavMenu.tsx
+ * Filename: src/components/layout/NavMenu.tsx
  * Purpose: Provides the main site navigation header, migrated to Supabase Auth.
  * Change History:
  * C003 - 2025-09-02 : 17:00 - Migrated from Kinde to Supabase with UserProfileContext.

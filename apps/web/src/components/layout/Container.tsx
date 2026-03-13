@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/Container.tsx
+ * Filename: src/components/layout/Container.tsx
  * Purpose: Provides a responsive, variant-driven content container for all pages.
  *
  * Change History:

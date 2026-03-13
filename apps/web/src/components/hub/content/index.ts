@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/content/index.ts
+ * Filename: apps/web/src/components/hub/content/index.ts
  * Purpose: Barrel export for Hub content components
  * Created: 2025-12-03
  */

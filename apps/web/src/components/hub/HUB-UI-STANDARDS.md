@@ -25,7 +25,7 @@
 
 ### Canonical Source of Truth
 
-**File**: `apps/web/src/app/components/hub/data/HubDataTable.module.css`
+**File**: `apps/web/src/components/hub/data/HubDataTable.module.css`
 
 All toolbar UI elements must follow the `.iconButton` standard defined in this file.
 

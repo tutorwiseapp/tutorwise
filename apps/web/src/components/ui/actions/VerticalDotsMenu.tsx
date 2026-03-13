@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/ui/actions/VerticalDotsMenu.tsx
+ * Filename: apps/web/src/components/ui/actions/VerticalDotsMenu.tsx
  * Purpose: Shared 3-dot action menu for admin data tables
  * Pattern: Uses createPortal to escape overflow:hidden on HubDataTable cells
  * Used by: UsersTable, ArticlesTable, ListingsTable, BookingsTable, etc.

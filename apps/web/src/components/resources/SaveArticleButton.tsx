@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/SaveArticleButton.tsx
+ * Filename: apps/web/src/components/resources/SaveArticleButton.tsx
  * Purpose: Button for saving resource articles to wiselists with event tracking
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Added event tracking for dual-write pattern

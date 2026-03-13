@@ -51,7 +51,7 @@
 ### Basic Example
 
 ```tsx
-import { PublicPageShell } from '@/app/components/layout/PublicPageShell';
+import { PublicPageShell } from '@/components/layout/PublicPageShell';
 
 export default async function PublicOrganisationPage({ params }) {
   // Fetch data...

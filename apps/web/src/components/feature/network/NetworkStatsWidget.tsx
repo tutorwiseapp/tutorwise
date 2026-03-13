@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/network/NetworkStatsWidget.tsx
+ * Filename: apps/web/src/components/feature/network/NetworkStatsWidget.tsx
  * Purpose: Network statistics widget using HubStatsCard shell
  * Created: 2025-11-07
  * Updated: 2025-11-18 - Migrated to v2 design system (context-sidebar-ui-design-v2.md)

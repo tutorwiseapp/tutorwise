@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/financials/WalletBalanceWidget.tsx
+ * Filename: src/components/financials/WalletBalanceWidget.tsx
  * Purpose: Display wallet balance summary for v4.9 (v2 design system)
  * Created: 2025-11-11
  * Updated: 2026-02-07 - Enhanced with earnings projections (Financials Audit Follow-up)

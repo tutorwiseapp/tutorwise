@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/profile/ProfileCard/ProfileCard.tsx
+ * Filename: src/components/ui/profile/ProfileCard/ProfileCard.tsx
  * Purpose: A reusable component to display a user's detailed public profile information.
  *
  * Change History:

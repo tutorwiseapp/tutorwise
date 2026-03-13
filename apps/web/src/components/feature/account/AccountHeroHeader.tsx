@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/account/AccountHeroHeader.tsx
+ * Filename: apps/web/src/components/feature/account/AccountHeroHeader.tsx
  * Purpose: Custom hero header for Account pages with profile display
  * Created: 2025-11-30
  * Updated: 2025-12-04 - Restored from commit 461fd8b

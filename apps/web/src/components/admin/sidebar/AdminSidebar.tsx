@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/admin/sidebar/AdminSidebar.tsx
+ * Filename: src/components/admin/sidebar/AdminSidebar.tsx
  * Purpose: Admin navigation sidebar (left column in admin layout)
  * Created: 2025-12-23
  * Pattern: Exact copy of AppSidebar.tsx structure with admin navigation items

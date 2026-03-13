@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/dashboard/DashboardStatsWidget.tsx
+ * Filename: apps/web/src/components/feature/dashboard/DashboardStatsWidget.tsx
  * Purpose: Aggregated stats widget for dashboard right sidebar
  * Created: 2025-11-08
  * Updated: 2025-11-15 - Added CaaS Guidance Widget for tutors

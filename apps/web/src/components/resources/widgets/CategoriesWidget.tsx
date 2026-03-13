@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/widgets/CategoriesWidget.tsx
+ * Filename: apps/web/src/components/resources/widgets/CategoriesWidget.tsx
  * Purpose: Right sidebar widget displaying resource categories — dynamic from DB
  * Created: 2026-01-15
  * Updated: 2026-03-12 — replaced hardcoded counts with real DB data

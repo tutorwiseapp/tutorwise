@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/profile/ProfileSidebar.tsx
+ * Filename: src/components/ui/profile/ProfileSidebar.tsx
  * Purpose: A reusable sidebar component to display a user's key profile information.
  * Change History:
  * C009 - 2025-08-10 : 11:00 - Removed redundant "Edit Profile" link.

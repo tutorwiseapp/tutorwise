@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/reviews/PendingReviewCard.tsx
+ * Filename: apps/web/src/components/feature/reviews/PendingReviewCard.tsx
  * Purpose: Card component for pending review tasks in detail card format with HubDetailCard
  * Created: 2025-11-08
  * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)

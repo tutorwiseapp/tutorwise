@@ -1,5 +1,5 @@
 /*
- * Filename: apps/web/src/app/components/feature/bookings/BookingStatsWidget.tsx
+ * Filename: apps/web/src/components/feature/bookings/BookingStatsWidget.tsx
  * Purpose: A widget for the HubSidebar showing booking stats
  * Created: 2025-11-03
  * Updated: 2025-11-19 - Migrated to v2 design with HubStatsCard

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/ui/MatchScore.tsx
+ * Filename: apps/web/src/components/ui/MatchScore.tsx
  * Purpose: Display match score with visual indicators and breakdown
  * Created: 2025-12-10
  * Phase: Marketplace Phase 1 - Match Score Display

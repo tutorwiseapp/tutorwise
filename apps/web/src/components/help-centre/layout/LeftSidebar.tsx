@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/layout/LeftSidebar.tsx
+ * Filename: apps/web/src/components/help-centre/layout/LeftSidebar.tsx
  * Purpose: Left sidebar navigation (320px) with filters and category navigation
  * Created: 2025-01-19
  */

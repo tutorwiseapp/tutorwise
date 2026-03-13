@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/students/StudentProfileCard.tsx
+ * Filename: apps/web/src/components/feature/students/StudentProfileCard.tsx
  * Purpose: Student profile card for sidebar (Guardian Link v5.0)
  * Created: 2026-02-08
  */

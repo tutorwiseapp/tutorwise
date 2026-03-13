@@ -97,10 +97,10 @@ For detailed status, see: [docs/refactoring/hub-architecture-migration-status-20
 ### 1. Import Hub Components
 
 ```tsx
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import type { HubTab } from '@/app/components/hub/layout';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import type { HubTab } from '@/components/hub/layout';
 ```
 
 ### 2. Replace Header Section
@@ -326,11 +326,11 @@ export default function BookingsPage() {
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import type { HubTab } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/layout/sidebar/HubSidebar';
-import BookingStatsWidget from '@/app/components/bookings/BookingStatsWidget';
-import BookingCard from '@/app/components/bookings/BookingCard';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import type { HubTab } from '@/components/hub/layout';
+import HubSidebar from '@/components/layout/sidebar/HubSidebar';
+import BookingStatsWidget from '@/components/bookings/BookingStatsWidget';
+import BookingCard from '@/components/bookings/BookingCard';
 import styles from './page.module.css';
 
 type FilterType = 'all' | 'upcoming' | 'past';
@@ -718,9 +718,9 @@ The complete Hub Header pattern includes:
 3. **Actions** (right) - Primary button + secondary dropdown menu
 
 ```tsx
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
-import Button from '@/app/components/ui/Button';
+import filterStyles from '@/components/ui/hub-layout/hub-filters.module.css';
+import actionStyles from '@/components/ui/hub-layout/hub-actions.module.css';
+import Button from '@/components/ui/Button';
 
 <HubHeader
   title="Network"
@@ -805,7 +805,7 @@ import Button from '@/app/components/ui/Button';
 Use `hub-filters.module.css` for consistent filter styling:
 
 ```tsx
-import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css';
+import filterStyles from '@/components/ui/hub-layout/hub-filters.module.css';
 
 // filtersContainer - Flex container with 0.75rem gap
 // searchInput - 320px wide, 42px height, flat design
@@ -823,7 +823,7 @@ import filterStyles from '@/app/components/ui/hub-layout/hub-filters.module.css'
 Use `hub-actions.module.css` for consistent dropdown menus:
 
 ```tsx
-import actionStyles from '@/app/components/ui/hub-layout/hub-actions.module.css';
+import actionStyles from '@/components/ui/hub-layout/hub-actions.module.css';
 
 // dropdownContainer - Relative positioning for dropdown
 // backdrop - Fixed overlay to close menu
@@ -943,7 +943,7 @@ Use `HubPageTemplate.tsx.example` as a starting point for new hub pages. It incl
 - CSV export
 - All Hub components properly configured
 
-**Location:** `/apps/web/src/app/components/ui/hub-layout/HubPageTemplate.tsx.example`
+**Location:** `/apps/web/src/components/ui/hub-layout/HubPageTemplate.tsx.example`
 
 ---
 

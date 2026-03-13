@@ -42,7 +42,7 @@ Reusable button component with variants and sizes.
 
 **Example:**
 ```tsx
-import Button from '@/app/components/ui/Button';
+import Button from '@/components/ui/Button';
 
 <Button variant="primary" size="md" onClick={handleClick}>
   Save Changes
@@ -68,7 +68,7 @@ Tag/chip component for displaying selected items with optional remove functional
 
 **Example:**
 ```tsx
-import Chip from '@/app/components/ui/Chip';
+import Chip from '@/components/ui/Chip';
 
 <Chip 
   label="Mathematics" 
@@ -95,8 +95,8 @@ Wrapper component for form fields with label, error display, and required indica
 
 **Example:**
 ```tsx
-import FormGroup from '@/app/components/ui/form/FormGroup';
-import Input from '@/app/components/ui/form/Input';
+import FormGroup from '@/components/ui/form/FormGroup';
+import Input from '@/components/ui/form/Input';
 
 <FormGroup 
   label="Email Address" 
@@ -125,7 +125,7 @@ Styled text input component with error states.
 
 **Example:**
 ```tsx
-import Input from '@/app/components/ui/form/Input';
+import Input from '@/components/ui/form/Input';
 
 <Input
   type="text"
@@ -148,7 +148,7 @@ Multi-line text input component with error states.
 
 **Example:**
 ```tsx
-import Textarea from '@/app/components/ui/form/Textarea';
+import Textarea from '@/components/ui/form/Textarea';
 
 <Textarea
   placeholder="Enter description"
@@ -186,7 +186,7 @@ This is the **standard dropdown component** for all new development. It provides
 
 **Example - Basic Usage:**
 ```tsx
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 
 // Simple string values
 <UnifiedSelect
@@ -301,7 +301,7 @@ Use this component when users need to select multiple options from a list. It sh
 
 **Example - Basic Usage:**
 ```tsx
-import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import UnifiedMultiSelect from '@/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 
 const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -482,7 +482,7 @@ Follow these steps:
 1. **Check if it exists**: Search the codebase first
    ```bash
    # Use Glob to find similar components
-   Glob: apps/web/src/app/components/**/*ComponentName*.tsx
+   Glob: apps/web/src/components/**/*ComponentName*.tsx
    ```
 
 2. **Create the component file** in the appropriate directory:
@@ -565,8 +565,8 @@ If you encounter issues with UI components or need a new component:
 
 **Common Imports:**
 ```tsx
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import UnifiedMultiSelect from '@/app/components/ui/forms/UnifiedMultiSelect';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import UnifiedMultiSelect from '@/components/ui/forms/UnifiedMultiSelect';
 import { formatMultiSelectLabel } from '@/app/utils/formHelpers';
 ```
 

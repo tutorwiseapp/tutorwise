@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/bookings/UpcomingSessionWidget.tsx
+ * Filename: apps/web/src/components/feature/bookings/UpcomingSessionWidget.tsx
  * Purpose: Display next upcoming session in sidebar
  * Created: 2025-12-04 (Moved from HubSidebar.tsx - Priority 2: Architecture cleanup)
  * Architecture: Feature-specific widget (Tier 3) - belongs in feature/bookings

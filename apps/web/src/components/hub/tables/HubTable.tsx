@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/hub/tables/HubTable.tsx
+ * Filename: src/components/hub/tables/HubTable.tsx
  * Purpose: Reusable table component for Hub pages
  * Created: 2025-12-23
  */

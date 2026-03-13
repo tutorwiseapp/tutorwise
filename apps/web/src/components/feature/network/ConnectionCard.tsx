@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/network/ConnectionCard.tsx
+ * Filename: apps/web/src/components/feature/network/ConnectionCard.tsx
  * Purpose: Display individual connection in detail card format with HubDetailCard
  * Created: 2025-11-07
  * Updated: 2025-12-05 - Migrated to HubDetailCard standard (consistent with BookingCard/WiselistCard)

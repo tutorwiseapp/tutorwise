@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/layout/cards/index.ts
+ * Filename: apps/web/src/components/hub/layout/cards/index.ts
  * Purpose: Barrel export for Hub Layout components
  * Created: 2025-11-28
  */

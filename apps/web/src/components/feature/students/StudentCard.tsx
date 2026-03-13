@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/students/StudentCard.tsx
+ * Filename: apps/web/src/components/students/StudentCard.tsx
  * Purpose: Display individual student (Guardian Link) in detail card format with HubDetailCard
  * Created: 2025-11-12
  * Updated: 2025-12-06 - Added StudentDetailModal for viewing all student fields

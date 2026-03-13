@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/ui/hub-layout/HubPageLayout.tsx
+ * Filename: apps/web/src/components/ui/hub-layout/HubPageLayout.tsx
  * Purpose: Standard Hub Page Layout matching Bookings page structure
  * Created: 2025-11-28
  * Updated: 2025-11-30 - Added comprehensive migration checklist

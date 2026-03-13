@@ -1,5 +1,5 @@
 /*
- * Filename: apps/web/src/app/components/referrals/ReferralAssetWidget.tsx
+ * Filename: apps/web/src/components/referrals/ReferralAssetWidget.tsx
  * Purpose: Tutorwise-style referral asset widget (SDD v4.3, Section 2.2)
  * Created: 2025-11-06
  * Specification: SDD v4.3, Section 2.2 - Tutorwise-style UI

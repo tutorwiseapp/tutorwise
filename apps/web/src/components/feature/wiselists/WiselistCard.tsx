@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/wiselists/WiselistCard.tsx
+ * Filename: src/components/wiselists/WiselistCard.tsx
  * Purpose: Display wiselist in card format with HubDetailCard
  * Created: 2025-11-15
  * Updated: 2025-12-05 - Migrated to HubDetailCard standard with inline editing

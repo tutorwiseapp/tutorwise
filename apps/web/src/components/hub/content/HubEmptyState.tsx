@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/content/HubEmptyState.tsx
+ * Filename: apps/web/src/components/hub/content/HubEmptyState.tsx
  * Purpose: Centralized empty state component for all hub pages
  * Created: 2025-12-03
  * Pattern: Replaces 200+ lines of duplicated empty state CSS across hub pages

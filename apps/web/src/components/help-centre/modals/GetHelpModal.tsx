@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/modals/GetHelpModal.tsx
+ * Filename: apps/web/src/components/help-centre/modals/GetHelpModal.tsx
  * Purpose: Get Help modal for general support requests (non-bug issues)
  * Created: 2026-01-18
  * Integration: Creates Jira SUPPORT tickets via API

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/ArticleStructuredData.tsx
+ * Filename: apps/web/src/components/resources/ArticleStructuredData.tsx
  * Purpose: Generate JSON-LD structured data for resource articles (SEO)
  * Created: 2026-01-15
  */

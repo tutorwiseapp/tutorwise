@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/mdx/CodeBlock.tsx
+ * Filename: apps/web/src/components/help-centre/mdx/CodeBlock.tsx
  * Purpose: Code block component with syntax highlighting
  * Created: 2025-01-19
  */

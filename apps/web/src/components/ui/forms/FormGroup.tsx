@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/form/FormGroup.tsx
+ * Filename: src/components/ui/form/FormGroup.tsx
  * Purpose: A reusable wrapper for form elements, providing a label and consistent spacing.
  *
  * Change History:

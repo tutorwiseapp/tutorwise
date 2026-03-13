@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/reviews/ReviewStatsWidget.tsx
+ * Filename: apps/web/src/components/feature/reviews/ReviewStatsWidget.tsx
  * Purpose: Stats widget for Reviews page sidebar
  * Created: 2025-11-08
  * Updated: 2025-11-19 - Migrated to v2 design with HubStatsCard

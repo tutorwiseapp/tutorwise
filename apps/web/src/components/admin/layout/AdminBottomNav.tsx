@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/admin/layout/AdminBottomNav.tsx
+ * Filename: src/components/admin/layout/AdminBottomNav.tsx
  * Purpose: Mobile bottom navigation bar for admin pages
  * Created: 2026-01-30
  *

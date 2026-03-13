@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/edupay/EduPaySkeleton.tsx
+ * Filename: apps/web/src/components/feature/edupay/EduPaySkeleton.tsx
  * Purpose: Loading skeleton for EduPay pages (Wallet, Cashback, Savings)
  * Created: 2026-02-12
  * Pattern: Gold Standard Hub Architecture (matches BookingsSkeleton)

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/listings/ListingsError.tsx
+ * Filename: apps/web/src/components/feature/listings/ListingsError.tsx
  * Purpose: Error fallback component for listings page
  * Created: 2025-11-08
  */

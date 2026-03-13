@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/network/NetworkSkeleton.tsx
+ * Filename: apps/web/src/components/feature/network/NetworkSkeleton.tsx
  * Purpose: Loading skeleton for network page
  * Created: 2025-11-09
  */

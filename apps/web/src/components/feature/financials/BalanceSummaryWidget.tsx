@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/financials/BalanceSummaryWidget.tsx
+ * Filename: apps/web/src/components/feature/financials/BalanceSummaryWidget.tsx
  * Purpose: Display balance summary in sidebar
  * Created: 2025-12-04 (Moved from HubSidebar.tsx - Priority 2: Architecture cleanup)
  * Architecture: Feature-specific widget (Tier 3) - belongs in feature/financials

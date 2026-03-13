@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/admin/layout/AdminMobileMenu.tsx
+ * Filename: src/components/admin/layout/AdminMobileMenu.tsx
  * Purpose: Mobile hamburger menu for admin navigation
  * Created: 2026-01-30
  *

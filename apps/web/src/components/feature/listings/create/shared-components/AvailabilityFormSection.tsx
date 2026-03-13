@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/feature/listings/AvailabilityFormSection.tsx
+ * Filename: src/components/feature/listings/AvailabilityFormSection.tsx
  * Purpose: Inline-editable availability component for create listing form
  * Created: 2025-11-04
  * v4.0: Visually identical to profile availability but form-integrated

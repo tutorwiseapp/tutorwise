@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/referrals/ReferralStatsWidget.tsx
+ * Filename: apps/web/src/components/referrals/ReferralStatsWidget.tsx
  * Purpose: Referral statistics widget using HubStatsCard shell
  * Created: 2025-11-18
  * Updated: 2025-12-07 - Added Total Earned metric and commission breakdown

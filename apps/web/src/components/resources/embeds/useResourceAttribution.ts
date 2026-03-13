@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/useResourceAttribution.ts
+ * Filename: apps/web/src/components/resources/embeds/useResourceAttribution.ts
  * Purpose: Client-side event-based attribution tracking for resource embeds
  * Created: 2026-01-16
  *

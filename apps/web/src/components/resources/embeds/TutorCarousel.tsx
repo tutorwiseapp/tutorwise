@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/TutorCarousel.tsx
+ * Filename: apps/web/src/components/resources/embeds/TutorCarousel.tsx
  * Purpose: MDX component for embedding a horizontal tutor carousel in resource articles
  * Created: 2026-01-16
  *

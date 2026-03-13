@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/Header.tsx
+ * Filename: src/components/layout/Header.tsx
  * Purpose: Provides the main site navigation header with logo and primary nav menu.
  * Change History:
  * C009 - 2025-12-21 : Removed logo toggle behavior - logo always points to home (/).

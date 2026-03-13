@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/BottomNav.tsx
+ * Filename: src/components/layout/BottomNav.tsx
  * Purpose: Mobile bottom navigation bar for marketplace and main app navigation
  * Created: 2025-12-10
  * Updated: 2025-12-11 - Integrated MobileMenu component for hamburger menu

@@ -50,9 +50,9 @@ Two-row header with title/actions (row 1) and filters (row 2).
 ## Usage Example
 
 ```tsx
-import { HubPageLayout, HubHeader } from '@/app/components/ui/hub-layout';
-import Button from '@/app/components/ui/Button';
-import HubRowCard from '@/app/components/ui/hub-row-card/HubRowCard';
+import { HubPageLayout, HubHeader } from '@/components/ui/hub-layout';
+import Button from '@/components/ui/Button';
+import HubRowCard from '@/components/ui/hub-row-card/HubRowCard';
 
 export default function ListingsPage() {
   return (
@@ -128,7 +128,7 @@ export default function ListingsPage() {
 ## File System Structure
 
 ```
-apps/web/src/app/components/
+apps/web/src/components/
 ├── hub/                    # Hub Primitives (Layout Shells)
 │   ├── layout/            # HubPageLayout, HubHeader, HubTabs, HubPagination
 │   ├── sidebar/           # HubSidebar, SidebarWidget components
@@ -200,9 +200,9 @@ apps/web/src/app/components/
 
 **Import**:
 ```tsx
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 // OR
-import { HubEmptyState } from '@/app/components/hub/content';
+import { HubEmptyState } from '@/components/hub/content';
 ```
 
 **Props**:

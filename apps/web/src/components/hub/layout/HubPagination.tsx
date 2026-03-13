@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/layout/cards/HubPagination.tsx
+ * Filename: apps/web/src/components/hub/layout/cards/HubPagination.tsx
  * Purpose: Pagination component for Hub Pages
  * Created: 2025-11-28
  * Updated: 2025-11-29 - Page numbers with arrows, ellipsis, and teal highlighting (no summary text)

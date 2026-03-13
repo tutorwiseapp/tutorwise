@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/TutorEmbed.tsx
+ * Filename: apps/web/src/components/resources/embeds/TutorEmbed.tsx
  * Purpose: MDX component for embedding tutor profiles in resource articles with event tracking
  * Created: 2026-01-16
  * Updated: 2026-01-16 - Migrated to event-based attribution

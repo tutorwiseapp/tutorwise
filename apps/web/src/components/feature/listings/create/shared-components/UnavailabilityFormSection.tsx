@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/feature/listings/UnavailabilityFormSection.tsx
+ * Filename: src/components/feature/listings/UnavailabilityFormSection.tsx
  * Purpose: Unavailability periods component for create listing form
  * Created: 2025-11-04
  * v4.0: Companion to AvailabilityFormSection for blocking out dates

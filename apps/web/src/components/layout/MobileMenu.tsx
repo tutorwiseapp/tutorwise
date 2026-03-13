@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/MobileMenu.tsx
+ * Filename: src/components/layout/MobileMenu.tsx
  * Purpose: Mobile hamburger menu for mobile/tablet navigation
  * Created: 2025-12-11
  * Updated: 2026-01-30 - Simplified admin access (link instead of toggle)

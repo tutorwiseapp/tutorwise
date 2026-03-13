@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/widgets/PopularArticlesWidget.tsx
+ * Filename: apps/web/src/components/help-centre/widgets/PopularArticlesWidget.tsx
  * Purpose: Popular Articles widget for help centre right sidebar
  * Created: 2025-01-19
  */

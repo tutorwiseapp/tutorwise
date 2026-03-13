@@ -1,4 +1,4 @@
-// src/app/components/feature/onboarding/OnboardingProgressBar.tsx
+// src/components/feature/onboarding/OnboardingProgressBar.tsx
 'use client';
 
 import React from 'react';

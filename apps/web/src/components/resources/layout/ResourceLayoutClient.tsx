@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/layout/ResourceLayoutClient.tsx
+ * Filename: apps/web/src/components/resources/layout/ResourceLayoutClient.tsx
  * Purpose: Client-side wrapper for Resource layout with sidebar management
  * Created: 2026-01-15
  */

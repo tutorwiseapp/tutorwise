@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/listings/ListingsSkeleton.tsx
+ * Filename: apps/web/src/components/feature/listings/ListingsSkeleton.tsx
  * Purpose: Loading skeleton for listings page
  * Created: 2025-11-08
  */

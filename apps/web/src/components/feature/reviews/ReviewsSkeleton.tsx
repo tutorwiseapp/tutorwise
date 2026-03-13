@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/reviews/ReviewsSkeleton.tsx
+ * Filename: apps/web/src/components/feature/reviews/ReviewsSkeleton.tsx
  * Purpose: Loading skeleton for reviews page
  * Created: 2025-11-08
  */

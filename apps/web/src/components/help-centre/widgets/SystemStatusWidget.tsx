@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/widgets/SystemStatusWidget.tsx
+ * Filename: apps/web/src/components/help-centre/widgets/SystemStatusWidget.tsx
  * Purpose: Display current system status and known issues
  * Created: 2025-01-19
  */

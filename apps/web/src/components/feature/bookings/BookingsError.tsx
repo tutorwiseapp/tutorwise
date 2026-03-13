@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/bookings/BookingsError.tsx
+ * Filename: apps/web/src/components/feature/bookings/BookingsError.tsx
  * Purpose: Error state component for bookings page
  * Created: 2025-11-08
  */

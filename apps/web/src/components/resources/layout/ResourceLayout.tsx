@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/layout/ResourceLayout.tsx
+ * Filename: apps/web/src/components/resources/layout/ResourceLayout.tsx
  * Purpose: Main 3-column layout for resource (320px + fluid + 320px)
  * Created: 2026-01-15
  */

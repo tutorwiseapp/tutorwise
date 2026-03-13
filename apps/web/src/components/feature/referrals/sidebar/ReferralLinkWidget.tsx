@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/referrals/ReferralLinkWidget.tsx
+ * Filename: apps/web/src/components/feature/referrals/ReferralLinkWidget.tsx
  * Purpose: Display and copy referral link in sidebar
  * Created: 2025-12-04 (Moved from HubSidebar.tsx - Priority 2: Architecture cleanup)
  * Architecture: Feature-specific widget (Tier 3) - belongs in feature/referrals

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/layout/cards/HubHeader.tsx
+ * Filename: apps/web/src/components/hub/layout/cards/HubHeader.tsx
  * Purpose: Header for Hub Pages with Title, Filters, and Actions
  * Created: 2025-11-28
  * Updated: 2025-11-29 - Optimized spacing: HubHeader→Tabs 8px (0.5rem)

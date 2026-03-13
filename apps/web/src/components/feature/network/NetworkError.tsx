@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/network/NetworkError.tsx
+ * Filename: apps/web/src/components/feature/network/NetworkError.tsx
  * Purpose: Error state for network page
  * Created: 2025-11-09
  */

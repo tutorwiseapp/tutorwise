@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/index.ts
+ * Filename: apps/web/src/components/resources/embeds/index.ts
  * Purpose: Export all MDX embed components for easy import
  * Created: 2026-01-16
  */

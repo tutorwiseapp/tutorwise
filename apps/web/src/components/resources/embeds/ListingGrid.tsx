@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/ListingGrid.tsx
+ * Filename: apps/web/src/components/resources/embeds/ListingGrid.tsx
  * Purpose: MDX component for embedding filtered listing grids in resource articles
  * Created: 2026-01-16
  *

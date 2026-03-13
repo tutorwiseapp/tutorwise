@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/ConfirmDialog.tsx
+ * Filename: src/components/ui/ConfirmDialog.tsx
  * Purpose: Reusable confirmation dialog component with design system styling
  * Created: 2025-11-04
  * Replaces browser's native confirm() and alert() with branded modal

@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/payments/SavedCardList.tsx
+ * Filename: src/components/ui/payments/SavedCardList.tsx
  * Purpose: A reusable component to display a list of a user's saved payment methods.
  * Change History:
  * C003 - 2025-08-12 : 14:00 - Added a clear 'empty state' UI for when no cards are saved.

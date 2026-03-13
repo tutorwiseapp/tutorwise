@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/referrals/ReferralCard.tsx
+ * Filename: src/components/referrals/ReferralCard.tsx
  * Purpose: Display referral lead information in detail card format with HubDetailCard
  * Created: 2025-11-02
  * Updated: 2025-12-06 - Added ReferralDetailModal for viewing all referral fields

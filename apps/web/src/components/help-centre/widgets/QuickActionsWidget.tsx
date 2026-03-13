@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/widgets/QuickActionsWidget.tsx
+ * Filename: apps/web/src/components/help-centre/widgets/QuickActionsWidget.tsx
  * Purpose: Support widget with two clear options - bug reports and general help
  * Created: 2025-01-19
  * Updated: 2026-01-18 - Added Get Help modal with clear distinction

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/mdx/CalloutBox.tsx
+ * Filename: apps/web/src/components/help-centre/mdx/CalloutBox.tsx
  * Purpose: Callout box component for highlighting important information
  * Created: 2025-01-19
  */

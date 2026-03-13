@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/feature/bookings/BookingCard.tsx
+ * Filename: src/components/feature/bookings/BookingCard.tsx
  * Purpose: Display booking information in detail card format with HubDetailCard
  * Created: 2025-11-02
  * Updated: 2025-12-06 - Added BookingDetailModal for viewing all 19 fields

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/account/AccountCompletenessWidget.tsx
+ * Filename: apps/web/src/components/feature/account/AccountCompletenessWidget.tsx
  * Purpose: Unified account card for sidebar (v2 design system)
  * Created: 2025-11-19
  * Updated: 2025-11-19 - Luxury spacing optimization

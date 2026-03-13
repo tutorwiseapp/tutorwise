@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/public-profile/RoleStatsCard.tsx
+ * Filename: apps/web/src/components/public-profile/RoleStatsCard.tsx
  * Purpose: Public-facing role stats card for public profiles
  * Created: 2025-11-12
  * Updated: 2025-12-08 - Removed mock data, show only real stats from database

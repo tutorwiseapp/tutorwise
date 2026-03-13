@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/widgets/PopularArticlesWidget.tsx
+ * Filename: apps/web/src/components/resources/widgets/PopularArticlesWidget.tsx
  * Purpose: Right sidebar widget displaying popular resource articles — dynamic from DB
  * Created: 2026-01-15
  * Updated: 2026-03-12 — replaced hardcoded placeholder articles with real DB data (sorted by views)

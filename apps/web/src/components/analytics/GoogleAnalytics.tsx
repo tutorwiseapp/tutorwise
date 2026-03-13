@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/analytics/GoogleAnalytics.tsx
+ * Filename: apps/web/src/components/analytics/GoogleAnalytics.tsx
  * Purpose: Google Analytics 4 integration component
  * Created: 2026-01-15
  *

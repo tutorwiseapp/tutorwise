@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/messages/InboxStatsWidget.tsx
+ * Filename: apps/web/src/components/messages/InboxStatsWidget.tsx
  * Purpose: Inbox statistics widget for Messages Hub (v2 design)
  * Created: 2025-11-19
  * Design: Shows unread messages, active chats, and archived conversations

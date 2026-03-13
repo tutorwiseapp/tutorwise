@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/reviews/ReviewsError.tsx
+ * Filename: apps/web/src/components/feature/reviews/ReviewsError.tsx
  * Purpose: Error state for reviews page
  * Created: 2025-11-08
  */

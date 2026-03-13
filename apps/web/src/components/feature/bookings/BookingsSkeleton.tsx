@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/bookings/BookingsSkeleton.tsx
+ * Filename: apps/web/src/components/feature/bookings/BookingsSkeleton.tsx
  * Purpose: Loading skeleton for bookings page
  * Created: 2025-11-08
  */

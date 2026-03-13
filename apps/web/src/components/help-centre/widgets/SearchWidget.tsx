@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/widgets/SearchWidget.tsx
+ * Filename: apps/web/src/components/help-centre/widgets/SearchWidget.tsx
  * Purpose: Search widget for Help Centre articles with analytics tracking
  * Created: 2025-01-19
  * Updated: 2025-12-21 - Removed keyboard shortcuts, optimized for mobile

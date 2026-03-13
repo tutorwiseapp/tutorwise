@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/feature/listings/ListingStatsWidget.tsx
+ * Filename: src/components/feature/listings/ListingStatsWidget.tsx
  * Purpose: Display listing statistics in HubSidebar
  * Created: 2025-11-03
  * Updated: 2025-11-19 - Migrated to v2 design with HubStatsCard

@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/Layout.tsx
+ * Filename: src/components/layout/Layout.tsx
  * Purpose: Provides the main visual layout for the application (Header, Main, Footer).
  * ...
  * Change Summary:

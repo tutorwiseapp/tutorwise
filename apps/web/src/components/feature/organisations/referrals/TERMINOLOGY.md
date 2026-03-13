@@ -244,8 +244,8 @@ toast.error('Failed to update lead stage');
 **Automated Checks:**
 ```bash
 # Search for potential violations
-grep -r "lead" apps/web/src/app/components/feature/organisation/referrals/ --ignore-case
-grep -r "sales pipeline" apps/web/src/app/components/feature/organisation/referrals/ --ignore-case
+grep -r "lead" apps/web/src/components/feature/organisation/referrals/ --ignore-case
+grep -r "sales pipeline" apps/web/src/components/feature/organisation/referrals/ --ignore-case
 ```
 
 ---

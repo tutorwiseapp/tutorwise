@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/reviews/ReviewSubmissionModal.tsx
+ * Filename: apps/web/src/components/feature/reviews/ReviewSubmissionModal.tsx
  * Purpose: Modal for submitting reviews with Junction view (Rebook/Refer CTAs)
  * Created: 2025-11-08
  * Related: reviews-solution-design-v4.5.md

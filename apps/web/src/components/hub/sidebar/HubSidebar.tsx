@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/hub/sidebar/HubSidebar.tsx
+ * Filename: src/components/hub/sidebar/HubSidebar.tsx
  * Purpose: Hub-specific hub sidebar (right column in 3-column layout)
  * Created: 2025-11-02
  * Updated: 2025-12-04 - Priority 2: Removed feature-specific widgets (moved to feature folders)

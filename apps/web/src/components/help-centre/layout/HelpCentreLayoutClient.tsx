@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/layout/HelpCentreLayoutClient.tsx
+ * Filename: apps/web/src/components/help-centre/layout/HelpCentreLayoutClient.tsx
  * Purpose: Client-side wrapper for Help Centre layout with sidebar management
  * Created: 2025-12-21
  */

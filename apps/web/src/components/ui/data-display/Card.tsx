@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/Card.tsx
+ * Filename: src/components/ui/Card.tsx
  * Purpose: A reusable container component with VDL styling.
  * Change History:
  * C002 - 2025-08-10 : 22:00 - Definitive fix for 'children' prop error.

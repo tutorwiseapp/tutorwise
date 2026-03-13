@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/embeds/useSignalTracking.ts
+ * Filename: apps/web/src/components/resources/embeds/useSignalTracking.ts
  * Purpose: Client-side journey tracking for Revenue Signal with signal_id
  * Created: 2026-01-17 (migrated from useResourceAttribution.ts)
  *

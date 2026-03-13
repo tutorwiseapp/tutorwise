@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/financials/TransactionCard.tsx
+ * Filename: src/components/financials/TransactionCard.tsx
  * Purpose: Display transaction information in detail card format with HubDetailCard
  * Created: 2025-11-02
  * Updated: 2025-12-06 - Added TransactionDetailModal for viewing all transaction fields

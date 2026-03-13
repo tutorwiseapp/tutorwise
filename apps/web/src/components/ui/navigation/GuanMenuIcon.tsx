@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/nav/GuanMenuIcon.tsx
+ * Filename: src/components/ui/nav/GuanMenuIcon.tsx
  * Purpose: Renders the unique, animated SVG icon for the main navigation menu.
  *
  * Change History:

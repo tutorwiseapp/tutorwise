@@ -1,5 +1,5 @@
 /**
- * Filename: src/app/components/admin/badges/StatusBadge.tsx
+ * Filename: src/components/admin/badges/StatusBadge.tsx
  * Purpose: Reusable status badge component for admin tables
  * Created: 2025-12-30
  */

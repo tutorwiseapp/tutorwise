@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/referrals/ReferralActivityFeed.tsx
+ * Filename: apps/web/src/components/feature/referrals/ReferralActivityFeed.tsx
  * Purpose: Display recent referral activity timeline
  * Created: 2025-12-07
  */

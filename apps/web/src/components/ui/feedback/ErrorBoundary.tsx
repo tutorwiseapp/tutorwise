@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/ErrorBoundary.tsx
+ * Filename: apps/web/src/components/ErrorBoundary.tsx
  * Purpose: Global error boundary with Sentry integration
  * Created: 2025-11-08
  *

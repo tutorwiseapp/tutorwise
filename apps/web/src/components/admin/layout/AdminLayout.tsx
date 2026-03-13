@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/admin/layout/AdminLayout.tsx
+ * Filename: src/components/admin/layout/AdminLayout.tsx
  * Purpose: Top-level wrapper for all admin pages (provides AdminSidebar + content area)
  * Created: 2025-12-23
  * Specification: Admin Dashboard Solution Design v2, Section 3.2

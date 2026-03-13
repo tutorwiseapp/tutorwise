@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/mdx/MDXProvider.tsx
+ * Filename: apps/web/src/components/help-centre/mdx/MDXProvider.tsx
  * Purpose: MDX components provider for help centre articles
  * Created: 2025-01-19
  */

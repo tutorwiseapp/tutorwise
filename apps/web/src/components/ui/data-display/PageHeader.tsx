@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/ui/PageHeader.tsx
+ * Filename: src/components/ui/PageHeader.tsx
  * Purpose: Reusable shell component for page headers with alignment variants
  *
  * Change History:

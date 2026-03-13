@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/modals/SnapshotModal.tsx
+ * Filename: apps/web/src/components/help-centre/modals/SnapshotModal.tsx
  * Purpose: Snapshot Modal for reporting technical issues with context capture
  * Created: 2025-01-21
  * Phase: 3 - Context-driven bug reporting

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/edupay/EduPayError.tsx
+ * Filename: apps/web/src/components/feature/edupay/EduPayError.tsx
  * Purpose: Error state component for EduPay pages (Wallet, Cashback, Savings)
  * Created: 2026-02-12
  * Pattern: Gold Standard Hub Architecture (matches BookingsError)

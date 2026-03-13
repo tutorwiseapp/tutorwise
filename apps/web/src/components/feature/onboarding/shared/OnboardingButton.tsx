@@ -1,5 +1,5 @@
 /**
- * Filename: src/app/components/feature/onboarding/shared/OnboardingButton.tsx
+ * Filename: src/components/feature/onboarding/shared/OnboardingButton.tsx
  * Purpose: Reusable button components for onboarding flows with consistent behavior and styling
  *
  * Features:

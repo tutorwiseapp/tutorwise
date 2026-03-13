@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/help-centre/layout/HelpCentreLayout.tsx
+ * Filename: apps/web/src/components/help-centre/layout/HelpCentreLayout.tsx
  * Purpose: Main 3-column layout for help centre (320px + fluid + 320px)
  * Created: 2025-01-19
  */

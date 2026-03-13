@@ -1,5 +1,5 @@
 /**
- * Filename: src/app/components/feature/onboarding/shared/SelectableCard.tsx
+ * Filename: src/components/feature/onboarding/shared/SelectableCard.tsx
  * Purpose: Reusable selectable card components for wizard forms
  *
  * Features:

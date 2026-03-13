@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/resources/ArticleCard.tsx
+ * Filename: apps/web/src/components/resources/ArticleCard.tsx
  * Purpose: Compact article card for wiselist display
  * Created: 2026-01-16
  *

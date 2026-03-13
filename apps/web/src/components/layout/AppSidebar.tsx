@@ -1,5 +1,5 @@
 /*
- * Filename: src/app/components/layout/AppSidebar.tsx
+ * Filename: src/components/layout/AppSidebar.tsx
  * Purpose: Main navigation sidebar (left column in 3-column layout)
  * Created: 2025-11-02
  * Specification: SDD v3.6, Section 5.1 - AppSidebar (persistent navigation)

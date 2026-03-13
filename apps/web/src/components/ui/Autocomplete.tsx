@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/ui/Autocomplete.tsx
+ * Filename: apps/web/src/components/ui/Autocomplete.tsx
  * Purpose: Reusable autocomplete component with keyboard navigation
  * Created: 2025-12-10
  * Phase: Marketplace Phase 1 - Task 2

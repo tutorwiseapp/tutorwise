@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/hub/layout/cards/HubTabs.tsx
+ * Filename: apps/web/src/components/hub/layout/cards/HubTabs.tsx
  * Purpose: Reusable tab navigation for Hub Pages matching Bookings style
  * Created: 2025-11-28
  * Pattern: Underline tabs with teal active state, full-width with overflow scroll

@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/feature/network/ConnectionRequestModal.tsx
+ * Filename: apps/web/src/components/feature/network/ConnectionRequestModal.tsx
  * Purpose: Modal for sending connection requests or email invitations
  * Created: 2025-11-07
  * Updated: 2025-01-21 - Added accessibility improvements and type safety

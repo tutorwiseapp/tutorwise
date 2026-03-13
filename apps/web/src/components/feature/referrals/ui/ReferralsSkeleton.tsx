@@ -1,5 +1,5 @@
 /**
- * Filename: apps/web/src/app/components/referrals/ReferralsSkeleton.tsx
+ * Filename: apps/web/src/components/referrals/ReferralsSkeleton.tsx
  * Purpose: Loading skeleton for referrals page
  * Created: 2025-11-09
  */
