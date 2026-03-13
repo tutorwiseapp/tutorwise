@@ -1,5 +1,5 @@
---
--- Sage Links Table
+-- Migration: 402 — Create sage_links table
+-- Status: ALREADY APPLIED (originally supabase/migrations/20260227_sage_links.sql)
 --
 -- Purpose: Provides URL reference management for Sage (platform AI tutor)
 -- Similar to ai_tutor_links but for the platform-wide Sage service
