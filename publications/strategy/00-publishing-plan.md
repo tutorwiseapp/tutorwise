@@ -158,6 +158,14 @@ The following docs in `conductor/` were reviewed and updated on 2026-03-11:
 
 ---
 
+## LinkedIn GTM Playbook
+
+**File:** `conductor/publish/06-linkedin-gtm-playbook.md`
+**Created:** 2026-03-12
+**Purpose:** Complete execution guide for LinkedIn distribution of thought-leadership articles + enterprise papers. Covers posting cadence (2-day cycle), minimalist visual style (solid colour backgrounds), 3x repurpose cycle (full post → carousel → repost), cross-posting to Resources blog, metrics tracking, and sequencing with enterprise paper distribution.
+
+---
+
 ## Session Context Note
 
 This plan was created in a working session where:

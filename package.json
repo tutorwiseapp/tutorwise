@@ -6,7 +6,8 @@
     "apps/*",
     "packages/*",
     "packages/shared/*",
-    "cas/packages/*"
+    "cas/packages/*",
+    "services/*"
   ],
   "scripts": {
     "dev": "npm run dev:all",
@@ -109,6 +110,8 @@
     "process:sage-feedback": "tsx tools/scripts/process-sage-feedback.ts",
     "process:sage-feedback:dry": "tsx tools/scripts/process-sage-feedback.ts --dry-run",
     "process:sage-feedback:auto": "tsx tools/scripts/process-sage-feedback.ts --auto-fix",
+    "scheduler:start": "npm run start --workspace=@tutorwise/scheduler",
+    "scheduler:dev": "npm run dev --workspace=@tutorwise/scheduler",
     "prepare": "husky"
   },
   "dependencies": {

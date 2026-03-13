@@ -1,0 +1,48 @@
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.typeFilter {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  background: var(--bg-primary, #fff);
+  cursor: pointer;
+}
+
+.typeFilter:focus {
+  outline: none;
+  border-color: #0d9488;
+}
+
+.kpiSection {
+  margin-bottom: 1.5rem;
+}
+
+.calendarSection {
+  margin-top: 0;
+}
+
+.listSection {
+  margin-top: 0;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-tertiary, #9ca3af);
+  font-size: 0.875rem;
+}
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}

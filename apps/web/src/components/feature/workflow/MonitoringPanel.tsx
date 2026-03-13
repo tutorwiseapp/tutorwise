@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain, UserCheck } from 'lucide-react';
+import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain, UserCheck, Calendar, FileText, Bot, Users, Bell } from 'lucide-react';
 import styles from './MonitoringPanel.module.css';
 
 // --- Types ---
@@ -463,6 +463,75 @@ function OperationalBriefing() {
   );
 }
 
+// --- Upcoming Schedule ---
+
+const SCHEDULE_TYPE_ICONS: Record<string, typeof FileText> = {
+  content: FileText,
+  agent_run: Bot,
+  team_run: Users,
+  task: CheckCircle,
+  reminder: Bell,
+};
+
+const SCHEDULE_TYPE_COLORS: Record<string, string> = {
+  content: '#0d9488',
+  agent_run: '#7c3aed',
+  team_run: '#6366f1',
+  task: '#f59e0b',
+  reminder: '#ef4444',
+};
+
+function UpcomingSchedule() {
+  const { data: items = [], isFetching } = useQuery<Array<{
+    id: string; title: string; type: string; scheduled_at: string; status: string; color: string | null;
+  }>>({
+    queryKey: ['scheduler-upcoming-monitor'],
+    queryFn: async () => {
+      const now = new Date();
+      const end = new Date();
+      end.setDate(end.getDate() + 7);
+      const params = new URLSearchParams({ from: now.toISOString(), to: end.toISOString() });
+      const res = await fetch(`/api/admin/scheduler?${params}`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return (json.data || []).filter((i: { status: string }) => i.status === 'scheduled').slice(0, 5);
+    },
+    staleTime: 60000,
+  });
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.sectionTitle}>
+          <Calendar size={14} />
+          Upcoming Schedule
+        </div>
+        <a href="/admin/scheduler" className={styles.viewAllLink} style={{ fontSize: '0.75rem', color: '#0d9488', textDecoration: 'none' }}>
+          View all
+        </a>
+      </div>
+      {isFetching && items.length === 0 && <div className={styles.loading}>Loading…</div>}
+      {items.length === 0 && !isFetching && <div className={styles.emptyState}>No upcoming items</div>}
+      {items.map((item) => {
+        const Icon = SCHEDULE_TYPE_ICONS[item.type] || FileText;
+        const accentColor = item.color || SCHEDULE_TYPE_COLORS[item.type] || '#6b7280';
+        const dt = new Date(item.scheduled_at);
+        const timeStr = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        return (
+          <div key={item.id} className={styles.approvalItem} style={{ borderLeftColor: accentColor }}>
+            <div className={styles.approvalMeta}>
+              <Icon size={12} style={{ color: accentColor }} />
+              <span className={styles.approvalType}>{item.type.replace('_', ' ')}</span>
+              <span className={styles.approvalTime}>{timeStr}</span>
+            </div>
+            <div className={styles.approvalTitle}>{item.title}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // --- Main MonitoringPanel ---
 
 export function MonitoringPanel() {
@@ -475,6 +544,7 @@ export function MonitoringPanel() {
           <ActiveWorkflows />
         </div>
         <div className={styles.rightCol}>
+          <UpcomingSchedule />
           <PlatformHealthSection />
           <OperationalBriefing />
         </div>

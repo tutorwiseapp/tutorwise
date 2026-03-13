@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import { createClient } from '@/utils/supabase/server';
 import { specialistAgentRunner } from '@/lib/agent-studio/SpecialistAgentRunner';
 
@@ -12,12 +13,21 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Allow scheduler service via CRON_SECRET (same pattern as /api/cron/* routes)
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+    const isSchedulerAuth = cronSecret && authHeader
+      ? authHeader.length === `Bearer ${cronSecret}`.length && timingSafeEqual(Buffer.from(authHeader), Buffer.from(`Bearer ${cronSecret}`))
+      : false;
 
-    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
-    if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isSchedulerAuth) {
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+      if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { id } = await params;
     const body = await request.json() as { prompt: string; trigger_type?: string };

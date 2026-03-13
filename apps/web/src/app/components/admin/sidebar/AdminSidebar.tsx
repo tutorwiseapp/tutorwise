@@ -32,6 +32,7 @@ export default function AdminSidebar() {
   const navItems: NavItem[] = [
     { href: '/admin/operations', label: 'Operations' },
     { href: '/admin/conductor', label: 'Conductor' },
+    { href: '/admin/scheduler', label: 'Scheduler' },
     { href: '/admin', label: 'Dashboard' },
     {
       href: '/admin/signal',

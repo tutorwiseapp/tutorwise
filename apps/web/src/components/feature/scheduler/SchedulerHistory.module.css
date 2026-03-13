@@ -1,0 +1,155 @@
+.loading, .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.emptyIcon { color: var(--text-tertiary, #9ca3af); }
+.emptyTitle { font-weight: 600; margin-top: 0.75rem; }
+.emptyDescription { font-size: 0.875rem; margin-top: 0.25rem; }
+
+.historyPanel {
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-primary, #e5e7eb);
+  background: var(--bg-secondary, #f9fafb);
+}
+
+.clearFilter {
+  background: none;
+  border: none;
+  color: #0d9488;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.statusFilters {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.filterBtn {
+  background: none;
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: capitalize;
+}
+
+.filterBtn:hover { background: var(--bg-primary, #fff); }
+.filterActive {
+  background: var(--bg-primary, #fff);
+  border-color: #0d9488;
+  color: #0d9488;
+  font-weight: 500;
+}
+
+.runsList {
+  display: flex;
+  flex-direction: column;
+}
+
+.runRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-primary, #e5e7eb);
+  align-items: center;
+  font-size: 0.8125rem;
+  transition: background 0.15s;
+}
+
+.runRow:last-child { border-bottom: none; }
+.runRow:hover { background: var(--bg-secondary, #f9fafb); }
+
+.run_failed { background: #fef2f2; }
+.run_failed:hover { background: #fee2e2; }
+
+.runIcon { display: flex; align-items: center; }
+.iconSuccess { color: #059669; }
+.iconFailed { color: #dc2626; }
+.iconRunning { color: #0d9488; animation: spin 1s linear infinite; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.runInfo { min-width: 0; }
+.runTitle {
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.runMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.125rem;
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.type_cron_job { background: #dbeafe; color: #1e40af; }
+.type_sql_func { background: #fef3c7; color: #92400e; }
+.type_content { background: #ccfbf1; color: #115e59; }
+.type_agent_run { background: #ede9fe; color: #5b21b6; }
+.type_team_run { background: #e0e7ff; color: #3730a3; }
+.type_task { background: #fef3c7; color: #92400e; }
+.type_reminder { background: #fee2e2; color: #991b1b; }
+
+.attempt {
+  font-size: 0.7rem;
+  color: #d97706;
+  font-weight: 500;
+}
+
+.runTime {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.startTime {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.duration {
+  font-size: 0.7rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+.runError {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: #dc2626;
+  padding: 0.375rem 0;
+  word-break: break-word;
+}

@@ -1,0 +1,145 @@
+.loading, .emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.emptyIcon { color: var(--text-tertiary, #9ca3af); }
+.emptyTitle { font-weight: 600; margin-top: 0.75rem; }
+.emptyDescription { font-size: 0.875rem; margin-top: 0.25rem; }
+
+.jobsTable {
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.6fr 0.7fr 1.2fr 1fr 0.8fr;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-primary, #e5e7eb);
+  background: var(--bg-secondary, #f9fafb);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.6fr 0.7fr 1.2fr 1fr 0.8fr;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-primary, #e5e7eb);
+  align-items: center;
+  font-size: 0.8125rem;
+  transition: background 0.15s;
+}
+
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--bg-secondary, #f9fafb); }
+.row.paused { opacity: 0.6; }
+.row.failed { background: #fef2f2; }
+
+.jobTitle {
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+}
+
+.jobTarget {
+  margin-top: 0.125rem;
+}
+
+.endpoint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--text-tertiary, #9ca3af);
+  font-family: monospace;
+}
+
+.cronExpr {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  background: var(--bg-secondary, #f3f4f6);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.type_cron_job { background: #dbeafe; color: #1e40af; }
+.type_sql_func { background: #fef3c7; color: #92400e; }
+
+.statusActive { display: flex; align-items: center; gap: 0.25rem; color: #059669; font-size: 0.8rem; }
+.statusPaused { display: flex; align-items: center; gap: 0.25rem; color: #d97706; font-size: 0.8rem; }
+.statusFailed { display: flex; align-items: center; gap: 0.25rem; color: #dc2626; font-size: 0.8rem; }
+
+.lastRun {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.runStatus {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.run_completed { background: #dcfce7; color: #166534; }
+.run_failed { background: #fef2f2; color: #dc2626; }
+
+.runTime { color: var(--text-secondary, #6b7280); }
+.runDuration { color: var(--text-tertiary, #9ca3af); }
+.noRun { color: var(--text-tertiary, #9ca3af); font-size: 0.75rem; }
+.nextTime { font-size: 0.75rem; color: var(--text-secondary, #6b7280); }
+
+.colActions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.errorRow {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 1rem 0.375rem 1rem;
+  font-size: 0.75rem;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+@media (max-width: 1024px) {
+  .header, .row {
+    grid-template-columns: 2fr 1fr 0.6fr 0.7fr 1fr 0.8fr;
+  }
+  .colLastRun { display: none; }
+}
+
+@media (max-width: 768px) {
+  .header { display: none; }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .colName { flex: 1 1 100%; }
+}
