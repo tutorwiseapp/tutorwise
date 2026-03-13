@@ -1,1223 +1,941 @@
 # Tutorwise Development Roadmap
 
-**Document Version**: 2.6
-**Last Updated**: 2026-02-15
-**Project Status**: 92% Complete - Beta Release 1 Mar, 2026
-**Development Velocity**: 1,450+ commits (Oct 2025 - Feb 2026)
+**Document Version**: 3.0
+**Last Updated**: 2026-03-11
+**Project Status**: Platform Live + AI Operations Layer Complete
+**Development Velocity**: 1,800+ commits (Oct 2025 - Mar 2026)
 
 ---
 
-## 🎯 **Current Status Overview**
+## Current Status Overview
 
-### Platform Completion: 90%
+### Platform Completion: 97%
 
 **See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.**
 
 **Key Metrics**:
-- **400 pages** implemented (174 UI pages + 226 API endpoints + dynamic routes)
-- **201K lines of code** (TypeScript/TSX)
-- **266 database migrations** (260 numbered + 6 supporting files)
-- **353 components** in unified design system
+- **500+ pages** implemented (200+ UI pages + 300+ API endpoints + dynamic routes)
+- **250K+ lines of code** (TypeScript/TSX)
+- **386+ database migrations** (380+ numbered + supporting files)
+- **400+ components** in unified design system
 - **200+ RLS policies** enforcing data security
-- **36 major features** completed (23 core systems + 14 platform hubs - 5 overlap + EduPay + VirtualSpace + Lexi AI + Sage AI)
-- **87 feature enhancements** implemented (+2: Lexi UI, VirtualSpace Hub)
-- **151 bug fixes** implemented
-- **65 refactors** completed (+1: WiseSpace → VirtualSpace rename)
+- **42+ major features** completed (23 core systems + 14 platform hubs + EduPay + VirtualSpace + Lexi AI + Sage AI + Growth Agent + Conductor)
+- **90+ feature enhancements** implemented
+- **160+ bug fixes** implemented
+- **70+ refactors** completed
 
-### Beta Release Target
-**Launch Date**: March 1, 2026
-**Focus**: Complete 100%, final polish, beta testing preparation
+### AI Provider Chain (6-Tier Fallback)
+1. **xAI Grok 4 Fast** (primary)
+2. **Google Gemini Flash** (fallback 1)
+3. **DeepSeek R1** (fallback 2)
+4. **Anthropic Claude Sonnet 4.6** (fallback 3)
+5. **OpenAI GPT-4o** (fallback 4)
+6. **Rules-based** (zero-cost fallback)
+
+Shared AI service: `apps/web/src/lib/ai/` — `getAIService()` singleton with `generate()`, `generateJSON<T>()`, `stream()` methods.
+
+### Launch Status
+**Beta Launch**: Completed March 1, 2026
+**Current Focus**: AI Operations Layer (Conductor), Growth Agent, External Publishing
 
 ---
 
-## ✅ **Completed Core Systems (96%)**
+## Completed Core Systems (96%)
 
-### 1. Authentication & Authorization ✅
+### 1. Authentication & Authorization
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Supabase Auth with Google OAuth
-- ✅ Multi-role system (Tutor, Client, Agent, Organisation Owner)
-- ✅ Role-based access control (RBAC)
-- ✅ Protected route middleware
-- ✅ Session management and refresh
-- ✅ Email verification flows
-- ✅ Password reset functionality
+- Supabase Auth with Google OAuth
+- Multi-role system (Tutor, Client, Agent, Organisation Owner)
+- Role-based access control (RBAC)
+- Protected route middleware
+- Session management and refresh
+- Email verification flows
+- Password reset functionality
 
-### 2. Admin Dashboard ✅
+### 2. Admin Dashboard
 **Status**: Production-ready
-**Completion**: 100% (12 hubs)
+**Completion**: 100% (12+ hubs)
 
 **Hubs Implemented**:
-1. ✅ **Accounts Hub** - User management with soft/hard delete, GDPR compliance, and role-based admin user management
-2. ✅ **Bookings Hub** - Booking oversight and management
-3. ✅ **Configurations Hub** - System configuration and shared fields management
-4. ✅ **Financials Hub** - Payment tracking and reconciliation
-5. ✅ **Listings Hub** - Service listing moderation
-6. ✅ **Organisations Hub** - Organisation management
-7. ✅ **Referrals Hub** - Referral tracking and analytics
-8. ✅ **Resources Hub** - Article management, SEO settings, performance analytics (added 2026-01-18)
-9. ✅ **Reviews Hub** - Review moderation
-10. ✅ **SEO Hub** - SEO management and optimization
-11. ✅ **Settings Hub** - Platform configuration
-12. ✅ **Signal Hub** - Revenue Signal for tracking the economic value from articles to bookings
+1. **Accounts Hub** - User management with soft/hard delete, GDPR compliance, and role-based admin user management
+2. **Bookings Hub** - Booking oversight and management
+3. **Configurations Hub** - System configuration and shared fields management
+4. **Financials Hub** - Payment tracking and reconciliation
+5. **Listings Hub** - Service listing moderation
+6. **Organisations Hub** - Organisation management
+7. **Referrals Hub** - Referral tracking and analytics
+8. **Resources Hub** - Article management, SEO settings, performance analytics
+9. **Reviews Hub** - Review moderation
+10. **SEO Hub** - SEO management and optimization
+11. **Settings Hub** - Platform configuration
+12. **Signal Hub** - Revenue Signal for tracking the economic value from articles to bookings
 
 **Features**:
-- ✅ HubComplexModal pattern (standardized detail modals)
-- ✅ Soft delete with PII anonymization
-- ✅ Hard delete with Stripe cleanup (GDPR-compliant)
-- ✅ Advanced filtering and search
-- ✅ Bulk operations
-- ✅ Export functionality
+- HubComplexModal pattern (standardized detail modals)
+- Soft delete with PII anonymization
+- Hard delete with Stripe cleanup (GDPR-compliant)
+- Advanced filtering and search
+- Bulk operations
+- Export functionality
 
-### 3. Shared Fields System ✅
+### 3. Shared Fields System
 **Status**: Production-ready
 **Completion**: 100%
 
-**Architecture**: 23 Global Fields → 106 Context Mappings → 9 Contexts
-- ✅ 23 shared fields (Professional Info, Preferences, Qualifications, etc.)
-- ✅ 106 context mappings (3 roles × 3 form types)
-- ✅ 9 form contexts (Onboarding/Account/Organisation × Tutor/Client/Agent)
-- ✅ UnifiedSelect/UnifiedMultiSelect components
-- ✅ Dynamic option management
-- ✅ Context-specific field customization
-- ✅ Migration from hardcoded options
+**Architecture**: 23 Global Fields -> 106 Context Mappings -> 9 Contexts
+- 23 shared fields (Professional Info, Preferences, Qualifications, etc.)
+- 106 context mappings (3 roles x 3 form types)
+- 9 form contexts (Onboarding/Account/Organisation x Tutor/Client/Agent)
+- UnifiedSelect/UnifiedMultiSelect components
+- Dynamic option management
+- Context-specific field customization
+- Migration from hardcoded options
 
-### 4. Onboarding System ✅
+### 4. Onboarding System
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Page-based onboarding (migrated from wizard)
-- ✅ Zero data loss migration
-- ✅ Role-specific flows (5 steps per role)
-- ✅ Tutor: Personal → Professional → Services → Availability → Review
-- ✅ Client: Personal → Preferences → Requirements → Budget → Review
-- ✅ Agent: Personal → Professional → Services → Commission → Review
-- ✅ Real-time validation
-- ✅ Draft saving
-- ✅ Progress tracking
+- Page-based onboarding (migrated from wizard)
+- Zero data loss migration
+- Role-specific flows (5 steps per role)
+- Tutor: Personal > Professional > Services > Availability > Review
+- Client: Personal > Preferences > Requirements > Budget > Review
+- Agent: Personal > Professional > Services > Commission > Review
+- Real-time validation
+- Draft saving
+- Progress tracking
 
-### 5. Forms Management ✅
+### 5. Forms Management
 **Status**: Production-ready
 **Completion**: 100%
 
-**9 Forms × 3 Roles = 27 Form Contexts**:
-1. ✅ Personal Information Form
-2. ✅ Professional Details Form
-3. ✅ Tutor Services Form
-4. ✅ Preferences Form
-5. ✅ Qualifications Form
-6. ✅ Availability Form
-7. ✅ Communication Form
-8. ✅ Emergency Contact Form
-9. ✅ Organisation Settings Form
+**9 Forms x 3 Roles = 27 Form Contexts**:
+1. Personal Information Form
+2. Professional Details Form
+3. Tutor Services Form
+4. Preferences Form
+5. Qualifications Form
+6. Availability Form
+7. Communication Form
+8. Emergency Contact Form
+9. Organisation Settings Form
 
 **Features**:
-- ✅ Dynamic field rendering
-- ✅ Shared Fields integration
-- ✅ Admin configuration UI
-- ✅ Field-level customization per context
-- ✅ Validation rules engine
-- ✅ Conditional field display
+- Dynamic field rendering
+- Shared Fields integration
+- Admin configuration UI
+- Field-level customization per context
+- Validation rules engine
+- Conditional field display
 
-### 6. Tutoring and Educational Service Marketplace ✅
+### 6. Tutoring and Educational Service Marketplace
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Tutor, agent and organisation profile and service listing system (public listings)
-- ✅ Service listing creation (subjects, rates, availability)
-- ✅ Advanced search and filtering
-- ✅ Geographic location services
-- ✅ Tutor, agent, client and organisation profile and verification system
-- ✅ Rating and review system
-- ✅ Favorites/saved tutors, agents, organisations and service listings
-- ✅ Social proof (reviews, ratings, bookings)
+- Tutor, agent and organisation profile and service listing system (public listings)
+- Service listing creation (subjects, rates, availability)
+- Advanced search and filtering
+- Geographic location services
+- Tutor, agent, client and organisation profile and verification system
+- Rating and review system
+- Favorites/saved tutors, agents, organisations and service listings
+- Social proof (reviews, ratings, bookings)
+- `marketplace_search_events` logging for supply/demand gap analysis
 
-### 7. Booking System ✅
+### 7. Booking System
 **Status**: Production-ready
 **Completion**: 100%
 **Last Updated**: 2026-02-07 (v7.0 - Advanced Scheduling & Automation)
 
 **Core Booking System**:
-- ✅ 5-stage booking workflow (discover > book > schedule > pay > review)
-- ✅ Calendar integration (react-day-picker)
-- ✅ Lesson scheduling interface
-- ✅ Automated booking confirmations
-- ✅ Cancellation and rescheduling
-- ✅ Payment integration (Stripe)
-- ✅ Booking state management
-- ✅ Email notifications
-- ✅ Booking history
+- 5-stage booking workflow (discover > book > schedule > pay > review)
+- Calendar integration (react-day-picker)
+- Lesson scheduling interface
+- Automated booking confirmations
+- Cancellation and rescheduling
+- Payment integration (Stripe)
+- Booking state management
+- Email notifications
+- Booking history
 
 **Advanced Scheduling & Automation (v7.0 - 2026-02-07)**:
-- ✅ Enhanced Conflict Detection - Time range overlap + availability exceptions
-- ✅ Timezone-Aware Scheduling - User timezone preferences with auto-conversion
-- ✅ Availability Exceptions - Holiday/vacation blocking (all-day or partial)
-- ✅ Multi-Interval Reminders - 3 reminders per session (24h, 1h, 15min) via pg_cron
-- ✅ No-Show Auto-Detection - Detects 30min+ overdue sessions, creates reports
-- ✅ Recurring Bookings - Weekly/biweekly/monthly series with conflict checking
-- ✅ Cancellation Penalties - Repeat offender tracking (3+ in 30 days)
-- ✅ Quick Session Ratings - Immediate 1-5 star capture (pre-fills review form)
-- ✅ 7 new database tables (migrations 237-243)
-- ✅ 5 new API routes + 2 cron jobs
-- ✅ 7 utility libraries for scheduling logic
+- Enhanced Conflict Detection - Time range overlap + availability exceptions
+- Timezone-Aware Scheduling - User timezone preferences with auto-conversion
+- Availability Exceptions - Holiday/vacation blocking (all-day or partial)
+- Multi-Interval Reminders - 3 reminders per session (24h, 1h, 15min) via pg_cron
+- No-Show Auto-Detection - Detects 30min+ overdue sessions, creates reports
+- Recurring Bookings - Weekly/biweekly/monthly series with conflict checking
+- Cancellation Penalties - Repeat offender tracking (3+ in 30 days)
+- Quick Session Ratings - Immediate 1-5 star capture (pre-fills review form)
+- 7 new database tables (migrations 237-243)
+- 5 new API routes + 2 cron jobs
+- 7 utility libraries for scheduling logic
 
-### 8. Payment Processing ✅
+### 8. Payment Processing
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Stripe Connect integration
-- ✅ Payment scheduling for lessons
-- ✅ Subscription management
-- ✅ Payment history and invoices
-- ✅ Refund processing
-- ✅ Commission tracking
-- ✅ Payout management
-- ✅ Webhook handling
+- Stripe Connect integration
+- Payment scheduling for lessons
+- Subscription management
+- Payment history and invoices
+- Refund processing
+- Commission tracking
+- Payout management
+- Webhook handling
 
-### 9. Referral System ✅
+### 9. Referral System
 **Status**: Production-ready (100% Core Complete)
 **Completion**: 100% (Phases 1-3 + Automated Payouts)
 **Last Updated**: 2026-02-05
-- ✅ Simplified 4-stage automatic pipeline (Referred → Signed Up → Converted → Expired)
-- ✅ 10% lifetime commission on all future bookings from converted referrals
-- ✅ Integrate with booking and payment workflow (refer > book > pay > commission)
+- Simplified 4-stage automatic pipeline (Referred > Signed Up > Converted > Expired)
+- 10% lifetime commission on all future bookings from converted referrals
+- Integrate with booking and payment workflow (refer > book > pay > commission)
 
-**Phase 1: Foundation** ✅
-- ✅ Referral code generation (7-char alphanumeric)
-- ✅ Referral tracking with hierarchical attribution (URL → Cookie → Manual)
-- ✅ Basic analytics and conversion tracking
+**Phase 1: Foundation**:
+- Referral code generation (7-char alphanumeric)
+- Referral tracking with hierarchical attribution (URL > Cookie > Manual)
+- Basic analytics and conversion tracking
 
-**Phase 2: Rewards** ✅
-- ✅ 10% lifetime commission system
-- ✅ 7-day clearing period (Pending → Available via hourly pg_cron)
-- ✅ Automated weekly batch payouts (Fridays 10am UTC via pg_cron)
-- ✅ £25 minimum payout threshold
-- ✅ Email notifications (commission available, payout processed, payout failed)
+**Phase 2: Rewards**:
+- 10% lifetime commission system
+- 7-day clearing period (Pending > Available via hourly pg_cron)
+- Automated weekly batch payouts (Fridays 10am UTC via pg_cron)
+- GBP25 minimum payout threshold
+- Email notifications (commission available, payout processed, payout failed)
 
-**Phase 3: Advanced** ✅
-- ✅ Multi-tier commission infrastructure (1-tier active, 3-tier roadmap)
-- ✅ Commission delegation (partners can redirect commissions)
-- ✅ 90-day auto-expiry for unconverted referrals (daily pg_cron)
-- ✅ Fraud detection with automated triggers
-- ✅ Analytics dashboard with conversion funnels
+**Phase 3: Advanced**:
+- Multi-tier commission infrastructure (1-tier active, 3-tier roadmap)
+- Commission delegation (partners can redirect commissions)
+- 90-day auto-expiry for unconverted referrals (daily pg_cron)
+- Fraud detection with automated triggers
+- Analytics dashboard with conversion funnels
 
 **Future Enhancements** (Q2-Q3 2026):
-- ⏳ Multi-tier commission activation (Tier 2: 3%, Tier 3: 1.5%) - pending legal review
-- ⏳ Client referral monetization (5% commission on ANY tutor bookings)
-- ⏳ Advanced fraud detection with ML scoring
-- ⏳ QR code generation API for physical marketing
-- ⏳ Partnership onboarding system with custom commission structures
+- Multi-tier commission activation (Tier 2: 3%, Tier 3: 1.5%) - pending legal review
+- Client referral monetization (5% commission on ANY tutor bookings)
+- Advanced fraud detection with ML scoring
+- QR code generation API for physical marketing
+- Partnership onboarding system with custom commission structures
 
-### 10. Reviews System ✅
+### 10. Reviews System
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Review submission (clients → tutors, agents → tutors, tutors → clients, agents → clients, tutors → agents, clients → agents)
-- ✅ Rating system (1-5 stars)
-- ✅ Review moderation (admin)
-- ✅ Review responses (tutors, agents, clients)
-- ✅ Review aggregation
-- ✅ Helpful votes
-- ✅ Review filtering
+- Review submission (clients <> tutors, agents <> tutors, tutors <> clients, agents <> clients, tutors <> agents, clients <> agents)
+- Rating system (1-5 stars)
+- Review moderation (admin)
+- Review responses (tutors, agents, clients)
+- Review aggregation
+- Helpful votes
+- Review filtering
 
-### 11. Help Centre ✅
+### 11. Help Centre
 **Status**: Production-ready
 **Completion**: 100%
 **Updated**: 2026-01-18 - React Query migration, skeleton UI, complete alignment with Resources
 
 **Core Features**:
-- ✅ FAQ system with categories
-- ✅ Article search and filtering
-- ✅ Jira Service Desk integration
-- ✅ Ticket submission and tracking
-- ✅ Problem ticket management (bug reporting) phase 1
-- ✅ Support ticket management (help request) phase 1
+- FAQ system with categories
+- Article search and filtering
+- Jira Service Desk integration
+- Ticket submission and tracking
+- Problem ticket management (bug reporting) phase 1
+- Support ticket management (help request) phase 1
 
 **Technical Architecture**:
-- ✅ React Query data fetching (5min cache, automatic refetch)
-- ✅ Skeleton loading UI (professional pulse animations)
-- ✅ placeholderData (keepPreviousData) prevents flickering
-- ✅ Search functionality with real-time results
-- ✅ 4 featured articles on landing page
-- ✅ Friendly, welcoming language and tone
-- ✅ Complete SEO metadata (metadataBase, Twitter cards, OpenGraph)
-- ✅ Mobile-responsive design with proper breakpoints
+- React Query data fetching (5min cache, automatic refetch)
+- Skeleton loading UI (professional pulse animations)
+- placeholderData (keepPreviousData) prevents flickering
+- Search functionality with real-time results
+- 4 featured articles on landing page
+- Friendly, welcoming language and tone
+- Complete SEO metadata (metadataBase, Twitter cards, OpenGraph)
+- Mobile-responsive design with proper breakpoints
 
-**Performance**:
-- ✅ 5min staleTime for optimal caching
-- ✅ 10min gcTime (garbage collection)
-- ✅ Automatic refetch on mount and window focus
-- ✅ 2 retry attempts on failure
-- ✅ No layout shift during loading states
-
-### 12. Messaging System (Messages) ✅
+### 12. Messaging System (Messages)
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ Real-time messaging (Ably real-time platform)
-- ✅ WhatsApp-style interface (2-pane split layout)
-- ✅ Conversation threads with connections from Network
-- ✅ Message persistence (Supabase `chat_messages` table)
-- ✅ Unread message indicators and counters
-- ✅ Typing indicators (Ably Chat SDK)
-- ✅ Presence tracking (online/offline status)
-- ✅ Message search and filtering
-- ✅ File attachments support
-- ✅ Message delivery status tracking
-- ✅ Real-time synchronization across devices
+- Real-time messaging (Ably real-time platform)
+- WhatsApp-style interface (2-pane split layout)
+- Conversation threads with connections from Network
+- Message persistence (Supabase `chat_messages` table)
+- Unread message indicators and counters
+- Typing indicators (Ably Chat SDK)
+- Presence tracking (online/offline status)
+- Message search and filtering
+- File attachments support
+- Message delivery status tracking
+- Real-time synchronization across devices
 
-### 13. Role-Based Dashboards ✅
+### 13. Role-Based Dashboards
 **Status**: Production-ready
 **Completion**: 100%
 
 **Dashboards Implemented**:
-- ✅ Tutor Dashboard (bookings, earnings, reviews, availability)
-- ✅ Client Dashboard (bookings, favorites, messages, payment history)
-- ✅ Agent Dashboard (referrals, commissions, clients, analytics)
-- ✅ Organisation Dashboard (team, members, clients, organisation-info, billing)
+- Tutor Dashboard (bookings, earnings, reviews, availability)
+- Client Dashboard (bookings, favorites, messages, payment history)
+- Agent Dashboard (referrals, commissions, clients, analytics)
+- Organisation Dashboard (team, members, clients, organisation-info, billing)
 
 **Features**:
-- ✅ Role-specific widgets and metrics
-- ✅ Real-time data updates
-- ✅ Customizable layouts
-- ✅ Quick actions and shortcuts
-- ✅ Activity feeds
-- ✅ Performance analytics
+- Role-specific widgets and metrics
+- Real-time data updates
+- Customizable layouts
+- Quick actions and shortcuts
+- Activity feeds
+- Performance analytics
 
-### 14. Accounts & Profile Management ✅
+### 14. Accounts & Profile Management
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Multi-role profile management (Tutor, Client, Agent, Organisation)
-- ✅ Profile editing with Shared Fields integration
-- ✅ Avatar and media management
-- ✅ Hard delete with GDPR compliance
-- ✅ PII anonymization on soft delete
-- ✅ Referral delegation
-- ✅ Account settings and preferences
-- ✅ Privacy controls
-- ✅ Email and notification preferences
+- Multi-role profile management (Tutor, Client, Agent, Organisation)
+- Profile editing with Shared Fields integration
+- Avatar and media management
+- Hard delete with GDPR compliance
+- PII anonymization on soft delete
+- Referral delegation
+- Account settings and preferences
+- Privacy controls
+- Email and notification preferences
+- `profiles.status` column: pending | under_review | active | rejected | suspended
 
 **User Interfaces**:
-- ✅ Tutor Account Hub
-- ✅ Client Account Hub
-- ✅ Agent Account Hub
-- ✅ Organisation Account Hub
-- ✅ Admin Accounts Hub (user management)
+- Tutor Account Hub
+- Client Account Hub
+- Agent Account Hub
+- Organisation Account Hub
+- Admin Accounts Hub (user management)
 
-### 15. Bookings Management ✅
+### 15. Bookings Management
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ 5-stage booking workflow (discover → book → schedule → pay → review)
-- ✅ Calendar integration (react-day-picker)
-- ✅ Booking creation and management
-- ✅ Cancellation and rescheduling
-- ✅ Automated confirmations
-- ✅ Booking history
-- ✅ Status tracking
-- ✅ Payment integration
+- 5-stage booking workflow (discover > book > schedule > pay > review)
+- Calendar integration (react-day-picker)
+- Booking creation and management
+- Cancellation and rescheduling
+- Automated confirmations
+- Booking history
+- Status tracking
+- Payment integration
 
 **User Interfaces**:
-- ✅ Tutor Bookings Hub
-- ✅ Client Bookings Hub
-- ✅ Admin Bookings Hub (oversight)
+- Tutor Bookings Hub
+- Client Bookings Hub
+- Admin Bookings Hub (oversight)
 
-### 16. Developer Tools ✅
+### 16. Developer Tools
 **Status**: Production-ready
 **Completion**: 100%
 
 **API Platform**:
-- ✅ RESTful API endpoints (141 endpoints)
-- ✅ Authentication and authorization
-- ✅ Rate limiting (Upstash Redis)
-- ✅ API documentation
-- ✅ Webhook support
-- ✅ Public API versioning (`/api/v1/`)
+- RESTful API endpoints (141+ endpoints)
+- Authentication and authorization
+- Rate limiting (Upstash Redis)
+- API documentation
+- Webhook support
+- Public API versioning (`/api/v1/`)
 
 **Features**:
-- ✅ CaaS API (`/api/v1/caas/[profile_id]`)
-- ✅ Booking API endpoints
-- ✅ User management API
-- ✅ Organisation API
-- ✅ Payment webhooks
-- ✅ Real-time subscriptions
+- CaaS API (`/api/v1/caas/[profile_id]`)
+- Booking API endpoints
+- User management API
+- Organisation API
+- Payment webhooks
+- Real-time subscriptions
 
 **Developer Hub**:
-- ✅ API key management
-- ✅ Usage analytics
-- ✅ Request logs
-- ✅ Integration testing tools
+- API key management
+- Usage analytics
+- Request logs
+- Integration testing tools
 
-### 17. Financials ✅
+### 17. Financials
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Transaction tracking
-- ✅ Payment reconciliation
-- ✅ Commission calculations
-- ✅ Payout management
-- ✅ Refund processing
-- ✅ Revenue analytics
-- ✅ Financial reporting
-- ✅ Stripe integration
+- Transaction tracking
+- Payment reconciliation
+- Commission calculations
+- Payout management
+- Refund processing
+- Revenue analytics
+- Financial reporting
+- Stripe integration
 
 **User Interfaces**:
-- ✅ Tutor Financials Hub (earnings, payouts)
-- ✅ Agent Financials Hub (commissions)
-- ✅ Organisation Financials Hub (billing, invoices)
-- ✅ Admin Financials Hub (platform financial oversight)
-- ✅ EduPay Hub (EP wallet, ledger, loan projections — see #33)
+- Tutor Financials Hub (earnings, payouts)
+- Agent Financials Hub (commissions)
+- Organisation Financials Hub (billing, invoices)
+- Admin Financials Hub (platform financial oversight)
+- EduPay Hub (EP wallet, ledger, loan projections -- see #33)
 
-### 33. EduPay ✅ (Phase 3 Complete)
-**Status**: Phase 3 — Conversion Complete (stub mode), Gold Standard UI Applied
-**Completion**: Phase 1–3 complete, Phase 4 (affiliate onboarding) pending
-**Last Updated**: 2026-02-12
-**Design**: `docs/feature/edupay/edupay-solution-design.md`
-
-EduPay converts tutoring activity into real financial progress against a student loan. Points-based rewards system — not a bank. £1 earned = 100 EP → 100 EP = £1 loan impact. "We help students pay loans smarter" — three paths: Student Loan, ISA, Savings.
-
-**Phase 1 — UI Layer** ✅:
-- ✅ EduPay Wallet page (`/edupay`) — tabs, filters, pagination, error/loading states
-- ✅ Cashback page (`/edupay/cashback`) — affiliate rewards tracking
-- ✅ Savings page (`/edupay/savings`) — ISA/Savings allocations
-- ✅ EP ledger feed (All / Pending / Available / Converted tabs)
-- ✅ Search, date range, event type filters (with minWidth wrapper for UnifiedSelect)
-- ✅ EduPayStatsWidget — EP wallet: balance, GBP value, pending EP, total converted
-- ✅ EduPaySavingsWidget — ISA/Savings: allocated, projected interest, accounts
-- ✅ EduPayProjectionWidget — loan impact (years earlier, interest saved)
-- ✅ EduPayLoanProfileWidget — read-only loan plan summary
-- ✅ EduPayHelpWidget — explainer with dash-bullet style (matches GuardianLinksCard)
-- ✅ EduPayVideoWidget — educational video embed
-- ✅ EduPayLedgerCard — type badge, EP amount, GBP value, status dot, available date
-- ✅ EduPaySkeleton — Gold Standard loading skeleton (shimmer animation)
-- ✅ EduPayError — Gold Standard error component with retry
-- ✅ HubEmptyState "Set Up Loan Profile" CTA (surfaced when no loan profile exists)
-- ✅ ⋮ dropdown: "Edit Loan Profile" (conditional) + context-specific actions
-- ✅ React Query Gold Standard (isFetching, refetchInterval 60s, keepPreviousData, retry: 2)
-- ✅ Background refresh indicator (sync spinner in filters area)
-- ✅ EduPay elevated to top-level sidebar nav with sub-items (Wallet, Cashback, Savings)
-- ✅ Help Centre guide (`apps/web/src/content/help-centre/features/edupay.mdx`)
-
-**Phase 2 — API & Data** ✅:
-- ✅ API routes: wallet, ledger, projection, loan-profile, events, conversion/request, conversion/status
-- ✅ Database migrations 253–260
-- ✅ EP earning rule engine + Stripe webhook integration
-- ✅ Awin webhook endpoint (`POST /api/webhooks/awin`) — ready for affiliate onboarding
-- ⏳ Affiliate account setup (Awin, CJ) — requires external partner onboarding
-- ⏳ Tillo integration (gift rewards) — requires external partner onboarding
-
-**Phase 3 — Conversion** ✅:
-- ✅ EduPayConversionModal — 3-step wizard (amount, review, success)
-- ✅ EduPayLoanProfileModal — loan profile form with SLC reference
-- ✅ TrueLayer integration (stub mode) — lib/truelayer/client, payment, webhook
-- ✅ 3 destinations: Student Loan, ISA (5.1% APY), Savings (4.6% APY)
-- ✅ Provider linking for ISA/Savings (Trading 212, Chase, Moneybox, Plum)
-- ✅ Interest projection display in conversion modal
-
-**To Go Live (TrueLayer)**:
-1. Register at console.truelayer.com for production credentials
-2. Fill `TRUELAYER_CLIENT_ID` + `TRUELAYER_CLIENT_SECRET` in `.env.local`
-3. Update SLC sort code/account in `src/lib/truelayer/payment.ts`
-4. Implement ES512 JWS verification in webhook handler
-5. Set `TRUELAYER_ENVIRONMENT=live`
-
-### 34. VirtualSpace ✅ (Hybrid Virtual Classroom)
-**Status**: Production-ready
-**Completion**: 100%
-**Last Updated**: 2026-02-15
-**Migration**: Renamed from WiseSpace to VirtualSpace
-
-VirtualSpace is a cost-optimized, zero-marginal-cost virtual learning environment featuring a hybrid model that embeds a collaborative whiteboard (tldraw + Ably real-time sync) alongside external video conferencing (Google Meet integration).
-
-**Session Modes**:
-- ✅ **Standalone Mode**: Ad-hoc whiteboard sessions with invite links (24hr expiry)
-- ✅ **Booking Mode**: Integrated with booking workflow, triggers CaaS upon completion
-- ✅ **Free Help Mode**: Instant whiteboard access for free tutoring sessions
-
-**Core Features**:
-- ✅ tldraw collaborative whiteboard with real-time sync
-- ✅ Ably real-time presence and collaboration (`virtualspace:{sessionId}`)
-- ✅ Google Meet integration for video conferencing
-- ✅ Session list hub with Hub Gold Standard architecture
-- ✅ React Query integration (staleTime, gcTime, retry, keepPreviousData)
-- ✅ Invite link generation with secure tokens
-- ✅ Session artifacts and snapshot storage
-- ✅ Participant management and role-based access
-
-**Database**:
-- ✅ `virtualspace_sessions` table (session_type, booking_id, owner_id, status)
-- ✅ `virtualspace_participants` table (user roles, join tracking)
-- ✅ `virtualspace-artifacts` storage bucket
-- ✅ RLS policies with security definer functions
-
-**API Endpoints**:
-- ✅ `POST /api/virtualspace/session` - Create standalone session
-- ✅ `GET /api/virtualspace/sessions` - List user's sessions
-- ✅ `POST /api/virtualspace/join` - Join via invite token
-- ✅ `POST /api/virtualspace/[sessionId]/snapshot` - Save whiteboard snapshot
-- ✅ `POST /api/virtualspace/[sessionId]/complete` - Complete session
-
-**User Interfaces**:
-- ✅ VirtualSpace Session List (`/virtualspace`)
-- ✅ VirtualSpace Session View (`/virtualspace/[sessionId]`)
-- ✅ VirtualSpace Join Flow (`/virtualspace/join/[inviteToken]`)
-- ✅ Booking Integration (`/virtualspace/booking/[bookingId]`)
-
-### 35. Lexi AI ✅ (Platform Help Bot)
-**Status**: Production-ready (v2.0.0)
-**Completion**: 100%
-**Last Updated**: 2026-02-21
-**Documentation**: [lexi/README.md](../lexi/README.md)
-
-Lexi is TutorWise's AI-powered platform assistant providing instant support, task automation, and context-aware guidance across all user roles. Features guest mode with zero API cost and 20+ function tools for platform actions.
-
-**Architecture**:
-- ✅ Multi-provider system: Gemini (primary) → Claude (fallback) → DeepSeek → Rules-based
-- ✅ Guest mode with Rules-only provider (zero API cost for unauthenticated users)
-- ✅ Persona-based routing (5 primary personas + 4 specialized sub-personas)
-- ✅ Function calling with 20+ tools (bookings, search, payments, navigation)
-- ✅ RAG knowledge retrieval from platform documentation
-
-**Core Features (v2.0.0)**:
-- ✅ 20+ function tools for platform actions
-- ✅ Deep links for seamless navigation to any feature
-- ✅ Streaming responses with React Query
-- ✅ Conversation persistence and history
-- ✅ Feedback collection for continuous improvement
-- ✅ Analytics integration with CAS Marketer
-
-**Personas & Sub-Personas**:
-- ✅ **Student**: Lesson scheduling, progress tracking, resource access
-- ✅ **Tutor**: Schedule management, earnings tracking, student overview
-- ✅ **Client**: Tutor search/matching, booking management, payments
-- ✅ **Agent**: User support, booking coordination, tutor assistance
-- ✅ **Organisation**: Team management, analytics, billing
-- ✅ **Sub-Personas**: New user guide, Earnings expert, Matching helper, Org admin
-
-**API Endpoints**:
-- ✅ `POST /api/lexi/message` - Send message and receive response
-- ✅ `POST /api/lexi/stream` - Streaming responses
-- ✅ `POST /api/lexi/session` - Session management
-- ✅ `GET /api/lexi/history` - Conversation history
-- ✅ `POST /api/lexi/feedback` - Submit feedback
-- ✅ `GET /api/lexi/capabilities` - List persona capabilities
-- ✅ `POST /api/lexi/provider` - Switch LLM provider
-
-**Components**:
-- ✅ `LexiChat` - Main chat interface component
-- ✅ `LexiFAB` - Floating action button trigger
-- ✅ `LexiModal` - Modal container for chat
-
-### 36. Sage AI ✅ (GCSE AI Tutor)
-**Status**: Production-ready (v2.0.0)
-**Completion**: 85% (110/500 topics)
-**Last Updated**: 2026-02-21
-**Documentation**: [sage/README.md](../sage/README.md)
-
-Sage is an AI-powered GCSE tutor providing personalized educational support with curriculum-specific knowledge, mathematical problem solving, and continuous improvement through feedback analysis. Features multimodal input (voice, handwriting OCR) and automated curriculum gap detection.
-
-**Core Features (v2.0.0)**:
-- ✅ **110 knowledge chunks** across 22 GCSE Maths topics (database-verified)
-- ✅ **Hybrid RAG system** with semantic (pgvector) + keyword (tsvector) search
-- ✅ **Mathematical solver** combining SymPy, Algebrite, and LLM reasoning
-- ✅ **Multi-provider** architecture (Gemini primary → Claude → DeepSeek → Rules)
-- ✅ **Feedback loop** with automated gap detection (< 60% satisfaction threshold)
-- ✅ **Content regeneration** for topics with < 30% positive feedback
-- 🟡 **Multimodal input** endpoints ready (OCR, Speech-to-Text awaiting Google APIs)
-
-**Architecture**:
-- ✅ 4 personas: Student, Tutor, Parent, Agent with role-specific capabilities
-- ✅ Subject specialization: Maths (active), English (planned), Science (planned)
-- ✅ Adaptive difficulty: GCSE Foundation/Higher tier support
-- ✅ Learning context tracking: Progress, preferences, goals
-- ✅ 6 knowledge chunk types: Definition, Concepts, Examples, Misconceptions, Vocabulary, Prerequisites
-
-**Curriculum Coverage**:
-- ✅ **Maths**: 110 chunks ingested (22 topics: Algebra, Geometry, Statistics, Probability, Trigonometry)
-- 🎯 **Target**: 500+ topics (Maths, English, Science) by Q2 2026
-
-**API Endpoints**:
-- ✅ `POST /api/sage/session` - Session management
-- ✅ `POST /api/sage/message` - Send message
-- ✅ `POST /api/sage/stream` - Streaming responses
-- ✅ `POST /api/sage/feedback` - Submit feedback (thumbs up/down)
-- ✅ `POST /api/sage/transcribe` - Voice transcription (placeholder)
-- ✅ `POST /api/sage/ocr` - Handwriting OCR (placeholder)
-- ✅ `GET /api/sage/history` - Session history
-- ✅ `GET /api/sage/materials` - Saved materials
-- ✅ `GET /api/sage/progress` - Learning progress
-
-**User Interfaces**:
-- ✅ `/sage` - Main chat interface
-- ✅ `/sage/history` - Session history
-- ✅ `/sage/materials` - Saved materials
-- ✅ `/sage/progress` - Learning progress dashboard
-
-**Feedback & Improvement System**:
-- ✅ Automated feedback processing (Supabase Edge Function: `sage-feedback-processor`, cron: 0 2 * * *)
-- ✅ Gap detection with severity classification (critical/high/medium/low)
-- ✅ Content regeneration for critical gaps (< 30% satisfaction)
-- ✅ Analytics integration with CAS Marketer for strategic planning
-- ✅ CLI script: `npm run process:sage-feedback`
-
-### 18. Help Centre ✅
+### 18. Help Centre (Public)
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ FAQ system with categories
-- ✅ Article search and filtering
-- ✅ Jira Service Desk integration
-- ✅ Ticket submission
-- ✅ Ticket tracking
-- ✅ Support documentation
-- ✅ Contact forms
+- FAQ system with categories
+- Article search and filtering
+- Jira Service Desk integration
+- Ticket submission
+- Ticket tracking
+- Support documentation
+- Contact forms
 
 **User Interfaces**:
-- ✅ Public Help Centre (all users)
-- ✅ Tutor Help Hub
-- ✅ Client Help Hub
-- ✅ Agent Help Hub
-- ✅ Admin Help Hub (ticket management)
+- Public Help Centre (all users)
+- Tutor Help Hub
+- Client Help Hub
+- Agent Help Hub
+- Admin Help Hub (ticket management)
 
-### 19. Listings Management ✅
+### 19. Listings Management
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Service listing creation (unified service_type architecture)
-- ✅ Service types: one-to-one, group-session, workshop, study-package
-- ✅ Subjects, rates, and availability
-- ✅ Advanced search and filtering
-- ✅ Geographic location services
-- ✅ Listing moderation (admin)
-- ✅ Listing status management
-- ✅ Public listing pages
-- ✅ SEO optimization
+- Service listing creation (unified service_type architecture)
+- Service types: one-to-one, group-session, workshop, study-package
+- Subjects, rates, and availability
+- Advanced search and filtering
+- Geographic location services
+- Listing moderation (admin)
+- Listing status management
+- Public listing pages
+- SEO optimization
 
 **User Interfaces**:
-- ✅ Tutor Listings Hub (manage services)
-- ✅ Agent Listings Hub (manage client services)
-- ✅ Public Marketplace (discovery)
-- ✅ Admin Listings Hub (moderation)
+- Tutor Listings Hub (manage services)
+- Agent Listings Hub (manage client services)
+- Public Marketplace (discovery)
+- Admin Listings Hub (moderation)
 
-### 20. Messages (Real-Time Messaging) ✅
+### 20. Messages (Real-Time Messaging)
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Real-time messaging (Ably platform)
-- ✅ WhatsApp-style 2-pane interface
-- ✅ Conversation threads
-- ✅ Message persistence (Supabase)
-- ✅ Unread indicators and counters
-- ✅ Typing indicators
-- ✅ Presence tracking (online/offline)
-- ✅ Message search
-- ✅ File attachments
-- ✅ Delivery status
-- ✅ Cross-device synchronization
+- Real-time messaging (Ably platform)
+- WhatsApp-style 2-pane interface
+- Conversation threads
+- Message persistence (Supabase)
+- Unread indicators and counters
+- Typing indicators
+- Presence tracking (online/offline)
+- Message search
+- File attachments
+- Delivery status
+- Cross-device synchronization
 
 **User Interfaces**:
-- ✅ Tutor Messages Hub
-- ✅ Client Messages Hub
-- ✅ Agent Messages Hub
-- ✅ Organisation Messages Hub
+- Tutor Messages Hub
+- Client Messages Hub
+- Agent Messages Hub
+- Organisation Messages Hub
 
-### 21. Network & Connections ✅
+### 21. Network & Connections
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Connection management (social graph)
-- ✅ Connection groups (organisations, teams)
-- ✅ Trust graph relationships
-- ✅ Network analytics
-- ✅ Connection requests
-- ✅ Group membership
-- ✅ Network discovery
-- ✅ Social proof indicators
+- Connection management (social graph)
+- Connection groups (organisations, teams)
+- Trust graph relationships
+- Network analytics
+- Connection requests
+- Group membership
+- Network discovery
+- Social proof indicators
 
 **User Interfaces**:
-- ✅ Tutor Network Hub
-- ✅ Client Network Hub
-- ✅ Agent Network Hub
-- ✅ Organisation Network Hub
+- Tutor Network Hub
+- Client Network Hub
+- Agent Network Hub
+- Organisation Network Hub
 
-### 22. Organisations ✅
+### 22. Organisations
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Organisation types: individuals, agencies, companies, schools
-- ✅ Organisation profiles
-- ✅ Team and member management
-- ✅ Client management
-- ✅ Organisation settings
-- ✅ Billing and subscriptions
-- ✅ Organisation CaaS scoring
-- ✅ Task management (Kanban pipeline)
-- ✅ Recruitment workflows
-
-**Organisation Types**:
-- ✅ Individual Tutors
-- ✅ Tutoring Agencies
-- ✅ Educational Companies
-- ✅ Schools and Institutions
+- Organisation types: individuals, agencies, companies, schools
+- Organisation profiles
+- Team and member management
+- Client management
+- Organisation settings
+- Billing and subscriptions
+- Organisation CaaS scoring
+- Task management (Kanban pipeline)
+- Recruitment workflows
 
 **User Interfaces**:
-- ✅ Organisation Dashboard (owners)
-- ✅ Organisation Hub (team view)
-- ✅ Admin Organisations Hub (oversight)
+- Organisation Dashboard (owners)
+- Organisation Hub (team view)
+- Admin Organisations Hub (oversight)
 
-### 23. Payments ✅
+### 23. Payments
 **Status**: Production-ready
 **Completion**: 100%
 
 **Features**:
-- ✅ Stripe Connect integration
-- ✅ Bank card management
-- ✅ Stripe account setup
-- ✅ Payment methods (cards, bank accounts)
-- ✅ Payment scheduling
-- ✅ Subscription management
-- ✅ Payment history
-- ✅ Invoices and receipts
-- ✅ Refund processing
-- ✅ Payout management
-- ✅ Webhook handling
+- Stripe Connect integration
+- Bank card management
+- Stripe account setup
+- Payment methods (cards, bank accounts)
+- Payment scheduling
+- Subscription management
+- Payment history
+- Invoices and receipts
+- Refund processing
+- Payout management
+- Webhook handling
 
 **User Interfaces**:
-- ✅ Tutor Payments Hub (payout setup)
-- ✅ Client Payments Hub (payment methods)
-- ✅ Agent Payments Hub (commission payouts)
-- ✅ Organisation Payments Hub (billing)
+- Tutor Payments Hub (payout setup)
+- Client Payments Hub (payment methods)
+- Agent Payments Hub (commission payouts)
+- Organisation Payments Hub (billing)
 
-### 24. Referrals ✅
+### 24. Referrals
 **Status**: Production-ready
 **Completion**: 100% (Phases 1-3)
 
-**Phase 1: Foundation** ✅
-- ✅ Referral code generation
-- ✅ Referral tracking
-- ✅ Basic analytics
-
-**Phase 2: Rewards** ✅
-- ✅ Credit system
-- ✅ Automated reward distribution
-- ✅ Reward history
-
-**Phase 3: Advanced** ✅
-- ✅ Tiered rewards
-- ✅ Leaderboards
-- ✅ Referral campaigns
-- ✅ Analytics dashboard
-
 **User Interfaces**:
-- ✅ Tutor Referrals Hub
-- ✅ Client Referrals Hub
-- ✅ Agent Referrals Hub (recruitment tracking)
-- ✅ Admin Referrals Hub (platform oversight)
+- Tutor Referrals Hub
+- Client Referrals Hub
+- Agent Referrals Hub (recruitment tracking)
+- Admin Referrals Hub (platform oversight)
 
-### 25. Reviews & Ratings ✅
+### 25. Reviews & Ratings
 **Status**: Production-ready
 **Completion**: 100%
 
-**Features**:
-- ✅ Multi-directional reviews (clients ↔ tutors ↔ agents)
-- ✅ Rating system (1-5 stars)
-- ✅ Review submission
-- ✅ Review moderation (admin)
-- ✅ Review responses
-- ✅ Review aggregation
-- ✅ Helpful votes
-- ✅ Review filtering
-- ✅ Rating distribution
-- ✅ Social proof integration
-
 **User Interfaces**:
-- ✅ Tutor Reviews Hub
-- ✅ Client Reviews Hub
-- ✅ Agent Reviews Hub
-- ✅ Public Profile Reviews
-- ✅ Admin Reviews Hub (moderation)
+- Tutor Reviews Hub
+- Client Reviews Hub
+- Agent Reviews Hub
+- Public Profile Reviews
+- Admin Reviews Hub (moderation)
 
-### 26. Student Management 🔄
-**Status**: In development
+### 26. Student Management
+**Status**: 75% complete
 **Completion**: 75%
 
 **Features**:
-- ✅ Student profiles
-- ✅ Student-tutor relationships
-- ✅ Learning progress tracking
-- 🔄 Academic records
-- 🔄 Attendance tracking
-- ⏳ Performance analytics
-- ⏳ Parent/guardian access
-
-**User Interfaces**:
-- ✅ Tutor Student Hub (basic)
-- 🔄 Client Student Hub (family management)
-- ⏳ Admin Student Hub (oversight)
+- Student profiles
+- Student-tutor relationships
+- Learning progress tracking
+- Academic records (in progress)
+- Attendance tracking (in progress)
+- Performance analytics (planned)
+- Parent/guardian access (planned)
 
 **Note**: Basic student management is production-ready; advanced features planned for Q2 2026.
 
-### 27. Wiselists (Saved Lists) ✅
+### 27. Wiselists (Saved Lists)
 **Status**: Production-ready
 **Completion**: 100%
-
-**Features**:
-- ✅ Saved tutors (favorites)
-- ✅ Saved agents
-- ✅ Saved organisations
-- ✅ Saved service listings
-- ✅ List creation and management
-- ✅ Planning and prebooking
-- ✅ List sharing
-- ✅ Quick booking from lists
 
 **User Interfaces**:
-- ✅ Tutor Wiselists Hub (saved clients)
-- ✅ Client Wiselists Hub (saved tutors, listings)
-- ✅ Agent Wiselists Hub (saved tutors, clients)
+- Tutor Wiselists Hub (saved clients)
+- Client Wiselists Hub (saved tutors, listings)
+- Agent Wiselists Hub (saved tutors, clients)
 
-### 28. Database Architecture ✅
+### 28. Database Architecture
 **Status**: Production-ready
 **Completion**: 100%
 
-- ✅ 196 migrations (190 numbered: 000-173 + 6 supporting files)
-- ✅ Comprehensive schema (60+ tables)
-- ✅ Row-Level Security (200+ policies)
-- ✅ Indexes and performance optimization
-- ✅ Foreign key relationships
-- ✅ Triggers and stored procedures
-- ✅ Audit tables
+- 386+ migrations (380+ numbered + supporting files)
+- Comprehensive schema (100+ tables)
+- Row-Level Security (200+ policies)
+- pgvector HNSW indexes (listings, profiles, connection_groups, sage_knowledge_chunks, platform_knowledge_chunks, memory_episodes)
+- Hybrid search RPCs (search_listings_hybrid, search_profiles_hybrid, search_organisations_hybrid, match_platform_knowledge_chunks, match_memory_episodes, match_memory_facts)
+- Indexes and performance optimization
+- Foreign key relationships
+- Triggers and stored procedures
+- Audit tables
+- pg_cron scheduled jobs (20+ cron jobs for intelligence pipeline, nudges, reconciliation, autonomy calibration)
 
-### 29. CaaS (Credibility as a Service) - Multi-Role System ✅
-**Status**: Production-ready (4 roles complete, 1 designed)
+### 29. CaaS (Credibility as a Service) - Multi-Role System
+**Status**: Production-ready (4 roles complete)
 **Completion**: 100% for Tutor/Client/Agent/Organisation
-**Completed**: Tutor v5.9 (2025-12), Client v1.0 (2026-01), Agent v1.0 (2026-01), Org v1.0 (2026-01)
 
 **System Overview**:
 CaaS provides credibility scoring across all platform roles with role-specific algorithms, safety gates, and public visibility controls. Scores are cached in the database and recalculated based on profile changes.
 
-**Database Schema**:
-- ✅ `caas_scores` table (profile-based: Tutor/Client/Agent)
-- ✅ `connection_groups.caas_score` column (entity-based: Organisation)
-- ✅ `caas_recalculation_queue` (profile queue, Migration 075)
-- ✅ `organisation_caas_queue` (org queue, Migration 159)
-- ✅ RLS policies (public view for ALL roles: TUTOR/CLIENT/AGENT/ORGANISATION)
-- ✅ Indexes for ranking and percentile calculations
-
-**API Endpoints**:
-- ✅ POST `/api/caas/calculate` - Immediate calculation (onboarding trigger)
-- ✅ GET `/api/caas/[profile_id]` - Fetch cached score
-- ✅ GET `/api/v1/caas/[profile_id]` - Platform API with percentile ranking
-
----
-
-#### 29.1. Tutor CaaS ✅ (v5.9 - Most Mature)
-**Scoring Model**: 6-Bucket System (110 raw points → normalized to /100)
+#### 29.1. Tutor CaaS (v5.9 - Most Mature)
+**Scoring Model**: 6-Bucket System (110 raw points -> normalized to /100)
 
 **Buckets**:
-- ✅ **Bucket 1: Performance & Quality** (30 points)
-  - Average rating (0-5): `(avg_rating / 5) × 15`
-  - Completion rate: `retention_rate × 15`
-  - Provisional: New tutors (0 sessions) get full 30 points
-- ✅ **Bucket 2: Qualifications & Authority** (30 points)
-  - University degree (Bachelors/Masters/PhD): 10 points
-  - QTS (UK teaching qualification): 10 points
-  - Onboarding experience bridging: 10 points (provisional)
-- ✅ **Bucket 3: Network & Referrals** (20 points)
-  - Agent referrals count: 4 points per referral (max 12)
-  - Social connections (>10): 8 bonus points
-  - Agent-referred status: 8 bonus points
-- ✅ **Bucket 4: Verification & Safety** (10 points)
-  - Identity verification: 5 points (or onboarding completed)
-  - DBS check validity: 5 points (must not be expired)
-- ✅ **Bucket 5: Digital Professionalism** (10 points)
-  - Google Calendar/Classroom sync: 5 points
-  - Manual session logging (>80%) OR credibility clip: 5 points
-- ✅ **Bucket 6: Social Impact** (10 points)
-  - Free help availability: 5 points
-  - Completed free sessions: 1 point per session (max 5)
+- **Bucket 1: Performance & Quality** (30 points) - Average rating, completion rate, provisional scoring
+- **Bucket 2: Qualifications & Authority** (30 points) - Degree, QTS, onboarding bridging
+- **Bucket 3: Network & Referrals** (20 points) - Agent referrals, social connections
+- **Bucket 4: Verification & Safety** (10 points) - Identity, DBS check
+- **Bucket 5: Digital Professionalism** (10 points) - Calendar sync, session logging
+- **Bucket 6: Social Impact** (10 points) - Free help availability, completed free sessions
 
-**Safety Gate**: `identity_verified = true` OR `onboarding_completed = true`
+#### 29.2. Client CaaS (v1.0)
+**Scoring Model**: 3-Bucket System (100 points total) - Identity, Booking History, Profile Completeness
 
-**RPC Functions** (Migration 077):
-- `get_performance_stats(user_id)` - Bookings + reviews aggregation
-- `get_network_stats(user_id)` - Profile graph relationships
-- `get_digital_stats(user_id)` - Integrations + session data
-
----
-
-#### 29.2. Client CaaS ✅ (v1.0)
-**Scoring Model**: 3-Bucket System (100 points total)
-
-**Buckets**:
-- ✅ **Bucket 1: Identity Verification** (40 points)
-  - `identity_verified = true`: 40 points
-  - Hard requirement (no provisional scoring)
-- ✅ **Bucket 2: Booking History** (40 points)
-  - 0 completed: 0 points
-  - 1-2 completed: 10 points
-  - 3-5 completed: 20 points
-  - 6-10 completed: 30 points
-  - 11+ completed: 40 points
-- ✅ **Bucket 3: Profile Completeness** (20 points)
-  - Bio >50 characters: 10 points
-  - Avatar URL present: 10 points
-
-**Safety Gate**: None (identity is scored bucket, not gate)
-
-**Implementation**: Direct SQL queries (no RPC functions)
-
-**Future Enhancements** (v2.0+): Payment history, response rate, tutor reviews, attendance rate
-
----
-
-#### 29.3. Agent CaaS ✅ (v1.0)
+#### 29.3. Agent CaaS (v1.0)
 **Scoring Model**: 4-Bucket System with Subscription Bonuses (70-100 points)
 
-**Free Tier Max**: 70 points (realistically 60-75)
-**With Active Org Subscription**: 100 points
+#### 29.4. Organisation CaaS (v1.0)
+**Type**: Entity-based (stored on `connection_groups.caas_score`)
+**Algorithm**: Activity-Weighted Team Average + Verification Bonuses
 
-**Buckets**:
-- ✅ **Bucket 1: Team Quality & Development** (25 base + 10 org bonus = 35 max)
-  - Base: Average CaaS of recruited tutors (0-25)
-  - Bonus: Team integration, org quality, member development (0-10)
-- ✅ **Bucket 2: Business Operations & Scale** (20 base + 10 org bonus = 30 max)
-  - Base: Recruited performance + rating + retention (0-20)
-  - Bonus: Brand presence, client acquisition, collaboration (0-10)
-- ✅ **Bucket 3: Growth & Expansion** (15 base + 5 org bonus = 20 max)
-  - Base: Total recruited, recent activity, subject diversity (0-15)
-  - Bonus: Team size, growth momentum, geographic expansion (0-5)
-- ✅ **Bucket 4: Professional Standards** (10 base + 5 org bonus = 15 max)
-  - Base: Personal credentials (3 base + DBS/insurance/association)
-  - Bonus: Business verification, safeguarding, org insurance (0-5)
-
-**Safety Gate**: `identity_verified = true`
-
-**Subscription Integration**:
-- ✅ Checks `check_org_subscription_active(agent_id)` RPC
-- ✅ Unlocks bonus buckets when `organisation_subscriptions.status IN ('active', 'trialing')`
-- ✅ Incentivizes organisation adoption (+30 point potential)
-
-**RPC Functions** (Migration 158):
-- `get_agent_recruitment_stats(agent_id)` - 10 recruitment metrics
-- `get_organisation_business_stats(org_id)` - 7 business metrics
-- `check_org_subscription_active(agent_id)` - Subscription gate
-- `calculate_organisation_caas(org_id)` - Organisation score reference
-
----
-
-#### 29.4. Organisation CaaS ✅ (v1.0)
-**Type**: Entity-based (not profile-based)
-**Storage**: `connection_groups.caas_score` column
-
-**Scoring Model**: Activity-Weighted Team Average + Verification Bonuses
-
-**Algorithm**:
-```
-weighted_avg = SUM(member_caas × session_weight) / SUM(session_weights)
-where session_weight = MAX(sessions_90d, 1)
-```
-
-**Components**:
-- ✅ **Base Score**: Weighted average of member CaaS scores
-  - Activity-weighted by sessions in last 90 days
-  - Only counts members active in last 30 days
-  - Members with more recent sessions contribute more
-- ✅ **Verification Bonuses**:
-  - business_verified: +2 points
-  - safeguarding_certified: +2 points
-  - professional_insurance: +1 point
-  - association_member: +1 point
-
-**Safety Gate**: Minimum 3 active members required
-
-**RPC Function** (Migration 158):
-- `calculate_organisation_caas(org_id)` - Weighted average calculation
-
-**Automatic Recalculation**:
-- ✅ Triggers on member join/leave (`group_members` changes)
-- ✅ Triggers on organisation detail changes
-- ✅ Manual requeue: `queue_organisation_for_caas_recalc(org_id)`
-
----
-
----
-
-**CaaS System Features**:
-- ✅ Role-specific algorithms (4 complete: Tutor, Client, Agent, Organisation)
-- ✅ Safety gates and minimum requirements
-- ✅ Provisional scoring for new users (Tutor CaaS)
-- ✅ Subscription incentives (Agent CaaS)
-- ✅ Activity weighting (Organisation CaaS)
-- ✅ Public/private visibility controls (RLS policies)
-- ✅ Percentile ranking API
-- ✅ Automatic recalculation queues
-- ✅ Graceful degradation (Promise.allSettled for RPC failures)
-
-### 30. Recruitment System ✅
+### 30. Recruitment System
 **Status**: Production-ready
 **Completion**: 100%
 **Completed**: 2026-01-14
 
-**Phase 1** ✅:
-- ✅ Job posting creation
-- ✅ Application submission API endpoint
-- ✅ Application tracking via organisation task management
-
-**Phase 2** ✅:
-- ✅ Application review workflow (owner reviews candidate applications)
-- ✅ Interview scheduling (via Messages + organisation task management)
-- ✅ Candidate communication (via Messages real-time platform)
-- ✅ Hiring pipeline management (via organisation task management Kanban: Backlog → To Do → In Progress → Approved → Done)
-
-**Implementation**:
-- ✅ Application submission API (`/api/organisation/recruitment/apply`)
-- ✅ Integration with Messages for communication
-- ✅ Integration with organisation task management (5-stage Kanban pipeline)
-- ✅ Drag-and-drop task management with priorities and assignments
-- ✅ Organisation task categories include recruitment workflows
-
-**Note**: Recruitment leverages existing platform features (Messages + organisation task management) rather than dedicated recruitment-specific tools for a streamlined hiring workflow.
-
-### 31. Blog-to-Marketplace Demand Engine ✅
-**Status**: Phase 1-3 Complete (Phase 4-7 Planned)
+### 31. Blog-to-Marketplace Demand Engine
+**Status**: Phase 1-3 Complete (Phase 4-7 Frozen)
 **Completion**: Phase 3 (Observation Layer)
 **Completed**: 2026-01-16
 
-**Core Philosophy**: SEO builds demand → Blog educates → Marketplace converts → Wiselists retain → Referrals multiply
+**Core Philosophy**: SEO builds demand > Blog educates > Marketplace converts > Wiselists retain > Referrals multiply
 
-**Phase 1-2: Foundation** ✅
-- ✅ Event-based attribution infrastructure (immutable event stream)
-- ✅ Dual-write pattern (events + cache fields)
-- ✅ Session tracking (30-day cookie-based)
-- ✅ Stable embed instance IDs (hash-based)
-- ✅ MDX embed components (TutorEmbed, ListingGrid, TutorCarousel)
-- ✅ Wiselist integration (save articles with privacy controls)
-- ✅ API routes for event recording and dual-write conversions
+**Phase 1-2: Foundation**:
+- Event-based attribution infrastructure (immutable event stream)
+- Dual-write pattern (events + cache fields)
+- Session tracking (30-day cookie-based)
+- MDX embed components (TutorEmbed, ListingGrid, TutorCarousel)
 
-**Phase 3: Unified Dashboard** ✅
-- ✅ Four analytics RPCs with explicit attribution window parameters
-- ✅ Canonical event semantics documentation (single source of truth)
-- ✅ Article performance summary (views, interactions, saves, bookings, revenue)
-- ✅ Conversion funnel analysis (4-stage: View → Interact → Save → Book)
-- ✅ Blog-assisted listing visibility (correlation signals, not causation)
-- ✅ Time-to-conversion distribution (validates 7-day attribution window)
+**Phase 3: Unified Dashboard**:
+- Four analytics RPCs with explicit attribution window parameters
+- Article performance summary (views, interactions, saves, bookings, revenue)
+- Conversion funnel analysis (4-stage: View > Interact > Save > Book)
+- Dashboard live at `/admin/signal`
 
-**Database Migrations**:
-- ✅ Migration 179-181: Signal events infrastructure (`signal_events`, `signal_metrics`, `signal_distributions`)
-- ✅ Migration 182: Signal analytics RPCs (4 RPCs for Phase 3 dashboard)
-- ✅ Migration 187: Updated RPCs for signal_events integration
-- ✅ Migration 189-190: RBAC permissions (blog + signal resources)
+**Phase 4-7: Optimization Roadmap** (Frozen):
+- Phase 4: Referral integration
+- Phase 5: Cross-linking & SEO amplification
+- Phase 6: Attribution model selection
+- Phase 7: A/B testing & optimization
 
-**Phase 4-7: Optimization Roadmap** ⏳ (Frozen)
-- ⏳ Phase 4: Referral integration (social sharing with referral codes)
-- ⏳ Phase 5: Cross-linking & SEO amplification (bidirectional blog ↔ marketplace links)
-- ⏳ Phase 6: Attribution model selection (First-Touch, Last-Touch, Linear, Time-Decay)
-- ⏳ Phase 7: A/B testing & optimization (experiment framework)
-
-**Key Features**:
-- ✅ Event-based attribution (immutable event stream as source of truth)
-- ✅ Multi-touch attribution tracking (query-time, descriptive in Phase 3)
-- ✅ Session-based anonymous user tracking (30-day cookie persistence)
-- ✅ Privacy-first article saves (opt-in sharing on public wiselists)
-- ✅ Dual-write pattern (events + denormalized cache)
-- ✅ Explicit attribution window (7-day default, parameterized)
-- ✅ Correlation signals for blog-assisted listings (not causation claims)
-
-**Implementation Notes**:
-- Phase 3 is an intentional stopping point (observation before optimization)
-- Dashboard UI implemented and live at `/admin/signal` (migrated from `/admin/blog/orchestrator` on 2026-01-18)
-- Signal positioned as platform-level intelligence (top-level menu, not blog submenu)
-- Phases 4-7 roadmap frozen for future optimization
-- Decision framework for phase transitions defined
-
-**Related Documentation**:
-- [docs/feature/revenue-signal/REVENUE-SIGNAL.md](../docs/feature/revenue-signal/REVENUE-SIGNAL.md) - Complete specification
-- [docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md](../docs/feature/revenue-signal/SIGNAL-ROUTE-MIGRATION.md) - Route migration details
-
-### 32. Resources (Educational Content Hub) ✅
+### 32. Resources (Educational Content Hub)
 **Status**: Production-ready
 **Completion**: 100%
-**Completed**: 2026-01-18 - Blog renamed to Resources, full React Query migration, pixel-perfect alignment with Help Centre
+**Completed**: 2026-01-18
 
-**Core Philosophy**: Educational content that drives marketplace demand through SEO, expertise demonstration, and trust building.
+### 33. EduPay (Phase 3 Complete)
+**Status**: Phase 3 -- Conversion Complete (stub mode), Gold Standard UI Applied
+**Completion**: Phase 1-3 complete, Phase 4 (affiliate onboarding) pending
+**Last Updated**: 2026-02-12
+**Design**: `docs/feature/edupay/edupay-solution-design.md`
 
-**Content Architecture**:
-- ✅ 5 content categories (For Clients, For Tutors, For Agents, Education Insights, Company News)
-- ✅ MDX-based articles with frontmatter metadata
-- ✅ SEO-optimized article pages with structured data
-- ✅ Category-based navigation and filtering
-- ✅ Author attribution and read time calculation
-- ✅ Featured articles system (top 4 by view count)
-- ✅ Article save functionality (Wiselists integration)
+EduPay converts tutoring activity into real financial progress against a student loan. Points-based rewards system -- not a bank. GBP1 earned = 100 EP -> 100 EP = GBP1 loan impact.
 
-**Technical Architecture** (2026-01-18 Update):
-- ✅ React Query data fetching pattern (matching Help Centre)
-- ✅ Three custom hooks (`useFeaturedArticles`, `useLatestArticles`, `useSearchArticles`)
-- ✅ Skeleton loading UI with ArticleCardSkeleton component
-- ✅ 5min staleTime caching for optimal performance
-- ✅ placeholderData (keepPreviousData) prevents flickering
-- ✅ Automatic refetch on mount and window focus
-- ✅ 2 retry attempts on failure with graceful degradation
+**Phase 1 -- UI Layer**: Complete
+**Phase 2 -- API & Data**: Complete (migrations 253-260)
+**Phase 3 -- Conversion**: Complete (TrueLayer stub mode)
 
-**User Experience** (2026-01-18 Update):
-- ✅ Pixel-perfect alignment with Help Centre styling
-- ✅ Hero section with search functionality
-- ✅ 4 featured articles (matching Help Centre)
-- ✅ Friendly, welcoming language and tone
-- ✅ Search results page with article count
-- ✅ Category browsing with descriptions
-- ✅ Mobile-responsive grid layouts (280px minimum)
-- ✅ Newsletter signup CTA section
+### 34. VirtualSpace (Hybrid Virtual Classroom)
+**Status**: Production-ready
+**Completion**: 100%
+**Last Updated**: 2026-02-15
 
-**SEO & Performance**:
-- ✅ Complete metadata (metadataBase, OpenGraph, Twitter cards)
-- ✅ Article sitemap generation
-- ✅ robots.txt configuration
-- ✅ Structured data for articles
-- ✅ View count tracking and analytics
-- ✅ No layout shift during loading states
-- ✅ Optimized bundle sizes with code splitting
+VirtualSpace is a cost-optimized, zero-marginal-cost virtual learning environment featuring a hybrid model with collaborative whiteboard (tldraw + Ably real-time sync) alongside external video conferencing (Google Meet integration).
 
-**Integration Points**:
-- ✅ Revenue Signal tracking (attribution system)
-- ✅ Wiselists (save articles for later)
-- ✅ Tutor/Listing embeds within articles (TutorEmbed, ListingGrid, TutorCarousel)
-- ✅ Admin management hub (`/admin/resources`)
-- ✅ SEO orchestrator for content optimization
+### 35. Lexi AI (Platform Help Bot)
+**Status**: Production-ready (v2.0.0)
+**Completion**: 100%
+**Last Updated**: 2026-02-21
 
-**API Endpoints**:
-- ✅ GET `/api/resources/articles` - List articles with filtering (category, search, pagination)
-- ✅ GET `/api/resources/articles/[slug]` - Single article retrieval
-- ✅ POST `/api/resources/analytics/track` - View tracking
-- ✅ POST `/api/resources/saves` - Save article to Wiselist
-- ✅ GET `/api/resources/attribution` - Revenue Signal attribution data
-- ✅ POST `/api/resources/attribution/events` - Track attribution events
+Lexi is TutorWise's AI-powered platform assistant providing instant support, task automation, and context-aware guidance across all user roles. Features guest mode with zero API cost and 20+ function tools for platform actions.
 
-**Admin Hub Features**:
-- ✅ Article management (create, edit, publish)
-- ✅ Category management
-- ✅ SEO settings per article
-- ✅ Article performance analytics
-- ✅ Revenue Signal orchestrator integration
+### 36. Sage AI (GCSE AI Tutor)
+**Status**: Production-ready (v2.0.0)
+**Completion**: 85% (110/500 topics)
+**Last Updated**: 2026-02-21
 
-**Recent Improvements** (2026-01-18):
-- ✅ **Blog → Resources Rename**: Eliminated all "Blog" terminology, renamed to Resources throughout codebase
-- ✅ **Contact → Help Centre Migration**: Removed duplicate Contact form, unified support pathway
-- ✅ **React Query Migration**: Replaced useState + useEffect with React Query hooks for all data fetching
-- ✅ **Skeleton Loading UI**: Professional pulse animations with no layout shift
-- ✅ **Complete Alignment**: Pixel-perfect styling match with Help Centre (hero, search, cards, grids)
-- ✅ **Zero Technical Debt**: No legacy code, consistent patterns, production-ready
-
-**Files Changed** (2026-01-18):
-- 80 files total (77 in main alignment commit, 3 in React Query migration)
-- New: `apps/web/src/lib/hooks/useResources.ts` (146 lines)
-- Updated: `apps/web/src/app/resources/page.tsx` (317 lines, +260/-57)
-- Updated: `apps/web/src/app/resources/page.module.css` (+140 lines skeleton styles)
-- Updated: 9 core alignment files (Footer, email templates, Help Centre layout, etc.)
-- Deleted: 3 Contact form files, 7 legacy blog API routes
-
-**Performance Metrics**:
-- ✅ 5min cache reduces API calls by ~80%
-- ✅ Skeleton UI improves perceived load time by ~50%
-- ✅ No flickering on navigation (placeholderData)
-- ✅ Mobile-responsive across all breakpoints
-- ✅ Consistent 2s load time for cached content
-
-**Related Documentation**:
-- [docs/feature/resources/ZERO_TECHNICAL_DEBT_COMPLETE.md](../docs/feature/resources/ZERO_TECHNICAL_DEBT_COMPLETE.md) - Blog→Resources migration summary
+Sage is an AI-powered GCSE tutor providing personalized educational support with curriculum-specific knowledge, mathematical problem solving, and continuous improvement through feedback analysis.
 
 ---
 
-## 🚧 **In Progress - Final 2%**
+## Conductor — AI Operations Platform
 
-### 1. Mobile Responsiveness Polish 🔄
-**Priority**: P1
-**Target**: Jan 28, 2026
-**Completion**: 85%
+The Conductor is the AI operations control plane for TutorWise. It manages the platform's Digital Workforce — autonomous AI agents, teams, and workflows that handle business processes.
 
-- ✅ Core responsive design
-- ✅ Mobile navigation
-- 🔄 Touch-optimized interactions
-- 🔄 Mobile-specific layouts
-- ⏳ Tablet optimization
-- ⏳ Cross-device testing
+### Conductor Naming Conventions
+- **Agent**: Single specialist AI agent (`specialist_agents` table)
+- **Team**: Multi-agent collaboration (`agent_teams` table, 3 patterns: Supervisor/Pipeline/Swarm)
+- **Space**: Program/domain container (`agent_spaces` table) — 4 built-in: go-to-market, engineering, operations, analytics
+- **Workflow**: Business process (`workflow_processes` table)
+- **Conductor**: The control plane (`/admin/conductor`)
 
-### 2. Performance Optimization 🔄
-**Priority**: P1
-**Target**: Jan 30, 2026
-**Completion**: 70%
+### Conductor Hierarchy
+Space > Team > Agent (multi-tenant ready — RLS + `created_by` on `agent_spaces`; `agent_teams.space_id` FK)
 
-- ✅ Server Components optimization
-- ✅ Image optimization
-- 🔄 Code splitting refinement
-- 🔄 Database query optimization
-- ⏳ Caching strategy enhancement
-- ⏳ Bundle size reduction
+### Conductor Tab Structure (11 tabs, 4 stages)
+| Stage | Tabs |
+|-------|------|
+| **Design** | Workflows, Discovery |
+| **Build** | Build, Agents, Teams, Spaces, Knowledge |
+| **Execute** | Execution |
+| **Observe** | Monitoring, Intelligence, Mining |
 
-### 3. Beta Testing Preparation 🔄
-**Priority**: P0
-**Target**: Jan 31, 2026
-**Completion**: 50%
+### Phase 1: Process Execution Engine (COMPLETE -- 2026-03-03)
+**Design doc**: `ipom/process-execution-solution-design.md` (v3.2)
 
-- ✅ Test environment setup
-- 🔄 Beta user recruitment
-- ⏳ Feedback collection system
-- ⏳ Bug reporting workflow
-- ⏳ Analytics instrumentation
-- ⏳ Documentation for beta users
+**Runtime**: `PlatformWorkflowRuntime` at `apps/web/src/lib/process-studio/runtime/`
+- LangGraph StateGraph with `PostgresSaver.fromConnString()` (port 5432 session mode)
+- Separate from CAS `LangGraphRuntime` (purpose-built for business processes)
+
+**5 Seeded Workflow Processes** (migrations 338+339):
+1. **Tutor Approval** (live) -- triggered by profiles UPDATE webhook
+2. **Commission Payout** (live) -- delegated from `process-batch-payouts` pg_cron
+3. **Booking Lifecycle -- Human Tutor** (shadow)
+4. **Booking Lifecycle -- AI Tutor** (shadow)
+5. **Referral Attribution** (design -- subprocess only)
+
+**Execution Modes**: design | shadow | live
+- Shadow mode runs processes in parallel without affecting production
+- Admin toggles via `PATCH /api/admin/process-studio/processes/[id]/execution-mode`
+
+**API Routes** (under `/api/admin/process-studio/`):
+- `execute/start` POST, `execute/[executionId]` GET/DELETE, `execute/[executionId]/resume` POST
+- `execute/task/[taskId]/complete` POST
+- `processes/[id]/execution-mode` PATCH
+
+**Webhook Triggers** (migration 343):
+- `process_studio_booking_insert` (bookings INSERT)
+- `process_studio_profile_under_review` (profiles UPDATE -> under_review)
+
+**Database**: `workflow_executions` + `workflow_tasks` tables (migration 338); `profiles.status` column (migration 343)
+
+### Phase 2: Conductor -- Agents + Teams (COMPLETE -- 2026-03-09)
+
+**Tables**: `specialist_agents`, `agent_run_outputs`, `analyst_tools` (migration 348); `agent_subscriptions` (349); `agent_teams`, `agent_team_run_outputs` (352); `platform_notifications` (353)
+
+**8 Built-in Specialist Agents**: developer, tester, qa, engineer, security, marketer, analyst, planner
+- All seeded with `built_in=true` in `specialist_agents` table
+- ReAct loop execution via `SpecialistAgentRunner` at `apps/web/src/lib/agent-studio/SpecialistAgentRunner.ts`
+- TOOL_CALL regex parsing, writes to `agent_run_outputs`
+
+**10 Built-in Analyst Tools** in `analyst_tools` table
+- Tool executor: `apps/web/src/lib/agent-studio/tools/executor.ts`
+
+**TeamRuntime** at `apps/web/src/lib/workflow/team-runtime/TeamRuntime.ts`:
+- 3 collaboration patterns: **Supervisor** (parallel + synthesis), **Pipeline** (topological sort + sequential), **Swarm** (dynamic NEXT_AGENT routing)
+- Rewritten as LangGraph StateGraph + PostgresSaver in Phase 6
+
+**Nudge Scheduler**: `apps/web/src/lib/workflow/nudge-scheduler.ts`
+- 4 conditions, 7d cooldown via `workflow_entity_cooldowns`
+- Cron at `/api/cron/process-nudges` (x-cron-secret auth)
+
+**Platform Notifications**: `platform_notifications` table (NOT `notifications`)
+- Used by `send_notification` tool and nudge scheduler
+
+**UI**:
+- AgentManagementPanel at `/admin/conductor` Agents tab
+- Agent chat at `/admin/conductor/agents/[slug]`
+- Tools registry at `/admin/conductor/agents/tools`
+
+### Phase 3: Conductor Intelligence Layer (COMPLETE -- 2026-03-09)
+
+**3 New Specialist Agents** (pg_cron scheduled):
+- `market-intelligence` (Mon 09:00 UTC)
+- `retention-monitor` (daily 08:00 UTC)
+- `operations-monitor` (daily 07:00 UTC)
+
+**14 Analyst Tools** added to executor.ts:
+query_caas_health, query_resources_health, query_editorial_opportunities, query_seo_health, query_keyword_opportunities, query_content_attribution, query_marketplace_health, query_supply_demand_gap, query_booking_health, query_listing_health, query_pricing_intelligence, query_financial_health, query_virtualspace_health, query_referral_funnel
+
+**Intelligence Daily Tables** (pg_cron pipeline, 10 tables):
+- caas(05:30) > resources(04:30) > article_intelligence_scores(04:45) > seo(05:00) > marketplace(06:00) > bookings(06:30) > listings(07:00) > financials(07:30) > virtualspace(08:00) > referral(09:00)
+
+**10 Intelligence API Routes** under `/api/admin/`:
+caas/intelligence, resources/intelligence, seo/intelligence, signal/intelligence, signal/marketplace, listings/intelligence, bookings/intelligence, financials/intelligence, virtualspace/intelligence, referrals/intelligence
+
+**IntelligencePanel**: Conductor 'intelligence' tab with 10 sub-tabs, auto-fetches on first activation
+
+**Shadow Monitoring**:
+- GoLiveReadiness component: progress bar toward 50 clean shadow runs, divergence count, ExecutionModeToggle
+- `GET /api/admin/workflow/processes/[id]/shadow-stats`
+
+### Phase 4: Knowledge, Intent, Context & Learning (COMPLETE -- 2026-03-10)
+
+**4A -- Knowledge Base** (migration 376):
+- `platform_knowledge_chunks` table (768-dim vector, 18 categories covering all 14 Phase 3 intel domains)
+- `match_platform_knowledge_chunks()` RPC for RAG retrieval
+- KnowledgePanel at Conductor 'knowledge' tab (CRUD + RAG preview)
+- RAG augmentation in SpecialistAgentRunner (AGENT_KNOWLEDGE_CATEGORY map)
+
+**4B -- IntentDetector** at `apps/web/src/lib/conductor/IntentDetector.ts`:
+- ExecutionCommandBar routes to agent/workflow/tab via classify-intent API
+
+**4C -- PlatformUserContext** at `apps/web/src/lib/platform/user-context.ts`:
+- Enriched with growth_scores, referrals, marketplace, signals
+- Redis cache: `apps/web/src/lib/platform/context-cache.ts`
+- Cross-agent handoff: `apps/web/src/lib/platform/agent-handoff.ts`
+- Injected into Sage/Lexi/Growth session routes
+
+**4C-ii -- Network Intelligence**:
+- `/admin/network/` page (3 tabs)
+- `/api/admin/network/intelligence` API
+- Network Intelligence link in AdminSidebar
+
+**4D -- Learning Loop** (migration 377):
+- `decision_rationale` JSONB on `workflow_executions`
+- `decision_outcomes` table with outcome measurement
+- `process_autonomy_config` table
+- 3 pg_cron outcome measurement jobs
+- TierCalibrationPanel in IntelligencePanel 'Autonomy' sub-tab
+- `/api/admin/conductor/autonomy/*` routes
+
+**Autonomy Calibrator Agent** (migration 378):
+- Weekly Mon 10:00 UTC via pg_cron
+- `query_network_intelligence` + `query_autonomy_calibration` tools
+
+### Phase 5: Process Mining Enhancement (COMPLETE -- 2026-03-10)
+
+**Migration 379**: `conformance_deviations` + `process_patterns` tables + performance indexes + `query_process_patterns` analyst tool
+
+**ConformanceChecker** at `apps/web/src/lib/process-studio/conformance/ConformanceChecker.ts`:
+- Checks execution paths against process graph
+- Detects: skipped steps, unexpected paths, stuck executions
+
+**4 API Routes** under `/api/admin/conductor/workflows/[id]/`:
+- `analytics` -- paths, cycle time per node (bottleneck detection), AI patterns
+- `conformance` (GET + PATCH) -- conformance rate, deviation list, mark-as-expected
+- `shadow` -- enhanced live vs shadow dashboard + go-live checklist (5 items)
+- `promote` -- enforces all checklist items, then flips execution_mode='live'
+
+**MiningPanel**: New 'mining' tab in Conductor Stage 4 (Observe) with Analytics/Conformance/Shadow sub-tabs + Promote button
+
+**Shadow-Reconcile Cron**: Batch-checks newly completed executions for conformance, inserts `conformance_deviations` rows
+
+### Phase 6: DevOps Team & LangGraph Migration (COMPLETE -- 2026-03-11)
+
+**6A -- TeamRuntime Rewrite** (migration 383):
+- TeamRuntime.ts rewritten as LangGraph StateGraph + PostgresSaver
+- `cas-team` slug renamed to `devops-team` (DevOps Team), assigned to `engineering` space
+
+**6B -- Agent Configs** (migration 384):
+- 9 DevOps Team agent configs enriched with production system prompts
+
+**6C -- HITL (Human-in-the-Loop)**:
+- `interrupt()` / `resume()` in supervisor pattern
+- `teamRuntime.run(slug, task, trigger, { hitl: true })` pauses after specialists, status='awaiting_approval'
+- Resume via `teamRuntime.resume(runId, approved)` or `POST /api/admin/teams/{id}/runs/{runId}/resume`
+- 12 unit tests
+
+**6D -- Legacy CAS Deprecation** (migration 385):
+- `/admin/cas/workflow-fullscreen` redirects to Conductor
+- Legacy CAS API routes stubbed out
+- `cas_*` tables soft-deprecated (hard delete eligible 2026-06-11)
+
+**6E -- Decision Outcome Stubs**:
+- `decision_outcomes` stubs written after each team run completion (7d + 30d lag measurement)
+
+### Phase 7: Agent Episodic Memory (COMPLETE -- 2026-03-11)
+
+**Migration 386**: `memory_episodes` + `memory_facts` tables
+
+**memory_episodes**: One row per agent run, vector(768) with HNSW index
+- `match_memory_episodes(query_embedding, p_agent_slug, threshold=0.72, count=5)` RPC
+
+**memory_facts**: Subject/relation/object triples with `valid_from`/`valid_until` temporal bounds
+- `match_memory_facts(query_embedding, p_agent_slug, count=5)` RPC
+
+**AgentMemoryService** at `apps/web/src/lib/agent-studio/AgentMemoryService.ts`:
+- `fetchMemoryBlock()` -- retrieves relevant past episodes + facts for a given query
+- `recordEpisode()` -- stores run summary with embedding
+- `extractAndStoreFacts()` -- uses `ai.generateJSON<ExtractedFact[]>()` for outputs >200 chars (max 4 facts per run)
+- `invalidateFact()` -- sets `valid_until` on superseded facts
+
+**Integration**: `SpecialistAgentRunner.run()` fetches memory block in parallel with knowledge block; injects as `PAST EXPERIENCE` section; records episode + extracts facts post-run (both fire-and-forget, fail-silently)
 
 ---
 
-## 🔮 **Post-Beta (Feb-Mar 2026)**
+## Growth Agent (COMPLETE -- 2026-03-04)
 
-### 1. Beta Feedback Iteration
-**Timeline**: Feb 1-14, 2026
+**Location**: `apps/web/src/lib/growth-agent/`
+**Pricing**: GBP10/month subscription (free tier: Revenue Audit only)
 
-- Bug fixes from beta testing
-- UX improvements based on feedback
-- Performance tuning
-- Security hardening
+Role-adaptive AI advisor for ALL users (tutor, client, agent, organisation). Provides personalized growth strategies, revenue intelligence, and business guidance.
 
-### 2. Production Launch Preparation
-**Timeline**: Feb 15-28, 2026
+**5 Skill Files** (knowledge base, DSPy-style, UK/international):
+1. `skills/profile-listing-audit.ts` -- pricing benchmarks, listing quality, qualifications, education policy
+2. `skills/referral-strategy.ts` -- channels, outreach templates, seasonal calendar, pipeline benchmarks
+3. `skills/revenue-intelligence.ts` -- income patterns, seasonal demand, full-time jump, UK business/tax
+4. `skills/income-stream-discovery.ts` -- 4 income streams, unlock sequencing, combinations
+5. `skills/business-setup-compliance.ts` -- career decisions, registration steps, T&Cs, compliance
 
-- Load testing and scaling
-- Final security audit
-- Production monitoring setup
-- Launch marketing materials
-- Customer support training
+**8 Tools**: Defined in `tools/definitions.ts`, executed via `tools/executor.ts`
 
-### 3. Production Launch
-**Target**: March 1, 2026
+**Orchestrator** (`index.ts`): `GrowthAgentOrchestrator` -- `buildSystemPrompt()`, `stream()`, `runRevenueAudit()`
 
-- Public release
-- Marketing campaign launch
-- User onboarding optimization
-- 24/7 monitoring
+**API Routes**:
+- `GET/POST /api/growth-agent/session` -- session management
+- `POST /api/growth-agent/stream` -- streaming chat
+- `GET /api/growth-agent/audit` -- free Revenue Audit (no subscription required)
+
+**Metrics Hydration**: Parallel Supabase queries (profiles, bookings last 30d, referrals, ai_agents)
 
 ---
 
-## 📊 **Success Metrics**
+## External Publishing (IN PROGRESS -- 2026-03-11)
 
-### Beta Release (Feb 2026)
+**Goal**: Enterprise credibility + investor narrative
+**Location**: `conductor/publish/`
+
+**3 Documents**:
+1. `00-publishing-plan.md` -- master plan, remaining work checklist, venues, messaging anchors
+2. `01-technical-white-paper.md` -- enterprise/CTO audience; container-to-agent isomorphism, shadow/live model
+3. `02-investor-thesis.md` -- VC/investor audience; insight > moat > flywheel > ask (Ask section placeholder)
+
+**Key Vocabulary**: Agent Registry (trio of Agents+Teams+Spaces), Digital Workforce (operational), Digital Force (brand/external), Conductor (control plane)
+
+**Remaining**: Diagrams (Excalidraw/Figma), verify Gartner stat, complete Ask section, add traction metrics, legal/IP review
+
+---
+
+## In Progress
+
+### 1. Student Management Enhancement
+**Priority**: P2
+**Completion**: 75%
+- Basic student management is production-ready
+- Academic records and attendance tracking in progress
+- Performance analytics and parent/guardian access planned for Q2 2026
+
+### 2. Sage Curriculum Expansion
+**Priority**: P2
+**Completion**: 85% (110/500 topics)
+- 110 GCSE Maths chunks ingested across 22 topics
+- Target: 500+ topics (Maths, English, Science) by Q2 2026
+- Multimodal input endpoints ready (OCR, Speech-to-Text awaiting Google APIs)
+
+### 3. EduPay Phase 4 -- Affiliate Onboarding
+**Priority**: P3
+- Awin + CJ affiliate account setup (requires external partner onboarding)
+- Tillo integration (gift rewards)
+- TrueLayer production credentials needed for live conversion
+
+---
+
+## Success Metrics
+
+### Beta Release (Completed Mar 2026)
 - **Beta Users**: 50-100 invited testers
 - **Test Coverage**: 80%+ backend, 75%+ frontend
 - **Platform Uptime**: 99%+ availability
 - **Performance**: <2s page load times
 - **Bug Resolution**: <24h for critical, <48h for high
 
-### Production Launch (Mar 2026)
+### Production Launch Targets
 - **User Acquisition**: 500+ registered users in first month
 - **Booking Conversion**: 15%+ visitor-to-booking rate
 - **Platform Uptime**: 99.9%+ availability
@@ -1226,20 +944,29 @@ where session_weight = MAX(sessions_90d, 1)
 
 ---
 
-## 🛠️ **Technology Stack**
+## Technology Stack
 
 ### Frontend
-- Next.js 14.x with App Router
+- Next.js 16 with App Router
 - TypeScript 5.x (strict mode)
-- React 18 with Server Components
+- React 19 with Server Components
 - React Query (TanStack Query) for server state
 - React Context API for client state
 
 ### Backend & Data
 - Supabase PostgreSQL (auth, profiles, business data)
+- pgvector for semantic search (768-dim embeddings via gemini-embedding-001)
 - Supabase Auth with Google OAuth
 - Supabase Storage for file uploads
 - Ably real-time platform (messaging, presence, typing indicators)
+- Redis (Upstash) for rate limiting and context caching
+
+### AI & Intelligence
+- 6-tier AI provider chain (xAI Grok 4 Fast > Gemini Flash > DeepSeek R1 > Claude Sonnet 4.6 > GPT-4o > Rules)
+- LangGraph StateGraph for workflow and team runtime
+- PostgresSaver for LangGraph checkpointing
+- pgvector HNSW for RAG and memory retrieval
+- Gemini embedding-001 (768 dimensions) for all vector embeddings
 
 ### Payments & External Services
 - Stripe Connect for payments
@@ -1252,123 +979,92 @@ where session_weight = MAX(sessions_90d, 1)
 - GitHub Actions for CI/CD
 - Playwright for E2E testing
 - Jest for unit/integration testing
-- Percy for visual regression testing
+- Husky pre-commit hooks (tests, lint, full build)
 
 ### Monitoring & Analytics
 - Vercel Analytics
 - Supabase Logs
 - Custom audit logging
+- Intelligence daily tables (10 domain-specific pg_cron pipelines)
 
 ---
 
-## 🔐 **Security & Compliance**
+## Security & Compliance
 
 ### Implemented
-- ✅ Row-Level Security (200+ policies)
-- ✅ GDPR compliance (data deletion, PII anonymization)
-- ✅ Input validation and sanitization
-- ✅ Rate limiting (Upstash Redis)
-- ✅ Audit logging (all admin actions)
-- ✅ Secure session management
-- ✅ Environment variable protection
+- Row-Level Security (200+ policies)
+- `is_admin()` function for admin authorization in RLS policies
+- GDPR compliance (data deletion, PII anonymization)
+- Input validation and sanitization
+- Rate limiting (Upstash Redis)
+- Audit logging (all admin actions)
+- Secure session management
+- Environment variable protection
+- Cron job authentication (x-cron-secret headers)
 
 ### Pre-Launch
-- ⏳ Penetration testing
-- ⏳ Security audit (third-party)
-- ⏳ OWASP Top 10 compliance verification
-- ⏳ Data backup and disaster recovery testing
+- Penetration testing
+- Security audit (third-party)
+- OWASP Top 10 compliance verification
+- Data backup and disaster recovery testing
 
 ---
 
-## 📝 **Development Velocity**
+## Development Velocity
 
-### Recent Activity (Oct 2025 - Jan 2026)
-- **Total Commits**: 1,402+ (+2 commits on 2026-01-18)
-- **Features**: 84 (+2: React Query migration, Resources alignment)
-- **Bug Fixes**: 151
-- **Refactors**: 64 (+1: Help Centre & Resources alignment)
-- **Lines of Code**: 155,000+ (+500 lines in Resources system)
+### Activity Summary (Oct 2025 - Mar 2026)
+- **Total Commits**: 1,800+
+- **Features**: 95+
+- **Bug Fixes**: 160+
+- **Refactors**: 70+
+- **Lines of Code**: 250,000+
 - **Test Coverage**: 78% overall
 
-### Recent Highlights (2026-01-18)
-- **Resources System Completion**: Blog → Resources rename, React Query migration, skeleton UI
-- **Help Centre Enhancement**: React Query pattern, complete alignment with Resources
-- **Contact Form Removal**: Unified support pathway through Help Centre
-- **Zero Technical Debt**: Eliminated legacy code, consistent architecture patterns
-- **Files Changed**: 80 files (77 alignment + 3 React Query migration)
-- **Performance**: 5min caching reduces API calls by ~80%, skeleton UI improves perceived load by ~50%
-
-### Team Productivity
-- **Average Commits/Day**: 12-15
-- **Feature Completion Rate**: 2-3 features/week
-- **Bug Fix Rate**: 5-7 bugs/week
-- **Code Review Time**: <12 hours
+### Recent Highlights (Feb-Mar 2026)
+- **Process Execution Engine** (Phase 1): LangGraph-powered workflow runtime with shadow/live modes
+- **Growth Agent**: Role-adaptive AI advisor with 5 skill files, 8 tools, streaming chat
+- **Conductor Phases 2-7**: Complete AI operations layer (agents, teams, intelligence, mining, memory)
+- **External Publishing**: Technical white paper + investor thesis drafts
 
 ---
 
-## 🎯 **Critical Path to Beta**
+## Known Technical Debt
 
-### Week of 12-16 Jan 2026
-- ✅ Complete Agent CaaS core features
-- ✅ Complete Organisation CaaS core features
-- ✅ Recruitment Phase 2 completion
-
-### Week of 20-30 Jan 2026
-- ⏳ Final authentication (Google social login) - 100% Completed
-- ⏳ Final user onboarding
-- ⏳ Set up the email notifcation for the authentication and user onboarding workflow - 100% Completed
-- ⏳ Final booking worflow enhancement
-- ⏳ Final service listing creation, listing UI (use hub architecture) and worflow - 100% Completed
-- ⏳ Update all software packages worlow (update-packages-tasks.md) - 100% Completed
-
-### Week of 2-13 Feb 2026
-- ⏳ Create Terms of Service and Privacy Policy
-- ⏳ Mobile responsiveness final polish (Directly impacts user experience, Quick wins with testing and fixes, Can be done incrementally page-by-page)
-- ⏳ Performance optimization pass (Improves perceived speed, Reduces costs eg smaller bundles / fewer queries, Makes a great first impression for beta users)
-- ⏳ Final bug fixes - Email notifcation for critical workflow 100% Completed, tbc
-- ⏳ Beta environment preparation
-- ⏳ Beta documentation
-- ⏳ **Beta Launch**: 1 March 2026
-
----
-
-## 📋 **Known Technical Debt**
-
-### High Priority (Pre-Beta)
+### High Priority
 - Optimize some large Admin Hub queries (pagination improvements)
-- Refactor legacy form components to use Shared Fields consistently
-- Add comprehensive error boundaries across all pages
+- `growth_agent_messages` table needs migration before logging is active
+- `hydrateUserMetrics` deduped across 3 Growth Agent route files (candidate for shared lib)
 
-### Medium Priority (Post-Beta)
+### Medium Priority
 - Consolidate duplicate utility functions
 - Improve TypeScript types (reduce `any` usage)
 - Enhanced logging and monitoring
 
-### Low Priority (Backlog)
+### Low Priority
 - Code splitting optimization for smaller bundles
 - Component library documentation (Storybook)
 - Automated accessibility testing
 
 ---
 
-## 🚀 **Future Enhancements (Post-Launch)**
+## Future Enhancements (Post-Launch)
 
 ### Q2 2026
-- Advanced analytics and reporting
-- AI-powered tutor matching
-- Video call integration
-- Mobile app (React Native)
+- Conductor Phase 5 shadow monitoring -> go-live for remaining processes
+- Sage curriculum expansion (English, Science)
+- Student Management advanced features (performance analytics, parent/guardian access)
+- EduPay affiliate onboarding (Awin, CJ, Tillo)
+- Multi-tier referral commission activation (pending legal review)
 
 ### Q3 2026
 - Multi-language support (i18n)
 - Advanced business intelligence
 - Third-party integrations (LMS, calendars)
 - Progressive Web App (PWA) features
+- Mobile app (React Native)
 
 ### Q4 2026
 - White-label solutions for organisations
-- API for third-party integrations
-- Advanced ML/AI features
 - International expansion
-
-
+- Advanced ML/AI features (fraud detection, tutor matching)
+- Demand Engine Phases 4-7 (attribution models, A/B testing)

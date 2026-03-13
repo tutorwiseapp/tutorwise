@@ -10,19 +10,20 @@
 1.1 2026-02-04 - Update - Last update
 1.2 2026-02-12 - Update - Refreshed codebase metrics (396 pages, 191K LOC, 270 migrations)
 1.3 2026-02-15 - Update - Verified codebase metrics (202K LOC, 547K docs, 46K SQL, 3M+ total project lines)
+1.4 2026-03-11 - Update - Conductor platform, Growth Agent, updated metrics
 
 ---
 
 ## Platform Metrics (Single Source of Truth)
 
-### Codebase Scale (Verified 2026-02-15)
-- **400 pages** (131 UI pages + 226 API routes + 43 dynamic route patterns)
-- **201,775 lines of application code** (TypeScript/TSX across app, components, lib)
-- **547,436 lines of documentation** (16K .ai context + 244K docs/ + 287K other MD)
-- **45,896 lines of SQL** (270 migration files, 70+ tables)
-- **3,083,104 total project lines** (all TS/TSX/JS/CSS/SQL/MD excluding node_modules)
-- **382 components** (feature components + UI library)
-- **31 major features** (22 core systems + 14 platform hubs - 5 overlap)
+### Codebase Scale (Updated 2026-03-11)
+- **450+ pages** (180+ UI pages + 270+ API routes + dynamic route patterns)
+- **276,900+ lines of application code** (TypeScript/TSX across app, components, lib)
+- **547,436+ lines of documentation** (16K .ai context + 244K docs/ + 287K other MD)
+- **50,000+ lines of SQL** (386+ migration files, 90+ tables)
+- **3,083,104+ total project lines** (all TS/TSX/JS/CSS/SQL/MD excluding node_modules)
+- **400+ components** (feature components + UI library)
+- **31+ major features** (22 core systems + 14 platform hubs - 5 overlap + Conductor + Growth Agent)
 
 ### Estimated Development Value
 - **Replacement cost**: $3M - $5M (200K LOC × $15-25/line industry standard)
@@ -63,23 +64,24 @@
 - The 131 UI pages metric counts only route-based pages with distinct URLs. Modals are separate interactive components that overlay existing pages and are not included in that count.
 
 ### API & Database
-- **226 API endpoints** (REST + webhooks + RPC functions)
-- **270 database migrations** (numbered: 000-270, including VirtualSpace 265-266)
+- **270+ API endpoints** (REST + webhooks + RPC functions)
+- **386+ database migrations** (numbered: 000-386, including Conductor Phases 1-7)
 - **200+ Row-Level Security policies** with granular RBAC
-- **70+ database tables** with comprehensive relationships
+- **90+ database tables** with comprehensive relationships
 
 ### Advanced Technical Systems
-- **Neo4j graph database** with PageRank trust propagation for SEO
 - **ML-powered fraud detection** with automated triggers and pattern recognition
-- **AI semantic search** using pgvector (1,536-dimensional embeddings)
+- **AI semantic search** using pgvector (768-dimensional embeddings via `gemini-embedding-001`)
 - **Real-time infrastructure** (Ably) for messaging, presence, typing indicators
 - **Automated CI/CD pipeline** with comprehensive testing suite
+- **Conductor platform** — AI agent orchestration with specialist agents, teams, spaces, and process mining
+- **Growth Agent** — role-adaptive AI advisor for all user roles
 
-### Development Activity (Oct 2025 - Jan 2026)
-- **1,400 commits** across 3.5 months of development
-- **82 features** implemented
-- **151 bug fixes** resolved
-- **63 refactors** for code quality and maintainability
+### Development Activity (Oct 2025 - Mar 2026)
+- **1,800+ commits** across 6 months of development
+- **82+ features** implemented
+- **151+ bug fixes** resolved
+- **63+ refactors** for code quality and maintainability
 
 ### Quality & Testing
 - **106 passing unit tests** (Jest)
@@ -88,9 +90,9 @@
 - **Test coverage**: 78% overall
 
 ### Platform Status
-- **98% complete** - production-ready
-- **Beta launch**: February 1, 2026
-- **Production launch**: March 1, 2026
+- **Beta launched**: March 2026
+- **Conductor complete**: All 7 phases shipped (agents, teams, spaces, intelligence, process mining, DevOps, agent memory)
+- **Growth Agent**: Live with revenue audit + 5 skill modules
 
 ---
 
@@ -113,7 +115,7 @@
 
 **Start here in order:**
 
-1. [ROADMAP.md](.ai/ROADMAP.md) - Understand what's built (90% complete)
+1. [ROADMAP.md](.ai/ROADMAP.md) - Understand what's built (platform live + Conductor complete)
 2. [PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md) - Complete technical architecture
 3. [SYSTEM-NAVIGATION.md] - This file navigates the codebase
 4. [PATTERNS.md](.ai/PATTERNS.md) - Learn code conventions
@@ -135,16 +137,17 @@
 
 | File | Purpose | When to Use |
 |------|---------|-------------|
-| [ROADMAP.md](.ai/ROADMAP.md) | Development status, 98% complete, 31 features | Check what's implemented vs planned |
+| [ROADMAP.md](.ai/ROADMAP.md) | v3.0, platform live + Conductor complete | Check what's implemented vs planned |
 | [PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md) | Complete technical + strategic spec (3,194 lines) | Understand business logic, architecture, APIs |
 | [SYSTEM-NAVIGATION.md](.ai/SYSTEM-NAVIGATION.md) | This file - where everything lives | Find code locations, user flows |
 | [PATTERNS.md](.ai/PATTERNS.md) | Code conventions, standards | Write consistent code |
 | [CONTEXT-MAP.md](.ai/CONTEXT-MAP.md) | How context files interconnect | Understand documentation structure |
 | [DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md) | UI/UX component library, design tokens | Build UI components |
-| [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) | 11 admin hubs architecture | Work on admin features |
+| [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) | 13 admin hubs architecture | Work on admin features |
 | [SHARED-FIELDS.md](.ai/SHARED-FIELDS.md) | 23 global fields, 106 mappings, 9 contexts | Work with form system |
 | [ONBOARDING.md](.ai/ONBOARDING.md) | Page-based onboarding (3 roles × 5 steps) | Work on onboarding flows |
 | [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) | Resources attribution system (Phases 1-3 complete, Blog→Resources migration complete 2026-01-18) | Work on resources-to-marketplace demand engine |
+| [conductor-solution-design.md](../conductor/conductor-solution-design.md) | Conductor solution design v4.2, all 7 phases | Work on Conductor platform (agents, teams, spaces, intelligence) |
 | [PROMPT.md](.ai/PROMPT.md) | AI assistant configuration | Configure AI behavior |
 
 ### Development Docs (`docs/development/`)
@@ -178,7 +181,7 @@
 
 ### Database (`tools/database/migrations/`)
 
-- **270 migrations** (numbered 000-270)
+- **386+ migrations** (numbered 000-386+)
 - Naming: `NNN_descriptive_name.sql`
 - Key migrations:
   - `001-074`: Core platform (profiles, listings, bookings)
@@ -186,12 +189,16 @@
   - `099-142`: Advanced features (organisations, CaaS, messages)
   - `143-200`: Enhancements (metrics, soft delete, Agent/Org CaaS)
   - `201-270`: EduPay, compliance, and additional features
+  - `271-300`: SEO, VirtualSpace, process studio foundations
+  - `301-340`: Process Studio, workflow execution, discovery
+  - `341-370`: Conductor Phase 3-5 intelligence tables, conformance, process mining
+  - `371-386`: Conductor Phase 6-7, DevOps team, agent memory, pg_cron jobs
 
 ---
 
 ## Visual Page Sitemap
 
-**All 400 Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
+**All 450+ Platform Pages** - Complete route hierarchy showing every page and API endpoint in the Tutorwise platform.
 
 ### Summary
 
@@ -403,6 +410,17 @@
 
 # Signal Analytics (1 page - live)
 /admin/signal                        # Revenue Signal Analytics dashboard (migrated from /admin/blog/orchestrator)
+
+# Conductor (11 tabs - live)
+/admin/conductor                     # Conductor control plane (11 tabs: workflows, discovery, build, agents, teams, spaces, knowledge, execution, monitoring, intelligence, mining)
+/admin/conductor/agents/[slug]       # Agent chat interface (per-agent)
+/admin/conductor/agents/tools        # Tools registry
+
+# Network Intelligence (1 page - live)
+/admin/network/                      # Network Intelligence dashboard (3 tabs)
+
+# Operations (1 page - live)
+/admin/operations                    # Admin operations dashboard
 ```
 
 ---
@@ -807,7 +825,7 @@ apps/web/src/app/(admin)/
         └── [step]/page.tsx               # Dynamic step routing
 
 Components:
-apps/web/src/app/components/feature/onboarding/
+apps/web/src/components/feature/onboarding/
 ├── tutor/
 │   ├── TutorOnboardingWizard.tsx         # Main wizard
 │   └── steps/
@@ -866,7 +884,7 @@ apps/web/src/app/(admin)/
     └── professional-info/page.tsx        # Professional template editor
 
 Components:
-apps/web/src/app/components/feature/
+apps/web/src/components/feature/
 ├── profile/
 │   ├── ProfileHeader.tsx
 │   ├── ProfileStats.tsx
@@ -901,7 +919,7 @@ apps/web/src/app/(admin)/
     └── [id]/page.tsx                     # Listing detail page
 
 Components:
-apps/web/src/app/components/feature/marketplace/
+apps/web/src/components/feature/marketplace/
 ├── MarketplaceGrid.tsx
 ├── ListingCard.tsx
 ├── SearchBar.tsx
@@ -942,7 +960,7 @@ apps/web/src/app/(admin)/
         └── edit/page.tsx                 # Edit listing
 
 Components:
-apps/web/src/app/components/feature/listings/
+apps/web/src/components/feature/listings/
 ├── wizard-steps/
 │   ├── CreateListings.tsx                # Main wizard orchestrator
 │   ├── BasicInfoStep.tsx
@@ -991,7 +1009,7 @@ apps/web/src/app/(admin)/
     └── page.tsx                          # Calendar view
 
 Components:
-apps/web/src/app/components/feature/bookings/
+apps/web/src/components/feature/bookings/
 ├── BookingCard.tsx
 ├── BookingCalendar.tsx
 ├── SessionDetails.tsx
@@ -1055,7 +1073,7 @@ apps/web/src/app/(admin)/
     └── [conversationId]/page.tsx         # Chat thread
 
 Components:
-apps/web/src/app/components/feature/messages/
+apps/web/src/components/feature/messages/
 ├── MessageInbox.tsx
 ├── ConversationList.tsx
 ├── ChatThread.tsx
@@ -1097,7 +1115,7 @@ apps/web/src/app/(admin)/
     └── trust-graph/page.tsx              # Trust graph viz
 
 Components:
-apps/web/src/app/components/feature/network/
+apps/web/src/components/feature/network/
 ├── ConnectionCard.tsx
 ├── ConnectionGroups.tsx
 ├── TrustGraphViz.tsx
@@ -1126,7 +1144,7 @@ apps/web/src/app/(admin)/
     └── [id]/page.tsx                     # List details
 
 Components:
-apps/web/src/app/components/feature/wiselists/
+apps/web/src/components/feature/wiselists/
 ├── WiselistCard.tsx
 ├── SaveButton.tsx
 └── ShareModal.tsx
@@ -1160,7 +1178,7 @@ apps/web/src/app/(authenticated)/
     └── join/[inviteToken]/page.tsx       # Invite link handler
 
 Components:
-apps/web/src/app/components/feature/virtualspace/
+apps/web/src/components/feature/virtualspace/
 ├── EmbeddedWhiteboard.tsx                # tldraw + Ably real-time sync
 ├── VirtualSpaceHeader.module.css         # Header styles (teal theme)
 └── (sidebar widgets)/                    # Stats, Help, Tip, Video widgets
@@ -1203,7 +1221,7 @@ apps/web/src/app/(admin)/
     └── write/[bookingId]/page.tsx        # Write review form
 
 Components:
-apps/web/src/app/components/feature/reviews/
+apps/web/src/components/feature/reviews/
 ├── ReviewCard.tsx
 ├── StarRating.tsx
 ├── ReviewForm.tsx
@@ -1231,7 +1249,7 @@ apps/web/src/app/(admin)/
     └── breakdown/page.tsx                # Score breakdown
 
 Components:
-apps/web/src/app/components/feature/caas/
+apps/web/src/components/feature/caas/
 ├── CaaSScoreCard.tsx
 ├── ScoreBreakdown.tsx
 ├── ProgressBar.tsx
@@ -1288,7 +1306,7 @@ apps/web/src/app/(admin)/
     └── page.tsx                          # Referral dashboard
 
 Components:
-apps/web/src/app/components/feature/referrals/
+apps/web/src/components/feature/referrals/
 ├── ReferralStats.tsx
 ├── QRCodeGenerator.tsx
 ├── CommissionTracker.tsx
@@ -1337,7 +1355,7 @@ apps/web/src/app/(admin)/
         └── settings/page.tsx             # Subscription & settings
 
 Components:
-apps/web/src/app/components/feature/organisations/
+apps/web/src/components/feature/organisations/
 ├── OrganisationCard.tsx
 ├── TeamMemberList.tsx
 ├── TaskKanban.tsx                        # 5-stage pipeline
@@ -1449,7 +1467,7 @@ apps/web/src/app/
     └── saves/route.ts                    # Article saves
 
 Components:
-apps/web/src/app/components/resources/
+apps/web/src/components/resources/
 ├── embeds/
 │   ├── TutorEmbed.tsx                    # Embed tutor profiles in MDX
 │   ├── ListingGrid.tsx                   # Embed marketplace listings
@@ -1485,7 +1503,7 @@ Database:
 
 ---
 
-### 19. Admin Dashboard (11 Hubs)
+### 19. Admin Dashboard (13 Hubs)
 
 **Description**: Complete admin system with RBAC (Super Admin, Admin, System Admin, Support Admin), audit logging, soft/hard delete
 
@@ -1520,7 +1538,7 @@ apps/web/src/app/(admin)/admin/
 └── users/                                # Users Hub
 
 Components:
-apps/web/src/app/components/admin/
+apps/web/src/components/admin/
 ├── sidebar/AdminSidebar.tsx              # Admin navigation
 ├── HubComplexModal.tsx                   # Reusable modal pattern
 └── hubs/
@@ -1545,6 +1563,126 @@ Database:
 
 **Related Docs**:
 - [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) - Complete admin architecture
+
+---
+
+### 20. Conductor (AI Agent Orchestration Platform)
+
+**Description**: Complete AI agent orchestration platform with specialist agents, teams, spaces, intelligence layer, process mining, and agent episodic memory. Replaces the legacy CAS framework.
+
+**Admin Flow**: `/admin/conductor` -> 11 tabs across 4 stages (Design, Build, Execute, Observe)
+
+**File Locations**:
+```
+Admin UI:
+apps/web/src/app/(admin)/admin/conductor/
+├── page.tsx                              # Conductor main page (11 tabs)
+├── agents/
+│   ├── [slug]/page.tsx                   # Agent chat interface
+│   └── tools/page.tsx                    # Tools registry
+
+Core Libraries:
+apps/web/src/lib/conductor/
+├── IntentDetector.ts                     # Intent classification for command bar
+└── ...
+
+Agent Studio:
+apps/web/src/lib/agent-studio/
+├── SpecialistAgentRunner.ts              # ReAct loop for specialist agents
+├── AgentMemoryService.ts                 # Episodic memory + fact extraction
+└── tools/
+    ├── executor.ts                       # 24+ analyst tool implementations
+    ├── definitions.ts                    # Tool definitions
+    └── types.ts                          # Tool types
+
+Team Runtime:
+apps/web/src/lib/workflow/team-runtime/
+├── TeamRuntime.ts                        # LangGraph StateGraph + PostgresSaver
+└── ...
+
+Platform Context:
+apps/web/src/lib/platform/
+├── user-context.ts                       # Enriched platform user context
+├── context-cache.ts                      # Redis context cache
+└── agent-handoff.ts                      # Cross-agent handoff
+
+API Routes:
+apps/web/src/app/api/admin/
+├── agents/                               # Agent CRUD + run
+├── teams/                                # Team CRUD + run + HITL resume
+├── tools/                                # Tools registry
+├── conductor/                            # Conductor-specific APIs
+│   ├── workflows/[id]/analytics/         # Process analytics
+│   ├── workflows/[id]/conformance/       # Conformance checking
+│   ├── workflows/[id]/shadow/            # Shadow monitoring
+│   ├── workflows/[id]/promote/           # Go-live promotion
+│   ├── autonomy/                         # Autonomy calibration
+│   └── knowledge/                        # Knowledge base CRUD
+├── network/intelligence/                 # Network intelligence
+└── */intelligence/                       # 14 domain intelligence endpoints
+
+Intelligence API Routes (14 domains):
+apps/web/src/app/api/admin/
+├── caas/intelligence/                    # CaaS health
+├── resources/intelligence/               # Resources health
+├── seo/intelligence/                     # SEO health
+├── signal/intelligence/                  # Signal analytics
+├── signal/marketplace/                   # Marketplace health
+├── listings/intelligence/                # Listings health
+├── bookings/intelligence/                # Bookings health
+├── financials/intelligence/              # Financial health
+├── virtualspace/intelligence/            # VirtualSpace health
+└── referrals/intelligence/               # Referral funnel
+
+Database:
+- tools/database/migrations/348-386+      # All Conductor tables
+  (specialist_agents, agent_run_outputs, analyst_tools, agent_subscriptions,
+   agent_teams, agent_team_run_outputs, platform_notifications,
+   platform_knowledge_chunks, decision_outcomes, process_autonomy_config,
+   memory_episodes, memory_facts, conformance_deviations, process_patterns, ...)
+
+Solution Design:
+- conductor/conductor-solution-design.md  # v4.2 — all 7 phases documented
+```
+
+**Key Concepts**:
+- **Agent Registry**: Agents (single), Teams (multi-agent), Spaces (domain containers)
+- **3 team patterns**: Supervisor (parallel+synthesis), Pipeline (sequential), Swarm (dynamic routing)
+- **HITL**: Human-in-the-loop interrupt/resume in supervisor pattern
+- **Intelligence Layer**: 14 domain-specific daily metrics tables with pg_cron pipeline
+- **Process Mining**: Conformance checking, deviation detection, shadow/live mode promotion
+- **Agent Memory**: Episodic memory (vector search) + fact extraction (subject/relation/object triples)
+
+---
+
+### 21. Growth Agent
+
+**Description**: Role-adaptive AI advisor for all users (tutor, client, agent, organisation). 5 skill modules with DSPy-style knowledge bases.
+
+**User Flow**: `/api/growth-agent/session` -> Chat interface, `/api/growth-agent/audit` -> Free revenue audit
+
+**File Locations**:
+```
+Core:
+apps/web/src/lib/growth-agent/
+├── index.ts                              # GrowthAgentOrchestrator
+├── skills/
+│   ├── profile-listing-audit.ts          # Pricing benchmarks, listing quality
+│   ├── referral-strategy.ts              # Channels, outreach templates
+│   ├── revenue-intelligence.ts           # Income patterns, tax guidance
+│   ├── income-stream-discovery.ts        # 4 income streams, unlock sequencing
+│   └── business-setup-compliance.ts      # Registration, compliance
+└── tools/
+    ├── types.ts                          # Tool type definitions
+    ├── definitions.ts                    # 8 tool definitions
+    └── executor.ts                       # Tool execution
+
+API Routes:
+apps/web/src/app/api/growth-agent/
+├── session/route.ts                      # GET/POST session management
+├── stream/route.ts                       # POST streaming chat
+└── audit/route.ts                        # GET free revenue audit
+```
 
 ---
 
@@ -1720,15 +1858,15 @@ Database:
 ### Platform Metrics Summary
 
 ```
-📊 Codebase Statistics (Verified 2026-02-15):
-├── 201,775 lines of TypeScript/TSX application code
-├── 547,436 lines of documentation (16K .ai + 244K docs + 287K other MD)
-├── 45,896 lines of SQL (270 migrations)
-├── 3,083,104 total project lines (all source files)
-├── 400 pages (131 UI + 226 API + 43 dynamic routes)
-├── 382 components (feature components + UI library)
-├── 226 API endpoints
-├── 31 major features
+📊 Codebase Statistics (Updated 2026-03-11):
+├── 201,775+ lines of TypeScript/TSX application code
+├── 547,436+ lines of documentation (16K .ai + 244K docs + 287K other MD)
+├── 50,000+ lines of SQL (386+ migrations, 90+ tables)
+├── 3,083,104+ total project lines (all source files)
+├── 450+ pages (180+ UI + 270+ API + dynamic routes)
+├── 400+ components (feature components + UI library)
+├── 270+ API endpoints
+├── 31+ major features + Conductor + Growth Agent
 └── Estimated value: $5M - $8M (based on 200K LOC enterprise platform)
 ```
 
@@ -1745,7 +1883,7 @@ tutorwise/
 │   ├── 5 - CONTEXT-MAP.md                 # Context interconnections
 │   ├── 6 - DESIGN-SYSTEM.md               # UI/UX component library
 │   ├── 7 - PROMPT.md                      # AI configuration
-│   ├── ADMIN-DASHBOARD.md                 # 11 admin hubs architecture
+│   ├── ADMIN-DASHBOARD.md                 # 13 admin hubs architecture
 │   ├── SHARED-FIELDS.md                   # 23 global fields, 106 mappings
 │   ├── ONBOARDING.md                      # Page-based onboarding (3 roles)
 │   └── RESOURCES-REVENUE-SIGNAL.md        # Resources attribution system (Phases 1-3, Blog→Resources migration complete 2026-01-18)
@@ -1754,7 +1892,7 @@ tutorwise/
 │   └── web/                               # Next.js 16.x frontend (202K lines)
 │       ├── src/
 │       │   ├── app/                       # App Router (160K lines)
-│       │   │   │                          # 131 UI pages + 226 API endpoints
+│       │   │   │                          # 180+ UI pages + 270+ API endpoints
 │       │   │   ├── (auth)/                # Authentication routes (4 pages)
 │       │   │   │   ├── login/
 │       │   │   │   ├── signup/
@@ -1774,8 +1912,8 @@ tutorwise/
 │       │   │   │   ├── organisations/     # Team management (5 pages)
 │       │   │   │   ├── developer/         # API keys
 │       │   │   │   └── help-centre/       # Help articles
-│       │   │   ├── (admin)/               # Admin panel (34 pages)
-│       │   │   │   ├── admin/             # 13 admin hubs
+│       │   │   ├── (admin)/               # Admin panel (50+ pages)
+│       │   │   │   ├── admin/             # 13 admin hubs + Conductor + Network
 │       │   │   │   │   ├── accounts/      # Accounts hub
 │       │   │   │   │   ├── bookings/      # Bookings hub
 │       │   │   │   │   ├── listings/      # Listings hub
@@ -1786,7 +1924,7 @@ tutorwise/
 │       │   │   │   │   ├── financials/    # Financials hub (3 pages)
 │       │   │   │   │   ├── seo/           # SEO hub (11 pages)
 │       │   │   │   │   └── settings/      # Settings hub (6 pages)
-│       │   │   ├── api/                   # API routes (226 endpoints)
+│       │   │   ├── api/                   # API routes (270+ endpoints)
 │       │   │   │   ├── admin/             # Admin APIs (23)
 │       │   │   │   ├── marketplace/       # Marketplace APIs (17)
 │       │   │   │   ├── bookings/          # Booking APIs (4)
@@ -1803,7 +1941,7 @@ tutorwise/
 │       │   │   │   └── [other APIs]       # Remaining endpoints
 │       │   │   ├── proxy.ts               # Next.js proxy - redirects/rewrites (Next.js 16)
 │       │   │   └── layout.tsx             # Root layout
-│       │   ├── components/                # 382 components (8K lines)
+│       │   ├── components/                # 400+ components
 │       │   │   └── feature/               # Feature component directories
 │       │   │       ├── onboarding/        # Onboarding components
 │       │   │       ├── listings/          # Listing components
@@ -1845,6 +1983,25 @@ tutorwise/
 │       │   │   │   ├── useAblyChannel.ts  # Channel subscriptions
 │       │   │   │   ├── usePresence.ts     # Presence tracking
 │       │   │   │   └── useTypingIndicator.ts # Typing indicators
+│       │   │   ├── conductor/             # Conductor orchestration
+│       │   │   │   └── IntentDetector.ts  # Intent classification
+│       │   │   ├── agent-studio/          # Agent runtime + memory
+│       │   │   │   ├── SpecialistAgentRunner.ts  # ReAct agent loop
+│       │   │   │   ├── AgentMemoryService.ts     # Episodic memory + facts
+│       │   │   │   └── tools/             # Analyst tool definitions + executor
+│       │   │   ├── growth-agent/          # Growth Agent AI advisor
+│       │   │   │   ├── index.ts           # Orchestrator
+│       │   │   │   ├── skills/            # 5 skill modules
+│       │   │   │   └── tools/             # 8 tool definitions
+│       │   │   ├── platform/              # Platform user context + cache
+│       │   │   │   ├── user-context.ts    # Enriched user context
+│       │   │   │   ├── context-cache.ts   # Redis cache
+│       │   │   │   └── agent-handoff.ts   # Cross-agent handoff
+│       │   │   ├── workflow/              # Workflow + team runtime
+│       │   │   │   ├── team-runtime/      # LangGraph TeamRuntime
+│       │   │   │   └── nudge-scheduler.ts # Nudge scheduler (replaces pg_cron)
+│       │   │   ├── ai/                    # Shared AI service (6-tier fallback)
+│       │   │   │   └── ...               # getAIService(), generate(), stream()
 │       │   │   ├── supabase/              # Supabase client
 │       │   │   │   ├── client.ts          # Client-side Supabase
 │       │   │   │   └── server.ts          # Server-side Supabase
@@ -1869,7 +2026,7 @@ tutorwise/
 │
 ├── tools/
 │   └── database/
-│       └── migrations/                    # 270 SQL migrations
+│       └── migrations/                    # 386+ SQL migrations
 │           ├── 001_create_profiles_table.sql
 │           ├── 002_create_listings_table_simplified.sql
 │           ├── 074_create_caas_scores_table.sql
@@ -1917,7 +2074,7 @@ tutorwise/
 │   ├── USER-JOURNEY-MAP.md                # User flows
 │   └── FORMS_ADMIN_GUIDE.md               # Forms system guide
 │
-├── cas/                                   # CAS Framework (optional)
+├── cas/                                   # Legacy CAS framework (migrated to Conductor)
 │   ├── agents/                            # Agent documentation
 │   │   ├── planner/
 │   │   ├── analyst/
@@ -1925,6 +2082,17 @@ tutorwise/
 │   │   └── qa/
 │   └── docs/
 │       └── feature-development-checklist.md
+│
+├── conductor/                             # Conductor solution designs + publish docs
+│   ├── conductor-solution-design.md       # v4.2 — all 7 phases documented
+│   ├── AI-Digital-Workforce-Blueprint.md  # Internal blueprint (NOT for external use)
+│   └── publish/                           # External publishing docs
+│       ├── 00-publishing-plan.md          # Master plan + venues
+│       ├── 01-technical-white-paper.md    # Enterprise/CTO audience
+│       └── 02-investor-thesis.md          # VC/investor audience
+│
+├── ipom/                                  # Process execution designs
+│   └── process-execution-solution-design.md # v3.2 — process execution engine
 │
 ├── package.json                           # Monorepo root
 ├── tsconfig.json                          # TypeScript config
@@ -1961,18 +2129,24 @@ tutorwise/
 | Update marketplace | `apps/web/src/app/(admin)/marketplace/` |
 | Add messaging features | `apps/web/src/app/(admin)/messages/` + `apps/web/src/lib/ably/` |
 | Modify CaaS scoring | `apps/web/src/lib/services/caas/` + [caas-dual-path-architecture.md](../docs/feature/caas/caas-dual-path-architecture.md) |
-| Work on resources attribution | `apps/web/src/app/components/resources/` + [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) |
+| Work on resources attribution | `apps/web/src/components/resources/` + [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) |
 | Work on admin dashboard | `apps/web/src/app/(admin)/admin/` + [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
 | Update referrals | `apps/web/src/app/(admin)/referral-activities/` + [referrals docs](../docs/feature/referrals/) |
 | Modify organisations | `apps/web/src/app/(admin)/organisations/` |
 | Add help articles | `apps/web/src/content/help-centre/` (MDX files) |
+| Work on Conductor | `apps/web/src/app/(admin)/admin/conductor/` + `apps/web/src/lib/conductor/` + `apps/web/src/lib/agent-studio/` |
+| Work on Growth Agent | `apps/web/src/lib/growth-agent/` + `apps/web/src/app/api/growth-agent/` |
+| Work on agent memory | `apps/web/src/lib/agent-studio/AgentMemoryService.ts` |
+| Work on team runtime | `apps/web/src/lib/workflow/team-runtime/` |
+| Work on platform context | `apps/web/src/lib/platform/` |
+| Work on intelligence APIs | `apps/web/src/app/api/admin/*/intelligence/` |
 
 ### UI/UX Development
 
 | I want to... | Go to... |
 |-------------|----------|
 | Use design system | [DESIGN-SYSTEM.md](.ai/DESIGN-SYSTEM.md) |
-| Find UI components | `apps/web/src/app/components/` |
+| Find UI components | `apps/web/src/components/` |
 | See component library | Run Storybook: `npm run storybook` |
 | Update styles | Tailwind CSS + CSS Modules (`.module.css` files) |
 | Add new page | `apps/web/src/app/(admin)/[feature]/page.tsx` |
@@ -1982,7 +2156,7 @@ tutorwise/
 
 | I want to... | Go to... |
 |-------------|----------|
-| See database schema | `tools/database/migrations/` (192 migrations) |
+| See database schema | `tools/database/migrations/` (386+ migrations) |
 | Add new table | Create new migration: `NNN_create_[table]_table.sql` |
 | Modify table | Create new migration: `NNN_alter_[table]_[change].sql` |
 | Query data | Supabase client: `apps/web/src/lib/supabase/` |
@@ -2008,7 +2182,8 @@ tutorwise/
 | **Dual-Path CaaS** | Profile vs Entity scoring | [caas-dual-path-architecture.md](../docs/feature/caas/caas-dual-path-architecture.md) |
 | **Role-Based Dashboard** | Dashboard design patterns | [role-based-dashboard-design.md](../docs/features/dashboard/role-based-dashboard-design.md) |
 | **Shared Fields System** | 23 global fields architecture | [SHARED-FIELDS.md](.ai/SHARED-FIELDS.md) |
-| **Admin Dashboard** | 11 hubs with HubComplexModal | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
+| **Admin Dashboard** | 13 hubs with HubComplexModal | [ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md) |
+| **Conductor** | AI agent orchestration (v4.2, 7 phases) | [conductor-solution-design.md](../conductor/conductor-solution-design.md) |
 | **Onboarding System** | Page-based routing | [ONBOARDING.md](.ai/ONBOARDING.md) |
 | **Referrals System** | Multi-tier attribution | [referrals-solution-design-v2.md](../docs/feature/referrals/referrals-solution-design-v2.md) |
 | **Resources Attribution** | Event-based demand engine | [RESOURCES-REVENUE-SIGNAL.md](.ai/RESOURCES-REVENUE-SIGNAL.md) |
@@ -2024,16 +2199,25 @@ tutorwise/
 - React Query (TanStack Query)
 
 **Backend & Data**:
-- Supabase PostgreSQL (192 migrations)
+- Supabase PostgreSQL (386+ migrations, 90+ tables)
 - Supabase Auth (multi-role)
 - Ably (real-time messaging, presence, typing)
 - Stripe Connect (payments, commissions)
+- pgvector (768-dim embeddings via `gemini-embedding-001`)
 
 **Admin**:
-- Custom dashboard (11 hubs)
+- Custom dashboard (13 hubs)
 - RBAC (4 admin roles)
 - Audit logging
 - Soft/hard delete with GDPR compliance
+
+**Conductor (AI Agent Orchestration)**:
+- Specialist agents (8 built-in + custom)
+- Team runtime (LangGraph StateGraph + PostgresSaver)
+- 14-domain intelligence layer with pg_cron pipeline
+- Process mining with conformance checking
+- Agent episodic memory (vector + fact triples)
+- Nudge scheduler (implemented, ready to replace pg_cron when needed)
 
 ### Integration Points
 
@@ -2052,7 +2236,7 @@ Frontend (Next.js)
 
 ### Essential Reading Order
 
-1. **[ROADMAP.md](.ai/ROADMAP.md)** - Start here (98% complete, 18 features)
+1. **[ROADMAP.md](.ai/ROADMAP.md)** - Start here (platform live + Conductor complete)
 2. **[PLATFORM-SPECIFICATION.md](.ai/PLATFORM-SPECIFICATION.md)** - Complete tech spec
 3. **This file** - Navigate the codebase
 4. **[PATTERNS.md](.ai/PATTERNS.md)** - Code conventions
@@ -2070,7 +2254,7 @@ Frontend (Next.js)
 
 ### Admin Resources
 
-- **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - 11 hubs architecture
+- **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - 13 hubs architecture
 - **[FORMS_ADMIN_GUIDE.md](../docs/FORMS_ADMIN_GUIDE.md)** - Forms & shared fields
 
 ---

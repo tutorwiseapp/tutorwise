@@ -1,9 +1,9 @@
 # Design System
 
 # The Tutorwise Design System
-*Version: 2.0*
-*Date: February 28, 2026*
-*Merged from Engineering Team (v1.0) and CAS Analyst Agent (v1.1) documents, verified against actual codebase.*
+*Version: 2.1*
+*Date: March 13, 2026*
+*Merged from Engineering Team (v1.0) and CAS Analyst Agent (v1.1) documents, verified against actual codebase. v2.1: directory structure audit fix — dual component locations, missing subdirectories.*
 
 ---
 
@@ -166,48 +166,74 @@ All tokens are defined in `apps/web/src/app/globals.css`.
 ### 3.1 Directory Structure
 
 ```
-apps/web/src/app/
-├── (authenticated)/           # User-facing authenticated routes
-│   └── {feature}/
-│       ├── page.tsx
-│       ├── page.module.css
-│       ├── components/        # Feature-specific components
-│       └── hooks/
+apps/web/src/
+├── app/                       # Routes only (Next.js App Router)
+│   ├── (authenticated)/       # User-facing authenticated routes
+│   │   └── {feature}/
+│   │       ├── page.tsx
+│   │       ├── page.module.css
+│   │       ├── components/    # Route-specific components (co-located)
+│   │       └── hooks/
+│   │
+│   └── (admin)/               # Admin-only routes
+│       └── admin/
+│           └── {feature}/
+│               ├── page.tsx
+│               ├── page.module.css
+│               ├── components/
+│               └── hooks/
 │
-├── (admin)/                   # Admin-only routes
-│   └── admin/
-│       └── {feature}/
-│           ├── page.tsx
-│           ├── page.module.css
-│           ├── components/
-│           └── hooks/
-│
-├── components/
-│   ├── hub/                   # Hub architecture (SHARED)
-│   │   ├── layout/            # HubPageLayout, HubHeader, HubTabs, HubPagination
-│   │   ├── sidebar/           # HubSidebar, sidebar cards
-│   │   ├── content/           # HubEmptyState, HubRowCard, HubDetailCard
-│   │   ├── data/              # HubDataTable
-│   │   ├── charts/            # HubKPICard, HubKPIGrid, HubTrendChart
-│   │   ├── form/              # HubForm, HubToggle
-│   │   ├── modal/             # HubDetailModal, HubComplexModal
-│   │   └── toolbar/           # HubToolbar
-│   │
-│   ├── ui/                    # Base UI components
-│   │   ├── actions/           # Button, VerticalDotsMenu
-│   │   ├── forms/             # Input, UnifiedSelect, Checkbox, Radio, FormGroup, ToggleSwitch
-│   │   ├── feedback/          # Modal, Message, LoadingSkeleton
-│   │   ├── data-display/      # StatusBadge, Card, StatCard, StatGrid, DataTable
-│   │   └── navigation/        # Tabs, Breadcrumb, NavLink
-│   │
-│   ├── admin/                 # Admin-specific shared components
-│   │   ├── layout/            # AdminLayout
-│   │   ├── sidebar/           # AdminSidebar
-│   │   └── widgets/           # AdminStatsWidget, AdminHelpWidget, AdminTipWidget
-│   │
-│   └── feature/               # Feature-specific shared components
-│       └── {feature}/
+└── components/                # All shared components (NOT under app/)
+    ├── hub/                   # Hub architecture (SHARED)
+    │   ├── layout/            # HubPageLayout, HubHeader, HubTabs, HubPagination
+    │   ├── sidebar/           # HubSidebar, sidebar cards
+    │   ├── content/           # HubEmptyState, HubRowCard, HubDetailCard
+    │   ├── data/              # HubDataTable
+    │   ├── charts/            # HubKPICard, HubKPIGrid, HubTrendChart
+    │   ├── kanban/            # HubKanbanBoard (dnd-kit drag-and-drop)
+    │   ├── form/              # HubForm, HubToggle
+    │   ├── modal/             # HubDetailModal, HubComplexModal
+    │   ├── toolbar/           # HubToolbar
+    │   ├── tables/            # Additional table utilities
+    │   └── styles/            # Shared hub CSS
+    │
+    ├── ui/                    # Base UI components
+    │   ├── actions/           # Button, VerticalDotsMenu
+    │   ├── forms/             # Input, UnifiedSelect, Checkbox, Radio, FormGroup, ToggleSwitch
+    │   ├── feedback/          # Modal, Message, LoadingSkeleton
+    │   ├── data-display/      # StatusBadge, Card, StatCard, StatGrid, DataTable
+    │   ├── navigation/        # Tabs, Breadcrumb, NavLink
+    │   ├── branding/          # Logo, brand assets
+    │   ├── icons/             # Icon utilities
+    │   ├── payments/          # Payment-specific UI (Stripe elements)
+    │   └── profile/           # Profile display components (avatar, badges)
+    │
+    ├── admin/                 # Admin-specific shared components
+    │   ├── layout/            # AdminLayout
+    │   ├── sidebar/           # AdminSidebar
+    │   ├── widgets/           # AdminStatsWidget, AdminHelpWidget, AdminTipWidget
+    │   ├── badges/            # Admin-specific badge components
+    │   └── modals/            # Admin-specific modal components
+    │
+    ├── feature/               # Feature-specific shared components (37 dirs)
+    │   ├── {user-features}/   # ai-agents, bookings, network, referrals, etc.
+    │   ├── conductor/         # Conductor admin UI (BuildCanvas, IntelligencePanel, etc.)
+    │   ├── workflow/          # Process Studio (WorkflowCanvas, MonitoringPanel, etc.)
+    │   ├── canvas/            # Shared canvas utilities
+    │   ├── growth/            # Growth Agent UI
+    │   ├── scheduler/         # Scheduler components
+    │   ├── sage/              # Sage AI tutor components
+    │   ├── lexi/              # Lexi help bot components
+    │   └── organisations/     # Organisation-specific components
+    │
+    ├── ai-agents/             # AI agent builder/marketplace components
+    ├── analytics/             # Shared analytics components
+    ├── help-centre/           # Help centre components
+    ├── layout/                # Global layout components
+    └── resources/             # Resources/articles components
 ```
+
+All shared components live under `src/components/` (not `src/app/`). Import via `@/components/feature/{name}`, `@/components/ui/{category}`, etc.
 
 ### 3.2 Naming Conventions
 
@@ -229,8 +255,8 @@ import React, { useState } from 'react';
 // External imports
 import { useQuery } from '@tanstack/react-query';
 // Internal imports - absolute paths
-import { HubDataTable } from '@/app/components/hub/data';
-import Button from '@/app/components/ui/actions/Button';
+import { HubDataTable } from '@/components/hub/data';
+import Button from '@/components/ui/actions/Button';
 // Local imports
 import styles from './ComponentName.module.css';
 
@@ -281,7 +307,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 **Usage:**
 ```tsx
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 
 <Button variant="primary" size="sm" onClick={handleAction}>Save</Button>
 <Button variant="secondary" onClick={onCancel}>Cancel</Button>
@@ -579,9 +605,9 @@ Each page can customize Hub components via CSS custom properties:
 ### 7.1 Standard Form Structure
 
 ```tsx
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import Input from '@/app/components/ui/forms/Input';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import Input from '@/components/ui/forms/Input';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
 
 <FormGroup label="Field Label" htmlFor="fieldName" footnote="Helper text">
   <Input
@@ -672,8 +698,8 @@ export default function EditItemModal({ isOpen, onClose, item, onSuccess }: Prop
 ### 8.2 HubDataTable Usage (Admin)
 
 ```tsx
-import { HubDataTable } from '@/app/components/hub/data';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import { HubDataTable } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 
 const columns = [
   { key: 'id', label: 'ID', width: '100px', render: (row) => formatId(row.id) },
@@ -775,7 +801,7 @@ Pill-shaped (`border-radius: 9999px`), solid colored backgrounds, white text. Se
 
 **Full-page empty state (`HubEmptyState`):**
 ```tsx
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 import { FileText } from 'lucide-react';
 
 <HubEmptyState
@@ -959,28 +985,28 @@ if (error) return <FeatureError error={error} onRetry={() => refetch()} />;
 
 ```tsx
 // Hub Layout
-import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
+import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
 
 // Hub Content
-import { HubDataTable } from '@/app/components/hub/data';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import { HubDataTable } from '@/components/hub/data';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 
 // Hub Charts
-import { HubKPIGrid, HubKPICard } from '@/app/components/hub/charts';
+import { HubKPIGrid, HubKPICard } from '@/components/hub/charts';
 
 // UI Components
-import Button from '@/app/components/ui/actions/Button';
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
-import Modal from '@/app/components/ui/feedback/Modal';
-import StatusBadge from '@/app/components/ui/data-display/StatusBadge';
-import Input from '@/app/components/ui/forms/Input';
-import FormGroup from '@/app/components/ui/forms/FormGroup';
-import UnifiedSelect from '@/app/components/ui/forms/UnifiedSelect';
-import Card from '@/app/components/ui/data-display/Card';
+import Button from '@/components/ui/actions/Button';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import Modal from '@/components/ui/feedback/Modal';
+import StatusBadge from '@/components/ui/data-display/StatusBadge';
+import Input from '@/components/ui/forms/Input';
+import FormGroup from '@/components/ui/forms/FormGroup';
+import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import Card from '@/components/ui/data-display/Card';
 
 // Admin Widgets
-import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/app/components/admin/widgets';
+import { AdminStatsWidget, AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 ```
 
 ---

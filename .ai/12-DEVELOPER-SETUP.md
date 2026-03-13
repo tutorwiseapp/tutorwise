@@ -2,8 +2,8 @@
 
 **Complete setup guide for new and existing developers**
 
-Last Updated: 2026-03-06
-Version: 2.0
+Last Updated: 2026-03-11
+Version: 3.0
 
 ---
 
@@ -35,8 +35,41 @@ TutorWise is a full-stack tutoring marketplace platform built with:
 - **Payments**: Stripe
 - **AI**: 6-tier fallback chain — xAI Grok 4 Fast → Gemini Flash → DeepSeek R1 → Claude Sonnet 4.6 → GPT-4o → Rules-based
 - **AI Dev Tools**: Claude Code
+- **Orchestration**: Conductor (admin canvas at `/admin/conductor`)
+
+### Platform Scale
+
+| Metric | Count |
+|--------|-------|
+| **Pages** | 450+ |
+| **Components** | 400+ |
+| **Commits** | 1,800+ |
+| **Database Migrations** | 386+ |
 
 This guide covers everything from initial setup to daily development workflows.
+
+### Key Directory Structure
+
+```
+tutorwise/
+├── apps/web/                          # Next.js 16 application
+│   └── src/
+│       ├── app/admin/conductor/       # Conductor UI pages
+│       └── lib/
+│           ├── ai/                    # Shared AI service (getAIService singleton)
+│           ├── agent-studio/          # SpecialistAgentRunner, AgentMemoryService, tools/
+│           ├── conductor/             # IntentDetector, knowledge
+│           ├── growth-agent/          # Growth Agent orchestrator + skills + tools
+│           ├── platform/              # PlatformUserContext, context-cache, agent-handoff
+│           ├── process-studio/        # PlatformWorkflowRuntime, ConformanceChecker
+│           └── workflow/team-runtime/ # TeamRuntime, AgentTeamState
+├── sage/                              # AI tutor
+├── lexi/                              # Help bot
+├── cas/                               # Agent SDK (legacy — migrated to Conductor)
+├── conductor/                         # Conductor solution designs + publish docs
+├── ipom/                              # Process execution solution designs
+└── tools/database/migrations/         # SQL migrations (386+, sequential numbering)
+```
 
 ---
 
@@ -249,6 +282,12 @@ supabase gen types typescript --project-id YOUR_PROJECT_ID > apps/web/src/types/
    ```
 
 > **Important:** Use `POSTGRES_URL_NON_POOLING` for migrations and LangGraph's `PostgresSaver`. Use the pooler URL for all runtime queries.
+
+**Key Database Features:**
+- **pgvector** with HNSW indexes on: `listings`, `profiles`, `connection_groups`, `sage_knowledge_chunks`, `platform_knowledge_chunks`, `memory_episodes`
+- **Hybrid search RPCs:** `search_listings_hybrid`, `search_profiles_hybrid`, `search_organisations_hybrid`, `match_platform_knowledge_chunks`, `match_memory_episodes`, `match_memory_facts`
+- **Admin authorization:** Use `is_admin()` SQL function for RLS policies (not an admin_users table)
+- **Embedding model:** `gemini-embedding-001` with `outputDimensionality: 768`
 
 **Run Database Migrations:**
 ```bash
@@ -618,6 +657,16 @@ OPENAI_AI_API_KEY=sk-xxxxx         # tier 5
 
 # Process Studio webhook (for process execution engine)
 PROCESS_STUDIO_WEBHOOK_SECRET=xxxxx
+
+# Cron authentication (for pg_cron and scheduled jobs)
+CRON_SECRET=xxxxx
+
+# Session-mode Postgres (port 5432 — for DDL, migrations, LangGraph checkpointer)
+POSTGRES_URL_NON_POOLING=postgresql://postgres.xxxxx:[PASSWORD]@aws-1-eu-west-2.pooler.supabase.com:5432/postgres
+
+# Redis / Upstash (for PlatformUserContext caching)
+UPSTASH_REDIS_REST_URL=https://xxxxx.upstash.io
+UPSTASH_REDIS_REST_TOKEN=xxxxx
 ```
 
 ### Environment Variable Precedence
@@ -771,7 +820,15 @@ claude login
 claude --version
 ```
 
-#### 7. AI Provider Errors
+#### 7. Stale `.next` Cache / `pages-manifest.json` ENOENT
+
+```bash
+# The .next cache can get corrupted if multiple builds run concurrently
+rm -rf apps/web/.next
+npm run dev
+```
+
+#### 8. AI Provider Errors
 
 The AI service auto-falls back through the 6-tier chain. If you see AI-related errors:
 ```bash
@@ -843,7 +900,7 @@ npm run dev
 
 ### Before Committing
 
-The pre-commit hook runs automatically on `git commit` and enforces:
+The pre-commit hook (Husky) runs automatically on `git commit` and enforces:
 - **Tests** (Jest)
 - **Lint** (ESLint — warnings allowed, errors block)
 - **Build** (full Next.js build — takes ~5 minutes)
@@ -936,10 +993,21 @@ npm run jira:poll:continuous
 ### Development Resources
 
 - **Component Library**: Storybook at `npm run storybook`
-- **API Documentation**: Backend docs at `http://localhost:8000/docs`
-- **Database Migrations**: `tools/database/migrations/`
+- **Database Migrations**: `tools/database/migrations/` (386+ migrations, sequential numbering)
+- **Conductor Solution Design**: `conductor/conductor-solution-design.md` (v4.2)
+- **Process Execution Design**: `ipom/process-execution-solution-design.md` (v3.2)
 - **Design System**: `.ai/6 - DESIGN-SYSTEM.md`
 - **Coding Patterns**: `.ai/4 - PATTERNS.md`
+
+### Conductor (Admin Canvas)
+
+The Conductor is the operational control plane at `/admin/conductor`. Key subsystems:
+
+- **Agent Registry**: Agents (single-agent) + Teams (multi-agent) + Spaces (domain containers)
+- **Process Studio**: Workflow execution engine with shadow/live modes
+- **Intelligence Layer**: 14 specialist analyst tools, daily metrics pipeline via pg_cron
+- **Agent Memory**: Episodic memory (vector) + fact triples per agent run
+- **HITL**: Human-in-the-loop interrupt/resume in supervisor team pattern
 
 ### Team Collaboration
 
@@ -989,7 +1057,7 @@ npm run sync:env            # Sync .env.example → .env.local
 
 # Setup
 npm run setup:direnv        # Setup direnv
-npm run setup:cas           # Setup CAS system
+npm run setup:cas           # Setup Conductor agent system (legacy CAS alias)
 npm run setup-aliases       # Create helpful aliases
 ```
 

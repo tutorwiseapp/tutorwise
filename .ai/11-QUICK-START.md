@@ -1,14 +1,15 @@
 # TutorWise Quick Start Guide
 
-**Get running in 5 minutes**
+**Get running in 5 minutes** | Last updated: 2026-03-11
 
 ---
 
 ## Prerequisites
 
-✅ Node.js 18+ installed
-✅ Git installed
-✅ Code editor (VSCode recommended)
+- Node.js 22+ (`/opt/homebrew/opt/node@22/bin`)
+- Git installed
+- Code editor (VSCode recommended)
+- PostgreSQL 17 client (`/opt/homebrew/opt/postgresql@17/bin/psql`)
 
 Not installed? See [DEVELOPER-SETUP.md](DEVELOPER-SETUP.md#prerequisites)
 
@@ -26,10 +27,10 @@ cd tutorwise
 ```
 
 This script will:
-- ✅ Install dependencies (`npm install`)
-- ✅ Create `.env.local` from template
-- ✅ Set up git hooks
-- ✅ Run health check
+- Install dependencies (`npm install`)
+- Create `.env.local` from template
+- Set up git hooks (pre-commit runs tests, lint, full build)
+- Run health check
 
 ---
 
@@ -51,7 +52,7 @@ NODE_ENV=development
 **Don't have Supabase credentials?**
 1. Go to [app.supabase.com](https://app.supabase.com/)
 2. Create new project (takes ~2 minutes)
-3. Get credentials from Project Settings → API
+3. Get credentials from Project Settings > API
 
 ---
 
@@ -61,7 +62,46 @@ NODE_ENV=development
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) 🎉
+Open [http://localhost:3000](http://localhost:3000)
+
+---
+
+## Architecture Overview
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| **Web app** | `apps/web/` | Next.js 16 |
+| **Sage** | `sage/` | AI tutor |
+| **Lexi** | `lexi/` | Help bot |
+| **CAS SDK** | `cas/` | Agent SDK (legacy — migrated to Conductor) |
+| **Database** | Supabase | PostgreSQL + pgvector (HNSW indexes) |
+| **Migrations** | `tools/database/migrations/` | Sequential numbers, currently at 386+ |
+
+### AI Providers (6-tier fallback chain)
+
+1. xAI Grok 4 Fast (primary)
+2. Google Gemini Flash
+3. DeepSeek R1
+4. Anthropic Claude Sonnet 4.6
+5. OpenAI GPT-4o
+6. Rules-based fallback
+
+Shared AI service at `apps/web/src/lib/ai/` — `getAIService()` singleton with `generate()`, `generateJSON<T>()`, `stream()`.
+
+Env var naming uses `_AI_` infix: `XAI_AI_API_KEY`, `GOOGLE_AI_API_KEY`, `DEEPSEEK_AI_API_KEY`, `ANTHROPIC_AI_API_KEY`, `OPENAI_AI_API_KEY` (providers check both `*_AI_API_KEY` and `*_API_KEY`).
+
+### Conductor (Admin Control Plane)
+
+The **Conductor** at `/admin/conductor` is the admin canvas for managing the platform's digital workforce:
+
+- **Agents** — specialist agents (`specialist_agents` table)
+- **Teams** — multi-agent teams (`agent_teams` table) with Supervisor/Pipeline/Swarm patterns
+- **Spaces** — program/domain containers (`agent_spaces` table)
+- **Workflows** — process execution engine with shadow/live modes
+
+Key design docs:
+- Conductor solution design: `conductor/conductor-solution-design.md` (v4.2)
+- Process execution design: `ipom/process-execution-solution-design.md` (v3.2)
 
 ---
 
@@ -88,10 +128,10 @@ npm run workflow:check  # Health check
 
 ### Essential Documentation
 
-- 📖 **[DEVELOPER-SETUP.md](DEVELOPER-SETUP.md)** - Complete setup guide
-- 🔧 **[environment-setup.md](../docs/development/environment-setup.md)** - Daily workflow
-- 🗺️ **[ROADMAP.md](1 - ROADMAP.md)** - Product roadmap
-- 🏗️ **[PLATFORM-SPECIFICATION.md](2 - PLATFORM-SPECIFICATION.md)** - Architecture
+- [DEVELOPER-SETUP.md](DEVELOPER-SETUP.md) — Complete setup guide
+- [environment-setup.md](../docs/development/environment-setup.md) — Daily workflow
+- [ROADMAP.md](1%20-%20ROADMAP.md) — Product roadmap
+- [PLATFORM-SPECIFICATION.md](2%20-%20PLATFORM-SPECIFICATION.md) — Architecture
 
 ### Optional Services (Enable Features)
 
@@ -100,9 +140,7 @@ npm run workflow:check  # Health check
 | **Stripe** | Payments & bookings | [DEVELOPER-SETUP.md#stripe](DEVELOPER-SETUP.md#1-stripe-payment-processing) |
 | **Resend** | Email notifications | [DEVELOPER-SETUP.md#resend](DEVELOPER-SETUP.md#2-resend-email-service) |
 | **Ably** | Real-time chat | [DEVELOPER-SETUP.md#ably](DEVELOPER-SETUP.md#3-ably-real-time-messaging) |
-| **Neo4j** | Recommendations | [DEVELOPER-SETUP.md#neo4j](DEVELOPER-SETUP.md#2-neo4j-graph-database) |
 | **Claude Code** | AI development | [DEVELOPER-SETUP.md#claude-code](DEVELOPER-SETUP.md#2-claude-code-cli) |
-| **Gemini AI** | AI features | [DEVELOPER-SETUP.md#gemini](DEVELOPER-SETUP.md#1-google-gemini-api) |
 
 ---
 
@@ -151,9 +189,16 @@ npm run workflow:clean
 ### Database Connection Error
 ```bash
 # Verify Supabase URL is correct
-cat .env.local | grep SUPABASE_URL
+grep SUPABASE_URL .env.local
 
-# Check Supabase project is running at app.supabase.com
+# Use pooler connection (aws-1-eu-west-2) for queries
+# Use non-pooling port 5432 for DDL/migrations
+```
+
+### Stale Build Cache
+```bash
+rm -rf apps/web/.next
+npm run dev
 ```
 
 ---
@@ -181,7 +226,5 @@ tw-clean     # npm run workflow:clean
 4. **Ask the team**: Create GitHub issue or ask in Slack
 
 ---
-
-**Happy coding! 🚀**
 
 For complete setup with all tools and services, see [DEVELOPER-SETUP.md](DEVELOPER-SETUP.md)

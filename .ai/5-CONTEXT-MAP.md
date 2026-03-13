@@ -1,44 +1,67 @@
 # Tutorwise Context Map
 
-**Document Version**: 2.1
-**Last Updated**: 2026-02-12
+**Document Version**: 3.0
+**Last Updated**: 2026-03-11
 **Purpose**: Maps how all context files interconnect to enable autonomous AI development
 
 ---
 
-## 📊 **AI Context System Overview**
+## AI Context System Overview
 
 This document maps the complete AI context engineering system for Tutorwise, showing how all files work together to enable autonomous development.
 
-### **Context File Structure**
+### Context File Structure
 
 ```
 .ai/
-├── PROMPT.md                    # 🎯 Universal AI context & development guidelines
-├── PLATFORM-SPECIFICATION.md    # 📖 Complete technical + strategic specification
-├── SYSTEM-NAVIGATION.md         # 🗺️ Complete codebase navigation & user flows
-├── ROADMAP.md                   # 🚀 Development roadmap & completion status (98%)
-├── PATTERNS.md                  # 🧩 Code patterns & conventions
-├── DESIGN-SYSTEM.md             # 🎨 UI/UX component library & design tokens
-├── CONTEXT-MAP.md               # 📊 This file - how everything connects
-├── ADMIN-DASHBOARD.md           # 🛠️ Admin Dashboard documentation (11 hubs)
-├── SHARED-FIELDS.md             # 🔧 Shared Fields System (23 fields, 106 mappings)
-└── ONBOARDING.md                # 📝 Onboarding flows (page-based, 3 roles × 5 steps)
+├── 0-TUTORWISE.md               # Project overview & index
+├── 1-ROADMAP.md                  # Development roadmap & completion status
+├── 2-PLATFORM-SPECIFICATION.md   # Complete technical + strategic specification
+├── 3-SYSTEM-NAVIGATION.md        # Complete codebase navigation & user flows
+├── 4-PATTERNS.md                 # Code patterns & conventions
+├── 5-CONTEXT-MAP.md              # This file - how everything connects
+├── 6-DESIGN-SYSTEM.md            # UI/UX component library & design tokens
+├── 7-PROMPT.md                   # Universal AI context & development guidelines
+├── 8-USER-JOURNEY-MAP.md         # User journey maps across roles
+├── 9-UPDATE-PACKAGES.md          # Package update procedures
+├── 10-SHARED-FIELDS.md           # Shared Fields System (23 fields, 106 mappings)
+├── 11-QUICK-START.md             # Quick start guide
+└── 12-DEVELOPER-SETUP.md         # Developer setup instructions
+```
+
+### Conductor & Operations Context Files
+
+```
+conductor/
+├── conductor-solution-design.md         # Conductor solution design v4.2 (primary reference)
+├── process-execution-solution-design.md # Process Execution Engine design v3.2
+├── workflow-solution-design.md          # Workflow system design
+├── process-discovery-solution-design.md # Process discovery design
+├── content-factory-solution-design.md   # Content factory design
+├── AI-Digital-Workforce-Blueprint.md    # Internal blueprint (NOT for external use)
+├── conductor-gdpr-retention-policy.md   # GDPR retention policies
+├── conductor-v3-audit.md               # v3 audit results
+├── mcp-solution-design.md              # MCP integration design
+├── lexi-enhancement-proposal.md        # Lexi bot enhancement proposal
+└── *-intelligence-spec.md              # 14 intelligence domain specs
+
+ipom/
+└── process-execution-solution-design.md # Process execution design (folder renamed from fuchsia/)
 ```
 
 ---
 
-## 🔗 **How Context Files Interconnect**
+## How Context Files Interconnect
 
-### **1. PROMPT.md** → Universal AI Context (Entry Point)
-**Size**: 25KB | **Priority**: P0 - Read First
+### 1. PROMPT.md -> Universal AI Context (Entry Point)
+**Priority**: P0 - Read First
 **Last Updated**: 2026-01-14
 
 **Purpose**: Primary AI context file providing project overview, development guidelines, and context retrieval protocol
 
 **Contains**:
-- Current project status (98% complete, beta Feb 1, 2026)
-- Tech stack (Next.js 14.x, TypeScript 5.x, Supabase)
+- Current project status
+- Tech stack (Next.js 16, TypeScript 5.x, Supabase)
 - Context retrieval protocol (what to read when)
 - Development workflows
 - AI behavior guidelines
@@ -54,13 +77,14 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - **SYSTEM-NAVIGATION.md** (find where code lives)
 - **ROADMAP.md** (current priorities)
 - **PATTERNS.md** (code conventions)
+- **conductor-solution-design.md** (Conductor architecture)
 
 **When to Read**: Always first - provides navigation to all other context
 
 ---
 
-### **2. SYSTEM-NAVIGATION.md** → Complete Codebase Navigation & User Flows
-**Size**: 850 lines | **Priority**: P0 - Essential for Navigation
+### 2. SYSTEM-NAVIGATION.md -> Complete Codebase Navigation & User Flows
+**Priority**: P0 - Essential for Navigation
 **Last Updated**: 2026-01-14
 
 **Purpose**: Complete navigation map for developers and stakeholders to understand where everything lives and how users flow through the platform
@@ -68,17 +92,15 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 **Contains**:
 - Quick start guide for new developers
 - Documentation map (where to find what)
-- Feature → File location map (all 18 features)
+- Feature -> File location map
 - User journey flows (Tutor, Client, Agent)
 - Complete codebase structure
 - "I Want To..." quick reference guide
-- Architecture references
 
 **Used For**:
 - Finding where specific features are implemented
 - Understanding user flows through the platform
 - Locating components, services, API routes
-- Navigating the 396-page codebase
 - Understanding how features interconnect
 
 **Connects To**:
@@ -86,14 +108,14 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - **PATTERNS.md** (how code is structured)
 - **ROADMAP.md** (what's implemented)
 - **DESIGN-SYSTEM.md** (UI components)
-- Feature-specific docs in `docs/features/`
+- **conductor-solution-design.md** (Conductor navigation)
 
 **When to Read**: When you need to find code, understand user flows, or navigate the codebase
 
 ---
 
-### **3. PLATFORM-SPECIFICATION.md** → Complete Technical Reference
-**Size**: 203KB (3,194 lines) | **Priority**: P0 - Reference for Implementation
+### 3. PLATFORM-SPECIFICATION.md -> Complete Technical Reference
+**Priority**: P0 - Reference for Implementation
 **Last Updated**: 2026-01-14
 
 **Purpose**: Comprehensive technical and strategic specification covering all platform systems
@@ -132,27 +154,18 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - **PATTERNS.md** (implementation patterns for features)
 - **ROADMAP.md** (what's complete vs in-progress)
 - **SHARED-FIELDS.md** (forms architecture details)
-- **ADMIN-DASHBOARD.md** (admin sections deep dive)
 - **DESIGN-SYSTEM.md** (UI component specifications)
+- **conductor-solution-design.md** (Conductor/Operations architecture)
 
 **When to Read**: When implementing features, understanding architecture, or needing technical details
 
 ---
 
-### **4. ROADMAP.md** → Development Status & Timeline
-**Size**: 500 lines | **Priority**: P1 - Check for Priorities
+### 4. ROADMAP.md -> Development Status & Timeline
+**Priority**: P1 - Check for Priorities
 **Last Updated**: 2026-01-14
 
 **Purpose**: Current development status, completed features, in-progress work, and future plans
-
-**Contains**:
-- Platform completion status (98%)
-- 18 completed features
-- In-progress final 2% (mobile polish, performance, beta prep)
-- Beta release timeline (Feb 1, 2026)
-- Technology stack (current + future)
-- Success metrics
-- Recent completions
 
 **Used For**:
 - Understanding what's complete vs in-progress
@@ -165,13 +178,14 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - **SYSTEM-NAVIGATION.md** (where features are located)
 - **PLATFORM-SPECIFICATION.md** (feature details)
 - **PATTERNS.md** (implementation approach)
+- **conductor-solution-design.md** (Conductor phases)
 
 **When to Read**: When planning work, checking feature status, or understanding priorities
 
 ---
 
-### **5. PATTERNS.md** → Code Conventions & Patterns
-**Size**: 850 lines | **Priority**: P1 - Read for Implementation
+### 5. PATTERNS.md -> Code Conventions & Patterns
+**Priority**: P1 - Read for Implementation
 **Last Updated**: 2026-01-14
 
 **Purpose**: Code patterns, component structures, and conventions used throughout the codebase
@@ -179,7 +193,7 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 **Contains** (14 pattern categories):
 1. HubComplexModal Pattern (Admin detail modals)
 2. UnifiedSelect/UnifiedMultiSelect Pattern (Form components)
-3. Shared Fields System Pattern (23 → 106 → 9 architecture)
+3. Shared Fields System Pattern (23 -> 106 -> 9 architecture)
 4. Service Role Client Pattern (Admin operations)
 5. Server Component Pattern
 6. API Route Pattern
@@ -203,33 +217,30 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 - **SYSTEM-NAVIGATION.md** (file locations)
 - **DESIGN-SYSTEM.md** (UI component patterns)
 - **SHARED-FIELDS.md** (form field patterns)
-- **ADMIN-DASHBOARD.md** (HubComplexModal usage)
 
 **When to Read**: When writing new code, creating components, or implementing features
 
 ---
 
-### **6. DESIGN-SYSTEM.md** → UI/UX Component Library & Design Tokens
-**Size**: TBD | **Priority**: P1 - Essential for UI Development
+### 6. DESIGN-SYSTEM.md -> UI/UX Component Library & Design Tokens
+**Priority**: P1 - Essential for UI Development
 **Last Updated**: 2026-01-14
 
 **Purpose**: Complete UI/UX design system with component library, design tokens, and implementation guidelines
 
 **Contains**:
 - Design tokens (colors, typography, spacing)
-- Component library (353 components)
+- Component library
 - Grid systems and layouts
 - Responsive design patterns
 - Accessibility guidelines
 - Animation and transitions
-- Figma design reference
 
 **Used For**:
 - Building consistent UI components
 - Implementing design system
 - Understanding visual design standards
 - Ensuring accessibility compliance
-- Responsive design implementation
 
 **Connects To**:
 - **SYSTEM-NAVIGATION.md** (component file locations)
@@ -240,23 +251,18 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **7. CONTEXT-MAP.md** → This File
-**Size**: Current document | **Priority**: P2 - Read for Understanding
-**Last Updated**: 2026-01-14
+### 7. CONTEXT-MAP.md -> This File
+**Priority**: P2 - Read for Understanding
+**Last Updated**: 2026-03-11
 
 **Purpose**: Maps how all context files interconnect and guides AI decision-making
 
 **Contains**:
 - Context file relationships
+- Conductor & Operations architecture overview
 - AI decision-making framework
-- System architecture overview
+- Key codebase directories and paths
 - When to read which files
-- Context update guidelines
-
-**Used For**:
-- Understanding the context system
-- Knowing which file to reference
-- Guiding autonomous development decisions
 
 **Connects To**: All other context files
 
@@ -264,52 +270,11 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **8. ADMIN-DASHBOARD.md** → Admin Dashboard Deep Dive
-**Size**: TBD | **Priority**: P1 - Essential for Admin Development
+### 8. SHARED-FIELDS.md -> Shared Fields System Deep Dive
+**Priority**: P1 - Essential for Forms Development
 **Last Updated**: 2026-01-14
 
-**Purpose**: Complete admin dashboard architecture covering all 11 hubs
-
-**Contains**:
-- Overview of 11 admin hubs
-- HubComplexModal pattern implementation
-- Soft delete vs hard delete flows
-- GDPR compliance implementation
-- Advanced filtering and search
-- Bulk operations
-- Export functionality
-- RBAC system (4 admin roles)
-- Audit logging
-
-**Used For**:
-- Building admin features
-- Understanding admin architecture
-- Implementing admin modals
-- GDPR compliance workflows
-
-**Connects To**:
-- **SYSTEM-NAVIGATION.md** (admin hub file locations)
-- **PATTERNS.md** (HubComplexModal pattern)
-- **PLATFORM-SPECIFICATION.md** (admin requirements)
-
-**When to Read**: When building admin features or implementing admin hubs
-
----
-
-### **9. SHARED-FIELDS.md** → Shared Fields System Deep Dive
-**Size**: TBD | **Priority**: P1 - Essential for Forms Development
-**Last Updated**: 2026-01-14
-
-**Purpose**: Complete shared fields architecture (23 global fields → 106 context mappings → 9 form contexts)
-
-**Contains**:
-- Architecture overview (3-layer system)
-- Database schema (shared_fields, form_context_fields)
-- UnifiedSelect/UnifiedMultiSelect components
-- Field customization per context
-- Migration from hardcoded options
-- Admin configuration UI
-- Implementation examples
+**Purpose**: Complete shared fields architecture (23 global fields -> 106 context mappings -> 9 form contexts)
 
 **Used For**:
 - Building forms with shared fields
@@ -326,295 +291,347 @@ This document maps the complete AI context engineering system for Tutorwise, sho
 
 ---
 
-### **10. ONBOARDING.md** → Onboarding Flows Documentation
-**Size**: TBD | **Priority**: P1 - Essential for Onboarding Development
-**Last Updated**: 2026-01-14
+### 9. Conductor Solution Design (v4.2) -> Conductor Architecture
+**File**: `conductor/conductor-solution-design.md`
+**Priority**: P0 - Essential for Conductor/Operations Development
+**Last Updated**: 2026-03-11
 
-**Purpose**: Complete onboarding system architecture (page-based, 3 roles × 5 steps each)
+**Purpose**: Complete Conductor architecture — the admin control plane for agents, teams, spaces, workflows, and intelligence
 
 **Contains**:
-- Page-based onboarding architecture
-- Migration from wizard (zero data loss)
-- Role-specific flows (Tutor, Client, Agent)
-- Draft saving mechanism
-- Progress tracking
-- Validation rules
-- CaaS calculation bridge
-- Implementation examples
+- Conductor tab structure (11 tabs, 4 stages)
+- Agent, Team, Space hierarchy
+- Specialist agent runner and ReAct loop
+- TeamRuntime (LangGraph StateGraph + PostgresSaver)
+- Process Execution Engine
+- Intelligence Layer (14 domains)
+- Process Mining and Conformance
+- Knowledge Base and RAG
+- Agent Episodic Memory
+- HITL (Human-in-the-Loop) patterns
+
+**Conductor Tab Structure** (4 stages, 11 tabs):
+```
+Design:   workflows, discovery
+Build:    build, agents, teams, spaces, knowledge
+Execute:  execution
+Observe:  monitoring, intelligence, mining
+```
 
 **Used For**:
-- Understanding onboarding flows
-- Implementing role-specific steps
-- Zero data loss state management
-- Onboarding modifications
+- Understanding Conductor architecture and phases
+- Implementing agent/team/space features
+- Building intelligence domain integrations
+- Process execution and workflow automation
 
 **Connects To**:
-- **SYSTEM-NAVIGATION.md** (onboarding file locations)
-- **SHARED-FIELDS.md** (form fields integration)
-- **PATTERNS.md** (form handling pattern)
-- **PLATFORM-SPECIFICATION.md** (onboarding requirements)
+- **PLATFORM-SPECIFICATION.md** (platform integration)
+- **SYSTEM-NAVIGATION.md** (file locations)
+- **process-execution-solution-design.md** (execution engine details)
+- **Intelligence spec files** (14 domain-specific specs in `conductor/`)
 
-**When to Read**: When working on onboarding flows or user registration
+**When to Read**: When working on Conductor, agents, teams, workflows, intelligence, or operations
 
 ---
 
-## 🎯 **AI Decision-Making Framework**
+### 10. Process Execution Solution Design -> Execution Engine
+**File**: `conductor/process-execution-solution-design.md` (also `ipom/process-execution-solution-design.md`)
+**Priority**: P1 - Essential for Process Execution
+**Last Updated**: 2026-03-03
 
-### **When Asked to Build a Feature:**
+**Purpose**: Process Execution Engine design (v3.2) — runtime for workflow execution with shadow/live modes
+
+**Contains**:
+- PlatformWorkflowRuntime architecture
+- LangGraph checkpointer (PostgresSaver)
+- Execution modes: design, shadow, live
+- Webhook integration (Supabase DB webhooks)
+- Stripe webhook resume flow
+- Shadow monitoring and go-live checklist
+
+**Used For**:
+- Understanding process execution
+- Shadow vs live mode mechanics
+- Webhook-driven workflow triggers
+
+**Connects To**:
+- **conductor-solution-design.md** (parent architecture)
+- **PLATFORM-SPECIFICATION.md** (platform integration)
+
+**When to Read**: When working on workflow execution, shadow mode, or process automation
+
+---
+
+## Conductor & Operations Architecture
+
+### Conductor Overview
+
+The **Conductor** is the admin control plane at `/admin/conductor`. It replaces the legacy CAS (Conversational Agent SDK) framework and manages the platform's digital workforce.
+
+**Key Terminology**:
+- **Agent**: Single specialist agent (stored in `specialist_agents` table)
+- **Team**: Multi-agent group (stored in `agent_teams` table) — 3 patterns: Supervisor, Pipeline, Swarm
+- **Space**: Program/domain container (stored in `agent_spaces` table) — 4 built-in: go-to-market, engineering, operations, analytics
+- **Workflow**: Process definition and execution
+- **Conductor**: The admin control plane UI and APIs
+
+**Hierarchy**: Space > Team > Agent (multi-tenant ready with RLS + `created_by`)
+
+### Key Conductor Directories
+
+```
+apps/web/src/lib/
+├── agent-studio/                  # Agent execution & memory
+│   ├── SpecialistAgentRunner.ts   # ReAct loop, tool calls, agent_run_outputs
+│   ├── AgentMemoryService.ts      # Episodic memory + fact extraction (vector 768-dim)
+│   └── tools/
+│       ├── executor.ts            # 24+ analyst tools (14 intelligence + 10 built-in)
+│       ├── definitions.ts         # Tool schema definitions
+│       └── types.ts               # Tool type definitions
+├── conductor/                     # Conductor services
+│   └── IntentDetector.ts          # ExecutionCommandBar intent classification
+├── platform/                      # Platform context services
+│   ├── user-context.ts            # PlatformUserContext (enriched with scores, signals)
+│   ├── context-cache.ts           # Redis cache for context
+│   └── agent-handoff.ts           # Cross-agent handoff
+├── workflow/
+│   └── team-runtime/
+│       └── TeamRuntime.ts         # LangGraph StateGraph + PostgresSaver (Phase 6A)
+├── process-studio/                # Process execution engine
+│   ├── runtime/                   # PlatformWorkflowRuntime
+│   └── conformance/               # ConformanceChecker
+└── growth-agent/                  # Growth Agent (role-adaptive AI advisor) [planned]
+```
+
+### Conductor API Routes
+
+```
+/api/admin/
+├── agents/                        # Agent CRUD, run, chat
+├── teams/                         # Team CRUD, run, HITL resume
+├── tools/                         # Analyst tools registry
+├── conductor/
+│   ├── autonomy/                  # Autonomy calibration
+│   ├── knowledge/                 # Knowledge base CRUD + RAG
+│   └── workflows/[id]/
+│       ├── analytics              # Process mining analytics
+│       ├── conformance            # Conformance checking
+│       ├── shadow                 # Shadow monitoring dashboard
+│       └── promote                # Shadow -> live promotion
+├── process-studio/
+│   ├── execute/                   # Start, resume, task complete
+│   └── processes/[id]/execution-mode  # Toggle design/shadow/live
+├── network/intelligence           # Network intelligence
+└── [domain]/intelligence          # 14 intelligence domain routes:
+    # caas, resources, seo, signal, signal/marketplace,
+    # listings, bookings, financials, virtualspace, referrals,
+    # growth, ai-adoption, org-conversion, ai-studio
+```
+
+### Intelligence Pipeline (pg_cron schedule)
+
+14 intelligence domains computed daily via pg_cron:
+```
+04:30 UTC  resources
+04:45 UTC  article_intelligence_scores
+05:00 UTC  seo
+05:30 UTC  caas
+06:00 UTC  marketplace
+06:30 UTC  bookings
+07:00 UTC  listings
+07:30 UTC  financials
+08:00 UTC  virtualspace
+09:00 UTC  referrals
+09:30 UTC  retention + growth_scores
+10:00 UTC  ai_adoption
+10:30 UTC  org_conversion
+11:00 UTC  ai_studio
+```
+
+A scheduler has been implemented to replace pg_cron when ready.
+
+### Agent Memory (Phase 7)
+
+- **Tables**: `memory_episodes` (vector 768-dim HNSW) + `memory_facts` (subject/relation/object triples)
+- **RPCs**: `match_memory_episodes()` + `match_memory_facts()`
+- **Service**: `AgentMemoryService.ts` — `fetchMemoryBlock()`, `recordEpisode()`, `extractAndStoreFacts()`
+- Integration: Injected as `PAST EXPERIENCE` section in agent runs; facts extracted post-run via `ai.generateJSON()`
+
+### Legacy CAS
+
+The `cas/` folder contains the original Conversational Agent SDK — now deprecated (soft-deprecated migration 385, hard delete eligible 2026-06-11). CAS functionality has been migrated to Conductor agents and teams. CAS tables (`cas_agent_status`, `cas_agent_events`, `cas_agent_logs`, etc.) remain for backward compatibility.
+
+---
+
+## AI Decision-Making Framework
+
+### When Asked to Build a Feature:
 
 ```
 1. Start with PROMPT.md
-   ↓ Understand current project status and context retrieval protocol
+   | Understand current project status and context retrieval protocol
 
 2. Check SYSTEM-NAVIGATION.md
-   ↓ Where are related features? What's the file structure?
+   | Where are related features? What's the file structure?
 
 3. Check ROADMAP.md
-   ↓ Is this feature complete? In-progress? Prioritized?
+   | Is this feature complete? In-progress? Prioritized?
 
 4. Review PLATFORM-SPECIFICATION.md
-   ↓ What are the technical requirements? Database schema? API endpoints?
+   | What are the technical requirements? Database schema? API endpoints?
 
-4. Apply PATTERNS.md
-   ↓ What patterns should be used? Component structure? Conventions?
+5. Apply PATTERNS.md
+   | What patterns should be used? Component structure? Conventions?
 
-5. Check specialized docs if applicable
-   ↓ ADMIN-DASHBOARD.md, SHARED-FIELDS.md, ONBOARDING.md
+6. Check Conductor context if applicable
+   | conductor-solution-design.md for agents, teams, workflows, intelligence
 
-6. Implement autonomously with full context
+7. Check specialized docs if applicable
+   | SHARED-FIELDS.md, intelligence specs, process execution design
+
+8. Implement autonomously with full context
 ```
 
-### **Example Decision Flows**
+### Example Decision Flows
 
-#### **Example 1: "Add a new admin hub section"**
-
-```
-PROMPT.md → Platform is 95% complete, admin sections use HubComplexModal pattern
-ROADMAP.md → Admin Dashboard is complete (12 sections), check if new section fits
-PLATFORM-SPECIFICATION.md → Review admin dashboard architecture, database schema
-PATTERNS.md → Apply HubComplexModal pattern, follow conventions
-ADMIN-DASHBOARD.md → Reference existing hub implementations
-Result → Autonomous implementation following established patterns
-```
-
-#### **Example 2: "Add a new form field to onboarding"**
+#### Example 1: "Add a new intelligence domain"
 
 ```
-PROMPT.md → Onboarding uses page-based approach with Shared Fields
-ROADMAP.md → Onboarding system is complete, Shared Fields is production-ready
-PLATFORM-SPECIFICATION.md → Review forms architecture, Shared Fields tables
-PATTERNS.md → Apply UnifiedSelect pattern, Shared Fields integration
-SHARED-FIELDS.md → Check 23 → 106 → 9 architecture, field customization
-ONBOARDING.md → Review onboarding flow, step structure
-Result → Add field using Shared Fields system, update form_config
+PROMPT.md -> Understand Conductor architecture, AI service setup
+conductor-solution-design.md -> Review intelligence layer, 14 existing domains
+SYSTEM-NAVIGATION.md -> Find intelligence API routes, intelligence specs
+PATTERNS.md -> Follow API route pattern, React Query pattern
+conductor/*-intelligence-spec.md -> Reference existing spec format
+Result -> Create spec, migration, pg_cron job, API route, IntelligencePanel sub-tab
 ```
 
-#### **Example 3: "Fix a performance issue"**
+#### Example 2: "Add a new specialist agent"
 
 ```
-PROMPT.md → Platform uses Next.js 15 Server Components, React Query
-ROADMAP.md → Performance optimization is 70% complete, check known issues
-PLATFORM-SPECIFICATION.md → Review performance optimization section, caching strategies
-PATTERNS.md → Apply Server Component pattern, database query optimization
-Result → Implement fix following performance best practices
+PROMPT.md -> Understand agent architecture
+conductor-solution-design.md -> Review Agent/Team/Space hierarchy
+SYSTEM-NAVIGATION.md -> Find SpecialistAgentRunner, agent API routes
+PATTERNS.md -> Follow agent configuration pattern
+Result -> Seed agent in migration, add tools, configure schedule
 ```
 
----
-
-## 🏗️ **System Architecture Overview**
-
-### **Core Systems Map**
+#### Example 3: "Add a new admin hub section"
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Tutorwise Platform                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ User Roles   │  │ Authentication│  │ Authorization│    │
-│  │ (4 types)    │→ │ (Supabase)    │→ │ (RLS + RBAC) │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │           Admin Dashboard (12 Sections)              │ │
-│  │  Accounts │ Forms │ Orgs │ Listings │ Bookings │... │ │
-│  │  (HubComplexModal Pattern for all sections)          │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ Shared Fields│→ │ Form Contexts│→ │ 27 Forms      │    │
-│  │ (23 fields)  │  │ (106 mappings)│  │ (9 contexts)  │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ Onboarding   │  │ Marketplace  │  │ Booking       │    │
-│  │ (Page-based) │  │ (Listings)   │  │ (Calendar)    │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ Payments     │  │ Referrals    │  │ Reviews       │    │
-│  │ (Stripe)     │  │ (3 phases)   │  │ (Moderation)  │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
-│  │ Messaging    │  │ Help Centre  │  │ Dashboards    │    │
-│  │ (WiseChat)   │  │ (Jira SD)    │  │ (4 roles)     │    │
-│  └──────────────┘  └──────────────┘  └──────────────┘    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+PROMPT.md -> Platform uses HubComplexModal pattern for admin
+PLATFORM-SPECIFICATION.md -> Review admin dashboard architecture, database schema
+PATTERNS.md -> Apply HubComplexModal pattern, follow conventions
+Result -> Autonomous implementation following established patterns
 ```
 
-### **Shared Fields Architecture**
+#### Example 4: "Add a new form field to onboarding"
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│              Shared Fields System (23 → 106 → 9)            │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │         23 Global Shared Fields                      │ │
-│  │  subject_specializations │ grade_levels │ tutoring... │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                          ↓                                  │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │         106 Context Mappings (form_config)           │ │
-│  │  Each field × each context = customization          │ │
-│  │  (isRequired, isEnabled, displayOrder, customLabel)  │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                          ↓                                  │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │              9 Form Contexts                         │ │
-│  │  ┌────────────┬────────────┬────────────────────┐   │ │
-│  │  │ Form Type  │   Role     │  Example Form      │   │ │
-│  │  ├────────────┼────────────┼────────────────────┤   │ │
-│  │  │ Onboarding │ Tutor      │ Tutor Professional │   │ │
-│  │  │ Onboarding │ Client     │ Client Preferences │   │ │
-│  │  │ Onboarding │ Agent      │ Agent Professional │   │ │
-│  │  │ Account    │ Tutor      │ Tutor Services     │   │ │
-│  │  │ Account    │ Client     │ Client Preferences │   │ │
-│  │  │ Account    │ Agent      │ Agent Details      │   │ │
-│  │  │ Organisation│ Tutor     │ Org Settings       │   │ │
-│  │  │ Organisation│ Client    │ Org Settings       │   │ │
-│  │  │ Organisation│ Agent     │ Org Settings       │   │ │
-│  │  └────────────┴────────────┴────────────────────┘   │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### **Admin Dashboard Architecture**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│           Admin Dashboard (12 Sections)                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Each section follows HubComplexModal Pattern:             │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ 1. List View (AdminHubPage)                         │  │
-│  │    - Table with data                                │  │
-│  │    - Filters and search                             │  │
-│  │    - Pagination                                     │  │
-│  │    - Click row → Open detail modal                  │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                          ↓                                  │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │ 2. Detail Modal (HubComplexModal)                   │  │
-│  │    ┌────────────────────────────────────┐          │  │
-│  │    │ Header (Title, Close Button)       │          │  │
-│  │    ├────────────────────────────────────┤          │  │
-│  │    │ Tabs (Overview, Details, Actions)  │          │  │
-│  │    ├────────────────────────────────────┤          │  │
-│  │    │ Content (Tab-specific data)        │          │  │
-│  │    ├────────────────────────────────────┤          │  │
-│  │    │ Actions (Edit, Delete, etc.)       │          │  │
-│  │    └────────────────────────────────────┘          │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                             │
-│  Sections:                                                 │
-│  1. Accounts Hub     7. Reviews Hub                        │
-│  2. Forms Hub        8. Financials Hub                     │
-│  3. Organisations    9. SEO Hub                            │
-│  4. Listings Hub     10. Settings Hub                      │
-│  5. Bookings Hub     11. Configurations Hub                │
-│  6. Referrals Hub    12. Action Logging Hub                │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+PROMPT.md -> Onboarding uses page-based approach with Shared Fields
+PLATFORM-SPECIFICATION.md -> Review forms architecture, Shared Fields tables
+PATTERNS.md -> Apply UnifiedSelect pattern, Shared Fields integration
+SHARED-FIELDS.md -> Check 23 -> 106 -> 9 architecture, field customization
+Result -> Add field using Shared Fields system, update form_config
 ```
 
 ---
 
-## 📁 **Codebase Structure Context**
+## Codebase Structure Context
 
-### **Key Directories to Understand**
+### Key Directories
 
 ```
 tutorwise/
 ├── apps/
-│   └── web/                    # Next.js application
+│   └── web/                         # Next.js 16 application
 │       ├── src/
-│       │   ├── app/            # App Router pages
-│       │   │   ├── (admin)/    # Admin routes (12 sections)
-│       │   │   ├── (auth)/     # Auth routes (login, signup)
-│       │   │   ├── (dashboard)/# User dashboards (4 roles)
-│       │   │   ├── api/        # API routes (222 endpoints)
-│       │   │   └── components/ # Page-specific components
-│       │   ├── components/     # Shared components (382 total)
-│       │   │   ├── admin/      # Admin-specific (HubComplexModal)
-│       │   │   ├── auth/       # Auth components
-│       │   │   ├── feature/    # Feature-specific
-│       │   │   └── ui/         # UI primitives
-│       │   ├── lib/            # Utilities and helpers
-│       │   │   ├── api/        # API client functions
-│       │   │   ├── hooks/      # Custom React hooks
-│       │   │   └── utils/      # Utility functions
-│       │   └── utils/          # Supabase clients
-│       │       └── supabase/   # Server & client setup
-│       └── public/             # Static assets
+│       │   ├── app/                 # App Router pages
+│       │   │   ├── (admin)/         # Admin routes (12 sections + Conductor)
+│       │   │   │   └── admin/
+│       │   │   │       └── conductor/  # Conductor UI (11 tabs, 4 stages)
+│       │   │   ├── (auth)/          # Auth routes
+│       │   │   ├── (dashboard)/     # User dashboards (4 roles)
+│       │   │   ├── api/             # API routes
+│       │   │   │   ├── admin/       # Admin APIs (agents, teams, tools, conductor, etc.)
+│       │   │   │   ├── cron/        # Cron job endpoints
+│       │   │   │   └── webhooks/    # Webhook handlers (process-studio, Stripe)
+│       │   │   └── components/      # Page-specific components
+│       │   ├── components/          # Shared components
+│       │   │   ├── admin/           # Admin-specific (HubComplexModal, Conductor panels)
+│       │   │   ├── auth/            # Auth components
+│       │   │   ├── feature/         # Feature-specific
+│       │   │   └── ui/              # UI primitives
+│       │   ├── lib/                 # Utilities and services
+│       │   │   ├── ai/             # Shared AI service (6-tier fallback chain)
+│       │   │   ├── agent-studio/   # Agent execution, memory, tools
+│       │   │   ├── conductor/      # Conductor services (IntentDetector)
+│       │   │   ├── platform/       # Platform context, cache, handoff
+│       │   │   ├── process-studio/ # Process execution engine + conformance
+│       │   │   ├── workflow/       # Team runtime (LangGraph)
+│       │   │   ├── api/            # API client functions
+│       │   │   ├── hooks/          # Custom React hooks
+│       │   │   └── utils/          # Utility functions
+│       │   └── utils/
+│       │       └── supabase/       # Server & client setup
+│       └── public/                 # Static assets
+├── sage/                           # AI tutor package
+├── lexi/                           # Help bot package
+├── cas/                            # Legacy CAS SDK (deprecated — migrated to Conductor)
+├── conductor/                      # Solution designs & intelligence specs
+│   ├── conductor-solution-design.md   # v4.2 — primary Conductor reference
+│   ├── process-execution-solution-design.md
+│   └── *-intelligence-spec.md         # 14 intelligence domain specs
+├── ipom/                           # Process execution design (renamed from fuchsia/)
 ├── tools/
 │   └── database/
-│       └── migrations/         # 270 Supabase migrations
-├── docs/                       # Documentation (non-AI)
-│   ├── feature/                # Feature implementation docs
-│   ├── help-centre/            # User documentation
-│   ├── testing/                # Testing documentation
-│   ├── integration/            # Integration guides
-│   └── database/               # Database documentation
-└── .ai/                        # AI context files (this folder)
+│       └── migrations/             # 400+ Supabase migrations (latest ~401)
+├── docs/                           # Documentation (non-AI)
+│   ├── feature/                    # Feature implementation docs
+│   ├── help-centre/                # User documentation
+│   ├── testing/                    # Testing documentation
+│   ├── integration/                # Integration guides
+│   └── database/                   # Database documentation
+└── .ai/                            # AI context files (this folder)
 ```
 
-### **Pattern Recognition**
+### Pattern Recognition
 
 When implementing features, AI analyzes:
 
 ```javascript
 // Component Naming
-✅ UnifiedSelect.tsx         // Feature + component type
-✅ HubComplexModal.tsx       // Pattern name
-✅ AdminSidebar.tsx          // Context + component type
+AdminSidebar.tsx          // Context + component type
+HubComplexModal.tsx       // Pattern name
+UnifiedSelect.tsx         // Feature + component type
+IntelligencePanel.tsx     // Conductor panel component
+MiningPanel.tsx           // Conductor mining panel
 
 // API Routes
-✅ /api/admin/accounts/[id]/route.ts    // RESTful naming
-✅ /api/shared-fields/[fieldName]/options/route.ts
+/api/admin/accounts/[id]/route.ts    // RESTful naming
+/api/admin/agents/route.ts           // Conductor agent routes
+/api/admin/conductor/workflows/[id]/analytics  // Conductor analytics
 
 // Database Tables
-✅ shared_fields              // Lowercase, underscores
-✅ form_config                // Descriptive, clear purpose
-✅ user_profiles              // Relation to users table
+specialist_agents          // Conductor agents
+agent_teams                // Conductor teams
+agent_spaces               // Conductor spaces
+workflow_executions         // Process execution tracking
+memory_episodes             // Agent episodic memory
+memory_facts                // Agent fact extraction
+platform_knowledge_chunks   // RAG knowledge base
 
-// TypeScript Patterns
-✅ Strict mode enabled
-✅ Interfaces over types (for extensibility)
-✅ Proper null/undefined handling
-✅ Zod for runtime validation
+// Key Conventions
+// Icons: lucide-react (NOT emoji)
+// DB columns: delivery_mode (array), work_location (text), listing_type (varchar)
+// Embedding: gemini-embedding-001 with outputDimensionality: 768
+// Auth: is_admin() function for RLS policies
 ```
 
 ---
 
-## 🔄 **Context Update Cycle**
+## Context Update Cycle
 
-### **When to Update Context Files**
+### When to Update Context Files
 
 | File | Update Trigger | Frequency |
 |------|---------------|-----------|
@@ -623,101 +640,58 @@ When implementing features, AI analyzes:
 | **ROADMAP.md** | Feature completion, priority shift | Weekly during active development |
 | **PATTERNS.md** | New pattern introduced, pattern refinement | When new patterns are established |
 | **CONTEXT-MAP.md** | New context file added, structure change | When context system evolves |
+| **conductor-solution-design.md** | Conductor phase completion | After each Conductor phase |
 | **Specialized docs** | Related system changes | After related feature completion |
 
-### **Context Validation Checklist**
+### Context Validation Checklist
 
 Before considering context complete:
-- [ ] All tech stack references accurate (Next.js 15, TypeScript 5.x, Supabase)
-- [ ] No outdated technology references (FastAPI, Railway, Neo4j, Kinde)
-- [ ] Current completion status reflected (95%)
-- [ ] New patterns documented (HubComplexModal, UnifiedSelect, Shared Fields)
+- [ ] All tech stack references accurate (Next.js 16, TypeScript 5.x, Supabase)
+- [ ] No outdated technology references
+- [ ] Conductor architecture current (check phase status)
+- [ ] Migration numbers accurate (currently 400+)
 - [ ] Cross-references between files accurate
-- [ ] File sizes and line counts updated
+- [ ] Intelligence domains up to date (currently 14)
+- [ ] Agent/Team/Space hierarchy documented
 - [ ] Last updated dates current
 - [ ] Examples reflect actual codebase patterns
 
 ---
 
-## 🚀 **Autonomous Development Benefits**
+## Context Coverage Assessment
 
-### **Before Context Engineering**
-```
-User: "Add a new form field to tutor onboarding"
-AI: "What form? Where should it go? What type of field? Should it be required?"
-User: Provides all details manually
-AI: Implements based on user guidance
-Result: 10+ back-and-forth messages, potential inconsistencies
-```
-
-### **After Context Engineering**
-```
-User: "Add 'teaching_methodology' field to tutor onboarding"
-AI:
-  ✓ Reads PROMPT.md → Understands Shared Fields system
-  ✓ Checks ROADMAP.md → Onboarding is complete, can extend
-  ✓ Reviews PLATFORM-SPECIFICATION.md → Finds form schema
-  ✓ Applies PATTERNS.md → Uses UnifiedSelect pattern
-  ✓ References SHARED-FIELDS.md → 23 → 106 → 9 architecture
-  ✓ Implements autonomously:
-    1. Add field to shared_fields table
-    2. Create form_config mapping for tutor onboarding context
-    3. Update onboarding form component with UnifiedSelect
-    4. Add validation rules
-    5. Test and verify
-Result: 1-2 messages, complete implementation, full consistency
-```
-
-### **Development Speed Impact**
-
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Requirements gathering | 15-20 min | 1-2 min | **90% reduction** |
-| Pattern consistency | 60-70% | 98-100% | **Consistent** |
-| Architectural alignment | Manual review | Automatic | **100% aligned** |
-| Feature completeness | 70-80% | 95-100% | **Higher quality** |
-| Implementation time | 2-4 hours | 30-60 min | **60-75% faster** |
-
----
-
-## 📊 **Context Coverage Assessment**
-
-### **Current State (Jan 2026)**
+### Current State (March 2026)
 
 | Context Area | Coverage | Quality | File |
 |--------------|----------|---------|------|
-| Project Overview | ✅ Complete | High | PROMPT.md |
-| Technical Specification | ✅ Complete | High | PLATFORM-SPECIFICATION.md |
-| Development Roadmap | ✅ Complete | High | ROADMAP.md |
-| Code Patterns | ✅ Complete | High | PATTERNS.md |
-| Context Mapping | ✅ Complete | High | CONTEXT-MAP.md (this file) |
-| Admin Dashboard | 🔄 Pending | - | ADMIN-DASHBOARD.md |
-| Shared Fields System | 🔄 Pending | - | SHARED-FIELDS.md |
-| Onboarding Flows | 🔄 Pending | - | ONBOARDING.md |
-
-### **Quality Indicators**
-
-- **Specificity**: ⭐⭐⭐⭐⭐ High - Detailed patterns and implementations
-- **Completeness**: ⭐⭐⭐⭐☆ Very Good - Core complete, specialized pending
-- **Currency**: ⭐⭐⭐⭐⭐ Excellent - Updated Jan 2026, reflects current state
-- **Actionability**: ⭐⭐⭐⭐⭐ Excellent - Enables autonomous development
-- **Cross-referencing**: ⭐⭐⭐⭐⭐ Excellent - Clear connections between files
+| Project Overview | Complete | High | PROMPT.md |
+| Technical Specification | Complete | High | PLATFORM-SPECIFICATION.md |
+| Development Roadmap | Complete | High | ROADMAP.md |
+| Code Patterns | Complete | High | PATTERNS.md |
+| Context Mapping | Complete | High | CONTEXT-MAP.md (this file) |
+| Conductor Architecture | Complete | High | conductor-solution-design.md v4.2 |
+| Process Execution | Complete | High | process-execution-solution-design.md |
+| Intelligence Specs | Complete | High | conductor/*-intelligence-spec.md (14) |
+| Design System | Complete | High | DESIGN-SYSTEM.md |
+| Shared Fields System | Complete | High | SHARED-FIELDS.md |
+| User Journey Map | Complete | High | USER-JOURNEY-MAP.md |
 
 ---
 
-## 💡 **Best Practices for Using This Context System**
+## Best Practices for Using This Context System
 
-### **For AI Development**
+### For AI Development
 
 1. **Always start with PROMPT.md** - Understand current project state and context retrieval protocol
 2. **Check ROADMAP.md** - Verify feature status and priorities before implementing
 3. **Reference PLATFORM-SPECIFICATION.md** - Get complete technical details
 4. **Apply PATTERNS.md** - Ensure code consistency and follow established conventions
-5. **Use specialized docs** - When working with admin, forms, or onboarding
-6. **Validate context** - If something seems outdated, check code directly
-7. **Update context** - After implementing major features or patterns
+5. **Check conductor-solution-design.md** - When working on agents, teams, workflows, or intelligence
+6. **Use specialized docs** - Intelligence specs, process execution design, SHARED-FIELDS.md
+7. **Validate context** - If something seems outdated, check code directly
+8. **Update context** - After implementing major features or patterns
 
-### **For Human Developers**
+### For Human Developers
 
 1. **Read context files** - Before starting new features or making architectural changes
 2. **Follow patterns** - Maintain consistency with established conventions
@@ -725,43 +699,10 @@ Result: 1-2 messages, complete implementation, full consistency
 4. **Keep roadmap current** - Update priorities and completion status regularly
 5. **Validate AI outputs** - Review generated code for correctness and consistency
 
-### **For Project Management**
-
-1. **Track completion** - Use ROADMAP.md to monitor progress
-2. **Prioritize updates** - Keep PROMPT.md and ROADMAP.md current
-3. **Plan context additions** - Create specialized docs as systems mature
-4. **Review periodically** - Ensure context remains accurate and useful
-
----
-
-## 🔮 **Future Context Evolution**
-
-### **Planned Additions (Q1 2026)**
-
-- **ADMIN-DASHBOARD.md** - Deep dive into 12 admin sections
-- **SHARED-FIELDS.md** - Comprehensive Shared Fields documentation
-- **ONBOARDING.md** - Complete onboarding flow documentation
-
-### **Potential Additions (Q2-Q4 2026)**
-
-- **API-REFERENCE.md** - Complete API documentation
-- **DEPLOYMENT.md** - Deployment procedures and environments
-- **MONITORING.md** - Observability and alerting setup
-- **SECURITY.md** - Security policies and procedures
-- **TESTING.md** - Testing strategies and frameworks
-- **PERFORMANCE.md** - Performance optimization guide
-
-### **Context Automation Ideas**
-
-- Auto-generate API documentation from route files
-- Extract patterns from codebase automatically
-- Track context staleness and suggest updates
-- Generate context diffs when major changes occur
-
 ---
 
 *This context map ensures consistent, autonomous, and high-quality AI-assisted development for Tutorwise*
 
-**Last Updated**: 2026-02-12
-**Next Review**: 2026-02-19
+**Last Updated**: 2026-03-11
+**Next Review**: 2026-03-18
 **Maintained By**: Platform Architecture Team

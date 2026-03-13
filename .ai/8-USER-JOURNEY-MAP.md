@@ -1,13 +1,13 @@
 # TutorWise User Journey Map
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-11
 **Status:** Production
 
 ---
 
 ## Overview
 
-Complete journey maps for developers and end-users (Tutors, Students/Clients, Agents) using the platform.
+Complete journey maps for developers, end-users (Tutors, Students/Clients, Agents), admins, and AI-assisted services on the platform.
 
 **Key Platform Features:**
 - Universal CaaS v6.0 scoring (0-100 credibility score)
@@ -17,10 +17,13 @@ Complete journey maps for developers and end-users (Tutors, Students/Clients, Ag
 - Organisation management (Premium subscriptions)
 - Hierarchical referral system
 - Process Studio (visual workflow design for admins)
+- Conductor (admin control plane — agents, teams, spaces, intelligence, process mining)
+- Growth Agent (AI-powered revenue and business advisor for all roles)
+- 6-tier AI fallback chain: xAI Grok 4 Fast, Gemini Flash, DeepSeek R1, Claude Sonnet 4.6, GPT-4o, rules-based
 
 ---
 
-## 👨‍💻 Developer Journey
+## Developer Journey
 
 ### New Developer Onboarding
 
@@ -75,7 +78,7 @@ Complete journey maps for developers and end-users (Tutors, Students/Clients, Ag
 
 ---
 
-## 🎓 Tutor Journey
+## Tutor Journey
 
 ### 1. Signup & Onboarding
 
@@ -103,12 +106,12 @@ CAAS SCORE INITIALIZED
 
 ```
 DASHBOARD → /dashboard
-├─ 🎉 Welcome banner: "Onboarding Complete!"
-├─ CaaS Score Card: 15/100 🟡 Provisional
+├─ Welcome banner: "Onboarding Complete!"
+├─ CaaS Score Card: 15/100 Provisional
 │   ├─ "Verify identity for +20% boost"
 │   └─> Click → /settings/verification
 ├─ Quick Actions:
-│   ├─ ⭐ Create Listing (primary CTA)
+│   ├─ Create Listing (primary CTA)
 │   ├─ Verify Identity
 │   └─ Complete Profile
 └─> Navigation sidebar
@@ -248,12 +251,12 @@ SCORE GROWTH PATH (Example)
 ├─ Week 2: 32/100 (identity verified, 5 sessions)
 ├─ Week 4: 48/100 (10 sessions, 2 reviews, 1 recording)
 ├─ Week 8: 65/100 (25 sessions, 5 reviews, Google Calendar sync)
-└─> Month 6: 84/100 (100 sessions, 4.8★ rating, fully verified)
+└─> Month 6: 84/100 (100 sessions, 4.8 rating, fully verified)
 ```
 
 ---
 
-## 📚 Client (Student) Journey
+## Client (Student) Journey
 
 ### 1. Signup & Onboarding
 
@@ -282,9 +285,9 @@ CAAS SCORE INITIALIZED
 ```
 DASHBOARD → /dashboard
 ├─ Welcome message: "Find the perfect tutor!"
-├─ CaaS Score Card: 21/100 🟡 Provisional
+├─ CaaS Score Card: 21/100 Provisional
 ├─ Quick Actions:
-│   ├─ ⭐ Find Tutors (primary CTA)
+│   ├─ Find Tutors (primary CTA)
 │   ├─ Free Help Now (instant tutoring)
 │   └─ Verify Identity
 └─> Navigation sidebar
@@ -298,7 +301,7 @@ MARKETPLACE → /marketplace
 ├─ Filters
 │   ├─ Subject
 │   ├─ Level
-│   ├─ Location type (online/in-person)
+│   ├─ Delivery mode (online/in-person)
 │   ├─ Price range
 │   ├─ Rating
 │   └─ Availability
@@ -313,6 +316,10 @@ MARKETPLACE → /marketplace
     ├─ Hourly rate
     ├─ Rating
     └─> Click → Listing detail
+
+MARKETPLACE SEARCH EVENTS
+├─ Each search logs a fire-and-forget event to marketplace_search_events
+└─> Used by Conductor intelligence for supply/demand gap analysis
 ```
 
 ### 4. View Tutor Profile
@@ -320,8 +327,8 @@ MARKETPLACE → /marketplace
 ```
 LISTING DETAIL → /marketplace/[listingId]
 ├─ Tutor Overview
-│   ├─ CaaS Score: 84/100 ✅ Fully Verified
-│   ├─ Rating: 4.8★ (23 reviews)
+│   ├─ CaaS Score: 84/100 Fully Verified
+│   ├─ Rating: 4.8 (23 reviews)
 │   └─ Hourly rate: £45
 ├─ About Section
 │   ├─ Bio
@@ -358,7 +365,7 @@ BOOKING FLOW → /bookings/create/[listingId]
 ├─ Select subject/topic
 ├─ Add special requests (optional)
 ├─ Pricing summary
-│   ├─ Hourly rate × duration
+│   ├─ Hourly rate x duration
 │   ├─ Platform fee (10%)
 │   └─ Total
 ├─> Checkout (Stripe)
@@ -417,7 +424,7 @@ SCORE GROWTH PATH (Example)
 
 ---
 
-## 🏢 Agent Journey
+## Agent Journey
 
 ### 1. Signup & Onboarding
 
@@ -443,13 +450,13 @@ CAAS SCORE INITIALIZED
 
 ```
 DASHBOARD → /dashboard
-├─ CaaS Score Card: 15/100 🟡 Provisional
+├─ CaaS Score Card: 15/100 Provisional
 ├─ Referral Stats
 │   ├─ Referrals made: 0
 │   ├─ Conversions: 0
 │   └─ Commission earned: £0
 ├─> Quick Actions
-    ├─ ⭐ Create Listing (tutor activity)
+    ├─ Create Listing (tutor activity)
     ├─ Refer a Tutor
     ├─ View Referrals
     └─> Track Earnings
@@ -512,7 +519,7 @@ NETWORK BUCKET ADVANTAGE
 
 ---
 
-## 🏢 Organisation Journey
+## Organisation Journey
 
 ### 1. Create Organisation
 
@@ -562,14 +569,114 @@ ORGANISATION SCORING
 
 ---
 
-## 🎯 CaaS Score Journey (All Roles)
+## Growth Agent Journey (All Roles)
+
+### Overview
+
+The Growth Agent is an AI-powered revenue and business advisor available to all user roles (tutor, client, agent, organisation). It provides personalised guidance on pricing, referrals, income streams, business setup, and compliance. Powered by the 6-tier AI fallback chain.
+
+### 1. Discover
+
+```
+DISCOVERY (Multiple Entry Points)
+├─ Dashboard card: "Grow your income with AI advice"
+├─ Free Revenue Audit available without subscription
+│   └─> GET /api/growth-agent/audit
+├─ Audit shows: pricing benchmarks, listing quality, referral gaps
+└─> CTA: "Unlock full Growth Agent for £10/month"
+```
+
+### 2. Subscribe
+
+```
+SUBSCRIPTION → £10/month
+├─ Stripe checkout flow
+├─ growth_pro_subscriptions table tracks status
+└─> Immediate access to full Growth Agent chat
+```
+
+### 3. Chat & Receive Advice
+
+```
+GROWTH AGENT CHAT → /growth-agent
+├─ Conversational AI advisor (streaming responses)
+├─ Role-adaptive system prompt (tutor/client/agent/organisation)
+├─ 5 skill domains:
+│   ├─ Profile & Listing Audit — pricing benchmarks, listing quality
+│   ├─ Referral Strategy — channels, outreach templates, seasonal calendar
+│   ├─ Revenue Intelligence — income patterns, seasonal demand, tax guidance
+│   ├─ Income Stream Discovery — 4 income streams, unlock sequencing
+│   └─ Business Setup & Compliance — registration, T&Cs, UK regulations
+├─ 8 tools available to the agent for data retrieval
+│   ├─ Fetches real user metrics (bookings, referrals, listings, AI agents)
+│   └─> Hydrates context from Supabase in parallel
+└─> Responses grounded in actual platform data, not generic advice
+
+AI FALLBACK CHAIN (shared across Sage, Lexi, Growth Agent)
+├─ Tier 1: xAI Grok 4 Fast (primary)
+├─ Tier 2: Google Gemini Flash
+├─ Tier 3: DeepSeek R1
+├─ Tier 4: Anthropic Claude Sonnet 4.6
+├─ Tier 5: OpenAI GPT-4o
+└─> Tier 6: Rules-based fallback (always available)
+```
+
+### 4. Act on Recommendations
+
+```
+ACTIONABLE OUTCOMES
+├─ Tutor: Optimise pricing, improve listing SEO, plan referral outreach
+├─ Client: Find better value tutors, optimise booking patterns
+├─ Agent: Maximise commission, recruit strategically, seasonal planning
+├─ Organisation: Scale operations, improve member retention
+└─> Each recommendation links to platform actions the user can take
+```
+
+---
+
+## Sage (AI Tutor) Journey
+
+### Overview
+
+Sage is the AI tutoring assistant available to all users. It provides subject-matter help, explains concepts, and assists with learning. Powered by the 6-tier AI fallback chain (xAI Grok 4 Fast → Gemini Flash → DeepSeek R1 → Claude Sonnet 4.6 → GPT-4o → rules-based).
+
+```
+SAGE → /sage
+├─ Subject-aware AI tutor chat
+├─ Context-enriched with PlatformUserContext (growth scores, referrals, signals)
+├─ Streaming responses via 6-tier AI fallback chain
+├─ Cross-agent handoff to Lexi (help) or Growth Agent (business) when appropriate
+└─> Session history persisted
+```
+
+---
+
+## Lexi (Help Bot) Journey
+
+### Overview
+
+Lexi is the platform help bot that assists users with navigating the platform, understanding features, and resolving issues. Powered by the 6-tier AI fallback chain.
+
+```
+LEXI → /help
+├─ Help Centre knowledge base search
+├─ Contextual help based on current page
+├─ Streaming responses via 6-tier AI fallback chain
+├─ Context-enriched with PlatformUserContext
+├─ Cross-agent handoff to Sage (learning) or Growth Agent (business) when appropriate
+└─> Escalation to human support when needed
+```
+
+---
+
+## CaaS Score Journey (All Roles)
 
 ### Understanding Your Score
 
 ```
 CAAS SCORE BREAKDOWN
 ├─ Total: 75/100
-├─ Verification Status: 🟢 Identity Verified (0.85 multiplier)
+├─ Verification Status: Identity Verified (0.85 multiplier)
 └─> 6 Buckets:
     ├─ Delivery (40%): 85/100 → 34 weighted pts
     ├─ Credentials (20%): 90/100 → 18 weighted pts
@@ -577,7 +684,7 @@ CAAS SCORE BREAKDOWN
     ├─ Trust (10%): 70/100 → 7 weighted pts
     ├─ Digital (10%): 80/100 → 8 weighted pts
     └─ Impact (5%): 50/100 → 2.5 weighted pts
-    = 74.9 weighted × 0.85 multiplier = 64/100 final
+    = 74.9 weighted x 0.85 multiplier = 64/100 final
 ```
 
 ### Score Improvement Tips
@@ -609,22 +716,24 @@ HIGH CAAS SCORE BENEFITS
 
 ---
 
-## 🛠️ Admin Journey
+## Admin Journey
 
 ### 1. Admin Dashboard
 
 ```
 ADMIN DASHBOARD → /admin
 ├─ Overview: Platform stats, KPIs, recent activity
-├─ 13 Admin Hubs:
+├─ Admin Hubs:
 │   ├─ Users          ├─ Bookings
 │   ├─ Listings       ├─ Reviews
 │   ├─ Organisations  ├─ Referrals
 │   ├─ CaaS           ├─ Payments
 │   ├─ Help Centre    ├─ Resources
-│   ├─ Analytics      ├─ CAS (Agent Orchestration)
-│   └─> Process Studio (NEW)
+│   ├─ Analytics      ├─ Network Intelligence
+│   ├─ Conductor      ├─ Operations
+│   └─> Process Studio
 └─> RBAC: superadmin, admin, systemadmin, viewer
+    └─> is_admin() function used for all RLS policies
 ```
 
 ### 2. Process Studio — Visual Workflow Design
@@ -659,7 +768,7 @@ CREATE WORKFLOW (5 input methods)
 METHOD 1: AI Auto-Visualize (R1)
 ├─ Describe process in natural language
 │   └─> "Create an onboarding process for software engineers"
-├─ AI (Gemini 2.0 Flash) parses text into nodes + edges
+├─ AI parses text into nodes + edges (via 6-tier AI fallback chain)
 ├─ Supabase Realtime streams nodes to canvas progressively
 ├─ Auto-layout via Dagre arranges in top-to-bottom flow
 └─> Canvas renders complete workflow
@@ -676,12 +785,13 @@ METHOD 2: Template Selection
 └─> Load → Canvas renders template
 
 METHOD 3: Manual Canvas Building (R3)
-├─ Add nodes from toolbar (6 types):
+├─ Add nodes from toolbar (7 types):
 │   ├─ Trigger (start)
 │   ├─ Action (task step)
 │   ├─ Condition (decision/branch)
 │   ├─ Approval (human gate)
 │   ├─ Notification (email/push)
+│   ├─ Subprocess (nested process reference)
 │   └─ End (completion)
 ├─ Drag to position, connect with edges
 ├─ Click node → PropertiesDrawer opens
@@ -746,35 +856,184 @@ JSON EXPORT
 └─> Importable into another Process Studio instance
 ```
 
-### 6. Process Studio — Fullscreen Mode
+### 6. Process Execution Engine
 
 ```
-FULLSCREEN → /process-studio-fullscreen
-├─ Auth-only layout (no admin nav)
-├─ Canvas fills viewport
-├─ Toolbar remains visible
-└─> Toggle via F11 or fullscreen button
+PROCESS EXECUTION (Live and Shadow modes)
+├─ Execution modes: design | shadow | live
+├─ Live processes:
+│   ├─ Tutor Approval (triggered by profile status → under_review)
+│   └─ Commission Payout (weekly Friday 10:00 UTC via pg_cron)
+├─ Shadow processes:
+│   ├─ Booking Lifecycle — Human Tutor
+│   └─ Booking Lifecycle — AI Tutor
+├─ Webhook triggers: DB webhooks on profiles UPDATE and bookings INSERT
+├─ Stripe integration: webhook resumes engine when execution_id in session metadata
+└─> Admin toggle: PATCH /api/admin/process-studio/processes/[id]/execution-mode
+
+EXECUTION API
+├─ POST /api/admin/process-studio/execute/start
+├─ GET/DELETE /api/admin/process-studio/execute/[executionId]
+├─ POST /api/admin/process-studio/execute/[executionId]/resume
+└─> POST /api/admin/process-studio/execute/task/[taskId]/complete
 ```
-
-### Admin Testing Checklist
-
-**Process Studio Journey:**
-1. ☐ Navigate to /admin/process-studio → Page loads with HubPageLayout
-2. ☐ Empty state shown with CTA buttons (create or pick template)
-3. ☐ Select template → Canvas renders workflow
-4. ☐ AI auto-visualize → Describe process → Nodes stream onto canvas
-5. ☐ Manual building → Add nodes, drag, connect, edit properties
-6. ☐ Chat editing → Type command → AI mutates canvas
-7. ☐ Undo/Redo → Ctrl+Z reverts, Ctrl+Shift+Z re-applies
-8. ☐ Save → Ctrl+S persists to Supabase
-9. ☐ Export PDF → Downloads formatted document
-10. ☐ Import JSON → Loads workflow from file
-11. ☐ Fullscreen → F11 toggles fullscreen mode
-12. ☐ RBAC → Non-admin cannot access /admin/process-studio
 
 ---
 
-## 📱 Navigation Structure
+## Admin — Conductor Journey
+
+The Conductor is the admin control plane at `/admin/conductor`. It provides a 4-stage workflow for managing the platform's AI digital workforce, process intelligence, and operational automation. The Conductor canvas uses 11 tabs organised into 4 stages.
+
+### Stage 1: Design — Define Processes & Discover Patterns
+
+```
+DESIGN STAGE → /admin/conductor (workflows + discovery tabs)
+
+WORKFLOWS TAB
+├─ Browse all workflow processes
+├─ Create/edit workflow definitions
+├─ View execution mode status (design/shadow/live)
+└─> Link to Process Studio for visual editing
+
+DISCOVERY TAB
+├─ Run discovery scans against platform data
+├─ Identify undocumented processes and patterns
+├─ View discovery results (workflow_discovery_results table)
+└─> Convert discovered patterns into formal workflow definitions
+```
+
+### Stage 2: Build — Configure Agents, Teams, Spaces & Knowledge
+
+```
+BUILD STAGE → /admin/conductor (agents + teams + spaces + knowledge tabs)
+
+AGENTS TAB → /admin/conductor (agents tab)
+├─ View 8+ built-in specialist agents:
+│   ├─ developer, tester, qa, engineer, security
+│   ├─ marketer, analyst, planner
+│   ├─ market-intelligence, retention-monitor, operations-monitor
+│   └─> autonomy-calibrator (weekly)
+├─ Configure agent system prompts and parameters
+├─ View agent run history and outputs
+├─ Agent episodic memory (memory_episodes + memory_facts)
+│   ├─ Agents recall past experiences via vector similarity
+│   └─> Facts extracted as subject/relation/object triples
+├─ Chat with individual agents → /admin/conductor/agents/[slug]
+└─> Manage analyst tools registry → /admin/conductor/agents/tools
+    └─> 24+ analyst tools for data retrieval across 14 domains
+
+TEAMS TAB → /admin/conductor (teams tab)
+├─ Compose multi-agent teams from specialist agents
+├─ 3 team patterns:
+│   ├─ Supervisor — parallel execution + synthesis
+│   ├─ Pipeline — topological sort, sequential handoff
+│   └─ Swarm — dynamic NEXT_AGENT routing
+├─ TeamRuntime v2: LangGraph StateGraph + PostgresSaver
+├─ HITL (Human-in-the-Loop):
+│   ├─ teamRuntime.run(slug, task, trigger, { hitl: true })
+│   ├─ Pauses after specialists, status='awaiting_approval'
+│   └─> Resume via POST /api/admin/teams/{id}/runs/{runId}/resume
+├─ Built-in teams include DevOps Team (engineering space)
+└─> Decision outcome stubs written post-run (7d + 30d lag)
+
+SPACES TAB → /admin/conductor (spaces tab)
+├─ Programme/domain containers for teams
+├─ 4 built-in spaces:
+│   ├─ go-to-market
+│   ├─ engineering
+│   ├─ operations
+│   └─> analytics
+├─ Multi-tenant ready (RLS + created_by)
+└─> Space > Team > Agent hierarchy
+
+KNOWLEDGE TAB → /admin/conductor (knowledge tab)
+├─ Curate platform knowledge base (platform_knowledge_chunks)
+├─ 18 knowledge categories covering all intelligence domains
+├─ CRUD operations on knowledge chunks
+├─ RAG preview: test retrieval against queries
+├─ Knowledge injected into SpecialistAgentRunner via AGENT_KNOWLEDGE_CATEGORY map
+└─> Vector search via match_platform_knowledge_chunks() RPC
+```
+
+### Stage 3: Execute — Run Processes & Handle Approvals
+
+```
+EXECUTE STAGE → /admin/conductor (execution tab)
+
+EXECUTION PANEL
+├─ Start workflow executions manually or via triggers
+├─ Monitor active executions in real-time
+│   ├─ Execution status: running, completed, failed, awaiting_approval
+│   ├─ Task-level progress tracking
+│   └─> Decision rationale (JSONB) recorded per execution
+├─ Handle HITL approvals for paused executions
+├─ View execution history and outputs
+├─ ExecutionCommandBar: natural language routing via IntentDetector
+│   └─> Classifies intent → routes to agent/workflow/tab
+└─> GoLiveReadiness component: progress toward 50 clean shadow runs
+
+SCHEDULED EXECUTION (Cron + Scheduler)
+├─ pg_cron jobs for recurring processes:
+│   ├─ Intelligence pipeline: daily metrics across 14 domains
+│   ├─ Shadow reconciliation: batch conformance checks
+│   ├─ Nudge scheduler: 4 conditions, 7d cooldown
+│   └─> Commission payouts, session completion
+├─ Platform scheduler implemented to replace pg_cron when ready
+└─> All cron routes use x-cron-secret authentication
+```
+
+### Stage 4: Observe — Intelligence, Conformance & Mining
+
+```
+OBSERVE STAGE → /admin/conductor (monitoring + intelligence + mining tabs)
+
+MONITORING TAB
+├─ Platform-wide operational monitoring
+├─ Agent run outputs and team run outputs
+└─> Platform notifications (platform_notifications table)
+
+INTELLIGENCE TAB (14 domains)
+├─ IntelligencePanel with domain sub-tabs:
+│   ├─ CaaS Health            ├─ Resources Health
+│   ├─ SEO Health             ├─ Marketplace Health
+│   ├─ Booking Health         ├─ Listing Health
+│   ├─ Financial Health       ├─ VirtualSpace Health
+│   ├─ Referral Funnel        ├─ Supply/Demand Gap
+│   ├─ Keyword Opportunities  ├─ Content Attribution
+│   ├─ Pricing Intelligence   ├─ Editorial Opportunities
+│   └─> Process Mining (compact multi-process analytics)
+├─ Daily metrics pipeline (pg_cron, staggered 04:30–11:00 UTC)
+├─ Auto-fetches on first activation per sub-tab
+├─ Autonomy sub-tab: TierCalibrationPanel for agent autonomy levels
+│   ├─ process_autonomy_config per workflow
+│   └─> autonomy-calibrator agent runs weekly
+└─> 10 intelligence API routes under /api/admin/
+
+MINING TAB (MiningPanel)
+├─ Analytics sub-tab:
+│   ├─ Execution path analysis per workflow
+│   ├─ Cycle time per node (bottleneck detection)
+│   └─> AI-generated pattern insights
+├─ Conformance sub-tab:
+│   ├─ Conformance rate (% of executions matching expected path)
+│   ├─ Deviation list: skipped / unexpected_path / stuck
+│   ├─ Mark deviations as expected (PATCH)
+│   └─> conformance_deviations + process_patterns tables
+├─ Shadow sub-tab:
+│   ├─ Live vs shadow execution comparison dashboard
+│   ├─ Go-live checklist (5 items, all must pass)
+│   └─> Promote button → flips execution_mode to 'live'
+└─> Shadow reconciliation cron checks completed executions automatically
+
+NETWORK INTELLIGENCE → /admin/network
+├─ 3 tabs for network analysis
+├─ /api/admin/network/intelligence endpoint
+└─> Linked from AdminSidebar
+```
+
+---
+
+## Navigation Structure
 
 ### Global Sidebar (All Roles)
 
@@ -793,6 +1052,7 @@ SIDEBAR MENU
     │   └─ Free Help Now
     └─> All:
         ├─ Profile
+        ├─ Growth Agent
         ├─ Settings
         ├─ Help Centre
         └─ Log Out
@@ -814,8 +1074,10 @@ ADMIN MENU → /admin
 ├─ Help Centre
 ├─ Resources
 ├─ Analytics
-├─ CAS (Agent Orchestration)
-├─ Process Studio (NEW)
+├─ Network Intelligence
+├─ Conductor (Agents, Teams, Spaces, Intelligence, Mining)
+├─ Operations
+├─ Process Studio
 └─ Settings
 ```
 
@@ -835,7 +1097,7 @@ ORGANISATION MENU (if member/owner)
 
 ---
 
-## 🔄 Automatic Triggers & Events
+## Automatic Triggers & Events
 
 ### CaaS Recalculation Triggers
 
@@ -853,6 +1115,37 @@ AUTOMATIC CAAS UPDATES (10-minute batches)
 └─> Integration linked → +queue user
 ```
 
+### Process Execution Triggers
+
+```
+AUTOMATED PROCESS TRIGGERS
+├─ Profile status → under_review: Tutor Approval workflow starts
+├─ Booking INSERT: Booking Lifecycle workflow starts (if live)
+├─ Stripe webhook: resumes paused execution when execution_id in metadata
+├─ Weekly Friday 10:00 UTC: Commission Payout batch
+└─> Nudge scheduler: checks 4 conditions, sends platform_notifications (7d cooldown)
+```
+
+### Conductor Intelligence Pipeline
+
+```
+DAILY INTELLIGENCE PIPELINE (pg_cron, staggered)
+├─ 04:30 UTC: Resources metrics
+├─ 04:45 UTC: Article intelligence scores
+├─ 05:00 UTC: SEO metrics
+├─ 05:30 UTC: CaaS metrics
+├─ 06:00 UTC: Marketplace metrics
+├─ 06:30 UTC: Bookings metrics
+├─ 07:00 UTC: Listings metrics
+├─ 07:30 UTC: Financials metrics
+├─ 08:00 UTC: VirtualSpace metrics
+├─ 09:00 UTC: Referral metrics + network stats materialized view
+├─ 09:30 UTC: Retention + growth scores
+├─ 10:00 UTC: AI adoption metrics
+├─ 10:30 UTC: Org conversion metrics
+└─> 11:00 UTC: AI Studio metrics
+```
+
 ### Email Notifications
 
 ```
@@ -868,41 +1161,56 @@ AUTOMATED EMAILS (Resend)
 
 ---
 
-## 🔍 Testing Checklist
+## Testing Checklist
 
 ### Manual Test Flows
 
 **Tutor Journey:**
-1. ✅ Sign up → Complete onboarding → See provisional score
-2. ✅ Verify identity → Score increases by ~20%
-3. ✅ Create listing → Listing published → Score updates (10 min)
-4. ✅ Receive booking → Complete session → Score updates
-5. ✅ Add recording URL → Score updates (Digital bucket)
-6. ✅ Deliver free help → Score updates (Impact bucket, high priority)
+1. Sign up → Complete onboarding → See provisional score
+2. Verify identity → Score increases by ~20%
+3. Create listing → Listing published → Score updates (10 min)
+4. Receive booking → Complete session → Score updates
+5. Add recording URL → Score updates (Digital bucket)
+6. Deliver free help → Score updates (Impact bucket, high priority)
 
 **Client Journey:**
-1. ✅ Sign up → Complete onboarding → See provisional score (not 0!)
-2. ✅ Browse marketplace → View tutor profiles with CaaS scores
-3. ✅ Book session → Complete booking → Score updates
-4. ✅ Leave review → Tutor score updates
-5. ✅ Take free help → Score updates (Impact bucket)
+1. Sign up → Complete onboarding → See provisional score (not 0!)
+2. Browse marketplace → View tutor profiles with CaaS scores
+3. Book session → Complete booking → Score updates
+4. Leave review → Tutor score updates
+5. Take free help → Score updates (Impact bucket)
 
 **Agent Journey:**
-1. ✅ Sign up → Complete onboarding → See provisional score
-2. ✅ Create listing (agent as tutor) → Listing published
-3. ✅ Refer tutors → Score updates (Network bucket)
-4. ✅ Referral converts → Score updates (Network bucket)
-5. ✅ Teach sessions → Score updates (Delivery bucket)
+1. Sign up → Complete onboarding → See provisional score
+2. Create listing (agent as tutor) → Listing published
+3. Refer tutors → Score updates (Network bucket)
+4. Referral converts → Score updates (Network bucket)
+5. Teach sessions → Score updates (Delivery bucket)
 
 **Organisation Journey:**
-1. ✅ Create organisation → Free trial starts
-2. ✅ Invite tutors → Members join
-3. ✅ View organisation CaaS score (aggregate)
-4. ✅ Subscribe (Stripe) → Access premium features
+1. Create organisation → Free trial starts
+2. Invite tutors → Members join
+3. View organisation CaaS score (aggregate)
+4. Subscribe (Stripe) → Access premium features
+
+**Growth Agent Journey:**
+1. View free Revenue Audit on dashboard
+2. Subscribe to Growth Agent (£10/month)
+3. Open chat → Ask about pricing strategy → Receive data-grounded advice
+4. Ask about referral channels → Get seasonal calendar and outreach templates
+5. Ask about income streams → Receive unlock sequencing recommendations
+
+**Conductor Journey (Admin):**
+1. Navigate to /admin/conductor → 4-stage tab layout loads
+2. Design stage: Create workflow, run discovery scan
+3. Build stage: View agents, configure team, assign to space, add knowledge
+4. Execute stage: Start process, monitor execution, handle HITL approval
+5. Observe stage: View intelligence (14 domains), check conformance, review mining
+6. Promote shadow process to live after checklist passes
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - **Architecture:** `.ai/2-PLATFORM-SPECIFICATION.md`
 - **Code Navigation:** `.ai/3-SYSTEM-NAVIGATION.md`
@@ -911,10 +1219,12 @@ AUTOMATED EMAILS (Resend)
 - **CaaS Triggers:** `docs/feature/caas/CAAS_TRIGGER_OPTIMIZATION_2026.md`
 - **CaaS Summary:** `docs/feature/caas/IMPLEMENTATION_SUMMARY.md`
 - **Quick Reference:** `.ai/CAAS-V6-UPDATE.md`
-- **Process Studio:** `fuchsia/process-studio-solution-design.md`
+- **Process Studio:** `ipom/process-studio-solution-design.md`
+- **Conductor Solution Design:** `conductor/conductor-solution-design.md`
+- **AI Digital Workforce Papers:** `conductor/publish/00-publishing-plan.md`
 
 ---
 
-**Document Version:** 3.0
-**Last Updated:** 2026-03-01
+**Document Version:** 4.0
+**Last Updated:** 2026-03-11
 **Status:** Production - Reflects Current Implementation

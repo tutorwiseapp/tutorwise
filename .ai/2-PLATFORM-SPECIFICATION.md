@@ -1,8 +1,8 @@
 # Tutorwise Platform Specification
 
 **Document Type**: Complete Platform Specification (Technical + Strategic)
-**Document Version**: 1.6
-**Last Updated**: 2026-02-15
+**Document Version**: 2.0
+**Last Updated**: 2026-03-11
 **Author**: Platform Architecture Team
 **Classification**: Internal - Strategic
 **Location**: `.ai/PLATFORM-SPECIFICATION.md` (Replaces: `docs/platform-overview.md`, `.ai/ARCHITECTURE.md`)
@@ -53,24 +53,24 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 **Platform Scale**: See [SYSTEM-NAVIGATION.md](3 - SYSTEM-NAVIGATION.md#platform-metrics-single-source-of-truth) for complete codebase metrics.
 
 **Key Statistics**:
-- **400 pages** (174 UI + 226 API endpoints + dynamic routes)
+- **450+ pages** (180+ UI + 270+ API endpoints + dynamic routes)
 - **201K lines of code** (TypeScript/TSX) + 547K lines of documentation
-- **266 database migrations** (260 numbered + 6 supporting), 60+ tables
-- **353 components** across 22 feature directories
-- **36 major features** (VirtualSpace, Lexi Platform Help Bot, Sage GCSE Tutor, EduPay) - production-ready
+- **386+ database migrations**, 90+ tables
+- **400+ components** across 22 feature directories
+- **36 major features** (VirtualSpace, Lexi, Sage, EduPay, Conductor, Growth Agent) - production-ready
 
 **Advanced Technical Capabilities**:
-- **Neo4j graph database** with PageRank trust propagation for SEO eligibility
+- **Conductor — AI Operations Platform** with 11-tab canvas, 14-domain intelligence layer, and process mining
 - **ML-powered fraud detection** with automated triggers and pattern recognition
-- **AI semantic search** using pgvector (1,536-dimensional embeddings)
+- **AI semantic search** using pgvector (768-dimensional embeddings via gemini-embedding-001)
 - **Real-time infrastructure** (Ably) for messaging, presence, typing indicators
 - **200+ Row-Level Security policies** with granular RBAC
 - **Automated CI/CD pipeline** with comprehensive testing (Jest, Playwright, Percy)
 
 **Development Velocity** (Oct 2025 - Jan 2026):
-- **1,402+ commits**: 84 features, 151 fixes, 64 refactors
-- Production-ready in 6 months, 98% feature-complete
-- Recent: Resources system completion (React Query, skeleton UI, zero technical debt)
+- **2,500+ commits**: 84 features, 151 fixes, 64 refactors (and growing)
+- Production-ready in 9 months, 98% feature-complete
+- Recent: Conductor AI Operations Platform, Growth Agent, Process Execution Engine
 - "Impressive for a beta" - enterprise-grade quality in record time
 
 ### Valuation Summary (January 2026)
@@ -97,15 +97,15 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                          CLIENT APPLICATIONS                                 │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│  Web App (Next.js 15, React 18)  │  Mobile (Future)  │  Public API (v1)     │
-│  - 260 pages implemented          │  - React Native   │  - Developer tools   │
-│  - 353 components library         │  - iOS/Android    │  - Webhook system    │
+│  Web App (Next.js 16, React 18)  │  Mobile (Future)  │  Public API (v1)     │
+│  - 450+ pages implemented         │  - React Native   │  - Developer tools   │
+│  - 400+ components library        │  - iOS/Android    │  - Webhook system    │
 │  - Responsive design (mobile/tablet/desktop)          │  - API key mgmt      │
 └──────────────┬───────────────────────────────────────────────────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                     API LAYER (141 REST Endpoints)                           │
+│                     API LAYER (270+ REST Endpoints)                          │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ REST API Routes   │ Server Actions  │ RPC Functions  │ GraphQL (Future)      │
 │ - /api/onboarding │ - Form handling │ - CaaS calc    │ - Planned v2          │
@@ -119,16 +119,16 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 │                       BUSINESS LOGIC LAYER                                   │
 ├──────────────┬──────────────┬──────────────┬───────────────┬────────────────┤
 │ Marketplace  │ CRM Engine   │ Commission   │ Trust & Safety│ Admin Platform │
-│ - Matching   │ - Bookings   │ - Multi-tier │ - CaaS scoring│ - 12 sections  │
+│ - Matching   │ - Bookings   │ - Multi-tier │ - CaaS scoring│ - 13 sections  │
 │ - Search     │ - Calendar   │ - Delegation │ - Fraud detect│ - RBAC/GDPR    │
 │ - Recommend  │ - VirtualSpace  │ - Payouts    │ - Verification│ - Audit logs   │
 └──────────────┴──────────────┴──────────────┴───────────────┴────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                         DATA LAYER (237 Migrations)                          │
+│                         DATA LAYER (386+ Migrations)                         │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│         Supabase PostgreSQL (172 numbered migrations, 60+ tables)            │
+│         Supabase PostgreSQL (386+ numbered migrations, 90+ tables)           │
 │ ─────────────────────────────────────────────────────────────────────────────│
 │ RLS Policies (200+) │ Functions │ Triggers │ Materialized Views │ Indexes    │
 │ - Granular RBAC     │ - CaaS    │ - Audit  │ - Analytics cache  │ - B-tree   │
@@ -148,17 +148,17 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 │- Connect acc │- Storage     │- Presence    │- WiseChat    │- Meet (hybrid)  │
 │- Subscriptions│- Realtime   │- Caching     │- Collab      │- Classroom      │
 ├──────────────┼──────────────┼──────────────┼──────────────┼─────────────────┤
-│ Neo4j Graph  │ Resend Email │ Vercel Edge  │ Jira SD      │ Sentry Monitor  │
-│- Network     │- Transactional│- Hosting    │- Help Centre │- Error tracking │
-│- Trust       │- Notifications│- CDN        │- Bug reports │- Performance    │
-│- PageRank    │- Templates   │- Serverless  │- Tickets     │- Analytics      │
+│ pgvector     │ Resend Email │ Vercel Edge  │ Jira SD      │ Sentry Monitor  │
+│- Embeddings  │- Transactional│- Hosting    │- Help Centre │- Error tracking │
+│- Hybrid RAG  │- Notifications│- CDN        │- Bug reports │- Performance    │
+│- HNSW index  │- Templates   │- Serverless  │- Tickets     │- Analytics      │
 └──────────────┴──────────────┴──────────────┴──────────────┴─────────────────┘
 ```
 
 ### 1.2 Technology Stack
 
 **Frontend**:
-- Next.js 15.x (App Router, React Server Components, page-based routing)
+- Next.js 16.x (App Router, React Server Components, page-based routing)
 - TypeScript 5.x (strict mode, type-safe development)
 - React 18 (Server Components, Suspense)
 - TailwindCSS (utility-first styling with 70+ CSS variables)
@@ -173,10 +173,10 @@ Tutorwise is a next-generation EdTech platform that reimagines the tutoring mark
 **Database**:
 - PostgreSQL (via Supabase)
 - Row-Level Security (200+ policies with granular RBAC)
-- **237 migrations** (172 numbered + 65 supporting files, production-ready schema)
-- 60+ tables with comprehensive relationships
-- Neo4j Graph Database (network relationships, trust propagation)
-- pgvector extension (semantic search with 1536-dim embeddings)
+- **386+ migrations** (production-ready schema)
+- 90+ tables with comprehensive relationships
+- pgvector extension (semantic search with 768-dim embeddings via gemini-embedding-001)
+- HNSW indexes on listings, profiles, connection_groups, sage_knowledge_chunks, memory_episodes, platform_knowledge_chunks
 
 **Infrastructure**:
 - Vercel (hosting, edge network, serverless)
@@ -1351,10 +1351,10 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 │   User Query → Persona Router → Tool Executor → AI Response     │
 │                                                                 │
 │   ┌───────────┐    ┌──────────────────┐    ┌─────────────────┐ │
-│   │ FAB/Chat  │───►│ Persona Detection │───►│ Gemini (Primary)│ │
-│   └───────────┘    │ (9 total)         │    │ ↓ Claude        │ │
-│                    │ 5 Primary:        │    │ ↓ DeepSeek      │ │
-│                    │ - Tutor           │    │ ↓ Rules-Based   │ │
+│   │ FAB/Chat  │───►│ Persona Detection │───►│ Grok 4 (Primary)│ │
+│   └───────────┘    │ (9 total)         │    │ ↓ Gemini Flash  │ │
+│                    │ 5 Primary:        │    │ ↓ DeepSeek R1   │ │
+│                    │ - Tutor           │    │ ↓ Claude/GPT-4o │ │
 │                    │ - Client          │    └─────────────────┘ │
 │                    │ - Agent           │                        │
 │                    │ - Organisation    │    ┌─────────────────┐ │
@@ -1367,7 +1367,7 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 │   - Guest mode (Rules-only, zero cost)     └─────────────────┘ │
 │   - Multi-provider fallback chain                              │
 │   - Deep links for seamless navigation                         │
-│   - Feedback collection for CAS improvement                    │
+│   - Feedback collection for Conductor improvement              │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1375,7 +1375,7 @@ Final Organisation CaaS: 87.2 + 4 = 91.2 (rounded to 91)
 **Core Capabilities**:
 - **Task Automation**: 20+ function tools (create/modify bookings, search tutors, process payments)
 - **Guest Mode**: Rules-only provider for unauthenticated users (zero API cost)
-- **Multi-Provider**: Gemini (primary) → Claude → DeepSeek → Rules-based fallback
+- **Multi-Provider**: xAI Grok 4 Fast (primary) → Gemini Flash → DeepSeek R1 → Claude Sonnet 4.6 → OpenAI GPT-4o → Rules-based fallback
 - **Deep Links**: Navigate directly to platform features from chat responses
 - **Context-Aware**: Adapts to user role and current page context
 
@@ -1397,10 +1397,12 @@ POST /api/lexi/feedback   // Submit feedback
 GET  /api/lexi/history    // Conversation history
 GET  /api/lexi/provider   // Get current provider status
 
-// Provider Fallback Chain
-Gemini (primary, cost-efficient) →
-Claude (complex queries) →
-DeepSeek (budget fallback) →
+// Provider Fallback Chain (6-tier)
+xAI Grok 4 Fast (primary) →
+Gemini Flash (cost-efficient) →
+DeepSeek R1 (reasoning) →
+Claude Sonnet 4.6 (complex queries) →
+OpenAI GPT-4o (fallback) →
 Rules-Based (offline/guest mode)
 
 // Tool Categories
@@ -1411,14 +1413,14 @@ Rules-Based (offline/guest mode)
 - Admin Tools: user management, platform configuration
 ```
 
-**CAS Integration**:
+**Conductor Integration**:
 - **Marketer Agent**: Collects Lexi usage analytics (sessions, feedback, tool usage)
 - **Analyst Agent**: Analyzes user queries to identify feature requests
 - **Developer Agent**: Implements tool improvements based on feedback
 
 **Implementation Files**:
 - `lexi/core/orchestrator.ts` - Session management and orchestration
-- `lexi/providers/` - Multi-provider implementation (Gemini, Claude, DeepSeek, Rules)
+- `lexi/providers/` - Multi-provider implementation (6-tier fallback chain)
 - `lexi/tools/` - 20+ function tool definitions and executors
 - `lexi/personas/` - Role-based persona definitions
 - `apps/web/src/components/feature/lexi/` - UI components (FAB, chat interface)
@@ -1437,10 +1439,10 @@ Rules-Based (offline/guest mode)
 │   Question → RAG Retrieval → Math Solver → AI Tutor → Response  │
 │                                                                 │
 │   ┌──────────────┐    ┌──────────────────┐    ┌──────────────┐ │
-│   │User Question │───►│ Enhanced RAG     │───►│ Gemini (Pri) │ │
-│   │- Text        │    │ - 110+ chunks    │    │ ↓ Claude     │ │
+│   │User Question │───►│ Enhanced RAG     │───►│ Grok 4 (Pri) │ │
+│   │- Text        │    │ - 110+ chunks    │    │ ↓ Gemini     │ │
 │   │- Voice (WIP) │    │ - Hybrid search  │    │ ↓ DeepSeek   │ │
-│   │- Handwriting │    │ - Semantic +     │    │ ↓ Rules      │ │
+│   │- Handwriting │    │ - Semantic +     │    │ ↓ Claude/GPT │ │
 │   │  (WIP)       │    │   Keyword        │    └──────────────┘ │
 │   └──────────────┘    └──────────────────┘                      │
 │                                                                 │
@@ -1513,10 +1515,10 @@ Daily Processing (Supabase Edge Function) →
 Gap Detection (< 60% positive rate) →
 Severity Classification (critical/high/medium/low) →
 Content Regeneration (auto-fix critical gaps) →
-Publish to CAS Planner (strategic planning)
+Publish to Conductor Planner agent (strategic planning)
 ```
 
-**CAS Integration**:
+**Conductor Integration**:
 - **Marketer Agent**: Collects Sage usage analytics (sessions, feedback, engagement)
 - **Analyst Agent**: Analyzes feedback patterns to identify curriculum gaps
 - **Planner Agent**: Prioritizes curriculum gaps and improvement roadmap
@@ -1530,12 +1532,143 @@ Publish to CAS Planner (strategic planning)
 
 **Implementation Files**:
 - `sage/core/orchestrator.ts` - Session management and orchestration
-- `sage/providers/` - Multi-provider implementation (Gemini, Claude, DeepSeek, Rules)
+- `sage/providers/` - Multi-provider implementation (6-tier fallback chain)
 - `sage/knowledge/enhanced-rag.ts` - Hybrid RAG search system
 - `sage/math/hybrid-solver.ts` - Mathematical computation engine
 - `sage/curriculum/` - GCSE curriculum knowledge and content generation
 - `sage/services/feedback-service.ts` - Feedback analysis and gap detection
 - `apps/web/src/app/(authenticated)/sage/` - UI pages (chat, history, materials)
+
+### 5.10 Conductor — AI Operations Platform
+
+**Status**: ✅ Production-ready (Phases 1-7 complete, March 2026)
+**Purpose**: Unified AI operations control plane for autonomous agent orchestration, process execution, intelligence gathering, and process mining
+**Route**: `/admin/conductor`
+
+**Architecture** (11 tabs, 4 stages):
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   CONDUCTOR CANVAS                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  DESIGN STAGE          BUILD STAGE           EXECUTE STAGE       │
+│  ├─ Workflows          ├─ Build              ├─ Execution        │
+│  └─ Discovery          ├─ Agents                                 │
+│                        ├─ Teams             OBSERVE STAGE        │
+│                        ├─ Spaces            ├─ Monitoring        │
+│                        └─ Knowledge         ├─ Intelligence      │
+│                                             └─ Mining            │
+│                                                                  │
+│  Key Components:                                                 │
+│  - 8 specialist agents + 3 scheduled intelligence agents         │
+│  - TeamRuntime: LangGraph StateGraph + PostgresSaver             │
+│  - 3 team patterns: Supervisor, Pipeline, Swarm                  │
+│  - HITL: interrupt()/resume() in supervisor graph                │
+│  - Agent Episodic Memory: memory_episodes + memory_facts         │
+│  - 14-domain Intelligence Layer (daily pg_cron pipeline)         │
+│  - Process Mining: ConformanceChecker, deviations, patterns      │
+│  - Knowledge Base: platform_knowledge_chunks (768-dim, 18 cats)  │
+│  - IntentDetector + PlatformUserContext (Redis cached)           │
+│  - Process Execution Engine with shadow/live modes               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Specialist Agents** (8 built-in + 3 scheduled):
+- **Built-in**: developer, tester, qa, engineer, security, marketer, analyst, planner
+- **Scheduled Intelligence**: market-intelligence (Mon 09:00), retention-monitor (daily 08:00), operations-monitor (daily 07:00)
+- **SpecialistAgentRunner**: ReAct loop with tool execution, writes to `agent_run_outputs`
+- **Agent Episodic Memory**: `memory_episodes` (768-dim vector HNSW) + `memory_facts` (subject/relation/object triples)
+
+**Teams & Runtime**:
+- **TeamRuntime**: LangGraph StateGraph + PostgresSaver (Phase 6A rewrite)
+- **3 Patterns**: Supervisor (parallel + synthesis), Pipeline (topological sort), Swarm (dynamic routing)
+- **HITL**: `interrupt()`/`resume()` in supervisor graph; approval via API
+- **Built-in teams**: DevOps Team, plus configurable teams in `agent_teams` table
+- **Spaces**: go-to-market, engineering, operations, analytics (multi-tenant ready)
+
+**Intelligence Layer** (14 domains, daily pg_cron pipeline):
+- CaaS health, Resources, SEO, Marketplace, Bookings, Listings, Financials, VirtualSpace, Referrals, Growth scores, Retention, AI adoption, Org conversion, AI studio
+- 14 analyst tools in `executor.ts`, 10+ intelligence API routes
+- IntelligencePanel with sub-tabs, auto-fetches on activation
+
+**Process Execution Engine**:
+- `PlatformWorkflowRuntime` (LangGraph checkpointer on PostgresSaver)
+- 5 seeded workflows: Tutor Approval (live), Commission Payout (live), Booking Lifecycle Human/AI (shadow), Referral Attribution (design)
+- Shadow/live execution modes with admin toggle
+- Webhook triggers for bookings INSERT and profile status changes
+- ConformanceChecker: conformance_deviations + process_patterns tables
+
+**Knowledge & Context**:
+- `platform_knowledge_chunks` (768-dim, 18 categories including all 14 intel domains)
+- `match_platform_knowledge_chunks()` RPC for RAG augmentation
+- IntentDetector routes commands to agent/workflow/tab
+- PlatformUserContext: enriched with growth_scores, referrals, marketplace signals (Redis cached)
+- Cross-agent handoff support
+
+**Key Database Tables**:
+- `specialist_agents`, `agent_run_outputs`, `analyst_tools`
+- `agent_teams`, `agent_team_run_outputs`, `agent_spaces`
+- `platform_notifications`, `platform_knowledge_chunks`
+- `decision_outcomes`, `process_autonomy_config`
+- `conformance_deviations`, `process_patterns`
+- `memory_episodes`, `memory_facts`
+- 10 daily intelligence tables (e.g. `caas_platform_metrics_daily`, `marketplace_platform_metrics_daily`, etc.)
+
+**Implementation Files**:
+- `apps/web/src/lib/agent-studio/` - SpecialistAgentRunner, AgentMemoryService, tools/
+- `apps/web/src/lib/workflow/team-runtime/` - TeamRuntime (LangGraph)
+- `apps/web/src/lib/process-studio/` - PlatformWorkflowRuntime, ConformanceChecker
+- `apps/web/src/lib/conductor/` - IntentDetector, knowledge services
+- `apps/web/src/lib/platform/` - PlatformUserContext, context-cache, agent-handoff
+- `apps/web/src/app/api/admin/conductor/` - API routes
+- `apps/web/src/app/api/admin/agents/`, `/teams/`, `/tools/` - CRUD routes
+
+### 5.11 Growth Agent (AI Business Advisor)
+
+**Status**: ✅ Production-ready (March 2026)
+**Purpose**: Role-adaptive AI business advisor for all user types, providing personalised growth strategies
+**Subscription**: £10/month (free Revenue Audit tier available)
+**Location**: `apps/web/src/lib/growth-agent/`
+
+**Core Capabilities**:
+- **Role-Adaptive**: Adapts to tutor, client, agent, and organisation personas
+- **5 DSPy-Style Skill Files**: Deep UK/international knowledge base
+  1. `profile-listing-audit.ts` — pricing benchmarks, listing quality, qualifications
+  2. `referral-strategy.ts` — channels, outreach templates, seasonal calendar
+  3. `revenue-intelligence.ts` — income patterns, seasonal demand, UK business/tax
+  4. `income-stream-discovery.ts` — 4 income streams, unlock sequencing
+  5. `business-setup-compliance.ts` — career decisions, registration, T&Cs
+- **8 Tools**: Defined in `tools/definitions.ts`, executed via `tools/executor.ts`
+- **Free Revenue Audit**: `GET /api/growth-agent/audit` (no subscription required)
+
+**API Routes**:
+```typescript
+GET  /api/growth-agent/session   // Get/create session
+POST /api/growth-agent/session   // Create new session
+POST /api/growth-agent/stream    // Streaming AI responses
+GET  /api/growth-agent/audit     // Free revenue audit (no sub required)
+```
+
+**Orchestrator**: `GrowthAgentOrchestrator` — `buildSystemPrompt()`, `stream()`, `runRevenueAudit()`
+**AI Provider**: Shared AI service (`apps/web/src/lib/ai/`) with 6-tier fallback chain
+
+### 5.12 Shared AI Service
+
+**Purpose**: Unified AI provider abstraction for all platform AI features (Lexi, Sage, Growth Agent, Conductor agents)
+**Location**: `apps/web/src/lib/ai/`
+
+**6-Tier Fallback Chain**:
+1. xAI Grok 4 Fast (primary)
+2. Gemini Flash (cost-efficient)
+3. DeepSeek R1 (reasoning)
+4. Claude Sonnet 4.6 (complex queries)
+5. OpenAI GPT-4o (fallback)
+6. Rules-based (offline/zero-cost)
+
+**API**: `getAIService()` singleton, `generate()`, `generateJSON<T>()`, `stream()`
+**Env Vars**: `XAI_AI_API_KEY`, `GOOGLE_AI_API_KEY`, `DEEPSEEK_AI_API_KEY`, `ANTHROPIC_AI_API_KEY`, `OPENAI_AI_API_KEY` (with `_AI_` infix; providers check both `*_AI_API_KEY` and `*_API_KEY`)
+**Embeddings**: `gemini-embedding-001` with `outputDimensionality: 768`, HNSW indexes across 6 tables
 
 ---
 
@@ -2590,8 +2723,8 @@ Tasks can link to any platform entity for context:
 ### 10.1 Admin Dashboard Architecture (Implemented Jan 2026)
 
 **Comprehensive Platform Administration**:
-- **260 pages** across entire platform (141 API endpoints)
-- **12 major admin sections** with granular RBAC
+- **450+ pages** across entire platform (270+ API endpoints)
+- **13 major admin sections** with granular RBAC (including Conductor)
 - **HubComplexModal pattern** for all detail views
 - **Advanced filtering** with multi-criteria search
 - **Real-time data** with React Query optimization
@@ -2611,6 +2744,10 @@ Tasks can link to any platform entity for context:
 │  Moderate │ Transactions│  Hubs   │ Payments │Platform│ Logging │
 │  Disputes │  Payouts   │  Trust  │ Security │ Custom │ Auditing│
 │  Ratings  │  Splits    │ Eligib. │ Integr.  │        │ GDPR    │
+├─────────────────────────────────────────────────────────────────┤
+│  Conductor (AI Operations)                                       │
+│  ─────────────────────                                           │
+│  Agents │ Teams │ Spaces │ Workflows │ Intelligence │ Mining     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -2931,7 +3068,7 @@ CREATE POLICY "Users can update own wiselists"
   USING (auth.uid() = profile_id);
 ```
 
-**RLS Coverage**: 200+ policies across 50+ tables
+**RLS Coverage**: 200+ policies across 90+ tables
 
 ---
 
@@ -3163,7 +3300,7 @@ const tutors = await client.tutors.search({
 ### 14.1 Current Scale
 
 **Production Metrics** (as of 2026-01-05):
-- Database: 50+ tables, 219 migrations
+- Database: 90+ tables, 386+ migrations
 - Users: ~2,500 registered profiles
 - Bookings: ~1,200/month
 - GMV: ~£120k/month
@@ -3525,7 +3662,7 @@ NET MARGIN PER BOOKING:      -£2.80 (currently negative)
 - Mobile app (React Native, iOS/Android)
 
 **Q3 2026** (Jul-Sep):
-- Advanced AI matching (GPT-4 integration)
+- Advanced AI matching (multi-provider integration)
 - Automated scheduling (calendar availability → booking suggestions)
 - Premium analytics dashboard
 
@@ -3720,9 +3857,9 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 
 ### B. Technical Stack Summary
 
-**Frontend**: Next.js 14, TypeScript, TailwindCSS, React Query (Gold Standard optimization)
+**Frontend**: Next.js 16, TypeScript, TailwindCSS, React Query (Gold Standard optimization)
 **Backend**: Next.js API Routes, Supabase Functions
-**Database**: PostgreSQL (Supabase), 219 migrations
+**Database**: PostgreSQL (Supabase) + pgvector, 386+ migrations, 90+ tables
 **Auth**: Supabase Auth (JWT-based)
 **Payments**: Stripe Connect, Stripe Checkout
 **Storage**: Supabase Storage (profile pictures, documents, DBS)
@@ -3745,7 +3882,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 
 - **Application Root**: `/Users/michaelquan/projects/tutorwise/apps/web/`
 - **API Routes**: `src/app/api/`
-- **Components**: `src/app/components/`
+- **Components**: `src/components/`
 - **Services**: `src/lib/services/`
 - **Database**: `/Users/michaelquan/projects/tutorwise/tools/database/migrations/`
 - **Documentation**: `/Users/michaelquan/projects/tutorwise/docs/`
@@ -3869,7 +4006,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 - **Client Acquisition**: Built-in marketplace drives organic bookings
 - **Lower Barrier**: Free tier + £50/month vs. £50-200/month minimum
 - **Referral Growth**: Multi-tier commission system (not available in TutorCruncher)
-- **Modern Tech Stack**: Next.js 14 vs. TutorCruncher's older Django architecture
+- **Modern Tech Stack**: Next.js 16 vs. TutorCruncher's older Django architecture
 - **Public Profiles**: SEO-indexed tutor/organisation profiles (viral growth)
 
 **TutorCruncher Advantages**:
@@ -4048,14 +4185,14 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 - **Project Start**: July 2025
 - **Current Date**: January 2026
 - **Development Period**: 6 months
-- **Total Commits**: 1,812 commits
-- **Commit Velocity**: 302 commits/month (highly active)
+- **Total Commits**: 2,500+ commits
+- **Commit Velocity**: 280+ commits/month (highly active)
 
 **Codebase Metrics**:
-- **Database Migrations**: 180+ migrations
+- **Database Migrations**: 386+ migrations
 - **TypeScript Files**: 760+ files
-- **API Endpoints**: 132+ endpoints
-- **Database Tables**: 50+ tables with 200+ RLS policies
+- **API Endpoints**: 270+ endpoints
+- **Database Tables**: 90+ tables with 200+ RLS policies
 - **Lines of Code**: Estimated 100,000+ lines (production-ready)
 
 **Feature Delivery Velocity** (measured by migration timestamps):
@@ -4094,8 +4231,8 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 **Traditional Development Cost Comparison** (24-month timeline):
 
 **Why This Platform Requires Exceptional Expertise:**
-- **Platform Complexity**: Three-sided marketplace, 219 migrations, 50+ tables
-- **Rare Skillset**: ML + Graph DB + Security + Three-sided marketplace architecture
+- **Platform Complexity**: Three-sided marketplace, 386+ migrations, 90+ tables
+- **Rare Skillset**: ML + AI Operations + Security + Three-sided marketplace architecture
 - **"Very hard to find the skillset engineer"** - requires senior specialists, not generalists
 - **"Only AI could have built it"** - human cognitive limits managing this complexity
 
@@ -4104,7 +4241,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 - 1x Senior React/Next.js Developer (£90k) - Frontend development
 - 1x UI/UX Designer + Frontend Developer (£65k) - Design + implementation
 - 1x Senior Backend Engineer (£95k) - API, business logic, ML/fraud detection
-- 1x Database Specialist (£85k) - PostgreSQL, Neo4j, **50+ tables**, 200+ RLS policies
+- 1x Database Specialist (£85k) - PostgreSQL, pgvector, **90+ tables**, 200+ RLS policies
 - 1x Business Analyst & Product Manager (£95k) - Requirements, roadmap, testing
 - 1x DevOps/Infrastructure Engineer (£90k) - CI/CD pipeline, infrastructure
 - 1x Tester (£55k) - Manual testing, user acceptance
@@ -4137,7 +4274,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
   - Research shows: 3-6 months ramp-up per engineer
   - Smaller team = faster knowledge transfer
   - Conservative: 3 months @ 50% productivity loss for 6 people
-- **Knowledge transfer complexity**: Learning 219 migrations, 50+ tables, ML systems, graph DB
+- **Knowledge transfer complexity**: Learning 386+ migrations, 90+ tables, ML systems, AI operations
 - **Subtotal**: £169,000
 
 **4. Employee Turnover (18 months):**
@@ -4175,7 +4312,7 @@ By 2027, Tutorwise aims to be the default platform for tutors who want to build 
 - **Contingency (12%)**: £290,000
   - Lower risk with smaller team (less coordination failure)
   - Cloud services reduce infrastructure risk
-  - Still complex marketplace/ML/graph DB challenges
+  - Still complex marketplace/ML/AI operations challenges
 - **Subtotal**: £290,000
 
 **TOTAL TRADITIONAL REPLACEMENT COST: £2,847,000** (~**£2.85M**)
@@ -4287,14 +4424,14 @@ Industry research confirms solo founder with AI can match output of 15-20 tradit
 
 3. **Network Trust Graph with PageRank**:
    - **Market Value**: £150k - £350k (unique credibility propagation)
-   - **Innovation**: Neo4j graph database tracking trust relationships with weighted edges (0.0-1.0)
-   - **Technology**: PageRank-style trust propagation, hourly pg_cron refresh
+   - **Innovation**: PostgreSQL-based trust graph tracking relationships with weighted edges (0.0-1.0)
+   - **Technology**: PageRank-style trust propagation via pg_cron, materialized views
    - **Connection Types**: Referral, review, booking, connection edges
    - **Competitive Advantage**: Trust density metrics and weighted trust scoring
 
 4. **AI-Assisted Semantic Search Engine**:
    - **Market Value**: £200k - £450k (superior discovery, higher conversion)
-   - **Innovation**: pgvector embeddings (1536-dim OpenAI text-embedding-3-small)
+   - **Innovation**: pgvector embeddings (768-dim gemini-embedding-001) with HNSW indexes
    - **Technology**: Semantic understanding, not keyword matching
    - **Features**: Homepage AI-assisted search, autocomplete, personalized recommendations, match scoring
    - **Moat**: Continuous learning from search patterns
@@ -4373,7 +4510,7 @@ Industry research confirms solo founder with AI can match output of 15-20 tradit
 - Mobile App: Ready
 
 **Pre-Revenue Valuation Drivers**:
-- ✓ Production-ready platform (180+ migrations, 1,812 commits)
+- ✓ Production-ready platform (386+ migrations, 2,500+ commits)
 - ✓ Patent-pending IP (referral system)
 - ✓ Proprietary algorithms (CaaS, matching)
 - ✓ Defensible moat (multi-tier economics)
@@ -4441,7 +4578,7 @@ Industry research confirms solo founder with AI can match output of 15-20 tradit
 2. **Hybrid Model**: Only platform with marketplace + CRM + viral growth
 3. **Patent-Pending Referrals**: Defensible IP moat
 4. **Trust Transparency**: CaaS open-source algorithm (no competitor equivalent)
-5. **Modern Tech Stack**: Next.js 14, real-time features, API-first architecture
+5. **Modern Tech Stack**: Next.js 16, real-time features, API-first architecture
 
 **Market Gap Analysis**:
 - **TutorCruncher**: CRM-only (no marketplace), higher fees (£50-200/month)
@@ -4538,12 +4675,12 @@ Base Asset Valuation:
      - Lean team: Frontend, Backend, Database, DevOps, Product, QA, Leadership
      - Cloud services (Vercel, Supabase, Resend, Ably) reduce infrastructure costs
      - Fully loaded costs: salaries, recruitment, onboarding, turnover, coordination overhead
-     - "Very hard to find skillset" - requires ML/Graph DB/security expertise
+     - "Very hard to find skillset" - requires ML/AI Operations/security expertise
 
 Unique IP Premium Components:
   2. Universal Referral IP (3-sided):    £750k
   3. ML Fraud Detection System:          £225k
-  4. Network Trust Graph (Neo4j):        £200k
+  4. Network Trust Graph (PostgreSQL):    £200k
   5. AI Semantic Search Engine:          £250k
   6. CaaS Algorithm + Integration:       £225k
   7. Three-Sided Architecture Premium:   £200k
@@ -4659,7 +4796,7 @@ cloud services (Vercel, Supabase, Resend, Ably).
 
 **What's Been Built**:
 - **Replacement Cost**: £2.85M (9 specialists × 18-21 months, fully loaded with cloud services)
-- **Unique IP Premium**: +£2.58M (referral system, ML fraud detection, Neo4j trust, AI search, etc.)
+- **Unique IP Premium**: +£2.58M (referral system, ML fraud detection, trust graph, AI search, Conductor, etc.)
 - **Total Asset Value**: £5.4M
 
 **Pre-Revenue Risk Adjustments**:
@@ -4679,7 +4816,7 @@ cloud services (Vercel, Supabase, Resend, Ably).
 - **Fair Market**: £3.4M - £4.3M (recognizes £2.85M replacement cost + unique IP, 20-25% discount for pre-revenue)
 - **Optimistic**: £4.3M - £5.2M (minimal discount, strategic buyer or AI-focused VC)
 
-**Key Insight**: The £1k development cost vs. **£2.85M** traditional cost creates a permanent **2,850x** cost advantage. The £1.17M annual operational savings means competitors face an **insurmountable economic moat** - they must spend 584x more annually to compete. This is not a typical marketplace - it's an enterprise-grade platform with ML, graph DB, security sophistication, and automated delivery that even a lean **9-person team with "very hard to find skillset"** would struggle to replicate in 18 months. **"Only AI could have built it"** = un-bridgeable moat.
+**Key Insight**: The £1k development cost vs. **£2.85M** traditional cost creates a permanent **2,850x** cost advantage. The £1.17M annual operational savings means competitors face an **insurmountable economic moat** - they must spend 584x more annually to compete. This is not a typical marketplace - it's an enterprise-grade platform with ML, AI operations, security sophistication, and automated delivery that even a lean **9-person team with "very hard to find skillset"** would struggle to replicate in 18 months. **"Only AI could have built it"** = un-bridgeable moat.
 
 **Combined Efficiency Advantage**: 10,000x - 11,400x (cost × speed advantage)
 
@@ -4702,7 +4839,7 @@ cloud services (Vercel, Supabase, Resend, Ably).
 ✓ **Three-Sided Marketplace**: Agents as distinct supply-side (no competitor has this)
 ✓ **Universal Referral IP**: Patent-pending anyone→anyone referral system (unique in market)
 ✓ **ML Fraud Detection**: Real-time bot/spam prevention with velocity spike detection
-✓ **Network Trust Graph**: Neo4j + PageRank trust propagation (proprietary)
+✓ **Network Trust Graph**: PostgreSQL + PageRank trust propagation (proprietary)
 ✓ **AI Semantic Search**: pgvector embeddings for superior discovery (not keyword matching)
 ✓ **Profile-Listing Separation**: Flexible architecture (one tutor → multiple services/pricing)
 ✓ **Developer API Platform**: B2B ecosystem enabler with scoped permissions
@@ -4710,8 +4847,8 @@ cloud services (Vercel, Supabase, Resend, Ably).
 ✓ **Enterprise Security**: 200+ RLS policies, DBS verification
 ✓ **Perpetual Cost Moat**: £1.17M/year operational savings vs. competitors (10-year NPV: £4.88M)
 ✓ **3.5-4x Time Advantage**: 6 months vs 21-24 months (ship features in weeks vs. competitors' months)
-✓ **Production-Ready**: "Impressive for a beta" - 219 migrations, 50+ tables, 1,812 commits
-✓ **"Very Hard to Find Skillset"**: Requires 9 specialists with ML/Graph DB/security expertise
+✓ **Production-Ready**: "Impressive for a beta" - 386+ migrations, 90+ tables, 2,500+ commits
+✓ **"Very Hard to Find Skillset"**: Requires 9 specialists with ML/AI Operations/security expertise
 ✓ **Path to Profitability**: Can reach profitability at £150k ARR (vs. £1M+ for traditional teams)
 ✓ **Low CAC**: £20-50 blended (organic referrals + paid)
 ✓ **High LTV/CAC**: 40x ratio (exceptional unit economics)
@@ -4840,9 +4977,9 @@ Tutorwise represents a **high-efficiency, capital-efficient** pre-revenue EdTech
 1. **2,850x Cost Advantage**: £1k build cost vs. £2.85M lean team replacement cost (research-verified)
 2. **Un-bridgeable Moat**: "Only AI could have built it" - even 9-person teams need 18-21 months
 3. **Three-Sided Marketplace**: Unique agent supply-side with patent-pending universal referral IP
-4. **Enterprise-Grade Complexity**: ML fraud detection, Neo4j trust graph, AI semantic search, 200+ RLS policies
+4. **Enterprise-Grade Complexity**: ML fraud detection, PostgreSQL trust graph, AI semantic search, 200+ RLS policies
 5. **Perpetual Operational Advantage**: £1.17M/year savings vs. competitors (£4.88M 10-year NPV)
-6. **Production-Ready**: "Impressive for a beta" - 219 migrations, 50+ tables, 1,812 commits in 6 months
+6. **Production-Ready**: "Impressive for a beta" - 386+ migrations, 90+ tables, 2,500+ commits in 9 months
 7. **Massive TAM**: £2.0B UK, £10-12B US, £100-135B global (verified from 10+ research sources)
 8. **Exceptional Unit Economics**: 40x LTV/CAC, path to profitability at £150k ARR
 9. **Cloud-Native**: Vercel, Supabase, Resend, Ably - reduces operational complexity and costs

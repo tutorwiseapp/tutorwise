@@ -1,8 +1,8 @@
 # Tutorwise Code Patterns & Conventions
 
-**Last Updated**: 2026-01-14
-**Platform Status**: 95% Complete (Beta Release: Feb 1, 2026)
-**Tech Stack**: Next.js 15.x, TypeScript 5.x, Supabase, Stripe Connect
+**Last Updated**: 2026-03-11
+**Platform Status**: Production (Conductor Phase 7 complete)
+**Tech Stack**: Next.js 16.x, TypeScript 5.x, Supabase, Stripe Connect
 
 ---
 
@@ -12,30 +12,46 @@
 ```
 apps/web/src/
 ├── app/
-│   ├── (admin)/admin/              # 13 admin sections with HubComplexModal pattern
+│   ├── (admin)/admin/              # Admin sections with HubComplexModal pattern
 │   │   ├── accounts/               # User management (soft/hard delete)
+│   │   ├── conductor/              # Conductor canvas (Design/Build/Execute/Observe)
 │   │   ├── forms/                  # Shared fields admin (drag-and-drop)
 │   │   ├── organisations/          # Team management
 │   │   └── [other-sections]/      # Additional admin sections
 │   ├── (auth)/                     # Authentication routes
 │   ├── (dashboard)/                # User dashboards (role-based)
-│   ├── api/                        # API routes (222 endpoints)
-│   ├── components/                 # Reusable components (382 total)
+│   ├── api/                        # API routes
+│   │   ├── admin/                  # Admin API routes (is_admin guard required)
+│   │   │   ├── agents/             # Agent CRUD + run
+│   │   │   ├── conductor/          # Conductor intelligence, autonomy, knowledge
+│   │   │   ├── teams/              # Team CRUD + run + HITL resume
+│   │   │   └── ...
+│   │   ├── cron/                   # Cron job endpoints (dual auth pattern)
+│   │   └── webhooks/               # Webhook receivers (process-studio, stripe)
+│   ├── components/                 # Reusable components
 │   │   ├── ui/                     # Base design system
 │   │   ├── admin/                  # Admin-specific components
 │   │   ├── feature/                # Feature-specific components
 │   │   └── layout/                 # Layout components
 │   └── onboarding/                 # Page-based onboarding (5 steps/role)
 ├── lib/
+│   ├── ai/                         # Shared AI service (6-tier fallback chain)
+│   │   └── index.ts                # getAIService(), generate(), generateJSON<T>(), stream()
+│   ├── agent-studio/               # Agent runtime (SpecialistAgentRunner, AgentMemoryService)
+│   ├── conductor/                   # Conductor services (IntentDetector, knowledge)
+│   ├── platform/                   # Platform context, user-context, agent-handoff
+│   ├── process-studio/             # Process execution engine (PlatformWorkflowRuntime)
+│   │   ├── runtime/                # LangGraph-based workflow runtime
+│   │   └── conformance/            # ConformanceChecker for shadow/live
+│   ├── workflow/                   # Team runtime, nudge scheduler
+│   │   └── team-runtime/           # TeamRuntime (LangGraph StateGraph + PostgresSaver)
 │   ├── api/                        # API utilities
-│   │   ├── formConfig.ts           # Form configuration API
-│   │   └── sharedFields.ts         # Shared fields API
 │   ├── supabase/
 │   │   └── server.ts               # Server-side Supabase client
 │   └── stripe.ts                   # Stripe Connect client
 └── utils/                          # Utility functions
 
-tools/database/migrations/          # 270 database migrations
+tools/database/migrations/          # 386+ database migrations
 ```
 
 ### Naming Conventions
@@ -371,7 +387,7 @@ fields.map(field => (
 
 **Purpose**: Shared 3-dot action menu for admin data table rows. Uses `createPortal` to render the dropdown to `document.body`, escaping the `overflow: hidden` on HubDataTable cells.
 
-**Location**: `apps/web/src/app/components/ui/actions/VerticalDotsMenu.tsx`
+**Location**: `apps/web/src/components/ui/actions/VerticalDotsMenu.tsx`
 
 **Key Characteristics**:
 - `createPortal` renders menu to `document.body` (required — HubDataTable `.dataCell` has `overflow: hidden`)
@@ -382,7 +398,7 @@ fields.map(field => (
 
 **Usage Example**:
 ```typescript
-import VerticalDotsMenu from '@/app/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 
 // In a HubDataTable column render:
 {
@@ -914,7 +930,7 @@ The Hub Architecture provides a consistent, scalable pattern for feature pages:
 
 Add feature entry to navigation with submenus:
 
-**Location**: `apps/web/src/app/components/layout/AppSidebar.tsx`
+**Location**: `apps/web/src/components/layout/AppSidebar.tsx`
 
 ```typescript
 // Add after EduPay link
@@ -993,13 +1009,13 @@ apps/web/src/app/(authenticated)/sage/
 // apps/web/src/app/(authenticated)/sage/page.tsx
 'use client';
 
-import { HubPageLayout, HubHeader, HubTabs } from '@/app/components/hub/layout';
-import HubSidebar from '@/app/components/hub/sidebar/HubSidebar';
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
-import SageChat from '@/app/components/feature/sage/SageChat';
-import SageProgressWidget from '@/app/components/feature/sage/SageProgressWidget';
-import SageStreakWidget from '@/app/components/feature/sage/SageStreakWidget';
-import SageHelpWidget from '@/app/components/feature/sage/SageHelpWidget';
+import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import SageChat from '@/components/feature/sage/SageChat';
+import SageProgressWidget from '@/components/feature/sage/SageProgressWidget';
+import SageStreakWidget from '@/components/feature/sage/SageStreakWidget';
+import SageHelpWidget from '@/components/feature/sage/SageHelpWidget';
 
 export default function SagePage() {
   const { profile } = useUserProfile();
@@ -1191,7 +1207,7 @@ export async function POST(request: NextRequest) {
 ### 7. Custom Hook Pattern
 
 ```typescript
-// apps/web/src/app/components/feature/sage/useSageChat.ts
+// apps/web/src/components/feature/sage/useSageChat.ts
 import { useState, useCallback, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -1247,10 +1263,10 @@ export function useSageChat({ sessionId, subject, onError }: UseSageChatOptions)
 ### 8. Sidebar Widget Pattern
 
 ```typescript
-// apps/web/src/app/components/feature/sage/SageProgressWidget.tsx
+// apps/web/src/components/feature/sage/SageProgressWidget.tsx
 'use client';
 
-import HubStatsCard, { StatRow } from '@/app/components/hub/sidebar/cards/HubStatsCard';
+import HubStatsCard, { StatRow } from '@/components/hub/sidebar/cards/HubStatsCard';
 
 interface SageProgressWidgetProps {
   studentId?: string;
@@ -1322,7 +1338,7 @@ When implementing a new feature using the Hub Architecture:
    - [ ] Configure role-based visibility
 
 7. **Integration**
-   - [ ] Connect to existing systems (CAS, profiles, etc.)
+   - [ ] Connect to existing systems (Conductor, profiles, etc.)
    - [ ] Add React Query caching
    - [ ] Test full user flow
 
@@ -1396,10 +1412,10 @@ Types:
 ### 12. Error Boundary Pattern
 
 ```typescript
-// apps/web/src/app/components/feature/sage/SageError.tsx
+// apps/web/src/components/feature/sage/SageError.tsx
 'use client';
 
-import Button from '@/app/components/ui/actions/Button';
+import Button from '@/components/ui/actions/Button';
 import styles from './SageError.module.css';
 
 interface SageErrorProps {
@@ -1473,7 +1489,7 @@ This section documents mistakes made during the Sage implementation and how to a
 **Pattern**:
 ```typescript
 // CORRECT
-import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
 
 <HubEmptyState
   title="No sessions yet"
@@ -1491,31 +1507,28 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 
 ---
 
-#### Mistake 3: Using Icons/Emojis in Feature Components
+#### Mistake 3: Using Emojis or Random Icon Libraries
 
-**What went wrong**: Used SVG icons, emojis, and icon fonts in feature components.
+**What went wrong**: Used emojis and random SVG icon sources instead of the standard icon library.
 
-**Root cause**: Assumed icons improve UX; didn't check codebase conventions.
+**Root cause**: Assumed emojis improve UX; didn't check codebase conventions.
 
 **How to avoid**:
-- Feature components should use TEXT LABELS, not icons
-- Replace: SVG icons → text (e.g., "Send", "Delete", "Yes", "No")
-- Replace: Emojis → nothing or text
-- Only use icons in design system UI components (`components/ui/`)
+- Use `lucide-react` for ALL icons — NOT emojis, NOT other icon libraries
+- Import specific icons: `import { Save, Trash2, GitBranch } from 'lucide-react'`
+- NEVER use emoji characters in components or UI text
 
 **Examples**:
 ```typescript
-// CORRECT
-<button>Send</button>
-<button>Delete</button>
-<span>PDF</span>
-<span>IMG</span>
+// CORRECT — lucide-react icons
+import { Send, Trash2, FileText, Flame } from 'lucide-react';
+<button><Send size={16} /> Send</button>
+<button><Trash2 size={16} /> Delete</button>
 
-// WRONG
-<button><SendIcon /></button>
+// WRONG — emojis
 <button>🗑️</button>
 <span>📄</span>
-<span>🔥</span>  /* Fire emoji in streak widget */
+<span>🔥</span>
 ```
 
 ---
@@ -1533,7 +1546,7 @@ import HubEmptyState from '@/app/components/hub/content/HubEmptyState';
 
 **Pattern**:
 ```typescript
-import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
+import filterStyles from '@/components/hub/styles/hub-filters.module.css';
 
 <HubHeader
   title="Feature Name"
@@ -1568,7 +1581,7 @@ import filterStyles from '@/app/components/hub/styles/hub-filters.module.css';
 
 **Pattern**:
 ```typescript
-import actionStyles from '@/app/components/hub/styles/hub-actions.module.css';
+import actionStyles from '@/components/hub/styles/hub-actions.module.css';
 
 <HubHeader
   actions={
@@ -1706,7 +1719,7 @@ Use this checklist BEFORE starting any new Hub feature:
 - [ ] Review existing Hub component usage patterns
 
 ### Component Rules
-- [ ] NO icons or emojis in feature components (use text labels)
+- [ ] Use `lucide-react` for all icons — NO emojis, NO other icon libraries
 - [ ] Use HubEmptyState for empty states
 - [ ] Use HubStatsCard for sidebar stats
 - [ ] Use HubDetailCard for list items
@@ -1735,6 +1748,305 @@ Use this checklist BEFORE starting any new Hub feature:
 
 ---
 
-*This document reflects production patterns as of February 14, 2026*
-*Platform at 98% completion, production-ready*
+## **AI Service & Provider Patterns**
+
+### 6-Tier AI Fallback Chain
+
+**Location**: `apps/web/src/lib/ai/`
+
+The shared AI service provides a singleton `getAIService()` with a 6-tier fallback chain:
+
+1. xAI Grok 4 Fast (primary)
+2. Google Gemini Flash
+3. DeepSeek R1
+4. Anthropic Claude Sonnet 4.6
+5. OpenAI GPT-4o
+6. Rules-based fallback
+
+**Env var naming**: All providers use `*_AI_API_KEY` infix (e.g., `XAI_AI_API_KEY`, `GOOGLE_AI_API_KEY`). Each provider checks both `*_AI_API_KEY` and `*_API_KEY`.
+
+**Usage**:
+```typescript
+import { getAIService } from '@/lib/ai';
+
+const ai = getAIService();
+
+// Text generation
+const result = await ai.generate(prompt, systemPrompt);
+
+// Structured JSON generation (typed)
+const data = await ai.generateJSON<MyType>(prompt, systemPrompt);
+
+// Streaming
+const stream = await ai.stream(prompt, systemPrompt);
+```
+
+### RAG Pattern (Platform Knowledge Base)
+
+**Table**: `platform_knowledge_chunks` — 768-dim pgvector embeddings, 18 categories covering all intelligence domains.
+
+**RPC**: `match_platform_knowledge_chunks(query_embedding, match_threshold, match_count, filter_categories)`
+
+**Embedding model**: `gemini-embedding-001` with `outputDimensionality: 768`
+
+**Usage in agents**: `SpecialistAgentRunner` fetches relevant knowledge chunks via the `AGENT_KNOWLEDGE_CATEGORY` map and injects them into the agent's system prompt as context.
+
+**Knowledge management**: KnowledgePanel at Conductor 'knowledge' tab provides CRUD + RAG preview for platform knowledge chunks.
+
+---
+
+## **Conductor & Agent Patterns**
+
+> **Note**: The Conductor (at `/admin/conductor`) replaces the legacy CAS framework. CAS tables (`cas_*`) are soft-deprecated (migration 385, hard delete eligible 2026-06-11). All new agent/team/workflow work uses Conductor patterns.
+
+### Conductor Tab Structure (v4.0)
+
+11 tabs across 4 stages:
+- **Design**: workflows, discovery
+- **Build**: build, agents, teams, spaces, knowledge
+- **Execute**: execution
+- **Observe**: monitoring, intelligence, mining
+
+### SpecialistAgentRunner ReAct Pattern
+
+**Location**: `apps/web/src/lib/agent-studio/SpecialistAgentRunner.ts`
+
+The ReAct loop processes agent tasks with tool calling:
+
+1. Agent receives task + system prompt (enriched with knowledge + memory)
+2. AI generates response; runner scans for `TOOL_CALL` regex matches
+3. Matched tools are executed via the tool executor (`apps/web/src/lib/agent-studio/tools/executor.ts`)
+4. Tool results are fed back into the conversation loop
+5. Final output is written to `agent_run_outputs`
+
+**Memory + Knowledge parallel fetch** (at run start):
+```typescript
+const [memoryBlock, knowledgeBlock] = await Promise.all([
+  agentMemoryService.fetchMemoryBlock(agentSlug, taskEmbedding),
+  fetchKnowledgeBlock(agentSlug, taskEmbedding),
+]);
+// Both injected into system prompt as PAST EXPERIENCE and KNOWLEDGE sections
+```
+
+**Post-run fire-and-forget** (fail-silently):
+```typescript
+// Record episode + extract facts — both non-blocking
+agentMemoryService.recordEpisode(agentSlug, task, output, embedding).catch(() => {});
+agentMemoryService.extractAndStoreFacts(agentSlug, output).catch(() => {});
+```
+
+### TeamRuntime Patterns (LangGraph StateGraph v2)
+
+**Location**: `apps/web/src/lib/workflow/team-runtime/TeamRuntime.ts`
+
+TeamRuntime v2 uses LangGraph `StateGraph` + `PostgresSaver` checkpointing. Three orchestration patterns:
+
+| Pattern | Behavior |
+|---------|----------|
+| **Supervisor** | Runs specialists in parallel, supervisor synthesizes results |
+| **Pipeline** | Topological sort of agents, runs sequentially passing state |
+| **Swarm** | Dynamic routing via `NEXT_AGENT` in agent output |
+
+**HITL (Human-in-the-Loop) pattern** — supervisor graph only:
+```typescript
+// Start with HITL enabled — pauses after specialists complete
+const run = await teamRuntime.run(slug, task, trigger, { hitl: true });
+// Status becomes 'awaiting_approval'
+
+// Resume after human review
+await teamRuntime.resume(runId, approved); // true = continue, false = reject
+// Or via API: POST /api/admin/teams/{id}/runs/{runId}/resume
+```
+
+### Agent Episodic Memory Pattern
+
+**Location**: `apps/web/src/lib/agent-studio/AgentMemoryService.ts`
+
+**Tables**: `memory_episodes` (vector(768) HNSW) + `memory_facts` (subject/relation/object triples with temporal validity)
+
+**RPCs**: `match_memory_episodes()` + `match_memory_facts()`
+
+**Key methods**:
+- `fetchMemoryBlock(slug, embedding)` — retrieves relevant past episodes + facts for prompt injection
+- `recordEpisode(slug, task, output, embedding)` — stores run as searchable episode
+- `extractAndStoreFacts(slug, output)` — uses `ai.generateJSON<ExtractedFact[]>()` for outputs >200 chars; max 4 facts per run
+- `invalidateFact(factId)` — sets `valid_until` to mark facts as superseded
+
+### Intelligence Pipeline Pattern
+
+**Flow**: pg_cron daily metrics tables → intelligence API routes → IntelligencePanel sub-tabs
+
+**pg_cron schedule** (staggered to avoid load spikes):
+```
+04:30 resources → 04:45 article_scores → 05:00 seo → 05:30 caas →
+06:00 marketplace → 06:30 bookings → 07:00 listings → 07:30 financials →
+08:00 virtualspace → 09:00 referral → 09:30 retention → 10:00 ai_adoption →
+10:30 org_conversion → 11:00 ai_studio
+```
+
+**API routes**: 14 intelligence endpoints under `/api/admin/` (e.g., `caas/intelligence`, `bookings/intelligence`)
+
+**UI**: IntelligencePanel at Conductor 'intelligence' tab with sub-tabs per domain, auto-fetches on first activation.
+
+---
+
+## **Authentication & Authorization Patterns**
+
+### Admin Route Auth Guard
+
+**All admin API routes** must check `is_admin` on the user's profile. This is a hard requirement — no admin route should skip this check.
+
+```typescript
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Admin guard — REQUIRED for all /api/admin/* routes
+  const { data: adminProfile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (!adminProfile?.is_admin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // ... route logic
+}
+```
+
+**Database RLS**: Use the `is_admin()` SQL function for RLS policies (NOT an `admin_users` table).
+
+### Cron/Scheduler Dual Auth Pattern
+
+Two auth header patterns exist in the codebase. All cron routes should check BOTH:
+
+```typescript
+export async function POST(request: NextRequest) {
+  // Pattern 1: Standard Bearer token (used by fetch-based callers)
+  const authHeader = request.headers.get('authorization');
+  // Pattern 2: Custom header (used by pg_net / Supabase Edge Functions)
+  const cronHeader = request.headers.get('x-cron-secret');
+
+  const expectedSecret = process.env.CRON_SECRET;
+  const isAuthorized =
+    authHeader === `Bearer ${expectedSecret}` ||
+    cronHeader === expectedSecret;
+
+  if (!isAuthorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // ... cron job logic
+}
+```
+
+---
+
+## **Process Studio Patterns**
+
+### Shadow/Live Execution Mode
+
+**Column**: `workflow_processes.execution_mode` — `'design'` | `'shadow'` | `'live'`
+
+- **Design**: Process template only, not executed
+- **Shadow**: Runs in parallel with existing crons; results logged but not acted upon; used for conformance checking
+- **Live**: Process engine is authoritative; legacy crons skip when a process is live
+
+**Toggle**: `PATCH /api/admin/process-studio/processes/[id]/execution-mode`
+
+**Promotion**: `POST /api/admin/conductor/workflows/[id]/promote` — enforces go-live checklist (5 items) then flips to live.
+
+### Node Handler Registry Pattern
+
+**Location**: `apps/web/src/lib/workflow/runtime/handlers/`
+
+The `NodeHandlerRegistry` maps handler type strings to integration functions:
+
+```typescript
+// Each handler is registered by type string
+registry.register('cas-agent', casAgentHandler);  // Runs specialist agent or team
+registry.register('api-call', apiCallHandler);
+registry.register('human-task', humanTaskHandler);
+// ... etc.
+```
+
+The `cas-agent` handler supports both `agent_slug` (single agent) and `team_slug` (team run) properties, plus shadow mode.
+
+### Webhook Trigger Pattern
+
+Supabase DB webhooks trigger process execution:
+
+- `process_studio_profile_under_review` — profiles UPDATE (status → 'under_review') → starts Tutor Approval process
+- `process_studio_booking_insert` — bookings INSERT → starts Booking Lifecycle process
+
+**Endpoint**: `POST /api/webhooks/process-studio` (authenticated via `PROCESS_STUDIO_WEBHOOK_SECRET`)
+
+---
+
+## **React Query Gold Standard Pattern**
+
+All `useQuery` calls should use this configuration. This is enforced across all Conductor components and should be followed platform-wide.
+
+```typescript
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+
+const { data, isLoading, error, refetch } = useQuery({
+  queryKey: ['feature-name', profile?.id, ...dependencies],
+  queryFn: async () => {
+    const res = await fetch('/api/feature');
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json();
+  },
+  enabled: !!profile?.id,
+  // === GOLD STANDARD CONFIG — ALWAYS INCLUDE ===
+  staleTime: 2 * 60 * 1000,        // 2 minutes
+  gcTime: 5 * 60 * 1000,           // 5 minutes
+  placeholderData: keepPreviousData,
+  refetchOnMount: 'always',
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+});
+```
+
+**Mutation pattern**:
+```typescript
+const mutation = useMutation({
+  mutationFn: async (payload) => {
+    const res = await fetch('/api/feature', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed');
+    return res.json();
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['feature-name'] });
+  },
+});
+```
+
+---
+
+## **Icon Pattern**
+
+Use `lucide-react` for ALL icons across the platform. Never use emoji characters or other icon libraries.
+
+```typescript
+import { Save, Trash2, GitBranch, Layers, Activity } from 'lucide-react';
+
+// In JSX
+<Save size={16} />
+<Trash2 size={16} className="text-red-500" />
+```
+
+---
+
+*This document reflects production patterns as of March 11, 2026*
+*Conductor Phase 7 complete — agent episodic memory live*
 *Update this document as new patterns emerge*

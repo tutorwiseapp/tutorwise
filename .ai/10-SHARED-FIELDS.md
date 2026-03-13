@@ -388,7 +388,7 @@ Examples:
 ### **UnifiedSelect Component**
 
 ```typescript
-// apps/web/src/app/components/form/fields/UnifiedSelect.tsx
+// apps/web/src/components/form/fields/UnifiedSelect.tsx
 
 interface UnifiedSelectProps {
   fieldName: string;                    // Shared field name
@@ -490,7 +490,7 @@ export default function UnifiedSelect({
 ### **UnifiedMultiSelect Component**
 
 ```typescript
-// apps/web/src/app/components/form/fields/UnifiedMultiSelect.tsx
+// apps/web/src/components/form/fields/UnifiedMultiSelect.tsx
 
 interface UnifiedMultiSelectProps {
   fieldName: string;
@@ -959,8 +959,8 @@ test('Tutor can complete onboarding with shared fields', async ({ page }) => {
 ### **Code Locations**
 - Shared Fields API: `apps/web/src/app/api/shared-fields/`
 - Form Config API: `apps/web/src/app/api/form-config/`
-- UnifiedSelect component: `apps/web/src/app/components/form/fields/UnifiedSelect.tsx`
-- UnifiedMultiSelect component: `apps/web/src/app/components/form/fields/UnifiedMultiSelect.tsx`
+- UnifiedSelect component: `apps/web/src/components/form/fields/UnifiedSelect.tsx`
+- UnifiedMultiSelect component: `apps/web/src/components/form/fields/UnifiedMultiSelect.tsx`
 - Forms Hub admin: `apps/web/src/app/(admin)/admin/forms/`
 
 ### **Database Migrations**

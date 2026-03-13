@@ -2,9 +2,9 @@
 
 **Tutoring Marketplace and CRM Platform**
 
-**Version**: 1.1.0
-**Status**: Beta (Launched 1 Mar 2026)
-**Last Updated**: 2026-03-06
+**Version**: 2.0.0
+**Status**: Beta (Launched 1 April 2026)
+**Last Updated**: 2026-03-11
 
 ---
 
@@ -30,14 +30,14 @@ Bookings & Payments: Integrated Stripe Connect flow handling complex commission 
 
 Network: A LinkedIn-style connection graph allowing Agents to manage tutor rosters and students to build educational networks.
 
-5. Contextual Autonomous System (CAS)
-The platform is developed and maintained by CAS, an AI-driven "Product Team" framework. This system utilizes specialized AI agents (Planner, Analyst, Developer, Tester) to auto-maintain project plans, execute code, and enforce "Production-Ready" quality standards through automated auditing. CAS is also exposed as an admin platform at `/admin/cas`.
+5. Conductor — AI Operations Platform
+The platform's autonomous operations layer, accessible at `/admin/conductor`. Features 8 specialist AI agents, multi-agent teams (Supervisor/Pipeline/Swarm patterns), process automation with shadow/live execution modes, and a 14-domain intelligence layer with daily metrics pipelines. Built on LangGraph StateGraph with PostgresSaver checkpointing. Includes agent episodic memory (vector search + knowledge graph facts) and human-in-the-loop approval workflows.
 
 6. Growth Agent (£10/month AI Advisor)
 A role-adaptive AI advisor for all users (Tutor, Client, Agent, Organisation). Powered by a DSPy-style knowledge base (5 skill files covering pricing benchmarks, referral strategy, UK business/tax, income discovery, and compliance). Includes a free Revenue Audit tier.
 
-7. iPOM Studio (Intelligent Process & Operations Management)
-A unified admin canvas at `/admin/studio` for automating business processes. Phase 1 (Process Execution Engine) is complete with 5 live/shadow workflows (Tutor Approval, Commission Payout, Booking Lifecycle, Referral Attribution). Phase 2 adds AI Agents and multi-agent Teams.
+7. Process Studio — Workflow Automation
+A visual workflow designer and execution engine within the Conductor at `/admin/conductor`. Phase 1 (Process Execution Engine) is complete with 5 live/shadow workflows (Tutor Approval, Commission Payout, Booking Lifecycle, Referral Attribution). Includes ConformanceChecker for process mining, shadow-reconcile monitoring, and go-live checklists.
 
 8. Sage AI GCSE Tutor (**[Documentation](sage/README.md)**)
 An AI-powered GCSE tutor providing personalized educational support with comprehensive curriculum coverage. Features:
@@ -94,8 +94,9 @@ tutorwise/
 │   └── web/              # Next.js 16 frontend + API routes
 ├── sage/                 # Sage AI GCSE Tutor (standalone package)
 ├── lexi/                 # Lexi AI Help Bot (standalone package)
-├── cas/                  # CAS AI development framework
-├── ipom/                 # iPOM Studio solution designs & docs
+├── cas/                  # Legacy CAS framework (migrated to Conductor)
+├── conductor/            # Conductor solution designs & publishing docs
+├── ipom/                 # Process execution solution designs
 ├── tools/                # Development tools & DB migration scripts
 ├── tests/                # Test suites (Jest, Playwright, Percy)
 └── docs/                 # Feature & architecture documentation
@@ -167,49 +168,30 @@ All AI access is via the shared service at `apps/web/src/lib/ai/` — `getAIServ
 
 ## Development Workflow
 
-### CAS Framework
+### Conductor — AI Operations Platform
 
-TutorWise uses **CAS (Contextual Autonomous System)** as a development framework that models an 8-agent product team to ensure quality and consistency.
+TutorWise uses **Conductor** as its AI operations platform, accessible at `/admin/conductor`. The Conductor manages 8 specialist AI agents, multi-agent teams, workflow automation, and a 14-domain intelligence layer.
 
-**Getting Started with CAS**:
-```bash
-# View CAS user guide
-cd cas && npm run cas:help
+**Conductor Tabs** (11 tabs, 4 stages):
+| Stage | Tabs |
+|-------|------|
+| **Design** | Workflows, Discovery |
+| **Build** | Build, Agents, Teams, Spaces, Knowledge |
+| **Execute** | Execution |
+| **Observe** | Monitoring, Intelligence, Mining |
 
-# Request CAS assistance
-cd cas && npm run cas:request
-```
+**Key Components**:
+- **Agents**: 8 specialist agents (developer, tester, qa, engineer, security, marketer, analyst, planner) with ReAct reasoning loops
+- **Teams**: Multi-agent orchestration with 3 patterns — Supervisor (parallel + synthesis), Pipeline (sequential), Swarm (dynamic routing)
+- **Spaces**: Domain containers (go-to-market, engineering, operations, analytics)
+- **Process Studio**: Visual workflow designer with shadow/live execution modes
+- **Intelligence**: 14 daily metrics pipelines feeding 10 intelligence sub-tabs
+- **Knowledge Base**: RAG-augmented platform knowledge (768-dim vectors, 18 categories)
+- **Agent Memory**: Episodic memory (vector search) + fact extraction (subject/relation/object triples)
 
-**CAS Documentation**:
-- **[cas/README.md](cas/README.md)** - Complete CAS overview and architecture (v2.0.0)
-- **[cas/agents/marketer/README.md](cas/agents/marketer/README.md)** - Marketer agent (analytics collection)
-- **[cas/agents/planner/README.md](cas/agents/planner/README.md)** - Planner agent (strategic planning)
-- **[cas/agents/developer/README.md](cas/agents/developer/README.md)** - Developer agent (feature implementation)
-- **[cas/agents/analyst/README.md](cas/agents/analyst/README.md)** - Analyst agent (requirements & feedback analysis)
-
-**Quick CAS Usage**:
-```
-In Claude Code, type:
-
-CAS: Create a new notification badge component
-
-CAS will apply 8 agent perspectives:
-  Planner   → What's the priority?
-  Analyst   → What are requirements?
-  Developer → How to implement?
-  Tester    → How to test?
-  QA        → Quality checks?
-  Security  → Security concerns?
-  Engineer  → Infrastructure needs?
-  Marketer  → User value?
-```
-
-**CAS Benefits**:
-- ✅ Systematic quality approach
-- ✅ Proven patterns library
-- ✅ Consistent code quality
-- ✅ Reduced bugs
-- ✅ Better test coverage
+**Documentation**:
+- **[conductor/conductor-solution-design.md](conductor/conductor-solution-design.md)** - Conductor solution design (v4.2)
+- **[ipom/process-execution-solution-design.md](ipom/process-execution-solution-design.md)** - Process Execution Engine design (v3.2)
 
 ---
 
@@ -237,17 +219,22 @@ TutorWise features a complete AI ecosystem. All AI is routed through the **6-tie
 - ✅ **8 tool functions**: tutor profile audit, listing analysis, referral channel review, etc.
 - ✅ **API**: `GET/POST /api/growth-agent/session`, `POST /api/growth-agent/stream`
 
-### 4. **CAS AI Product Team** ([Documentation](cas/README.md))
-- ✅ **8 specialized agents**: Planner, Analyst, Developer, Tester, QA, Security, Engineer, Marketer
-- ✅ **Strategic feedback loop**: Marketer → Planner → Analyst → Developer
-- ✅ **Admin dashboard** at `/admin/cas`
-- ✅ **Analytics collection** from Sage & Lexi (daily automated jobs)
+### 4. **Conductor AI Operations** (`/admin/conductor`)
+- ✅ **8 specialist agents**: developer, tester, qa, engineer, security, marketer, analyst, planner — DB-defined in `specialist_agents`
+- ✅ **3 additional agents**: market-intelligence, retention-monitor, operations-monitor (scheduled daily)
+- ✅ **Multi-agent Teams**: Supervisor/Pipeline/Swarm patterns via LangGraph StateGraph + PostgresSaver
+- ✅ **DevOps Team**: 9-agent pipeline for engineering operations
+- ✅ **14-domain Intelligence Layer**: daily metrics pipelines (CaaS, resources, SEO, marketplace, bookings, listings, financials, virtualspace, referrals, growth, AI adoption, org conversion, AI studio, retention)
+- ✅ **Agent Episodic Memory**: vector-searched past experiences + knowledge graph facts
+- ✅ **HITL**: Human-in-the-loop approval workflows with interrupt()/resume()
+- ✅ **Process Mining**: ConformanceChecker, deviation tracking, shadow-reconcile cron
+- ✅ **Scheduler**: Built-in scheduler to replace pg_cron when ready
 
 **Documentation:**
 - [Sage README](sage/README.md) - AI tutor documentation
 - [Lexi README](lexi/README.md) - Help bot documentation
-- [CAS README](cas/README.md) - AI product team documentation
-- [iPOM Solution Design](ipom/ipom-solution-design-v3.md) - Process + Agent + Team automation
+- [Conductor Solution Design](conductor/conductor-solution-design.md) - Conductor architecture (v4.2)
+- [Process Execution Design](ipom/process-execution-solution-design.md) - Process engine design (v3.2)
 
 ---
 
@@ -320,28 +307,55 @@ TutorWise features a complete AI ecosystem. All AI is routed through the **6-tie
 - **SEO Hub**: Hub management, trust graph, eligibility tracking
 - **Settings Hub**: Payments, subscriptions, security, integrations, email
 - **Users Hub**: User administration and permissions
-- **CAS Hub** (`/admin/cas`): CAS AI agent team dashboard, run history, metrics
-- **iPOM Studio** (`/admin/studio`): Workflow automation, AI Agents, multi-agent Teams (see below)
+- **Conductor** (`/admin/conductor`): AI operations platform — agents, teams, workflows, intelligence, process mining (see below)
 
-### iPOM Studio — Intelligent Process & Operations Management
+### Conductor — AI Operations Platform
 
-**Solution Design**: [ipom/ipom-solution-design-v3.md](ipom/ipom-solution-design-v3.md) (v3.4)
+**Solution Design**: [conductor/conductor-solution-design.md](conductor/conductor-solution-design.md) (v4.2)
 
-#### Phase 1 — Process Execution Engine (COMPLETE)
+#### Phase 1 — Process Execution Engine (COMPLETE — 2026-03-03)
 - **Runtime**: `PlatformWorkflowRuntime` in `apps/web/src/lib/process-studio/runtime/`
 - **LangGraph checkpointer**: `PostgresSaver` (session-mode port 5432)
 - **5 seeded workflows**: Tutor Approval (live), Commission Payout (live), Booking Lifecycle Human/AI Tutor (shadow), Referral Attribution (design)
 - **Shadow mode**: `execution_mode` (`design` | `shadow` | `live`) toggled per workflow via admin
-- **Webhook trigger**: Supabase DB webhook on `profiles UPDATE → under_review` → starts Tutor Approval process
-- **Cron delegation**: Commission Payout delegated from existing batch cron on Fridays 10am UTC
-- **API**: `POST /api/admin/process-studio/execute/start`, `GET/DELETE /api/admin/process-studio/execute/[id]`, `POST /api/admin/process-studio/execute/[id]/resume`, `POST /api/admin/process-studio/execute/task/[taskId]/complete`
+- **Webhook triggers**: Supabase DB webhooks on `profiles UPDATE → under_review` and `bookings INSERT`
+- **API**: `/api/admin/process-studio/execute/*`
 
-#### Phase 2 — Agents + Teams (PLANNED, ~140h)
-- **Agent** (single-agent AI specialist) — DB-defined in `analyst_agents` table, schedule + chat driven
-- **Team** (multi-agent) — DB-defined in `agent_teams` table; three patterns: Supervisor, Pipeline, Swarm
-- **TeamRuntime**: dynamically compiles LangGraph `StateGraph` from DB topology (no code deploy to rewire)
-- **CAS Team**: existing 9-agent CAS pipeline exposed as read-only Supervisor Team in registry
-- **Migrations planned**: 344–352 (GDPR, growth scores, versioning, analyst agents, agent subscriptions, intelligence, learning, agent teams)
+#### Phase 2 — Agents + Teams (COMPLETE — 2026-03-09)
+- **8 specialist agents** in `specialist_agents` table with ReAct reasoning loops
+- **10 built-in analyst tools** in `analyst_tools` table; tool executor at `apps/web/src/lib/agent-studio/tools/executor.ts`
+- **SpecialistAgentRunner**: ReAct loop with TOOL_CALL regex, writes to `agent_run_outputs`
+- **TeamRuntime**: 3 patterns — Supervisor (parallel + synthesis), Pipeline (topological sort), Swarm (dynamic NEXT_AGENT)
+- **Nudge scheduler**: 4 proactive nudge conditions, 7d cooldown, cron at `/api/cron/process-nudges`
+- **Platform notifications**: `platform_notifications` table for agent + nudge outputs
+
+#### Phase 3 — Intelligence Layer (COMPLETE — 2026-03-09)
+- **3 new agents**: market-intelligence (Mon 09:00 UTC), retention-monitor (daily 08:00), operations-monitor (daily 07:00)
+- **14 analyst tools** + **10 daily intelligence tables** with pg_cron pipeline
+- **IntelligencePanel**: 10 sub-tabs in Conductor Observe stage
+- **GoLiveReadiness**: shadow monitoring + divergence detection
+
+#### Phase 4 — Knowledge, Intent, Context & Learning (COMPLETE — 2026-03-10)
+- **Knowledge Base**: `platform_knowledge_chunks` (768-dim vectors, 18 categories) with RAG augmentation
+- **IntentDetector**: routes execution commands to agents/workflows/tabs
+- **PlatformUserContext**: enriched user context with Redis caching
+- **Learning Loop**: `decision_outcomes` + autonomy calibration
+
+#### Phase 5 — Process Mining (COMPLETE — 2026-03-10)
+- **ConformanceChecker**: checks execution paths against process graphs
+- **MiningPanel**: Analytics/Conformance/Shadow sub-tabs + Promote button
+- **shadow-reconcile cron**: batch conformance checking for completed executions
+
+#### Phase 6 — DevOps Team & LangGraph Migration (COMPLETE — 2026-03-11)
+- **TeamRuntime v2**: Rewritten as LangGraph StateGraph + PostgresSaver
+- **HITL**: interrupt()/resume() in supervisor pattern; `/api/admin/teams/[id]/runs/[runId]/resume`
+- **9 DevOps agent configs** enriched with production system prompts
+- **Legacy CAS deprecation**: soft-deprecated cas_* tables (eligible for hard delete 2026-06-11)
+
+#### Phase 7 — Agent Episodic Memory (COMPLETE — 2026-03-11)
+- **memory_episodes**: vector-searched past agent experiences (768-dim HNSW)
+- **memory_facts**: subject/relation/object knowledge graph triples
+- **AgentMemoryService**: integrated into SpecialistAgentRunner (fetch + record, fire-and-forget)
 
 ### Help Centre & Support
 - **Custom Report Modal**: In-app bug reporting with screenshot capture
@@ -381,18 +395,18 @@ TutorWise features a complete AI ecosystem. All AI is routed through the **6-tie
 ## Documentation
 
 ### 📋 Core Documentation (.ai/)
-- **[1-ROADMAP.md](.ai/1-ROADMAP.md)** - Development roadmap (98% complete, 20 features, beta Feb 1 2026)
-- **[2-PLATFORM-SPECIFICATION.md](.ai/2-PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification (3,194 lines)
-- **[3-SYSTEM-NAVIGATION.md](.ai/3-STEM-NAVIGATION.md)** - Complete codebase navigation & user flows (NEW)
+- **[1-ROADMAP.md](.ai/1-ROADMAP.md)** - Development roadmap (v3.0, platform live + Conductor complete)
+- **[2-PLATFORM-SPECIFICATION.md](.ai/2-PLATFORM-SPECIFICATION.md)** - Complete technical + strategic specification
+- **[3-SYSTEM-NAVIGATION.md](.ai/3-SYSTEM-NAVIGATION.md)** - Complete codebase navigation & user flows
 - **[4-PATTERNS.md](.ai/4-PATTERNS.md)** - Development patterns and code conventions
 - **[5-CONTEXT-MAP.md](.ai/5-CONTEXT-MAP.md)** - How all context files interconnect
 - **[6-DESIGN-SYSTEM.md](.ai/6-DESIGN-SYSTEM.md)** - UI/UX component library & design tokens
 - **[7-PROMPT.md](.ai/7-PROMPT.md)** - Tutorwise AI Development Context
 - **[8-USER-JOURNEY-MAP.md](.ai/8-USER-JOURNEY-MAP.md)**
-- **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (11 hubs)
+- **[ADMIN-DASHBOARD.md](.ai/ADMIN-DASHBOARD.md)** - Admin dashboard architecture (13 hubs)
 - **[SHARED-FIELDS.md](.ai/SHARED-FIELDS.md)** - Shared fields system (23 fields, 106 mappings, 9 contexts)
 - **[ONBOARDING.md](.ai/ONBOARDING.md)** - Onboarding system (page-based, 3 roles × 5 steps)
-- **[TUTORWISE.md](.ai/TUTORWISE.md)** - STRATEGIC PURPOSE AND CORE VALUES / PRINCIPLES FOR RESOLVING CHALLENGES AND ISSUES WE ENCOUNTER IN THE FUTURE
+- **[TUTORWISE.md](.ai/TUTORWISE.md)** - Strategic purpose and core values
 
 ### 🚀 Getting Started
 - **[QUICK-START.md](.ai/QUICK-START.md)** - ⚡ Get running in 5 minutes (NEW)
@@ -428,7 +442,7 @@ TutorWise features a complete AI ecosystem. All AI is routed through the **6-tie
 - **[Forms System](docs/FORMS_ADMIN_GUIDE.md)** - Admin forms and shared fields guide
 
 ### 💾 Database
-- **[Migration Notes](docs/database/migration-notes.md)** - Database migration guide (192 migrations)
+- **[Migration Notes](docs/database/migration-notes.md)** - Database migration guide (386+ migrations)
 - **[Database Docs](docs/database/)** - Schema and migration documentation
 
 ### 🔐 Security
@@ -449,22 +463,13 @@ TutorWise features a complete AI ecosystem. All AI is routed through the **6-tie
 - **[Help Centre - For Tutors](docs/help-centre/getting-started/for-tutors.md)** - Tutor onboarding guide
 - **[Project Management](docs/project-management/)** - Sprint planning and tracking
 - **[Development Guide](docs/development/)** - Development best practices
-- **[CAS Framework](cas/)** - Optional: AI-assisted development framework
+- **[Conductor Solution Design](conductor/conductor-solution-design.md)** - AI operations platform architecture
 
-### Quality Standards
-- **Feature Checklist**: [cas/docs/feature-development-checklist.md](cas/docs/feature-development-checklist.md)
-- **Testing Guide**: [cas/agents/tester/README.md](cas/agents/tester/README.md)
-- **QA Standards**: [cas/agents/qa/README.md](cas/agents/qa/README.md)
-
-### Agent Documentation
-- **Planner** (PM): [cas/agents/planner/README.md](cas/agents/planner/README.md)
-- **Analyst** (BA): [cas/agents/analyst/README.md](cas/agents/analyst/README.md)
-- **Developer** (SWE): [cas/agents/developer/README.md](cas/agents/developer/README.md)
-- **Tester** (QA Eng): [cas/agents/tester/README.md](cas/agents/tester/README.md)
-- **QA** (QA Lead): [cas/agents/qa/README.md](cas/agents/qa/README.md)
-- **Security** (SecEng): [cas/agents/security/README.md](cas/agents/security/README.md)
-- **Engineer** (SysEng): [cas/agents/engineer/README.md](cas/agents/engineer/README.md)
-- **Marketer** (PMM): [cas/agents/marketer/README.md](cas/agents/marketer/README.md)
+### Conductor & Operations
+- **Conductor Solution Design**: [conductor/conductor-solution-design.md](conductor/conductor-solution-design.md) (v4.2)
+- **Process Execution Design**: [ipom/process-execution-solution-design.md](ipom/process-execution-solution-design.md) (v3.2)
+- **Technical White Paper**: [conductor/publish/01-technical-white-paper.md](conductor/publish/01-technical-white-paper.md)
+- **Investor Thesis**: [conductor/publish/02-investor-thesis.md](conductor/publish/02-investor-thesis.md)
 
 ---
 
@@ -493,18 +498,10 @@ npm run test:e2e -- --debug        # Debug mode
 npm run test:visual                # Percy snapshots
 ```
 
-### CAS Commands
+### Database
 ```bash
-cd cas
-
-# Documentation
-npm run cas:help                   # View CAS user guide
-npm run cas:request                # How to request CAS tasks
-npm run cas:view-plan              # View current development plan
-npm run cas:status                 # Check agent plan status
-
-# Plan management
-npm run cas:update-plan            # Update plan timestamp
+# Apply migrations via psql
+/opt/homebrew/opt/postgresql@17/bin/psql "$POSTGRES_URL_NON_POOLING" -f tools/database/migrations/NNN_migration.sql
 ```
 
 ---
@@ -570,34 +567,36 @@ cd tools/database
 ./apply-migrations.sh
 ```
 
-**Key tables** (345+ migrations applied):
-- `profiles` - User profiles (all roles) with soft delete and PII anonymization
+**Key tables** (386+ migrations applied):
+- `profiles` - User profiles (all roles) with soft delete, PII anonymization, `status` column (`pending`|`under_review`|`active`|`rejected`|`suspended`)
 - `listings` - Tutor listings with dynamic field configuration
 - `shared_fields` - 23 centralized field definitions across 9 contexts
 - `form_context_fields` - 106 context-specific field mappings
-- `onboarding_progress` - Zero data loss state tracking across all steps
-- `professional_info` - Professional templates with field metadata
-- `admin_action_logs` - Complete audit trail of all admin actions
-- `referral_links` - Multi-tier attribution with HMAC signing
-- `referral_activities` - Commission delegation and conversion tracking
-- `organisation_subscriptions` - Stripe billing (Starter £49/mo, Pro £99/mo)
-- `org_tasks` - Task management with comments and attachments
 - `bookings` - Session scheduling with availability tracking
-- `reviews` - Mutual review system with moderation
-- `help_support_snapshots` - Bug reports with Jira sync status
-- `network_trust_graph` - Network trust and SEO eligibility
-- `seo_hubs` - Location-based SEO with automated cron jobs
-- `workflow_executions` + `workflow_tasks` - iPOM process execution engine state
-- `analyst_agents` - AI Agent definitions (iPOM Phase 2)
-- `agent_teams` + `agent_team_run_outputs` - Multi-agent Team definitions (iPOM Phase 2, migration 352)
-- `cas_agent_status`, `cas_agent_events`, `cas_metrics_timeseries` - CAS monitoring
-- `profiles.status` - Tutor approval workflow state (`pending`|`under_review`|`active`|`rejected`|`suspended`)
+- `referral_links` + `referral_activities` - Multi-tier attribution with HMAC signing
+- `organisation_subscriptions` - Stripe billing (Starter £49/mo, Pro £99/mo)
+- `workflow_executions` + `workflow_tasks` - Process execution engine state
+- `workflow_processes` - Process definitions with `execution_mode` (design|shadow|live)
+- `specialist_agents` - AI agent definitions (Conductor)
+- `agent_run_outputs` - Agent execution outputs
+- `analyst_tools` - 24 registered agent tools
+- `agent_teams` + `agent_team_run_outputs` - Multi-agent team definitions
+- `agent_spaces` - Domain containers (go-to-market, engineering, operations, analytics)
+- `agent_subscriptions` - Agent schedule definitions
+- `platform_notifications` - Agent + nudge notification outputs
+- `platform_knowledge_chunks` - RAG knowledge base (768-dim vectors, 18 categories)
+- `decision_outcomes` + `process_autonomy_config` - Learning loop
+- `conformance_deviations` + `process_patterns` - Process mining
+- `memory_episodes` + `memory_facts` - Agent episodic memory
+- `growth_scores` - Computed growth metrics
+- 10 daily intelligence tables: `caas_platform_metrics_daily`, `resources_platform_metrics_daily`, `seo_platform_metrics_daily`, etc.
+- `cas_agent_status`, `cas_agent_events` - Legacy CAS tables (soft-deprecated, hard delete eligible 2026-06-11)
 
 ---
 
 ## Testing Strategy
 
-Following **CAS quality standards** with comprehensive test coverage:
+Comprehensive test coverage with pre-commit hooks (Husky):
 
 ### Unit Tests (Jest + React Testing Library)
 - Target: >80% coverage
@@ -638,21 +637,20 @@ open coverage/index.html
 - **TypeScript** for type safety
 - **ESLint** for code quality
 - **Prettier** for formatting (via ESLint)
-- **Proven Patterns** from CAS framework
+- **Husky** pre-commit hooks (tests, lint, full build)
 
-### Pre-Commit Checks
-- TypeScript compilation
+### Pre-Commit Checks (Husky)
+- TypeScript compilation (full build)
 - ESLint checks
 - Test execution (unit tests)
+- Requires `PATH` with node for husky (`/opt/homebrew/opt/node@22/bin`)
 
-### Code Review
-Following **CAS Developer Agent** checklist:
+### Code Review Checklist
 - [ ] Clean, type-safe TypeScript
 - [ ] Unit tests (>80% coverage target)
-- [ ] Storybook stories for UI components
 - [ ] No console.log statements
-- [ ] Follows proven patterns
 - [ ] Design system compliance
+- [ ] `is_admin` guard on admin API routes
 
 ---
 
@@ -685,29 +683,18 @@ vercel deploy
 ## Contributing
 
 ### Workflow
-1. Review [CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md) for development approach
-2. Check [proven-patterns.md](cas/docs/proven-patterns.md) before coding
-3. Follow [feature-development-checklist.md](cas/docs/feature-development-checklist.md)
-4. Request CAS assistance: `CAS: [your task]` in Claude Code
-5. Run tests before committing
-6. Create PR following CAS quality standards
+1. Review `.ai/` documentation for platform context
+2. Check [4-PATTERNS.md](.ai/4-PATTERNS.md) before coding
+3. Run tests before committing (pre-commit hooks enforce this)
+4. Create PR following quality standards
 
 ### Commit Messages
 ```
 feat: Add notification badge component
 fix: Resolve listing search filter bug
 test: Add unit tests for ProfileCard
-docs: Update CAS user guide
+docs: Update developer setup guide
 refactor: Extract validation to shared util
-```
-
-**CAS-enhanced commits** (when using CAS framework):
-```
-feat: Add notification badge component
-
-🤖 Generated with CAS (https://github.com/tutorwise/tutorwise/tree/main/cas)
-
-Co-Authored-By: CAS <cas@tutorwise.com>
 ```
 
 ---
@@ -715,21 +702,21 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 ## Support
 
 ### Documentation
-1. **User Guide**: [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md)
-2. **Architecture**: [cas/CAS-DESIGN-AND-IMPLEMENTATION.md](cas/CAS-DESIGN-AND-IMPLEMENTATION.md)
-3. **Detailed Reference**: [cas/docs/cas-architecture-detailed.md](cas/docs/cas-architecture-detailed.md)
-4. **Proven Patterns**: [cas/docs/proven-patterns.md](cas/docs/proven-patterns.md)
+1. **Quick Start**: [.ai/11-QUICK-START.md](.ai/11-QUICK-START.md)
+2. **Developer Setup**: [.ai/12-DEVELOPER-SETUP.md](.ai/12-DEVELOPER-SETUP.md)
+3. **Platform Specification**: [.ai/2-PLATFORM-SPECIFICATION.md](.ai/2-PLATFORM-SPECIFICATION.md)
+4. **Patterns**: [.ai/4-PATTERNS.md](.ai/4-PATTERNS.md)
 
 ### Troubleshooting
-- **Build errors**: Check TypeScript compilation with `npm run build`
+- **Build errors**: Check TypeScript compilation with `cd apps/web && npm run build`
+- **`.next` cache corruption**: `rm -rf apps/web/.next` then rebuild
 - **Test failures**: Run with verbose: `npm test -- --verbose`
-- **Database issues**: Check migration status: `npm run migrate`
-- **CAS questions**: See [cas/CAS-USER-GUIDE.md](cas/CAS-USER-GUIDE.md#troubleshooting)
+- **Database issues**: Check migrations in `tools/database/migrations/`
 
 ### Getting Help
-- Review agent READMEs in `cas/agents/*/README.md`
-- Check CAS documentation in `cas/` directory
-- Review implementation summaries in project root (*.md files)
+- Review `.ai/` documentation directory
+- Check Conductor solution design at `conductor/conductor-solution-design.md`
+- Review feature docs in `docs/feature/`
 
 ### Referral System Documentation
 - **Solution Design**: [docs/feature/referrals/referrals-solution-design-v2.md](docs/feature/referrals/referrals-solution-design-v2.md)
@@ -741,16 +728,16 @@ Co-Authored-By: CAS <cas@tutorwise.com>
 
 ## Project Status
 
-**Current Phase**: Beta (Launched 1 Mar 2026) — Active development
-**Next Phase**: iPOM Studio Phase 2 (AI Agents + Teams), Growth Agent subscriptions
+**Current Phase**: Beta (Launched 1 Mar 2026) — Conductor complete, active development
+**Next Phase**: Growth Agent subscriptions, Sage curriculum expansion, mobile polish
 **Target GA**: Q2 2026
 
 ### Development Activity (Oct 2025 - Mar 2026)
-- **1,500+ commits** across 5 months
+- **1,800+ commits** across 6 months
 - **90+ features** implemented
-- **345+ database migrations** applied
-- **400+ pages** (174 UI + 226+ API endpoints)
-- **382 components** in library
+- **386+ database migrations** applied
+- **450+ pages** (180+ UI + 270+ API endpoints)
+- **400+ components** in library
 
 **Recent Completions**:
 - ✅ **Onboarding System** (Jan 2026):
@@ -770,8 +757,8 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ Playwright E2E tests
   - ✅ Percy visual regression
   - ✅ Storybook component library
-- ✅ **CAS Development Framework**: Hybrid mode
-- ✅ **Admin Dashboard** (11 admin hubs):
+- ✅ **Conductor AI Operations Platform**: 7 phases complete (agents, teams, intelligence, knowledge, mining, LangGraph, memory)
+- ✅ **Admin Dashboard** (13 admin hubs):
   - ✅ **Accounts Hub**: Soft/hard delete with Stripe cleanup
   - ✅ **Bookings Hub**: Session and calendar management
   - ✅ **Configurations Hub**: Platform-wide settings and shared fields management
@@ -870,23 +857,26 @@ Co-Authored-By: CAS <cas@tutorwise.com>
   - ✅ CaaS score improvement suggestions
 
 **Completed Since Beta Launch (Mar 2026)**:
-- ✅ **iPOM Process Execution Engine** (Phase 1): 5 workflows, webhook triggers, shadow/live mode toggle
-- ✅ **Growth Agent**: 5-skill knowledge base, 8 tools, free Revenue Audit, £10/month subscription tier
-- ✅ **Tutor Approval Workflow**: `profiles.status` column, DB webhook, LangGraph execution
-- ✅ **Commission Payout Process**: cron delegation to process engine
-- ✅ **CAS Admin Dashboard** (`/admin/cas`): agent status, run history, metrics
+- ✅ **Process Execution Engine** (Phase 1 — 2026-03-03): 5 workflows, webhook triggers, shadow/live mode
+- ✅ **Growth Agent** (2026-03-04): 5-skill knowledge base, 8 tools, free Revenue Audit, £10/month subscription
+- ✅ **Conductor Phase 2 — Agents + Teams** (2026-03-09): 8 agents, SpecialistAgentRunner, TeamRuntime, nudge scheduler
+- ✅ **Conductor Phase 3 — Intelligence Layer** (2026-03-09): 14 analyst tools, 10 daily metrics tables, IntelligencePanel
+- ✅ **Conductor Phase 4 — Knowledge/Intent/Context/Learning** (2026-03-10): RAG, IntentDetector, PlatformUserContext, Learning Loop
+- ✅ **Conductor Phase 5 — Process Mining** (2026-03-10): ConformanceChecker, MiningPanel, shadow-reconcile
+- ✅ **Conductor Phase 6 — DevOps Team & LangGraph** (2026-03-11): TeamRuntime v2 (LangGraph StateGraph), HITL, CAS deprecation
+- ✅ **Conductor Phase 7 — Agent Episodic Memory** (2026-03-11): memory_episodes, memory_facts, AgentMemoryService
+- ✅ **Scheduler**: Built-in scheduler implementation (to replace pg_cron when ready)
 
 **In Progress**:
-- 🔄 iPOM Phase 5 — shadow run monitoring, divergence detection, go-live checklist
 - 🔄 Growth Agent subscriptions (Stripe billing integration)
 - 🔄 Mobile responsiveness polish
+- 🔄 External publishing (technical white paper + investor thesis)
 
 **Planned (Post-Beta)**:
-- iPOM Phase 2: AI Agents + multi-agent Teams in iPOM Studio (~140h)
-- Migrations 344–352 (GDPR retention, growth scores, analyst agents, agent teams)
 - Sage AI curriculum expansion (500+ topics)
 - Multi-tier commission expansion (Tier 2-3 — pending legal review)
 - Mobile app (React Native)
+- Scheduler rollout to replace pg_cron
 
 ---
 
@@ -898,15 +888,16 @@ MIT License - See LICENSE file for details
 
 ## Team
 
-**Development Framework**: CAS (Contextual Autonomous System)
-- **Planner**: Sprint planning and coordination
-- **Analyst**: Requirements and user research
+**AI Operations**: Conductor — 8 specialist agents + multi-agent teams
 - **Developer**: Feature implementation
 - **Tester**: Test implementation
 - **QA**: Quality assurance and accessibility
-- **Security**: Security validation
 - **Engineer**: Infrastructure and deployment
+- **Security**: Security validation
 - **Marketer**: Analytics and user engagement
+- **Analyst**: Requirements and data analysis
+- **Planner**: Sprint planning and coordination
+- **+ 3 scheduled agents**: market-intelligence, retention-monitor, operations-monitor
 
 **Human Team**: Michael Quan (Lead Developer)
 
