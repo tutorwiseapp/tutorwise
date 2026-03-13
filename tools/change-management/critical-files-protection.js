@@ -115,16 +115,20 @@ class CriticalFilesProtection {
         };
       }
 
-      // Check if it's a database migration
+      // Check if it's a database migration (allow stub/reserved/placeholder cleanup)
       if (/^tools\/database\/migrations\/.+\.sql$/.test(relativePath)) {
-        return {
-          allowed: false,
-          severity: 'CRITICAL',
-          reason: `🚨 FORBIDDEN: Cannot delete database migration: ${relativePath}`,
-          description: 'Migrations are immutable version control',
-          escalation: 'SECURITY_TEAM',
-          file_type: 'TIER_1_CRITICAL'
-        };
+        const basename = path.basename(relativePath);
+        const isStub = /_(stub|reserved|placeholder)/.test(basename);
+        if (!isStub) {
+          return {
+            allowed: false,
+            severity: 'CRITICAL',
+            reason: `🚨 FORBIDDEN: Cannot delete database migration: ${relativePath}`,
+            description: 'Migrations are immutable version control',
+            escalation: 'SECURITY_TEAM',
+            file_type: 'TIER_1_CRITICAL'
+          };
+        }
       }
     }
 

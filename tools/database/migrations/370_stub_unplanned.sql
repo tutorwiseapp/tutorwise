@@ -1,4 +1,0 @@
--- RESERVED: Migration 370
--- Phase: TBD — buffer reservation
--- Description: Reserved for future use
--- Status: Unassigned
