@@ -9,6 +9,13 @@ import { createServiceRoleClient } from '@/utils/supabase/server';
 
 type ToolFn = (input: Record<string, unknown>) => Promise<unknown>;
 
+/** Check all Supabase results from Promise.all and throw on the first error found. */
+function checkErrors(results: { error: { message: string } | null }[]): void {
+  for (const r of results) {
+    if (r.error) throw new Error(r.error.message);
+  }
+}
+
 const TOOL_EXECUTORS: Record<string, ToolFn> = {
   async query_booking_trends(input) {
     const supabase = await createServiceRoleClient();
@@ -70,6 +77,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .in('status', ['running', 'paused']),
     ]);
 
+    checkErrors([webhooks, divergences, running]);
     return {
       failedWebhooks: webhooks.count ?? 0,
       shadowDivergences: divergences.count ?? 0,
@@ -231,7 +239,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(10),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, bandCounts]);
     return {
       latest: metrics.data,
       byRole: bandCounts.data ?? [],
@@ -261,7 +269,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(200),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, topArticles, bandSummary]);
 
     const bandCount: Record<string, number> = {};
     for (const row of bandSummary.data ?? []) {
@@ -295,6 +303,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(10),
     ]);
 
+    checkErrors([opportunities, hubGaps]);
     return {
       opportunityArticles: opportunities.data ?? [],
       hubsNeedingSpokes: hubGaps.data ?? [],
@@ -328,7 +337,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(10),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, topKeywords, risingKeywords]);
     // Map raw DB columns (snapshot_date, keywords_top5, etc.) to display-friendly names
     const raw = metrics.data as Record<string, unknown> | null;
     const latest = raw ? {
@@ -422,6 +431,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .maybeSingle(),
     ]);
 
+    checkErrors([topPerformers, deadWeight, recent]);
     return {
       topPerformers: topPerformers.data ?? [],
       deadWeight: deadWeight.data ?? [],
@@ -454,7 +464,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .gte('created_at', since),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, zeroResultQueries, recentSearches]);
     return {
       latest: metrics.data,
       recentSearchCount: recentSearches.count ?? 0,
@@ -480,6 +490,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('status', 'active'),
     ]);
 
+    checkErrors([searches, listings]);
     // Aggregate search demand by subject
     const demand: Record<string, { total: number; zeroResult: number }> = {};
     for (const row of searches.data ?? []) {
@@ -532,7 +543,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('payment_status', 'Disputed'),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, liveStalls, recentDisputes]);
     return {
       trend: metrics.data ?? [],
       liveStalls48h: liveStalls.count ?? 0,
@@ -630,7 +641,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .not('status', 'in', '("reversed","refunded")'),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, clearingLive, anomalies]);
     return {
       trend: metrics.data ?? [],
       stalledClearingItems: (clearingLive.data ?? []).length,
@@ -654,7 +665,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .gte('created_at', new Date(Date.now() - 24 * 3600000).toISOString()),
     ]);
 
-    if (metrics.error) throw new Error(metrics.error.message);
+    checkErrors([metrics, liveSessions]);
     return {
       trend: metrics.data ?? [],
       sessionsLast24h: liveSessions.count ?? 0,
@@ -697,7 +708,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .filter('previous_score', 'not.is', null),
     ]);
 
-    if (latest.error) throw new Error(latest.error.message);
+    checkErrors([latest, churnSignals, onboardingStall, ltvData, scoreDrops]);
 
     const m = latest.data;
     const scoreDropCount = (churnSignals.data ?? []).filter(
@@ -762,7 +773,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('status', 'active'),
     ]);
 
-    if (latest.error) throw new Error(latest.error.message);
+    checkErrors([latest, activeAgents]);
     const m = latest.data;
 
     const alerts = [];
@@ -830,7 +841,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('type', 'organisation'),
     ]);
 
-    if (latest.error) throw new Error(latest.error.message);
+    checkErrors([latest, newOrgs, totalOrgs]);
     const m = latest.data;
 
     const alerts = [];
@@ -900,7 +911,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(10),
     ]);
 
-    if (latest.error) throw new Error(latest.error.message);
+    checkErrors([latest, draftStall, coldStart, topAgents]);
     const m = latest.data;
 
     const alerts = [];
@@ -969,7 +980,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
     ]);
 
-    if (dailyMetrics.error) throw new Error(dailyMetrics.error.message);
+    checkErrors([dailyMetrics, networkStats, funnelSummary]);
 
     const statuses: Record<string, number> = {};
     for (const row of funnelSummary.data ?? []) {
@@ -1008,6 +1019,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('status', 'converted'),
     ]);
 
+    checkErrors([networkStatsRes, trendRes, topReferrersRes]);
     // Aggregate top referrers
     const referrerMap: Record<string, number> = {};
     for (const r of (topReferrersRes.data ?? []) as any[]) {
@@ -1128,7 +1140,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .lt('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
     ]);
 
-    if (latest.error) throw new Error(latest.error.message);
+    checkErrors([latest, midAbandoned, verifiedNoRole]);
     const m = latest.data;
 
     const buildFunnel = (prefix: string) => {

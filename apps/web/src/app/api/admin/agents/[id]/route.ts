@@ -86,6 +86,21 @@ export async function PUT(
       return NextResponse.json({ error: 'Cannot change slug of a built-in agent' }, { status: 403 });
     }
 
+    // Validate tool slugs if config.tools is being updated
+    const config = body.config as { tools?: string[] } | undefined;
+    if (config?.tools && config.tools.length > 0) {
+      const { data: validTools } = await supabase
+        .from('analyst_tools')
+        .select('slug')
+        .in('slug', config.tools)
+        .eq('status', 'active');
+      const validSlugs = new Set((validTools ?? []).map((t: { slug: string }) => t.slug));
+      const invalid = config.tools.filter((s: string) => !validSlugs.has(s));
+      if (invalid.length > 0) {
+        return NextResponse.json({ error: `Invalid tool slugs: ${invalid.join(', ')}` }, { status: 400 });
+      }
+    }
+
     const allowed: Record<string, unknown> = {};
     for (const key of ['name', 'role', 'department', 'description', 'config', 'status']) {
       if (key in body) allowed[key] = body[key];
