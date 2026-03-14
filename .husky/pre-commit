@@ -14,6 +14,9 @@ npm run test:unit:quick
 # Run linting
 npm run lint
 
+# Clear stale .next cache to prevent SIGABRT crashes during build
+rm -rf apps/web/.next
+
 # Check for TypeScript errors
 npm run build --quiet || (echo "❌ Build failed. Please fix TypeScript errors." && exit 1)
 
