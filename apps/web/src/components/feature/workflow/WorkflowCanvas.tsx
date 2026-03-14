@@ -905,14 +905,14 @@ function WorkflowCanvasInner({
     onEdit: (id: string) => { setSelectedNode(id); setRightPanelMode('properties'); },
     onDuplicate: handleDuplicateNode,
     onDelete: handleDeleteNode,
-    onNavigate: (_id: string, tab: 'agents' | 'teams') => setConductorTab(tab),
+    onNavigate: (_id: string, _tab: 'agents' | 'teams') => setConductorTab('registry'),
   };
 
   const contextMenuItems: ContextMenuItem[] = contextMenu ? [
     { icon: Pencil, label: 'Edit', onClick: () => { setSelectedNode(contextMenu.node.id); setRightPanelMode('properties'); } },
     { icon: Copy,   label: 'Duplicate', onClick: () => handleDuplicateNode(contextMenu.node.id) },
-    ...(contextMenu.node.data.type === 'agent' ? [{ icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('agents') }] : []),
-    ...(contextMenu.node.data.type === 'team'  ? [{ icon: ArrowRight, label: 'Configure Team',  variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('teams')  }] : []),
+    ...(contextMenu.node.data.type === 'agent' ? [{ icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry') }] : []),
+    ...(contextMenu.node.data.type === 'team'  ? [{ icon: ArrowRight, label: 'Configure Team',  variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry')  }] : []),
     { icon: Trash2, label: 'Delete', variant: 'danger' as const, dividerBefore: true, onClick: () => handleDeleteNode(contextMenu.node.id) },
   ] : [];
 

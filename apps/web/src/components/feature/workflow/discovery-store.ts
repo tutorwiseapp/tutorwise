@@ -5,17 +5,21 @@ import type {
   DiscoveryResult,
 } from '@/lib/workflow/scanner/types';
 
-export type DiscoveryTab = 'workflows' | 'discovery' | 'execution' | 'agents' | 'teams' | 'spaces' | 'knowledge' | 'build' | 'simulation' | 'eval' | 'integrations' | 'monitoring' | 'intelligence' | 'mining';
+export type DiscoveryTab = 'workflows' | 'discovery' | 'execution' | 'registry' | 'knowledge' | 'build' | 'simulation' | 'eval' | 'integrations' | 'monitoring' | 'intelligence' | 'mining';
+
+export type RegistrySubTab = 'spaces' | 'teams' | 'agents';
 
 interface DiscoveryStore {
   // Active tab
   activeTab: DiscoveryTab;
   setActiveTab: (tab: DiscoveryTab) => void;
 
-  // Cross-navigation: navigate to Teams tab and pre-select a specific team
-  pendingTeamSlug: string | null;
+  // Cross-navigation: navigate to Registry tab with optional sub-tab + filter
+  pendingRegistrySubTab: RegistrySubTab | null;
+  pendingRegistryFilter: Record<string, string> | null;
+  navigateToRegistry: (subTab: RegistrySubTab, filter?: Record<string, string>) => void;
   navigateToTeam: (slug: string) => void;
-  clearPendingTeam: () => void;
+  clearPendingRegistry: () => void;
 
   // Discovery results
   results: DiscoveryResult[];
@@ -48,7 +52,8 @@ interface DiscoveryStore {
 
 const initialState = {
   activeTab: 'workflows' as DiscoveryTab,
-  pendingTeamSlug: null as string | null,
+  pendingRegistrySubTab: null as RegistrySubTab | null,
+  pendingRegistryFilter: null as Record<string, string> | null,
   results: [] as DiscoveryResult[],
   isScanning: false,
   scanProgress: { completed: 0, total: 0 },
@@ -63,8 +68,17 @@ export const useDiscoveryStore = create<DiscoveryStore>((set, get) => ({
 
   setActiveTab: (tab) => set({ activeTab: tab }),
 
-  navigateToTeam: (slug) => set({ activeTab: 'teams', pendingTeamSlug: slug }),
-  clearPendingTeam: () => set({ pendingTeamSlug: null }),
+  navigateToRegistry: (subTab, filter) => set({
+    activeTab: 'registry',
+    pendingRegistrySubTab: subTab,
+    pendingRegistryFilter: filter ?? null,
+  }),
+  navigateToTeam: (slug) => set({
+    activeTab: 'registry',
+    pendingRegistrySubTab: 'teams',
+    pendingRegistryFilter: { teamSlug: slug },
+  }),
+  clearPendingRegistry: () => set({ pendingRegistrySubTab: null, pendingRegistryFilter: null }),
 
   setResults: (results) => set({ results }),
 

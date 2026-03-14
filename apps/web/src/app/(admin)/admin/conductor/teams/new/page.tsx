@@ -5,5 +5,5 @@ import { redirect } from 'next/navigation';
  * Redirects to the Teams tab on the Conductor page (TeamCanvas is the compose UI).
  */
 export default function NewTeamPage() {
-  redirect('/admin/conductor?tab=teams');
+  redirect('/admin/conductor?tab=registry');
 }

@@ -84,7 +84,7 @@ export default function ToolsRegistryPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <Link href="/admin/conductor?tab=agents" className={styles.backLink}>
+        <Link href="/admin/conductor?tab=registry" className={styles.backLink}>
           <ArrowLeft size={16} /> Agents
         </Link>
         <div className={styles.title}>

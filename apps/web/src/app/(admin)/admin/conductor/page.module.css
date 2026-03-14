@@ -143,24 +143,7 @@
   overflow: hidden;
 }
 
-.teamsContainer {
-  height: calc(100dvh - 210px);
-  min-height: 400px;
-  margin-left: -1rem;
-  margin-bottom: -5rem;
-  overflow: hidden;
-}
-
-.agentsContainer {
-  height: calc(100dvh - 210px + 1rem);
-  min-height: 400px;
-  margin-top: -1rem;
-  margin-left: -1rem;
-  margin-bottom: -5rem;
-  overflow: hidden;
-}
-
-.spacesContainer {
+.registryContainer {
   height: calc(100dvh - 210px);
   min-height: 400px;
   margin-left: -1rem;
@@ -206,16 +189,10 @@
   .canvasContainer,
   .discoveryContainer,
   .executionContainer,
-  .teamsContainer,
-  .spacesContainer,
+  .registryContainer,
   .monitoringContainer,
   .intelligenceContainer {
     height: calc(100dvh - 170px);
-    min-height: 300px;
-  }
-
-  .agentsContainer {
-    height: calc(100dvh - 160px);
     min-height: 300px;
   }
 }

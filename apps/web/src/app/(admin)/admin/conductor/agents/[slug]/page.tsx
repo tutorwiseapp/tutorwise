@@ -218,7 +218,7 @@ export default function AgentChatPage() {
     return (
       <div className={styles.loading}>
         Agent not found.{' '}
-        <Link href="/admin/conductor?tab=agents" style={{ color: '#a78bfa' }}>
+        <Link href="/admin/conductor?tab=registry" style={{ color: '#a78bfa' }}>
           Back to Agents
         </Link>
       </div>
@@ -232,7 +232,7 @@ export default function AgentChatPage() {
     <div className={styles.page}>
       <div className={styles.chatColumn}>
         <div className={styles.chatHeader}>
-          <Link href="/admin/conductor?tab=agents" className={styles.backLink}>
+          <Link href="/admin/conductor?tab=registry" className={styles.backLink}>
             <ArrowLeft size={16} /> Agents
           </Link>
           <div className={styles.agentInfo}>

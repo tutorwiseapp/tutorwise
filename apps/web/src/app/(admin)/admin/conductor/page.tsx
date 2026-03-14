@@ -12,7 +12,6 @@ import {
 import { ExecutionPanel } from '@/components/feature/workflow/ExecutionPanel';
 import { MonitoringPanel } from '@/components/feature/workflow/MonitoringPanel';
 import { IntelligencePanel } from '@/components/feature/conductor/IntelligencePanel';
-import { SpacesPanel } from '@/components/feature/conductor/SpacesPanel';
 import { KnowledgePanel } from '@/components/feature/conductor/KnowledgePanel';
 import { MiningPanel } from '@/components/feature/conductor/MiningPanel';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
@@ -29,21 +28,9 @@ function TabError({ tab }: { tab: string }) {
   );
 }
 
-const AgentManagementPanel = dynamic(
-  () => import('@/components/feature/conductor/AgentManagementPanel').then((m) => ({ default: m.AgentManagementPanel })),
-  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading agents…</div> }
-);
-
-const TeamCanvas = dynamic(
-  () => import('@/components/feature/conductor/TeamCanvas').then((m) => ({ default: m.TeamCanvas })),
-  {
-    ssr: false,
-    loading: () => (
-      <div style={{ padding: 40, textAlign: 'center', color: '#9ca3af' }}>
-        Loading Teams canvas…
-      </div>
-    ),
-  }
+const AgentRegistryPanel = dynamic(
+  () => import('@/components/feature/conductor/registry/AgentRegistryPanel').then((m) => ({ default: m.AgentRegistryPanel })),
+  { ssr: false, loading: () => <div style={{ padding: 40, color: '#9ca3af' }}>Loading registry…</div> }
 );
 
 const BuildCanvas = dynamic(
@@ -80,9 +67,7 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
   { id: 'discovery',   label: 'Discovery' },
   // Build
   { id: 'build',       label: 'Build' },
-  { id: 'agents',      label: 'Agents' },
-  { id: 'teams',       label: 'Teams' },
-  { id: 'spaces',      label: 'Spaces' },
+  { id: 'registry',    label: 'Registry' },
   { id: 'knowledge',   label: 'Knowledge' },
   { id: 'integrations',label: 'Integrations' },
   // Execute
@@ -98,7 +83,7 @@ const TABS: { id: DiscoveryTab; label: string }[] = [
 // Lifecycle stages with their tab IDs
 const STAGES: { label: string; tabs: DiscoveryTab[]; number: number }[] = [
   { number: 1, label: 'Design',  tabs: ['workflows', 'discovery'] },
-  { number: 2, label: 'Build',   tabs: ['build', 'agents', 'teams', 'spaces', 'knowledge', 'integrations'] },
+  { number: 2, label: 'Build',   tabs: ['build', 'registry', 'knowledge', 'integrations'] },
   { number: 3, label: 'Execute', tabs: ['execution', 'simulation', 'eval'] },
   { number: 4, label: 'Observe', tabs: ['monitoring', 'intelligence', 'mining'] },
 ];
@@ -216,26 +201,10 @@ export default function ConductorPage() {
         </ErrorBoundary>
       )}
 
-      {activeTab === 'agents' && (
-        <ErrorBoundary fallback={<TabError tab="Agents" />}>
-          <div className={styles.agentsContainer}>
-            <AgentManagementPanel />
-          </div>
-        </ErrorBoundary>
-      )}
-
-      {activeTab === 'teams' && (
-        <ErrorBoundary fallback={<TabError tab="Teams" />}>
-          <div className={styles.teamsContainer}>
-            <TeamCanvas />
-          </div>
-        </ErrorBoundary>
-      )}
-
-      {activeTab === 'spaces' && (
-        <ErrorBoundary fallback={<TabError tab="Spaces" />}>
-          <div className={styles.spacesContainer}>
-            <SpacesPanel />
+      {activeTab === 'registry' && (
+        <ErrorBoundary fallback={<TabError tab="Registry" />}>
+          <div className={styles.registryContainer}>
+            <AgentRegistryPanel />
           </div>
         </ErrorBoundary>
       )}

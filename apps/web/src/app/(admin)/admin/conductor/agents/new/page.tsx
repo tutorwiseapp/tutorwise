@@ -5,5 +5,5 @@ import { redirect } from 'next/navigation';
  * Redirects to the Agents tab on the Conductor page.
  */
 export default function NewAgentPage() {
-  redirect('/admin/conductor?tab=agents');
+  redirect('/admin/conductor?tab=registry');
 }

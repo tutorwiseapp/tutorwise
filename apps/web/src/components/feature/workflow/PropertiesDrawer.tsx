@@ -356,7 +356,7 @@ export function PropertiesDrawer({
                 <span>{localData.type === 'agent' ? 'Agent Configuration' : 'Team Configuration'}</span>
                 <button
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#006c67', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', fontWeight: 500 }}
-                  onClick={() => setConductorTab(localData.type === 'agent' ? 'agents' : 'teams')}
+                  onClick={() => setConductorTab('registry')}
                   title={`Go to ${localData.type === 'agent' ? 'Agents' : 'Teams'} tab`}
                 >
                   Configure <ArrowRight size={11} />
