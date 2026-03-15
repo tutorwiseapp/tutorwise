@@ -450,6 +450,7 @@ export default function HubToolbar({
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
             className={styles.searchInput}
+            aria-label={searchPlaceholder}
           />
         </div>
       )}

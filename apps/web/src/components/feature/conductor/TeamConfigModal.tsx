@@ -335,6 +335,7 @@ export function TeamConfigModal({ mode, team, onClose }: TeamConfigModalProps) {
                       checked={pattern === p.value}
                       onChange={() => setPattern(p.value)}
                       disabled={isPending}
+                      aria-label={`${p.label} pattern`}
                     />
                     <span className={styles.patternName}>{p.label}</span>
                     <span className={styles.patternDesc}>{p.desc}</span>
@@ -357,6 +358,7 @@ export function TeamConfigModal({ mode, team, onClose }: TeamConfigModalProps) {
               onChange={e => setAgentSearch(e.target.value)}
               placeholder="Search agents..."
               disabled={isPending}
+              aria-label="Search agents"
             />
 
             <div className={styles.agentList}>
@@ -373,6 +375,7 @@ export function TeamConfigModal({ mode, team, onClose }: TeamConfigModalProps) {
                         checked={selectedAgentSlugs.includes(agent.slug)}
                         onChange={() => toggleAgent(agent.slug)}
                         disabled={isPending}
+                        aria-label={`Select ${agent.name}`}
                       />
                       <div className={styles.agentRowInfo}>
                         <span className={styles.agentRowName}>{agent.name}</span>

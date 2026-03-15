@@ -43,6 +43,7 @@ interface AgentConfig {
   skills?: string[];
   tools?: string[];
   instructions?: string;
+  max_tool_rounds?: number;
 }
 
 interface SpecialistAgent {
@@ -55,8 +56,8 @@ interface SpecialistAgent {
   config: AgentConfig;
 }
 
-const TOOL_CALL_LINE = /TOOL_CALL:\s*([\w:]+)\s+(\{.*)$/gm;
-const MAX_TOOL_ROUNDS = 5;
+const TOOL_CALL_LINE = /^TOOL_CALL:\s*([\w:]+)\s+\{/gm;
+const DEFAULT_MAX_TOOL_ROUNDS = 5;
 
 /** Extract balanced JSON object from a string starting at `{`. Handles nested braces. */
 function extractBalancedJson(str: string): string | null {
@@ -213,21 +214,25 @@ export class SpecialistAgentRunner {
     const runId = runRow?.id;
     if (!runId) throw new Error(`SpecialistAgentRunner: failed to create run record for agent ${agent.slug}`);
 
-    // ReAct loop — up to MAX_TOOL_ROUNDS
+    // ReAct loop — configurable via agent.config.max_tool_rounds
+    const maxToolRounds = (agent.config as AgentConfig)?.max_tool_rounds ?? DEFAULT_MAX_TOOL_ROUNDS;
     let outputText = '';
     try {
-      for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+      for (let round = 0; round < maxToolRounds; round++) {
         const result = await ai.generate({ systemPrompt, userPrompt });
         outputText = result.content;
 
-        // Extract tool calls (with balanced JSON parsing for nested objects)
+        // Extract tool calls (with balanced JSON parsing for nested/multi-line objects)
         const lineMatches = [...outputText.matchAll(TOOL_CALL_LINE)];
         if (!lineMatches.length) break;
 
         const toolResults: string[] = [];
         for (const match of lineMatches) {
-          const [, slug, rawJsonStart] = match;
-          const rawInput = extractBalancedJson(rawJsonStart) ?? rawJsonStart;
+          const [fullMatch, slug] = match;
+          // Slice from the '{' to end of output so extractBalancedJson can handle multi-line JSON
+          const braceStart = match.index! + fullMatch.length - 1; // index of '{'
+          const rawJsonStart = outputText.slice(braceStart);
+          const rawInput = extractBalancedJson(rawJsonStart) ?? rawJsonStart.split('\n')[0];
           try {
             const input = JSON.parse(rawInput) as Record<string, unknown>;
             const output = await executeTool(slug, input, {

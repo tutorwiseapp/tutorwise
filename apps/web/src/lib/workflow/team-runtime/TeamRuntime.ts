@@ -332,6 +332,25 @@ class TeamRuntime {
     const agentIdBySlug: Record<string, string> = {};
     for (const a of agents ?? []) agentIdBySlug[a.slug] = a.id;
 
+    // Guard: verify coordinator is still active before resuming
+    const coordinatorSlug = team.coordinator_slug;
+    if (coordinatorSlug && !agentIdBySlug[coordinatorSlug]) {
+      console.warn(
+        `[TeamRuntime] Resume: coordinator "${coordinatorSlug}" is no longer active — synthesis will use fallback concatenation`
+      );
+    }
+
+    // Guard: log any specialists that were deactivated since the initial run
+    const allNodeSlugs = (team.nodes as TeamNode[]).map((n) => n.data.agentSlug).filter(Boolean);
+    const deactivatedSlugs = allNodeSlugs.filter(
+      (slug) => slug !== coordinatorSlug && !agentIdBySlug[slug]
+    );
+    if (deactivatedSlugs.length > 0) {
+      console.warn(
+        `[TeamRuntime] Resume: ${deactivatedSlugs.length} specialist(s) deactivated since initial run: ${deactivatedSlugs.join(', ')}. Their prior outputs remain in state but they will not re-execute.`
+      );
+    }
+
     const checkpointer = getCheckpointer();
     const breaker = getBreakerForTeam(team.slug);
     const threadConfig = { configurable: { thread_id: runId } };
@@ -563,6 +582,9 @@ class TeamRuntime {
     // Node: coordinator synthesises all specialist outputs
     graph.addNode('run_coordinator', async (state: AgentTeamState) => {
       if (!coordinatorSlug || !agentIdBySlug[coordinatorSlug]) {
+        console.warn(
+          `[TeamRuntime] Coordinator "${coordinatorSlug ?? 'none'}" not available — falling back to output concatenation`
+        );
         return { team_result: Object.values(state.outputs).join('\n\n---\n\n') };
       }
 
@@ -711,7 +733,16 @@ class TeamRuntime {
 
       const nextMatch = result.outputText.match(/NEXT_AGENT:\s*(\S+)/);
       const rawNext = nextMatch?.[1];
-      const nextSlug = rawNext === 'done' || !rawNext ? null : rawNext;
+      let nextSlug = rawNext === 'done' || !rawNext ? null : rawNext;
+
+      // Validate that the requested next agent actually exists in the team
+      if (nextSlug && !allSlugs.includes(nextSlug)) {
+        console.warn(
+          `[TeamRuntime] Swarm: agent "${currentSlug}" requested NEXT_AGENT "${nextSlug}" ` +
+          `which is not a member of team "${team.slug}". Valid members: ${allSlugs.join(', ')}. Terminating swarm.`
+        );
+        nextSlug = null;
+      }
 
       const handoffs: AgentTeamHandoff[] = nextSlug
         ? [{ from: currentSlug, to: nextSlug, reason: 'swarm routing', timestamp: new Date().toISOString() }]

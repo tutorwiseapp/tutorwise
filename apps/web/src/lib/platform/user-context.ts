@@ -20,6 +20,28 @@
 import { createClient } from '@/utils/supabase/server';
 import { getCachedContext, setCachedContext } from './context-cache';
 
+// ── Query row types ──────────────────────────────────────────────────────────
+
+interface ReferralRow {
+  status: string;
+  commission_amount_pence: number | null;
+}
+
+interface BookingRow {
+  id: string;
+  status: string;
+}
+
+interface ListingRow {
+  id: string;
+  average_rating: number | null;
+}
+
+interface SageSessionRow {
+  subject: string | null;
+  created_at: string;
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface PlatformUserContext {
@@ -215,35 +237,36 @@ export async function buildPlatformUserContext(userId: string): Promise<Platform
   // Derived values
   const caasScore = profile?.caas_score ?? null;
   const referralsSent = referrals.length;
-  const referralsConverted = referrals.filter((r: any) => r.status === 'converted').length;
+  const referralsConverted = referrals.filter((r: ReferralRow) => r.status === 'converted').length;
   const lifetimeCommission = referrals
-    .filter((r: any) => r.status === 'converted')
-    .reduce((sum: number, r: any) => sum + (r.commission_amount_pence ?? 0), 0);
+    .filter((r: ReferralRow) => r.status === 'converted')
+    .reduce((sum: number, r: ReferralRow) => sum + (r.commission_amount_pence ?? 0), 0);
 
-  const cancelledPast30 = bookingsPast30.filter((b: any) => b.status === 'cancelled').length;
+  const cancelledPast30 = bookingsPast30.filter((b: BookingRow) => b.status === 'cancelled').length;
   const cancellationRate = bookingsPast30.length > 0
     ? Math.round((cancelledPast30 / bookingsPast30.length) * 100)
     : null;
 
-  const avgRating = listings.length > 0
-    ? listings.reduce((sum: number, l: any) => sum + (l.average_rating ?? 0), 0) / listings.filter((l: any) => l.average_rating).length || null
+  const ratedListings = listings.filter((l: ListingRow) => l.average_rating != null);
+  const avgRating = ratedListings.length > 0
+    ? ratedListings.reduce((sum: number, l: ListingRow) => sum + (l.average_rating ?? 0), 0) / ratedListings.length
     : null;
 
-  const pendingApprovals = wfPending.map((we: any) => ({
+  const pendingApprovals = wfPending.map((we) => ({
     id: we.id,
-    type: (we as any).workflow_processes?.name ?? 'Unknown',
+    type: (we.workflow_processes as { name: string }[])?.[0]?.name ?? 'Unknown',
     waiting_hours: Math.round((Date.now() - new Date(we.started_at).getTime()) / (1000 * 60 * 60)),
   }));
 
-  const recentExecutions = wfRecent.map((we: any) => ({
-    process_name: (we as any).workflow_processes?.name ?? 'Unknown',
+  const recentExecutions = wfRecent.map((we) => ({
+    process_name: (we.workflow_processes as { name: string }[])?.[0]?.name ?? 'Unknown',
     status: we.status,
     completed_at: we.completed_at ?? '',
   }));
 
   return {
     profile: {
-      role: (profile?.active_role as any) ?? 'tutor',
+      role: (profile?.active_role as PlatformUserContext['profile']['role']) ?? 'tutor',
       caas_score: caasScore,
       listing_count: listings.length,
       active_since: profile?.created_at ?? null,
@@ -264,7 +287,7 @@ export async function buildPlatformUserContext(userId: string): Promise<Platform
     sage: {
       has_pro: sagePro?.status === 'active',
       sessions_this_month: 0, // Future: count sage_sessions this month
-      last_session_subject: (lastSageSession as any)?.subject ?? null,
+      last_session_subject: (lastSageSession as SageSessionRow | null)?.subject ?? null,
     },
     growth: {
       has_pro: growthPro?.status === 'active',

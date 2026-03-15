@@ -119,6 +119,7 @@ function ChunkForm({
             value={form.title}
             onChange={(e) => set('title', e.target.value)}
             placeholder="Knowledge chunk title"
+            aria-label="Title"
           />
         </div>
         <div className={styles.formField}>
@@ -137,6 +138,7 @@ function ChunkForm({
             value={form.source_ref}
             onChange={(e) => set('source_ref', e.target.value)}
             placeholder="e.g. migration_342, handler_commission"
+            aria-label="Source reference"
           />
         </div>
         <div className={styles.formField}>
@@ -146,6 +148,7 @@ function ChunkForm({
             value={form.tags}
             onChange={(e) => set('tags', e.target.value)}
             placeholder="e.g. stripe, webhook, payout"
+            aria-label="Tags, comma-separated"
           />
         </div>
         <div className={styles.formFieldFull}>
@@ -156,6 +159,7 @@ function ChunkForm({
             value={form.content}
             onChange={(e) => set('content', e.target.value)}
             placeholder="Full knowledge chunk content…"
+            aria-label="Content"
           />
         </div>
       </div>
@@ -223,6 +227,7 @@ function RagPreview() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Enter a test query to see which chunks match…"
           onKeyDown={(e) => e.key === 'Enter' && runPreview()}
+          aria-label="RAG preview query"
         />
         <div className={styles.ragCategorySelect}>
           <UnifiedSelect

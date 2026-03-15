@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-The Content Factory wires three existing systems — **Conductor**, **Scheduler**, and **Resources** — into an automated content pipeline. A GTM AI Team creates articles, a human reviews and manages publication schedules, and the intelligence pipeline measures performance to close the feedback loop.
+The Content Factory wires three existing systems — **Conductor**, **Scheduler**, and **Resources** — into an automated content pipeline. A Content Team creates articles, a human reviews and manages publication schedules, and the intelligence pipeline measures performance to close the feedback loop.
 
 ### Design Principle
 
@@ -35,7 +35,7 @@ No new UIs. No new tables (except one bridge column). The three systems already 
 │  ┌───────────┐     ┌───────────┐     ┌───────────┐                │
 │  │ CONDUCTOR │────▶│ RESOURCES │────▶│ SCHEDULER │                │
 │  │           │     │           │     │           │                │
-│  │ GTM Team  │     │ Articles  │     │ Publish   │                │
+│  │ Content   │     │ Articles  │     │ Publish   │                │
 │  │ creates   │     │ stored &  │     │ schedule  │                │
 │  │ content   │     │ reviewed  │     │ managed   │                │
 │  └───────────┘     └─────┬─────┘     └─────┬─────┘                │
@@ -47,7 +47,7 @@ No new UIs. No new tables (except one bridge column). The three systems already 
 │  ┌───────────────────────────────────────────────────────────────┐ │
 │  │                    FEEDBACK LOOP                               │ │
 │  │  article_intelligence_scores (daily 04:45 UTC)                │ │
-│  │  ──▶ GTM Team reads scores ──▶ adjusts next article          │ │
+│  │  ──▶ Content Team reads scores ──▶ adjusts next article       │ │
 │  └───────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -56,29 +56,29 @@ No new UIs. No new tables (except one bridge column). The three systems already 
 
 | Step | Actor | Action | System |
 |------|-------|--------|--------|
-| 1 | **GTM Team** (scheduled or manual trigger) | Generates article draft based on series brief + intelligence signals | Conductor |
+| 1 | **Content Team** (scheduled or manual trigger) | Generates article draft based on series brief + intelligence signals | Conductor |
 | 2 | **Content Writer agent** | Writes article (title, slug, content, category, tags, meta) | Conductor → Resources |
 | 3 | **SEO Reviewer agent** | Checks readiness score, suggests meta improvements | Conductor |
-| 4 | **GTM Team** | Inserts article into `resource_articles` with `status='draft'` | Resources |
+| 4 | **Content Team** | Inserts article into `resource_articles` with `status='draft'` | Resources |
 | 5 | **Human** | Reviews draft in Resources admin UI (`/admin/resources`) | Resources |
 | 6 | **Human** | Approves → sets `status='scheduled'`, picks `scheduled_for` date | Resources |
 | 7 | **Human** | Views/manages schedule in Scheduler UI (`/admin/scheduler`) | Scheduler |
 | 8 | **Scheduler executor** (cron) | At `scheduled_for` time: flips `status='published'`, sets `published_at` | Scheduler → Resources |
 | 9 | **Intelligence pipeline** | Scores article daily (views, conversions, revenue attribution) | Resources |
-| 10 | **GTM Team** (next run) | Reads intelligence scores → informs next article topic/angle | Conductor |
+| 10 | **Content Team** (next run) | Reads intelligence scores → informs next article topic/angle | Conductor |
 
 ---
 
-## 4. GTM Team Design
+## 4. Content Team Design
 
 ### 4.1 Team Definition
 
 | Field | Value |
 |-------|-------|
-| **Slug** | `gtm-content-team` |
-| **Name** | GTM Content Team |
+| **Slug** | `content-team` |
+| **Name** | Content Team |
 | **Pattern** | `pipeline` |
-| **Space** | `go-to-market` |
+| **Space** | `marketing` |
 | **Trigger** | Scheduled (weekly) or manual from Conductor UI |
 
 **Why pipeline?** Content creation is sequential — research → write → review → publish. Each step depends on the previous output. Not suitable for supervisor (parallel) or swarm (dynamic routing).
@@ -112,12 +112,14 @@ content-strategist ──▶ content-writer ──▶ content-reviewer
 On pipeline completion (status='completed'):
 
 1. Parse team result for article fields (title, slug, content, category, tags, meta_title, meta_description, read_time)
-2. Insert into `resource_articles` with `status='draft'`, `author_name='GTM Content Team'`
+2. Insert into `resource_articles` with `status='draft'`, `author_name='Content Team'`
 3. Store `article_id` in `agent_team_run_outputs.team_result` for traceability
 
 This is a **new tool**: `publish_article_draft` — registered in `analyst_tools`, executed in `tools/executor.ts`.
 
 ### 4.5 Agent Tools
+
+> **Note:** The `marketing` space must be created (or `go-to-market` renamed) before the team can be assigned.
 
 | Agent | Tools needed |
 |-------|-------------|
@@ -127,7 +129,7 @@ This is a **new tool**: `publish_article_draft` — registered in `analyst_tools
 
 ### 4.6 Series Brief Input
 
-The GTM Team receives a series brief as its task input. Briefs live in git at `publications/strategy/s1-devops-to-agents.md` and `publications/strategy/s2-agents-to-education.md`.
+The Content Team receives a series brief as its task input. Briefs live in git at `publications/strategy/s1-devops-to-agents.md` and `publications/strategy/s2-agents-to-education.md`.
 
 The brief contains:
 - Series narrative and positioning
@@ -202,7 +204,7 @@ draft ──▶ scheduled ──▶ published
   │           └── scheduled_for date set
   │               scheduled_items row created
   │
-  └── GTM Team writes here
+  └── Content Team writes here
       Human reviews here
 ```
 
@@ -213,7 +215,7 @@ draft ──▶ scheduled ──▶ published
 | `status` | `'draft'` → `'scheduled'` → `'published'` (already supported) |
 | `scheduled_for` | Publication date (already exists, currently unused) |
 | `published_at` | Set by auto-publish executor |
-| `author_name` | `'GTM Content Team'` for AI-generated, human name for manual |
+| `author_name` | `'Content Team'` for AI-generated, human name for manual |
 | `category` | Set by content-strategist agent |
 | `tags` | Set by content-writer agent |
 
@@ -221,7 +223,7 @@ draft ──▶ scheduled ──▶ published
 
 | Column | Type | Purpose |
 |--------|------|---------|
-| `team_run_id` | UUID, nullable | Links article back to the GTM Team run that created it. Enables traceability from article → team run → agent outputs. |
+| `team_run_id` | UUID, nullable | Links article back to the Content Team run that created it. Enables traceability from article → team run → agent outputs. |
 
 ### 6.4 Scheduler Sync Trigger
 
@@ -236,7 +238,7 @@ When `resource_articles.status` changes to `'scheduled'`:
 
 ## 7. Feedback Loop
 
-### 7.1 Intelligence → GTM Team
+### 7.1 Intelligence → Content Team
 
 The `content-strategist` agent uses existing tools to read performance data:
 
@@ -252,30 +254,31 @@ These tools already exist and query `resources_platform_metrics_daily` and `arti
 ### 7.2 Closed Loop
 
 ```
-GTM Team writes article
+Content Team writes article
     ↓
 Published on tutorwise.com/resources
     ↓
 Daily intelligence pipeline scores it (04:45 UTC)
     ↓
-Next GTM Team run reads scores
+Next Content Team run reads scores
     ↓
 content-strategist adjusts: topic selection, keyword focus, category balance
     ↓
-GTM Team writes next article (informed by data)
+Content Team writes next article (informed by data)
 ```
 
 ---
 
 ## 8. Implementation Plan
 
-### Phase 1 — GTM Team (Conductor)
+### Phase 1 — Content Team (Conductor)
 
 | Task | Detail |
 |------|--------|
+| Create `marketing` space | New space in `agent_spaces` (or rename `go-to-market`) |
 | Create 3 specialist agents | `content-strategist`, `content-writer`, `content-reviewer` |
 | Register `publish_article_draft` tool | In `analyst_tools` table + `executor.ts` |
-| Create `gtm-content-team` | Pipeline pattern, 3 nodes, assigned to `go-to-market` space |
+| Create `content-team` | Pipeline pattern, 3 nodes, assigned to `marketing` space |
 | Migration | Agent seeds + tool registration |
 
 ### Phase 2 — Scheduler Bridge
@@ -293,7 +296,7 @@ GTM Team writes next article (informed by data)
 |------|--------|
 | content-strategist tool access | Ensure agent config includes intelligence tools |
 | Series brief loader | Tool or prompt injection that reads series plan from git or DB |
-| Scheduled GTM Team run | Weekly `scheduled_items` with `type='team_run'` targeting `gtm-content-team` |
+| Scheduled Content Team run | Weekly `scheduled_items` with `type='team_run'` targeting `content-team` |
 
 ---
 
@@ -313,18 +316,19 @@ GTM Team writes next article (informed by data)
 |-----------|----------|
 | 387 | 3 specialist agent seeds (content-strategist, content-writer, content-reviewer) |
 | 387 | `publish_article_draft` tool in `analyst_tools` |
-| 387 | `gtm-content-team` team definition (pipeline, 3 nodes, go-to-market space) |
+| 387 | `marketing` space in `agent_spaces` |
+| 387 | `content-team` team definition (pipeline, 3 nodes, marketing space) |
 | 387 | `team_run_id` column on `resource_articles` (nullable UUID) |
 | 388 | pg_cron: `publish-scheduled-articles` every 15 min |
-| 388 | pg_cron: `gtm-content-team` weekly run (day/time TBD) |
+| 388 | pg_cron: `content-team` weekly run (day/time TBD) |
 
 ---
 
 ## 11. Open Questions
 
-1. **Weekly cadence** — What day/time should the GTM Team run? (e.g., Monday 06:00 UTC to have drafts ready for human review Monday morning?)
+1. **Weekly cadence** — What day/time should the Content Team run? (e.g., Monday 06:00 UTC to have drafts ready for human review Monday morning?)
 2. **Series priority** — Should the team alternate between Series 1 and Series 2, or complete one series first?
 3. **Article categories** — The 5 existing categories (`for-clients`, `for-tutors`, `for-agents`, `education-insights`, `company-news`) may need expansion for thought-leadership content. Add `'thought-leadership'`?
-4. **Author attribution** — Should AI-authored articles show `'GTM Content Team'` or the founder's name?
+4. **Author attribution** — Should AI-authored articles show `'Content Team'` or the founder's name?
 5. **Approval gate** — Should the content-reviewer agent's "approved" status auto-insert to Resources, or should there always be a human step between team completion and draft insertion?
 6. **Social cycle** — The LinkedIn GTM Playbook defines a 3-format repurpose cycle (full → carousel → repost). Should this be v1 or v2?

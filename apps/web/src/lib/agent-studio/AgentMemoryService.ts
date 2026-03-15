@@ -124,7 +124,8 @@ export class AgentMemoryService {
       }
 
       return parts.join('\n\n');
-    } catch {
+    } catch (err) {
+      console.error(`[AgentMemoryService] fetchMemoryBlock failed for agent="${agentSlug}":`, err);
       return undefined;
     }
   }
@@ -164,8 +165,8 @@ export class AgentMemoryService {
         outcome_type: outcomeType,
         embedding: JSON.stringify(embedding),
       });
-    } catch {
-      // Non-critical — never block agent execution
+    } catch (err) {
+      console.error(`[AgentMemoryService] recordEpisode failed for agent="${opts.agentSlug}" run="${opts.runId}":`, err);
     }
   }
 
@@ -213,13 +214,13 @@ Return a JSON array ONLY — no markdown, no explanation.`,
               confidence: Math.min(1, Math.max(0, fact.confidence ?? 0.8)),
               embedding: JSON.stringify(embedding),
             });
-          } catch {
-            // individual fact insert failing is acceptable
+          } catch (err) {
+            console.error(`[AgentMemoryService] extractAndStoreFacts: failed to insert fact for agent="${agentSlug}" run="${runId}":`, err);
           }
         })
       );
-    } catch {
-      // Non-critical
+    } catch (err) {
+      console.error(`[AgentMemoryService] extractAndStoreFacts failed for agent="${opts.agentSlug}" run="${opts.runId}":`, err);
     }
   }
 

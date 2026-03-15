@@ -111,15 +111,15 @@ export default function ToolsRegistryPage() {
         <div className={styles.registerForm}>
           <div className={styles.formTitle}>Register New Tool</div>
           <div className={styles.formRow}>
-            <input className={styles.input} placeholder="slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-            <input className={styles.input} placeholder="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            <select className={styles.select} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            <input className={styles.input} placeholder="slug" aria-label="Tool slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+            <input className={styles.input} placeholder="name" aria-label="Tool name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <select className={styles.select} aria-label="Tool category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
               <option value="analytics">analytics</option>
               <option value="actions">actions</option>
               <option value="notifications">notifications</option>
             </select>
           </div>
-          <input className={styles.input} placeholder="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <input className={styles.input} placeholder="description" aria-label="Tool description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           <button
             className={styles.submitBtn}
             onClick={() => registerMutation.mutate(form)}

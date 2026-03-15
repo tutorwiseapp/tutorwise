@@ -402,6 +402,7 @@ export default function HubDataTable<T extends Record<string, any>>({
                       checked={selectedRows.size === data.length && data.length > 0}
                       onChange={handleSelectAll}
                       className={styles.checkbox}
+                      aria-label="Select all rows"
                     />
                   </th>
                 )}
@@ -452,6 +453,7 @@ export default function HubDataTable<T extends Record<string, any>>({
                           }}
                           onClick={(e) => e.stopPropagation()}
                           className={styles.checkbox}
+                          aria-label="Select row"
                         />
                       </td>
                     )}

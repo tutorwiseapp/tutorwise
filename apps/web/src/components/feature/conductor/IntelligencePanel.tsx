@@ -953,7 +953,7 @@ function AIStudioSection({ data }: { data: any }) {
 
 function ProcessMiningIntelSection() {
   const { data: processes = [] } = useQuery({
-    queryKey: ['workflow-processes-mining'],
+    queryKey: ['workflow', 'processes'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/processes');
       const data = await res.json();

@@ -35,6 +35,13 @@ Confidence < 0.7 should default to "general".
 
 Return ONLY valid JSON.`;
 
+const VALID_INTENTS: ReadonlySet<IntentResult['intent']> = new Set([
+  'query_agent',
+  'trigger_workflow',
+  'view_analytics',
+  'general',
+]);
+
 export class IntentDetector {
   /**
    * Classify an admin query into one of four routing intents.
@@ -60,8 +67,14 @@ Return JSON: { "intent": "...", "target_agent_slug": "...", "target_process_id":
         temperature: 0.1,
       });
 
+      const rawIntent = data.intent;
+      const intent: IntentResult['intent'] =
+        typeof rawIntent === 'string' && VALID_INTENTS.has(rawIntent as IntentResult['intent'])
+          ? (rawIntent as IntentResult['intent'])
+          : 'general';
+
       return {
-        intent: data.intent ?? 'general',
+        intent,
         target_agent_slug: data.target_agent_slug,
         target_process_id: data.target_process_id,
         analytics_tab: data.analytics_tab,
