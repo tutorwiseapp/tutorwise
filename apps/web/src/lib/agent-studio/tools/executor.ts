@@ -1371,7 +1371,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const { data: articles } = await supabase
       .from('resource_articles')
       .select('id, title, slug, status, category, published_at, revision_count, created_at, views')
-      .or('author_name.eq.Content Team,team_run_id.not.is.null')
+      .not('team_run_id', 'is', null)
       .order('created_at', { ascending: true });
 
     const articleMap = new Map((articles ?? []).map((a) => [a.slug, a]));
@@ -1526,7 +1526,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         meta_description: metaDescription,
         read_time: readTime,
         status: 'draft',
-        author_name: 'Content Team',
+        author_name: 'Michael Quan',
         revision_count: 0,
       }, { onConflict: 'slug' })
       .select('id, slug')
