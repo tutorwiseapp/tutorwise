@@ -9,6 +9,108 @@ import { createServiceRoleClient } from '@/utils/supabase/server';
 
 type ToolFn = (input: Record<string, unknown>) => Promise<unknown>;
 
+// ── Input validation ──────────────────────────────────────────────────────────
+
+interface ParamDef {
+  key: string;
+  type: 'number' | 'string' | 'object';
+  required?: boolean;
+  default?: unknown;
+}
+
+const TOOL_SCHEMAS: Record<string, ParamDef[]> = {
+  query_booking_trends:       [{ key: 'days', type: 'number', default: 30 }],
+  query_tutor_performance:    [{ key: 'limit', type: 'number', default: 20 }],
+  query_platform_health:      [],
+  query_commissions:          [{ key: 'days', type: 'number', default: 30 }],
+  query_growth_scores:        [{ key: 'limit', type: 'number', default: 20 }],
+  query_referral_pipeline:    [{ key: 'days', type: 'number', default: 30 }],
+  query_at_risk_tutors:       [{ key: 'threshold', type: 'number', default: 40 }],
+  query_stripe_payouts:       [{ key: 'limit', type: 'number', default: 20 }],
+  flag_for_review: [
+    { key: 'title', type: 'string', required: true },
+    { key: 'severity', type: 'string', default: 'medium' },
+    { key: 'description', type: 'string' },
+    { key: 'context', type: 'object' },
+    { key: 'domain', type: 'string' },
+  ],
+  send_notification: [
+    { key: 'user_id', type: 'string', required: true },
+    { key: 'title', type: 'string', required: true },
+    { key: 'message', type: 'string', required: true },
+    { key: 'type', type: 'string', default: 'info' },
+  ],
+  query_caas_health:          [],
+  query_resources_health:     [],
+  query_editorial_opportunities: [],
+  query_seo_health:           [],
+  query_keyword_opportunities: [
+    { key: 'min_position', type: 'number', default: 6 },
+    { key: 'max_position', type: 'number', default: 20 },
+    { key: 'limit', type: 'number', default: 25 },
+  ],
+  query_content_attribution:  [{ key: 'limit', type: 'number', default: 20 }],
+  query_marketplace_health:   [{ key: 'days', type: 'number', default: 7 }],
+  query_supply_demand_gap:    [{ key: 'days', type: 'number', default: 14 }],
+  query_booking_health:       [],
+  query_listing_health:       [
+    { key: 'completeness_threshold', type: 'number', default: 70 },
+    { key: 'subject', type: 'string' },
+  ],
+  query_pricing_intelligence: [],
+  query_financial_health:     [],
+  query_virtualspace_health:  [],
+  query_retention_health:     [{ key: 'days', type: 'number', default: 30 }],
+  query_ai_adoption_health:   [{ key: 'days', type: 'number', default: 30 }],
+  query_org_conversion_health: [{ key: 'days', type: 'number', default: 30 }],
+  query_ai_studio_health:     [{ key: 'days', type: 'number', default: 30 }],
+  query_referral_funnel:      [{ key: 'segment', type: 'string', default: 'platform' }],
+  query_network_intelligence: [],
+  query_process_patterns:     [],
+  query_autonomy_calibration: [],
+  query_onboarding_health:    [{ key: 'days', type: 'number', default: 30 }],
+};
+
+/** Validate and coerce input against a tool's parameter schema. */
+function validateInput(slug: string, input: Record<string, unknown>): Record<string, unknown> {
+  const schema = TOOL_SCHEMAS[slug];
+  if (!schema) return input; // unknown tool — let executeTool handle it
+
+  const coerced = { ...input };
+  for (const param of schema) {
+    const raw = coerced[param.key];
+
+    // Required check
+    if (param.required && (raw === undefined || raw === null || raw === '')) {
+      throw new Error(`Tool "${slug}" requires parameter "${param.key}"`);
+    }
+
+    // Skip if not provided and not required
+    if (raw === undefined || raw === null) {
+      if (param.default !== undefined) coerced[param.key] = param.default;
+      continue;
+    }
+
+    // Type coercion
+    if (param.type === 'number') {
+      const num = Number(raw);
+      if (isNaN(num)) {
+        if (param.default !== undefined) {
+          coerced[param.key] = param.default;
+        } else {
+          throw new Error(`Tool "${slug}" parameter "${param.key}" must be a number, got: ${typeof raw}`);
+        }
+      } else {
+        coerced[param.key] = num;
+      }
+    } else if (param.type === 'string' && typeof raw !== 'string') {
+      coerced[param.key] = String(raw);
+    }
+  }
+
+  return coerced;
+}
+
 /** Check all Supabase results from Promise.all and throw on the first error found. */
 function checkErrors(results: { error: { message: string } | null }[]): void {
   for (const r of results) {
@@ -1225,5 +1327,6 @@ export async function executeTool(
   // Built-in tool
   const fn = TOOL_EXECUTORS[slug];
   if (!fn) throw new Error(`Unknown tool: ${slug}`);
-  return fn(input);
+  const validated = validateInput(slug, input);
+  return fn(validated);
 }
