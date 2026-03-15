@@ -31,6 +31,7 @@ interface ClientEntry {
 
 class MCPClientManager {
   private clients = new Map<string, ClientEntry>();
+  private pendingConnections = new Map<string, Promise<ClientEntry>>();
 
   /**
    * Get or create a connected MCP client for the given connection slug.
@@ -43,6 +44,24 @@ class MCPClientManager {
       return existing;
     }
 
+    // Deduplicate concurrent connection attempts for the same slug
+    const pending = this.pendingConnections.get(connectionSlug);
+    if (pending) {
+      return pending;
+    }
+
+    const connectionPromise = this.createClient(connectionSlug, context).finally(() => {
+      this.pendingConnections.delete(connectionSlug);
+    });
+
+    this.pendingConnections.set(connectionSlug, connectionPromise);
+    return connectionPromise;
+  }
+
+  /**
+   * Internal: create and connect a new MCP client.
+   */
+  private async createClient(connectionSlug: string, context?: MCPToolCallContext): Promise<ClientEntry> {
     // Load connection from DB
     const supabase = await createServiceRoleClient();
     const { data: conn, error } = await supabase

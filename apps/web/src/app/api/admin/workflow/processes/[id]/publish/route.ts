@@ -3,6 +3,21 @@ import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { supabase, user: null, error: 'Unauthorized' as const };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) return { supabase, user: null, error: 'Forbidden' as const };
+  return { supabase, user, error: null };
+}
+
 /**
  * POST /api/admin/workflow/processes/[id]/publish
  *
@@ -16,17 +31,13 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const { supabase, user, error: authError } = await requireAdmin();
 
     if (authError || !user) {
+      const status = authError === 'Unauthorized' ? 401 : 403;
       return NextResponse.json(
-        { success: false, error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-        { status: 401 }
+        { success: false, error: authError || 'Unauthorized', code: authError === 'Forbidden' ? 'ADMIN_REQUIRED' : 'AUTH_REQUIRED' },
+        { status }
       );
     }
 

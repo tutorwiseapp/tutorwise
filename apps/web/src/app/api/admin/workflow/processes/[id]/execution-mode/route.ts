@@ -8,17 +8,35 @@ import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { supabase, user: null, error: 'Unauthorized' as const };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) return { supabase, user: null, error: 'Forbidden' as const };
+  return { supabase, user, error: null };
+}
+
 export async function PATCH(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: processId } = await props.params;
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { supabase, error: authError } = await requireAdmin();
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (authError) {
+      const status = authError === 'Unauthorized' ? 401 : 403;
+      return NextResponse.json(
+        { success: false, error: authError, code: authError === 'Unauthorized' ? 'AUTH_REQUIRED' : 'ADMIN_REQUIRED' },
+        { status }
+      );
     }
 
     const body = await request.json();

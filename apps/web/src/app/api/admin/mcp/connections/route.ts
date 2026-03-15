@@ -11,7 +11,7 @@ async function requireAdmin() {
   const { data: { user }, error } = await authClient.auth.getUser();
   if (error || !user) return null;
 
-  const { data: profile } = await authClient.from('profiles').select('is_admin').eq('id', user.id).single();
+  const { data: profile } = await authClient.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
   if (!profile?.is_admin) return null;
 
   return user;

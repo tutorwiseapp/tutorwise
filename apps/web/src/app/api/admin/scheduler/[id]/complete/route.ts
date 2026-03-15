@@ -14,7 +14,7 @@ export async function POST(_request: NextRequest, props: { params: Promise<{ id:
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     // Get current item
