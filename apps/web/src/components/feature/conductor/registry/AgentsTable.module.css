@@ -4,16 +4,6 @@
   font-size: 0.875rem;
 }
 
-.builtInBadge {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--color-gray-500);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 4px;
-  padding: 1px 6px;
-  white-space: nowrap;
-}
-
 .cellText {
   color: var(--color-gray-600);
   font-size: 0.8125rem;

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  RefreshCw,
   Search,
   Download,
   CheckSquare,
@@ -10,7 +9,6 @@ import {
   ChevronDown,
   ChevronRight,
   AlertTriangle,
-  CheckCircle,
   Loader2,
   Eye,
   Trash2,
@@ -28,9 +26,37 @@ import type {
   DiscoveryResult,
 } from '@/lib/workflow/scanner/types';
 import type { ProcessNode, ProcessEdge } from './types';
+import { HubWidgetCard } from '@/components/hub/content';
+import { HubToolbar } from '@/components/hub/toolbar';
+import { HubComplexModal } from '@/components/hub/modal';
+
+import type { Filter } from '@/components/hub/toolbar';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import type { StatusBadgeColor } from '@/components/admin/badges/StatusBadge';
 import styles from './DiscoveryPanel.module.css';
 
-type SourceScanStatus = 'pending' | 'scanning' | 'done' | 'error';
+// ── Badge color maps for StatusBadge ─────────────────────────────────────────
+
+const SOURCE_BADGE_COLORS: Record<string, StatusBadgeColor> = {
+  status_enum:  { bg: '#ede9fe', text: '#6d28d9' },
+  cron_job:     { bg: '#fef3c7', text: '#92400e' },
+  onboarding:   { bg: '#d1fae5', text: '#065f46' },
+  cas_workflow:  { bg: '#dbeafe', text: '#1e40af' },
+  api_route:    { bg: '#fce7f3', text: '#9d174d' },
+  db_trigger:   { bg: '#fed7aa', text: '#9a3412' },
+};
+
+const STATE_BADGE_COLORS: Record<string, StatusBadgeColor> = {
+  preview:       { bg: '#f3f4f6', text: '#6b7280' },
+  analysed:      { bg: '#dbeafe', text: '#1e40af' },
+  direct_mapped: { bg: '#d1fae5', text: '#065f46' },
+};
+
+const CONFIDENCE_BADGE_COLORS: Record<string, StatusBadgeColor> = {
+  high:   { bg: '#d1fae5', text: '#065f46' },
+  medium: { bg: '#fef3c7', text: '#92400e' },
+  low:    { bg: '#fef2f2', text: '#991b1b' },
+};
 
 const SOURCE_LABELS: Record<string, string> = {
   status_enum: 'STATUS',
@@ -66,6 +92,27 @@ const SCAN_SOURCE_TYPES: SourceType[] = [
   'cron_job',
   'api_route',
   'db_trigger',
+];
+
+// ── HubToolbar filter definitions ────────────────────────────────────────────
+
+const DISCOVERY_FILTERS: Filter[] = [
+  {
+    key: 'source',
+    label: 'All Sources',
+    options: SOURCE_OPTIONS.filter((o) => o.value !== 'all').map((o) => ({
+      value: o.value,
+      label: o.label,
+    })),
+  },
+  {
+    key: 'confidence',
+    label: 'All Confidence',
+    options: CONFIDENCE_OPTIONS.filter((o) => o.value !== 'all').map((o) => ({
+      value: o.value,
+      label: o.label,
+    })),
+  },
 ];
 
 interface DiscoveryPanelProps {
@@ -131,7 +178,7 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     started_at: string;
     completed_at: string | null;
   }>>([]);
-  const [sourceStatus, setSourceStatus] = useState<Record<string, SourceScanStatus>>({});
+
 
   // Auto-scan guard — only fires once per mount when the panel has no results
   const autoScannedRef = useRef(false);
@@ -186,11 +233,6 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     setError(null);
     setScanProgress(0, SCAN_SOURCE_TYPES.length);
 
-    // Initialise per-source status
-    const initialStatus: Record<string, SourceScanStatus> = {};
-    for (const s of SCAN_SOURCE_TYPES) initialStatus[s] = 'scanning';
-    setSourceStatus(initialStatus);
-
     let completed = 0;
 
     const scanPromises = SCAN_SOURCE_TYPES.map(async (sourceType) => {
@@ -203,12 +245,10 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         const json = await res.json();
         completed++;
         setScanProgress(completed, SCAN_SOURCE_TYPES.length);
-        setSourceStatus((prev) => ({ ...prev, [sourceType]: 'done' }));
         return json;
       } catch (err) {
         completed++;
         setScanProgress(completed, SCAN_SOURCE_TYPES.length);
-        setSourceStatus((prev) => ({ ...prev, [sourceType]: 'error' }));
         console.error(`Scan failed for ${sourceType}:`, err);
         return null;
       }
@@ -391,6 +431,24 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
     [updateResult]
   );
 
+  // ── HubToolbar integration ────────────────────────────────────────────────
+
+  const filterValues: Record<string, string> = {
+    source: sourceFilter === 'all' ? '' : sourceFilter,
+    confidence: confidenceFilter === 'all' ? '' : confidenceFilter,
+  };
+
+  const handleFilterChange = useCallback(
+    (key: string, value: string | string[]) => {
+      const v = Array.isArray(value) ? value[0] || '' : value;
+      if (key === 'source')
+        setSourceFilter((v || 'all') as SourceType | 'all');
+      if (key === 'confidence')
+        setConfidenceFilter((v || 'all') as ConfidenceLevel | 'all');
+    },
+    [setSourceFilter, setConfidenceFilter]
+  );
+
   const toggleGroup = (cat: string) => {
     const next = new Set(expandedGroups);
     if (next.has(cat)) next.delete(cat);
@@ -422,94 +480,89 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
   return (
     <div className={styles.panel}>
       {/* Toolbar */}
-      <div className={styles.toolbar}>
-        <button
-          className={styles.refreshBtn}
-          onClick={handleScan}
-          disabled={isScanning}
-        >
-          {isScanning ? (
-            <Loader2 size={16} className={styles.spinning} />
-          ) : (
-            <RefreshCw size={16} />
-          )}
-          {isScanning
-            ? `Scanning... (${scanProgress.completed}/${scanProgress.total})`
-            : 'Scan'}
-        </button>
-
-        {/* Per-source scan status indicators */}
-        {isScanning && Object.keys(sourceStatus).length > 0 && (
-          <div className={styles.sourceStatusRow} aria-live="polite">
-            {SCAN_SOURCE_TYPES.map((src) => (
-              <span
-                key={src}
-                className={`${styles.sourceDot} ${styles[`sourceDot_${sourceStatus[src] ?? 'scanning'}`]}`}
-                title={`${SOURCE_LABELS[src]}: ${sourceStatus[src] ?? 'scanning'}`}
-              />
-            ))}
-          </div>
-        )}
-
-        {previewCount > 0 && (
-          <button
-            className={styles.analyseAllBtn}
-            onClick={handleAnalyseAll}
-            disabled={isAnalysingAll}
-          >
-            {isAnalysingAll ? (
-              <Loader2 size={16} className={styles.spinning} />
-            ) : (
-              <Sparkles size={16} />
+      <HubToolbar
+        variant="minimal"
+        className={styles.toolbar}
+        showSearch={false}
+        filters={DISCOVERY_FILTERS}
+        filterValues={filterValues}
+        onFilterChange={handleFilterChange}
+        onRefresh={handleScan}
+        isRefreshing={isScanning}
+        toolbarActions={
+          <>
+            {/* Analyse All — only when there are preview items */}
+            {previewCount > 0 && (
+              <button
+                className={styles.analyseAllBtn}
+                onClick={handleAnalyseAll}
+                disabled={isAnalysingAll}
+              >
+                {isAnalysingAll ? (
+                  <Loader2 size={16} className={styles.spinning} />
+                ) : (
+                  <Sparkles size={16} />
+                )}
+                {isAnalysingAll ? 'Analysing...' : `Analyse All (${previewCount})`}
+              </button>
             )}
-            {isAnalysingAll ? 'Analysing...' : `Analyse All (${previewCount})`}
-          </button>
-        )}
 
-        <select
-          className={styles.filterSelect}
-          value={sourceFilter}
-          onChange={(e) => setSourceFilter(e.target.value as SourceType | 'all')}
-        >
-          {SOURCE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+            {/* Scan history toggle */}
+            <button
+              className={styles.historyBtn}
+              onClick={() => setShowHistory((v) => !v)}
+              title="Scan history"
+            >
+              <History size={16} />
+            </button>
 
-        <select
-          className={styles.filterSelect}
-          value={confidenceFilter}
-          onChange={(e) =>
-            setConfidenceFilter(e.target.value as ConfidenceLevel | 'all')
-          }
-        >
-          {CONFIDENCE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+            {/* Select All toggle + bulk selection */}
+            {filtered.length > 0 && (
+              <div className={styles.batchControls}>
+                <button
+                  className={styles.selectToggle}
+                  onClick={() => {
+                    if (selectedIds.size > 0) deselectAll();
+                    else selectAll();
+                  }}
+                >
+                  {selectedIds.size > 0 ? (
+                    <CheckSquare size={14} />
+                  ) : (
+                    <Square size={14} />
+                  )}
+                  {selectedIds.size > 0 ? 'Deselect All' : 'Select All'}
+                </button>
 
-        {lastScannedAt && (
-          <span className={styles.lastScanned}>
-            Last scan: {lastScannedAt.toLocaleTimeString()}
-          </span>
-        )}
+                {selectedIds.size > 0 && (
+                  <>
+                    <span className={styles.bulkSelectedCount}>
+                      {selectedIds.size} selected
+                    </span>
+                    <button
+                      className={styles.importSelectedBtn}
+                      disabled={importableSelected.length === 0}
+                      onClick={handleImportSelected}
+                    >
+                      <Download size={14} />
+                      Import ({importableSelected.length})
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </>
+        }
+      />
 
-        <button
-          className={styles.historyBtn}
-          onClick={() => setShowHistory((v) => !v)}
-          title="Scan history"
-        >
-          <History size={14} />
-        </button>
-      </div>
-
-      {showHistory && (
-        <div className={styles.historyPanel}>
-          <div className={styles.historyTitle}>Recent Scans</div>
+      {/* Scan history modal */}
+      <HubComplexModal
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        title="Scan History"
+        size="md"
+      >
+        <div className={styles.historyBody}>
           {scanHistory.length === 0 ? (
             <p className={styles.historyEmpty}>No scans recorded yet.</p>
           ) : (
@@ -518,32 +571,55 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
                 <tr>
                   <th>Time</th>
                   <th>Sources</th>
+                  <th>Status</th>
                   <th>Results</th>
                   <th>Duration</th>
                 </tr>
               </thead>
               <tbody>
-                {scanHistory.map((scan) => (
-                  <tr key={scan.id}>
-                    <td>
-                      {scan.completed_at
-                        ? new Date(scan.completed_at).toLocaleTimeString()
-                        : new Date(scan.started_at).toLocaleTimeString()}
-                    </td>
-                    <td>{scan.source_types.join(', ')}</td>
-                    <td>{scan.results_count ?? '—'}</td>
-                    <td>
-                      {scan.duration_ms != null
-                        ? `${(scan.duration_ms / 1000).toFixed(1)}s`
-                        : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {scanHistory.map((scan) => {
+                  const scanDate = scan.completed_at
+                    ? new Date(scan.completed_at)
+                    : new Date(scan.started_at);
+                  const now = new Date();
+                  const diffMs = now.getTime() - scanDate.getTime();
+                  const diffMins = Math.floor(diffMs / 60000);
+                  const timeAgo =
+                    diffMins < 1
+                      ? 'Just now'
+                      : diffMins < 60
+                        ? `${diffMins}m ago`
+                        : diffMins < 1440
+                          ? `${Math.floor(diffMins / 60)}h ago`
+                          : scanDate.toLocaleDateString();
+
+                  return (
+                    <tr key={scan.id}>
+                      <td>{timeAgo}</td>
+                      <td>{scan.source_types.length} sources</td>
+                      <td>
+                        <span className={styles.historyStatus}>
+                          <span
+                            className={styles.historyStatusDot}
+                            data-status={scan.status === 'completed' ? undefined : scan.status}
+                          />
+                          {scan.status}
+                        </span>
+                      </td>
+                      <td>{scan.results_count ?? '—'}</td>
+                      <td>
+                        {scan.duration_ms != null
+                          ? `${(scan.duration_ms / 1000).toFixed(1)}s`
+                          : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
-      )}
+      </HubComplexModal>
 
       {error && (
         <div className={styles.errorBanner}>
@@ -601,38 +677,6 @@ export default function DiscoveryPanel({ onImportToCanvas }: DiscoveryPanelProps
         ))}
       </div>
 
-      {/* Batch actions bar */}
-      {filtered.length > 0 && (
-        <div className={styles.batchBar}>
-          <button
-            className={styles.selectToggle}
-            onClick={() => {
-              if (selectedIds.size > 0) deselectAll();
-              else selectAll();
-            }}
-          >
-            {selectedIds.size > 0 ? (
-              <CheckSquare size={14} />
-            ) : (
-              <Square size={14} />
-            )}
-            {selectedIds.size > 0 ? 'Deselect All' : 'Select All'}
-          </button>
-
-          <span className={styles.selectionCount}>
-            {importableSelected.length} of {filtered.length} selected
-          </span>
-
-          <button
-            className={styles.importSelectedBtn}
-            disabled={importableSelected.length === 0}
-            onClick={handleImportSelected}
-          >
-            <Download size={14} />
-            Import Selected ({importableSelected.length})
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -675,36 +719,50 @@ function DiscoveryCard({
         <div className={styles.cardTitle}>
           <span className={styles.cardName}>{discovery.name}</span>
           <div className={styles.badges}>
-            <span
-              className={`${styles.badge} ${styles[`badge_${discovery.source_type}`]}`}
-            >
-              {SOURCE_LABELS[discovery.source_type] || discovery.source_type}
-            </span>
-            <span
-              className={`${styles.badge} ${styles[`state_${discovery.analysis_state}`]}`}
-            >
-              {discovery.analysis_state === 'direct_mapped'
-                ? 'Mapped'
-                : discovery.analysis_state === 'analysed'
-                  ? 'Analysed'
-                  : 'Preview'}
-            </span>
+            <StatusBadge
+              variant="neutral"
+              label={SOURCE_LABELS[discovery.source_type] || discovery.source_type}
+              size="xs"
+              shape="rect"
+              color={SOURCE_BADGE_COLORS[discovery.source_type]}
+            />
+            <StatusBadge
+              variant="neutral"
+              label={
+                discovery.analysis_state === 'direct_mapped'
+                  ? 'Mapped'
+                  : discovery.analysis_state === 'analysed'
+                    ? 'Analysed'
+                    : 'Preview'
+              }
+              size="xs"
+              shape="rect"
+              color={STATE_BADGE_COLORS[discovery.analysis_state]}
+            />
             {discovery.confidence && discovery.analysis_state !== 'preview' && (
-              <span
-                className={`${styles.badge} ${styles[`confidence_${discovery.confidence}`]}`}
-              >
-                {discovery.confidence}
-              </span>
+              <StatusBadge
+                variant="neutral"
+                label={discovery.confidence}
+                size="xs"
+                shape="rect"
+                color={CONFIDENCE_BADGE_COLORS[discovery.confidence]}
+              />
             )}
             {discovery.template_match_state === 'matches' && (
-              <span className={`${styles.badge} ${styles.templateMatch}`}>
-                <CheckCircle size={10} /> Up to date
-              </span>
+              <StatusBadge
+                variant="success"
+                label="Up to date"
+                size="xs"
+                shape="rect"
+              />
             )}
             {isTemplateOutdated && (
-              <span className={`${styles.badge} ${styles.templateOutdated}`}>
-                <AlertTriangle size={10} /> Template outdated
-              </span>
+              <StatusBadge
+                variant="warning"
+                label="Template outdated"
+                size="xs"
+                shape="rect"
+              />
             )}
           </div>
         </div>
@@ -770,5 +828,28 @@ function DiscoveryCard({
         </button>
       </div>
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function DiscoverySidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Discovery Help">
+        <div className={styles.tipsList}>
+          <p><strong>Auto-scan</strong> detects implicit workflows from code, webhooks, and cron jobs.</p>
+          <p><strong>Analyse</strong> a discovered process to extract steps and generate a workflow graph.</p>
+          <p><strong>Import to Canvas</strong> to turn a discovery into an editable workflow.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Discovery Tips">
+        <div className={styles.tipsList}>
+          <p>High-confidence discoveries are ready to import — low-confidence ones need manual review.</p>
+          <p>Dismiss false positives to improve future scan accuracy.</p>
+          <p>Re-scan periodically as new code deploys may introduce new implicit workflows.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

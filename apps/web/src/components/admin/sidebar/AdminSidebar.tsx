@@ -32,8 +32,8 @@ export default function AdminSidebar() {
   const navItems: NavItem[] = [
     { href: '/admin/operations', label: 'Operations' },
     { href: '/admin/conductor', label: 'Conductor' },
+    { href: '/admin/dashboard', label: 'Dashboard' },
     { href: '/admin/scheduler', label: 'Scheduler' },
-    { href: '/admin', label: 'Dashboard' },
     {
       href: '/admin/signal',
       label: 'Signal',
@@ -114,10 +114,6 @@ export default function AdminSidebar() {
   ];
 
   const isActive = (href: string, hasSubItems?: boolean) => {
-    // Exact match for root /admin path to prevent false positives
-    if (href === '/admin') {
-      return pathname === href;
-    }
     // For parent items with sub-items, never highlight (sub-items will be highlighted instead)
     if (hasSubItems) {
       return false;

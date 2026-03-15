@@ -46,27 +46,6 @@
   flex-shrink: 0;
 }
 
-.refreshBtn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted, #6b7280);
-  cursor: pointer;
-  padding: 2px;
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  transition: color 0.15s;
-}
-
-.refreshBtn:hover {
-  color: var(--color-text-secondary, #9ca3af);
-}
-
-.refreshBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .spinner {
   animation: spin 1s linear infinite;
 }

@@ -4,98 +4,64 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--color-bg-light, #f9fafb);
+  background: var(--color-white, #fff);
   overflow: auto;
 }
 
-/* ── Header ───────────────────────────────────────────────────────────────── */
+/* ── Category bar (tier 1) — process selector, matches IntelligencePanel ── */
 
-.header {
+.categoryBar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 20px;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 1rem;
   background: var(--color-white, #fff);
   border-bottom: 1px solid var(--color-border, #e5e7eb);
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
-.title {
-  display: flex;
+.categoryTab {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0;
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.lastFetched {
-  font-size: 11px;
-  color: var(--color-text-tertiary, #9ca3af);
-}
-
-.refreshBtn {
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 6px;
+  padding: 0.55rem 1rem;
   background: none;
   border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #6b7280);
   cursor: pointer;
-  color: var(--color-text-tertiary, #9ca3af);
-  border-radius: 4px;
-  transition: color 0.15s;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.refreshBtn:hover:not(:disabled) {
+.categoryTab:hover {
   color: var(--color-text-primary, #111827);
 }
 
-.refreshBtn:disabled {
-  opacity: 0.5;
-  cursor: default;
+.categoryTabActive {
+  color: var(--color-primary, #006c67);
+  border-bottom-color: var(--color-primary, #006c67);
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.categoryModeBadge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
 }
 
-.spinning {
-  animation: spin 0.8s linear infinite;
-}
+/* ── Sub-tab bar (tier 2) — matches IntelligencePanel ────────────────────── */
 
-/* ── Process selector ─────────────────────────────────────────────────────── */
-
-.select {
-  height: 32px;
-  padding: 0 10px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-sm, 6px);
-  font-size: 12px;
-  color: var(--color-text-primary, #111827);
-  background: var(--color-bg-light, #f9fafb);
-  cursor: pointer;
-  outline: none;
-  min-width: 200px;
-}
-
-.select:focus {
-  border-color: var(--color-primary, #006c67);
-}
-
-/* ── Sub-tab bar — mirrors IntelligencePanel .tabBar ──────────────────────── */
-
-.subTabBar {
+.tabBar {
   display: flex;
   align-items: stretch;
   gap: 0.5rem;
@@ -105,7 +71,7 @@
   flex-shrink: 0;
 }
 
-.subTab {
+.tab {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -121,12 +87,9 @@
   transition: color 0.15s, background 0.15s;
   white-space: nowrap;
 }
+.tab:hover { color: var(--color-primary, #006c67); }
 
-.subTab:hover {
-  color: var(--color-primary, #006c67);
-}
-
-.subTabActive {
+.tabActive {
   color: var(--color-primary, #006c67);
   border-bottom: 2px solid var(--color-primary, #006c67);
   font-weight: 600;
@@ -145,12 +108,16 @@
   flex-shrink: 0;
 }
 
-/* ── Section content ──────────────────────────────────────────────────────── */
+/* ── Content ──────────────────────────────────────────────────────────────── */
 
-.sectionContent {
+.content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 2rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--color-white, #fff);
 }
 
 /* ── Stat grid ────────────────────────────────────────────────────────────── */
@@ -604,6 +571,20 @@
 
 .promoteBtn:hover:not(:disabled) {
   background: #047857;
+}
+
+/* Tips list for sidebar help card */
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tipsList p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
 .promoteBtnDisabled {

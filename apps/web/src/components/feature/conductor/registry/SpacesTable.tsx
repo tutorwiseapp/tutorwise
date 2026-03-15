@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
 import { HubDataTable, type Column, type PaginationConfig } from '@/components/hub/data';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import { Layers } from 'lucide-react';
 import styles from './SpacesTable.module.css';
@@ -98,19 +99,14 @@ export function SpacesTable({ spaces, teams, loading, onEdit, onDelete, onNaviga
       key: 'name',
       label: 'Name',
       sortable: true,
-      render: (row) => (
-        <div className={styles.nameCell}>
-          <span className={styles.colorDot} style={{ backgroundColor: row.color || '#6366f1' }} />
-          <span className={styles.nameText}>{row.name}</span>
-        </div>
-      ),
+      render: (row) => <span className={styles.nameText}>{row.name}</span>,
     },
     {
       key: 'type',
       label: 'Type',
       width: '90px',
       hideOnMobile: true,
-      render: (row) => row.built_in ? <span className={styles.builtInBadge}>built-in</span> : null,
+      render: (row) => row.built_in ? <StatusBadge variant="neutral" label="built-in" size="xs" shape="rect" /> : null,
     },
     {
       key: 'description',

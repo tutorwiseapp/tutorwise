@@ -1,7 +1,20 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, AlertTriangle, CheckCircle, Activity, Zap, Brain, UserCheck, Calendar, FileText, Bot, Users, Bell } from 'lucide-react';
+import {
+  AlertTriangle, CheckCircle, Activity, Zap, Brain, UserCheck,
+  Calendar, FileText, Bot, Users, Bell, Clock, Info,
+} from 'lucide-react';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column } from '@/components/hub/data';
+import { HubWidgetCard } from '@/components/hub/content';
+import HubStatsCard from '@/components/hub/sidebar/cards/HubStatsCard';
+import type { StatRow } from '@/components/hub/sidebar/cards/HubStatsCard';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import type { StatusBadgeColor } from '@/components/admin/badges/StatusBadge';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import type { MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './MonitoringPanel.module.css';
 
 // --- Types ---
@@ -60,13 +73,44 @@ interface PlatformHealth {
   failedWebhooks: number;
 }
 
+interface ScheduleItem {
+  id: string;
+  title: string;
+  type: string;
+  scheduled_at: string;
+  status: string;
+  color: string | null;
+}
+
 // --- Helpers ---
 
-const SEVERITY_CONFIG: Record<string, { color: string; label: string }> = {
-  critical: { color: '#991b1b', label: 'Critical' },
-  high: { color: '#dc2626', label: 'High' },
-  medium: { color: '#d97706', label: 'Medium' },
-  low: { color: '#16a34a', label: 'Low' },
+const SEVERITY_COLORS: Record<string, StatusBadgeColor> = {
+  critical: { bg: '#fef2f2', text: '#991b1b', border: '#fca5a5' },
+  high: { bg: '#fef2f2', text: '#dc2626', border: '#fca5a5' },
+  medium: { bg: '#fffbeb', text: '#d97706', border: '#fde68a' },
+  low: { bg: '#f0fdf4', text: '#16a34a', border: '#bbf7d0' },
+};
+
+const PATTERN_COLORS: Record<string, StatusBadgeColor> = {
+  supervisor: { bg: '#ede9fe', text: '#7c3aed', border: '#c4b5fd' },
+  pipeline: { bg: '#e0f2fe', text: '#0891b2', border: '#a5f3fc' },
+  swarm: { bg: '#fef3c7', text: '#d97706', border: '#fde68a' },
+};
+
+const SCHEDULE_TYPE_ICONS: Record<string, typeof FileText> = {
+  content: FileText,
+  agent_run: Bot,
+  team_run: Users,
+  task: CheckCircle,
+  reminder: Bell,
+};
+
+const SCHEDULE_TYPE_COLORS: Record<string, StatusBadgeColor> = {
+  content: { bg: '#e0f2f1', text: '#0d9488', border: '#99f6e4' },
+  agent_run: { bg: '#ede9fe', text: '#7c3aed', border: '#c4b5fd' },
+  team_run: { bg: '#e0e7ff', text: '#6366f1', border: '#c7d2fe' },
+  task: { bg: '#fef3c7', text: '#f59e0b', border: '#fde68a' },
+  reminder: { bg: '#fef2f2', text: '#ef4444', border: '#fca5a5' },
 };
 
 function timeAgo(iso: string): string {
@@ -78,27 +122,51 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-// --- Pending Approvals Section ---
+function timeUntil(iso: string): string {
+  const diff = new Date(iso).getTime() - Date.now();
+  if (diff < 0) return 'overdue';
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return `in ${hours}h`;
+  return `in ${Math.floor(hours / 24)}d`;
+}
 
-const PATTERN_LABEL: Record<string, string> = {
-  supervisor: 'supervisor',
-  pipeline: 'pipeline',
-  swarm: 'swarm',
-};
+function getDayLabel(dt: Date): string {
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  if (dt.toDateString() === today.toDateString()) return 'Today';
+  if (dt.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+  return dt.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+}
+
+// --- Platform Health (used in sidebar stats card) ---
+
+function useHealthStats() {
+  return useQuery({
+    queryKey: ['workflow-health'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/workflow/health');
+      const data = await res.json();
+      if (!data.success) throw new Error('Failed to load health');
+      return data.data as PlatformHealth;
+    },
+    staleTime: 60_000,
+  });
+}
+
+// --- Pending Approvals ---
 
 function PendingApprovals() {
   const queryClient = useQueryClient();
 
-  const { data: approvals = [], isFetching, refetch } = useQuery({
+  const { data: approvals = [], isFetching } = useQuery({
     queryKey: ['pending-approvals'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/execute?status=awaiting_approval&limit=20');
       const data = await res.json();
       return (data.executions ?? []) as PendingApproval[];
     },
-    staleTime: 20_000,
-    refetchInterval: 20_000,
-    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const resumeMutation = useMutation({
@@ -119,82 +187,90 @@ function PendingApprovals() {
     },
   });
 
-  return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <UserCheck size={14} />
-          Pending Approval
-          {approvals.length > 0 && (
-            <span className={`${styles.badge} ${styles.badgeAmber}`}>{approvals.length}</span>
-          )}
-        </div>
-        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
-          <RefreshCw size={12} />
-        </button>
-      </div>
-
-      {isFetching && approvals.length === 0 && <div className={styles.loading}>Loading…</div>}
-
-      {!isFetching && approvals.length === 0 && (
-        <div className={styles.empty}>
-          <CheckCircle size={20} className={styles.emptyIcon} />
-          No runs awaiting approval
-        </div>
-      )}
-
-      {approvals.map((run) => {
+  const approvalColumns: Column<PendingApproval>[] = [
+    {
+      key: 'team_name',
+      label: 'Team',
+      render: (run) => {
+        const ctx = run.execution_context;
+        const patternColor = ctx?.pattern ? PATTERN_COLORS[ctx.pattern] : undefined;
+        return (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {ctx?.team_name ?? 'Unknown team'}
+            {ctx?.pattern && patternColor && (
+              <StatusBadge variant="neutral" label={ctx.pattern} size="xs" color={patternColor} />
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'task',
+      label: 'Task',
+      hideOnMobile: true,
+      render: (run) => {
+        const task = run.execution_context?.task;
+        if (!task) return '—';
+        return task.length > 100 ? `${task.slice(0, 100)}…` : task;
+      },
+    },
+    {
+      key: 'started_at',
+      label: 'Time',
+      width: '80px',
+      render: (run) => timeAgo(run.started_at),
+    },
+    {
+      key: 'actions',
+      label: '',
+      width: '48px',
+      render: (run) => {
         const ctx = run.execution_context;
         const teamId = ctx?.team_id ?? '';
-        const isThisPending = resumeMutation.isPending && (resumeMutation.variables as { runId: string })?.runId === run.id;
+        const actions: MenuAction[] = [
+          {
+            label: 'Approve',
+            onClick: () => resumeMutation.mutate({ runId: run.id, teamId, approved: true }),
+            disabled: resumeMutation.isPending,
+            color: '#16a34a',
+          },
+          {
+            label: 'Reject',
+            onClick: () => resumeMutation.mutate({ runId: run.id, teamId, approved: false }),
+            variant: 'danger',
+            disabled: resumeMutation.isPending,
+          },
+        ];
+        return <VerticalDotsMenu actions={actions} />;
+      },
+    },
+  ];
 
-        return (
-          <div key={run.id} className={styles.approvalRow}>
-            <div className={styles.approvalBody}>
-              <div className={styles.approvalTeam}>
-                {ctx?.team_name ?? 'Unknown team'}
-                {ctx?.pattern && (
-                  <span className={`${styles.patternBadge} ${styles[`pattern_${ctx.pattern}` as keyof typeof styles]}`}>
-                    {PATTERN_LABEL[ctx.pattern] ?? ctx.pattern}
-                  </span>
-                )}
-              </div>
-              {ctx?.task && (
-                <div className={styles.approvalTask}>
-                  {ctx.task.length > 120 ? `${ctx.task.slice(0, 120)}…` : ctx.task}
-                </div>
-              )}
-              <div className={styles.approvalMeta}>{timeAgo(run.started_at)}</div>
-            </div>
-            <div className={styles.approvalActions}>
-              <button
-                className={`${styles.actionBtn} ${styles.approveBtn}`}
-                onClick={() => resumeMutation.mutate({ runId: run.id, teamId, approved: true })}
-                disabled={isThisPending || resumeMutation.isPending}
-              >
-                Approve
-              </button>
-              <button
-                className={`${styles.actionBtn} ${styles.rejectBtn}`}
-                onClick={() => resumeMutation.mutate({ runId: run.id, teamId, approved: false })}
-                disabled={isThisPending || resumeMutation.isPending}
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+  return (
+    <HubWidgetCard
+      title="Pending Approval"
+      icon={UserCheck}
+      badge={approvals.length}
+      badgeVariant="amber"
+      flush
+    >
+      <HubDataTable<PendingApproval>
+        compact
+        columns={approvalColumns}
+        data={approvals}
+        loading={isFetching && approvals.length === 0}
+        emptyMessage="No runs awaiting approval"
+      />
+    </HubWidgetCard>
   );
 }
 
-// --- Exception Queue Section ---
+// --- Exception Queue ---
 
 function ExceptionQueue() {
   const queryClient = useQueryClient();
 
-  const { data: exceptions = [], isFetching, refetch } = useQuery({
+  const { data: exceptions = [], isFetching } = useQuery({
     queryKey: ['workflow-exceptions'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/exceptions');
@@ -203,21 +279,18 @@ function ExceptionQueue() {
       return data.data as WorkflowException[];
     },
     staleTime: 30_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: true,
   });
 
   const exceptionAction = useMutation({
-    mutationFn: async ({ id, action, resolution, resolution_type }: {
+    mutationFn: async ({ id, action, resolution }: {
       id: string;
       action: 'claim' | 'resolve' | 'dismiss' | 'escalate';
       resolution?: string;
-      resolution_type?: string;
     }) => {
       const res = await fetch(`/api/admin/workflow/exceptions/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, resolution, resolution_type }),
+        body: JSON.stringify({ action, resolution }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -227,206 +300,176 @@ function ExceptionQueue() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-exceptions'] }),
   });
 
+  const exceptionColumns: Column<WorkflowException>[] = [
+    {
+      key: 'severity',
+      label: 'Severity',
+      width: '90px',
+      render: (ex) => {
+        const color = SEVERITY_COLORS[ex.severity] ?? SEVERITY_COLORS.low;
+        return <StatusBadge variant="neutral" label={ex.severity} size="sm" color={color} />;
+      },
+    },
+    {
+      key: 'title',
+      label: 'Issue',
+      render: (ex) => (
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 13 }}>{ex.title}</div>
+          {ex.description && (
+            <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+              {ex.description.length > 80 ? `${ex.description.slice(0, 80)}…` : ex.description}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      width: '100px',
+      hideOnMobile: true,
+      render: (ex) => ex.source.replace(/_/g, ' '),
+    },
+    {
+      key: 'created_at',
+      label: 'Time',
+      width: '80px',
+      render: (ex) => timeAgo(ex.created_at),
+    },
+    {
+      key: 'actions',
+      label: '',
+      width: '48px',
+      render: (ex) => {
+        const actions: MenuAction[] = [];
+        if (!ex.claimed_by) {
+          actions.push({
+            label: 'Claim',
+            onClick: () => exceptionAction.mutate({ id: ex.id, action: 'claim' }),
+            disabled: exceptionAction.isPending,
+          });
+        }
+        actions.push({
+          label: 'Resolve',
+          onClick: () => {
+            const resolution = window.prompt('Resolution notes (optional):');
+            if (resolution === null) return;
+            exceptionAction.mutate({ id: ex.id, action: 'resolve', resolution });
+          },
+          disabled: exceptionAction.isPending,
+          color: '#006c67',
+        });
+        actions.push({
+          label: 'Dismiss',
+          onClick: () => exceptionAction.mutate({ id: ex.id, action: 'dismiss' }),
+          disabled: exceptionAction.isPending,
+        });
+        if (ex.severity === 'critical' || ex.severity === 'high') {
+          actions.push({
+            label: 'Escalate',
+            onClick: () => exceptionAction.mutate({ id: ex.id, action: 'escalate' }),
+            variant: 'danger',
+            disabled: exceptionAction.isPending,
+          });
+        }
+        return <VerticalDotsMenu actions={actions} />;
+      },
+    },
+  ];
+
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <AlertTriangle size={14} />
-          Exception Queue
-        </div>
-        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
-          <RefreshCw size={12} />
-        </button>
-      </div>
-
-      {isFetching && exceptions.length === 0 && <div className={styles.loading}>Loading…</div>}
-
-      {!isFetching && exceptions.length === 0 && (
-        <div className={styles.empty}>
-          <CheckCircle size={20} className={styles.emptyIcon} />
-          No unresolved exceptions
-        </div>
-      )}
-
-      {exceptions.map((ex) => {
-        const sv = SEVERITY_CONFIG[ex.severity] ?? SEVERITY_CONFIG.low;
-        return (
-          <div key={ex.id} className={styles.exceptionRow} role="listitem" aria-label={`${sv.label} severity exception: ${ex.title}`}>
-            <div className={styles.exceptionSeverity} style={{ background: sv.color }}>
-              {sv.label}
-            </div>
-            <div className={styles.exceptionBody}>
-              <div className={styles.exceptionDomain}>{ex.title}</div>
-              {ex.description && (
-                <div className={styles.exceptionRec}>{ex.description}</div>
-              )}
-              <div className={styles.exceptionMeta}>
-                <span>{ex.source.replace(/_/g, ' ')}</span>
-                <span>{timeAgo(ex.created_at)}</span>
-              </div>
-            </div>
-            <div className={styles.exceptionActions}>
-              {!ex.claimed_by && (
-                <button
-                  className={styles.actionBtn}
-                  onClick={() => exceptionAction.mutate({ id: ex.id, action: 'claim' })}
-                  disabled={exceptionAction.isPending}
-                  aria-label={`Claim exception: ${ex.title}`}
-                >
-                  Claim
-                </button>
-              )}
-              <button
-                className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
-                onClick={() => {
-                  const resolution = window.prompt('Resolution notes (optional):');
-                  if (resolution === null) return;
-                  exceptionAction.mutate({ id: ex.id, action: 'resolve', resolution });
-                }}
-                disabled={exceptionAction.isPending}
-                aria-label={`Resolve exception: ${ex.title}`}
-              >
-                Resolve
-              </button>
-              <button
-                className={styles.actionBtn}
-                onClick={() => exceptionAction.mutate({ id: ex.id, action: 'dismiss' })}
-                disabled={exceptionAction.isPending}
-                aria-label={`Dismiss exception: ${ex.title}`}
-              >
-                Dismiss
-              </button>
-              {ex.severity === 'critical' || ex.severity === 'high' ? (
-                <button
-                  className={`${styles.actionBtn} ${styles.actionBtnEscalate}`}
-                  onClick={() => exceptionAction.mutate({ id: ex.id, action: 'escalate' })}
-                  disabled={exceptionAction.isPending}
-                  aria-label={`Escalate exception: ${ex.title}`}
-                >
-                  Escalate
-                </button>
-              ) : null}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+    <HubWidgetCard
+      title="Exception Queue"
+      icon={AlertTriangle}
+      badge={exceptions.length}
+      badgeVariant="red"
+      flush
+    >
+      <HubDataTable<WorkflowException>
+        compact
+        columns={exceptionColumns}
+        data={exceptions}
+        loading={isFetching && exceptions.length === 0}
+        emptyMessage="No unresolved exceptions"
+      />
+    </HubWidgetCard>
   );
 }
 
-// --- Active Workflows Section ---
+// --- Active Workflows ---
 
 function ActiveWorkflows() {
-  const { data: executions = [], isFetching, refetch } = useQuery({
+  const { data: executions = [], isFetching } = useQuery({
     queryKey: ['active-executions'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/execute?status=running,paused&limit=50');
       const data = await res.json();
       return (data.executions ?? []) as ActiveExecution[];
     },
-    staleTime: 15_000,
-    refetchInterval: 15_000,
-    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
-  return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <Activity size={14} />
-          Active Workflows
-          {executions.length > 0 && (
-            <span className={styles.badge}>{executions.length}</span>
-          )}
-        </div>
-        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
-          <RefreshCw size={12} />
-        </button>
-      </div>
-
-      {isFetching && executions.length === 0 && <div className={styles.loading}>Loading…</div>}
-
-      {!isFetching && executions.length === 0 && (
-        <div className={styles.empty}>No active executions</div>
-      )}
-
-      {executions.map((ex) => (
-        <div key={ex.id} className={styles.executionRow}>
-          <div className={styles.executionStatus}>
-            <span
-              className={styles.statusDot}
-              style={{ background: ex.status === 'running' ? '#3b82f6' : '#f59e0b' }}
-            />
-            {ex.status}
-          </div>
-          <div className={styles.executionInfo}>
-            <div className={styles.executionId}>{ex.id.slice(0, 8)}…</div>
-            <div className={styles.executionTime}>{timeAgo(ex.started_at)}</div>
-          </div>
-          {ex.is_shadow && <span className={styles.shadowBadge}>Shadow</span>}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// --- Platform Health Section ---
-
-function PlatformHealthSection() {
-  const { data: health, isFetching, refetch } = useQuery({
-    queryKey: ['workflow-health'],
-    queryFn: async () => {
-      const res = await fetch('/api/admin/workflow/health');
-      const data = await res.json();
-      if (!data.success) throw new Error('Failed to load health');
-      return data.data as PlatformHealth;
+  const executionColumns: Column<ActiveExecution>[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      width: '90px',
+      render: (ex) => (
+        <StatusBadge
+          variant={ex.status === 'running' ? 'processing' : 'pending'}
+          label={ex.status}
+          size="sm"
+        />
+      ),
     },
-    staleTime: 60_000,
-    refetchOnWindowFocus: true,
-  });
+    {
+      key: 'id',
+      label: 'Execution',
+      render: (ex) => (
+        <span style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+          {ex.id.slice(0, 8)}…
+        </span>
+      ),
+    },
+    {
+      key: 'started_at',
+      label: 'Started',
+      width: '80px',
+      render: (ex) => timeAgo(ex.started_at),
+    },
+    {
+      key: 'shadow',
+      label: '',
+      width: '60px',
+      render: (ex) => ex.is_shadow
+        ? <StatusBadge variant="info" label="Shadow" size="xs" color={{ bg: '#ede9fe', text: '#7c3aed', border: '#c4b5fd' }} />
+        : null,
+    },
+  ];
 
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <Zap size={14} />
-          Platform Health
-        </div>
-        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh">
-          <RefreshCw size={12} />
-        </button>
-      </div>
-
-      {isFetching && !health && <div className={styles.loading}>Loading…</div>}
-
-      {health && (
-        <div className={styles.healthGrid}>
-          <div className={`${styles.healthCard} ${health.workflows.running > 0 ? styles.healthCardOk : styles.healthCardOk}`}>
-            <div className={styles.healthValue}>{health.workflows.running}</div>
-            <div className={styles.healthLabel}>Running workflows</div>
-          </div>
-          <div className={`${styles.healthCard} ${health.workflows.failed24h > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
-            <div className={styles.healthValue}>{health.workflows.failed24h}</div>
-            <div className={styles.healthLabel}>Failed (24h)</div>
-          </div>
-          <div className={`${styles.healthCard} ${health.failedWebhooks > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
-            <div className={styles.healthValue}>{health.failedWebhooks}</div>
-            <div className={styles.healthLabel}>Failed webhooks (DLQ)</div>
-          </div>
-          <div className={`${styles.healthCard} ${health.workflows.shadowDivergences > 0 ? styles.healthCardWarn : styles.healthCardOk}`}>
-            <div className={styles.healthValue}>{health.workflows.shadowDivergences}</div>
-            <div className={styles.healthLabel}>Shadow divergences</div>
-          </div>
-        </div>
-      )}
-    </div>
+    <HubWidgetCard
+      title="Active Workflows"
+      icon={Activity}
+      badge={executions.length}
+      flush
+    >
+      <HubDataTable<ActiveExecution>
+        compact
+        columns={executionColumns}
+        data={executions}
+        loading={isFetching && executions.length === 0}
+        emptyMessage="No active executions"
+      />
+    </HubWidgetCard>
   );
 }
 
-// --- Operational Briefing Section ---
+// --- Operational Briefing ---
 
 function OperationalBriefing() {
-  const { data: briefing, isFetching, refetch, dataUpdatedAt } = useQuery({
+  const { data: briefing, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ['workflow-briefing'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/briefing');
@@ -435,56 +478,32 @@ function OperationalBriefing() {
       return data.data.briefing as string;
     },
     staleTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
   });
 
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <Brain size={14} />
-          Operational Briefing
-        </div>
-        <button className={styles.refreshBtn} onClick={() => refetch()} title="Refresh" disabled={isFetching}>
-          <RefreshCw size={12} />
-        </button>
-      </div>
-
-      {isFetching && !briefing && <div className={styles.loading}>Generating briefing…</div>}
+    <HubWidgetCard
+      title="Operational Briefing"
+      icon={Brain}
+      loading={isFetching && !briefing}
+    >
       {dataUpdatedAt > 0 && (
         <div className={styles.briefingTime}>
           Last updated: {new Date(dataUpdatedAt).toLocaleString()}
         </div>
       )}
-      {briefing && (
+      {briefing ? (
         <div className={styles.briefingText}>{briefing}</div>
-      )}
-    </div>
+      ) : !isFetching ? (
+        <div className={styles.widgetEmpty}>No briefing available</div>
+      ) : null}
+    </HubWidgetCard>
   );
 }
 
 // --- Upcoming Schedule ---
 
-const SCHEDULE_TYPE_ICONS: Record<string, typeof FileText> = {
-  content: FileText,
-  agent_run: Bot,
-  team_run: Users,
-  task: CheckCircle,
-  reminder: Bell,
-};
-
-const SCHEDULE_TYPE_COLORS: Record<string, string> = {
-  content: '#0d9488',
-  agent_run: '#7c3aed',
-  team_run: '#6366f1',
-  task: '#f59e0b',
-  reminder: '#ef4444',
-};
-
 function UpcomingSchedule() {
-  const { data: items = [], isFetching } = useQuery<Array<{
-    id: string; title: string; type: string; scheduled_at: string; status: string; color: string | null;
-  }>>({
+  const { data: items = [], isFetching } = useQuery<ScheduleItem[]>({
     queryKey: ['scheduler-upcoming-monitor'],
     queryFn: async () => {
       const now = new Date();
@@ -494,41 +513,108 @@ function UpcomingSchedule() {
       const res = await fetch(`/api/admin/scheduler?${params}`);
       if (!res.ok) return [];
       const json = await res.json();
-      return (json.data || []).filter((i: { status: string }) => i.status === 'scheduled').slice(0, 5);
+      return (json.data || []).filter((i: { status: string }) => i.status === 'scheduled').slice(0, 10);
     },
-    staleTime: 60000,
+    staleTime: 60_000,
   });
 
+  const grouped = useMemo(() => {
+    const groups: { label: string; items: ScheduleItem[] }[] = [];
+    const groupMap = new Map<string, ScheduleItem[]>();
+    for (const item of items) {
+      const dt = new Date(item.scheduled_at);
+      const label = getDayLabel(dt);
+      if (!groupMap.has(label)) groupMap.set(label, []);
+      groupMap.get(label)!.push(item);
+    }
+    for (const [label, groupItems] of groupMap) {
+      groups.push({ label, items: groupItems });
+    }
+    return groups;
+  }, [items]);
+
   return (
-    <div className={styles.section}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>
-          <Calendar size={14} />
-          Upcoming Schedule
-        </div>
-        <a href="/admin/scheduler" className={styles.viewAllLink} style={{ fontSize: '0.75rem', color: '#0d9488', textDecoration: 'none' }}>
-          View all
-        </a>
-      </div>
-      {isFetching && items.length === 0 && <div className={styles.loading}>Loading…</div>}
-      {items.length === 0 && !isFetching && <div className={styles.emptyState}>No upcoming items</div>}
-      {items.map((item) => {
-        const Icon = SCHEDULE_TYPE_ICONS[item.type] || FileText;
-        const accentColor = item.color || SCHEDULE_TYPE_COLORS[item.type] || '#6b7280';
-        const dt = new Date(item.scheduled_at);
-        const timeStr = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-        return (
-          <div key={item.id} className={styles.approvalItem} style={{ borderLeftColor: accentColor }}>
-            <div className={styles.approvalMeta}>
-              <Icon size={12} style={{ color: accentColor }} />
-              <span className={styles.approvalType}>{item.type.replace('_', ' ')}</span>
-              <span className={styles.approvalTime}>{timeStr}</span>
+    <HubWidgetCard
+      title="Upcoming Schedule"
+      icon={Calendar}
+      flush
+      headerAction={
+        <a href="/admin/scheduler" className={styles.viewAllLink}>View all</a>
+      }
+      loading={isFetching && items.length === 0}
+    >
+      {items.length === 0 && !isFetching ? (
+        <div className={styles.widgetEmpty}>No upcoming items in the next 7 days</div>
+      ) : (
+        <div className={styles.scheduleList}>
+          {grouped.map((group) => (
+            <div key={group.label} className={styles.scheduleGroup}>
+              <div className={styles.scheduleDayLabel}>{group.label}</div>
+              {group.items.map((item) => {
+                const Icon = SCHEDULE_TYPE_ICONS[item.type] || FileText;
+                const typeColor = SCHEDULE_TYPE_COLORS[item.type] ?? { bg: '#f3f4f6', text: '#6b7280' };
+                const dt = new Date(item.scheduled_at);
+                const timeStr = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+                return (
+                  <div key={item.id} className={styles.scheduleItem}>
+                    <div className={styles.scheduleItemIcon}>
+                      <Icon size={14} style={{ color: typeColor.text }} />
+                    </div>
+                    <div className={styles.scheduleItemContent}>
+                      <div className={styles.scheduleItemTitle}>{item.title}</div>
+                      <div className={styles.scheduleItemMeta}>
+                        <StatusBadge variant="neutral" label={item.type.replace(/_/g, ' ')} size="sm" color={typeColor} />
+                        <span className={styles.scheduleItemTime}>
+                          <Clock size={10} /> {timeStr}
+                        </span>
+                        <span className={styles.scheduleItemUntil}>{timeUntil(item.scheduled_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className={styles.approvalTitle}>{item.title}</div>
-          </div>
-        );
-      })}
-    </div>
+          ))}
+        </div>
+      )}
+    </HubWidgetCard>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function MonitoringSidebar() {
+  const { data: health } = useHealthStats();
+
+  const healthStats: StatRow[] = [
+    { label: 'Running', value: health?.workflows.running ?? 0 },
+    { label: 'Failed (24h)', value: health?.workflows.failed24h ?? 0, valueColor: health && health.workflows.failed24h > 0 ? 'red' : 'default' },
+    { label: 'Failed Webhooks', value: health?.failedWebhooks ?? 0 },
+    { label: 'Shadow Divergences', value: health?.workflows.shadowDivergences ?? 0 },
+    { label: 'Pending HITL', value: health?.hitl.pendingCount ?? 0, valueColor: health && health.hitl.pendingCount > 0 ? 'orange' : 'default' },
+    { label: 'Open Exceptions', value: health?.exceptions.openCount ?? 0, valueColor: health && health.exceptions.openCount > 0 ? 'red' : 'default' },
+  ];
+
+  return (
+    <>
+      <HubStatsCard title="Platform Health" stats={healthStats} />
+      <HubWidgetCard title="Monitoring Help">
+        <div className={styles.tipsList}>
+          <p><strong>Pending Approval</strong> shows team runs awaiting human review.</p>
+          <p><strong>Exception Queue</strong> surfaces failed or stuck workflow executions.</p>
+          <p><strong>Active Workflows</strong> tracks all currently running processes.</p>
+          <p>Shadow mode runs execute in parallel without affecting live data.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Monitoring Tips">
+        <div className={styles.tipsList}>
+          <p>Critical exceptions trigger escalation alerts automatically.</p>
+          <p>Shadow runs execute in parallel without affecting live data — use to validate before go-live.</p>
+          <p>HITL approvals pause team runs until you approve or reject.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }
 
@@ -536,18 +622,15 @@ function UpcomingSchedule() {
 
 export function MonitoringPanel() {
   return (
-    <div className={styles.container}>
-      <div className={styles.columns}>
-        <div className={styles.leftCol}>
-          <PendingApprovals />
-          <ExceptionQueue />
-          <ActiveWorkflows />
-        </div>
-        <div className={styles.rightCol}>
-          <UpcomingSchedule />
-          <PlatformHealthSection />
-          <OperationalBriefing />
-        </div>
+    <div className={styles.mainContent}>
+      <div className={styles.topRow}>
+        <PendingApprovals />
+        <ExceptionQueue />
+        <ActiveWorkflows />
+      </div>
+      <div className={styles.bottomRow}>
+        <UpcomingSchedule />
+        <OperationalBriefing />
       </div>
     </div>
   );

@@ -1,7 +1,16 @@
 /**
  * Filename: src/components/admin/badges/StatusBadge.tsx
- * Purpose: Reusable status badge component for admin tables
+ * Purpose: Shared badge component for all admin tables — statuses AND metadata tags
  * Created: 2025-12-30
+ *
+ * Two shapes:
+ *   pill  (12px radius) — statuses: pending, active, draft, published, etc.
+ *   rect  (6px radius)  — metadata: subjects, categories, attribution, built-in labels
+ *
+ * Three sizes:
+ *   xs  — compact tables (Conductor registry, knowledge tags)
+ *   sm  — standard admin tables (bookings, listings, referrals)
+ *   md  — emphasis / standalone badges
  */
 
 'use client';
@@ -47,12 +56,21 @@ export type StatusVariant =
   | 'info'
   | 'neutral';
 
-export type StatusSize = 'sm' | 'md' | 'lg';
+export type StatusSize = 'xs' | 'sm' | 'md';
+export type StatusShape = 'pill' | 'rect';
+
+export interface StatusBadgeColor {
+  bg: string;
+  text: string;
+  border?: string;
+}
 
 export interface StatusBadgeProps {
   variant: StatusVariant;
-  label?: string; // Override default label
+  label?: string;
   size?: StatusSize;
+  shape?: StatusShape;
+  color?: StatusBadgeColor;
   className?: string;
 }
 
@@ -98,14 +116,33 @@ const DEFAULT_LABELS: Record<StatusVariant, string> = {
 export default function StatusBadge({
   variant,
   label,
-  size = 'md',
+  size = 'sm',
+  shape = 'pill',
+  color,
   className = '',
 }: StatusBadgeProps) {
   const displayLabel = label || DEFAULT_LABELS[variant];
+  const shapeClass = shape === 'rect' ? styles.rect : styles.pill;
+
+  if (color) {
+    return (
+      <span
+        className={`${styles.badge} ${styles[size]} ${shapeClass} ${className}`}
+        style={{
+          backgroundColor: color.bg,
+          color: color.text,
+          border: color.border ? `1px solid ${color.border}` : undefined,
+        }}
+        aria-label={`Status: ${displayLabel}`}
+      >
+        {displayLabel}
+      </span>
+    );
+  }
 
   return (
     <span
-      className={`${styles.badge} ${styles[variant]} ${styles[size]} ${className}`}
+      className={`${styles.badge} ${styles[variant]} ${styles[size]} ${shapeClass} ${className}`}
       aria-label={`Status: ${displayLabel}`}
     >
       {displayLabel}

@@ -12,6 +12,7 @@ import { TeamsTable } from './TeamsTable';
 import { AgentsTable } from './AgentsTable';
 import { useDiscoveryStore, type RegistrySubTab } from '@/components/feature/workflow/discovery-store';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
+import { HubWidgetCard } from '@/components/hub/content';
 import styles from './AgentRegistryPanel.module.css';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -383,5 +384,28 @@ export function AgentRegistryPanel() {
         />
       )}
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function RegistrySidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Registry Help">
+        <div className={styles.tipsList}>
+          <p><strong>Spaces</strong> are top-level containers that group teams by domain (e.g. GTM, Engineering).</p>
+          <p><strong>Teams</strong> orchestrate multiple agents using supervisor, pipeline, or swarm patterns.</p>
+          <p><strong>Agents</strong> are individual specialists with defined tools and system prompts.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Registry Tips">
+        <div className={styles.tipsList}>
+          <p>Hierarchy: Space → Team → Agent. Assign teams to spaces for multi-tenant isolation.</p>
+          <p>Use supervisor pattern for complex routing, pipeline for sequential tasks.</p>
+          <p>Built-in agents cannot be deleted but their prompts and tools can be customised.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

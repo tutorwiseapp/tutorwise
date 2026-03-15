@@ -5,20 +5,21 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
-  RefreshCw,
-  Trash2,
   Plug,
   Wrench,
   Activity,
-  ChevronDown,
-  ChevronRight,
   Power,
 } from 'lucide-react';
 import type { MCPConnection, MCPToolCatalogEntry, MCPToolExecution } from '@/lib/mcp/types';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter, PaginationConfig } from '@/components/hub/data';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import { HubWidgetCard } from '@/components/hub/content';
 import styles from './MCPPanel.module.css';
 
 type SubTab = 'connections' | 'tools' | 'log';
@@ -145,122 +146,8 @@ function AddServerModal({
   );
 }
 
-// ── Connection Card ─────────────────────────────────────────────────────────
-
-function ConnectionCard({
-  conn,
-  onSync,
-  onDelete,
-  isSyncing,
-}: {
-  conn: MCPConnection;
-  onSync: () => void;
-  onDelete: () => void;
-  isSyncing: boolean;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  const statusClass =
-    conn.status === 'active' ? styles.statusActive
-    : conn.status === 'error' ? styles.statusError
-    : styles.statusInactive;
-
-  const heartbeatAgo = conn.last_heartbeat
-    ? formatTimeAgo(new Date(conn.last_heartbeat))
-    : 'never';
-
-  return (
-    <div className={styles.connectionCard}>
-      <div className={styles.connectionHeader} onClick={() => setExpanded(!expanded)}>
-        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        <span className={`${styles.statusDot} ${statusClass}`} />
-        <span className={styles.connectionName}>{conn.name}</span>
-        <div className={styles.connectionMeta}>
-          <span className={styles.credBadge}>{conn.credential_type}</span>
-          <span>{conn.tool_count} tools</span>
-          <span>Heartbeat: {heartbeatAgo}</span>
-        </div>
-      </div>
-
-      {expanded && (
-        <>
-          <div className={styles.connectionUrl}>{conn.server_url}</div>
-          {conn.error_message && (
-            <div className={styles.connectionUrl} style={{ color: '#ef4444' }}>
-              Error: {conn.error_message}
-            </div>
-          )}
-          <div className={styles.connectionActions}>
-            <button className={styles.actionBtn} onClick={onSync} disabled={isSyncing}>
-              <RefreshCw size={12} className={isSyncing ? 'animate-spin' : ''} />
-              {isSyncing ? 'Syncing...' : 'Sync Tools'}
-            </button>
-            <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => {
-              if (confirm(`Delete "${conn.name}" and all its tools?`)) onDelete();
-            }}>
-              <Trash2 size={12} /> Delete
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Tool Row ────────────────────────────────────────────────────────────────
-
-function ToolRow({
-  tool,
-  connectionName,
-  onToggle,
-}: {
-  tool: MCPToolCatalogEntry;
-  connectionName: string;
-  onToggle: (enabled: boolean) => void;
-}) {
-  return (
-    <div className={styles.toolRow}>
-      <div>
-        <div className={styles.toolSlug}>{tool.qualified_slug}</div>
-        <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{tool.description}</div>
-      </div>
-      <span className={styles.toolSource}>{connectionName}</span>
-      <div className={styles.toolToggle}>
-        <button
-          className={`${styles.toggle} ${tool.enabled ? styles.toggleOn : styles.toggleOff}`}
-          onClick={() => onToggle(!tool.enabled)}
-          title={tool.enabled ? 'Disable' : 'Enable'}
-        />
-      </div>
-      <div />
-    </div>
-  );
-}
-
-// ── Execution Row ───────────────────────────────────────────────────────────
-
-function ExecutionRow({ exec }: { exec: MCPToolExecution }) {
-  const time = new Date(exec.created_at).toLocaleString('en-GB', {
-    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
-  });
-
-  const statusClass =
-    exec.status === 'success' ? styles.statusSuccess
-    : exec.status === 'error' ? styles.statusErrorBadge
-    : styles.statusPending;
-
-  return (
-    <div className={styles.execRow}>
-      <span className={styles.execTime}>{time}</span>
-      <span className={styles.execTool}>{exec.qualified_slug}</span>
-      <span className={styles.execAgent}>{exec.agent_slug ?? '-'}</span>
-      <span className={styles.execDuration}>{exec.duration_ms ? `${exec.duration_ms}ms` : '-'}</span>
-      <span className={styles.execStatus}>
-        <span className={`${styles.statusBadge} ${statusClass}`}>{exec.status}</span>
-      </span>
-    </div>
-  );
-}
+// ── Tool Catalog type (with connection join) ────────────────────────────────
+type ToolWithConnection = MCPToolCatalogEntry & { connection: { slug: string; name: string } };
 
 // ── Main Panel ──────────────────────────────────────────────────────────────
 
@@ -275,7 +162,7 @@ export function MCPPanel() {
     queryFn: () => fetch('/api/admin/mcp/connections').then((r) => r.json()),
   });
 
-  const { data: tools = [] } = useQuery<(MCPToolCatalogEntry & { connection: { slug: string; name: string } })[]>({
+  const { data: tools = [] } = useQuery<ToolWithConnection[]>({
     queryKey: ['mcp-tools'],
     queryFn: () => fetch('/api/admin/mcp/tools').then((r) => r.json()),
     enabled: subTab === 'tools',
@@ -307,6 +194,26 @@ export function MCPPanel() {
       setShowModal(false);
     },
   });
+
+  // ── Client-side pagination state ─────────────────────────────────────────
+  const [connPage, setConnPage] = useState(1);
+  const [connPageSize, setConnPageSize] = useState(15);
+  const [connSearch, setConnSearch] = useState('');
+  const [connSortKey, setConnSortKey] = useState<string>('name');
+  const [connSortDir, setConnSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const [toolPage, setToolPage] = useState(1);
+  const [toolPageSize, setToolPageSize] = useState(15);
+  const [toolSearch, setToolSearch] = useState('');
+  const [toolSortKey, setToolSortKey] = useState<string>('qualified_slug');
+  const [toolSortDir, setToolSortDir] = useState<'asc' | 'desc'>('asc');
+  const [toolFilterValues, setToolFilterValues] = useState<Record<string, string>>({});
+
+  const [logPage, setLogPage] = useState(1);
+  const [logPageSize, setLogPageSize] = useState(15);
+  const [logSearch, setLogSearch] = useState('');
+  const [logSortKey, setLogSortKey] = useState<string>('created_at');
+  const [logSortDir, setLogSortDir] = useState<'asc' | 'desc'>('desc');
 
   const [syncingSlug, setSyncingSlug] = useState<string | null>(null);
   const syncMutation = useMutation({
@@ -345,145 +252,410 @@ export function MCPPanel() {
   });
 
   const totalTools = connections.reduce((sum, c) => sum + c.tool_count, 0);
-  const activeCount = connections.filter((c) => c.status === 'active').length;
-  const errorCount = connections.filter((c) => c.status === 'error').length;
+
+  // ── Filtered + paginated data ───────────────────────────────────────────
+  const filteredConnections = useMemo(() => {
+    let data = [...connections];
+    if (connSearch) {
+      const q = connSearch.toLowerCase();
+      data = data.filter(c => c.name.toLowerCase().includes(q) || c.slug?.toLowerCase().includes(q));
+    }
+    data.sort((a, b) => {
+      let cmp = 0;
+      if (connSortKey === 'name') cmp = a.name.localeCompare(b.name);
+      else if (connSortKey === 'tool_count') cmp = a.tool_count - b.tool_count;
+      return connSortDir === 'desc' ? -cmp : cmp;
+    });
+    return data;
+  }, [connections, connSearch, connSortKey, connSortDir]);
+
+  const paginatedConnections = useMemo(() => {
+    const start = (connPage - 1) * connPageSize;
+    return filteredConnections.slice(start, start + connPageSize);
+  }, [filteredConnections, connPage, connPageSize]);
+
+  const connPagination: PaginationConfig = useMemo(() => ({
+    page: connPage, limit: connPageSize, total: filteredConnections.length,
+    onPageChange: setConnPage,
+    onLimitChange: (n: number) => { setConnPageSize(n); setConnPage(1); },
+    pageSizeOptions: [10, 15, 25, 50],
+  }), [connPage, connPageSize, filteredConnections.length]);
+
+  const filteredTools = useMemo(() => {
+    let data = [...tools];
+    if (toolSearch) {
+      const q = toolSearch.toLowerCase();
+      data = data.filter(t => t.qualified_slug.toLowerCase().includes(q) || t.description?.toLowerCase().includes(q));
+    }
+    if (toolFilterValues.connection) {
+      data = data.filter(t => t.connection?.slug === toolFilterValues.connection);
+    }
+    if (toolFilterValues.enabled) {
+      const en = toolFilterValues.enabled === 'true';
+      data = data.filter(t => t.enabled === en);
+    }
+    data.sort((a, b) => {
+      let cmp = 0;
+      if (toolSortKey === 'qualified_slug') cmp = a.qualified_slug.localeCompare(b.qualified_slug);
+      return toolSortDir === 'desc' ? -cmp : cmp;
+    });
+    return data;
+  }, [tools, toolSearch, toolFilterValues, toolSortKey, toolSortDir]);
+
+  const paginatedTools = useMemo(() => {
+    const start = (toolPage - 1) * toolPageSize;
+    return filteredTools.slice(start, start + toolPageSize);
+  }, [filteredTools, toolPage, toolPageSize]);
+
+  const toolPagination: PaginationConfig = useMemo(() => ({
+    page: toolPage, limit: toolPageSize, total: filteredTools.length,
+    onPageChange: setToolPage,
+    onLimitChange: (n: number) => { setToolPageSize(n); setToolPage(1); },
+    pageSizeOptions: [10, 15, 25, 50],
+  }), [toolPage, toolPageSize, filteredTools.length]);
+
+  const filteredExecutions = useMemo(() => {
+    let data = [...executions];
+    if (logSearch) {
+      const q = logSearch.toLowerCase();
+      data = data.filter(e => e.qualified_slug.toLowerCase().includes(q) || e.agent_slug?.toLowerCase().includes(q));
+    }
+    data.sort((a, b) => {
+      let cmp = 0;
+      if (logSortKey === 'created_at') cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      else if (logSortKey === 'qualified_slug') cmp = a.qualified_slug.localeCompare(b.qualified_slug);
+      else if (logSortKey === 'duration_ms') cmp = (a.duration_ms ?? 0) - (b.duration_ms ?? 0);
+      else if (logSortKey === 'status') cmp = a.status.localeCompare(b.status);
+      return logSortDir === 'desc' ? -cmp : cmp;
+    });
+    return data;
+  }, [executions, logSearch, logSortKey, logSortDir]);
+
+  const paginatedExecutions = useMemo(() => {
+    const start = (logPage - 1) * logPageSize;
+    return filteredExecutions.slice(start, start + logPageSize);
+  }, [filteredExecutions, logPage, logPageSize]);
+
+  const logPagination: PaginationConfig = useMemo(() => ({
+    page: logPage, limit: logPageSize, total: filteredExecutions.length,
+    onPageChange: setLogPage,
+    onLimitChange: (n: number) => { setLogPageSize(n); setLogPage(1); },
+    pageSizeOptions: [10, 15, 25, 50],
+  }), [logPage, logPageSize, filteredExecutions.length]);
+
+  const handleConnSearch = useCallback((q: string) => { setConnSearch(q); setConnPage(1); }, []);
+  const handleToolSearch = useCallback((q: string) => { setToolSearch(q); setToolPage(1); }, []);
+  const handleLogSearch = useCallback((q: string) => { setLogSearch(q); setLogPage(1); }, []);
+  const handleToolFilter = useCallback((key: string, value: string | string[]) => {
+    setToolFilterValues(prev => ({ ...prev, [key]: value as string }));
+    setToolPage(1);
+  }, []);
+
+  // ── Connection columns ────────────────────────────────────────────────────
+  const connectionColumns: Column<MCPConnection>[] = [
+    {
+      key: 'name',
+      label: 'Name',
+      sortable: true,
+      render: (row) => <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{row.name}</span>,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '100px',
+      render: (row) => {
+        const variant = row.status === 'active' ? 'active' as const
+          : row.status === 'error' ? 'error' as const
+          : 'inactive' as const;
+        return <StatusBadge variant={variant} size="xs" />;
+      },
+    },
+    {
+      key: 'credential_type',
+      label: 'Credential',
+      width: '130px',
+      hideOnMobile: true,
+      render: (row) => <span className={styles.credBadge}>{row.credential_type}</span>,
+    },
+    {
+      key: 'tool_count',
+      label: 'Tools',
+      width: '80px',
+      sortable: true,
+      render: (row) => <span style={{ fontSize: '0.8125rem' }}>{row.tool_count}</span>,
+    },
+    {
+      key: 'last_heartbeat',
+      label: 'Heartbeat',
+      width: '120px',
+      hideOnMobile: true,
+      render: (row) => (
+        <span style={{ color: 'var(--color-gray-400, #9ca3af)', fontSize: '0.8125rem' }}>
+          {row.last_heartbeat ? formatTimeAgo(new Date(row.last_heartbeat)) : 'never'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: '80px',
+      render: (row) => (
+        <VerticalDotsMenu
+          actions={[
+            {
+              label: syncingSlug === row.slug ? 'Syncing...' : 'Sync Tools',
+              onClick: () => {
+                setSyncingSlug(row.slug);
+                syncMutation.mutate(row.id);
+              },
+            },
+            {
+              label: 'Delete',
+              onClick: () => {
+                if (confirm(`Delete "${row.name}" and all its tools?`)) {
+                  deleteMutation.mutate(row.id);
+                }
+              },
+              variant: 'danger' as const,
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  const connectionFilters: Filter[] = [
+    {
+      key: 'status',
+      label: 'All Statuses',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' },
+        { label: 'Error', value: 'error' },
+      ],
+    },
+  ];
+
+  // ── Tool Catalog columns ──────────────────────────────────────────────────
+  const uniqueConnections = Array.from(
+    new Map(tools.map(t => [t.connection?.slug, t.connection?.name])).entries()
+  ).filter(([slug]) => slug);
+
+  const toolFilters: Filter[] = [
+    {
+      key: 'connection',
+      label: 'All Sources',
+      options: uniqueConnections.map(([slug, name]) => ({ value: slug!, label: name ?? slug! })),
+    },
+    {
+      key: 'enabled',
+      label: 'All States',
+      options: [
+        { label: 'Enabled', value: 'true' },
+        { label: 'Disabled', value: 'false' },
+      ],
+    },
+  ];
+
+  const toolColumns: Column<ToolWithConnection>[] = [
+    {
+      key: 'qualified_slug',
+      label: 'Tool',
+      sortable: true,
+      render: (row) => (
+        <div>
+          <div style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{row.qualified_slug}</div>
+          {row.description && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-gray-400, #9ca3af)', marginTop: 2 }}>
+              {row.description.length > 100 ? `${row.description.slice(0, 100)}...` : row.description}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'connection',
+      label: 'Source',
+      width: '120px',
+      render: (row) => (
+        <span className={styles.toolSource}>{row.connection?.name ?? '?'}</span>
+      ),
+    },
+    {
+      key: 'enabled',
+      label: 'Enabled',
+      width: '80px',
+      render: (row) => (
+        <div className={styles.toolToggle}>
+          <button
+            className={`${styles.toggle} ${row.enabled ? styles.toggleOn : styles.toggleOff}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleToolMutation.mutate({ id: row.id, enabled: !row.enabled });
+            }}
+            title={row.enabled ? 'Disable' : 'Enable'}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  // ── Execution Log columns ─────────────────────────────────────────────────
+  const executionColumns: Column<MCPToolExecution>[] = [
+    {
+      key: 'created_at',
+      label: 'Time',
+      width: '160px',
+      sortable: true,
+      render: (row) => (
+        <span style={{ color: 'var(--color-gray-400, #9ca3af)', fontSize: '0.8125rem' }}>
+          {new Date(row.created_at).toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+          })}
+        </span>
+      ),
+    },
+    {
+      key: 'qualified_slug',
+      label: 'Tool',
+      sortable: true,
+      render: (row) => (
+        <span style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{row.qualified_slug}</span>
+      ),
+    },
+    {
+      key: 'agent_slug',
+      label: 'Agent',
+      width: '120px',
+      hideOnMobile: true,
+      render: (row) => <span>{row.agent_slug ?? '-'}</span>,
+    },
+    {
+      key: 'duration_ms',
+      label: 'Duration',
+      width: '100px',
+      hideOnMobile: true,
+      sortable: true,
+      render: (row) => (
+        <span style={{ color: 'var(--color-gray-400, #9ca3af)', fontSize: '0.8125rem' }}>{row.duration_ms ? `${row.duration_ms}ms` : '-'}</span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '100px',
+      sortable: true,
+      render: (row) => {
+        const variant = row.status === 'success' ? 'success' as const
+          : row.status === 'error' ? 'error' as const
+          : 'warning' as const;
+        return <StatusBadge variant={variant} label={row.status} size="xs" />;
+      },
+    },
+  ];
+
+  const executionFilters: Filter[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { label: 'All', value: '' },
+        { label: 'Success', value: 'success' },
+        { label: 'Error', value: 'error' },
+        { label: 'Pending', value: 'pending' },
+      ],
+    },
+  ];
 
   return (
     <div className={styles.container}>
-      {/* Stats bar */}
-      <div className={styles.statsBar}>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{connections.length}</div>
-          <div className={styles.statLabel}>Connections</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{totalTools}</div>
-          <div className={styles.statLabel}>Tools</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue} style={activeCount > 0 ? { color: '#16a34a' } : {}}>{activeCount}</div>
-          <div className={styles.statLabel}>Active</div>
-        </div>
-        {errorCount > 0 && (
-          <div className={styles.statCard}>
-            <div className={styles.statValue} style={{ color: '#ef4444' }}>{errorCount}</div>
-            <div className={styles.statLabel}>Errors</div>
-          </div>
-        )}
-        <button className={styles.addBtn} onClick={() => setShowModal(true)}>
-          <Plus size={14} /> Add Server
-        </button>
-      </div>
-
-      {/* Sub-nav */}
-      <div className={styles.subNav}>
+      {/* Sub-tab bar — matches Registry tabBar pattern */}
+      <div className={styles.tabBar}>
         <button
-          className={`${styles.subTab} ${subTab === 'connections' ? styles.subTabActive : ''}`}
+          className={`${styles.tab} ${subTab === 'connections' ? styles.tabActive : ''}`}
           onClick={() => setSubTab('connections')}
         >
-          <Plug size={13} style={{ marginRight: 4, verticalAlign: -2 }} /> Connections
+          <Plug size={13} /> Connections ({connections.length})
         </button>
         <button
-          className={`${styles.subTab} ${subTab === 'tools' ? styles.subTabActive : ''}`}
+          className={`${styles.tab} ${subTab === 'tools' ? styles.tabActive : ''}`}
           onClick={() => setSubTab('tools')}
         >
-          <Wrench size={13} style={{ marginRight: 4, verticalAlign: -2 }} /> Tool Catalog
+          <Wrench size={13} /> Tools ({totalTools})
         </button>
         <button
-          className={`${styles.subTab} ${subTab === 'log' ? styles.subTabActive : ''}`}
+          className={`${styles.tab} ${subTab === 'log' ? styles.tabActive : ''}`}
           onClick={() => setSubTab('log')}
         >
-          <Activity size={13} style={{ marginRight: 4, verticalAlign: -2 }} /> Execution Log
+          <Activity size={13} /> Execution Log
         </button>
       </div>
 
       {/* Body */}
-      <div className={styles.body}>
+      <div className={styles.content}>
         {/* ── Connections sub-tab ──────────────────────────────────── */}
         {subTab === 'connections' && (
-          connections.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}><Power size={40} /></div>
-              <div className={styles.emptyTitle}>No MCP servers connected</div>
-              <div className={styles.emptyText}>
-                Register an MCP server to give agents access to external tools like Google Classroom, Jira, and more.
+          <HubDataTable<MCPConnection>
+            columns={connectionColumns}
+            data={paginatedConnections}
+            loading={!connections}
+            getRowId={(row) => row.id}
+            filters={connectionFilters}
+            onSearch={handleConnSearch}
+            onSort={(key, dir) => { setConnSortKey(key); setConnSortDir(dir); }}
+            pagination={connPagination}
+            searchPlaceholder="Search connections..."
+            emptyMessage="No MCP servers connected. Register a server to give agents access to external tools."
+            toolbarActions={
+              <button className={styles.addBtn} onClick={() => setShowModal(true)}>
+                <Plus size={14} /> Add Server
+              </button>
+            }
+            emptyState={
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}><Power size={32} /></div>
+                <div className={styles.emptyTitle}>No MCP servers connected</div>
+                <div className={styles.emptyText}>
+                  Register an MCP server to give agents access to external tools like Google Classroom, Jira, and more.
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className={styles.connectionList}>
-              {connections.map((conn) => (
-                <ConnectionCard
-                  key={conn.id}
-                  conn={conn}
-                  isSyncing={syncingSlug === conn.slug}
-                  onSync={() => {
-                    setSyncingSlug(conn.slug);
-                    syncMutation.mutate(conn.id);
-                  }}
-                  onDelete={() => deleteMutation.mutate(conn.id)}
-                />
-              ))}
-            </div>
-          )
+            }
+          />
         )}
 
         {/* ── Tool Catalog sub-tab ────────────────────────────────── */}
         {subTab === 'tools' && (
-          tools.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}><Wrench size={40} /></div>
-              <div className={styles.emptyTitle}>No tools discovered</div>
-              <div className={styles.emptyText}>
-                Sync a connection to discover available MCP tools.
-              </div>
-            </div>
-          ) : (
-            <div className={styles.toolTable}>
-              {/* Header */}
-              <div className={styles.toolRow} style={{ fontWeight: 600, fontSize: 11, color: '#9ca3af', borderBottom: '2px solid #e5e7eb' }}>
-                <span>Tool</span>
-                <span>Source</span>
-                <span style={{ textAlign: 'center' }}>Enabled</span>
-                <span />
-              </div>
-              {tools.map((tool) => (
-                <ToolRow
-                  key={tool.id}
-                  tool={tool}
-                  connectionName={tool.connection?.name ?? '?'}
-                  onToggle={(enabled) => toggleToolMutation.mutate({ id: tool.id, enabled })}
-                />
-              ))}
-            </div>
-          )
+          <HubDataTable<ToolWithConnection>
+            columns={toolColumns}
+            data={paginatedTools}
+            loading={!tools}
+            getRowId={(row) => row.id}
+            filters={toolFilters}
+            onSearch={handleToolSearch}
+            onSort={(key, dir) => { setToolSortKey(key); setToolSortDir(dir); }}
+            onFilterChange={handleToolFilter}
+            pagination={toolPagination}
+            searchPlaceholder="Search tools..."
+            emptyMessage="No tools discovered. Sync a connection to discover available MCP tools."
+          />
         )}
 
         {/* ── Execution Log sub-tab ───────────────────────────────── */}
         {subTab === 'log' && (
-          executions.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}><Activity size={40} /></div>
-              <div className={styles.emptyTitle}>No executions yet</div>
-              <div className={styles.emptyText}>
-                MCP tool calls from agents will appear here.
-              </div>
-            </div>
-          ) : (
-            <div className={styles.execTable}>
-              <div className={styles.execRow} style={{ fontWeight: 600, fontSize: 11, color: '#9ca3af', borderBottom: '2px solid #e5e7eb' }}>
-                <span>Time</span>
-                <span>Tool</span>
-                <span>Agent</span>
-                <span style={{ textAlign: 'right' }}>Duration</span>
-                <span style={{ textAlign: 'center' }}>Status</span>
-              </div>
-              {executions.map((exec) => (
-                <ExecutionRow key={exec.id} exec={exec} />
-              ))}
-            </div>
-          )
+          <HubDataTable<MCPToolExecution>
+            columns={executionColumns}
+            data={paginatedExecutions}
+            loading={!executions}
+            getRowId={(row) => row.id}
+            filters={executionFilters}
+            onSearch={handleLogSearch}
+            onSort={(key, dir) => { setLogSortKey(key); setLogSortDir(dir); }}
+            pagination={logPagination}
+            searchPlaceholder="Search executions..."
+            emptyMessage="No executions yet. MCP tool calls from agents will appear here."
+          />
         )}
-      </div>
+      </div>  {/* end .content */}
 
       {/* Add Server Modal */}
       {showModal && (
@@ -498,6 +670,29 @@ export function MCPPanel() {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function IntegrationsSidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Integrations Help">
+        <div className={styles.tipsList}>
+          <p>Add <strong>MCP servers</strong> to give agents access to external tools and APIs.</p>
+          <p>The <strong>Tool Catalog</strong> shows all tools exposed by connected servers.</p>
+          <p>The <strong>Execution Log</strong> records every tool call made by agents.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Integrations Tips">
+        <div className={styles.tipsList}>
+          <p>Disable unused servers to reduce latency and avoid unnecessary API calls.</p>
+          <p>Check the execution log for failed calls — they may indicate auth or config issues.</p>
+          <p>Each server connection is tested on add — fix any errors before enabling.</p>
+        </div>
+      </HubWidgetCard>
+    </>
+  );
+}
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);

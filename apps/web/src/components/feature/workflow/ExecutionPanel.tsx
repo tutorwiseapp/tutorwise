@@ -1,21 +1,17 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Layers, RefreshCw } from 'lucide-react';
-import { ExecutionCommandBar } from './ExecutionCommandBar';
+import { Layers } from 'lucide-react';
 import { ExecutionList } from './ExecutionList';
 import type { WorkflowExecution } from './ExecutionList';
 import { WorkflowCanvas } from './WorkflowCanvas';
 import { ApprovalDrawer } from './ApprovalDrawer';
 import type { WorkflowTask } from './ApprovalDrawer';
 import { ExecutionModeToggle } from './ExecutionModeToggle';
-import { ShadowDivergencePanel } from './ShadowDivergencePanel';
-import { GoLiveReadiness } from './GoLiveReadiness';
 import type { WorkflowProcess, ProcessNode, ProcessEdge } from './types';
+import { HubWidgetCard } from '@/components/hub/content';
 import styles from './ExecutionPanel.module.css';
-
-type StatusFilter = 'all' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
 
 interface ExecutionDetail extends WorkflowExecution {
   tasks?: WorkflowTask[];
@@ -30,11 +26,11 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
   const queryClient = useQueryClient();
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(null);
   const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled'>('all');
   const [approvalTask, setApprovalTask] = useState<WorkflowTask | null>(null);
 
   // Fetch all processes
-  const { data: processes = [], isFetching: isLoadingProcesses, refetch: refetchProcesses } = useQuery({
+  const { data: processes = [], isFetching: isLoadingProcesses } = useQuery({
     queryKey: ['workflow-processes'],
     queryFn: async () => {
       const res = await fetch('/api/admin/workflow/processes');
@@ -46,6 +42,13 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
+
+  // Auto-select first process when loaded
+  useEffect(() => {
+    if (!selectedProcessId && processes.length > 0) {
+      setSelectedProcessId(processes[0].id);
+    }
+  }, [processes, selectedProcessId]);
 
   // Fetch executions filtered by selected process
   const { data: executions = [], isFetching: isLoadingExecutions, refetch: refetchExecutions } = useQuery({
@@ -80,7 +83,6 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
   // Process mode optimistic update
   const processModesMutation = useMutation({
     mutationFn: async ({ processId, newMode }: { processId: string; newMode: string }) => {
-      // Actual PATCH is handled inside ExecutionModeToggle — we just update cache here
       return { processId, newMode };
     },
     onMutate: async ({ processId, newMode }) => {
@@ -99,6 +101,12 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
       if (ctx?.prev) queryClient.setQueryData(['workflow-processes'], ctx.prev);
     },
   });
+
+  const handleSelectProcess = useCallback((processId: string) => {
+    setSelectedProcessId(processId);
+    setSelectedExecutionId(null);
+    setApprovalTask(null);
+  }, []);
 
   const handleSelectExecution = useCallback((execution: WorkflowExecution) => {
     setApprovalTask(null);
@@ -134,106 +142,74 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
     [queryClient, selectedExecutionId, selectedProcessId]
   );
 
-  // Derive node status map from selected execution tasks
-  const taskStatusMap: Record<string, string> = {};
-  selectedExecution?.tasks?.forEach((t) => {
-    taskStatusMap[t.node_id] = t.status;
-  });
-
   const selectedProcess = processes.find(
     (p) => p.id === (selectedExecution?.process_id ?? selectedProcessId)
   );
 
-  const shadowExecutions = executions
-    .filter((e) => e.is_shadow)
-    .map((e) => ({
-      id: e.id,
-      started_at: e.started_at,
-      shadow_divergence: null as Record<string, unknown> | null,
-    }));
+  const showCanvas = !!(selectedExecution && selectedProcess);
+
+  // Toolbar actions: mode toggle for selected process
+  const toolbarActions = useMemo(() => {
+    if (!selectedProcess) return undefined;
+    return (
+      <ExecutionModeToggle
+        processId={selectedProcess.id}
+        processName={selectedProcess.name}
+        currentMode={selectedProcess.execution_mode ?? 'design'}
+        onModeChanged={(m) => handleProcessModeChanged(selectedProcess.id, m)}
+      />
+    );
+  }, [selectedProcess, handleProcessModeChanged]);
 
   return (
-    <div className={styles.container}>
-      {/* NLI Command Bar */}
-      <ExecutionCommandBar
-        onResult={() => refetchExecutions()}
-        onNavigateToAgent={onNavigateToAgent}
-        onNavigateToTab={onNavigateToTab}
-      />
-
-      <div className={styles.body}>
-        {/* Left: Process list + Execution list */}
-        <div className={styles.leftPanel}>
-          {/* Process list */}
-          <div className={styles.processSection}>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionTitle}>Processes</span>
-              <button className={styles.refreshBtn} onClick={() => refetchProcesses()}>
-                <RefreshCw size={12} />
-              </button>
-            </div>
-            {isLoadingProcesses && processes.length === 0 && (
-              <div className={styles.loadingRow}>Loading…</div>
+    <div className={styles.panel}>
+      {/* Tier 1: Process category bar */}
+      <div className={styles.categoryBar}>
+        {processes.map((proc) => (
+          <button
+            key={proc.id}
+            className={`${styles.categoryTab} ${selectedProcessId === proc.id ? styles.categoryTabActive : ''}`}
+            onClick={() => handleSelectProcess(proc.id)}
+          >
+            {proc.name}
+            {proc.execution_mode !== 'live' && (
+              <span className={styles.categoryModeBadge}>{proc.execution_mode}</span>
             )}
-            {processes.map((proc) => (
-              <div
-                key={proc.id}
-                className={`${styles.processRow} ${selectedProcessId === proc.id ? styles.processRowActive : ''}`}
-              >
-                <button
-                  className={styles.processRowClickable}
-                  onClick={() => {
-                    setSelectedProcessId(proc.id);
-                    setSelectedExecutionId(null);
-                  }}
-                >
-                  <Layers size={13} className={styles.processIcon} />
-                  <span className={styles.processRowName}>{proc.name}</span>
-                </button>
-                <ExecutionModeToggle
-                  processId={proc.id}
-                  processName={proc.name}
-                  currentMode={proc.execution_mode ?? 'design'}
-                  onModeChanged={(m) => handleProcessModeChanged(proc.id, m)}
-                />
-              </div>
-            ))}
-          </div>
+          </button>
+        ))}
+        {isLoadingProcesses && processes.length === 0 && (
+          <span className={styles.loadingHint}>Loading…</span>
+        )}
+      </div>
 
-          {/* Go-Live Readiness panel (shown when selected process is in shadow mode) */}
-          {selectedProcess?.execution_mode === 'shadow' && (
-            <div className={styles.divergenceWrapper}>
-              <GoLiveReadiness
-                process={selectedProcess}
-                onModeChanged={(m) => handleProcessModeChanged(selectedProcess.id, m)}
-              />
-            </div>
-          )}
-
-          {/* Shadow divergence panel (if process has shadow runs) */}
-          {shadowExecutions.length > 0 && (
-            <div className={styles.divergenceWrapper}>
-              <ShadowDivergencePanel executions={shadowExecutions} />
-            </div>
-          )}
-
-          {/* Execution list */}
-          <div className={styles.executionSection}>
-            <ExecutionList
-              executions={executions}
-              isLoading={isLoadingExecutions}
-              statusFilter={statusFilter}
-              selectedId={selectedExecutionId}
-              onFilterChange={setStatusFilter}
-              onSelect={handleSelectExecution}
-              onRefresh={() => refetchExecutions()}
-            />
-          </div>
+      {/* Content area — table always rendered */}
+      <div className={styles.content}>
+        <div className={showCanvas ? styles.tableCompact : styles.tableFull}>
+          <ExecutionList
+            executions={selectedProcessId ? executions : []}
+            isLoading={selectedProcessId ? isLoadingExecutions : false}
+            statusFilter={statusFilter}
+            selectedId={selectedExecutionId}
+            onFilterChange={setStatusFilter}
+            onSelect={handleSelectExecution}
+            toolbarActions={toolbarActions}
+            emptyState={
+              !selectedProcessId ? (
+                <div className={styles.empty}>
+                  <Layers size={32} className={styles.emptyIcon} />
+                  <p className={styles.emptyTitle}>Select a process to view executions</p>
+                  <p className={styles.emptyDesc}>
+                    Choose a workflow process above to see its execution history.
+                  </p>
+                </div>
+              ) : undefined
+            }
+          />
         </div>
 
-        {/* Right: Live canvas monitor */}
-        <div className={styles.rightPanel}>
-          {selectedExecution && selectedProcess ? (
+        {/* Canvas detail (shows below table when execution selected) */}
+        {showCanvas && (
+          <div className={styles.canvasSection}>
             <WorkflowCanvas
               readOnly
               showLiveOverlay
@@ -242,18 +218,8 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
               initialEdges={selectedProcess.edges as ProcessEdge[]}
               onNodeStatusClick={handleCanvasNodeClick}
             />
-          ) : (
-            <div className={styles.emptyMonitor}>
-              <Layers size={32} className={styles.emptyIcon} />
-              <p>Select an execution to monitor it live</p>
-              {!selectedProcessId && (
-                <p className={styles.emptyHint}>
-                  Or select a process from the left to view its executions
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* HITL Approval Drawer */}
@@ -267,5 +233,28 @@ export function ExecutionPanel({ onNavigateToAgent, onNavigateToTab }: Execution
         />
       )}
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function ExecutionSidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Execution Help">
+        <div className={styles.tipsList}>
+          <p>View and manage <strong>live workflow executions</strong> across all processes.</p>
+          <p>Use the <strong>command bar</strong> to start new executions or route to agents.</p>
+          <p><strong>HITL approvals</strong> pause execution until a human reviews and decides.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Execution Tips">
+        <div className={styles.tipsList}>
+          <p>Shadow executions run in parallel without affecting live data — use them to validate changes.</p>
+          <p>Check go-live readiness before promoting a process from shadow to live.</p>
+          <p>Failed executions can be retried — check the error context for root cause.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

@@ -330,87 +330,12 @@ VALUES (
 );
 
 -- ---------------------------------------------------------------------------
--- 3. Referral Attribution (subprocess — invoked from Booking Lifecycle templates)
--- Not a standalone top-level workflow. Referenced by templateName in subprocess nodes.
--- Runs inline when the "Was booking referred?" condition returns yes.
+-- 3. Referral Attribution — REMOVED (duplicate of 339_seed_booking_lifecycle_templates.sql)
+-- The canonical seed lives in 339_seed_booking_lifecycle_templates.sql.
 -- ---------------------------------------------------------------------------
 
-INSERT INTO workflow_processes (name, description, category, execution_mode, nodes, edges, created_by)
-VALUES (
-  'Referral Attribution',
-  'Subprocess: attribute a booking to a referral and update referral status to Converted',
-  'referral',
-  'shadow',
-  '[
-    {
-      "id": "t1",
-      "type": "processStep",
-      "position": {"x": 300, "y": 50},
-      "data": {
-        "label": "Attribution Started",
-        "type": "trigger",
-        "description": "Invoked from parent Booking Lifecycle; receives booking_id in context",
-        "editable": false,
-        "completion_mode": "sync"
-      }
-    },
-    {
-      "id": "a1",
-      "type": "processStep",
-      "position": {"x": 300, "y": 180},
-      "data": {
-        "label": "Attribute Booking",
-        "type": "action",
-        "description": "Create referrals record with status Signed Up",
-        "editable": true,
-        "handler": "referral.attribute",
-        "completion_mode": "sync"
-      }
-    },
-    {
-      "id": "a2",
-      "type": "processStep",
-      "position": {"x": 300, "y": 310},
-      "data": {
-        "label": "Update Referral Status",
-        "type": "action",
-        "description": "Update referrals.status to Converted on booking completion",
-        "editable": true,
-        "handler": "referral.update_status",
-        "completion_mode": "sync"
-      }
-    },
-    {
-      "id": "n1",
-      "type": "processStep",
-      "position": {"x": 300, "y": 440},
-      "data": {
-        "label": "Notify Referrer",
-        "type": "action",
-        "description": "Send referral conversion notification to the referring agent",
-        "editable": true,
-        "handler": "notification.send",
-        "completion_mode": "sync",
-        "handler_config": {"template": "referral_converted"}
-      }
-    },
-    {
-      "id": "e1",
-      "type": "processStep",
-      "position": {"x": 300, "y": 570},
-      "data": {
-        "label": "Complete",
-        "type": "end",
-        "description": "Returns to parent execution",
-        "editable": false
-      }
-    }
-  ]'::jsonb,
-  '[
-    {"id": "e-t1-a1", "source": "t1", "target": "a1"},
-    {"id": "e-a1-a2", "source": "a1", "target": "a2"},
-    {"id": "e-a2-n1", "source": "a2", "target": "n1"},
-    {"id": "e-n1-e1", "source": "n1", "target": "e1"}
-  ]'::jsonb,
-  NULL
-);
+-- INSERT INTO workflow_processes (name, description, category, execution_mode, nodes, edges, created_by)
+-- VALUES (
+--   'Referral Attribution',
+--   ... (duplicate removed — canonical seed in 339_seed_booking_lifecycle_templates.sql)
+-- );

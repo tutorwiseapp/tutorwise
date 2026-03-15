@@ -3,11 +3,19 @@
 import { useState, Component } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  RefreshCw, TrendingUp, Users, BookOpen, Search, ShoppingCart,
+  TrendingUp, Users, BookOpen, Search, ShoppingCart,
   List, DollarSign, Monitor, Share2, Activity, BarChart2,
   Heart, Bot, Building2, Layers, Target, GitBranch, Route, UserPlus,
+  Star, AlertTriangle, Clock, Calendar, Percent, Hash, Gauge, Eye,
+  Zap, Award, Crown, Timer, UserCheck, UserX, Briefcase, CreditCard,
+  Receipt, Video, Package, TrendingDown, Network, Scale, BadgeCheck,
+  CircleDollarSign, Wallet, PieChart, FileText, MessageSquare,
 } from 'lucide-react';
 import { TierCalibrationPanel } from './TierCalibrationPanel';
+import HubKPICard from '@/components/hub/charts/HubKPICard';
+import HubKPIGrid from '@/components/hub/charts/HubKPIGrid';
+import HubEmptyState from '@/components/hub/content/HubEmptyState';
+import HubWidgetCard from '@/components/hub/content/HubWidgetCard';
 import styles from './IntelligencePanel.module.css';
 
 // ── Sub-tab config ──────────────────────────────────────────────────────────
@@ -140,24 +148,18 @@ function InlineEmpty({
   hint?: string;
 }) {
   return (
-    <div className={styles.empty}>
-      <Icon size={32} className={styles.emptyIcon} />
-      <span>{message}</span>
-      {hint && <span className={styles.emptyHint}>{hint}</span>}
-    </div>
+    <HubEmptyState
+      title={message}
+      description={hint ?? ''}
+      icon={<Icon size={32} />}
+    />
   );
 }
 
 // ── Stat Card ────────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div className={styles.statCard}>
-      <div className={styles.statValue}>{value}</div>
-      <div className={styles.statLabel}>{label}</div>
-      {sub && <div className={styles.statSub}>{sub}</div>}
-    </div>
-  );
+function StatCard({ label, value, sub, icon }: { label: string; value: string; sub?: string; icon?: React.ComponentType<{ size?: number; className?: string }> }) {
+  return <HubKPICard label={label} value={value} sublabel={sub} icon={icon as any} />;
 }
 
 // ── Section Error Boundary ───────────────────────────────────────────────────
@@ -196,30 +198,33 @@ function CaaSSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Avg CaaS Score" value={fmt(latest.avg_caas_score)} />
-        <StatCard label="Band: Star" value={fmt(latest.star_count)} />
-        <StatCard label="Band: Active" value={fmt(latest.active_count)} />
-        <StatCard label="Band: Provisional" value={fmt(latest.provisional_count)} sub="needs verification" />
-        <StatCard label="Stale Scores" value={fmt(latest.stale_count)} sub="not recalculated 30d+" />
-        <StatCard label="Snapshot Date" value={latest.snapshot_date ?? '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Gauge} label="Avg CaaS Score" value={fmt(latest.avg_caas_score)} />
+        <StatCard icon={Star} label="Band: Star" value={fmt(latest.star_count)} />
+        <StatCard icon={Zap} label="Band: Active" value={fmt(latest.active_count)} />
+        <StatCard icon={Clock} label="Band: Provisional" value={fmt(latest.provisional_count)} sub="needs verification" />
+        <StatCard icon={AlertTriangle} label="Stale Scores" value={fmt(latest.stale_count)} sub="not recalculated 30d+" />
+        <StatCard icon={Calendar} label="Snapshot Date" value={latest.snapshot_date ?? '—'} />
+      </HubKPIGrid>
       {byRole.length > 0 && (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead><tr><th>Role</th><th>Avg Score</th><th>Provisional</th><th>Stale</th></tr></thead>
-            <tbody>
-              {byRole.map((r: any) => (
-                <tr key={r.role_type}>
-                  <td>{r.role_type}</td>
-                  <td>{fmt(r.avg_caas_score)}</td>
-                  <td>{fmt(r.provisional_count)}</td>
-                  <td>{fmt(r.stale_count)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <h4 className={styles.subHeading}>CaaS by Role</h4>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead><tr><th>Role</th><th>Avg Score</th><th>Provisional</th><th>Stale</th></tr></thead>
+              <tbody>
+                {byRole.map((r: any) => (
+                  <tr key={r.role_type}>
+                    <td>{r.role_type}</td>
+                    <td>{fmt(r.avg_score)}</td>
+                    <td>{fmt(r.provisional_count)}</td>
+                    <td>{fmt(r.stale_count)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
@@ -236,14 +241,14 @@ function ResourcesSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Published Articles" value={fmt(latest.published_articles)} />
-        <StatCard label="SEO Ready (≥70)" value={fmt(latest.seo_ready_articles)} />
-        <StatCard label="Stars" value={fmt(band['Star'] ?? 0)} sub="intelligence band" />
-        <StatCard label="Dead Weight" value={fmt(band['Dead Weight'] ?? 0)} sub="need attention" />
-        <StatCard label="Avg Days Stale" value={fmt(latest.avg_days_stale)} />
-        <StatCard label="Hub Count" value={fmt(latest.hub_count)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={FileText} label="Published Articles" value={fmt(latest.published_articles)} />
+        <StatCard icon={Search} label="SEO Ready (≥70)" value={fmt(latest.seo_ready_articles)} />
+        <StatCard icon={Star} label="Stars" value={fmt(band['Star'] ?? 0)} sub="intelligence band" />
+        <StatCard icon={AlertTriangle} label="Dead Weight" value={fmt(band['Dead Weight'] ?? 0)} sub="need attention" />
+        <StatCard icon={Clock} label="Avg Days Stale" value={fmt(latest.avg_days_stale)} />
+        <StatCard icon={Network} label="Hub Count" value={fmt(latest.hub_count)} />
+      </HubKPIGrid>
       {opportunities.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Opportunity Articles</h4>
@@ -267,15 +272,15 @@ function ResourcesSection({ data }: { data: any }) {
       )}
       {hubGaps.length > 0 && (
         <>
-          <h4 className={styles.subHeading}>Hubs Needing Spokes</h4>
+          <h4 className={styles.subHeading}>Hubs Needing Attention</h4>
           <div className={styles.tableWrap}>
             <table className={styles.table}>
-              <thead><tr><th>Subject</th><th>Spoke Count</th><th>Status</th></tr></thead>
+              <thead><tr><th>Title</th><th>SEO Score</th><th>Status</th></tr></thead>
               <tbody>
                 {hubGaps.map((h: any) => (
                   <tr key={h.id}>
-                    <td>{h.subject}</td>
-                    <td>{fmt(h.spoke_count)}</td>
+                    <td>{h.title}</td>
+                    <td>{fmt(h.seo_score)}</td>
                     <td>{h.status}</td>
                   </tr>
                 ))}
@@ -297,14 +302,14 @@ function SEOSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Keywords Tracked" value={fmt(latest.total_keywords)} />
-        <StatCard label="Top-3 Keywords" value={fmt(latest.top3_count)} />
-        <StatCard label="Page-1 (1–10)" value={fmt(latest.page1_count)} />
-        <StatCard label="Avg Position" value={latest.avg_position ? Number(latest.avg_position).toFixed(1) : '—'} />
-        <StatCard label="Position Δ (vs yesterday)" value={latest.avg_position_delta != null ? (Number(latest.avg_position_delta) > 0 ? `+${Number(latest.avg_position_delta).toFixed(1)}` : String(Number(latest.avg_position_delta).toFixed(1))) : '—'} sub="lower = better" />
-        <StatCard label="Backlinks" value={fmt(latest.total_backlinks)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Hash} label="Keywords Tracked" value={fmt(latest.total_keywords)} />
+        <StatCard icon={Crown} label="Top-3 Keywords" value={fmt(latest.top3_count)} />
+        <StatCard icon={Award} label="Page-1 (1–10)" value={fmt(latest.page1_count)} />
+        <StatCard icon={Gauge} label="Avg Position" value={latest.avg_position ? Number(latest.avg_position).toFixed(1) : '—'} />
+        <StatCard icon={TrendingUp} label="Position Δ (vs yesterday)" value={latest.avg_position_delta != null ? (Number(latest.avg_position_delta) > 0 ? `+${Number(latest.avg_position_delta).toFixed(1)}` : String(Number(latest.avg_position_delta).toFixed(1))) : '—'} sub="lower = better" />
+        <StatCard icon={Network} label="Backlinks" value={fmt(latest.total_backlinks)} />
+      </HubKPIGrid>
       {opps.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Page-1 Chase (pos 6–20)</h4>
@@ -355,10 +360,10 @@ function SignalSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Star Articles" value={fmt(top.length)} sub="score ≥ 80" />
-        <StatCard label="Dead Weight" value={fmt(dead.length)} sub="score < 20" />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Star} label="Star Articles" value={fmt(top.length)} sub="score ≥ 80" />
+        <StatCard icon={AlertTriangle} label="Dead Weight" value={fmt(dead.length)} sub="score < 20" />
+      </HubKPIGrid>
       {top.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Top Performers</h4>
@@ -413,14 +418,14 @@ function MarketplaceSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Active Tutors" value={fmt(latest.active_tutors)} />
-        <StatCard label="Active Listings" value={fmt(latest.active_listings)} />
-        <StatCard label="Zero-Result Rate" value={fmtPct(latest.zero_result_rate_pct)} sub="searches with no results" />
-        <StatCard label="Searches (30d)" value={fmt(latest.total_searches_30d)} />
-        <StatCard label="Listing-to-Booking Rate" value={fmtPct(latest.listing_booking_rate_pct)} />
-        <StatCard label="AI Tutor Listings" value={fmt(latest.ai_tutor_listings)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Users} label="Active Tutors" value={fmt(latest.active_tutors)} />
+        <StatCard icon={List} label="Active Listings" value={fmt(latest.active_listings)} />
+        <StatCard icon={Search} label="Zero-Result Rate" value={fmtPct(latest.zero_result_rate_pct)} sub="searches with no results" />
+        <StatCard icon={Eye} label="Searches (30d)" value={fmt(latest.total_searches_30d)} />
+        <StatCard icon={Percent} label="Listing-to-Booking Rate" value={fmtPct(latest.listing_booking_rate_pct)} />
+        <StatCard icon={Bot} label="AI Tutor Listings" value={fmt(latest.ai_tutor_listings)} />
+      </HubKPIGrid>
       {gaps.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Supply/Demand Gaps (zero-result rate &gt; 20%)</h4>
@@ -454,14 +459,14 @@ function ListingsSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Active Listings" value={fmt(latest.active_listings)} />
-        <StatCard label="Avg Completeness" value={fmtPct(latest.avg_completeness_score)} />
-        <StatCard label="Incomplete (&lt; 70)" value={fmt(incomplete)} sub="need nudge" />
-        <StatCard label="SEO Eligible" value={fmt(latest.seo_eligible_count)} />
-        <StatCard label="Avg Hourly Rate" value={latest.avg_hourly_rate ? `£${Number(latest.avg_hourly_rate).toFixed(0)}` : '—'} />
-        <StatCard label="New Listings 30d" value={fmt(latest.new_listings_30d)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={List} label="Active Listings" value={fmt(latest.active_listings)} />
+        <StatCard icon={Gauge} label="Avg Completeness" value={fmtPct(latest.avg_completeness_score)} />
+        <StatCard icon={AlertTriangle} label="Incomplete (&lt; 70)" value={fmt(incomplete)} sub="need nudge" />
+        <StatCard icon={Search} label="SEO Eligible" value={fmt(latest.seo_eligible_count)} />
+        <StatCard icon={CircleDollarSign} label="Avg Hourly Rate" value={latest.avg_hourly_rate ? `£${Number(latest.avg_hourly_rate).toFixed(0)}` : '—'} />
+        <StatCard icon={TrendingUp} label="New Listings 30d" value={fmt(latest.new_listings_30d)} />
+      </HubKPIGrid>
       {pricing.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Pricing by Subject</h4>
@@ -496,16 +501,16 @@ function BookingsSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Total Bookings 30d" value={fmt(latest.total_bookings_30d)} />
-        <StatCard label="Completed 30d" value={fmt(latest.completed_30d)} />
-        <StatCard label="Cancellation Rate" value={fmtPct(latest.cancellation_rate_pct)} />
-        <StatCard label="No-Show Rate" value={fmtPct(latest.no_show_rate_pct)} />
-        <StatCard label="GMV 30d" value={fmtPence(latest.gmv_30d_pence)} />
-        <StatCard label="Stalled &gt;48h" value={fmt(data?.liveStalls48h ?? latest.stalled_over_48h)} sub="live" />
-        <StatCard label="Active Disputes" value={fmt(data?.liveDisputes ?? latest.disputed_count)} sub="live" />
-        <StatCard label="High-Cancel Tutors" value={fmt(latest.high_cancel_tutors)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Calendar} label="Total Bookings 30d" value={fmt(latest.total_bookings_30d)} />
+        <StatCard icon={UserCheck} label="Completed 30d" value={fmt(latest.completed_30d)} />
+        <StatCard icon={UserX} label="Cancellation Rate" value={fmtPct(latest.cancellation_rate_pct)} />
+        <StatCard icon={AlertTriangle} label="No-Show Rate" value={fmtPct(latest.no_show_rate_pct)} />
+        <StatCard icon={CircleDollarSign} label="GMV 30d" value={fmtPence(latest.gmv_30d_pence)} />
+        <StatCard icon={Clock} label="Stalled &gt;48h" value={fmt(data?.liveStalls48h ?? latest.stalled_over_48h)} sub="live" />
+        <StatCard icon={Scale} label="Active Disputes" value={fmt(data?.liveDisputes ?? latest.disputed_count)} sub="live" />
+        <StatCard icon={TrendingDown} label="High-Cancel Tutors" value={fmt(latest.high_cancel_tutors)} />
+      </HubKPIGrid>
     </div>
   );
 }
@@ -518,16 +523,16 @@ function FinancialsSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="In Clearing" value={fmtPence(latest.total_in_clearing_pence)} />
-        <StatCard label="Stalled &gt;14d" value={fmt(latest.stalled_over_14d)} sub="clearing items" />
-        <StatCard label="Net Revenue 30d" value={fmtPence(latest.net_platform_revenue_30d_pence)} />
-        <StatCard label="Paid Out 30d" value={fmtPence(latest.total_paid_out_30d_pence)} />
-        <StatCard label="Refund Rate" value={fmtPct(latest.refund_rate_pct)} />
-        <StatCard label="Open Disputes" value={fmt(latest.open_disputes)} />
-        <StatCard label="Unreversed Refunds" value={fmt(latest.unreversed_refunds)} sub="action needed" />
-        <StatCard label="Duplicate Payout Risk" value={fmt(latest.duplicate_payout_risk)} sub="needs review" />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Wallet} label="In Clearing" value={fmtPence(latest.total_in_clearing_pence)} />
+        <StatCard icon={Clock} label="Stalled &gt;14d" value={fmt(latest.stalled_over_14d)} sub="clearing items" />
+        <StatCard icon={TrendingUp} label="Net Revenue 30d" value={fmtPence(latest.net_platform_revenue_30d_pence)} />
+        <StatCard icon={CreditCard} label="Paid Out 30d" value={fmtPence(latest.total_paid_out_30d_pence)} />
+        <StatCard icon={Receipt} label="Refund Rate" value={fmtPct(latest.refund_rate_pct)} />
+        <StatCard icon={Scale} label="Open Disputes" value={fmt(latest.open_disputes)} />
+        <StatCard icon={AlertTriangle} label="Unreversed Refunds" value={fmt(latest.unreversed_refunds)} sub="action needed" />
+        <StatCard icon={Zap} label="Duplicate Payout Risk" value={fmt(latest.duplicate_payout_risk)} sub="needs review" />
+      </HubKPIGrid>
     </div>
   );
 }
@@ -540,14 +545,14 @@ function VirtualSpaceSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="Booking Sessions 30d" value={fmt(latest.booking_sessions_30d)} />
-        <StatCard label="Free Help Sessions 30d" value={fmt(latest.free_help_sessions_30d)} />
-        <StatCard label="Adoption Rate" value={fmtPct(latest.adoption_rate_pct)} sub="of completed bookings" />
-        <StatCard label="Completion Rate" value={fmtPct(latest.completion_rate_pct)} />
-        <StatCard label="Free-Help Conversion" value={fmtPct(latest.free_help_conversion_pct)} sub="→ booking" />
-        <StatCard label="Sessions Last 24h" value={fmt(data?.sessionsLast24h)} sub="live" />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Video} label="Booking Sessions 30d" value={fmt(latest.booking_sessions_30d)} />
+        <StatCard icon={Heart} label="Free Help Sessions 30d" value={fmt(latest.free_help_sessions_30d)} />
+        <StatCard icon={Percent} label="Adoption Rate" value={fmtPct(latest.adoption_rate_pct)} sub="of completed bookings" />
+        <StatCard icon={BadgeCheck} label="Completion Rate" value={fmtPct(latest.completion_rate_pct)} />
+        <StatCard icon={TrendingUp} label="Free-Help Conversion" value={fmtPct(latest.free_help_conversion_pct)} sub="→ booking" />
+        <StatCard icon={Monitor} label="Sessions Last 24h" value={fmt(data?.sessionsLast24h)} sub="live" />
+      </HubKPIGrid>
     </div>
   );
 }
@@ -560,24 +565,24 @@ function ReferralSection({ data }: { data: any }) {
 
   return (
     <div>
-      <div className={styles.statGrid}>
-        <StatCard label="K Coefficient" value={latest?.k_coefficient != null ? Number(latest.k_coefficient).toFixed(4) : '—'} sub="target ≥ 0.6" />
-        <StatCard label="Invitations/User (I)" value={latest?.invitations_per_user != null ? Number(latest.invitations_per_user).toFixed(4) : '—'} />
-        <StatCard label="Signup Rate (C1)" value={latest?.signup_rate != null ? fmtPct(Number(latest.signup_rate) * 100) : '—'} />
-        <StatCard label="Booking Rate (C2)" value={latest?.booking_rate != null ? fmtPct(Number(latest.booking_rate) * 100) : '—'} />
-        <StatCard label="Total Referred Users" value={fmt(network?.total_referred_users)} />
-        <StatCard label="Ghost Rate" value={fmtPct(network?.ghost_rate_pct)} sub="no signup after 7d" />
-        <StatCard label="Hub Nodes (≥10 refs)" value={fmt(network?.hub_count)} />
-        <StatCard label="Avg Network Depth" value={network?.avg_depth != null ? Number(network.avg_depth).toFixed(2) : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Target} label="K Coefficient" value={latest?.k_coefficient != null ? Number(latest.k_coefficient).toFixed(4) : '—'} sub="target ≥ 0.6" />
+        <StatCard icon={Share2} label="Invitations/User (I)" value={latest?.invitations_per_user != null ? Number(latest.invitations_per_user).toFixed(4) : '—'} />
+        <StatCard icon={UserPlus} label="Signup Rate (C1)" value={latest?.signup_rate != null ? fmtPct(Number(latest.signup_rate) * 100) : '—'} />
+        <StatCard icon={Briefcase} label="Booking Rate (C2)" value={latest?.booking_rate != null ? fmtPct(Number(latest.booking_rate) * 100) : '—'} />
+        <StatCard icon={Users} label="Total Referred Users" value={fmt(network?.total_referred_users)} />
+        <StatCard icon={UserX} label="Ghost Rate" value={fmtPct(network?.ghost_rate_pct)} sub="no signup after 7d" />
+        <StatCard icon={Network} label="Hub Nodes (≥10 refs)" value={fmt(network?.hub_count)} />
+        <StatCard icon={Layers} label="Avg Network Depth" value={network?.avg_depth != null ? Number(network.avg_depth).toFixed(2) : '—'} />
+      </HubKPIGrid>
       {Object.keys(funnel).length > 0 && (
         <>
           <h4 className={styles.subHeading}>Funnel (last 30d)</h4>
-          <div className={styles.statGrid}>
+          <HubKPIGrid>
             {Object.entries(funnel).map(([status, count]) => (
-              <StatCard key={status} label={status} value={fmt(count)} />
+              <StatCard key={status} icon={Activity} label={status} value={fmt(count)} />
             ))}
-          </div>
+          </HubKPIGrid>
         </>
       )}
     </div>
@@ -609,8 +614,16 @@ function RetentionSection({ data }: { data: any }) {
 
   return (
     <div>
-      <h4 className={styles.subHeading}>User Lifecycle Cohorts</h4>
-      <div className={styles.tableWrap}>
+      <HubKPIGrid>
+        <StatCard icon={TrendingDown} label="Score Drop Alerts (7d)" value={fmt(churn?.score_drop_alerts_7d)} sub="Growth Score drop > 5pts" />
+        <StatCard icon={AlertTriangle} label="High-Value At Risk" value={fmt(churn?.high_value_at_risk)} sub="retained users, drop > 10pts" />
+        <StatCard icon={Clock} label="Stuck Tutors >14d" value={fmt(onboarding?.stuck_tutors_14d)} sub="no booking yet" />
+        <StatCard icon={Clock} label="Stuck Clients >14d" value={fmt(onboarding?.stuck_clients_14d)} sub="no booking yet" />
+        <StatCard icon={Percent} label="Activation Rate 30d" value={onboarding?.activation_rate_30d != null ? fmtPct(onboarding.activation_rate_30d) : '—'} sub="target ≥ 40%" />
+        <StatCard icon={BarChart2} label="Avg Client Lifetime Bookings" value={ltv?.avg_bookings_per_client_lifetime != null ? Number(ltv.avg_bookings_per_client_lifetime).toFixed(1) : '—'} />
+        <StatCard icon={Scale} label="Referral vs Organic LTV" value={ltv?.referral_vs_organic_ltv_ratio != null ? `${Number(ltv.referral_vs_organic_ltv_ratio).toFixed(2)}x` : '—'} sub="referred / organic avg bookings" />
+      </HubKPIGrid>
+      <HubWidgetCard title="User Lifecycle Cohorts" icon={Users} flush>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -633,16 +646,7 @@ function RetentionSection({ data }: { data: any }) {
             })}
           </tbody>
         </table>
-      </div>
-      <div className={styles.statGrid}>
-        <StatCard label="Score Drop Alerts (7d)" value={fmt(churn?.score_drop_alerts_7d)} sub="Growth Score drop > 5pts" />
-        <StatCard label="High-Value At Risk" value={fmt(churn?.high_value_at_risk)} sub="retained users, drop > 10pts" />
-        <StatCard label="Stuck Tutors >14d" value={fmt(onboarding?.stuck_tutors_14d)} sub="no booking yet" />
-        <StatCard label="Stuck Clients >14d" value={fmt(onboarding?.stuck_clients_14d)} sub="no booking yet" />
-        <StatCard label="Activation Rate 30d" value={onboarding?.activation_rate_30d != null ? fmtPct(onboarding.activation_rate_30d) : '—'} sub="target ≥ 40%" />
-        <StatCard label="Avg Client Lifetime Bookings" value={ltv?.avg_bookings_per_client_lifetime != null ? Number(ltv.avg_bookings_per_client_lifetime).toFixed(1) : '—'} />
-        <StatCard label="Referral vs Organic LTV" value={ltv?.referral_vs_organic_ltv_ratio != null ? `${Number(ltv.referral_vs_organic_ltv_ratio).toFixed(2)}x` : '—'} sub="referred / organic avg bookings" />
-      </div>
+      </HubWidgetCard>
       {alerts.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Alerts</h4>
@@ -675,34 +679,34 @@ function AIAdoptionSection({ data }: { data: any }) {
   return (
     <div>
       <h4 className={styles.subHeading}>Sage Pro</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Active Subscribers" value={fmt(sage?.active_subscribers)} />
-        <StatCard label="New (30d)" value={fmt(sage?.new_subscriptions_30d)} />
-        <StatCard label="Churned (30d)" value={fmt(sage?.cancellations_30d)} />
-        <StatCard label="Churn Rate" value={sage?.churn_rate != null ? fmtPct(sage.churn_rate) : '—'} />
-        <StatCard label="MRR" value={fmtPence(sage?.mrr_pence)} />
-        <StatCard label="Trial→Paid Rate" value={sage?.trial_to_paid_rate != null ? fmtPct(sage.trial_to_paid_rate) : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Users} label="Active Subscribers" value={fmt(sage?.active_subscribers)} />
+        <StatCard icon={UserPlus} label="New (30d)" value={fmt(sage?.new_subscriptions_30d)} />
+        <StatCard icon={UserX} label="Churned (30d)" value={fmt(sage?.cancellations_30d)} />
+        <StatCard icon={Percent} label="Churn Rate" value={sage?.churn_rate != null ? fmtPct(sage.churn_rate) : '—'} />
+        <StatCard icon={CircleDollarSign} label="MRR" value={fmtPence(sage?.mrr_pence)} />
+        <StatCard icon={TrendingUp} label="Trial→Paid Rate" value={sage?.trial_to_paid_rate != null ? fmtPct(sage.trial_to_paid_rate) : '—'} />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>Growth Agent</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Active Subscribers" value={fmt(growth?.active_subscribers)} />
-        <StatCard label="New (30d)" value={fmt(growth?.new_subscriptions_30d)} />
-        <StatCard label="Churn Rate" value={growth?.churn_rate != null ? fmtPct(growth.churn_rate) : '—'} />
-        <StatCard label="MRR" value={fmtPence(growth?.mrr_pence)} />
-        <StatCard label="Sessions (30d)" value={fmt(growth?.sessions_30d)} />
-        <StatCard label="Power Users" value={fmt(growth?.power_users_30d)} sub="> 5 sessions in 30d" />
-        <StatCard label="Free Audit→Paid" value={growth?.free_audit_to_paid_rate != null ? fmtPct(growth.free_audit_to_paid_rate) : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Users} label="Active Subscribers" value={fmt(growth?.active_subscribers)} />
+        <StatCard icon={UserPlus} label="New (30d)" value={fmt(growth?.new_subscriptions_30d)} />
+        <StatCard icon={Percent} label="Churn Rate" value={growth?.churn_rate != null ? fmtPct(growth.churn_rate) : '—'} />
+        <StatCard icon={CircleDollarSign} label="MRR" value={fmtPence(growth?.mrr_pence)} />
+        <StatCard icon={MessageSquare} label="Sessions (30d)" value={fmt(growth?.sessions_30d)} />
+        <StatCard icon={Zap} label="Power Users" value={fmt(growth?.power_users_30d)} sub="> 5 sessions in 30d" />
+        <StatCard icon={TrendingUp} label="Free Audit→Paid" value={growth?.free_audit_to_paid_rate != null ? fmtPct(growth.free_audit_to_paid_rate) : '—'} />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>AI Marketplace</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Active AI Agents" value={fmt(marketplace?.active_ai_agents)} />
-        <StatCard label="AI Bookings (30d)" value={fmt(marketplace?.ai_bookings_30d)} />
-        <StatCard label="AI GMV (30d)" value={fmtPence(marketplace?.ai_gmv_30d_pence)} />
-        <StatCard label="AI Booking Share" value={marketplace?.ai_booking_share != null ? fmtPct(marketplace.ai_booking_share) : '—'} />
-        <StatCard label="Agents 0 Bookings" value={fmt(marketplace?.ai_agents_with_0_bookings_30d)} sub="last 30d" />
-        <StatCard label="Combined AI MRR" value={fmtPence(combined?.total_ai_mrr_pence)} />
-        <StatCard label="AI Revenue Share" value={combined?.ai_revenue_share != null ? fmtPct(combined.ai_revenue_share) : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Bot} label="Active AI Agents" value={fmt(marketplace?.active_ai_agents)} />
+        <StatCard icon={Calendar} label="AI Bookings (30d)" value={fmt(marketplace?.ai_bookings_30d)} />
+        <StatCard icon={CircleDollarSign} label="AI GMV (30d)" value={fmtPence(marketplace?.ai_gmv_30d_pence)} />
+        <StatCard icon={PieChart} label="AI Booking Share" value={marketplace?.ai_booking_share != null ? fmtPct(marketplace.ai_booking_share) : '—'} />
+        <StatCard icon={AlertTriangle} label="Agents 0 Bookings" value={fmt(marketplace?.ai_agents_with_0_bookings_30d)} sub="last 30d" />
+        <StatCard icon={Wallet} label="Combined AI MRR" value={fmtPence(combined?.total_ai_mrr_pence)} />
+        <StatCard icon={PieChart} label="AI Revenue Share" value={combined?.ai_revenue_share != null ? fmtPct(combined.ai_revenue_share) : '—'} />
+      </HubKPIGrid>
       {alerts.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Alerts</h4>
@@ -733,7 +737,8 @@ function OnboardingSection({ data }: { data: any }) {
   const dropoff = data?.biggest_dropoff;
   const alerts: any[] = data?.alerts ?? [];
 
-  if (!funnel) return <InlineEmpty icon={UserPlus} message="No onboarding metrics yet." hint="Populates daily at 04:00 UTC" />;
+  const hasFunnelData = funnel && (funnel.tutor || funnel.client || funnel.agent || funnel.organisation);
+  if (!hasFunnelData) return <InlineEmpty icon={UserPlus} message="No onboarding metrics yet." hint="Populates daily at 04:00 UTC" />;
 
   const renderFunnel = (label: string, f: any) => {
     if (!f) return null;
@@ -752,13 +757,35 @@ function OnboardingSection({ data }: { data: any }) {
 
   return (
     <div>
-      <h4 className={styles.subHeading}>Conversion Funnel (30d)</h4>
-      <div style={{ overflowX: 'auto' }}>
-        <table className={styles.compactTable}>
+      {/* ── Alerts (top — most actionable) ── */}
+      {alerts.length > 0 && (
+        <div className={styles.alertBanner}>
+          {alerts.map((a: any, i: number) => (
+            <div key={i} className={`${styles.alertItem} ${a.severity === 'critical' ? styles.alertCritical : a.severity === 'warning' ? styles.alertWarning : styles.alertInfo}`}>
+              <AlertTriangle size={14} className={styles.alertIcon} />
+              <span>{a.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Approval Pipeline ── */}
+      <h4 className={styles.subHeading}>Tutor Approval Pipeline</h4>
+      <HubKPIGrid>
+        <StatCard icon={Clock} label="Pending" value={fmt(approval?.pending)} />
+        <StatCard icon={Eye} label="Under Review" value={fmt(approval?.under_review)} />
+        <StatCard icon={UserCheck} label="Approved (30d)" value={fmt(approval?.approved_30d)} />
+        <StatCard icon={UserX} label="Rejected (30d)" value={fmt(approval?.rejected_30d)} />
+        <StatCard icon={Timer} label="Median Approval" value={approval?.median_hours != null ? `${Number(approval.median_hours).toFixed(1)}h` : '—'} sub="target < 48h" />
+      </HubKPIGrid>
+
+      {/* ── Conversion Funnel (with drop-off inline) ── */}
+      <HubWidgetCard title="Conversion Funnel (30d)" icon={BarChart2} flush>
+        <table className={styles.table}>
           <thead>
             <tr>
               <th>Role</th><th>Signup</th><th>Verified</th><th>Role</th>
-              <th>Profile</th><th>Setup</th><th>Activated</th>
+              <th>Profile</th><th>Setup</th><th>Active</th>
             </tr>
           </thead>
           <tbody>
@@ -768,45 +795,28 @@ function OnboardingSection({ data }: { data: any }) {
             {renderFunnel('Orgs', funnel.organisation)}
           </tbody>
         </table>
-      </div>
-      {(dropoff?.tutor || dropoff?.client) && (
-        <div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: '#d97706' }}>
-          {dropoff.tutor && <div>Tutor biggest drop-off: <strong>{dropoff.tutor}</strong></div>}
-          {dropoff.client && <div>Client biggest drop-off: <strong>{dropoff.client}</strong></div>}
-        </div>
-      )}
-      <h4 className={styles.subHeading}>Tutor Approval Pipeline</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Pending" value={fmt(approval?.pending)} />
-        <StatCard label="Under Review" value={fmt(approval?.under_review)} />
-        <StatCard label="Approved (30d)" value={fmt(approval?.approved_30d)} />
-        <StatCard label="Rejected (30d)" value={fmt(approval?.rejected_30d)} />
-        <StatCard label="Median Approval" value={approval?.median_hours != null ? `${Number(approval.median_hours).toFixed(1)}h` : '—'} sub="target < 48h" />
-      </div>
-      <h4 className={styles.subHeading}>Time to Activation (median)</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Tutors" value={tta?.tutor_median_days != null ? `${Number(tta.tutor_median_days).toFixed(1)}d` : '—'} />
-        <StatCard label="Clients" value={tta?.client_median_days != null ? `${Number(tta.client_median_days).toFixed(1)}d` : '—'} />
-      </div>
-      <h4 className={styles.subHeading}>Abandonment Signals</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Mid-Onboarding Stalled" value={fmt(abandon?.mid_onboarding)} sub="inactive > 3d" />
-        <StatCard label="No Setup After Complete" value={fmt(abandon?.post_onboarding_no_setup)} sub="completed but no listing/prefs > 7d" />
-        <StatCard label="Verified, No Role" value={fmt(abandon?.verified_no_role)} sub="email verified > 7d, no role" />
-      </div>
-      {alerts.length > 0 && (
-        <>
-          <h4 className={styles.subHeading}>Alerts</h4>
+        {(dropoff?.tutor || dropoff?.client) && (
           <div>
-            {alerts.map((a: any, i: number) => (
-              <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem' }}>
-                <AlertBadge severity={a.severity} />
-                <strong>{a.message}</strong>
-              </div>
-            ))}
+            {dropoff.tutor && <div className={styles.dropoffRow}><TrendingDown size={12} /> Tutor biggest drop-off: <strong>{dropoff.tutor}</strong></div>}
+            {dropoff.client && <div className={styles.dropoffRow}><TrendingDown size={12} /> Client biggest drop-off: <strong>{dropoff.client}</strong></div>}
           </div>
-        </>
-      )}
+        )}
+      </HubWidgetCard>
+
+      {/* ── Abandonment Signals ── */}
+      <h4 className={styles.subHeading}>Abandonment Signals</h4>
+      <HubKPIGrid>
+        <StatCard icon={AlertTriangle} label="Mid-Onboarding Stalled" value={fmt(abandon?.mid_onboarding)} sub="inactive > 3d" />
+        <StatCard icon={Package} label="No Setup After Complete" value={fmt(abandon?.post_onboarding_no_setup)} sub="completed but no listing/prefs > 7d" />
+        <StatCard icon={UserX} label="Verified, No Role" value={fmt(abandon?.verified_no_role)} sub="email verified > 7d, no role" />
+      </HubKPIGrid>
+
+      {/* ── Time to Activation ── */}
+      <h4 className={styles.subHeading}>Time to Activation (median)</h4>
+      <HubKPIGrid>
+        <StatCard icon={Timer} label="Tutors" value={tta?.tutor_median_days != null ? `${Number(tta.tutor_median_days).toFixed(1)}d` : '—'} />
+        <StatCard icon={Timer} label="Clients" value={tta?.client_median_days != null ? `${Number(tta.client_median_days).toFixed(1)}d` : '—'} />
+      </HubKPIGrid>
     </div>
   );
 }
@@ -822,28 +832,28 @@ function OrgConversionSection({ data }: { data: any }) {
   return (
     <div>
       <h4 className={styles.subHeading}>Candidate Pipeline</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Tier 1 (Emerging)" value={fmt(pipeline?.tier_1_candidates)} sub="Growth Score ≥ 60, 3+ managed" />
-        <StatCard label="Tier 2 (Strong)" value={fmt(pipeline?.tier_2_candidates)} sub="Growth Score ≥ 75, 5+ managed" />
-        <StatCard label="Tier 3 (Ready)" value={fmt(pipeline?.tier_3_ready)} sub="> 30d at Tier 2, no action" />
-        <StatCard label="Nudged (30d)" value={fmt(pipeline?.candidates_nudged_30d)} />
-        <StatCard label="Conversion Rate" value={pipeline?.conversion_rate_30d != null ? fmtPct(pipeline.conversion_rate_30d) : '—'} sub="nudge → org created" />
-        <StatCard label="Avg Days to Convert" value={pipeline?.avg_days_nudge_to_creation != null ? `${Number(pipeline.avg_days_nudge_to_creation).toFixed(1)}d` : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Gauge} label="Tier 1 (Emerging)" value={fmt(pipeline?.tier_1_candidates)} sub="Growth Score ≥ 60, 3+ managed" />
+        <StatCard icon={Star} label="Tier 2 (Strong)" value={fmt(pipeline?.tier_2_candidates)} sub="Growth Score ≥ 75, 5+ managed" />
+        <StatCard icon={Crown} label="Tier 3 (Ready)" value={fmt(pipeline?.tier_3_ready)} sub="> 30d at Tier 2, no action" />
+        <StatCard icon={MessageSquare} label="Nudged (30d)" value={fmt(pipeline?.candidates_nudged_30d)} />
+        <StatCard icon={Percent} label="Conversion Rate" value={pipeline?.conversion_rate_30d != null ? fmtPct(pipeline.conversion_rate_30d) : '—'} sub="nudge → org created" />
+        <StatCard icon={Timer} label="Avg Days to Convert" value={pipeline?.avg_days_nudge_to_creation != null ? `${Number(pipeline.avg_days_nudge_to_creation).toFixed(1)}d` : '—'} />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>New Orgs (30d)</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Created" value={fmt(newOrgs?.orgs_created_30d)} />
-        <StatCard label="From Conductor Nudge" value={fmt(newOrgs?.orgs_from_conductor_nudge)} />
-        <StatCard label="Organic" value={fmt(newOrgs?.organic_org_creation)} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Building2} label="Created" value={fmt(newOrgs?.orgs_created_30d)} />
+        <StatCard icon={Zap} label="From Conductor Nudge" value={fmt(newOrgs?.orgs_from_conductor_nudge)} />
+        <StatCard icon={TrendingUp} label="Organic" value={fmt(newOrgs?.organic_org_creation)} />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>Org Health</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Active Orgs" value={fmt(health?.total_active_orgs)} />
-        <StatCard label="Onboarding Stall" value={fmt(health?.new_org_onboarding_stall)} sub="new orgs, no delegation in 7d" />
-        <StatCard label="Avg Members/Org" value={health?.avg_members_per_org != null ? Number(health.avg_members_per_org).toFixed(1) : '—'} />
-        <StatCard label="Avg Org Growth Score" value={health?.avg_org_growth_score != null ? Number(health.avg_org_growth_score).toFixed(1) : '—'} />
-        <StatCard label="Struggling Orgs" value={fmt(health?.orgs_below_threshold)} sub="score < 40" />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Building2} label="Active Orgs" value={fmt(health?.total_active_orgs)} />
+        <StatCard icon={Clock} label="Onboarding Stall" value={fmt(health?.new_org_onboarding_stall)} sub="new orgs, no delegation in 7d" />
+        <StatCard icon={Users} label="Avg Members/Org" value={health?.avg_members_per_org != null ? Number(health.avg_members_per_org).toFixed(1) : '—'} />
+        <StatCard icon={Gauge} label="Avg Org Growth Score" value={health?.avg_org_growth_score != null ? Number(health.avg_org_growth_score).toFixed(1) : '—'} />
+        <StatCard icon={AlertTriangle} label="Struggling Orgs" value={fmt(health?.orgs_below_threshold)} sub="score < 40" />
+      </HubKPIGrid>
       {alerts.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Alerts</h4>
@@ -877,36 +887,36 @@ function AIStudioSection({ data }: { data: any }) {
   return (
     <div>
       <h4 className={styles.subHeading}>Creator Funnel (30d)</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Created" value={fmt(funnel?.created_30d)} />
-        <StatCard label="Published" value={fmt(funnel?.published_30d)} />
-        <StatCard label="Publish Rate" value={funnel?.publish_rate != null ? fmtPct(funnel.publish_rate) : '—'} sub="target ≥ 50%" />
-        <StatCard label="First Booking Rate" value={funnel?.first_booking_rate != null ? fmtPct(funnel.first_booking_rate) : '—'} sub="within 14d of publish" />
-        <StatCard label="Avg Days → Publish" value={funnel?.avg_days_create_to_publish != null ? `${Number(funnel.avg_days_create_to_publish).toFixed(1)}d` : '—'} />
-        <StatCard label="Avg Days → First Booking" value={funnel?.avg_days_publish_to_first_booking != null ? `${Number(funnel.avg_days_publish_to_first_booking).toFixed(1)}d` : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Bot} label="Created" value={fmt(funnel?.created_30d)} />
+        <StatCard icon={BadgeCheck} label="Published" value={fmt(funnel?.published_30d)} />
+        <StatCard icon={Percent} label="Publish Rate" value={funnel?.publish_rate != null ? fmtPct(funnel.publish_rate) : '—'} sub="target ≥ 50%" />
+        <StatCard icon={TrendingUp} label="First Booking Rate" value={funnel?.first_booking_rate != null ? fmtPct(funnel.first_booking_rate) : '—'} sub="within 14d of publish" />
+        <StatCard icon={Timer} label="Avg Days → Publish" value={funnel?.avg_days_create_to_publish != null ? `${Number(funnel.avg_days_create_to_publish).toFixed(1)}d` : '—'} />
+        <StatCard icon={Timer} label="Avg Days → First Booking" value={funnel?.avg_days_publish_to_first_booking != null ? `${Number(funnel.avg_days_publish_to_first_booking).toFixed(1)}d` : '—'} />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>Creator Cohorts</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Stuck in Draft (>7d)" value={fmt(cohorts?.stuck_in_draft)} />
-        <StatCard label="Published, 0 Bookings (>14d)" value={fmt(cohorts?.published_zero_bookings_14d)} />
-        <StatCard label="Active Earning" value={fmt(cohorts?.active_earning)} sub="≥1 booking in 30d" />
-        <StatCard label="Scaling" value={fmt(cohorts?.scaling)} sub="3+/mo or 10+ total sessions" />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Clock} label="Stuck in Draft (>7d)" value={fmt(cohorts?.stuck_in_draft)} />
+        <StatCard icon={AlertTriangle} label="Published, 0 Bookings (>14d)" value={fmt(cohorts?.published_zero_bookings_14d)} />
+        <StatCard icon={CircleDollarSign} label="Active Earning" value={fmt(cohorts?.active_earning)} sub="≥1 booking in 30d" />
+        <StatCard icon={Zap} label="Scaling" value={fmt(cohorts?.scaling)} sub="3+/mo or 10+ total sessions" />
+      </HubKPIGrid>
       <h4 className={styles.subHeading}>Quality</h4>
-      <div className={styles.statGrid}>
-        <StatCard label="Avg Rating (all agents)" value={quality?.avg_rating_all_ai_agents != null ? Number(quality.avg_rating_all_ai_agents).toFixed(2) : '—'} />
-        <StatCard label="Below Threshold" value={fmt(quality?.agents_below_threshold)} sub="avg rating < 4.0, ≥3 reviews" />
-        <StatCard label="No Reviews Yet" value={fmt(quality?.agents_with_no_reviews)} />
-        <StatCard label="AI GMV (30d)" value={fmtPence(revenue?.total_ai_gmv_30d_pence)} />
-        <StatCard label="Avg Revenue/Agent" value={fmtPence(revenue?.avg_revenue_per_active_agent_pence)} sub="per month" />
-        <StatCard label="Top 10% Revenue Share" value={revenue?.top_10_pct_revenue_share != null ? fmtPct(revenue.top_10_pct_revenue_share) : '—'} />
-      </div>
+      <HubKPIGrid>
+        <StatCard icon={Star} label="Avg Rating (all agents)" value={quality?.avg_rating_all_ai_agents != null ? Number(quality.avg_rating_all_ai_agents).toFixed(2) : '—'} />
+        <StatCard icon={TrendingDown} label="Below Threshold" value={fmt(quality?.agents_below_threshold)} sub="avg rating < 4.0, ≥3 reviews" />
+        <StatCard icon={MessageSquare} label="No Reviews Yet" value={fmt(quality?.agents_with_no_reviews)} />
+        <StatCard icon={CircleDollarSign} label="AI GMV (30d)" value={fmtPence(revenue?.total_ai_gmv_30d_pence)} />
+        <StatCard icon={Wallet} label="Avg Revenue/Agent" value={fmtPence(revenue?.avg_revenue_per_active_agent_pence)} sub="per month" />
+        <StatCard icon={Crown} label="Top 10% Revenue Share" value={revenue?.top_10_pct_revenue_share != null ? fmtPct(revenue.top_10_pct_revenue_share) : '—'} />
+      </HubKPIGrid>
       {topAgents.length > 0 && (
         <>
           <h4 className={styles.subHeading}>Top AI Agents</h4>
           <div className={styles.tableWrap}>
             <table className={styles.table}>
-              <thead><tr><th>Agent</th><th>Sessions</th><th>Avg Rating</th><th>Revenue</th></tr></thead>
+              <thead><tr><th>Agent</th><th>Sessions</th><th>Rating</th><th>Revenue</th></tr></thead>
               <tbody>
                 {topAgents.slice(0, 10).map((a: any) => (
                   <tr key={a.agent_id}>
@@ -1262,8 +1272,8 @@ function GTMLifecycleSection() {
       </div>
 
       {/* Intervention map */}
-      <h4 className={styles.subHeading}>Stage Gate Summary</h4>
-      <div className={styles.tableWrap}>
+      <div style={{ marginTop: 32 }}>
+      <HubWidgetCard title="Stage Gate Summary" icon={Layers} flush>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -1304,6 +1314,7 @@ function GTMLifecycleSection() {
             })}
           </tbody>
         </table>
+      </HubWidgetCard>
       </div>
     </div>
   );
@@ -1417,46 +1428,61 @@ export function IntelligencePanel() {
 
       {/* Content area */}
       <div className={styles.content}>
-        <div className={styles.contentHeader}>
-          <h3 className={styles.contentTitle}>
-            <currentTab.icon size={16} />
-            {currentTab.label} Intelligence
-          </h3>
-          <div className={styles.headerRight}>
-            {!isSelfFetching && dataUpdatedAt > 0 && (
-              <span className={styles.lastFetched}>
-                Updated {new Date(dataUpdatedAt).toLocaleTimeString()}
-              </span>
-            )}
-            {!isSelfFetching && (
-              <button
-                className={styles.refreshBtn}
-                onClick={() => refetch()}
-                disabled={isFetching}
-                title="Refresh"
-              >
-                <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
-              </button>
-            )}
+        {!isSelfFetching && error && (
+          <div className={styles.error}>
+            {error instanceof Error ? error.message : 'Failed to load data'}
           </div>
-        </div>
+        )}
 
-        <div className={styles.contentBody}>
-          {!isSelfFetching && error && (
-            <div className={styles.error}>
-              {error instanceof Error ? error.message : 'Failed to load data'}
-            </div>
-          )}
-
-          {!isSelfFetching && isFetching && !data ? (
-            <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
-          ) : (
-            <SectionErrorBoundary key={activeTab} sectionLabel={currentTab.label}>
-              <SectionContent tab={activeTab} data={data} />
-            </SectionErrorBoundary>
-          )}
-        </div>
+        {!isSelfFetching && isFetching && !data ? (
+          <div className={styles.loading}>Loading {currentTab.label} intelligence…</div>
+        ) : (
+          <SectionErrorBoundary key={activeTab} sectionLabel={currentTab.label}>
+            <SectionContent tab={activeTab} data={data} />
+          </SectionErrorBoundary>
+        )}
       </div>
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function IntelligenceSidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Data Refresh Schedule">
+        <div className={styles.scheduleList}>
+          <div className={styles.scheduleItem}><span>Resources</span><span>04:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>SEO</span><span>05:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>CaaS</span><span>05:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Marketplace</span><span>06:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Bookings</span><span>06:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Listings</span><span>07:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Financials</span><span>07:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>VirtualSpace</span><span>08:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Referral</span><span>09:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Retention</span><span>09:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>AI Adoption</span><span>10:00 UTC</span></div>
+          <div className={styles.scheduleItem}><span>Org Conversion</span><span>10:30 UTC</span></div>
+          <div className={styles.scheduleItem}><span>AI Studio</span><span>11:00 UTC</span></div>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Intelligence Help">
+        <div className={styles.tipsList}>
+          <p>Use <strong>GTM Lifecycle</strong> for a cross-domain health overview.</p>
+          <p><strong>Autonomy</strong> tab controls how much the Conductor acts independently.</p>
+          <p>Each domain populates via pg_cron — check schedule if data appears stale.</p>
+          <p>Data refreshes automatically when you switch tabs or refocus the window.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Intelligence Tips">
+        <div className={styles.tipsList}>
+          <p>Red/amber status dots in GTM indicate stages needing attention.</p>
+          <p>Supply/demand gaps reveal subjects where tutor recruitment is needed.</p>
+          <p>Monitor K-coefficient in Referral — target is 0.6+ for viral growth.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

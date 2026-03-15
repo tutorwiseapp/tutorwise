@@ -4,10 +4,15 @@ import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Play, RefreshCw, ChevronDown, ChevronRight,
-  History, BookOpen, Save, Trash2, RotateCcw,
+  History, BookOpen, Save, Trash2,
   CheckCircle2, XCircle, Loader2, ArrowRight,
 } from 'lucide-react';
 import { UnifiedSelect } from '@/components/ui/forms';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import type { MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
+import { HubWidgetCard } from '@/components/hub/content';
 import styles from './SimulationPanel.module.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -133,46 +138,6 @@ function StatusBadge({ status }: { status: string }) {
     <span className={`${styles.statusBadge} ${cfg[status] ?? styles.statusRunning}`}>
       {labels[status] ?? status}
     </span>
-  );
-}
-
-// ── Stats Bar ─────────────────────────────────────────────────────────────────
-
-function StatsBar({ runs }: { runs: TeamRun[] }) {
-  const now = Date.now();
-  const week = runs.filter(r => now - new Date(r.created_at).getTime() < 7 * 86400_000);
-  const completed = week.filter(r => r.status === 'completed');
-  const successRate = week.length > 0
-    ? Math.round((completed.length / week.length) * 100)
-    : 100;
-  const avgDuration = completed.length > 0
-    ? Math.round(completed.reduce((s, r) => s + (r.duration_ms ?? 0), 0) / completed.length / 1000)
-    : 0;
-  const teamCounts: Record<string, number> = {};
-  week.forEach(r => { teamCounts[r.team_name] = (teamCounts[r.team_name] ?? 0) + 1; });
-  const mostActive = Object.entries(teamCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
-
-  const rateColor = successRate >= 80 ? '#16a34a' : successRate >= 50 ? '#d97706' : '#dc2626';
-
-  return (
-    <div className={styles.statsBar}>
-      <div className={styles.statCard}>
-        <div className={styles.statValue}>{week.length}</div>
-        <div className={styles.statLabel}>Runs this week</div>
-      </div>
-      <div className={styles.statCard}>
-        <div className={styles.statValue} style={{ color: rateColor }}>{successRate}%</div>
-        <div className={styles.statLabel}>Success rate</div>
-      </div>
-      <div className={styles.statCard}>
-        <div className={styles.statValue}>{avgDuration > 0 ? `${avgDuration}s` : '—'}</div>
-        <div className={styles.statLabel}>Avg duration</div>
-      </div>
-      <div className={styles.statCard}>
-        <div className={styles.statValue} style={{ fontSize: 13 }}>{mostActive}</div>
-        <div className={styles.statLabel}>Most active team</div>
-      </div>
-    </div>
   );
 }
 
@@ -378,90 +343,6 @@ function RunSubTab({ teams, onRunComplete, initialTeamId = '', initialTask = '' 
   );
 }
 
-// ── Output Run Row ────────────────────────────────────────────────────────────
-
-function RunRow({
-  run,
-  onRerun,
-  onDelete,
-}: {
-  run: TeamRun;
-  onRerun: (run: TeamRun) => void;
-  onDelete: (id: string) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const [rerunning, setRerunning] = useState(false);
-
-  const handleRerun = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setRerunning(true);
-    try {
-      await onRerun(run);
-    } finally {
-      setRerunning(false);
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!confirm('Delete this run record?')) return;
-    onDelete(run.id);
-  };
-
-  return (
-    <>
-      <div className={styles.outputRow} onClick={() => setExpanded(e => !e)}>
-        <span className={styles.rowExpand}>
-          {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        </span>
-        <span className={styles.rowTeam}>{run.team_name}</span>
-        <span className={styles.rowTask}>
-          {run.task.length > 80 ? run.task.slice(0, 80) + '…' : run.task}
-        </span>
-        <span className={styles.rowStatus}><StatusBadge status={run.status} /></span>
-        <span className={styles.rowDuration}>{fmtDuration(run.duration_ms)}</span>
-        <span className={styles.rowTime}>{timeAgo(run.created_at)}</span>
-        <span className={styles.rowActions} onClick={e => e.stopPropagation()}>
-          <button
-            className={styles.rerunBtn}
-            onClick={handleRerun}
-            disabled={rerunning}
-            title="Re-run with same task"
-          >
-            {rerunning ? <Loader2 size={12} className={styles.spin} /> : <RotateCcw size={12} />}
-          </button>
-          {run.status !== 'running' && (
-            <button
-              className={styles.deleteRunBtn}
-              onClick={handleDelete}
-              title="Delete run record"
-            >
-              <Trash2 size={12} />
-            </button>
-          )}
-        </span>
-      </div>
-      {expanded && (
-        <div className={styles.outputExpanded}>
-          <div className={styles.expandedMeta}>
-            <span className={styles.expandedLabel}>Trigger:</span> {run.trigger_type}
-            <span className={styles.expandedLabel} style={{ marginLeft: 12 }}>Team:</span> {run.team_name}
-            <span className={styles.expandedLabel} style={{ marginLeft: 12 }}>Run ID:</span>
-            <span className={styles.runIdText}>{run.id.slice(0, 8)}…</span>
-          </div>
-          <div className={styles.expandedTask}><strong>Task:</strong> {run.task}</div>
-          {run.team_result && (
-            <div className={styles.resultText}>{run.team_result}</div>
-          )}
-          {run.agent_outputs && run.agent_outputs.length > 0 && (
-            <AgentOutputsAccordion outputs={run.agent_outputs} />
-          )}
-        </div>
-      )}
-    </>
-  );
-}
-
 // ── Output Sub-tab ────────────────────────────────────────────────────────────
 
 function OutputSubTab({
@@ -476,8 +357,8 @@ function OutputSubTab({
   teams: AgentTeam[];
 }) {
   const queryClient = useQueryClient();
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [teamFilter, setTeamFilter] = useState('all');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filterValues, setFilterValues] = useState<Record<string, string | string[]>>({});
 
   const rerunMutation = useMutation({
     mutationFn: async (run: TeamRun) => {
@@ -499,65 +380,138 @@ function OutputSubTab({
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team-runs'] }),
   });
 
+  const statusFilter = (filterValues.status as string) || 'all';
+  const teamFilter = (filterValues.team as string) || 'all';
+
   const filtered = runs
     .filter(r => statusFilter === 'all' || r.status === statusFilter)
     .filter(r => teamFilter === 'all' || r.team_id === teamFilter);
 
+  const expandedRun = expandedId ? filtered.find(r => r.id === expandedId) : null;
+
+  const tableFilters: Filter[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'all', label: 'All statuses' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'failed', label: 'Failed' },
+        { value: 'running', label: 'Running' },
+      ],
+    },
+    {
+      key: 'team',
+      label: 'Team',
+      options: [
+        { value: 'all', label: 'All teams' },
+        ...teams.map(t => ({ value: t.id, label: t.name })),
+      ],
+    },
+  ];
+
+  const columns: Column<TeamRun>[] = [
+    {
+      key: 'team_name',
+      label: 'Team',
+      width: '140px',
+      sortable: true,
+    },
+    {
+      key: 'task',
+      label: 'Task',
+      render: (row) => (
+        <span title={row.task}>
+          {row.task.length > 80 ? row.task.slice(0, 80) + '…' : row.task}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '130px',
+      sortable: true,
+      render: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      key: 'duration_ms',
+      label: 'Duration',
+      width: '90px',
+      sortable: true,
+      render: (row) => fmtDuration(row.duration_ms),
+      hideOnMobile: true,
+    },
+    {
+      key: 'created_at',
+      label: 'When',
+      width: '90px',
+      sortable: true,
+      render: (row) => timeAgo(row.created_at),
+      hideOnMobile: true,
+    },
+    {
+      key: 'actions',
+      label: '',
+      width: '48px',
+      render: (row) => {
+        const actions: MenuAction[] = [
+          {
+            label: 'Re-run',
+            onClick: () => rerunMutation.mutate(row),
+          },
+          {
+            label: 'View Details',
+            onClick: () => setExpandedId(prev => prev === row.id ? null : row.id),
+          },
+        ];
+        if (row.status !== 'running') {
+          actions.push({
+            label: 'Delete',
+            variant: 'danger',
+            onClick: () => {
+              if (confirm('Delete this run record?')) {
+                deleteRunMutation.mutate(row.id);
+                if (expandedId === row.id) setExpandedId(null);
+              }
+            },
+          });
+        }
+        return <VerticalDotsMenu actions={actions} />;
+      },
+    },
+  ];
+
   return (
     <div className={styles.outputTab}>
-      <div className={styles.filters}>
-        <UnifiedSelect
-          size="sm"
-          options={[
-            { value: 'all', label: 'All statuses' },
-            { value: 'completed', label: 'Completed' },
-            { value: 'failed', label: 'Failed' },
-            { value: 'running', label: 'Running' },
-          ]}
-          value={statusFilter}
-          onChange={v => setStatusFilter(String(v))}
-        />
-        <UnifiedSelect
-          size="sm"
-          options={[
-            { value: 'all', label: 'All teams' },
-            ...teams.map(t => ({ value: t.id, label: t.name })),
-          ]}
-          value={teamFilter}
-          onChange={v => setTeamFilter(String(v))}
-        />
-        <button
-          className={styles.refreshBtn}
-          onClick={() => refetch()}
-          disabled={isFetching}
-          title="Refresh"
-        >
-          <RefreshCw size={13} className={isFetching ? styles.spin : undefined} />
-        </button>
-        <span className={styles.filterCount}>{filtered.length} runs</span>
-      </div>
+      <HubDataTable<TeamRun>
+        columns={columns}
+        data={filtered}
+        loading={isFetching}
+        filters={tableFilters}
+        onFilterChange={(key, value) =>
+          setFilterValues(prev => ({ ...prev, [key]: value }))
+        }
+        onRefresh={() => refetch()}
+        emptyMessage="No runs match the current filters"
+        getRowId={(row) => row.id}
+      />
 
-      {filtered.length === 0 ? (
-        <div className={styles.empty}>No runs match the current filters</div>
-      ) : (
-        <div className={styles.outputTable}>
-          <div className={styles.outputHeader}>
-            <span className={styles.rowExpand} />
-            <span className={styles.rowTeam}>Team</span>
-            <span className={styles.rowTask}>Task</span>
-            <span className={styles.rowStatus}>Status</span>
-            <span className={styles.rowDuration}>Duration</span>
-            <span className={styles.rowTime}>When</span>
-            <span className={styles.rowActions} />
+      {expandedRun && (
+        <div className={styles.outputExpanded}>
+          <div className={styles.expandedMeta}>
+            <span className={styles.expandedLabel}>Trigger:</span> {expandedRun.trigger_type}
+            <span className={styles.expandedLabel} style={{ marginLeft: 12 }}>Team:</span> {expandedRun.team_name}
+            <span className={styles.expandedLabel} style={{ marginLeft: 12 }}>Run ID:</span>
+            <span className={styles.runIdText}>{expandedRun.id.slice(0, 8)}…</span>
           </div>
-          {filtered.map(run => (
-            <RunRow
-              key={run.id}
-              run={run}
-              onRerun={(r) => rerunMutation.mutateAsync(r)}
-              onDelete={(id) => deleteRunMutation.mutate(id)}
-            />
-          ))}
+          <div className={styles.expandedTask}><strong>Task:</strong> {expandedRun.task}</div>
+          {expandedRun.team_result && (
+            <div className={styles.resultText}>{expandedRun.team_result}</div>
+          )}
+          {expandedRun.agent_outputs && expandedRun.agent_outputs.length > 0 && (
+            <AgentOutputsAccordion outputs={expandedRun.agent_outputs} />
+          )}
         </div>
       )}
     </div>
@@ -873,14 +827,12 @@ export function SimulationPanel() {
   ];
 
   return (
-    <div className={styles.container}>
-      <StatsBar runs={runs} />
-
-      <div className={styles.subNav}>
+    <div className={styles.panel}>
+      <div className={styles.tabBar}>
         {SUB_TABS.map(t => (
           <button
             key={t.id}
-            className={`${styles.subNavBtn} ${subTab === t.id ? styles.subNavActive : ''}`}
+            className={`${styles.tab} ${subTab === t.id ? styles.tabActive : ''}`}
             onClick={() => setSubTab(t.id)}
           >
             {t.icon}
@@ -915,5 +867,28 @@ export function SimulationPanel() {
         )}
       </div>
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function SimulationSidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Simulation Help">
+        <div className={styles.tipsList}>
+          <p>Use <strong>Run</strong> to execute a team with a custom task and review the output.</p>
+          <p><strong>Output</strong> shows historical run results with status and timing.</p>
+          <p><strong>Scenarios</strong> let you save and replay common tasks for consistency.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Simulation Tips">
+        <div className={styles.tipsList}>
+          <p>Test supervisor teams with ambiguous tasks to verify specialist routing.</p>
+          <p>Compare pipeline vs swarm patterns on the same task to find the best fit.</p>
+          <p>Save successful runs as scenarios for regression testing after config changes.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

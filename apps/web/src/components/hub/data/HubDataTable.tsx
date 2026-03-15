@@ -136,6 +136,7 @@ export interface HubDataTableProps<T> {
   toolbarActions?: React.ReactNode; // Custom actions rendered on right side of toolbar
 
   // Styling
+  compact?: boolean; // Strip container chrome + hide toolbar for embedded use in dashboard widgets
   className?: string;
 }
 
@@ -166,6 +167,7 @@ export default function HubDataTable<T extends Record<string, any>>({
   emptyState,
   mobileCard,
   toolbarActions,
+  compact = false,
   className = '',
 }: HubDataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -328,10 +330,15 @@ export default function HubDataTable<T extends Record<string, any>>({
   const _startItem = pagination ? (pagination.page - 1) * pagination.limit + 1 : 1;
   const _endItem = pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : data.length;
 
+  // In compact mode, only show toolbar if there are explicit interactions
+  const showToolbar = compact
+    ? !!(onSearch || filters.length > 0 || bulkActions.length > 0 || onExport)
+    : true;
+
   return (
-    <div className={`${styles.tableContainer} ${className}`}>
+    <div className={`${styles.tableContainer} ${compact ? styles.compact : ''} ${className}`}>
       {/* Toolbar - Using standalone HubToolbar component */}
-      <HubToolbar
+      {showToolbar && <HubToolbar
         searchPlaceholder={searchPlaceholder}
         searchValue={searchQuery}
         onSearchChange={handleSearch}
@@ -354,7 +361,7 @@ export default function HubDataTable<T extends Record<string, any>>({
         onAutoRefreshToggle={setAutoRefreshEnabled}
         onExport={onExport}
         toolbarActions={toolbarActions}
-      />
+      />}
 
       {/* Desktop/Tablet Table */}
       <div className={styles.desktopTable}>

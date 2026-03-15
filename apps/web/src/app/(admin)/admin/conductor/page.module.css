@@ -154,6 +154,7 @@
 .monitoringContainer {
   height: calc(100dvh - 210px);
   min-height: 400px;
+  margin-top: -1rem;
   margin-left: -1rem;
   margin-bottom: -5rem;
   overflow: auto;

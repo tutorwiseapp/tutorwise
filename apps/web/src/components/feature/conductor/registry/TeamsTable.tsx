@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
 import { HubDataTable, type Column, type Filter, type PaginationConfig } from '@/components/hub/data';
-import StatusBadge from '@/components/ui/data-display/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import { Users } from 'lucide-react';
 import styles from './TeamsTable.module.css';
@@ -142,7 +142,7 @@ export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, on
       label: 'Type',
       width: '90px',
       hideOnMobile: true,
-      render: (row) => row.built_in ? <span className={styles.builtInBadge}>built-in</span> : null,
+      render: (row) => row.built_in ? <StatusBadge variant="neutral" label="built-in" size="xs" shape="rect" /> : null,
     },
     {
       key: 'pattern',
@@ -196,7 +196,7 @@ export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, on
       key: 'status',
       label: 'Status',
       width: '110px',
-      render: (row) => <StatusBadge status={row.status === 'active' ? 'Active' : 'Inactive'} />,
+      render: (row) => <StatusBadge variant={row.status === 'active' ? 'active' : 'inactive'} size="xs" />,
     },
     {
       key: 'updated_at',

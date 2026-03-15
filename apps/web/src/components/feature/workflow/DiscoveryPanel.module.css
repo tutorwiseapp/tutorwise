@@ -7,44 +7,12 @@
   background: var(--color-white, #fff);
 }
 
-/* Toolbar */
+/* Toolbar — add left padding for minimal variant */
 .toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  flex-shrink: 0;
+  padding-left: 1rem;
 }
 
-.refreshBtn {
-  height: 32px;
-  padding: 0 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-white, #fff);
-  font-size: var(--font-size-sm, 14px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  color: var(--color-text-primary, #111827);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.refreshBtn:hover:not(:disabled) {
-  background: var(--color-bg-light, #f9fafb);
-  border-color: var(--color-primary, #006C67);
-  color: var(--color-primary, #006C67);
-}
-
-.refreshBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+/* Spinning animation (used by Analyse All + card analyse buttons) */
 .spinning {
   animation: spin 1s linear infinite;
 }
@@ -52,24 +20,6 @@
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.filterSelect {
-  height: 32px;
-  padding: 0 8px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-white, #fff);
-  font-size: var(--font-size-sm, 14px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  color: var(--color-text-primary, #111827);
-  cursor: pointer;
-}
-
-.lastScanned {
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-tertiary, #9ca3af);
-  margin-left: auto;
 }
 
 /* Error banner */
@@ -206,47 +156,6 @@
   gap: 4px;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-/* Source type badges */
-.badge_status_enum { background: #ede9fe; color: #6d28d9; }
-.badge_cron_job { background: #fef3c7; color: #92400e; }
-.badge_onboarding { background: #d1fae5; color: #065f46; }
-.badge_cas_workflow { background: #dbeafe; color: #1e40af; }
-.badge_api_route { background: #fce7f3; color: #9d174d; }
-.badge_db_trigger { background: #fed7aa; color: #9a3412; }
-
-/* Analysis state badges */
-.state_preview { background: #f3f4f6; color: #6b7280; }
-.state_analysed { background: #dbeafe; color: #1e40af; }
-.state_direct_mapped { background: #d1fae5; color: #065f46; }
-
-/* Confidence badges */
-.confidence_high { background: #d1fae5; color: #065f46; }
-.confidence_medium { background: #fef3c7; color: #92400e; }
-.confidence_low { background: #fef2f2; color: #991b1b; }
-
-/* Template badges */
-.templateMatch {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.templateOutdated {
-  background: #fef3c7;
-  color: #92400e;
-}
-
 /* Description */
 .cardDescription {
   font-size: var(--font-size-xs, 12px);
@@ -333,61 +242,70 @@
   border-color: #ef4444;
 }
 
-/* Batch action bar */
-.batchBar {
+/* Batch controls — select all + count + import, right of toolbar */
+.batchControls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  background: var(--color-bg-light, #f9fafb);
-  flex-shrink: 0;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #d1d5db;
 }
 
+/* Select All toggle — matches Hub toolbar text button (36px) */
 .selectToggle {
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-white, #fff);
-  font-size: var(--font-size-xs, 12px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  color: var(--color-text-primary, #111827);
-  cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.375rem;
+  height: 36px;
+  padding: 0 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
-.selectionCount {
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-tertiary, #9ca3af);
-  flex: 1;
+.selectToggle:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.bulkSelectedCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
 }
 
 .importSelectedBtn {
-  height: 32px;
-  padding: 0 14px;
-  border: none;
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-primary, #006C67);
-  font-size: var(--font-size-sm, 14px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  font-weight: var(--font-weight-medium, 500);
-  color: white;
+  height: 36px;
+  padding: 0 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  transition: background-color 0.15s ease;
+  gap: 0.375rem;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
 .importSelectedBtn:hover:not(:disabled) {
-  background: var(--color-primary-dark, #005a55);
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .importSelectedBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -444,27 +362,27 @@
   cursor: not-allowed;
 }
 
-/* Analyse All button (toolbar) */
+/* Analyse All button — matches Hub toolbar text button (36px) */
 .analyseAllBtn {
-  height: 32px;
-  padding: 0 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-white, #fff);
-  font-size: var(--font-size-sm, 14px);
-  font-family: var(--font-primary, 'Inter', sans-serif);
-  color: var(--color-text-primary, #111827);
+  height: 36px;
+  padding: 0 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   white-space: nowrap;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .analyseAllBtn:hover:not(:disabled) {
-  border-color: var(--color-primary, #006C67);
-  color: var(--color-primary, #006C67);
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .analyseAllBtn:disabled {
@@ -472,111 +390,92 @@
   cursor: not-allowed;
 }
 
-/* Analysing progress badge in batch bar */
-.analysingCount {
-  font-size: var(--font-size-xs, 12px);
-  color: #1e40af;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Per-source scan status dots */
-.sourceStatusRow {
+/* History button — matches Hub icon button (36px) */
+.historyBtn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.sourceDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease;
-}
-
-.sourceDot_scanning {
-  background: var(--color-border, #e5e7eb);
-  animation: pulse 1.2s ease-in-out infinite;
-}
-
-.sourceDot_done {
-  background: #22c55e;
-}
-
-.sourceDot_error {
-  background: #ef4444;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-/* History button */
-.historyBtn {
-  height: 32px;
-  width: 32px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--border-radius-md, 8px);
-  background: var(--color-white, #fff);
-  color: var(--color-text-tertiary, #9ca3af);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .historyBtn:hover {
-  color: var(--color-primary, #006C67);
-  border-color: var(--color-primary, #006C67);
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
-/* Scan history panel */
-.historyPanel {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  background: var(--color-bg-light, #f9fafb);
-  flex-shrink: 0;
-}
-
-.historyTitle {
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--font-weight-medium, 500);
-  color: var(--color-text-secondary, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
+/* Scan history modal body (inside HubComplexModal) */
+.historyBody {
+  padding: 20px 24px;
 }
 
 .historyEmpty {
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-sm, 14px);
   color: var(--color-text-tertiary, #9ca3af);
+  text-align: center;
+  padding: 24px 0;
   margin: 0;
 }
 
 .historyTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-sm, 14px);
 }
 
 .historyTable th {
   text-align: left;
   color: var(--color-text-tertiary, #9ca3af);
+  font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-medium, 500);
-  padding: 0 8px 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 12px 8px 0;
 }
 
 .historyTable td {
-  padding: 3px 8px 3px 0;
+  padding: 8px 12px 8px 0;
   color: var(--color-text-secondary, #6b7280);
   border-top: 1px solid var(--color-border, #e5e7eb);
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.historyStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.historyStatusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.historyStatusDot[data-status="running"] {
+  background: #f59e0b;
+}
+
+.historyStatusDot[data-status="failed"] {
+  background: #ef4444;
+}
+
+/* Tips list for sidebar help card */
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tipsList p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
 }

@@ -1,6 +1,6 @@
-/* ExecutionPanel — Execution tab main layout */
+/* ExecutionPanel — category bar layout (matches Mining/Intelligence pattern) */
 
-.container {
+.panel {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -8,154 +8,146 @@
   background: var(--color-white, #fff);
 }
 
-.body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
+/* ── Category bar (tier 1) — process tabs ────────────────────────────────── */
 
-/* Left panel: process list + execution list */
-.leftPanel {
-  width: 320px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--color-border, #e5e7eb);
+.categoryBar {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* Process list section */
-.processSection {
+  align-items: stretch;
+  gap: 0;
+  padding: 0 1rem;
+  background: var(--color-white, #fff);
   border-bottom: 1px solid var(--color-border, #e5e7eb);
   flex-shrink: 0;
-  max-height: 260px;
-  overflow-y: auto;
 }
 
-.sectionHeader {
-  display: flex;
+.categoryTab {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  position: sticky;
-  top: 0;
-  background: var(--color-white, #fff);
-  z-index: 1;
-  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
-}
-
-.sectionTitle {
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-text-secondary, #6b7280);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.refreshBtn {
-  width: 22px;
-  height: 22px;
-  border: none;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
   background: none;
-  cursor: pointer;
-  color: var(--color-text-tertiary, #9ca3af);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-}
-
-.refreshBtn:hover {
-  background: var(--color-bg-light, #f9fafb);
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.loadingRow {
-  padding: 8px 12px;
-  font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-tertiary, #9ca3af);
-}
-
-.processRow {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
-  background: var(--color-white, #fff);
-}
-
-.processRow:hover { background: var(--color-bg-light, #f9fafb); }
-
-.processRowActive { background: var(--color-primary-50, #f0fdf4) !important; }
-
-/* Inner clickable area (name + icon) — separate from the mode toggle button */
-.processRowClickable {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 8px 8px 12px;
   border: none;
-  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-gray-500, #6b7280);
   cursor: pointer;
-  text-align: left;
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-primary, 'Inter', sans-serif);
-}
-
-.processIcon {
-  color: var(--color-text-tertiary, #9ca3af);
-  flex-shrink: 0;
-}
-
-.processRowName {
-  flex: 1;
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-primary, #111827);
+  transition: color 0.15s, border-color 0.15s;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.categoryTab:hover {
+  color: var(--color-text-primary, #111827);
+}
+
+.categoryTabActive {
+  color: var(--color-primary, #006c67);
+  border-bottom-color: var(--color-primary, #006c67);
+}
+
+.categoryModeBadge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+}
+
+.loadingHint {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #9ca3af);
+  padding: 0.55rem 1rem;
+}
+
+/* ── Toolbar actions (inside HubDataTable toolbar) ───────────────────────── */
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
+  padding: 2rem 1rem 1rem;
 }
 
-.divergenceWrapper {
-  padding: 8px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  flex-shrink: 0;
-}
-
-/* Execution list fills remaining space */
-.executionSection {
+.tableFull {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-/* Right panel: canvas monitor */
-.rightPanel {
-  flex: 1;
+.tableCompact {
+  flex-shrink: 0;
+  max-height: 45%;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.canvasSection {
+  flex: 1;
   overflow: hidden;
   position: relative;
+  min-height: 300px;
 }
 
-.emptyMonitor {
-  flex: 1;
+/* ── Empty state — matches Registry pattern ──────────────────────────────── */
+
+.empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: var(--color-text-tertiary, #9ca3af);
-  font-size: var(--font-size-sm, 14px);
+  gap: 0.375rem;
+  height: 100%;
+  min-height: 240px;
+  text-align: center;
 }
 
 .emptyIcon {
-  opacity: 0.3;
+  color: var(--color-gray-300, #d1d5db);
+  margin-bottom: 0.25rem;
 }
 
-.emptyHint {
-  font-size: var(--font-size-xs, 12px);
+.emptyTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+}
+
+.emptyDesc {
+  font-size: 0.8125rem;
   color: var(--color-text-tertiary, #9ca3af);
   margin: 0;
+}
+
+/* ── Tips list for sidebar help card ─────────────────────────────────────── */
+
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tipsList p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
 }

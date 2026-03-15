@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import Button from '@/components/ui/actions/Button';
 import styles from './ExecutionModeToggle.module.css';
 
 type ExecutionMode = 'design' | 'shadow' | 'live';
@@ -79,15 +79,16 @@ export function ExecutionModeToggle({
       <span className={`${styles.badge} ${styles[currentMode]}`}>
         {MODE_LABELS[currentMode]}
       </span>
-      <button
-        className={`${styles.toggleButton} ${currentMode === 'live' ? styles.dangerButton : ''}`}
+      <Button
+        variant={currentMode === 'live' ? 'danger' : 'secondary'}
+        size="sm"
         onClick={handleToggle}
+        isLoading={isSaving}
         disabled={isSaving}
         title={`Switch to ${NEXT_MODE[currentMode]} mode`}
       >
-        {isSaving ? <Loader2 size={11} className={styles.spinner} /> : null}
         {ACTION_LABEL[currentMode]}
-      </button>
+      </Button>
     </div>
   );
 }

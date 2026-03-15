@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Target, CheckCircle, XCircle, TrendingUp, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Target, CheckCircle, XCircle, TrendingUp, AlertTriangle } from 'lucide-react';
 import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './TierCalibrationPanel.module.css';
 
@@ -232,14 +232,6 @@ export function TierCalibrationPanel() {
             </span>
           )}
         </h3>
-        <button
-          className={styles.refreshBtn}
-          onClick={() => refetch()}
-          disabled={isFetching}
-          title="Refresh"
-        >
-          <RefreshCw size={14} className={isFetching ? styles.spinning : undefined} />
-        </button>
       </div>
 
       {/* Body */}

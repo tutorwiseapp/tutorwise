@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   GitBranch, TrendingUp, CheckCircle, XCircle, AlertTriangle,
-  RefreshCw, Layers, BarChart2, Shield,
+  Layers, BarChart2, Shield,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { UnifiedSelect } from '@/components/ui/forms';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column } from '@/components/hub/data';
+import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import type { MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
+import { HubWidgetCard } from '@/components/hub/content';
 import styles from './MiningPanel.module.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -169,6 +173,17 @@ function AnalyticsSection({ data, loading }: { data: any; loading: boolean }) {
   );
 }
 
+// ── Conformance Types ────────────────────────────────────────────────────────
+
+interface ConformanceDeviation {
+  id: string | null;
+  executionId: string;
+  nodeId: string;
+  type: string;
+  detectedAt: string | null;
+  isExpectedPath: boolean;
+}
+
 // ── Conformance Section ──────────────────────────────────────────────────────
 
 function ConformanceSection({
@@ -240,54 +255,63 @@ function ConformanceSection({
       ) : (
         <>
           <h4 className={styles.subHeading}>Deviations</h4>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Exec ID</th>
-                  <th>Node</th>
-                  <th>Type</th>
-                  <th>Detected</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deviations.map((d: any, i: number) => (
-                  <tr key={i}>
-                    <td className={styles.mono}>{String(d.executionId ?? '').slice(0, 8)}</td>
-                    <td>{d.nodeId ?? '—'}</td>
-                    <td>
-                      <span className={`${styles.chip} ${styles.chipAmber}`}>
-                        {(d.type ?? '').replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td>
-                      {d.detectedAt
-                        ? new Date(d.detectedAt).toLocaleDateString()
-                        : '—'}
-                    </td>
-                    <td>
-                      {d.isExpectedPath ? (
-                        <span className={`${styles.chip} ${styles.chipGreen}`}>Expected</span>
-                      ) : d.id == null ? (
-                        <button className={styles.markExpectedBtnDisabled} disabled title="Not yet persisted by cron">
-                          Mark as Expected
-                        </button>
-                      ) : (
-                        <button
-                          className={styles.markExpectedBtn}
-                          disabled={markPending}
-                          onClick={() => onMarkExpected(d.id)}
-                        >
-                          Mark as Expected
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <HubDataTable<ConformanceDeviation>
+            columns={[
+              {
+                key: 'executionId',
+                label: 'Exec ID',
+                render: (row) => (
+                  <span className={styles.mono}>{String(row.executionId ?? '').slice(0, 8)}</span>
+                ),
+              },
+              {
+                key: 'nodeId',
+                label: 'Node',
+                render: (row) => <>{row.nodeId || '—'}</>,
+              },
+              {
+                key: 'type',
+                label: 'Type',
+                render: (row) => (
+                  <span className={`${styles.chip} ${styles.chipAmber}`}>
+                    {(row.type ?? '').replace(/_/g, ' ')}
+                  </span>
+                ),
+              },
+              {
+                key: 'detectedAt',
+                label: 'Detected',
+                render: (row) => (
+                  <>{row.detectedAt ? new Date(row.detectedAt).toLocaleDateString() : '—'}</>
+                ),
+              },
+              {
+                key: 'actions',
+                label: 'Action',
+                render: (row) => {
+                  if (row.isExpectedPath) {
+                    const actions: MenuAction[] = [
+                      { label: 'Expected', onClick: () => {}, disabled: true },
+                    ];
+                    return <VerticalDotsMenu actions={actions} />;
+                  }
+                  if (row.id == null) {
+                    const actions: MenuAction[] = [
+                      { label: 'Mark as Expected', onClick: () => {}, disabled: true, title: 'Not yet persisted by cron' },
+                    ];
+                    return <VerticalDotsMenu actions={actions} />;
+                  }
+                  const actions: MenuAction[] = [
+                    { label: 'Mark as Expected', onClick: () => onMarkExpected(row.id!), disabled: markPending },
+                  ];
+                  return <VerticalDotsMenu actions={actions} />;
+                },
+              },
+            ] satisfies Column<ConformanceDeviation>[]}
+            data={deviations as ConformanceDeviation[]}
+            emptyMessage="No deviations found"
+            getRowId={(row) => row.id ?? `${row.executionId}-${row.nodeId}-${row.type}`}
+          />
         </>
       )}
     </div>
@@ -553,76 +577,63 @@ export function MiningPanel() {
 
   return (
     <div className={styles.panel}>
-      {/* Header row: title + process selector */}
-      <div className={styles.header}>
-        <h2 className={styles.title}>
-          <GitBranch size={16} />
-          Process Mining
-        </h2>
-        <div className={styles.headerRight}>
-          {selectedProcessId && activeQuery.dataUpdatedAt > 0 && (
-            <span className={styles.lastFetched}>
-              Updated {new Date(activeQuery.dataUpdatedAt).toLocaleTimeString()}
-            </span>
-          )}
-          {selectedProcessId && (
-            <button
-              className={styles.refreshBtn}
-              onClick={() => activeQuery.refetch()}
-              disabled={activeQuery.isFetching}
-              title="Refresh"
-            >
-              <RefreshCw size={14} className={activeQuery.isFetching ? styles.spinning : undefined} />
-            </button>
-          )}
-          <UnifiedSelect
-            value={selectedProcessId ?? ''}
-            placeholder="Select a process…"
-            onChange={(v) => { setSelectedProcessId((v as string) || null); setActiveSubTab('analytics'); }}
-            options={processes.map((p) => ({ value: p.id, label: p.name + (p.execution_mode !== 'live' ? ` (${p.execution_mode})` : '') }))}
-            size="sm"
-          />
-        </div>
+      {/* Tier 1: Process category bar */}
+      <div className={styles.categoryBar}>
+        {processes.map((p) => (
+          <button
+            key={p.id}
+            className={`${styles.categoryTab} ${selectedProcessId === p.id ? styles.categoryTabActive : ''}`}
+            onClick={() => { setSelectedProcessId(p.id); setActiveSubTab('analytics'); }}
+          >
+            {p.name}
+            {p.execution_mode !== 'live' && (
+              <span className={styles.categoryModeBadge}>{p.execution_mode}</span>
+            )}
+          </button>
+        ))}
       </div>
 
+      {/* Tier 2: Sub-tabs (only when a process is selected) */}
+      {selectedProcessId && (
+        <div className={styles.tabBar}>
+          <button
+            className={`${styles.tab} ${activeSubTab === 'analytics' ? styles.tabActive : ''}`}
+            onClick={() => setActiveSubTab('analytics')}
+          >
+            <BarChart2 size={13} />
+            Analytics
+          </button>
+          <button
+            className={`${styles.tab} ${activeSubTab === 'conformance' ? styles.tabActive : ''}`}
+            onClick={() => setActiveSubTab('conformance')}
+          >
+            <Shield size={13} />
+            Conformance
+          </button>
+          <button
+            className={`${styles.tab} ${activeSubTab === 'shadow' ? styles.tabActive : ''}`}
+            onClick={() => setActiveSubTab('shadow')}
+          >
+            <Layers size={13} />
+            Shadow
+          </button>
+        </div>
+      )}
+
       {!selectedProcessId && (
-        <div className={styles.empty}>
-          <GitBranch size={32} className={styles.emptyIcon} />
-          <span>Select a process above to view mining analytics</span>
-          <span className={styles.emptyHint}>
-            Analytics, conformance checking, and shadow comparison are available for each workflow process.
-          </span>
+        <div className={styles.content}>
+          <div className={styles.empty}>
+            <GitBranch size={32} className={styles.emptyIcon} />
+            <span>Select a process above to view mining analytics</span>
+            <span className={styles.emptyHint}>
+              Analytics, conformance checking, and shadow comparison are available for each workflow process.
+            </span>
+          </div>
         </div>
       )}
 
       {selectedProcessId && (
         <>
-          {/* Sub-tab bar */}
-          <div className={styles.subTabBar}>
-            <button
-              className={`${styles.subTab} ${activeSubTab === 'analytics' ? styles.subTabActive : ''}`}
-              onClick={() => setActiveSubTab('analytics')}
-            >
-              <BarChart2 size={13} />
-              Analytics
-            </button>
-            <button
-              className={`${styles.subTab} ${activeSubTab === 'conformance' ? styles.subTabActive : ''}`}
-              onClick={() => setActiveSubTab('conformance')}
-            >
-              <Shield size={13} />
-              Conformance
-            </button>
-            <button
-              className={`${styles.subTab} ${activeSubTab === 'shadow' ? styles.subTabActive : ''}`}
-              onClick={() => setActiveSubTab('shadow')}
-            >
-              <Layers size={13} />
-              Shadow
-            </button>
-          </div>
-
-          {/* Error banner */}
           {activeQuery.error && (
             <div className={styles.error}>
               {activeQuery.error instanceof Error
@@ -631,8 +642,7 @@ export function MiningPanel() {
             </div>
           )}
 
-          {/* Section content */}
-          <div className={styles.sectionContent}>
+          <div className={styles.content}>
             {activeSubTab === 'analytics' && (
               <AnalyticsSection
                 data={analyticsQuery.data}
@@ -661,5 +671,29 @@ export function MiningPanel() {
         </>
       )}
     </div>
+  );
+}
+
+// --- Sidebar (rendered at page level by Conductor) ---
+
+export function MiningSidebar() {
+  return (
+    <>
+      <HubWidgetCard title="Mining Help">
+        <div className={styles.tipsList}>
+          <p>Select a <strong>process</strong> to view execution analytics, conformance, and shadow data.</p>
+          <p><strong>Analytics</strong> shows cycle times, execution paths, and AI-detected patterns.</p>
+          <p><strong>Conformance</strong> checks executions against the designed process graph.</p>
+          <p><strong>Shadow</strong> compares live vs shadow runs and gates promotion.</p>
+        </div>
+      </HubWidgetCard>
+      <HubWidgetCard title="Mining Tips">
+        <div className={styles.tipsList}>
+          <p>Bottleneck nodes have above-average cycle times — investigate stuck tasks first.</p>
+          <p>Mark recurring deviations as &ldquo;expected path&rdquo; to improve conformance rate.</p>
+          <p>All 5 go-live checklist items must pass before promoting shadow to live.</p>
+        </div>
+      </HubWidgetCard>
+    </>
   );
 }

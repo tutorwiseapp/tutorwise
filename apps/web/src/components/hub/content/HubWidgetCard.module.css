@@ -1,0 +1,127 @@
+/**
+ * Filename: HubWidgetCard.module.css
+ * Purpose: Dashboard widget card styles
+ * Created: 2026-03-14
+ */
+
+.card {
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  background: #E6F0F0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #111827);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.icon {
+  color: #006c67;
+  flex-shrink: 0;
+}
+
+.title {
+  white-space: nowrap;
+}
+
+/* Badge */
+.badge {
+  border-radius: 12px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge_default {
+  background: var(--color-primary, #006C67);
+  color: #fff;
+}
+
+.badge_amber {
+  background: #d97706;
+  color: #fff;
+}
+
+.badge_red {
+  background: #dc2626;
+  color: #fff;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refreshBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary, #9ca3af);
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.refreshBtn:hover {
+  color: var(--color-text-primary, #111827);
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.refreshBtn.refreshing svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Content */
+.content {
+  padding: 12px 14px;
+  min-height: 0;
+}
+
+.flush .content {
+  padding: 0;
+}
+
+/* Loading */
+.loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--color-text-tertiary, #9ca3af);
+  font-size: 13px;
+}

@@ -13,6 +13,41 @@
   overflow: hidden;
 }
 
+/* Compact mode — strips container chrome for embedding inside HubWidgetCard */
+.tableContainer.compact {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.tableContainer.compact .dataRow {
+  height: 40px;
+}
+
+.tableContainer.compact .dataCell {
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.tableContainer.compact .headerRow {
+  height: 32px;
+}
+
+.tableContainer.compact .headerCell {
+  padding: 0 0.75rem;
+  font-size: 0.6875rem;
+}
+
+.tableContainer.compact .emptyState {
+  padding: 1.5rem 1rem;
+}
+
+.tableContainer.compact .paginationWrapper {
+  border-top: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 /* Toolbar */
 .toolbar {
   display: flex;

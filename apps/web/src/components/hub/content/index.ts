@@ -7,3 +7,5 @@
 export { default as HubEmptyState } from './HubEmptyState';
 export { default as HubRowCard } from './HubRowCard/HubRowCard';
 export { default as StatsRow } from './HubRowCard/StatsRow';
+export { default as HubWidgetCard } from './HubWidgetCard';
+export type { HubWidgetCardProps } from './HubWidgetCard';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { HubPageLayout, HubHeader } from '@/components/hub/layout';
@@ -9,12 +9,18 @@ import {
   DiscoveryPanel,
   useDiscoveryStore,
 } from '@/components/feature/workflow';
-import { ExecutionPanel } from '@/components/feature/workflow/ExecutionPanel';
-import { MonitoringPanel } from '@/components/feature/workflow/MonitoringPanel';
-import { IntelligencePanel } from '@/components/feature/conductor/IntelligencePanel';
-import { KnowledgePanel } from '@/components/feature/conductor/KnowledgePanel';
-import { MiningPanel } from '@/components/feature/conductor/MiningPanel';
+import { ExecutionPanel, ExecutionSidebar } from '@/components/feature/workflow/ExecutionPanel';
+import { DiscoverySidebar } from '@/components/feature/workflow/DiscoveryPanel';
+import { MonitoringPanel, MonitoringSidebar } from '@/components/feature/workflow/MonitoringPanel';
+import { IntelligencePanel, IntelligenceSidebar } from '@/components/feature/conductor/IntelligencePanel';
+import { KnowledgePanel, KnowledgeSidebar } from '@/components/feature/conductor/KnowledgePanel';
+import { MiningPanel, MiningSidebar } from '@/components/feature/conductor/MiningPanel';
+import { SimulationSidebar } from '@/components/feature/conductor/SimulationPanel';
+import { EvalSidebar } from '@/components/feature/conductor/EvalPanel';
+import { IntegrationsSidebar } from '@/components/feature/conductor/MCPPanel';
+import { RegistrySidebar } from '@/components/feature/conductor/registry/AgentRegistryPanel';
 import type { DiscoveryTab } from '@/components/feature/workflow/discovery-store';
+import HubSidebar from '@/components/hub/sidebar/HubSidebar';
 import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import dynamic from 'next/dynamic';
 import styles from './page.module.css';
@@ -117,6 +123,21 @@ export default function ConductorPage() {
 
   const activeStage = getActiveStage(activeTab);
 
+  // Page-level sidebar — each tab gets contextual help/tips
+  const sidebarMap: Partial<Record<DiscoveryTab, React.ReactNode>> = {
+    discovery:    <HubSidebar><DiscoverySidebar /></HubSidebar>,
+    registry:     <HubSidebar><RegistrySidebar /></HubSidebar>,
+    knowledge:    <HubSidebar><KnowledgeSidebar /></HubSidebar>,
+    integrations: <HubSidebar><IntegrationsSidebar /></HubSidebar>,
+    execution:    <HubSidebar><ExecutionSidebar /></HubSidebar>,
+    simulation:   <HubSidebar><SimulationSidebar /></HubSidebar>,
+    eval:         <HubSidebar><EvalSidebar /></HubSidebar>,
+    monitoring:   <HubSidebar><MonitoringSidebar /></HubSidebar>,
+    intelligence: <HubSidebar><IntelligenceSidebar /></HubSidebar>,
+    mining:       <HubSidebar><MiningSidebar /></HubSidebar>,
+  };
+  const sidebar = sidebarMap[activeTab];
+
   return (
     <HubPageLayout
       header={
@@ -126,6 +147,7 @@ export default function ConductorPage() {
         />
       }
       fullWidth
+      sidebar={sidebar}
     >
       <div className={styles.navRow}>
         {/* Lifecycle stage bar */}

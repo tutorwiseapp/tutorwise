@@ -1,6 +1,17 @@
+/**
+ * Filename: src/components/feature/workflow/ExecutionList.tsx
+ * Purpose: Workflow execution list using HubDataTable
+ * Updated: 2026-03-14 - Migrated from custom div list to HubDataTable
+ */
+
 'use client';
 
-import { Loader2, RefreshCw, Clock, CheckCircle, XCircle, Pause, Play } from 'lucide-react';
+import React, { useCallback, useMemo } from 'react';
+import { Clock, Play, Pause, CheckCircle, XCircle } from 'lucide-react';
+import { HubDataTable } from '@/components/hub/data';
+import type { Column, Filter } from '@/components/hub/data';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import type { StatusVariant } from '@/components/admin/badges/StatusBadge';
 import styles from './ExecutionList.module.css';
 
 export interface WorkflowExecution {
@@ -23,26 +34,8 @@ interface ExecutionListProps {
   selectedId: string | null;
   onFilterChange: (f: StatusFilter) => void;
   onSelect: (execution: WorkflowExecution) => void;
-  onRefresh: () => void;
-}
-
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'running', label: 'Running' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'completed', label: 'Done' },
-  { value: 'failed', label: 'Failed' },
-];
-
-function StatusIcon({ status }: { status: string }) {
-  switch (status) {
-    case 'running': return <Play size={12} className={styles.iconRunning} />;
-    case 'paused': return <Pause size={12} className={styles.iconPaused} />;
-    case 'completed': return <CheckCircle size={12} className={styles.iconDone} />;
-    case 'failed': return <XCircle size={12} className={styles.iconFailed} />;
-    case 'cancelled': return <XCircle size={12} className={styles.iconCancelled} />;
-    default: return <Clock size={12} />;
-  }
+  toolbarActions?: React.ReactNode;
+  emptyState?: React.ReactNode;
 }
 
 function formatDuration(startedAt: string, completedAt: string | null) {
@@ -54,77 +47,167 @@ function formatDuration(startedAt: string, completedAt: string | null) {
   return `${Math.floor(mins / 60)}h ${mins % 60}m`;
 }
 
+function StatusIcon({ status }: { status: string }) {
+  switch (status) {
+    case 'running': return <Play size={14} className={styles.iconRunning} />;
+    case 'paused': return <Pause size={14} className={styles.iconPaused} />;
+    case 'completed': return <CheckCircle size={14} className={styles.iconDone} />;
+    case 'failed': return <XCircle size={14} className={styles.iconFailed} />;
+    case 'cancelled': return <XCircle size={14} className={styles.iconCancelled} />;
+    default: return <Clock size={14} />;
+  }
+}
+
+function getStatusBadgeVariant(status: string): StatusVariant {
+  switch (status) {
+    case 'running': return 'processing';
+    case 'paused': return 'pending';
+    case 'completed': return 'completed';
+    case 'failed': return 'error';
+    case 'cancelled': return 'cancelled';
+    default: return 'neutral';
+  }
+}
+
+const STATUS_LABEL_MAP: Record<string, string> = {
+  running: 'Running',
+  paused: 'Paused',
+  completed: 'Completed',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+};
+
+const filters: Filter[] = [
+  {
+    key: 'status',
+    label: 'Status',
+    options: [
+      { label: 'All', value: 'all' },
+      { label: 'Running', value: 'running' },
+      { label: 'Paused', value: 'paused' },
+      { label: 'Completed', value: 'completed' },
+      { label: 'Failed', value: 'failed' },
+      { label: 'Cancelled', value: 'cancelled' },
+    ],
+  },
+];
+
 export function ExecutionList({
   executions,
   isLoading,
   statusFilter,
-  selectedId,
+  selectedId: _selectedId,
   onFilterChange,
   onSelect,
-  onRefresh,
+  toolbarActions,
+  emptyState: emptyStateOverride,
 }: ExecutionListProps) {
-  const filtered = statusFilter === 'all'
-    ? executions
-    : executions.filter((e) => e.status === statusFilter);
+  const filtered = useMemo(() => {
+    if (statusFilter === 'all') return executions;
+    return executions.filter((e) => e.status === statusFilter);
+  }, [executions, statusFilter]);
+
+  const handleFilterChange = useCallback(
+    (filterKey: string, value: string | string[]) => {
+      if (filterKey === 'status') {
+        const v = typeof value === 'string' ? value : value[0] || 'all';
+        onFilterChange(v as StatusFilter);
+      }
+    },
+    [onFilterChange],
+  );
+
+  const columns: Column<WorkflowExecution>[] = useMemo(
+    () => [
+      {
+        key: 'statusIcon',
+        label: '',
+        width: '40px',
+        render: (row) => <StatusIcon status={row.status} />,
+      },
+      {
+        key: 'executionId',
+        label: 'Execution',
+        render: (row) => (
+          <span className={styles.execId}>{row.id.slice(0, 8)}</span>
+        ),
+      },
+      {
+        key: 'startedAt',
+        label: 'Started',
+        width: '150px',
+        hideOnMobile: true,
+        render: (row) => (
+          <span className={styles.startedAt}>
+            {new Date(row.started_at).toLocaleString(undefined, {
+              month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+            })}
+          </span>
+        ),
+      },
+      {
+        key: 'duration',
+        label: 'Duration',
+        width: '100px',
+        hideOnMobile: true,
+        render: (row) => (
+          <span className={styles.durationText}>
+            {formatDuration(row.started_at, row.completed_at)}
+          </span>
+        ),
+      },
+      {
+        key: 'mode',
+        label: 'Mode',
+        width: '80px',
+        hideOnMobile: true,
+        render: (row) =>
+          row.is_shadow ? (
+            <span className={styles.shadowBadge}>shadow</span>
+          ) : (
+            <span className={styles.liveBadge}>live</span>
+          ),
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        width: '110px',
+        render: (row) => (
+          <StatusBadge
+            variant={getStatusBadgeVariant(row.status)}
+            label={STATUS_LABEL_MAP[row.status] || row.status}
+            size="sm"
+          />
+        ),
+      },
+    ],
+    [],
+  );
+
+  const defaultEmpty = (
+    <div className={styles.emptyState}>
+      <Clock size={32} className={styles.emptyIcon} />
+      <p className={styles.emptyTitle}>No executions found</p>
+      <p className={styles.emptyDescription}>
+        Workflow executions will appear here once processes are started.
+      </p>
+    </div>
+  );
+
+  const emptyState = emptyStateOverride ?? defaultEmpty;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.toolbar}>
-        <div className={styles.filters}>
-          {STATUS_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              className={`${styles.filterChip} ${statusFilter === f.value ? styles.filterActive : ''}`}
-              onClick={() => onFilterChange(f.value)}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <button className={styles.refreshButton} onClick={onRefresh} title="Refresh">
-          {isLoading ? (
-            <Loader2 size={14} className={styles.spinner} />
-          ) : (
-            <RefreshCw size={14} />
-          )}
-        </button>
-      </div>
-
-      <div className={styles.list}>
-        {isLoading && filtered.length === 0 && (
-          <div className={styles.emptyState}>
-            <Loader2 size={20} className={styles.spinner} />
-          </div>
-        )}
-
-        {!isLoading && filtered.length === 0 && (
-          <div className={styles.emptyState}>No executions found.</div>
-        )}
-
-        {filtered.map((execution) => (
-          <button
-            key={execution.id}
-            className={`${styles.row} ${selectedId === execution.id ? styles.rowSelected : ''}`}
-            onClick={() => onSelect(execution)}
-          >
-            <div className={styles.rowLeft}>
-              <StatusIcon status={execution.status} />
-              <div className={styles.rowInfo}>
-                <span className={styles.processName}>
-                  {execution.process?.name ?? 'Unknown Process'}
-                </span>
-                <span className={styles.execMeta}>
-                  {execution.is_shadow && <span className={styles.shadowBadge}>shadow</span>}
-                  {formatDuration(execution.started_at, execution.completed_at)}
-                </span>
-              </div>
-            </div>
-            <span className={`${styles.statusBadge} ${styles[`status_${execution.status}`]}`}>
-              {execution.status}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
+    <HubDataTable<WorkflowExecution>
+      columns={columns}
+      data={filtered}
+      loading={isLoading}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      onRowClick={onSelect}
+      emptyState={emptyState}
+      searchPlaceholder="Search executions..."
+      getRowId={(row) => row.id}
+      toolbarActions={toolbarActions}
+    />
   );
 }

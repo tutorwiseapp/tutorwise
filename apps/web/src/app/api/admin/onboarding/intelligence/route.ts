@@ -50,8 +50,8 @@ export async function GET() {
       svc
         .from('profiles')
         .select('id', { count: 'exact', head: true })
-        .eq('email_verified', true)
-        .is('primary_role', null)
+        .neq('status', 'pending')
+        .is('active_role', null)
         .lt('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
     ]);
 

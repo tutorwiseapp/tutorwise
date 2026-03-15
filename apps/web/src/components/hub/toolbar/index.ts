@@ -5,4 +5,4 @@
  */
 
 export { default as HubToolbar } from './HubToolbar';
-export type { HubToolbarProps, Filter, FilterOption } from './types';
+export type { HubToolbarProps, Filter, FilterOption, BulkAction } from './types';

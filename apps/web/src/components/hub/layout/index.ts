@@ -5,6 +5,7 @@
  */
 
 export { default as HubPageLayout } from './HubPageLayout';
+export { default as HubPanelLayout } from './HubPanelLayout';
 export { default as HubHeader } from './HubHeader';
 export { default as HubTabs } from './HubTabs';
 export { default as HubPagination } from './HubPagination';

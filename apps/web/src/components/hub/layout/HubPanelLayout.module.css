@@ -1,0 +1,52 @@
+/**
+ * Filename: apps/web/src/components/hub/layout/HubPanelLayout.module.css
+ * Purpose: Panel-level layout with optional sidebar (62/38 split)
+ * Created: 2026-03-14
+ * Pattern: Flex row — main (flex 1) + sidebar (320px). Stacks on mobile.
+ */
+
+.panelWrapper {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mainArea {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.sidebarPanel {
+  width: 320px;
+  min-width: 320px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border, #e5e7eb);
+  background: var(--color-white, #fff);
+  overflow-y: auto;
+}
+
+/* Tablet: narrower sidebar */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .sidebarPanel {
+    width: 280px;
+    min-width: 280px;
+  }
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 1023px) {
+  .panelWrapper {
+    flex-direction: column;
+  }
+
+  .sidebarPanel {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--color-border, #e5e7eb);
+  }
+}

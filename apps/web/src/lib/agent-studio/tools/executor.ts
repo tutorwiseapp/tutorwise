@@ -233,7 +233,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .maybeSingle(),
       supabase
         .from('caas_platform_metrics_daily')
-        .select('role_type, snapshot_date, provisional_count, stale_count, avg_caas_score')
+        .select('role_type, snapshot_date, provisional_count, stale_count, avg_score')
         .neq('role_type', 'all')
         .order('snapshot_date', { ascending: false })
         .limit(10),
@@ -296,10 +296,9 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .limit(20),
       supabase
         .from('seo_hubs')
-        .select('id, subject, status, spoke_count, avg_spoke_word_count')
-        .lt('spoke_count', 3)
+        .select('id, title, slug, status, seo_score, word_count')
         .eq('status', 'published')
-        .order('spoke_count', { ascending: true })
+        .order('seo_score', { ascending: true, nullsFirst: true })
         .limit(10),
     ]);
 
@@ -486,7 +485,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .gte('created_at', since),
       supabase
         .from('listings')
-        .select('subjects, level, status')
+        .select('subjects, levels, status')
         .eq('status', 'active'),
     ]);
 
@@ -540,7 +539,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       supabase
         .from('bookings')
         .select('id', { count: 'exact', head: true })
-        .eq('payment_status', 'Disputed'),
+        .eq('payment_status', 'Failed'),
     ]);
 
     checkErrors([metrics, liveStalls, recentDisputes]);
@@ -638,7 +637,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .from('transactions')
         .select('id', { count: 'exact', head: true })
         .eq('type', 'Tutoring Payout')
-        .not('status', 'in', '("reversed","refunded")'),
+        .eq('status', 'Paid'),
     ]);
 
     checkErrors([metrics, clearingLive, anomalies]);
@@ -661,7 +660,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       supabase
         .from('virtualspace_sessions')
         .select('id', { count: 'exact', head: true })
-        .in('status', ['active', 'scheduled'])
+        .in('status', ['active'])
         .gte('created_at', new Date(Date.now() - 24 * 3600000).toISOString()),
     ]);
 

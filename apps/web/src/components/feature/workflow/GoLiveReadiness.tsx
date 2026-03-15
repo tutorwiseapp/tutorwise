@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { CheckCircle, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ExecutionModeToggle } from './ExecutionModeToggle';
 import type { WorkflowProcess } from './types';
@@ -78,9 +78,6 @@ export function GoLiveReadiness({ process, onModeChanged }: GoLiveReadinessProps
           }
           <span className={styles.title}>Go-Live Readiness</span>
         </div>
-        <button className={styles.refreshBtn} onClick={fetchStats} disabled={loading} title="Refresh">
-          {loading ? <Loader2 size={12} className={styles.spinner} /> : <RefreshCw size={12} />}
-        </button>
       </div>
 
       {/* Progress bar */}

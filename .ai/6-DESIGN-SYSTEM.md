@@ -1,9 +1,9 @@
 # Design System
 
 # The Tutorwise Design System
-*Version: 2.1*
-*Date: March 13, 2026*
-*Merged from Engineering Team (v1.0) and CAS Analyst Agent (v1.1) documents, verified against actual codebase. v2.1: directory structure audit fix — dual component locations, missing subdirectories.*
+*Version: 2.2*
+*Date: March 14, 2026*
+*Merged from Engineering Team (v1.0) and CAS Analyst Agent (v1.1) documents, verified against actual codebase. v2.1: directory structure audit fix. v2.2: StatusBadge standardization — shared component with pill/rect shapes, xs/sm/md sizes, enforced across all admin tables.*
 
 ---
 
@@ -396,24 +396,71 @@ interface ModalProps {
 - Escape key to close, click outside to close
 - Border radius: `8px`
 
-### 4.7 StatusBadge
+### 4.7 StatusBadge (Admin Tables)
 
-**File:** `components/ui/data-display/StatusBadge.tsx`
+**File:** `components/admin/badges/StatusBadge.tsx`
 
 ```typescript
 interface StatusBadgeProps {
-  status: string;
+  variant: StatusVariant;   // 'pending' | 'active' | 'completed' | 'neutral' | ...
+  label?: string;           // Override default label text
+  size?: 'xs' | 'sm' | 'md';
+  shape?: 'pill' | 'rect';
+  color?: { bg: string; text: string; border?: string }; // Custom color override
+  className?: string;
 }
 ```
 
-- Shape: Pill (`border-radius: 9999px`), solid background, white text
-- Padding: `4px 12px`, font: `12px`, weight `600`
-- Colors by status:
-  - `statusSignedUp`, `statusBooked`, `statusAccepted` -> `#006C67` (primary)
-  - `statusPaid` -> `#34a853` (success green)
-  - `statusPending` -> `#fbbc05` (warning yellow, dark text)
-  - `statusDeclined`, `statusFailed` -> `#d93025` (error red)
-  - Default (`statusOpen`, `statusVisited`, `statusShared`) -> `#5f6368` (secondary gray)
+**Two shapes:**
+
+| Shape | Prop | Radius | Use For |
+|---|---|---|---|
+| Pill | `shape="pill"` (default) | 12px | **Statuses** — things that change (Pending, Active, Published, Processing) |
+| Rect | `shape="rect"` | 6px | **Metadata** — static classifications (built-in, Mathematics, intel_bookings) |
+
+**Three sizes:**
+
+| Size | Prop | Font | Padding | Use For |
+|---|---|---|---|---|
+| xs | `size="xs"` | 0.65rem (10.4px) | 1px 6px | Conductor tables (compact registry, knowledge tags) |
+| sm | `size="sm"` (default) | 0.75rem (12px) | 4px 8px | Standard admin tables (bookings, listings, referrals) |
+| md | `size="md"` | 0.8125rem (13px) | 4px 12px | Detail modals, standalone emphasis badges |
+
+**Color variants (by `variant` prop):**
+- **Green:** `completed`, `active`, `paid`, `published`, `resolved`, `success`
+- **Amber:** `pending`, `processing`, `flagged`, `warning`, `proposed`
+- **Red:** `cancelled`, `unpaid`, `removed`, `error`, `open`, `suspended`
+- **Blue:** `confirmed`, `scheduled`, `verified`, `info`, `refunded`
+- **Gray:** `neutral`, `inactive`, `unscheduled`, `unverified`
+- **Pink:** `rejected`, `escalated`
+
+**Usage examples:**
+```tsx
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+
+// Status pill in bookings table (default shape + size)
+<StatusBadge variant="pending" />
+
+// Metadata rect tag in Conductor registry
+<StatusBadge variant="neutral" label="built-in" size="xs" shape="rect" />
+
+// Knowledge category tag
+<StatusBadge variant="neutral" label={chunk.category} size="xs" shape="rect" />
+
+// Subject tag in listings table
+<StatusBadge variant="neutral" label="Mathematics" size="sm" shape="rect" />
+
+// Custom color (e.g., team pattern badge)
+<StatusBadge variant="neutral" label="Shadow" color={{ bg: '#ede9fe', text: '#7c3aed', border: '#c4b5fd' }} />
+```
+
+**Rules:**
+1. All admin table badges MUST use the shared `StatusBadge` component
+2. Do NOT create custom `.badge`, `.tag`, `.pill`, `.chip`, or `.builtInBadge` CSS classes
+3. Conductor tables → `size="xs"`, standard admin tables → `size="sm"` (default)
+4. Status indicators → pill (default), metadata labels → `shape="rect"`
+
+> **Note:** There is also a separate `components/ui/data-display/StatusBadge.tsx` used only on public-facing listing pages — do not confuse with the admin version above.
 
 ### 4.8 Other UI Components
 
@@ -704,7 +751,7 @@ import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 const columns = [
   { key: 'id', label: 'ID', width: '100px', render: (row) => formatId(row.id) },
   { key: 'name', label: 'Name', width: '200px', sortable: true },
-  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+  { key: 'status', label: 'Status', render: (row) => <StatusBadge variant={getBookingStatusVariant(row.status)} /> },
   {
     key: 'actions', label: 'Actions', width: '100px',
     render: (row) => (
@@ -795,7 +842,7 @@ const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
 
 ### 10.1 StatusBadge
 
-Pill-shaped (`border-radius: 9999px`), solid colored backgrounds, white text. See Section 4.7 for full color mapping.
+Two shapes: **pill** (12px radius, for statuses) and **rect** (6px radius, for metadata tags). Three sizes: **xs** (Conductor), **sm** (standard tables), **md** (modals). All admin badges must use the shared `StatusBadge` component — see Section 4.7 for full API, sizes, shapes, and rules.
 
 ### 10.2 Empty States
 
@@ -960,6 +1007,8 @@ if (error) return <FeatureError error={error} onRetry={() => refetch()} />;
 
 - [ ] Define columns following universal order (ID, Created, Name, ..., Status, Actions)
 - [ ] Use `VerticalDotsMenu` for row actions
+- [ ] Use shared `StatusBadge` for all badges — pill for statuses, rect for metadata tags
+- [ ] Do NOT create custom badge/tag CSS — use `StatusBadge` variants and `color` prop
 - [ ] Configure filters and pagination
 - [ ] Add empty state message
 - [ ] Test column hiding on mobile/tablet
@@ -999,7 +1048,7 @@ import { HubKPIGrid, HubKPICard } from '@/components/hub/charts';
 import Button from '@/components/ui/actions/Button';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import Modal from '@/components/ui/feedback/Modal';
-import StatusBadge from '@/components/ui/data-display/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import Input from '@/components/ui/forms/Input';
 import FormGroup from '@/components/ui/forms/FormGroup';
 import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';

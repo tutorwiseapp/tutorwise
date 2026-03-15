@@ -18,12 +18,6 @@
   background: var(--color-white, #fff);
   border-bottom: 2px solid var(--color-border, #e5e7eb);
   flex-shrink: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.tabBar::-webkit-scrollbar {
-  display: none;
 }
 
 .tab {
@@ -133,4 +127,18 @@
 .tableArea {
   flex: 1;
   min-height: 0;
+}
+
+/* Tips list for sidebar help card */
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tipsList p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
 }

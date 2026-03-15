@@ -1336,13 +1336,6 @@ function BuildCanvasInner() {
   const teamEntity  = selectedNode?.data.teamEntity;
   const agentEntity = selectedNode?.data.agentEntity;
 
-  // ── Refetch ───────────────────────────────────────────────────────────────────
-
-  const handleRefresh = useCallback(() => {
-    if (level === 0) refetchSpaces();
-    else refetchTeams();
-  }, [level, refetchSpaces, refetchTeams]);
-
   // ── Export PDF ────────────────────────────────────────────────────────────────
 
   const handleExportPDF = useCallback(async () => {
@@ -1520,10 +1513,6 @@ function BuildCanvasInner() {
             title="Clear canvas"
           >
             <Trash2 size={14} /> Clear
-          </button>
-
-          <button className={styles.toolbarBtn} onClick={handleRefresh} disabled={isLoading} title="Refresh data">
-            <RefreshCw size={14} className={isLoading ? styles.spinning : undefined} />
           </button>
 
           <button className={styles.toolbarBtn} onClick={handleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>

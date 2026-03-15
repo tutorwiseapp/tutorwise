@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useCallback } from 'react';
 import { HubDataTable, type Column, type Filter, type PaginationConfig } from '@/components/hub/data';
-import StatusBadge from '@/components/ui/data-display/StatusBadge';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
 import { Bot } from 'lucide-react';
 import styles from './AgentsTable.module.css';
@@ -164,7 +164,7 @@ export function AgentsTable({
       label: 'Type',
       width: '90px',
       hideOnMobile: true,
-      render: (row) => row.built_in ? <span className={styles.builtInBadge}>built-in</span> : null,
+      render: (row) => row.built_in ? <StatusBadge variant="neutral" label="built-in" size="xs" shape="rect" /> : null,
     },
     {
       key: 'role',
@@ -209,7 +209,7 @@ export function AgentsTable({
       key: 'status',
       label: 'Status',
       width: '110px',
-      render: (row) => <StatusBadge status={row.status === 'active' ? 'Active' : 'Inactive'} />,
+      render: (row) => <StatusBadge variant={row.status === 'active' ? 'active' : 'inactive'} size="xs" />,
     },
     {
       key: 'updated_at',

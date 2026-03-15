@@ -21,38 +21,6 @@
   white-space: nowrap;
 }
 
-/* Column 3: Status Badge */
-.statusBadge {
-  display: inline-block;
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  white-space: nowrap;
-}
-
-.statusConverted {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.statusSignedUp {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.statusReferred {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.statusExpired {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
 /* Column 4 & 5: Profile Cell (Agent, Referred User) */
 .profileCell {
   display: flex;
@@ -96,17 +64,6 @@
   font-size: 0.875rem;
   color: #059669;
   font-weight: 600;
-}
-
-/* Column 9: Attribution Badge */
-.attributionBadge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background-color: #f3f4f6;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  color: #4b5563;
-  text-transform: capitalize;
 }
 
 /* Column 10: Days Cell */
