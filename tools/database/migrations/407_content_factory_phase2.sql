@@ -42,7 +42,7 @@ SET config = jsonb_set(
 ),
 updated_at = now()
 WHERE slug = 'content-strategist'
-  AND NOT (config->'tools') ? 'query_content_pipeline';
+  AND NOT (config->'tools') @> '"query_content_pipeline"'::jsonb;
 
 -- ── 3. Add content_strategy category to platform_knowledge_chunks ───────────────
 ALTER TABLE platform_knowledge_chunks
@@ -63,9 +63,10 @@ ALTER TABLE platform_knowledge_chunks
 -- ── 4. Seed series plan knowledge chunks ────────────────────────────────────────
 -- These are matched by category, not semantic search (no embeddings needed).
 -- The content-strategist agent is mapped to 'content_strategy' in AGENT_KNOWLEDGE_CATEGORY.
+-- Uses WHERE NOT EXISTS for idempotency (no unique constraint on these columns).
 
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
-VALUES (
+SELECT
   'Content Series Plan — S1: From DevOps to Agents',
   E'Series 1: From DevOps to Agents\n'
   E'Theme: How container engineering patterns (Docker, Kubernetes, Swarm) map directly to AI agent orchestration.\n'
@@ -87,11 +88,14 @@ VALUES (
   'content_strategy',
   'publications/strategy/s1-devops-to-agents',
   ARRAY['series-plan', 's1', 'devops', 'agents', 'thought-leadership']
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM platform_knowledge_chunks
+  WHERE title = 'Content Series Plan — S1: From DevOps to Agents'
+    AND category = 'content_strategy'
+);
 
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
-VALUES (
+SELECT
   'Content Series Plan — S2: From Agents to Education',
   E'Series 2: From Agents to Education\n'
   E'Theme: How AI agent infrastructure applies specifically to the education/tutoring vertical.\n'
@@ -113,11 +117,14 @@ VALUES (
   'content_strategy',
   'publications/strategy/s2-agents-to-education',
   ARRAY['series-plan', 's2', 'education', 'tutoring', 'thought-leadership']
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM platform_knowledge_chunks
+  WHERE title = 'Content Series Plan — S2: From Agents to Education'
+    AND category = 'content_strategy'
+);
 
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
-VALUES (
+SELECT
   'Content Pipeline Guidelines',
   E'Content Pipeline Operating Guidelines\n\n'
   E'1. ARTICLE SELECTION PRIORITY:\n'
@@ -140,11 +147,15 @@ VALUES (
   'content_strategy',
   'content-pipeline-guidelines',
   ARRAY['guidelines', 'content-pipeline', 'quality']
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM platform_knowledge_chunks
+  WHERE title = 'Content Pipeline Guidelines'
+    AND category = 'content_strategy'
+);
 
 -- ── 5. Weekly scheduled_item for content-team ───────────────────────────────────
 -- Monday 06:00 UTC, recurring weekly. Scheduler service dispatches to team run API.
+-- Uses WHERE NOT EXISTS for idempotency (no unique constraint on scheduled_items).
 INSERT INTO scheduled_items (
   title,
   type,
@@ -156,11 +167,11 @@ INSERT INTO scheduled_items (
   tags,
   color
 )
-VALUES (
+SELECT
   'Content Team — Weekly Article Generation',
   'team_run',
-  -- Next Monday 06:00 UTC (find next Monday from now)
-  (date_trunc('week', now() + interval '7 days') + interval '6 hours')::timestamptz,
+  -- Next Monday 06:00 UTC
+  (date_trunc('week', now()) + interval '7 days' + interval '6 hours')::timestamptz,
   'scheduled',
   'weekly',
   '0 6 * * 1',
@@ -170,5 +181,9 @@ VALUES (
   ),
   ARRAY['content-factory', 'automated', 'weekly'],
   '#f59e0b'
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM scheduled_items
+  WHERE type = 'team_run'
+    AND metadata->>'team_slug' = 'content-team'
+    AND title = 'Content Team — Weekly Article Generation'
+);

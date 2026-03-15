@@ -58,6 +58,12 @@ export async function POST(
 
     const now = new Date();
     const scheduledDate = scheduledFor ? new Date(scheduledFor) : null;
+    if (scheduledDate && isNaN(scheduledDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid scheduled_for date format. Use ISO 8601.' },
+        { status: 400 }
+      );
+    }
     const publishNow = !scheduledDate || scheduledDate <= now;
 
     if (publishNow) {

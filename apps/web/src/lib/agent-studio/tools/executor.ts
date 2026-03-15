@@ -1474,8 +1474,18 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
     const metaDescription = (input.meta_description as string) || null;
     const readTime = (input.read_time as string) || null;
 
-    // Revision — update existing article
+    // Revision — update existing article (atomic: increment revision_count in same query via RPC)
     if (articleId) {
+      // First get current revision_count for the response
+      const { data: current, error: fetchErr } = await supabase
+        .from('resource_articles')
+        .select('revision_count')
+        .eq('id', articleId)
+        .single();
+      if (fetchErr) throw new Error(`Failed to fetch article: ${fetchErr.message}`);
+
+      const newCount = (current.revision_count ?? 0) + 1;
+
       const { data, error } = await supabase
         .from('resource_articles')
         .update({
@@ -1490,6 +1500,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
           read_time: readTime,
           status: 'draft',
           revision_feedback: null,
+          revision_count: newCount,
           updated_at: new Date().toISOString(),
         })
         .eq('id', articleId)
@@ -1498,13 +1509,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
       if (error) throw new Error(`Failed to update article: ${error.message}`);
 
-      // Increment revision_count
-      await supabase
-        .from('resource_articles')
-        .update({ revision_count: (data.revision_count ?? 0) + 1 })
-        .eq('id', articleId);
-
-      return { updated: true, article_id: data.id, slug: data.slug, revision_count: (data.revision_count ?? 0) + 1 };
+      return { updated: true, article_id: data.id, slug: data.slug, revision_count: data.revision_count };
     }
 
     // New article — insert

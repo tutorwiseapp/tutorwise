@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
 
         if (pubError) throw pubError;
 
-        // Mark scheduled_items as completed
-        await supabase
+        // Mark scheduled_items as completed and capture the item ID
+        const { data: scheduledItem } = await supabase
           .from('scheduled_items')
           .update({
             status: 'completed',
@@ -73,18 +73,22 @@ export async function POST(request: NextRequest) {
           })
           .eq('type', 'content')
           .eq('status', 'scheduled')
-          .contains('metadata', { article_id: article.id });
+          .contains('metadata', { article_id: article.id })
+          .select('id')
+          .maybeSingle();
 
-        // Create scheduler_runs record
+        // Create scheduler_runs record (only if we have a scheduled_item to link)
         const completedAt = new Date();
-        await supabase.from('scheduler_runs').insert({
-          item_id: null, // We don't have the scheduled_items ID easily; null is acceptable
-          status: 'completed',
-          started_at: startedAt.toISOString(),
-          completed_at: completedAt.toISOString(),
-          duration_ms: completedAt.getTime() - startedAt.getTime(),
-          result: { article_id: article.id, slug: article.slug, action: 'auto_publish' },
-        });
+        if (scheduledItem) {
+          await supabase.from('scheduler_runs').insert({
+            item_id: scheduledItem.id,
+            status: 'completed',
+            started_at: startedAt.toISOString(),
+            completed_at: completedAt.toISOString(),
+            duration_ms: completedAt.getTime() - startedAt.getTime(),
+            result: { article_id: article.id, slug: article.slug, action: 'auto_publish' },
+          });
+        }
 
         results.push({ article_id: article.id, slug: article.slug, success: true });
       } catch (err) {
@@ -92,17 +96,26 @@ export async function POST(request: NextRequest) {
         console.error(`[Auto-publish] Failed for ${article.slug}:`, errMsg);
         results.push({ article_id: article.id, slug: article.slug, success: false, error: errMsg });
 
-        // Log failure in scheduler_runs
-        const completedAt = new Date();
-        await supabase.from('scheduler_runs').insert({
-          item_id: null,
-          status: 'failed',
-          started_at: startedAt.toISOString(),
-          completed_at: completedAt.toISOString(),
-          duration_ms: completedAt.getTime() - startedAt.getTime(),
-          error: errMsg,
-          result: { article_id: article.id, slug: article.slug, action: 'auto_publish' },
-        });
+        // Log failure in scheduler_runs (best-effort — find item ID first)
+        const { data: failedItem } = await supabase
+          .from('scheduled_items')
+          .select('id')
+          .eq('type', 'content')
+          .contains('metadata', { article_id: article.id })
+          .maybeSingle();
+
+        if (failedItem) {
+          const completedAt = new Date();
+          await supabase.from('scheduler_runs').insert({
+            item_id: failedItem.id,
+            status: 'failed',
+            started_at: startedAt.toISOString(),
+            completed_at: completedAt.toISOString(),
+            duration_ms: completedAt.getTime() - startedAt.getTime(),
+            error: errMsg,
+            result: { article_id: article.id, slug: article.slug, action: 'auto_publish' },
+          });
+        }
       }
     }
 
