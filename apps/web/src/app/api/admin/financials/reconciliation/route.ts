@@ -32,7 +32,7 @@ export async function GET(_request: NextRequest) {
       .from('profiles')
       .select('is_admin')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!profile?.is_admin) {
       return NextResponse.json({ message: 'Forbidden: Admin access required' }, { status: 403 });

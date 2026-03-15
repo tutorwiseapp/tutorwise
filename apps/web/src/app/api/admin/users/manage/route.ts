@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .select('is_admin, admin_role, admin_role_level')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!adminProfile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
@@ -161,7 +161,7 @@ export async function PATCH(request: NextRequest) {
       .from('profiles')
       .select('is_admin, admin_role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!adminProfile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
@@ -271,7 +271,7 @@ export async function DELETE(request: NextRequest) {
       .from('profiles')
       .select('is_admin, admin_role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!adminProfile?.is_admin) {
       return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });

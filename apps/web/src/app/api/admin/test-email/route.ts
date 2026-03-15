@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profile?.is_admin) {
         isAuthorized = true;

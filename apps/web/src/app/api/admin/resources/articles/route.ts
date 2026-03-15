@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .select('display_name, full_name')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const authorName = profile?.display_name || profile?.full_name || 'Admin User';
 

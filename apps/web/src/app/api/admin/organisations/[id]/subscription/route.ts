@@ -32,7 +32,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
       .from('profiles')
       .select('is_admin, admin_role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profile || !profile.is_admin) {
       return NextResponse.json(

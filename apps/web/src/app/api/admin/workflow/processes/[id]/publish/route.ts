@@ -12,7 +12,7 @@ async function requireAdmin() {
     .from('profiles')
     .select('is_admin')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (!profile?.is_admin) return { supabase, user: null, error: 'Forbidden' as const };
   return { supabase, user, error: null };
