@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createServiceRoleClient } from '@/utils/supabase/server';
 
 export async function POST(
   request: NextRequest,
@@ -19,14 +19,17 @@ export async function POST(
       ? authHeader.length === `Bearer ${cronSecret}`.length && timingSafeEqual(Buffer.from(authHeader), Buffer.from(`Bearer ${cronSecret}`))
       : false;
 
-    const supabase = await createClient();
     if (!isSchedulerAuth) {
+      const supabase = await createClient();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
       const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
       if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    // Use service role client to bypass RLS (needed for scheduler/cron auth path)
+    const supabase = await createServiceRoleClient();
 
     const { id } = await params;
     const body = await request.json() as { task: string; trigger_type?: string };

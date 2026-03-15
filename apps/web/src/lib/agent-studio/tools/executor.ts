@@ -1342,8 +1342,8 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         audience: 'CTOs, Heads of Engineering, Platform Architects',
         articles: [
           { num: 1, title: 'The Agent Marketplace is Docker Hub\'s Moment', slug: 'agent-marketplace-docker-hub-moment' },
-          { num: 2, title: 'Registry, Not Framework', slug: 'registry-not-framework' },
-          { num: 3, title: 'HITL is Architecture, Not a Feature', slug: 'hitl-is-architecture' },
+          { num: 2, title: 'Registry, Not Framework', slug: 'ai-agent-registry-not-framework' },
+          { num: 3, title: 'HITL is Architecture, Not a Feature', slug: 'hitl-is-not-a-feature-its-an-architecture' },
           { num: 4, title: 'Supervisor, Pipeline, or Swarm', slug: 'supervisor-pipeline-or-swarm' },
           { num: 5, title: 'The AI Adoption Curve Inside Your Company', slug: 'ai-adoption-curve-inside-your-company' },
         ],
@@ -1367,11 +1367,12 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       ? SERIES.filter((s) => s.id === seriesFilter)
       : SERIES;
 
-    // ── Fetch all Content Team articles ─────────────────────────────────────
+    // ── Fetch all articles matching series slugs or created by Content Team ──
+    const allSlugs = series.flatMap((s) => s.articles.map((a) => a.slug));
     const { data: articles } = await supabase
       .from('resource_articles')
       .select('id, title, slug, status, category, published_at, revision_count, created_at, views')
-      .not('team_run_id', 'is', null)
+      .or(`team_run_id.not.is.null,slug.in.(${allSlugs.join(',')})`)
       .order('created_at', { ascending: true });
 
     const articleMap = new Map((articles ?? []).map((a) => [a.slug, a]));
