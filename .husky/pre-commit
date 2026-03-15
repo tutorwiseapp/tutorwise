@@ -17,7 +17,10 @@ npm run lint
 # Clear stale .next cache to prevent SIGABRT crashes during build
 rm -rf apps/web/.next
 
-# Check for TypeScript errors
-npm run build --quiet || (echo "❌ Build failed. Please fix TypeScript errors." && exit 1)
+# Increase heap size to prevent SIGABRT during large builds
+export NODE_OPTIONS="--max-old-space-size=8192"
+
+# Check for TypeScript errors (use tsc for reliability; next build can SIGABRT on large codebases)
+npx tsc --noEmit --project apps/web/tsconfig.json || (echo "❌ TypeScript check failed." && exit 1)
 
 echo "✅ Pre-commit checks passed!"

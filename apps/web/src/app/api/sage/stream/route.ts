@@ -25,6 +25,20 @@ import { containsMath, solveMathFromMessage, formatSolutionsForContext } from '@
 import { resolveCurriculumContext, formatCurriculumContext } from '@sage/curriculum/resolver';
 import { enhancedRetriever } from '@sage/knowledge/enhanced-retriever';
 import { recommendMode, getSystemPrompt, estimateStruggleLevel, formatModeContext } from '@sage/teaching/modes';
+import {
+  classifyInput,
+  stripPII,
+  getBlockMessage,
+  detectWellbeing,
+  shouldBlockTutoring,
+  shouldSwitchToSupportive,
+  validateOutput,
+  stripOutputPII,
+  getAgeBracket,
+  getAgeSystemPrompt,
+  type SafeguardingEvent,
+} from '@sage/safety';
+import { StudentModelService } from '@sage/services/student-model';
 
 interface StreamRequestBody {
   sessionId: string;
@@ -110,9 +124,118 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // --- SAFETY PIPELINE: Input Classification ---
+    const inputClassification = classifyInput(body.message);
+
+    if (!inputClassification.safe && inputClassification.category !== 'pii_exposure') {
+      const wellbeingAlert = detectWellbeing(body.message);
+      const blockMessage = wellbeingAlert.detected && wellbeingAlert.severity === 'high'
+        ? wellbeingAlert.supportMessage!
+        : getBlockMessage(inputClassification.category);
+
+      console.log(`[Sage Safety] Input blocked: ${inputClassification.category}`);
+
+      // Log safeguarding event (async, don't block)
+      supabase.from('sage_safeguarding_events').insert({
+        user_id: user.id,
+        session_id: body.sessionId,
+        event_type: 'input_blocked',
+        severity: wellbeingAlert.detected ? wellbeingAlert.severity : 'low',
+        category: inputClassification.category,
+        details: { reason: inputClassification.reason, confidence: inputClassification.confidence },
+      }).then(({ error }) => {
+        if (error) console.warn('[Sage Safety] Could not log safeguarding event:', error.message);
+      });
+
+      return new Response(
+        JSON.stringify({
+          blocked: true,
+          message: blockMessage,
+          category: inputClassification.category,
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Sage-Safety': 'blocked',
+            'X-Sage-Safety-Category': inputClassification.category,
+          },
+        }
+      );
+    }
+
+    // --- SAFETY PIPELINE: Wellbeing Detection ---
+    const wellbeingAlert = detectWellbeing(body.message);
+
+    if (shouldBlockTutoring(wellbeingAlert)) {
+      console.log(`[Sage Safety] Wellbeing alert (high): ${wellbeingAlert.category}`);
+
+      supabase.from('sage_safeguarding_events').insert({
+        user_id: user.id,
+        session_id: body.sessionId,
+        event_type: 'wellbeing_alert',
+        severity: 'high',
+        category: wellbeingAlert.category || 'distress',
+        details: { keywords: wellbeingAlert.keywords },
+      }).then(({ error }) => {
+        if (error) console.warn('[Sage Safety] Could not log safeguarding event:', error.message);
+      });
+
+      return new Response(
+        JSON.stringify({
+          blocked: true,
+          message: wellbeingAlert.supportMessage,
+          category: 'wellbeing',
+          severity: 'high',
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Sage-Safety': 'wellbeing-alert',
+          },
+        }
+      );
+    }
+
+    // Strip PII from message before sending to LLM providers
+    const sanitisedMessage = stripPII(body.message);
+
+    // --- SAFETY PIPELINE: Age Adaptation ---
+    const { data: profileAge } = await supabase
+      .from('profiles')
+      .select('date_of_birth')
+      .eq('id', user.id)
+      .single();
+
+    const ageBracket = getAgeBracket(profileAge?.date_of_birth);
+    const agePrompt = getAgeSystemPrompt(ageBracket);
+
+    // --- STUDENT MODEL: Fetch persistent learning profile ---
+    let studentContextPrompt: string | undefined;
+    try {
+      if (persona === 'student') {
+        const studentModel = new StudentModelService(supabase);
+        const profile = await studentModel.getOrCreateProfile(user.id);
+        const contextBlock = studentModel.buildContextBlock(profile);
+        if (contextBlock && contextBlock.length > 30) {
+          studentContextPrompt = contextBlock;
+
+          // Check for topics due for review
+          const dueTopics = studentModel.getDecayedMastery(profile);
+          if (dueTopics.length > 0 && !body.conversationHistory?.length) {
+            // First message in session — mention review topics
+            studentContextPrompt += `\n\nSUGGEST REVIEW: The student has ${dueTopics.length} topic(s) due for review. Mention this naturally at the start.`;
+          }
+        }
+      }
+    } catch (modelError) {
+      console.warn('[Sage Stream] Student model fetch failed, continuing without:', modelError);
+    }
+
     // Initialize provider with automatic fallback (Claude > Gemini > Rules)
     const provider = getDefaultSageProvider();
-    console.log(`[Sage Stream] Using provider: ${provider.name}`);
+    console.log(`[Sage Stream] Using provider: ${provider.name} | Age: ${ageBracket} | Wellbeing: ${wellbeingAlert.detected ? wellbeingAlert.severity : 'none'}`);
 
     // Initialize knowledge retriever for RAG
     knowledgeRetriever.initialize(supabase);
@@ -150,10 +273,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Add current message
+    // Add current message (PII-stripped for LLM, original stored separately)
     messages.push({
       role: 'user',
-      content: body.message,
+      content: sanitisedMessage,
     });
 
     // Build context
@@ -269,8 +392,28 @@ export async function POST(request: NextRequest) {
       console.warn('[Sage Stream] Teaching mode selection failed, using default:', modeError);
     }
 
-    // Combine RAG context with signature prompt, math solutions, curriculum context, and teaching mode
-    const combinedRagContext = [ragContext, signaturePrompt, mathContext, curriculumContext, teachingModePrompt].filter(Boolean).join('\n') || undefined;
+    // If wellbeing detected (medium/low), override teaching mode to supportive
+    if (shouldSwitchToSupportive(wellbeingAlert)) {
+      teachingModePrompt = getSystemPrompt('supportive');
+      console.log(`[Sage Stream] Wellbeing detected (${wellbeingAlert.severity}) — switching to supportive mode`);
+
+      // Log medium-severity wellbeing events
+      if (wellbeingAlert.severity === 'medium') {
+        supabase.from('sage_safeguarding_events').insert({
+          user_id: user.id,
+          session_id: body.sessionId,
+          event_type: 'wellbeing_alert',
+          severity: 'medium',
+          category: wellbeingAlert.category || 'distress',
+          details: { keywords: wellbeingAlert.keywords },
+        }).then(({ error }) => {
+          if (error) console.warn('[Sage Safety] Could not log safeguarding event:', error.message);
+        });
+      }
+    }
+
+    // Combine RAG context with signature prompt, math solutions, curriculum context, teaching mode, and age adaptation
+    const combinedRagContext = [ragContext, signaturePrompt, mathContext, curriculumContext, teachingModePrompt, agePrompt, studentContextPrompt].filter(Boolean).join('\n') || undefined;
 
     // Create SSE stream
     const encoder = new TextEncoder();
@@ -307,6 +450,13 @@ export async function POST(request: NextRequest) {
             }
           }
 
+          // Detect rendering hints for frontend (LaTeX, Mermaid, steps)
+          let renderingHints: Record<string, unknown> | undefined;
+          try {
+            const { getRenderingHints } = await import('@sage/rendering/math-renderer');
+            renderingHints = getRenderingHints(fullResponse);
+          } catch { /* non-critical */ }
+
           // Send done event with suggestions and rate limit info
           const suggestions = getSuggestions(body.message, persona, body.subject);
           controller.enqueue(
@@ -316,6 +466,7 @@ export async function POST(request: NextRequest) {
               timestamp: new Date().toISOString(),
               metadata: { persona, subject: body.subject, level: body.level, provider: provider.type },
               suggestions,
+              rendering: renderingHints,
               rateLimit: {
                 tier: rateLimit.tier,
                 limit: rateLimit.limit,
@@ -359,6 +510,18 @@ export async function POST(request: NextRequest) {
             .update({ last_activity_at: new Date().toISOString() })
             .eq('id', body.sessionId)
             .then(() => {});
+
+          // Post-session: update student model (fire-and-forget)
+          if (persona === 'student') {
+            try {
+              const studentModel = new StudentModelService(supabase);
+              // Generate brief session summary for continuity
+              const summary = fullResponse.substring(0, 200).replace(/\n/g, ' ').trim();
+              studentModel.updateStudySession(user.id, 5, summary).catch(() => {});
+            } catch {
+              // Non-critical — don't log noise
+            }
+          }
 
         } catch (error) {
           console.error('[Sage Stream] Provider error:', error);
@@ -463,6 +626,8 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
+        'X-Sage-Safety': 'checked',
+        'X-Sage-Content-Rating': ageBracket,
       },
     });
   } catch (error) {

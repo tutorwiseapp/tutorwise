@@ -11,6 +11,17 @@ import { NextRequest } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { retrieveContext } from '@/lib/ai-agents/rag-retrieval';
 import { runQualityLoopWorkflow, runStudentJourneyWorkflow } from '@/lib/ai-agents/workflows';
+import {
+  classifyInput,
+  stripPII,
+  getBlockMessage,
+  detectWellbeing,
+  shouldBlockTutoring,
+  validateOutput,
+  stripOutputPII,
+} from '@sage/safety';
+import { StudentModelService } from '@sage/services/student-model';
+import { AgentMemoryService } from '@/lib/agent-studio/AgentMemoryService';
 
 interface StreamRequestBody {
   message: string;
@@ -51,7 +62,7 @@ export async function POST(
       );
     }
 
-    // Get session with agent details
+    // Get session with agent details (including custom prompt + guardrails)
     const { data: session, error: sessionError } = await supabase
       .from('ai_agent_sessions')
       .select(`
@@ -62,7 +73,9 @@ export async function POST(
           subject,
           description,
           owner_id,
-          agent_type
+          agent_type,
+          system_prompt,
+          guardrail_config
         )
       `)
       .eq('id', sessionId)
@@ -92,12 +105,80 @@ export async function POST(
     const trimmedMessage = body.message.trim();
     const messageId = `msg_${Date.now()}`;
 
-    // RAG retrieval (before streaming starts)
-    const ragResult = await retrieveContext(trimmedMessage, session.agent_id, 5);
+    // --- SAFETY PIPELINE (shared with Sage) ---
+    const inputClassification = classifyInput(trimmedMessage);
 
-    // Build system prompt
+    if (!inputClassification.safe && inputClassification.category !== 'pii_exposure') {
+      const wellbeingAlert = detectWellbeing(trimmedMessage);
+      const blockMessage = wellbeingAlert.detected && wellbeingAlert.severity === 'high'
+        ? wellbeingAlert.supportMessage!
+        : getBlockMessage(inputClassification.category);
+
+      // Log safeguarding event
+      supabase.from('sage_safeguarding_events').insert({
+        user_id: user.id,
+        session_id: sessionId,
+        event_type: 'input_blocked',
+        severity: wellbeingAlert.detected ? wellbeingAlert.severity : 'low',
+        category: inputClassification.category,
+        details: { reason: inputClassification.reason, agent_id: session.agent_id },
+      }).then(({ error: e }) => {
+        if (e) console.warn('[AI Agent Safety] Could not log event:', e.message);
+      });
+
+      return new Response(
+        JSON.stringify({ blocked: true, message: blockMessage, category: inputClassification.category }),
+        { status: 200, headers: { 'Content-Type': 'application/json', 'X-Agent-Safety': 'blocked' } }
+      );
+    }
+
+    const wellbeingAlert = detectWellbeing(trimmedMessage);
+    if (shouldBlockTutoring(wellbeingAlert)) {
+      supabase.from('sage_safeguarding_events').insert({
+        user_id: user.id,
+        session_id: sessionId,
+        event_type: 'wellbeing_alert',
+        severity: 'high',
+        category: wellbeingAlert.category || 'distress',
+        details: { keywords: wellbeingAlert.keywords, agent_id: session.agent_id },
+      }).then(({ error: e }) => {
+        if (e) console.warn('[AI Agent Safety] Could not log event:', e.message);
+      });
+
+      return new Response(
+        JSON.stringify({ blocked: true, message: wellbeingAlert.supportMessage, category: 'wellbeing' }),
+        { status: 200, headers: { 'Content-Type': 'application/json', 'X-Agent-Safety': 'wellbeing-alert' } }
+      );
+    }
+
+    // Strip PII before LLM
+    const sanitisedMessage = stripPII(trimmedMessage);
+
+    // --- PHASE A4: Per-Student Adaptation ---
+    // Fetch student model, agent memory, and RAG context in parallel
+    const studentModelService = new StudentModelService(supabase);
+    const agentMemoryService = new AgentMemoryService();
+    const agentMemorySlug = `ai-agent-${session.agent_id}`;
+
+    const [ragResult, studentProfile, memoryBlock] = await Promise.all([
+      retrieveContext(sanitisedMessage, session.agent_id, 5),
+      studentModelService.getOrCreateProfile(user.id).catch(() => null),
+      agentMemoryService.fetchMemoryBlock(agentMemorySlug, sanitisedMessage).catch(() => undefined),
+    ]);
+
+    // Build student context block for system prompt
+    let studentContextBlock = '';
+    if (studentProfile) {
+      studentContextBlock = studentModelService.buildContextBlock(studentProfile);
+      // Inject adaptive difficulty
+      const diffLevel = session.difficulty_level || 3;
+      studentContextBlock += `\nCurrent Difficulty: ${diffLevel}/5. Adjust question complexity accordingly.`;
+    }
+
+    // Build system prompt (uses custom prompt if creator set one)
     const agent = session.ai_agent;
-    const systemPrompt = buildSystemPrompt(agent, ragResult);
+    const guardrails = agent.guardrail_config || {};
+    const systemPrompt = buildSystemPrompt(agent, ragResult, guardrails, studentContextBlock, memoryBlock);
 
     // Build Gemini contents array
     const contents = buildGeminiContents(
@@ -278,6 +359,47 @@ export async function POST(
             assistantResponse: fullResponse,
           }).catch(err => console.warn('[AI Agent Stream] Student journey error:', err));
 
+          // Fire-and-forget: Record agent-student memory episode (Phase A4)
+          agentMemoryService.recordEpisode({
+            agentSlug: agentMemorySlug,
+            runId: messageId,
+            task: sanitisedMessage,
+            outputText: fullResponse,
+          }).catch(err => console.warn('[AI Agent Stream] Memory episode error:', err));
+
+          // Fire-and-forget: Extract facts from non-trivial responses (Phase A4)
+          if (fullResponse.length > 200) {
+            agentMemoryService.extractAndStoreFacts({
+              agentSlug: agentMemorySlug,
+              runId: messageId,
+              outputText: fullResponse,
+            }).catch(err => console.warn('[AI Agent Stream] Memory facts error:', err));
+          }
+
+          // Fire-and-forget: Adaptive difficulty tracking (Phase A4)
+          // Heuristic: if response contains positive affirmation patterns, student may have answered correctly
+          const correctIndicators = /\b(correct|well done|exactly|right|great|brilliant|perfect)\b/i;
+          const hintIndicators = /\b(hint|try again|not quite|almost|think about|consider)\b/i;
+          const currentDifficulty = session.difficulty_level || 3;
+          let newDifficulty = currentDifficulty;
+          if (correctIndicators.test(fullResponse) && !hintIndicators.test(fullResponse)) {
+            newDifficulty = Math.min(5, currentDifficulty + 1);
+          } else if (hintIndicators.test(fullResponse)) {
+            // Only decrease if multiple hints detected
+            const hintCount = (fullResponse.match(hintIndicators) || []).length;
+            if (hintCount >= 2) {
+              newDifficulty = Math.max(1, currentDifficulty - 1);
+            }
+          }
+          if (newDifficulty !== currentDifficulty) {
+            supabase.from('ai_agent_sessions')
+              .update({ difficulty_level: newDifficulty })
+              .eq('id', sessionId)
+              .then(({ error: e }) => {
+                if (e) console.warn('[AI Agent Stream] Difficulty update error:', e.message);
+              });
+          }
+
         } catch (error) {
           console.error('[AI Agent Stream] Error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Stream error';
@@ -300,6 +422,8 @@ export async function POST(
         'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
+        'X-Agent-Safety': 'checked',
+        'X-Agent-Age-Restriction': guardrails.age_restriction || 'secondary',
       },
     });
   } catch (error) {
@@ -312,28 +436,88 @@ export async function POST(
 }
 
 /**
- * Build system prompt from agent config and RAG context
+ * Build system prompt from agent config, custom prompt, guardrails, and RAG context
  */
 function buildSystemPrompt(
-  agent: { display_name: string; subject: string; description: string; agent_type?: string },
-  ragResult: { chunks: Array<{ text: string }>; usedFallback: boolean }
+  agent: {
+    display_name: string;
+    subject: string;
+    description: string;
+    agent_type?: string;
+    system_prompt?: string | null;
+    guardrail_config?: Record<string, any> | null;
+  },
+  ragResult: { chunks: Array<{ text: string }>; usedFallback: boolean },
+  guardrails: Record<string, any> = {},
+  studentContext: string = '',
+  memoryBlock: string | undefined = undefined,
 ): string {
-  let prompt = `You are ${agent.display_name}, a specialized ${agent.agent_type || 'tutor'} for ${agent.subject}.
+  // Start with custom prompt if creator set one, otherwise use default
+  let prompt: string;
+
+  if (agent.system_prompt) {
+    prompt = `You are ${agent.display_name}.\n\n${agent.system_prompt}`;
+  } else {
+    prompt = `You are ${agent.display_name}, a specialized ${agent.agent_type || 'tutor'} for ${agent.subject}.
 
 Your role: ${agent.description || 'Help students learn and understand concepts.'}
 
-Context sources available:
-${ragResult.chunks
-  .map((chunk, idx) => `[${idx + 1}] ${chunk.text.substring(0, 200)}...`)
-  .join('\n')}
-
 Instructions:
-- Use the context above to answer the question accurately
-- If the context doesn't have the answer, use your general knowledge
-- Always cite sources using [1], [2], etc. when using context
 - Be educational, patient, and encouraging
 - Break down complex concepts step-by-step
 - Ask follow-up questions to check understanding`;
+  }
+
+  // Inject guardrail rules
+  const guardrailRules: string[] = [];
+
+  if (guardrails.socratic_mode) {
+    guardrailRules.push('- Use Socratic questioning. Guide students to discover answers through questions. Do NOT give direct answers.');
+  }
+
+  if (guardrails.allow_direct_answers === false) {
+    guardrailRules.push('- NEVER provide direct homework answers. Guide the student to find the answer themselves.');
+  }
+
+  if (guardrails.age_restriction === 'primary') {
+    guardrailRules.push('- Use simple, clear language suitable for children under 11. Avoid jargon.');
+  } else if (guardrails.age_restriction === 'secondary') {
+    guardrailRules.push('- Use language appropriate for 11-16 year olds. Introduce technical terms with brief definitions.');
+  }
+
+  if (guardrails.blocked_topics?.length > 0) {
+    guardrailRules.push(`- Do NOT discuss these topics: ${guardrails.blocked_topics.join(', ')}`);
+  }
+
+  if (guardrails.allowed_topics?.length > 0) {
+    guardrailRules.push(`- Only discuss these topics: ${guardrails.allowed_topics.join(', ')}. Redirect off-topic questions.`);
+  }
+
+  if (guardrails.escalation_message) {
+    guardrailRules.push(`- If you cannot help, respond with: "${guardrails.escalation_message}"`);
+  }
+
+  if (guardrailRules.length > 0) {
+    prompt += '\n\nGUARDRAILS:\n' + guardrailRules.join('\n');
+  }
+
+  // Add student context (Phase A4)
+  if (studentContext) {
+    prompt += '\n\n' + studentContext;
+  }
+
+  // Add agent memory (Phase A4)
+  if (memoryBlock) {
+    prompt += '\n\nPAST EXPERIENCE:\n' + memoryBlock;
+  }
+
+  // Add RAG context
+  if (ragResult.chunks.length > 0) {
+    prompt += '\n\nContext sources:\n' + ragResult.chunks
+      .map((chunk, idx) => `[${idx + 1}] ${chunk.text.substring(0, 200)}...`)
+      .join('\n');
+    prompt += '\n\n- Cite sources using [1], [2], etc. when using context above.';
+  }
 
   if (ragResult.usedFallback) {
     prompt += '\n\nNote: Using general knowledge fallback (custom materials did not contain relevant information)';

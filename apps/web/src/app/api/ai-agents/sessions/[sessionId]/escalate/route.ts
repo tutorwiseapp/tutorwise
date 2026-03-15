@@ -103,13 +103,59 @@ export async function POST(
       );
     }
 
-    // TODO: Create notification for AI tutor owner about escalation
-    // TODO: Create booking/session request for human tutor (optional feature)
+    // Gather escalation context for human tutor (Phase A7)
+    const [{ data: conversationMessages }, { data: studentProfile }] = await Promise.all([
+      supabase
+        .from('ai_agent_messages')
+        .select('role, content, created_at')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true })
+        .limit(50),
+      supabase
+        .from('sage_student_profiles')
+        .select('mastery_map, misconceptions, learning_style, current_streak_days')
+        .eq('user_id', user.id)
+        .single(),
+    ]);
+
+    const escalationContext = {
+      session_id: sessionId,
+      agent_name: session.ai_agent.display_name,
+      agent_subject: session.ai_agent.subject,
+      duration_minutes: durationMinutes,
+      message_count: (conversationMessages || []).length,
+      conversation_summary: (conversationMessages || [])
+        .slice(-6)
+        .map((m: { role: string; content: string }) => `${m.role}: ${m.content.substring(0, 200)}`)
+        .join('\n'),
+      student_model: studentProfile ? {
+        mastery_topics: Object.entries((studentProfile.mastery_map as Record<string, { score: number }>) || {})
+          .slice(0, 5)
+          .map(([topic, entry]) => `${topic}: ${entry.score}%`),
+        active_misconceptions: ((studentProfile.misconceptions as Array<{ resolved: boolean; topic: string; misconception: string }>) || [])
+          .filter(m => !m.resolved)
+          .slice(0, 3)
+          .map(m => `${m.topic}: ${m.misconception}`),
+        learning_style: studentProfile.learning_style,
+      } : null,
+    };
+
+    // Notify the agent owner about escalation
+    supabase.from('platform_notifications').insert({
+      user_id: session.ai_agent.owner_id,
+      type: 'session_escalated',
+      title: `Session escalated from ${session.ai_agent.display_name}`,
+      message: `A student has requested human tutor help after ${durationMinutes} minutes with your AI agent.`,
+      metadata: escalationContext,
+    }).then(({ error: e }) => {
+      if (e) console.warn('[Escalation] Could not send notification:', e.message);
+    });
 
     return NextResponse.json(
       {
         session: updatedSession,
-        message: 'Session escalated successfully',
+        escalation_context: escalationContext,
+        message: 'Session escalated successfully. The tutor has been notified.',
       },
       { status: 200 }
     );

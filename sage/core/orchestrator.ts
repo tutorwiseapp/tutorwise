@@ -40,6 +40,20 @@ import {
 
 import { getSignatureContext } from '../subjects/engine-executor';
 
+import {
+  classifyInput,
+  stripPII,
+  getBlockMessage,
+  validateOutput,
+  stripOutputPII,
+  detectWellbeing,
+  shouldBlockTutoring,
+  shouldSwitchToSupportive,
+  type InputClassification,
+  type WellbeingAlert,
+  type SafeguardingEvent,
+} from '../safety';
+
 // --- Persona Configurations ---
 
 const PERSONA_CONFIGS: Record<SagePersona, SagePersonaConfig> = {
@@ -226,11 +240,65 @@ export class SageOrchestrator {
     sessionId: string,
     userMessage: string,
     ragContext?: string
-  ): Promise<{ response: SageMessage; suggestions?: string[] }> {
+  ): Promise<{ response: SageMessage; suggestions?: string[]; safetyEvent?: SafeguardingEvent }> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
       throw new Error(`Session ${sessionId} not found`);
     }
+
+    // --- SAFETY PIPELINE: Input Classification ---
+    const inputClassification = classifyInput(userMessage);
+
+    if (!inputClassification.safe && inputClassification.category !== 'pii_exposure') {
+      // Check wellbeing for self-harm (already caught by classifier, but get support message)
+      const wellbeingAlert = detectWellbeing(userMessage);
+
+      const blockMessage = wellbeingAlert.detected && wellbeingAlert.severity === 'high'
+        ? wellbeingAlert.supportMessage!
+        : getBlockMessage(inputClassification.category);
+
+      const response = this.createMessage('assistant', blockMessage, {
+        persona: session.persona,
+      });
+
+      console.log(`[Sage Safety] Input blocked: ${inputClassification.category} (confidence: ${inputClassification.confidence})`);
+
+      const safetyEvent: SafeguardingEvent = {
+        user_id: session.userId,
+        session_id: sessionId,
+        event_type: 'input_blocked',
+        severity: wellbeingAlert.detected ? wellbeingAlert.severity : 'low',
+        category: inputClassification.category,
+        details: { reason: inputClassification.reason, confidence: inputClassification.confidence },
+      };
+
+      return { response, safetyEvent };
+    }
+
+    // --- SAFETY PIPELINE: Wellbeing Detection ---
+    const wellbeingAlert = detectWellbeing(userMessage);
+
+    if (shouldBlockTutoring(wellbeingAlert)) {
+      const response = this.createMessage('assistant', wellbeingAlert.supportMessage!, {
+        persona: session.persona,
+      });
+
+      console.log(`[Sage Safety] Wellbeing alert (high): ${wellbeingAlert.category}`);
+
+      const safetyEvent: SafeguardingEvent = {
+        user_id: session.userId,
+        session_id: sessionId,
+        event_type: 'wellbeing_alert',
+        severity: 'high',
+        category: wellbeingAlert.category || 'distress',
+        details: { keywords: wellbeingAlert.keywords },
+      };
+
+      return { response, safetyEvent };
+    }
+
+    // Strip PII before sending to LLM
+    const sanitisedMessage = stripPII(userMessage);
 
     // Get or create conversation
     let conversation = session.activeConversation;
@@ -239,7 +307,7 @@ export class SageOrchestrator {
       session.activeConversation = conversation;
     }
 
-    // Add user message
+    // Add user message (original for display, sanitised for LLM)
     const userMsg = this.createMessage('user', userMessage);
     conversation.messages.push(userMsg);
 
@@ -345,6 +413,20 @@ export class SageOrchestrator {
       }
     }
 
+    // --- SAFETY PIPELINE: Output Validation ---
+    const isStudent = session.persona === 'student';
+    const outputValidation = validateOutput(responseContent, 'adaptive', isStudent);
+
+    if (!outputValidation.valid) {
+      console.log(`[Sage Safety] Output violations: ${outputValidation.violations.join(', ')}`);
+
+      // Use rewritten version if available, otherwise strip PII and continue
+      if (outputValidation.rewritten) {
+        responseContent = outputValidation.rewritten;
+      }
+      responseContent = stripOutputPII(responseContent);
+    }
+
     const response = this.createMessage('assistant', responseContent, {
       persona: session.persona,
       subject: session.subject,
@@ -362,7 +444,20 @@ export class SageOrchestrator {
       session.topicsCovered.push(intent.entities.topic);
     }
 
-    return { response, suggestions };
+    // Build safety event if wellbeing detected (medium/low — not blocking)
+    let safetyEvent: SafeguardingEvent | undefined;
+    if (wellbeingAlert.detected && wellbeingAlert.severity === 'medium') {
+      safetyEvent = {
+        user_id: session.userId,
+        session_id: sessionId,
+        event_type: 'wellbeing_alert',
+        severity: 'medium',
+        category: wellbeingAlert.category || 'distress',
+        details: { keywords: wellbeingAlert.keywords },
+      };
+    }
+
+    return { response, suggestions, safetyEvent };
   }
 
   /**
