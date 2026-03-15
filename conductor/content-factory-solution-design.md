@@ -1,8 +1,8 @@
 # Content Factory Solution Design
 
-**Version:** 2.0
+**Version:** 2.1
 **Date:** 2026-03-15
-**Status:** Draft — Design Review
+**Status:** Phase 1 + Phase 2 Complete
 **Depends on:** [conductor-solution-design.md](conductor-solution-design.md) (platform architecture)
 
 ---
@@ -391,7 +391,7 @@ Content Team writes next article (informed by data)
 
 ## 9. Implementation Plan
 
-### Phase 1 — Content Team + Review + Scheduler
+### Phase 1 — Content Team + Review + Scheduler (COMPLETE — 2026-03-15)
 
 | Task | Detail |
 |------|--------|
@@ -408,13 +408,16 @@ Content Team writes next article (informed by data)
 | "View Article" link | Scheduler renders link for `type='content'` items |
 | Migration | 406: seeds + schema changes + pg_cron |
 
-### Phase 2 — Feedback Loop
+### Phase 2 — Feedback Loop (COMPLETE — 2026-03-15)
 
 | Task | Detail |
 |------|--------|
-| content-strategist tool access | Ensure agent config includes intelligence tools |
-| Series brief loader | Tool or prompt injection that reads series plan from git or DB |
-| Scheduled Content Team run | Weekly `scheduled_items` with `type='team_run'` targeting `content-team` |
+| `query_content_pipeline` tool | New tool: returns series plan, article status, intelligence scores, next-article recommendation |
+| content-strategist tool access | Agent config updated with `query_content_pipeline` + 5 existing intelligence tools |
+| Series plan knowledge chunks | 3 chunks seeded into `platform_knowledge_chunks` (category: `content_strategy`) — series plans + pipeline guidelines |
+| Knowledge category mapping | `content-strategist` mapped to `content_strategy` in `AGENT_KNOWLEDGE_CATEGORY` (SpecialistAgentRunner) |
+| Weekly Content Team run | `scheduled_items` with `type='team_run'`, `cron_expression='0 6 * * 1'` (Monday 06:00 UTC) |
+| Migration | 407: tool registration, agent config update, knowledge chunks, scheduled item |
 
 ### Phase 3 — LinkedIn Automation (v2)
 
@@ -446,12 +449,17 @@ Content Team writes next article (informed by data)
 | 406 | `team_run_id`, `revision_count`, `revision_feedback` columns on `resource_articles` |
 | 406 | `revising` added to `resource_articles.status` CHECK constraint |
 | 406 | pg_cron: `publish-scheduled-articles` every 15 min |
+| 407 | `query_content_pipeline` tool in `analyst_tools` |
+| 407 | content-strategist config updated with `query_content_pipeline` tool |
+| 407 | `content_strategy` category added to `platform_knowledge_chunks` CHECK constraint |
+| 407 | 3 series plan knowledge chunks (S1 plan, S2 plan, pipeline guidelines) |
+| 407 | Weekly `scheduled_items` for content-team (Monday 06:00 UTC, recurring) |
 
 ---
 
 ## 12. Open Questions
 
-1. **Weekly cadence** — What day/time should the Content Team run? (e.g., Monday 06:00 UTC to have drafts ready for human review Monday morning?)
-2. **Series priority** — Should the team alternate between Series 1 and Series 2, or complete one series first?
+1. ~~**Weekly cadence** — What day/time should the Content Team run?~~ → **Resolved:** Monday 06:00 UTC.
+2. ~~**Series priority** — Should the team alternate between Series 1 and Series 2, or complete one series first?~~ → **Resolved:** Complete S1 first (encoded in `query_content_pipeline` recommendation logic + pipeline guidelines).
 3. **Article categories** — The 5 existing categories (`for-clients`, `for-tutors`, `for-agents`, `education-insights`, `company-news`) may need expansion for thought-leadership content. Add `'thought-leadership'`?
 4. **Author attribution** — Should AI-authored articles show `'Content Team'` or the founder's name?

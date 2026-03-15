@@ -69,6 +69,10 @@ const TOOL_SCHEMAS: Record<string, ParamDef[]> = {
   query_process_patterns:     [],
   query_autonomy_calibration: [],
   query_onboarding_health:    [{ key: 'days', type: 'number', default: 30 }],
+  query_content_pipeline: [
+    { key: 'series', type: 'string' },
+    { key: 'include_scores', type: 'string', default: 'true' },
+  ],
   publish_article_draft: [
     { key: 'title', type: 'string', required: true },
     { key: 'slug', type: 'string', required: true },
@@ -1323,6 +1327,139 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
   },
 
   // ── Content Factory ──────────────────────────────────────────────────────────
+
+  async query_content_pipeline(input) {
+    const supabase = await createServiceRoleClient();
+    const seriesFilter = input.series as string | undefined;
+    const includeScores = input.include_scores !== 'false';
+
+    // ── Series definitions ──────────────────────────────────────────────────
+    const SERIES = [
+      {
+        id: 's1',
+        name: 'From DevOps to Agents',
+        theme: 'How container engineering patterns map to AI agent orchestration',
+        audience: 'CTOs, Heads of Engineering, Platform Architects',
+        articles: [
+          { num: 1, title: 'The Agent Marketplace is Docker Hub\'s Moment', slug: 'agent-marketplace-docker-hub-moment' },
+          { num: 2, title: 'Registry, Not Framework', slug: 'registry-not-framework' },
+          { num: 3, title: 'HITL is Architecture, Not a Feature', slug: 'hitl-is-architecture' },
+          { num: 4, title: 'Supervisor, Pipeline, or Swarm', slug: 'supervisor-pipeline-or-swarm' },
+          { num: 5, title: 'The AI Adoption Curve Inside Your Company', slug: 'ai-adoption-curve-inside-your-company' },
+        ],
+      },
+      {
+        id: 's2',
+        name: 'From Agents to Education',
+        theme: 'How AI agent infrastructure applies to the education/tutoring vertical',
+        audience: 'EdTech leaders, education policy makers, tutoring agency founders, investors',
+        articles: [
+          { num: 1, title: 'Why Education is the Perfect First Vertical', slug: 'why-education-is-the-perfect-first-vertical' },
+          { num: 2, title: 'The AI Tutor is Not a Chatbot', slug: 'the-ai-tutor-is-not-a-chatbot' },
+          { num: 3, title: 'Marketplace Economics When Supply is AI', slug: 'marketplace-economics-when-supply-is-ai' },
+          { num: 4, title: 'How 18 Specialist Agents Run a UK EdTech', slug: 'how-18-specialist-agents-run-a-uk-edtech' },
+          { num: 5, title: 'UK Tutoring Needs Infrastructure, Not Another App', slug: 'uk-tutoring-needs-infrastructure-not-another-app' },
+        ],
+      },
+    ];
+
+    const series = seriesFilter
+      ? SERIES.filter((s) => s.id === seriesFilter)
+      : SERIES;
+
+    // ── Fetch all Content Team articles ─────────────────────────────────────
+    const { data: articles } = await supabase
+      .from('resource_articles')
+      .select('id, title, slug, status, category, published_at, revision_count, created_at, views')
+      .or('author_name.eq.Content Team,team_run_id.not.is.null')
+      .order('created_at', { ascending: true });
+
+    const articleMap = new Map((articles ?? []).map((a) => [a.slug, a]));
+
+    // ── Fetch intelligence scores for published articles ────────────────────
+    let scoreMap = new Map<string, Record<string, unknown>>();
+    if (includeScores && articles?.length) {
+      const publishedIds = articles
+        .filter((a) => a.status === 'published')
+        .map((a) => a.id);
+      if (publishedIds.length > 0) {
+        const { data: scores } = await supabase
+          .from('article_intelligence_scores')
+          .select('article_id, readability_score, seo_score, conversion_score, overall_score, scored_at')
+          .in('article_id', publishedIds)
+          .order('scored_at', { ascending: false });
+        // Keep latest score per article
+        for (const s of scores ?? []) {
+          if (!scoreMap.has(s.article_id)) scoreMap.set(s.article_id, s);
+        }
+      }
+    }
+
+    // ── Build series status ─────────────────────────────────────────────────
+    const seriesStatus = series.map((s) => {
+      const articleStatus = s.articles.map((planned) => {
+        const found = articleMap.get(planned.slug);
+        const score = found ? scoreMap.get(found.id) : undefined;
+        return {
+          num: planned.num,
+          title: planned.title,
+          slug: planned.slug,
+          status: found?.status ?? 'not_written',
+          published_at: found?.published_at ?? null,
+          views: found?.views ?? 0,
+          revision_count: found?.revision_count ?? 0,
+          intelligence_score: score
+            ? {
+                readability: (score as Record<string, unknown>).readability_score,
+                seo: (score as Record<string, unknown>).seo_score,
+                conversion: (score as Record<string, unknown>).conversion_score,
+                overall: (score as Record<string, unknown>).overall_score,
+              }
+            : null,
+        };
+      });
+
+      const published = articleStatus.filter((a) => a.status === 'published').length;
+      const drafts = articleStatus.filter((a) => a.status === 'draft' || a.status === 'revising').length;
+      const notWritten = articleStatus.filter((a) => a.status === 'not_written').length;
+      const nextArticle = articleStatus.find((a) => a.status === 'not_written');
+
+      return {
+        series_id: s.id,
+        series_name: s.name,
+        theme: s.theme,
+        audience: s.audience,
+        progress: `${published}/${s.articles.length} published`,
+        published,
+        drafts,
+        not_written: notWritten,
+        next_article: nextArticle
+          ? { num: nextArticle.num, title: nextArticle.title, slug: nextArticle.slug }
+          : null,
+        articles: articleStatus,
+      };
+    });
+
+    // ── Recommendation ──────────────────────────────────────────────────────
+    // Prioritise completing S1 before S2
+    const s1 = seriesStatus.find((s) => s.series_id === 's1');
+    const s2 = seriesStatus.find((s) => s.series_id === 's2');
+    let recommendation = '';
+    if (s1 && s1.next_article) {
+      recommendation = `Write S1 article ${s1.next_article.num}: "${s1.next_article.title}". S1 is ${s1.progress} — complete this series first.`;
+    } else if (s2 && s2.next_article) {
+      recommendation = `S1 complete! Write S2 article ${s2.next_article.num}: "${s2.next_article.title}". S2 is ${s2.progress}.`;
+    } else {
+      recommendation = 'All series articles are written. Consider new series or revisiting underperformers.';
+    }
+
+    return {
+      series: seriesStatus,
+      recommendation,
+      total_articles: articles?.length ?? 0,
+      total_published: articles?.filter((a) => a.status === 'published').length ?? 0,
+    };
+  },
 
   async publish_article_draft(input) {
     const supabase = await createServiceRoleClient();

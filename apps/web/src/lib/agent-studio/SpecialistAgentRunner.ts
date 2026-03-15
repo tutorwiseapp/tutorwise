@@ -24,6 +24,7 @@ const AGENT_KNOWLEDGE_CATEGORY: Record<string, string | null> = {
   'retention-monitor':     'intel_retention',
   'operations-monitor':    'intel_bookings',
   'autonomy-calibrator':   'workflow_process',
+  'content-strategist':    'content_strategy',
   'analyst':               null,
   'marketer':              'intel_caas',
   'planner':               'workflow_process',
