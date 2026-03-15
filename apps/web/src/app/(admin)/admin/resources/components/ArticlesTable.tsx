@@ -12,7 +12,7 @@ import { HubDataTable } from '@/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/components/hub/data';
 import Link from 'next/link';
 import StatusBadge from '@/components/admin/badges/StatusBadge';
-import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import VerticalDotsMenu, { type MenuAction } from '@/components/ui/actions/VerticalDotsMenu';
 import styles from './ArticlesTable.module.css';
 
 interface Article {
@@ -24,8 +24,9 @@ interface Article {
   author: string;
   publishedAt: string;
   readTime: string;
-  status: 'published' | 'draft' | 'scheduled';
+  status: 'published' | 'draft' | 'scheduled' | 'revising';
   views?: number;
+  revisionCount?: number;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -47,6 +48,16 @@ const CATEGORY_COLORS: Record<string, string> = {
   'thought-leadership': '#c7d2fe',
 };
 
+const REVISION_TYPE_LABELS: Record<string, string> = {
+  friendlier_tone: 'Friendlier tone',
+  more_professional: 'More professional',
+  shorter: 'Shorter',
+  more_depth: 'More depth',
+  better_seo: 'Better SEO',
+};
+
+const MAX_REVISIONS = 3;
+
 export default function ArticlesTable() {
   const router = useRouter();
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -54,6 +65,13 @@ export default function ArticlesTable() {
   const [limit, setLimit] = useState<number>(20);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [reviseModalArticle, setReviseModalArticle] = useState<Article | null>(null);
+  const [reviseTypes, setReviseTypes] = useState<Set<string>>(new Set());
+  const [reviseCustom, setReviseCustom] = useState('');
+  const [reviseLoading, setReviseLoading] = useState(false);
+  const [approveModalArticle, setApproveModalArticle] = useState<Article | null>(null);
+  const [approveDate, setApproveDate] = useState('');
+  const [approveLoading, setApproveLoading] = useState(false);
   // Fetch articles from API
   useEffect(() => {
     fetchArticles();
@@ -76,6 +94,7 @@ export default function ArticlesTable() {
           readTime: a.read_time ? `${a.read_time} min read` : '',
           status: a.status || 'draft',
           views: a.views || 0,
+          revisionCount: a.revision_count || 0,
         }));
         setArticles(mapped);
       } else {
@@ -133,6 +152,83 @@ export default function ArticlesTable() {
     } catch (error) {
       console.error('Error updating article status:', error);
     }
+  };
+
+  const handleApprove = async (article: Article) => {
+    setApproveModalArticle(article);
+    setApproveDate('');
+  };
+
+  const submitApprove = async () => {
+    if (!approveModalArticle) return;
+    setApproveLoading(true);
+    try {
+      const body: Record<string, unknown> = {};
+      if (approveDate) body.scheduled_for = new Date(approveDate).toISOString();
+
+      const response = await fetch(
+        `/api/admin/resources/articles/${approveModalArticle.id}/approve`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      );
+      if (response.ok) {
+        setApproveModalArticle(null);
+        fetchArticles();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to approve article');
+      }
+    } catch {
+      alert('Error approving article');
+    } finally {
+      setApproveLoading(false);
+    }
+  };
+
+  const handleRevise = (article: Article) => {
+    setReviseModalArticle(article);
+    setReviseTypes(new Set());
+    setReviseCustom('');
+  };
+
+  const submitRevise = async () => {
+    if (!reviseModalArticle) return;
+    if (reviseTypes.size === 0 && !reviseCustom.trim()) {
+      alert('Select at least one revision type or provide custom feedback');
+      return;
+    }
+    setReviseLoading(true);
+    try {
+      const types = [...reviseTypes];
+      if (reviseCustom.trim()) types.push('custom');
+      const response = await fetch(
+        `/api/admin/resources/articles/${reviseModalArticle.id}/revise`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ types, custom: reviseCustom.trim() || undefined }),
+        }
+      );
+      if (response.ok) {
+        setReviseModalArticle(null);
+        fetchArticles();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to request revision');
+      }
+    } catch {
+      alert('Error requesting revision');
+    } finally {
+      setReviseLoading(false);
+    }
+  };
+
+  const toggleReviseType = (type: string) => {
+    setReviseTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
   };
 
   const formatDate = (dateStr: string) => {
@@ -213,12 +309,17 @@ export default function ArticlesTable() {
       label: 'Status',
       width: '120px',
       sortable: true,
-      render: (article: Article) => (
-        <StatusBadge
-          variant={article.status === 'published' ? 'published' : article.status === 'draft' ? 'pending' : 'neutral'}
-          label={article.status.charAt(0).toUpperCase() + article.status.slice(1)}
-        />
-      ),
+      render: (article: Article) => {
+        const variant =
+          article.status === 'published' ? 'published' :
+          article.status === 'scheduled' ? 'neutral' :
+          article.status === 'revising' ? 'warning' :
+          'pending';
+        const label = article.status === 'revising'
+          ? `Revising (${article.revisionCount ?? 0}/${MAX_REVISIONS})`
+          : article.status.charAt(0).toUpperCase() + article.status.slice(1);
+        return <StatusBadge variant={variant} label={label} />;
+      },
     },
     {
       key: 'views',
@@ -234,25 +335,38 @@ export default function ArticlesTable() {
       label: 'Actions',
       width: '100px',
       sortable: false,
-      render: (article: Article) => (
-        <VerticalDotsMenu
-          actions={[
-            {
-              label: 'Edit Article',
-              onClick: () => router.push(`/admin/resources/create?slug=${article.slug}`),
-            },
-            {
-              label: article.status === 'published' ? 'Unpublish' : 'Publish',
-              onClick: () => handleStatusToggle(article),
-            },
-            {
-              label: 'Delete Article',
-              onClick: () => handleDelete(article.id),
-              variant: 'danger',
-            },
-          ]}
-        />
-      ),
+      render: (article: Article) => {
+        const actions: MenuAction[] = [
+          {
+            label: 'Edit Article',
+            onClick: () => router.push(`/admin/resources/create?slug=${article.slug}`),
+          },
+        ];
+        if (article.status === 'draft') {
+          actions.push({
+            label: 'Approve',
+            onClick: () => handleApprove(article),
+          });
+          if ((article.revisionCount ?? 0) < MAX_REVISIONS) {
+            actions.push({
+              label: 'Revise',
+              onClick: () => handleRevise(article),
+            });
+          }
+        }
+        if (article.status === 'published' || article.status === 'draft') {
+          actions.push({
+            label: article.status === 'published' ? 'Unpublish' : 'Publish',
+            onClick: () => handleStatusToggle(article),
+          });
+        }
+        actions.push({
+          label: 'Delete Article',
+          onClick: () => handleDelete(article.id),
+          variant: 'danger',
+        });
+        return <VerticalDotsMenu actions={actions} />;
+      },
     },
   ];
 
@@ -266,6 +380,7 @@ export default function ArticlesTable() {
         { value: 'published', label: 'Published' },
         { value: 'draft', label: 'Draft' },
         { value: 'scheduled', label: 'Scheduled' },
+        { value: 'revising', label: 'Revising' },
       ],
     },
     {
@@ -362,22 +477,112 @@ export default function ArticlesTable() {
   };
 
   return (
-    <HubDataTable
-      columns={columns}
-      data={articles}
-      filters={filters}
-      bulkActions={bulkActions}
-      pagination={pagination}
-      loading={loading}
-      selectable={true}
-      selectedRows={selectedRows}
-      onSelectionChange={setSelectedRows}
-      getRowId={(article) => article.id}
-      searchPlaceholder="Search articles by title..."
-      onSearch={(query) => console.log('Search:', query)}
-      onSort={(key, direction) => console.log('Sort:', key, direction)}
-      onFilterChange={(key, value) => console.log('Filter:', key, value)}
-      emptyMessage="No articles found"
-    />
+    <>
+      <HubDataTable
+        columns={columns}
+        data={articles}
+        filters={filters}
+        bulkActions={bulkActions}
+        pagination={pagination}
+        loading={loading}
+        selectable={true}
+        selectedRows={selectedRows}
+        onSelectionChange={setSelectedRows}
+        getRowId={(article) => article.id}
+        searchPlaceholder="Search articles by title..."
+        onSearch={(query) => console.log('Search:', query)}
+        onSort={(key, direction) => console.log('Sort:', key, direction)}
+        onFilterChange={(key, value) => console.log('Filter:', key, value)}
+        emptyMessage="No articles found"
+      />
+
+      {/* ── Approve Modal ─────────────────────────────────────────── */}
+      {approveModalArticle && (
+        <div className={styles.modalOverlay} onClick={() => setApproveModalArticle(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>Approve Article</h3>
+            <p className={styles.modalSubtitle}>{approveModalArticle.title}</p>
+
+            <label className={styles.fieldLabel}>
+              Schedule publish date (leave empty for immediate publish)
+            </label>
+            <input
+              type="datetime-local"
+              className={styles.dateInput}
+              value={approveDate}
+              onChange={(e) => setApproveDate(e.target.value)}
+            />
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setApproveModalArticle(null)}
+                disabled={approveLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.approveBtn}
+                onClick={submitApprove}
+                disabled={approveLoading}
+              >
+                {approveLoading ? 'Approving...' : approveDate ? 'Schedule' : 'Publish Now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Revise Modal ──────────────────────────────────────────── */}
+      {reviseModalArticle && (
+        <div className={styles.modalOverlay} onClick={() => setReviseModalArticle(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>Request Revision</h3>
+            <p className={styles.modalSubtitle}>
+              {reviseModalArticle.title} — Round {(reviseModalArticle.revisionCount ?? 0) + 1}/{MAX_REVISIONS}
+            </p>
+
+            <label className={styles.fieldLabel}>Select revision type(s)</label>
+            <div className={styles.reviseTypeGrid}>
+              {Object.entries(REVISION_TYPE_LABELS).map(([slug, label]) => (
+                <button
+                  key={slug}
+                  className={`${styles.reviseTypeBtn} ${reviseTypes.has(slug) ? styles.reviseTypeBtnActive : ''}`}
+                  onClick={() => toggleReviseType(slug)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <label className={styles.fieldLabel}>Custom feedback (optional)</label>
+            <textarea
+              className={styles.reviseTextarea}
+              value={reviseCustom}
+              onChange={(e) => setReviseCustom(e.target.value)}
+              placeholder="e.g., Also mention the UK market specifically..."
+              rows={3}
+            />
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setReviseModalArticle(null)}
+                disabled={reviseLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.reviseBtn}
+                onClick={submitRevise}
+                disabled={reviseLoading || (reviseTypes.size === 0 && !reviseCustom.trim())}
+              >
+                {reviseLoading ? 'Submitting...' : 'Request Revision'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

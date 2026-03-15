@@ -225,6 +225,12 @@ export default function SchedulerList({ items, onItemClick, onComplete, onCancel
         const actions: MenuAction[] = [
           { label: 'View Details', onClick: () => onItemClick(row) },
         ];
+        if (row.type === 'content' && row.metadata?.article_slug) {
+          actions.push({
+            label: 'View Article',
+            onClick: () => window.open(`/admin/resources/create?slug=${row.metadata.article_slug}`, '_blank'),
+          });
+        }
         if (row.status === 'scheduled' || row.status === 'in_progress') {
           actions.push({ label: 'Mark Complete', onClick: () => onComplete(row.id) });
         }

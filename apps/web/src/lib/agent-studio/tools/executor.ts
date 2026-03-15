@@ -69,6 +69,18 @@ const TOOL_SCHEMAS: Record<string, ParamDef[]> = {
   query_process_patterns:     [],
   query_autonomy_calibration: [],
   query_onboarding_health:    [{ key: 'days', type: 'number', default: 30 }],
+  publish_article_draft: [
+    { key: 'title', type: 'string', required: true },
+    { key: 'slug', type: 'string', required: true },
+    { key: 'content', type: 'string', required: true },
+    { key: 'category', type: 'string', required: true },
+    { key: 'description', type: 'string' },
+    { key: 'tags', type: 'object' },
+    { key: 'meta_title', type: 'string' },
+    { key: 'meta_description', type: 'string' },
+    { key: 'read_time', type: 'string' },
+    { key: 'article_id', type: 'string' },
+  ],
 };
 
 /** Validate and coerce input against a tool's parameter schema. */
@@ -1308,6 +1320,78 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       metric_date: m?.metric_date ?? null,
       days,
     };
+  },
+
+  // ── Content Factory ──────────────────────────────────────────────────────────
+
+  async publish_article_draft(input) {
+    const supabase = await createServiceRoleClient();
+    const articleId = input.article_id as string | undefined;
+    const slug = input.slug as string;
+    const title = input.title as string;
+    const content = input.content as string;
+    const category = input.category as string;
+    const description = (input.description as string) || null;
+    const tags = (input.tags as string[]) || [];
+    const metaTitle = (input.meta_title as string) || null;
+    const metaDescription = (input.meta_description as string) || null;
+    const readTime = (input.read_time as string) || null;
+
+    // Revision — update existing article
+    if (articleId) {
+      const { data, error } = await supabase
+        .from('resource_articles')
+        .update({
+          title,
+          slug,
+          content,
+          description,
+          category,
+          tags,
+          meta_title: metaTitle,
+          meta_description: metaDescription,
+          read_time: readTime,
+          status: 'draft',
+          revision_feedback: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', articleId)
+        .select('id, slug, revision_count')
+        .single();
+
+      if (error) throw new Error(`Failed to update article: ${error.message}`);
+
+      // Increment revision_count
+      await supabase
+        .from('resource_articles')
+        .update({ revision_count: (data.revision_count ?? 0) + 1 })
+        .eq('id', articleId);
+
+      return { updated: true, article_id: data.id, slug: data.slug, revision_count: (data.revision_count ?? 0) + 1 };
+    }
+
+    // New article — insert
+    const { data, error } = await supabase
+      .from('resource_articles')
+      .upsert({
+        title,
+        slug,
+        content,
+        description,
+        category,
+        tags,
+        meta_title: metaTitle,
+        meta_description: metaDescription,
+        read_time: readTime,
+        status: 'draft',
+        author_name: 'Content Team',
+        revision_count: 0,
+      }, { onConflict: 'slug' })
+      .select('id, slug')
+      .single();
+
+    if (error) throw new Error(`Failed to insert article: ${error.message}`);
+    return { created: true, article_id: data.id, slug: data.slug };
   },
 };
 
