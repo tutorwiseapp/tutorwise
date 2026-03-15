@@ -89,6 +89,7 @@ export function AgentRegistryPanel() {
 
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<RegistrySubTab>('spaces');
+  const [pendingFilter, setPendingFilter] = useState<Record<string, string> | null>(null);
 
   // Modal + chat + banner state
   const [modal, setModal] = useState<ModalState>(null);
@@ -163,28 +164,43 @@ export function AgentRegistryPanel() {
   const removeAgentMutation = useMutation({
     mutationFn: async (agent: SpecialistAgent) => {
       if (!confirm(`Deactivate agent "${agent.name}"?`)) throw new Error('cancelled');
-      await fetch(`/api/admin/agents/${agent.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/agents/${agent.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? `Failed to deactivate agent (HTTP ${res.status})`);
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agents'] }),
+    onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
   });
 
   const removeTeamMutation = useMutation({
     mutationFn: async (team: AgentTeam) => {
       if (!confirm(`Deactivate team "${team.name}"?`)) throw new Error('cancelled');
-      await fetch(`/api/admin/teams/${team.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/teams/${team.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? `Failed to deactivate team (HTTP ${res.status})`);
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-teams'] }),
+    onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
   });
 
   const removeSpaceMutation = useMutation({
     mutationFn: async (space: AgentSpace) => {
       if (!confirm(`Delete space "${space.name}"? Teams will be unlinked.`)) throw new Error('cancelled');
-      await fetch(`/api/admin/spaces/${space.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/spaces/${space.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? `Failed to delete space (HTTP ${res.status})`);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-spaces'] });
       queryClient.invalidateQueries({ queryKey: ['admin-teams'] });
     },
+    onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
   });
 
   const runTeamMutation = useMutation({
@@ -225,6 +241,29 @@ export function AgentRegistryPanel() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agents'] }),
   });
 
+  const cloneTeamMutation = useMutation({
+    mutationFn: async (team: AgentTeam) => {
+      const res = await fetch('/api/admin/teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: team.slug + '-copy',
+          name: team.name + ' (Copy)',
+          description: team.description,
+          pattern: team.pattern,
+          nodes: team.nodes,
+          edges: team.edges,
+          coordinator_slug: team.coordinator_slug,
+          config: team.config,
+          space_id: team.space_id,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to clone team');
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-teams'] }),
+  });
+
   // ─── Cross-navigation from store ───────────────────────────────────────────
 
   useEffect(() => {
@@ -236,8 +275,11 @@ export function AgentRegistryPanel() {
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
 
-  const handleNavigate = useCallback((subTab: RegistrySubTab, _filter?: Record<string, string>) => {
+  const handleNavigate = useCallback((subTab: RegistrySubTab, filter?: Record<string, string>) => {
+    setPendingFilter(filter ?? null);
     setActiveSubTab(subTab);
+    // Clear after the target table's useEffect consumes it
+    if (filter) setTimeout(() => setPendingFilter(null), 0);
   }, []);
 
   const handleRunAgent = useCallback(async (agent: SpecialistAgent) => {
@@ -318,6 +360,7 @@ export function AgentRegistryPanel() {
               loading={isLoading}
               onEdit={(space) => setModal({ type: 'space', mode: 'edit', space })}
               onDelete={(space) => removeSpaceMutation.mutate(space)}
+              onViewTopology={() => setActiveTab('build' as DiscoveryTab)}
               onNavigate={handleNavigate}
               toolbarActions={spacesToolbarAction}
             />
@@ -331,8 +374,10 @@ export function AgentRegistryPanel() {
               onEdit={(team) => setModal({ type: 'team', mode: 'edit', team })}
               onDelete={(team) => removeTeamMutation.mutate(team)}
               onRun={(team) => runTeamMutation.mutate(team)}
+              onClone={(team) => cloneTeamMutation.mutate(team)}
               onViewTopology={() => setActiveTab('build' as DiscoveryTab)}
               onNavigate={handleNavigate}
+              externalFilter={pendingFilter}
               toolbarActions={teamsToolbarAction}
             />
           )}
@@ -349,7 +394,9 @@ export function AgentRegistryPanel() {
               onRun={handleRunAgent}
               onClone={(agent) => cloneAgentMutation.mutate(agent)}
               onDelete={(agent) => removeAgentMutation.mutate(agent)}
+              onViewTopology={() => setActiveTab('build' as DiscoveryTab)}
               onNavigate={handleNavigate}
+              externalFilter={pendingFilter}
               toolbarActions={agentsToolbarAction}
             />
           )}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { HubDataTable, type Column, type Filter, type PaginationConfig } from '@/components/hub/data';
 import StatusBadge from '@/components/admin/badges/StatusBadge';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
@@ -51,7 +51,9 @@ interface AgentsTableProps {
   onRun: (agent: SpecialistAgent) => void;
   onClone: (agent: SpecialistAgent) => void;
   onDelete: (agent: SpecialistAgent) => void;
-  onNavigate: (subTab: 'teams', filter?: Record<string, string>) => void;
+  onViewTopology: () => void;
+  onNavigate: (subTab: 'teams' | 'spaces', filter?: Record<string, string>) => void;
+  externalFilter?: Record<string, string> | null;
   toolbarActions?: React.ReactNode;
 }
 
@@ -59,12 +61,20 @@ const PAGE_SIZE = 15;
 
 export function AgentsTable({
   agents, teams, spaces, loading, agentToTeam,
-  onConfigure, onChat, onRun, onClone, onDelete, onNavigate, toolbarActions,
+  onConfigure, onChat, onRun, onClone, onDelete, onViewTopology, onNavigate, externalFilter, toolbarActions,
 }: AgentsTableProps) {
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({ status: 'active' });
+
+  // Apply external filter from cross-navigation (e.g. "View Agents" from a Team)
+  useEffect(() => {
+    if (externalFilter) {
+      setFilterValues(prev => ({ ...prev, ...externalFilter }));
+      setPage(1);
+    }
+  }, [externalFilter]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
@@ -229,17 +239,23 @@ export function AgentsTable({
       width: '80px',
       render: (row) => (
         <VerticalDotsMenu
-          actions={[
-            { label: 'Configure', onClick: () => onConfigure(row) },
-            { label: 'Chat', onClick: () => onChat(row) },
-            { label: 'Run', onClick: () => onRun(row) },
-            { label: 'Clone', onClick: () => onClone(row) },
-            ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
-          ]}
+          actions={(() => {
+            const team = agentToTeam.get(row.slug);
+            return [
+              { label: 'Configure', onClick: () => onConfigure(row) },
+              { label: 'Chat', onClick: () => onChat(row) },
+              ...(team ? [{ label: 'View Team', onClick: () => onNavigate('teams', { team_slug: team.slug }) }] : []),
+              ...(team?.space_id ? [{ label: 'View Space', onClick: () => onNavigate('spaces', { space_id: team.space_id! }) }] : []),
+              { label: 'View Topology', onClick: () => onViewTopology() },
+              { label: 'Run', onClick: () => onRun(row) },
+              { label: 'Clone', onClick: () => onClone(row) },
+              ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
+            ];
+          })()}
         />
       ),
     },
-  ], [agentToTeam, onConfigure, onChat, onRun, onClone, onDelete, onNavigate]);
+  ], [agentToTeam, onConfigure, onChat, onRun, onClone, onDelete, onViewTopology, onNavigate]);
 
   return (
     <HubDataTable<SpecialistAgent>

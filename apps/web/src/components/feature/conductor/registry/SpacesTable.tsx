@@ -33,13 +33,14 @@ interface SpacesTableProps {
   loading: boolean;
   onEdit: (space: AgentSpace) => void;
   onDelete: (space: AgentSpace) => void;
+  onViewTopology: () => void;
   onNavigate: (subTab: 'teams' | 'agents', filter?: Record<string, string>) => void;
   toolbarActions?: React.ReactNode;
 }
 
 const PAGE_SIZE = 15;
 
-export function SpacesTable({ spaces, teams, loading, onEdit, onDelete, onNavigate, toolbarActions }: SpacesTableProps) {
+export function SpacesTable({ spaces, teams, loading, onEdit, onDelete, onViewTopology, onNavigate, toolbarActions }: SpacesTableProps) {
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -170,12 +171,15 @@ export function SpacesTable({ spaces, teams, loading, onEdit, onDelete, onNaviga
         <VerticalDotsMenu
           actions={[
             { label: 'Edit', onClick: () => onEdit(row) },
+            { label: 'View Teams', onClick: () => onNavigate('teams', { space_id: row.id }) },
+            { label: 'View Agents', onClick: () => onNavigate('agents', { space_id: row.id }) },
+            { label: 'View Topology', onClick: () => onViewTopology() },
             ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
           ]}
         />
       ),
     },
-  ], [spaceCounts, onEdit, onDelete, onNavigate]);
+  ], [spaceCounts, onEdit, onDelete, onViewTopology, onNavigate]);
 
   return (
     <HubDataTable<AgentSpace>

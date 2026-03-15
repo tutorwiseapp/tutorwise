@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { HubDataTable, type Column, type Filter, type PaginationConfig } from '@/components/hub/data';
 import StatusBadge from '@/components/admin/badges/StatusBadge';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
@@ -38,8 +38,10 @@ interface TeamsTableProps {
   onEdit: (team: AgentTeam) => void;
   onDelete: (team: AgentTeam) => void;
   onRun: (team: AgentTeam) => void;
+  onClone: (team: AgentTeam) => void;
   onViewTopology: () => void;
   onNavigate: (subTab: 'spaces' | 'agents', filter?: Record<string, string>) => void;
+  externalFilter?: Record<string, string> | null;
   toolbarActions?: React.ReactNode;
 }
 
@@ -57,11 +59,19 @@ const PATTERN_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 15;
 
-export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, onViewTopology, onNavigate, toolbarActions }: TeamsTableProps) {
+export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, onClone, onViewTopology, onNavigate, externalFilter, toolbarActions }: TeamsTableProps) {
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({ status: 'active' });
+
+  // Apply external filter from cross-navigation (e.g. "View Teams" from a Space)
+  useEffect(() => {
+    if (externalFilter) {
+      setFilterValues(prev => ({ ...prev, ...externalFilter }));
+      setPage(1);
+    }
+  }, [externalFilter]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
@@ -218,14 +228,17 @@ export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, on
         <VerticalDotsMenu
           actions={[
             { label: 'Edit', onClick: () => onEdit(row) },
+            ...(row.space_id ? [{ label: 'View Space', onClick: () => onNavigate('spaces', { space_id: row.space_id! }) }] : []),
+            { label: 'View Agents', onClick: () => onNavigate('agents', { team_slug: row.slug }) },
             { label: 'View Topology', onClick: () => onViewTopology() },
             { label: 'Run', onClick: () => onRun(row) },
+            { label: 'Clone', onClick: () => onClone(row) },
             ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
           ]}
         />
       ),
     },
-  ], [spaceMap, onEdit, onDelete, onRun, onViewTopology, onNavigate]);
+  ], [spaceMap, onEdit, onDelete, onRun, onClone, onViewTopology, onNavigate]);
 
   return (
     <HubDataTable<AgentTeam>
