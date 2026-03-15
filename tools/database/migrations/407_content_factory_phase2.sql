@@ -68,23 +68,7 @@ ALTER TABLE platform_knowledge_chunks
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
 SELECT
   'Content Series Plan — S1: From DevOps to Agents',
-  E'Series 1: From DevOps to Agents\n'
-  E'Theme: How container engineering patterns (Docker, Kubernetes, Swarm) map directly to AI agent orchestration.\n'
-  E'Target audience: CTOs, Heads of Engineering, Platform Architects, senior developers.\n'
-  E'Tone: Technical thought-leadership. Authoritative, precise, not salesy.\n'
-  E'Category: thought-leadership\n\n'
-  E'Articles (ordered):\n'
-  E'1. The Agent Marketplace is Docker Hub''s Moment — Status: PUBLISHED\n'
-  E'   Angle: The registry/marketplace model that made Docker dominant is now emerging for AI agents.\n'
-  E'2. Registry, Not Framework — Status: PUBLISHED\n'
-  E'   Angle: Why agent registries matter more than agent frameworks for enterprise adoption.\n'
-  E'3. HITL is Architecture, Not a Feature — Status: PUBLISHED\n'
-  E'   Angle: Human-in-the-loop must be designed into the orchestration layer, not bolted on.\n'
-  E'4. Supervisor, Pipeline, or Swarm — Status: NOT WRITTEN\n'
-  E'   Angle: The three multi-agent coordination patterns, when to use each, real production tradeoffs.\n'
-  E'5. The AI Adoption Curve Inside Your Company — Status: NOT WRITTEN\n'
-  E'   Angle: Shadow → live promotion model. How enterprises safely move AI from experiment to production.\n\n'
-  E'Series cross-references: Technical White Paper (conductor/publish/01-technical-white-paper.md)',
+  E'Series 1: From DevOps to Agents\nTheme: How container engineering patterns (Docker, Kubernetes, Swarm) map directly to AI agent orchestration.\nTarget audience: CTOs, Heads of Engineering, Platform Architects, senior developers.\nTone: Technical thought-leadership. Authoritative, precise, not salesy.\nCategory: thought-leadership\n\nArticles (ordered):\n1. The Agent Marketplace is Docker Hub''s Moment — Status: PUBLISHED\n   Angle: The registry/marketplace model that made Docker dominant is now emerging for AI agents.\n2. Registry, Not Framework — Status: PUBLISHED\n   Angle: Why agent registries matter more than agent frameworks for enterprise adoption.\n3. HITL is Architecture, Not a Feature — Status: PUBLISHED\n   Angle: Human-in-the-loop must be designed into the orchestration layer, not bolted on.\n4. Supervisor, Pipeline, or Swarm — Status: NOT WRITTEN\n   Angle: The three multi-agent coordination patterns, when to use each, real production tradeoffs.\n5. The AI Adoption Curve Inside Your Company — Status: NOT WRITTEN\n   Angle: Shadow → live promotion model. How enterprises safely move AI from experiment to production.\n\nSeries cross-references: Technical White Paper (conductor/publish/01-technical-white-paper.md)',
   'content_strategy',
   'publications/strategy/s1-devops-to-agents',
   ARRAY['series-plan', 's1', 'devops', 'agents', 'thought-leadership']
@@ -97,23 +81,7 @@ WHERE NOT EXISTS (
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
 SELECT
   'Content Series Plan — S2: From Agents to Education',
-  E'Series 2: From Agents to Education\n'
-  E'Theme: How AI agent infrastructure applies specifically to the education/tutoring vertical.\n'
-  E'Target audience: EdTech leaders, education policy makers, tutoring agency founders, investors.\n'
-  E'Tone: Industry insight with technical credibility. Bridge between tech and education.\n'
-  E'Category: thought-leadership\n\n'
-  E'Articles (ordered):\n'
-  E'1. Why Education is the Perfect First Vertical — Status: NOT WRITTEN\n'
-  E'   Angle: High-touch, trust-critical, regulation-heavy — exactly where AI orchestration shines.\n'
-  E'2. The AI Tutor is Not a Chatbot — Status: NOT WRITTEN\n'
-  E'   Angle: Why LLM wrappers fail at education and what a proper AI tutor architecture looks like.\n'
-  E'3. Marketplace Economics When Supply is AI — Status: NOT WRITTEN\n'
-  E'   Angle: How marketplace dynamics change when AI agents are suppliers alongside human tutors.\n'
-  E'4. How 18 Specialist Agents Run a UK EdTech — Status: NOT WRITTEN\n'
-  E'   Angle: Case study of Tutorwise''s agent fleet: what each does, how they coordinate.\n'
-  E'5. UK Tutoring Needs Infrastructure, Not Another App — Status: NOT WRITTEN\n'
-  E'   Angle: The UK tutoring market is fragmented. Infrastructure wins over yet another marketplace.\n\n'
-  E'Series cross-references: Investor Thesis (conductor/publish/02-investor-thesis.md)',
+  E'Series 2: From Agents to Education\nTheme: How AI agent infrastructure applies specifically to the education/tutoring vertical.\nTarget audience: EdTech leaders, education policy makers, tutoring agency founders, investors.\nTone: Industry insight with technical credibility. Bridge between tech and education.\nCategory: thought-leadership\n\nArticles (ordered):\n1. Why Education is the Perfect First Vertical — Status: NOT WRITTEN\n   Angle: High-touch, trust-critical, regulation-heavy — exactly where AI orchestration shines.\n2. The AI Tutor is Not a Chatbot — Status: NOT WRITTEN\n   Angle: Why LLM wrappers fail at education and what a proper AI tutor architecture looks like.\n3. Marketplace Economics When Supply is AI — Status: NOT WRITTEN\n   Angle: How marketplace dynamics change when AI agents are suppliers alongside human tutors.\n4. How 18 Specialist Agents Run a UK EdTech — Status: NOT WRITTEN\n   Angle: Case study of Tutorwise''s agent fleet: what each does, how they coordinate.\n5. UK Tutoring Needs Infrastructure, Not Another App — Status: NOT WRITTEN\n   Angle: The UK tutoring market is fragmented. Infrastructure wins over yet another marketplace.\n\nSeries cross-references: Investor Thesis (conductor/publish/02-investor-thesis.md)',
   'content_strategy',
   'publications/strategy/s2-agents-to-education',
   ARRAY['series-plan', 's2', 'education', 'tutoring', 'thought-leadership']
@@ -126,24 +94,7 @@ WHERE NOT EXISTS (
 INSERT INTO platform_knowledge_chunks (title, content, category, source_ref, tags)
 SELECT
   'Content Pipeline Guidelines',
-  E'Content Pipeline Operating Guidelines\n\n'
-  E'1. ARTICLE SELECTION PRIORITY:\n'
-  E'   - Complete Series 1 before starting Series 2 (S1 has 3/5 published, S2 has 0/5).\n'
-  E'   - Within a series, write articles in order (each builds on previous).\n'
-  E'   - Check article_intelligence_scores for the most recent published article to inform the next one.\n\n'
-  E'2. PERFORMANCE FEEDBACK:\n'
-  E'   - Use query_content_pipeline tool to check published article performance.\n'
-  E'   - Articles with high conversion_score but low readability_score → next article should be more accessible.\n'
-  E'   - Articles with high readability but low seo_score → next article needs stronger keyword placement.\n'
-  E'   - Use query_editorial_opportunities to find content gaps in the broader resource library.\n\n'
-  E'3. BRIEF FORMAT:\n'
-  E'   Your output must be a structured brief with: title, angle, target_audience, keywords (5-8), category, outline (3-5 sections).\n'
-  E'   The content-writer agent will use this brief to write the full article.\n\n'
-  E'4. QUALITY SIGNALS:\n'
-  E'   - Target SEO readiness ≥ 70 (content-reviewer will validate).\n'
-  E'   - Target read_time: 8-12 minutes for thought-leadership.\n'
-  E'   - Always include internal links to existing published resources.\n'
-  E'   - Meta description must be ≤ 160 chars and include primary keyword.',
+  E'Content Pipeline Operating Guidelines\n\n1. ARTICLE SELECTION PRIORITY:\n   - Complete Series 1 before starting Series 2 (S1 has 3/5 published, S2 has 0/5).\n   - Within a series, write articles in order (each builds on previous).\n   - Check article_intelligence_scores for the most recent published article to inform the next one.\n\n2. PERFORMANCE FEEDBACK:\n   - Use query_content_pipeline tool to check published article performance.\n   - Articles with high conversion_score but low readability_score → next article should be more accessible.\n   - Articles with high readability but low seo_score → next article needs stronger keyword placement.\n   - Use query_editorial_opportunities to find content gaps in the broader resource library.\n\n3. BRIEF FORMAT:\n   Your output must be a structured brief with: title, angle, target_audience, keywords (5-8), category, outline (3-5 sections).\n   The content-writer agent will use this brief to write the full article.\n\n4. QUALITY SIGNALS:\n   - Target SEO readiness ≥ 70 (content-reviewer will validate).\n   - Target read_time: 8-12 minutes for thought-leadership.\n   - Always include internal links to existing published resources.\n   - Meta description must be ≤ 160 chars and include primary keyword.',
   'content_strategy',
   'content-pipeline-guidelines',
   ARRAY['guidelines', 'content-pipeline', 'quality']
