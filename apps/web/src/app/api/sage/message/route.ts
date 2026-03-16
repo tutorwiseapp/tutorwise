@@ -430,15 +430,21 @@ function getSuggestions(persona: SagePersona, subject?: SageSubject): string[] {
     agent: ['More details', 'Resources available', 'Contact support'],
   };
 
-  const subjectSuggestions: Record<SageSubject, string[]> = {
+  const subjectSuggestions: Partial<Record<SageSubject, string[]>> = {
     maths: ['Step-by-step solution', 'Similar problems', 'Show the formula'],
     english: ['Writing tips', 'Grammar check', 'Vocabulary help'],
     science: ['Explain concept', 'Real-world example', 'Experiment ideas'],
+    computing: ['Trace the algorithm', 'Code example', 'Explain in pseudocode'],
+    humanities: ['Source analysis', 'Key dates', 'Essay structure help'],
+    languages: ['Grammar rule', 'Vocabulary list', 'Translation help'],
+    'social-sciences': ['Key study details', 'Evaluation points', 'Apply to scenario'],
+    business: ['Real-world example', 'Calculate it', 'Pros and cons'],
+    arts: ['Analyse the work', 'Key terminology', 'Technique examples'],
     general: ['Tell me more', 'Practice questions', 'Study tips'],
   };
 
   if (subject && subjectSuggestions[subject]) {
-    return subjectSuggestions[subject];
+    return subjectSuggestions[subject]!;
   }
 
   return baseSuggestions[persona] || baseSuggestions.student;

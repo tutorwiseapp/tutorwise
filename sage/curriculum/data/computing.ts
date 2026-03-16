@@ -18,7 +18,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'CPU architecture, fetch-decode-execute cycle, and Von Neumann model',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -42,7 +42,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Primary and secondary storage, data capacity, and storage technologies',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -66,7 +66,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Network types, topologies, protocols, and the internet',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -90,7 +90,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Threats, vulnerabilities, and methods to protect networks and data',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -114,7 +114,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Operating systems, utility software, and system management',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -141,7 +141,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Binary, hexadecimal, and denary conversions and arithmetic',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -164,7 +164,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'How text, images, and sound are represented in binary',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -193,7 +193,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Variables, data types, operators, selection, and iteration',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -218,7 +218,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Arrays, lists, records, and file handling',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -242,7 +242,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Functions, procedures, parameters, and scope',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -265,7 +265,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Searching, sorting, flowcharts, pseudocode, and trace tables',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -289,7 +289,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Test plans, test data types, debugging, and validation techniques',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -313,7 +313,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Logic gates, truth tables, and Boolean expressions',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -341,7 +341,7 @@ export const computingTopics: CurriculumTopic[] = [
     description: 'Data protection, computer misuse, environmental impact, and digital ethics',
     parentId: null,
     subject: 'computer-science',
-    examBoards: ['AQA', 'OCR', 'Edexcel'],
+    examBoards: ['AQA', 'OCR', 'Edexcel', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [

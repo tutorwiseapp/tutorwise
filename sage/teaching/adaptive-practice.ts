@@ -277,6 +277,36 @@ export function generatePracticeSession(
   };
 }
 
+// Difficulty progression maps by curriculum level prefix
+const DIFFICULTY_PROGRESSIONS: Record<string, DifficultyLevel[]> = {
+  'year':  ['year-1-2', 'year-3-4', 'year-5-6'],
+  'ks3':   ['ks3-developing', 'ks3-secure', 'ks3-extending'],
+  'grade': ['grade-1-2', 'grade-3-4', 'grade-5-6', 'grade-7-8', 'grade-9'],
+  'a-level': ['a-level-as', 'a-level-a2'],
+  'sqa':   ['sqa-n5', 'sqa-higher'],
+  'ib':    ['ib-sl', 'ib-hl'],
+  'ap':    ['ap-intro', 'ap-core', 'ap-advanced'],
+};
+
+function getDifficultyProgression(difficulty: DifficultyLevel): DifficultyLevel[] {
+  for (const [prefix, progression] of Object.entries(DIFFICULTY_PROGRESSIONS)) {
+    if (difficulty.startsWith(prefix)) return progression;
+  }
+  return [difficulty]; // fallback: no progression
+}
+
+function getEasierDifficulty(current: DifficultyLevel): DifficultyLevel {
+  const progression = getDifficultyProgression(current);
+  const idx = progression.indexOf(current);
+  return idx > 0 ? progression[idx - 1] : progression[0];
+}
+
+function getHarderDifficulty(current: DifficultyLevel): DifficultyLevel {
+  const progression = getDifficultyProgression(current);
+  const idx = progression.indexOf(current);
+  return idx < progression.length - 1 ? progression[idx + 1] : progression[progression.length - 1];
+}
+
 /**
  * Generate a practice problem for a topic
  */
@@ -286,11 +316,11 @@ function generateProblem(topic: CurriculumTopic, performance?: TopicPerformance)
 
   if (performance) {
     if (performance.accuracy < 0.4) {
-      // Very struggling: easier problems
-      difficulty = 'grade-1-2';
+      // Very struggling: drop to easiest difficulty for this level
+      difficulty = getEasierDifficulty(topic.difficulty);
     } else if (performance.accuracy > 0.8 && performance.mastery > 0.7) {
-      // Doing well: harder problems
-      difficulty = 'grade-7-8';
+      // Doing well: push to harder difficulty for this level
+      difficulty = getHarderDifficulty(topic.difficulty);
     }
   }
 

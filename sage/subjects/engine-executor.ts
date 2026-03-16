@@ -20,6 +20,20 @@ import { getGeneralSignature, GENERAL_SIGNATURES } from './general/engine';
 /**
  * Maps intent categories to the most appropriate DSPy signature per subject.
  */
+// Default intent-to-signature mapping for subjects without dedicated engines
+const GENERAL_INTENT_MAP: Record<string, string> = {
+  solve: 'GeneralStudyStrategy',
+  explain: 'GeneralStudyStrategy',
+  homework: 'GeneralStudyStrategy',
+  practice: 'GeneralExamTechnique',
+  diagnose: 'GeneralQuestionInterpreter',
+  review: 'GeneralNoteTaking',
+  exam: 'GeneralExamTechnique',
+  general: 'GeneralStudyStrategy',
+  resources: 'GeneralStudyStrategy',
+  progress: 'GeneralStudyStrategy',
+};
+
 const INTENT_SIGNATURE_MAP: Record<SageSubject, Record<string, string>> = {
   maths: {
     solve: 'MathsProblemSolver',
@@ -57,18 +71,14 @@ const INTENT_SIGNATURE_MAP: Record<SageSubject, Record<string, string>> = {
     resources: 'ScienceConceptExplainer',
     progress: 'ScienceConceptExplainer',
   },
-  general: {
-    solve: 'GeneralStudyStrategy',
-    explain: 'GeneralStudyStrategy',
-    homework: 'GeneralStudyStrategy',
-    practice: 'GeneralExamTechnique',
-    diagnose: 'GeneralQuestionInterpreter',
-    review: 'GeneralNoteTaking',
-    exam: 'GeneralExamTechnique',
-    general: 'GeneralStudyStrategy',
-    resources: 'GeneralStudyStrategy',
-    progress: 'GeneralStudyStrategy',
-  },
+  // New subjects fall through to general signatures until dedicated engines are built
+  computing: GENERAL_INTENT_MAP,
+  humanities: GENERAL_INTENT_MAP,
+  languages: GENERAL_INTENT_MAP,
+  'social-sciences': GENERAL_INTENT_MAP,
+  business: GENERAL_INTENT_MAP,
+  arts: GENERAL_INTENT_MAP,
+  general: GENERAL_INTENT_MAP,
 };
 
 // --- Engine Executor ---
@@ -95,12 +105,13 @@ export function resolveSignature(
   if (!signatureName) return null;
 
   // Look up the signature in the appropriate engine
-  const lookupFn = {
+  const lookupFns: Partial<Record<SageSubject, (name: string) => DSPySignature | undefined>> = {
     maths: getMathsSignature,
     english: getEnglishSignature,
     science: getScienceSignature,
     general: getGeneralSignature,
-  }[subject];
+  };
+  const lookupFn = lookupFns[subject] || lookupFns.general;
 
   return lookupFn ? lookupFn(signatureName) || null : null;
 }
@@ -187,7 +198,7 @@ export function getSignatureContext(
  * Get all available signatures for a subject.
  */
 export function getSubjectSignatures(subject: SageSubject): DSPySignature[] {
-  const signaturesMap: Record<SageSubject, DSPySignature[]> = {
+  const signaturesMap: Partial<Record<SageSubject, DSPySignature[]>> = {
     maths: MATHS_SIGNATURES,
     english: ENGLISH_SIGNATURES,
     science: SCIENCE_SIGNATURES,

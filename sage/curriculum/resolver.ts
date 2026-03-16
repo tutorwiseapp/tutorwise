@@ -14,7 +14,7 @@
  * @module sage/curriculum/resolver
  */
 
-import type { CurriculumTopic, DifficultyLevel, GCSETier, CurriculumSubject } from './types';
+import type { CurriculumTopic, DifficultyLevel, CurriculumTier, CurriculumLevel, CurriculumSubject } from './types';
 import { allTopics, getTopicById, getChildTopics, getTopicsBySubject } from './data/index';
 
 export interface TopicMatch {
@@ -35,8 +35,8 @@ export interface CurriculumContext {
   relatedTopics: CurriculumTopic[];
   /** Suggested difficulty level */
   suggestedDifficulty: DifficultyLevel;
-  /** Suggested tier (foundation/higher) */
-  suggestedTier: GCSETier;
+  /** Suggested tier */
+  suggestedTier: CurriculumTier;
   /** Learning objectives relevant to query */
   learningObjectives: string[];
   /** Common misconceptions to address */
@@ -50,7 +50,8 @@ export interface CurriculumContext {
  */
 export function detectTopics(
   message: string,
-  subject: CurriculumSubject = 'maths'
+  subject: CurriculumSubject = 'maths',
+  level?: CurriculumLevel
 ): TopicMatch[] {
   const lowerMessage = message.toLowerCase();
   const matches: TopicMatch[] = [];
@@ -66,6 +67,11 @@ export function detectTopics(
     ];
   } else {
     curriculumTopics = getTopicsBySubject(subject);
+  }
+
+  // Filter by level if specified (prevents KS1 topics matching for GCSE students)
+  if (level) {
+    curriculumTopics = curriculumTopics.filter(t => !t.level || t.level === level);
   }
 
   for (const topic of curriculumTopics) {
@@ -143,9 +149,10 @@ function extractKeywords(text: string): string[] {
 export function resolveCurriculumContext(
   message: string,
   subject: CurriculumSubject = 'maths',
-  userLevel?: 'foundation' | 'higher'
+  userLevel?: CurriculumTier,
+  curriculumLevel?: CurriculumLevel
 ): CurriculumContext | null {
-  const topicMatches = detectTopics(message, subject);
+  const topicMatches = detectTopics(message, subject, curriculumLevel);
 
   if (topicMatches.length === 0) {
     return null; // No curriculum match found
@@ -237,7 +244,9 @@ export function formatCurriculumContext(context: CurriculumContext): string {
   // Primary topic(s)
   if (context.topics.length > 0) {
     parts.push('**Topic:** ' + context.topics[0].topic.name);
-    parts.push('**Difficulty:** GCSE ' + context.suggestedTier + ' (' + context.suggestedDifficulty + ')');
+    const topicLevel = context.topics[0].topic.level || 'GCSE';
+    const tierLabel = context.suggestedTier !== 'single' ? ` ${context.suggestedTier}` : '';
+    parts.push(`**Difficulty:** ${topicLevel}${tierLabel} (${context.suggestedDifficulty})`);
     parts.push('**Exam Boards:** ' + context.topics[0].topic.examBoards.join(', '));
     parts.push('');
   }
@@ -312,23 +321,35 @@ export function getTopicPath(topicId: string): string[] {
  */
 export function isTopicAppropriate(
   topic: CurriculumTopic,
-  userTier: 'foundation' | 'higher',
+  userTier: CurriculumTier = 'both',
   userGrade?: number
 ): boolean {
-  // Check tier compatibility
-  if (topic.tier === 'foundation' && userTier === 'higher') {
-    return true; // Higher tier can access foundation content
+  // 'single' tier topics (Primary, KS3) are always accessible
+  if (topic.tier === 'single' || topic.tier === 'both') {
+    return true;
+  }
+
+  // GCSE tier compatibility
+  if (topic.tier === 'foundation' && (userTier === 'higher' || userTier === 'both')) {
+    return true;
   }
   if (topic.tier === 'higher' && userTier === 'foundation') {
-    return false; // Foundation tier cannot access higher-only content
+    return false;
   }
 
-  // Check grade level if provided
-  if (userGrade !== undefined) {
-    const topicGradeMin = parseInt(topic.difficulty.split('-')[1]);
-    const topicGradeMax = parseInt(topic.difficulty.split('-')[2] || topic.difficulty.split('-')[1]);
+  // IB SL/HL compatibility
+  if (topic.tier === 'sl' && (userTier === 'hl' || userTier === 'both')) {
+    return true;
+  }
+  if (topic.tier === 'hl' && userTier === 'sl') {
+    return false;
+  }
 
-    return userGrade >= topicGradeMin - 1; // Allow one grade below
+  // Grade-level check for GCSE-style difficulties only
+  if (userGrade !== undefined && topic.difficulty.startsWith('grade-')) {
+    const parts = topic.difficulty.split('-');
+    const topicGradeMin = parseInt(parts[1]);
+    return userGrade >= topicGradeMin - 1;
   }
 
   return true;

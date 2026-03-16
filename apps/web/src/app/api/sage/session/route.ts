@@ -14,12 +14,12 @@ import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { fetchPlatformUserContext, formatPlatformContextForPrompt } from '@/lib/platform/user-context';
 
-type SageSubject = 'maths' | 'english' | 'science' | 'general';
-type SageLevel = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
+type SageSubject = 'maths' | 'english' | 'science' | 'computing' | 'humanities' | 'languages' | 'social-sciences' | 'business' | 'arts' | 'general';
+type SageLevel = 'KS1' | 'KS2' | 'KS3' | 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
 type SessionGoal = 'homework' | 'exam-prep' | 'concept-review' | 'practice' | 'general';
 
 // Database enum values (must match Supabase sage_level, sage_session_goal, sage_persona enums)
-type DbSageLevel = 'GCSE' | 'A-Level' | 'University' | 'Other';
+type DbSageLevel = 'KS1' | 'KS2' | 'KS3' | 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
 type DbSessionGoal = 'homework_help' | 'exam_prep' | 'concept_review' | 'practice' | 'general';
 type DbSagePersona = 'student' | 'tutor' | 'client' | 'agent';
 
@@ -58,6 +58,12 @@ const GREETINGS: Record<SageSubject, string> = {
   maths: "Hi! I'm Sage, your maths tutor. I'm here to help you understand mathematical concepts, work through problems, and build your confidence. What would you like to work on today?",
   english: "Hello! I'm Sage, your English tutor. Whether it's reading comprehension, writing skills, or grammar, I'm here to help. What would you like to focus on?",
   science: "Hi there! I'm Sage, your science tutor. From physics to biology to chemistry, I love making science accessible and engaging. What topic interests you today?",
+  computing: "Hello! I'm Sage, your Computer Science tutor. From programming to algorithms to cyber security, I'm here to help. What would you like to explore?",
+  humanities: "Hi! I'm Sage, your Humanities tutor. Whether it's History or Geography, I can help you analyse sources, understand key events, and develop your essay skills. What shall we study?",
+  languages: "Bonjour! Hola! Hallo! I'm Sage, your languages tutor. I can help with French, Spanish, German, and more — grammar, vocabulary, reading, and writing. Which language are we working on?",
+  'social-sciences': "Hello! I'm Sage, your Social Sciences tutor. From Psychology and Sociology to Religious Education, I'm here to help you understand key theories and develop evaluation skills. What topic interests you?",
+  business: "Hi! I'm Sage, your Business and Economics tutor. I can help with everything from marketing and finance to supply and demand. What would you like to work on?",
+  arts: "Hello! I'm Sage, your Creative Arts tutor. Whether it's Music, Art, Design & Technology, or PE theory, I'm here to help. What subject shall we focus on?",
   general: "Hello! I'm Sage, your AI learning assistant. I'm here to help you learn and understand any subject. What would you like to explore today?",
 };
 
@@ -104,7 +110,7 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body: SessionRequestBody = await request.json().catch(() => ({}));
     const subject: SageSubject = body.subject || 'general';
-    const level: SageLevel = body.level || 'gcse';
+    const level: SageLevel = body.level || 'GCSE';
 
     // Generate session ID
     const sessionId = `sage_${randomUUID()}`;

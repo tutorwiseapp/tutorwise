@@ -1,7 +1,7 @@
 # AI Tutor Studio - Solution Design
 
-**Document Version:** 1.1
-**Date:** 2026-02-23
+**Document Version:** 1.2
+**Last Updated:** 2026-03-16
 **Author:** Tutorwise Product Team
 **Status:** Implementation Phase (85% complete)
 **Feature Name:** AI Tutor Studio (Studio)
@@ -346,7 +346,7 @@ RETRIEVAL (During AI Session):
 ┌──────────────────────┐
 │  AI Response         │  4. Context: "Based on your tutor's materials
 │  Generation          │              (Algebra Worksheet, page 3)..."
-│  (Gemini Flash 2.0)  │     Generate answer using retrieved context
+│  (6-tier AI fallback)│     Generate answer using retrieved context
 └──────────────────────┘
 ```
 
@@ -397,7 +397,12 @@ CREATE TABLE ai_tutors (
 
   -- Constraints
   CONSTRAINT unique_ai_tutor_name UNIQUE(name),
-  CONSTRAINT valid_subject CHECK (subject IN ('maths', 'english', 'science'))
+  CONSTRAINT valid_subject CHECK (subject IN (
+    'maths', 'english', 'science', 'computing', 'humanities',
+    'languages', 'social-sciences', 'business', 'arts',
+    'music', 'design-technology', 'physical-education',
+    'religious-studies', 'psychology', 'economics', 'law'
+  ))
 );
 
 -- Indexes
@@ -1419,8 +1424,8 @@ export default function StudioPage() {
 - Next.js API Routes
 - Supabase (PostgreSQL + pgvector)
 - Stripe (subscriptions + payments)
-- Google Gemini Flash 2.0 (AI)
-- Gemini Embedding API (embeddings)
+- 6-tier AI fallback chain: xAI Grok 4 Fast (primary) → Gemini Flash → DeepSeek R1 → Claude Sonnet 4.6 → GPT-4o → Rules-based
+- Gemini Embedding API (embeddings, gemini-embedding-001, 768 dimensions)
 
 **Storage:**
 - Supabase Storage or AWS S3 (file uploads)
@@ -1637,6 +1642,8 @@ Good examples to follow:
 
 ### Organisation Integration (Phase 2)
 
+> **Sage v3.0 Integration (Phase 2):** Studio AI tutors can leverage Sage's PlatformUserContext for enriched learner profiles (growth scores, referral history, marketplace activity) and SEN/SEND adaptations (dyslexia-friendly formatting, scaffolded responses, sensory considerations). These are available automatically via the Sage fallback path and can be explicitly opted into by AI tutor owners for always-on accessibility support.
+
 **Allow tutors to create organisations (agencies) and add AI tutors as team members.**
 
 #### Organisation Creation Flow
@@ -1852,6 +1859,8 @@ async function canCreateAITutor(userId: string): Promise<{ allowed: boolean; lim
 ### Sage Fallback Implementation (Phase 1)
 
 **When AI tutor can't answer from uploaded materials, fallback to Sage's general knowledge.**
+
+> **Sage v3.0 (2026-03):** Sage now covers 676+ topics across KS1 to A-Level, IB, AP, SQA, and CIE curricula spanning 15+ subjects. This means Studio AI tutors benefit from a comprehensive fallback covering maths, english, science, computing, humanities, languages, social-sciences, business, arts, and more. Sage's PlatformUserContext and SEN/SEND adaptations are also available to Studio AI tutors via fallback, enabling accessibility-aware responses.
 
 #### How It Works
 
@@ -2073,6 +2082,57 @@ Pre-selected Skills:
 
 Suggested Pricing: £8-10/hour
 Suggested Materials: Mixed resources, past papers, revision guides
+```
+
+**Template 5: French GCSE Tutor** *(New — Sage v3.0 subjects)*
+```
+Name: [Your Name]'s French GCSE Tutor
+Subject: Languages
+Description: AI tutor for GCSE French covering speaking, listening,
+reading, and writing exam skills with vocabulary practice.
+
+Pre-selected Skills:
+- French-GCSE (Primary)
+- Vocabulary & Grammar (Primary)
+- Speaking Practice
+- Exam Technique
+
+Suggested Pricing: £10-14/hour
+Suggested Materials: Vocab lists, past papers, grammar guides
+```
+
+**Template 6: Psychology A-Level Tutor** *(New — Sage v3.0 subjects)*
+```
+Name: [Your Name]'s Psychology A-Level Tutor
+Subject: Psychology
+Description: AI tutor for A-Level Psychology covering approaches,
+biopsychology, research methods, and key studies.
+
+Pre-selected Skills:
+- Psychology-A-Level (Primary)
+- Research Methods (Primary)
+- Biopsychology
+- Social Influence
+
+Suggested Pricing: £12-16/hour
+Suggested Materials: Study notes, evaluation guides, past papers
+```
+
+**Template 7: Primary Maths Tutor** *(New — Sage v3.0 KS1/KS2)*
+```
+Name: [Your Name]'s Primary Maths Tutor
+Subject: Maths
+Description: Friendly AI tutor for KS1/KS2 Maths, focusing on
+number bonds, times tables, fractions, and SATs preparation.
+
+Pre-selected Skills:
+- Maths-KS1 (Primary)
+- Maths-KS2 (Primary)
+- Times Tables
+- SATs Prep
+
+Suggested Pricing: £6-10/hour
+Suggested Materials: Worksheets, visual aids, practice tests
 ```
 
 #### UI Flow
@@ -2672,6 +2732,8 @@ interface AITutorLink {
 
 ### Natural Market Segmentation (Three Tiers)
 
+> **Three-tier learning model:** Sage (platform AI) → AI Tutor Studio (customised AI) → Human Tutor. Each tier serves a distinct need; clients self-select and often use all three.
+
 Market forces will create three distinct tiers without platform intervention:
 
 | Tier | Use Case | Price Point | Value Prop |
@@ -2762,7 +2824,7 @@ Example at minimum price (£5/hour):
 - ✅ No special cases
 
 **Fallback to Sage (Quality Safety Net):**
-- If AI tutor quality is low → AI falls back to Sage knowledge
+- If AI tutor quality is low → AI falls back to Sage knowledge (676+ topics across KS1 to A-Level, IB, AP, SQA, CIE covering 15+ subjects)
 - Client still gets help (never stuck with useless AI)
 - Owner sees feedback: "Needed Sage fallback" → uploads better materials
 - Self-regulating quality mechanism

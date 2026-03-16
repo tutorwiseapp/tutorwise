@@ -26,7 +26,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'The study of living organisms, their structure, function, growth, evolution, and distribution',
     parentId: null,
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -57,7 +57,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Understanding the structure and function of plant and animal cells',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -82,7 +82,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Understanding mitosis, cell differentiation, and stem cells',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -107,7 +107,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'How cells form tissues, organs, and organ systems',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -132,7 +132,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Understanding pathogens, diseases, and the immune response',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -158,7 +158,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'How plants make glucose using light energy',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -181,7 +181,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Aerobic and anaerobic respiration in cells',
     parentId: 'biology-main',
     subject: 'biology',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -207,7 +207,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'The study of substances, their properties, composition, and reactions',
     parentId: null,
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -237,7 +237,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Understanding atoms, elements, and the periodic table',
     parentId: 'chemistry-main',
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -263,7 +263,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Ionic, covalent, and metallic bonding',
     parentId: 'chemistry-main',
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -288,7 +288,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Types of reactions, equations, and energy changes',
     parentId: 'chemistry-main',
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -312,7 +312,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Factors affecting the speed of chemical reactions',
     parentId: 'chemistry-main',
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -337,7 +337,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Chemical calculations involving mass, moles, and equations',
     parentId: 'chemistry-main',
     subject: 'chemistry',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-7-8',
     learningObjectives: [
@@ -364,7 +364,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'The study of matter, energy, and their interactions',
     parentId: null,
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -394,7 +394,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Understanding forces, motion, and Newton\'s laws',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -419,7 +419,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Speed, velocity, acceleration, and distance-time graphs',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -444,7 +444,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Energy conservation and transfers between stores',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -468,7 +468,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Renewable and non-renewable energy resources',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -493,7 +493,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Current, voltage, resistance, and circuit components',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -519,7 +519,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Properties of waves, sound, and electromagnetic spectrum',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -544,7 +544,7 @@ export const scienceTopics: CurriculumTopic[] = [
     description: 'Atomic structure, nuclear radiation, and radioactive decay',
     parentId: 'physics-main',
     subject: 'physics',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-7-8',
     learningObjectives: [

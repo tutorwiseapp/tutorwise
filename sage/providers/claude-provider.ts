@@ -350,7 +350,7 @@ Respond in JSON only:
       ],
     };
 
-    const subjectCapabilities: Record<SageSubject, string[]> = {
+    const subjectCapabilities: Partial<Record<SageSubject, string[]>> = {
       maths: ['solve equations', 'explain mathematical proofs', 'graph functions', 'work through word problems'],
       english: ['improve writing', 'analyze literature', 'correct grammar', 'expand vocabulary'],
       science: ['explain experiments', 'connect theory to practice', 'interpret data', 'understand scientific method'],
@@ -359,7 +359,7 @@ Respond in JSON only:
 
     return [
       ...baseCapabilities[persona],
-      ...(subject ? subjectCapabilities[subject] : subjectCapabilities.general),
+      ...(subject ? (subjectCapabilities[subject] || subjectCapabilities.general || []) : (subjectCapabilities.general || [])),
     ];
   }
 }

@@ -69,6 +69,12 @@ const SUBJECT_PATTERNS: Record<SageSubject, string[]> = {
   maths: ['math', 'maths', 'algebra', 'geometry', 'calculus', 'equation', 'number', 'fraction', 'percentage', 'graph', 'formula', 'trigonometry', 'statistics', 'probability', 'arithmetic', 'decimal', 'ratio', 'proportion', 'quadratic', 'linear', 'function', 'derivative', 'integral', 'matrix', 'vector'],
   english: ['english', 'grammar', 'writing', 'essay', 'literature', 'poem', 'poetry', 'story', 'vocabulary', 'spelling', 'reading', 'comprehension', 'punctuation', 'sentence', 'paragraph', 'narrative', 'persuasive', 'shakespeare', 'novel', 'author', 'character', 'theme', 'metaphor', 'simile'],
   science: ['science', 'physics', 'chemistry', 'biology', 'experiment', 'atom', 'cell', 'force', 'energy', 'reaction', 'molecule', 'element', 'periodic table', 'gravity', 'electricity', 'magnetism', 'evolution', 'genetics', 'ecosystem', 'photosynthesis', 'respiration', 'newton', 'motion', 'wave', 'light', 'sound'],
+  computing: ['computer', 'computing', 'programming', 'code', 'coding', 'algorithm', 'binary', 'database', 'SQL', 'network', 'cyber', 'CPU', 'hardware', 'software', 'python', 'boolean', 'hex', 'hexadecimal'],
+  humanities: ['history', 'geography', 'historian', 'war', 'empire', 'revolution', 'medieval', 'tudor', 'river', 'coast', 'volcano', 'earthquake', 'climate', 'population', 'migration', 'development'],
+  languages: ['french', 'spanish', 'german', 'français', 'español', 'deutsch', 'conjugation', 'tense', 'vocabulary', 'translation', 'listening', 'speaking'],
+  'social-sciences': ['psychology', 'sociology', 'religious', 'RE', 'attachment', 'conformity', 'obedience', 'memory', 'Bowlby', 'Ainsworth', 'families', 'education', 'crime', 'deviance', 'Christianity', 'Islam', 'ethics'],
+  business: ['business', 'economics', 'entrepreneur', 'marketing', 'finance', 'profit', 'revenue', 'demand', 'supply', 'GDP', 'inflation', 'fiscal', 'monetary', 'trade', 'break-even'],
+  arts: ['music', 'art', 'design', 'technology', 'PE', 'sport', 'physical education', 'compose', 'sculpture', 'painting', 'performing', 'anatomy', 'physiology', 'drama'],
   general: [],
 };
 
@@ -235,15 +241,21 @@ export class SageRulesProvider extends BaseSageProvider {
   }
 
   private getDefaultSuggestions(persona: SagePersona, subject?: SageSubject): string[] {
-    const subjectSuggestions: Record<SageSubject, string[]> = {
+    const subjectSuggestions: Partial<Record<SageSubject, string[]>> = {
       maths: ['Help me solve an equation', 'Explain fractions', 'Practice algebra'],
       english: ['Check my grammar', 'Essay writing tips', 'Help with vocabulary'],
       science: ['Explain a concept', 'Help with an experiment', 'Physics problem'],
+      computing: ['Explain algorithms', 'Help with binary', 'Programming concepts'],
+      humanities: ['Analyse a source', 'Explain a period', 'Geography question'],
+      languages: ['Grammar help', 'Vocabulary practice', 'Translation help'],
+      'social-sciences': ['Psychology study', 'Sociology question', 'RE topic'],
+      business: ['Business question', 'Economics concept', 'Break-even help'],
+      arts: ['Music theory', 'Art analysis', 'DT design process'],
       general: ['Study tips', 'Explain a topic', 'Practice questions'],
     };
 
     const personaSuggestions: Record<SagePersona, string[]> = {
-      student: subject ? subjectSuggestions[subject] : ['Study tips', 'Explain something', 'Practice problems'],
+      student: subject ? (subjectSuggestions[subject] || subjectSuggestions.general!) : ['Study tips', 'Explain something', 'Practice problems'],
       tutor: ['Create a worksheet', 'Lesson plan ideas', 'Common misconceptions'],
       client: ['Progress overview', 'How to help at home', 'Curriculum topics'],
       agent: ['Student help', 'Tutor information', 'Learning resources'],
@@ -477,6 +489,12 @@ export class SageRulesProvider extends BaseSageProvider {
       maths: 'Mathematics',
       english: 'English',
       science: 'Science',
+      computing: 'Computer Science',
+      humanities: 'Humanities',
+      languages: 'Languages',
+      'social-sciences': 'Social Sciences',
+      business: 'Business & Economics',
+      arts: 'Arts & Creative',
       general: 'your studies',
     };
     return subject ? names[subject] : 'your studies';
@@ -484,6 +502,9 @@ export class SageRulesProvider extends BaseSageProvider {
 
   private getLevelDisplayName(level?: SageLevel): string {
     const names: Record<SageLevel, string> = {
+      'KS1': 'KS1 (Years 1-2)',
+      'KS2': 'KS2 (Years 3-6)',
+      'KS3': 'KS3 (Years 7-9)',
       'GCSE': 'GCSE level',
       'A-Level': 'A-Level',
       'IB': 'IB Diploma',

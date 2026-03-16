@@ -26,7 +26,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'The study of past events, societies, and how they shape the present',
     parentId: null,
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -56,7 +56,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Medical knowledge and treatment in medieval England',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -80,7 +80,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Medical developments during the Renaissance',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -104,7 +104,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Medical breakthroughs in the 18th and 19th centuries',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -128,7 +128,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Twentieth century medical advances',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -153,7 +153,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Long-term and short-term causes of the First World War',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -177,7 +177,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Major battles, strategies, and turning points of WWI',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -202,7 +202,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'The peace settlement after World War I',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -226,7 +226,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Germany 1919-1933: democracy and instability',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -250,7 +250,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'How the Nazi Party came to power 1919-1933',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -273,7 +273,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'How the Nazis controlled Germany 1933-1945',
     parentId: 'history-main',
     subject: 'history',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-7-8',
     learningObjectives: [
@@ -301,7 +301,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'The study of places, environments, and the relationship between people and their environments',
     parentId: null,
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -331,7 +331,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Processes and landforms in river environments',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -355,7 +355,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Processes and landforms in coastal environments',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -379,7 +379,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Processes and landforms in glaciated areas',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-7-8',
     learningObjectives: [
@@ -404,7 +404,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Tropical storms, droughts, and extreme weather',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -428,7 +428,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Evidence, causes, and impacts of climate change',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-7-8',
     learningObjectives: [
@@ -452,7 +452,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Growth of cities and urban challenges',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -476,7 +476,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Creating sustainable and liveable cities',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -502,7 +502,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Measuring and understanding global development',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -527,7 +527,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Global patterns of food supply and demand',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -551,7 +551,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Global patterns of water supply and demand',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -575,7 +575,7 @@ export const humanitiesTopics: CurriculumTopic[] = [
     description: 'Global patterns of energy supply and demand',
     parentId: 'geography-main',
     subject: 'geography',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [

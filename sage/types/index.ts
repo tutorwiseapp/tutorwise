@@ -21,9 +21,14 @@ export interface SagePersonaConfig {
 
 // --- Subject and Level Types ---
 
-export type SageSubject = 'maths' | 'english' | 'science' | 'general';
+export type SageSubject =
+  | 'maths' | 'english' | 'science' | 'computing'
+  | 'humanities' | 'languages' | 'social-sciences'
+  | 'business' | 'arts' | 'general';
 
-export type SageLevel = 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
+export type SageLevel =
+  | 'KS1' | 'KS2' | 'KS3' | 'GCSE' | 'A-Level'
+  | 'IB' | 'AP' | 'University' | 'Other';
 
 export type SessionGoal =
   | 'homework_help'
@@ -31,6 +36,21 @@ export type SessionGoal =
   | 'concept_review'
   | 'practice'
   | 'general';
+
+// --- SEN/SEND Types ---
+
+export type SENCategory =
+  | 'dyslexia'
+  | 'dyscalculia'
+  | 'dyspraxia'
+  | 'adhd'
+  | 'asd'
+  | 'visual-impairment'
+  | 'hearing-impairment'
+  | 'speech-language'
+  | 'social-emotional'
+  | 'moderate-learning'
+  | 'specific-learning';
 
 // --- Learning Context ---
 
@@ -44,6 +64,7 @@ export interface LearningContext {
   priorKnowledge?: string[];
   errorPatterns?: string[];
   strengths?: string[];
+  senCategories?: SENCategory[];
 }
 
 // --- Message Types ---

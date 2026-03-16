@@ -27,7 +27,7 @@ export const solveWithHints: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         hintLevel: {
           type: 'string',
@@ -84,12 +84,12 @@ export const generatePracticeProblems: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         level: {
           type: 'string',
           description: 'Difficulty level',
-          enum: ['GCSE', 'A-Level', 'University'],
+          enum: ['KS1', 'KS2', 'KS3', 'GCSE', 'A-Level', 'IB', 'AP', 'University', 'Other'],
         },
         count: {
           type: 'number',
@@ -121,12 +121,12 @@ export const createQuiz: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         level: {
           type: 'string',
           description: 'Education level',
-          enum: ['GCSE', 'A-Level', 'University'],
+          enum: ['KS1', 'KS2', 'KS3', 'GCSE', 'A-Level', 'IB', 'AP', 'University', 'Other'],
         },
         questionCount: {
           type: 'number',
@@ -160,12 +160,12 @@ export const explainConcept: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         level: {
           type: 'string',
           description: 'Education level',
-          enum: ['GCSE', 'A-Level', 'University'],
+          enum: ['KS1', 'KS2', 'KS3', 'GCSE', 'A-Level', 'IB', 'AP', 'University', 'Other'],
         },
         style: {
           type: 'string',
@@ -222,7 +222,7 @@ export const getStudentProgress: Tool = {
         subject: {
           type: 'string',
           description: 'Filter by subject',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         detail: {
           type: 'string',
@@ -245,7 +245,7 @@ export const suggestNextTopic: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         goal: {
           type: 'string',
@@ -275,12 +275,12 @@ export const uploadDocument: Tool = {
         subject: {
           type: 'string',
           description: 'Subject tag for the document',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         level: {
           type: 'string',
           description: 'Level tag',
-          enum: ['GCSE', 'A-Level', 'University'],
+          enum: ['KS1', 'KS2', 'KS3', 'GCSE', 'A-Level', 'IB', 'AP', 'University', 'Other'],
         },
         shareWith: {
           type: 'string',
@@ -308,7 +308,7 @@ export const searchKnowledge: Tool = {
         subject: {
           type: 'string',
           description: 'Filter by subject',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         source: {
           type: 'string',
@@ -369,7 +369,7 @@ export const analyzeWork: Tool = {
         subject: {
           type: 'string',
           description: 'Subject area',
-          enum: ['maths', 'english', 'science', 'general'],
+          enum: ['maths', 'english', 'science', 'computing', 'humanities', 'languages', 'social-sciences', 'business', 'arts', 'general'],
         },
         content: {
           type: 'string',

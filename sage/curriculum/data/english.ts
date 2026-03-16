@@ -19,7 +19,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Analysing language, structure, and form in fiction extracts',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -43,7 +43,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Analysing and comparing non-fiction texts including articles, speeches, and letters',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -67,7 +67,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Descriptive and narrative writing for a range of purposes and audiences',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -91,7 +91,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Writing to argue, persuade, advise, or inform for specific audiences',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -115,7 +115,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Presenting and responding to spoken language in formal contexts',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -139,7 +139,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Accurate use of spelling, punctuation, and grammar across all writing',
     parentId: null,
     subject: 'english-language',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-1-2',
     learningObjectives: [
@@ -167,7 +167,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Study of a Shakespeare play: themes, characters, language, and context',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -192,7 +192,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Study of a 19th-century prose text: narrative, themes, and Victorian context',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -216,7 +216,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Study of a modern text: themes, context, and dramatic/narrative techniques',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -240,7 +240,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Study of a cluster of poems: comparison, analysis, and contextual understanding',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -264,7 +264,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Responding to and comparing previously unseen poems',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -288,7 +288,7 @@ export const englishTopics: CurriculumTopic[] = [
     description: 'Structuring analytical essays with PEEL/PETAL paragraphs and time management',
     parentId: null,
     subject: 'english-literature',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [

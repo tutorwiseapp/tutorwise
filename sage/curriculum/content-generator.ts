@@ -47,8 +47,8 @@ export interface GeneratedChunk {
   /** Level (GCSE/A-Level) */
   level: string;
 
-  /** Tier (foundation/higher/both) */
-  curriculumTier?: 'foundation' | 'higher' | 'both';
+  /** Tier (foundation/higher/both/single/sl/hl) */
+  curriculumTier?: string;
 
   /** Additional metadata */
   metadata: {
@@ -98,19 +98,41 @@ export function generateTopicChunks(topic: CurriculumTopic): GeneratedChunk[] {
 /**
  * Generate definition/overview chunk
  */
+/** Derive curriculum level label from topic */
+function getTopicLevel(topic: CurriculumTopic): string {
+  return topic.level || 'GCSE';
+}
+
+/** Human-readable tier description */
+function getTierInfo(topic: CurriculumTopic): string {
+  switch (topic.tier) {
+    case 'both': return 'Foundation and Higher tier';
+    case 'foundation': return 'Foundation tier';
+    case 'higher': return 'Higher tier';
+    case 'single': return '';
+    case 'sl': return 'Standard Level';
+    case 'hl': return 'Higher Level';
+    default: return '';
+  }
+}
+
 function generateDefinitionChunk(topic: CurriculumTopic): GeneratedChunk {
-  const tierInfo = topic.tier === 'both' ? 'Foundation and Higher tier' :
-                   topic.tier === 'foundation' ? 'Foundation tier' : 'Higher tier';
+  const level = getTopicLevel(topic);
+  const tierInfo = getTierInfo(topic);
 
   const examBoardsText = topic.examBoards.length > 0 ?
-    `Covered in ${topic.examBoards.join(', ')} GCSE specifications.` : '';
+    `Covered in ${topic.examBoards.join(', ')} ${level} specifications.` : '';
+
+  const tierLine = tierInfo
+    ? `${tierInfo} topic for ${level} ${topic.subject}. ${examBoardsText}`
+    : `${level} ${topic.subject} topic. ${examBoardsText}`;
 
   const content = `
 ${topic.name}
 
 ${topic.description}
 
-${tierInfo} topic for GCSE ${topic.subject}. ${examBoardsText}
+${tierLine}
 
 ${topic.learningObjectives && topic.learningObjectives.length > 0 ?
   `Key Learning Objectives:
@@ -125,11 +147,11 @@ ${topic.learningObjectives.map((obj, i) => `${i + 1}. ${obj}`).join('\n')}` : ''
     tier: 'curriculum',
     source: {
       type: 'curriculum',
-      name: `GCSE ${topic.subject}: ${topic.name}`,
+      name: `${level} ${topic.subject}: ${topic.name}`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,
@@ -155,6 +177,7 @@ ${topic.vocabulary && topic.vocabulary.length > 0 ?
   `\nEssential Vocabulary: ${topic.vocabulary.join(', ')}` : ''}
   `.trim();
 
+  const level = getTopicLevel(topic);
   return {
     content,
     type: 'concepts',
@@ -163,11 +186,11 @@ ${topic.vocabulary && topic.vocabulary.length > 0 ?
     tier: 'curriculum',
     source: {
       type: 'curriculum',
-      name: `GCSE ${topic.subject}: ${topic.name} - Key Concepts`,
+      name: `${level} ${topic.subject}: ${topic.name} - Key Concepts`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,
@@ -183,6 +206,7 @@ function generateExampleChunks(topic: CurriculumTopic): GeneratedChunk[] {
   // Topic-specific examples based on topic ID
   const examples = getExamplesForTopic(topic);
 
+  const level = getTopicLevel(topic);
   return examples.map((example, index) => ({
     content: example,
     type: 'example' as const,
@@ -191,11 +215,11 @@ function generateExampleChunks(topic: CurriculumTopic): GeneratedChunk[] {
     tier: 'curriculum' as const,
     source: {
       type: 'curriculum' as const,
-      name: `GCSE ${topic.subject}: ${topic.name} - Worked Example ${index + 1}`,
+      name: `${level} ${topic.subject}: ${topic.name} - Worked Example ${index + 1}`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,
@@ -218,6 +242,7 @@ ${topic.misconceptions!.map((m, i) => `${i + 1}. ${m}`).join('\n')}
 When teaching or solving problems in this topic, watch out for these errors and address them explicitly.
   `.trim();
 
+  const level = getTopicLevel(topic);
   return {
     content,
     type: 'misconception',
@@ -226,11 +251,11 @@ When teaching or solving problems in this topic, watch out for these errors and 
     tier: 'curriculum',
     source: {
       type: 'curriculum',
-      name: `GCSE ${topic.subject}: ${topic.name} - Common Misconceptions`,
+      name: `${level} ${topic.subject}: ${topic.name} - Common Misconceptions`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,
@@ -253,6 +278,7 @@ ${topic.vocabulary!.map(term => `• ${term}`).join('\n')}
 Students should be able to define and use these terms correctly in context.
   `.trim();
 
+  const level = getTopicLevel(topic);
   return {
     content,
     type: 'summary',
@@ -261,11 +287,11 @@ Students should be able to define and use these terms correctly in context.
     tier: 'curriculum',
     source: {
       type: 'curriculum',
-      name: `GCSE ${topic.subject}: ${topic.name} - Vocabulary`,
+      name: `${level} ${topic.subject}: ${topic.name} - Vocabulary`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,
@@ -288,6 +314,7 @@ ${topic.prerequisites!.map((prereq, i) => `${i + 1}. ${prereq}`).join('\n')}
 If students are struggling with ${topic.name.toLowerCase()}, review these prerequisite topics first.
   `.trim();
 
+  const level = getTopicLevel(topic);
   return {
     content,
     type: 'summary',
@@ -296,11 +323,11 @@ If students are struggling with ${topic.name.toLowerCase()}, review these prereq
     tier: 'curriculum',
     source: {
       type: 'curriculum',
-      name: `GCSE ${topic.subject}: ${topic.name} - Prerequisites`,
+      name: `${level} ${topic.subject}: ${topic.name} - Prerequisites`,
       examBoards: topic.examBoards,
     },
     subject: topic.subject,
-    level: 'GCSE',
+    level,
     curriculumTier: topic.tier,
     metadata: {
       difficulty: topic.difficulty,

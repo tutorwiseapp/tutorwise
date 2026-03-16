@@ -27,7 +27,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Understanding and working with numbers, including integers, fractions, decimals, and percentages',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-1-2',
     learningObjectives: [
@@ -56,7 +56,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Understanding the value of digits in numbers and ordering numbers',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-1-2',
     learningObjectives: [
@@ -81,7 +81,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Addition, subtraction, multiplication, and division',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-1-2',
     learningObjectives: [
@@ -105,7 +105,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with fractions, including equivalent fractions and operations',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -131,7 +131,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Understanding and calculating with decimal numbers',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -157,7 +157,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with percentages, including percentage change and reverse percentages',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -182,7 +182,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with indices, powers, and roots',
     parentId: 'maths-number',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -210,7 +210,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with algebraic expressions, equations, and graphs',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -239,7 +239,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Simplifying and manipulating algebraic expressions',
     parentId: 'maths-algebra',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -263,7 +263,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Solving equations with one unknown',
     parentId: 'maths-algebra',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -287,7 +287,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Solving quadratic equations by factorising, completing the square, and using the formula',
     parentId: 'maths-algebra',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'higher',
     difficulty: 'grade-7-8',
     learningObjectives: [
@@ -312,7 +312,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Recognising and generating number sequences',
     parentId: 'maths-algebra',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -337,7 +337,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Plotting and interpreting linear, quadratic, and other graphs',
     parentId: 'maths-algebra',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -365,7 +365,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with ratios, proportions, and rates',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -394,7 +394,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Understanding and working with ratios',
     parentId: 'maths-ratio',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -419,7 +419,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with directly and inversely proportional relationships',
     parentId: 'maths-ratio',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -446,7 +446,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Properties of shapes, angles, transformations, and measurements',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -475,7 +475,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Working with angles and angle properties',
     parentId: 'maths-geometry',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -500,7 +500,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Using Pythagoras\' theorem and trigonometric ratios',
     parentId: 'maths-geometry',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-5-6',
     learningObjectives: [
@@ -527,7 +527,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Understanding and calculating probabilities',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -558,7 +558,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Collecting, representing, and interpreting data',
     parentId: null,
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
@@ -587,7 +587,7 @@ export const mathsTopics: CurriculumTopic[] = [
     description: 'Calculating mean, median, mode, and range',
     parentId: 'maths-statistics',
     subject: 'maths',
-    examBoards: ['AQA', 'Edexcel', 'OCR'],
+    examBoards: ['AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA'],
     tier: 'both',
     difficulty: 'grade-3-4',
     learningObjectives: [
