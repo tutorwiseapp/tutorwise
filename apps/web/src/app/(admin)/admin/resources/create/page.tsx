@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(admin)/admin/resources/create/page.tsx
  * Purpose: Admin resource - Create new article or edit existing article
  * Created: 2026-01-15
- * Updated: 2026-02-02
+ * Updated: 2026-03-16
  *
  * Handles both create and edit:
  * - /admin/resources/create → Create new article
@@ -16,6 +16,8 @@ import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
 import HubSidebar from '@/components/hub/sidebar/HubSidebar';
 import { AdminHelpWidget, AdminTipWidget } from '@/components/admin/widgets';
 import Button from '@/components/ui/actions/Button';
+import Message from '@/components/ui/feedback/Message';
+import { SkeletonLine, SkeletonRect } from '@/components/ui/feedback/LoadingSkeleton';
 import ArticleEditorForm from '../components/ArticleEditorForm';
 import styles from './page.module.css';
 
@@ -45,6 +47,7 @@ export default function NewBlogArticlePage() {
   const [loading, setLoading] = useState<boolean>(!!slug);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const isEditMode = !!slug;
 
@@ -77,9 +80,9 @@ export default function NewBlogArticlePage() {
   const handleSave = async (articleData: any) => {
     try {
       setSaving(true);
+      setSaveError(null);
 
       if (isEditMode && article) {
-        // Update existing article
         const response = await fetch(`/api/admin/resources/articles/${article.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -89,10 +92,9 @@ export default function NewBlogArticlePage() {
         if (response.ok) {
           router.push('/admin/resources');
         } else {
-          alert('Failed to save article');
+          setSaveError('Failed to save article');
         }
       } else {
-        // Create new article
         const response = await fetch('/api/admin/resources/articles', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -104,12 +106,12 @@ export default function NewBlogArticlePage() {
           router.push('/admin/resources');
         } else {
           console.error('API error:', data);
-          alert(`Failed to create article: ${data.error || 'Unknown error'}`);
+          setSaveError(`Failed to create article: ${data.error || 'Unknown error'}`);
         }
       }
     } catch (err) {
       console.error('Error saving article:', err);
-      alert('Error saving article');
+      setSaveError('Error saving article');
     } finally {
       setSaving(false);
     }
@@ -149,11 +151,11 @@ export default function NewBlogArticlePage() {
       if (response.ok) {
         router.push('/admin/resources');
       } else {
-        alert('Failed to delete article');
+        setSaveError('Failed to delete article');
       }
     } catch (err) {
       console.error('Error deleting article:', err);
-      alert('Error deleting article');
+      setSaveError('Error deleting article');
     }
   };
 
@@ -169,7 +171,10 @@ export default function NewBlogArticlePage() {
         }
       >
         <div className={styles.loadingState}>
-          <p>Loading article...</p>
+          <SkeletonLine />
+          <SkeletonLine />
+          <SkeletonRect />
+          <SkeletonLine />
         </div>
       </HubPageLayout>
     );
@@ -187,7 +192,7 @@ export default function NewBlogArticlePage() {
         }
       >
         <div className={styles.errorState}>
-          <p>{error}</p>
+          <Message type="error">{error}</Message>
           <Button variant="primary" size="md" onClick={() => router.push('/admin/resources')}>
             Back to Articles
           </Button>
@@ -246,6 +251,9 @@ export default function NewBlogArticlePage() {
         </HubSidebar>
       }
     >
+      {saveError && (
+        <Message type="error">{saveError}</Message>
+      )}
       <ArticleEditorForm
         article={isEditMode ? article ?? undefined : undefined}
         onSave={handleSave}

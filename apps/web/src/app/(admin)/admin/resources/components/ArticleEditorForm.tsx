@@ -2,7 +2,7 @@
  * Filename: apps/web/src/app/(admin)/admin/resources/components/ArticleEditorForm.tsx
  * Purpose: Enhanced resource article editor with autosave, draft recovery, and publishing features
  * Created: 2026-01-15
- * Updated: 2026-02-02
+ * Updated: 2026-03-16
  *
  * Features:
  * - Autosave with debouncing (5 second delay)
@@ -19,9 +19,14 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import { Linkedin, Facebook, Instagram, Globe } from 'lucide-react';
 import Button from '@/components/ui/actions/Button';
+import Input from '@/components/ui/forms/Input';
+import FormGroup from '@/components/ui/forms/FormGroup';
 import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
+import ToggleSwitch from '@/components/ui/forms/ToggleSwitch';
 import DatePicker from '@/components/ui/forms/DatePicker';
 import TimePicker from '@/components/ui/forms/TimePicker';
+import Message from '@/components/ui/feedback/Message';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
 import PlatformPreview from './PlatformPreview';
 import SEOScore from './SEOScore';
 import ContentTemplates from './ContentTemplates';
@@ -177,6 +182,9 @@ export default function ArticleEditorForm({
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Error message state (replaces alert())
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Draft recovery states
   const [hasDraft, setHasDraft] = useState(false);
@@ -553,11 +561,11 @@ export default function ArticleEditorForm({
             setVersions(versionsData.versions || []);
           }
         } else {
-          alert('Failed to restore version');
+          setErrorMessage('Failed to restore version');
         }
       } catch (error) {
         console.error('Error restoring version:', error);
-        alert('Error restoring version');
+        setErrorMessage('Error restoring version');
       } finally {
         setIsRestoringVersion(false);
       }
@@ -604,6 +612,7 @@ export default function ArticleEditorForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
 
     // Optimize content before saving (compress whitespace for storage efficiency)
     const optimizedData = {
@@ -676,27 +685,34 @@ export default function ArticleEditorForm({
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      {/* Error Message */}
+      {errorMessage && (
+        <Message type="error">{errorMessage}</Message>
+      )}
+
       {/* Draft Recovery Banner */}
       {showDraftBanner && hasDraft && (
         <div className={styles.draftRecoveryBanner}>
           <span className={styles.draftRecoveryText}>
-            📝 You have an unsaved draft from {formatDraftAge(draftAge)}
+            You have an unsaved draft from {formatDraftAge(draftAge)}
           </span>
           <div className={styles.draftRecoveryActions}>
-            <button
+            <Button
               type="button"
-              className={styles.restoreButton}
+              variant="primary"
+              size="sm"
               onClick={handleRestoreDraft}
             >
               Restore
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className={styles.discardButton}
+              variant="secondary"
+              size="sm"
               onClick={handleDiscardDraft}
             >
               Discard
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -711,7 +727,7 @@ export default function ArticleEditorForm({
             </span>
           </div>
           {hasUnsavedChanges && saveStatus === 'idle' && (
-            <span className={styles.saveStatusText}>• Unsaved changes</span>
+            <span className={styles.saveStatusText}>Unsaved changes</span>
           )}
         </div>
       )}
@@ -720,43 +736,31 @@ export default function ArticleEditorForm({
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Basic Information</h3>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="title" className={styles.label}>
-            Title *
-          </label>
-          <input
+        <FormGroup label="Title *" htmlFor="title">
+          <Input
             type="text"
             id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className={styles.input}
             required
             placeholder="Enter article title..."
           />
-        </div>
+        </FormGroup>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="slug" className={styles.label}>
-            Slug *
-          </label>
-          <input
+        <FormGroup label="Slug *" htmlFor="slug" footnote={`URL: /resources/${formData.slug || 'article-slug'}`}>
+          <Input
             type="text"
             id="slug"
             name="slug"
             value={formData.slug}
             onChange={handleChange}
-            className={styles.input}
             required
             placeholder="url-friendly-slug"
           />
-          <p className={styles.helpText}>URL: /resources/{formData.slug || 'article-slug'}</p>
-        </div>
+        </FormGroup>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="description" className={styles.label}>
-            Description
-          </label>
+        <FormGroup label="Description" htmlFor="description">
           <textarea
             id="description"
             name="description"
@@ -766,47 +770,37 @@ export default function ArticleEditorForm({
             rows={3}
             placeholder="Brief description for search engines and social sharing..."
           />
-        </div>
+        </FormGroup>
 
         <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label htmlFor="category" className={styles.label}>
-              Category *
-            </label>
+          <FormGroup label="Category *" htmlFor="category">
             <UnifiedSelect
               options={CATEGORIES}
               value={formData.category}
               onChange={(value) => setFormData((prev) => ({ ...prev, category: String(value) }))}
               placeholder="Select category"
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="status" className={styles.label}>
-              Status
-            </label>
+          <FormGroup label="Status" htmlFor="status">
             <UnifiedSelect
               options={STATUSES}
               value={formData.status}
               onChange={(value) => setFormData((prev) => ({ ...prev, status: String(value) }))}
               placeholder="Select status"
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="read_time" className={styles.label}>
-              Read Time
-            </label>
-            <input
+          <FormGroup label="Read Time" htmlFor="read_time">
+            <Input
               type="text"
               id="read_time"
               name="read_time"
               value={formData.read_time}
               onChange={handleChange}
-              className={styles.input}
               placeholder="10 min read"
             />
-          </div>
+          </FormGroup>
         </div>
       </div>
 
@@ -815,20 +809,18 @@ export default function ArticleEditorForm({
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>Content</h3>
           {!article?.id && (
-            <button
+            <Button
               type="button"
-              className={styles.templateButton}
+              variant="secondary"
+              size="sm"
               onClick={() => setShowTemplates(true)}
             >
               Use Template
-            </button>
+            </Button>
           )}
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="content" className={styles.label}>
-            Article Content (MDX)
-          </label>
+        <FormGroup label="Article Content (MDX)" htmlFor="content">
           <textarea
             id="content"
             name="content"
@@ -839,16 +831,16 @@ export default function ArticleEditorForm({
             placeholder="Write your article content in MDX format..."
           />
           <div className={`${styles.storageInfo} ${isLargeContent ? '' : styles.optimized}`}>
-            {isLargeContent ? '⚠️' : '✓'} Content size: {formatBytes(contentSize)}
+            {isLargeContent ? '' : ''} Content size: {formatBytes(contentSize)}
             {isLargeContent && ' (Consider splitting into multiple articles for better performance)'}
           </div>
-        </div>
+        </FormGroup>
       </div>
 
       {/* Publishing Platforms */}
-      <div className={styles.platformSection}>
+      <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Publishing Platforms</h3>
-        <p className={styles.helpText} style={{ marginBottom: '1rem' }}>
+        <p className={styles.helpText}>
           Select where you want to publish this article. Content will be auto-optimized for each platform.
         </p>
 
@@ -883,7 +875,7 @@ export default function ArticleEditorForm({
       </div>
 
       {/* Image Selection */}
-      <div className={styles.imageSection}>
+      <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Featured Image</h3>
 
         <div className={styles.imageTypeGrid}>
@@ -891,7 +883,7 @@ export default function ArticleEditorForm({
             className={`${styles.imageTypeOption} ${selectedImageType === 'solid' ? styles.selected : ''}`}
             onClick={() => handleImageTypeChange('solid')}
           >
-            <div className={`${styles.imageTypeIcon} ${styles.solidColor}`}>🎨</div>
+            <div className={`${styles.imageTypeIcon} ${styles.solidColor}`} />
             <div className={styles.imageTypeContent}>
               <div className={styles.imageTypeName}>Solid Color</div>
               <div className={styles.imageTypeDesc}>Simple, clean background</div>
@@ -902,7 +894,7 @@ export default function ArticleEditorForm({
             className={`${styles.imageTypeOption} ${selectedImageType === 'theme' ? styles.selected : ''}`}
             onClick={() => handleImageTypeChange('theme')}
           >
-            <div className={`${styles.imageTypeIcon} ${styles.themeColor}`}>🎯</div>
+            <div className={`${styles.imageTypeIcon} ${styles.themeColor}`} />
             <div className={styles.imageTypeContent}>
               <div className={styles.imageTypeName}>Theme Color</div>
               <div className={styles.imageTypeDesc}>Brand-aligned colors</div>
@@ -913,7 +905,7 @@ export default function ArticleEditorForm({
             className={`${styles.imageTypeOption} ${selectedImageType === 'free' ? styles.selected : ''}`}
             onClick={() => handleImageTypeChange('free')}
           >
-            <div className={`${styles.imageTypeIcon} ${styles.freeImage}`}>🖼️</div>
+            <div className={`${styles.imageTypeIcon} ${styles.freeImage}`} />
             <div className={styles.imageTypeContent}>
               <div className={styles.imageTypeName}>Free Image</div>
               <div className={styles.imageTypeDesc}>From Unsplash, Pexels, etc.</div>
@@ -924,7 +916,7 @@ export default function ArticleEditorForm({
             className={`${styles.imageTypeOption} ${selectedImageType === 'upload' ? styles.selected : ''}`}
             onClick={() => handleImageTypeChange('upload')}
           >
-            <div className={`${styles.imageTypeIcon} ${styles.upload}`}>⬆️</div>
+            <div className={`${styles.imageTypeIcon} ${styles.upload}`} />
             <div className={styles.imageTypeContent}>
               <div className={styles.imageTypeName}>Upload</div>
               <div className={styles.imageTypeDesc}>Your own image</div>
@@ -939,7 +931,7 @@ export default function ArticleEditorForm({
               <div
                 key={color}
                 className={`${styles.colorSwatch} ${selectedColor === color ? styles.selected : ''}`}
-                style={{ backgroundColor: color, border: color === '#ffffff' ? '1px solid #e5e7eb' : 'none' }}
+                style={{ backgroundColor: color, border: color === '#ffffff' ? '1px solid var(--color-gray-200)' : 'none' }}
                 onClick={() => handleColorSelect(color)}
               />
             ))}
@@ -971,7 +963,7 @@ export default function ArticleEditorForm({
                 rel="noopener noreferrer"
                 className={styles.imageSourceButton}
               >
-                🔗 {source.name}
+                {source.name}
               </a>
             ))}
           </div>
@@ -979,19 +971,20 @@ export default function ArticleEditorForm({
 
         {/* Upload Area / URL Input */}
         {(selectedImageType === 'upload' || selectedImageType === 'free') && (
-          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-            <label htmlFor="featured_image_url" className={styles.label}>
-              {selectedImageType === 'free' ? 'Paste Image URL' : 'Featured Image URL'}
-            </label>
-            <input
-              type="url"
-              id="featured_image_url"
-              name="featured_image_url"
-              value={formData.featured_image_url}
-              onChange={handleChange}
-              className={styles.input}
-              placeholder="https://example.com/image.jpg"
-            />
+          <div style={{ marginTop: 'var(--space-2)' }}>
+            <FormGroup
+              label={selectedImageType === 'free' ? 'Paste Image URL' : 'Featured Image URL'}
+              htmlFor="featured_image_url"
+            >
+              <Input
+                type="url"
+                id="featured_image_url"
+                name="featured_image_url"
+                value={formData.featured_image_url}
+                onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
+              />
+            </FormGroup>
           </div>
         )}
 
@@ -1021,10 +1014,10 @@ export default function ArticleEditorForm({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: '1rem',
+              marginTop: 'var(--space-2)',
             }}
           >
-            <span style={{ color: isLightColor(selectedColor) ? '#111827' : '#ffffff', fontSize: '0.875rem' }}>
+            <span style={{ color: isLightColor(selectedColor) ? 'var(--color-gray-900)' : '#ffffff', fontSize: 'var(--font-size-sm)' }}>
               Color Preview: {selectedColor}
             </span>
           </div>
@@ -1032,49 +1025,39 @@ export default function ArticleEditorForm({
       </div>
 
       {/* Scheduled Publishing */}
-      <div className={styles.scheduledSection}>
+      <div className={styles.section}>
         <div className={styles.scheduledHeader}>
           <h3 className={styles.sectionTitle} style={{ margin: 0, border: 'none', padding: 0 }}>
             Scheduled Publishing
           </h3>
-          <div className={styles.scheduledToggle}>
-            <div
-              className={`${styles.toggleSwitch} ${isScheduled ? styles.active : ''}`}
-              onClick={handleScheduledToggle}
-              role="switch"
-              aria-checked={isScheduled}
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && handleScheduledToggle()}
-            />
-            <span className={styles.toggleLabel}>
-              {isScheduled ? 'Enabled' : 'Disabled'}
-            </span>
-          </div>
+          <ToggleSwitch
+            label={isScheduled ? 'Enabled' : 'Disabled'}
+            checked={isScheduled}
+            onChange={handleScheduledToggle}
+          />
         </div>
 
         {isScheduled && (
           <>
             <div className={styles.scheduledInputs}>
-              <div className={styles.scheduledInput}>
-                <label>Publish Date</label>
+              <FormGroup label="Publish Date">
                 <DatePicker
                   selected={scheduledDate}
                   onSelect={setScheduledDate}
                   placeholder="Select date"
                 />
-              </div>
-              <div className={styles.scheduledInput}>
-                <label>Publish Time</label>
+              </FormGroup>
+              <FormGroup label="Publish Time">
                 <TimePicker
                   value={scheduledTime}
                   onChange={(value) => setScheduledTime(String(value))}
                   interval={30}
                   placeholder="Select time"
                 />
-              </div>
+              </FormGroup>
             </div>
             {scheduledDate && (
-              <div className={styles.scheduledPreview}>
+              <Message type="warning">
                 This article will be published on{' '}
                 <strong>
                   {format(scheduledDate, 'MMMM d, yyyy')} at{' '}
@@ -1084,7 +1067,7 @@ export default function ArticleEditorForm({
                     hour12: true,
                   })}
                 </strong>
-              </div>
+              </Message>
             )}
           </>
         )}
@@ -1094,25 +1077,18 @@ export default function ArticleEditorForm({
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>SEO & Meta</h3>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="meta_title" className={styles.label}>
-            Meta Title
-          </label>
-          <input
+        <FormGroup label="Meta Title" htmlFor="meta_title">
+          <Input
             type="text"
             id="meta_title"
             name="meta_title"
             value={formData.meta_title}
             onChange={handleChange}
-            className={styles.input}
             placeholder="Custom title for search engines (optional)"
           />
-        </div>
+        </FormGroup>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="meta_description" className={styles.label}>
-            Meta Description
-          </label>
+        <FormGroup label="Meta Description" htmlFor="meta_description">
           <textarea
             id="meta_description"
             name="meta_description"
@@ -1122,7 +1098,7 @@ export default function ArticleEditorForm({
             rows={2}
             placeholder="Custom description for search engines (optional)"
           />
-        </div>
+        </FormGroup>
 
         {/* SEO Score Analysis */}
         <SEOScore
@@ -1138,7 +1114,7 @@ export default function ArticleEditorForm({
 
       {/* Version History - Only for existing articles */}
       {article?.id && (
-        <div className={styles.versionHistorySection}>
+        <div className={styles.section}>
           <div className={styles.versionHistoryHeader}>
             <h3 className={styles.versionHistoryTitle}>
               Version History
@@ -1164,7 +1140,7 @@ export default function ArticleEditorForm({
                     <span className={styles.versionNumber}>
                       Version {version.version_number}
                       {version.is_milestone && (
-                        <span className={styles.milestoneBadge}>Published</span>
+                        <StatusBadge variant="published" label="Published" size="xs" />
                       )}
                     </span>
                     <span className={styles.versionMeta}>
@@ -1173,14 +1149,15 @@ export default function ArticleEditorForm({
                     </span>
                   </div>
                   <div className={styles.versionActions}>
-                    <button
+                    <Button
                       type="button"
-                      className={styles.restoreVersionButton}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleRestoreVersion(version.id)}
                       disabled={isRestoringVersion}
                     >
                       {isRestoringVersion ? 'Restoring...' : 'Restore'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
