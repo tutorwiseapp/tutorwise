@@ -24,13 +24,14 @@ import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import { Bot, Users, MessageSquare, DollarSign, TrendingUp, BookOpen, AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/actions/Button';
 import SageProSubscriptionsTable from './components/SageProSubscriptionsTable';
+import CurriculumTable from './components/CurriculumTable';
 import styles from './page.module.css';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-type TabFilter = 'overview' | 'usage' | 'quota' | 'subjects' | 'subscriptions';
+type TabFilter = 'overview' | 'usage' | 'quota' | 'subjects' | 'curriculum' | 'subscriptions';
 
 export default function SageAnalyticsPage() {
   const _router = useRouter();
@@ -154,6 +155,7 @@ export default function SageAnalyticsPage() {
               { id: 'usage', label: 'Usage', active: tabFilter === 'usage' },
               { id: 'quota', label: 'Quota & Costs', active: tabFilter === 'quota' },
               { id: 'subjects', label: 'Subjects', active: tabFilter === 'subjects' },
+              { id: 'curriculum', label: 'Curriculum', active: tabFilter === 'curriculum' },
               { id: 'subscriptions', label: 'Subscriptions', active: tabFilter === 'subscriptions' },
             ]}
             onTabChange={handleTabChange}
@@ -552,6 +554,11 @@ export default function SageAnalyticsPage() {
               </ErrorBoundary>
             </div>
           </>
+        )}
+
+        {/* Curriculum Tab */}
+        {tabFilter === 'curriculum' && (
+          <CurriculumTable />
         )}
 
         {/* Subscriptions Tab */}

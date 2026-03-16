@@ -1,0 +1,52 @@
+/* CurriculumTable Styles */
+
+.topicCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.topicName {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.topicSlug {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  font-family: monospace;
+}
+
+.countBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--border-radius-full);
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.gapIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--color-warning);
+  font-weight: 500;
+}
+
+.muted {
+  color: var(--color-gray-300);
+}
+
+.boardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
