@@ -14,8 +14,12 @@ npm run test:unit:quick
 # Run linting
 npm run lint
 
+# Kill any running dev server to prevent cache contention during build
+lsof -ti :3000 2>/dev/null | xargs kill -9 2>/dev/null || true
+sleep 1
+
 # Clear stale .next cache to prevent SIGABRT crashes during build
-rm -rf apps/web/.next
+rm -rf apps/web/.next || true
 
 # Increase heap size to prevent SIGABRT during large builds
 export NODE_OPTIONS="--max-old-space-size=8192"
