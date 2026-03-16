@@ -154,10 +154,11 @@ export default function CurriculumTable() {
   const [searchQuery, setSearchQuery] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
   const [levelFilter, setLevelFilter] = useState('');
+  const [examBoardFilter, setExamBoardFilter] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<CurriculumTopic | null>(null);
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['admin-sage-curriculum', page, limit, sortKey, sortDirection, searchQuery, subjectFilter, levelFilter],
+    queryKey: ['admin-sage-curriculum', page, limit, sortKey, sortDirection, searchQuery, subjectFilter, levelFilter, examBoardFilter],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set('page', String(page));
@@ -167,6 +168,7 @@ export default function CurriculumTable() {
       if (searchQuery) params.set('search', searchQuery);
       if (subjectFilter) params.set('subject', subjectFilter);
       if (levelFilter) params.set('level', levelFilter);
+      if (examBoardFilter) params.set('exam_board', examBoardFilter);
 
       const res = await fetch(`/api/admin/sage/curriculum?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch curriculum');
@@ -179,6 +181,7 @@ export default function CurriculumTable() {
   const total: number = data?.total || 0;
   const filterSubjects: string[] = data?.filters?.subjects || [];
   const filterLevels: string[] = data?.filters?.levels || [];
+  const filterExamBoards: string[] = data?.filters?.examBoards || [];
 
   const subjectFilterOptions = useMemo(() => [
     { label: 'All Subjects', value: '' },
@@ -189,6 +192,11 @@ export default function CurriculumTable() {
     { label: 'All Levels', value: '' },
     ...filterLevels.map((l: string) => ({ label: LEVEL_LABELS[l] || l, value: l })),
   ], [filterLevels]);
+
+  const examBoardFilterOptions = useMemo(() => [
+    { label: 'All Boards', value: '' },
+    ...filterExamBoards.map((b: string) => ({ label: b, value: b })),
+  ], [filterExamBoards]);
 
   const columns: Column<CurriculumTopic>[] = [
     {
@@ -295,6 +303,9 @@ export default function CurriculumTable() {
     } else if (filterKey === 'level') {
       setLevelFilter(val);
       setPage(1);
+    } else if (filterKey === 'exam_board') {
+      setExamBoardFilter(val);
+      setPage(1);
     }
   };
 
@@ -350,6 +361,7 @@ export default function CurriculumTable() {
         filters={[
           { key: 'subject', label: 'Subject', options: subjectFilterOptions },
           { key: 'level', label: 'Level', options: levelFilterOptions },
+          { key: 'exam_board', label: 'Exam Board', options: examBoardFilterOptions },
         ]}
         pagination={{
           page,

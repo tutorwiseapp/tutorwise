@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
     const subject = searchParams.get('subject');
     const level = searchParams.get('level');
     const search = searchParams.get('search');
+    const examBoard = searchParams.get('exam_board');
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const sortKey = searchParams.get('sort') || 'sort_order';
@@ -72,6 +73,21 @@ export async function GET(request: NextRequest) {
     }
     if (search) {
       query = query.or(`topic_name.ilike.%${search}%,topic_slug.ilike.%${search}%`);
+    }
+
+    // Filter by exam board — get topic IDs that have this board, then filter
+    if (examBoard) {
+      const { data: boardTopicIds } = await supabase
+        .from('sage_curriculum_boards')
+        .select('topic_id')
+        .eq('exam_board', examBoard);
+      const ids = (boardTopicIds || []).map((b: { topic_id: string }) => b.topic_id);
+      if (ids.length > 0) {
+        query = query.in('id', ids);
+      } else {
+        // No topics match this board
+        return NextResponse.json({ topics: [], total: 0, page, limit, filters: { subjects: [], levels: [], examBoards: [] } });
+      }
     }
 
     query = query.order(sortKey, { ascending: sortDir });
@@ -95,14 +111,16 @@ export async function GET(request: NextRequest) {
       boards = boardData || [];
     }
 
-    // Fetch distinct subjects and levels for filter options
-    const [subjectsRes, levelsRes] = await Promise.all([
+    // Fetch distinct subjects, levels, and exam boards for filter options
+    const [subjectsRes, levelsRes, boardsRes] = await Promise.all([
       supabase.from('sage_curriculum_topics').select('subject').limit(1000),
       supabase.from('sage_curriculum_topics').select('level').limit(1000),
+      supabase.from('sage_curriculum_boards').select('exam_board').limit(5000),
     ]);
 
     const uniqueSubjects = [...new Set((subjectsRes.data || []).map((r: { subject: string }) => r.subject))].sort();
     const uniqueLevels = [...new Set((levelsRes.data || []).map((r: { level: string }) => r.level))].sort();
+    const uniqueExamBoards = [...new Set((boardsRes.data || []).map((r: { exam_board: string }) => r.exam_board))].sort();
 
     // Merge boards onto topics
     const boardsByTopic = new Map<string, typeof boards>();
@@ -125,6 +143,7 @@ export async function GET(request: NextRequest) {
       filters: {
         subjects: uniqueSubjects,
         levels: uniqueLevels,
+        examBoards: uniqueExamBoards,
       },
     });
   } catch (err) {
