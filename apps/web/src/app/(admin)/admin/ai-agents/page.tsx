@@ -2,7 +2,7 @@
  * Filename: src/app/(admin)/admin/ai-agents/page.tsx
  * Purpose: Admin AI Agents overview page - manage platform and user AI agents
  * Created: 2026-02-24
- * Pattern: Follows Admin Listings pattern with 3 tabs (Overview + All AI Agents + Create New)
+ * Pattern: Follows Admin Listings pattern with 6 tabs (Overview + Sessions + Revenue + Quality + All AI Agents + Create New)
  */
 'use client';
 
@@ -21,6 +21,9 @@ import { useAdminMetric, formatMetricChange } from '@/hooks/useAdminMetric';
 import { useAdminTrendData } from '@/hooks/useAdminTrendData';
 import AIAgentsTable from './components/AIAgentsTable';
 import AdminAIAgentCreateTab from './components/AdminAIAgentCreateTab';
+import SessionAnalyticsPanel from './components/SessionAnalyticsPanel';
+import RevenuePanel from './components/RevenuePanel';
+import QualityPanel from './components/QualityPanel';
 import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import { ChartSkeleton } from '@/components/ui/feedback/LoadingSkeleton';
 import styles from './page.module.css';
@@ -31,7 +34,7 @@ export const dynamicParams = true;
 
 export default function AdminAIAgentsOverviewPage() {
   const canViewAIAgents = usePermission('ai_agents', 'view');
-  const [activeTab, setActiveTab] = useState<'overview' | 'all-ai-agents' | 'create-new'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'revenue' | 'quality' | 'all-ai-agents' | 'create-new'>('overview');
 
   // Fetch real-time AI tutor counts from ai_agents table
   const supabase = createClient();
@@ -101,10 +104,13 @@ export default function AdminAIAgentsOverviewPage() {
         <HubTabs
           tabs={[
             { id: 'overview', label: 'Overview', active: activeTab === 'overview' },
+            { id: 'sessions', label: 'Sessions', active: activeTab === 'sessions' },
+            { id: 'revenue', label: 'Revenue', active: activeTab === 'revenue' },
+            { id: 'quality', label: 'Quality', active: activeTab === 'quality' },
             { id: 'all-ai-agents', label: 'All AI Agents', count: aiTutorStats?.total, active: activeTab === 'all-ai-agents' },
             { id: 'create-new', label: 'Create New', active: activeTab === 'create-new' }
           ]}
-          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'all-ai-agents' | 'create-new')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'overview' | 'sessions' | 'revenue' | 'quality' | 'all-ai-agents' | 'create-new')}
           className={styles.aiAgentsTabs}
         />
       }
@@ -280,6 +286,21 @@ export default function AdminAIAgentsOverviewPage() {
           </div>
 
         </>
+      )}
+
+      {/* Sessions Tab */}
+      {activeTab === 'sessions' && (
+        <SessionAnalyticsPanel />
+      )}
+
+      {/* Revenue Tab */}
+      {activeTab === 'revenue' && (
+        <RevenuePanel />
+      )}
+
+      {/* Quality Tab */}
+      {activeTab === 'quality' && (
+        <QualityPanel />
       )}
 
       {/* All AI Agents Tab */}
