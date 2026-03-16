@@ -1,20 +1,20 @@
 /**
- * GCSE Curriculum Taxonomy Types
+ * Curriculum Taxonomy Types
  *
- * Structured curriculum data aligned to UK exam board specifications:
- * - AQA (Assessment and Qualifications Alliance)
- * - Edexcel (Pearson)
- * - OCR (Oxford, Cambridge and RSA)
+ * Structured curriculum data aligned to exam board specifications:
+ * - AQA, Edexcel, OCR, WJEC, CCEA (UK)
+ * - IBO (International Baccalaureate)
+ * - College Board (AP)
  *
- * Supports GCSE Foundation and Higher tiers across core subjects.
+ * Supports GCSE Foundation/Higher, IB SL/HL, and AP across core subjects.
  *
  * @module sage/curriculum/types
  */
 
 /**
- * UK Exam Boards
+ * Exam Boards — UK + International
  */
-export type ExamBoard = 'AQA' | 'Edexcel' | 'OCR' | 'WJEC' | 'CCEA';
+export type ExamBoard = 'AQA' | 'Edexcel' | 'OCR' | 'WJEC' | 'CCEA' | 'IBO' | 'CollegeBoard';
 
 /**
  * GCSE Tiers
@@ -34,14 +34,39 @@ export type CurriculumSubject =
   | 'combined-science'
   | 'history'
   | 'geography'
-  | 'computer-science';
+  | 'computer-science'
+  // IB subjects
+  | 'ib-maths-aa'         // Analysis & Approaches
+  | 'ib-maths-ai'         // Applications & Interpretation
+  | 'ib-english-langlit'  // Language & Literature
+  | 'ib-english-lit'      // Literature
+  | 'ib-biology'
+  | 'ib-chemistry'
+  | 'ib-physics'
+  | 'ib-tok'              // Theory of Knowledge
+  // AP subjects
+  | 'ap-calculus-ab'
+  | 'ap-calculus-bc'
+  | 'ap-statistics'
+  | 'ap-english-lang'
+  | 'ap-english-lit'
+  | 'ap-biology'
+  | 'ap-chemistry'
+  | 'ap-physics-1'
+  | 'ap-physics-2'
+  | 'ap-physics-c-mech'
+  | 'ap-physics-c-em';
 
 /**
- * Difficulty level based on GCSE grading
- * Foundation: Grades 1-5
- * Higher: Grades 4-9
+ * Difficulty level
+ * GCSE: Foundation Grades 1-5, Higher Grades 4-9
+ * IB: SL (Standard Level), HL (Higher Level)
+ * AP: Intro, Core, Advanced
  */
-export type DifficultyLevel = 'grade-1-2' | 'grade-3-4' | 'grade-5-6' | 'grade-7-8' | 'grade-9';
+export type DifficultyLevel =
+  | 'grade-1-2' | 'grade-3-4' | 'grade-5-6' | 'grade-7-8' | 'grade-9'
+  | 'ib-sl' | 'ib-hl'
+  | 'ap-intro' | 'ap-core' | 'ap-advanced';
 
 /**
  * Topic taxonomy - hierarchical structure

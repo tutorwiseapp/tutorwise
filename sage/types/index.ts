@@ -23,7 +23,7 @@ export interface SagePersonaConfig {
 
 export type SageSubject = 'maths' | 'english' | 'science' | 'general';
 
-export type SageLevel = 'GCSE' | 'A-Level' | 'University' | 'Other';
+export type SageLevel = 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
 
 export type SessionGoal =
   | 'homework_help'

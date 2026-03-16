@@ -486,6 +486,8 @@ export class SageRulesProvider extends BaseSageProvider {
     const names: Record<SageLevel, string> = {
       'GCSE': 'GCSE level',
       'A-Level': 'A-Level',
+      'IB': 'IB Diploma',
+      'AP': 'AP level',
       'University': 'University level',
       'Other': 'your level',
     };

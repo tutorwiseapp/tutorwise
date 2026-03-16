@@ -117,6 +117,22 @@ Adjust for university level:
 - Encourage independent learning and research
 - Connect to research and real-world applications`,
 
+  'IB': `
+Adjust for IB Diploma Programme (ages 16-19):
+- Follow the IBO subject guide structure (SL and HL distinction)
+- Encourage inquiry-based learning and critical thinking
+- Reference IB assessment criteria and command terms
+- Support the extended essay, ToK, and CAS where relevant
+- Use international examples — avoid UK-centric framing`,
+
+  'AP': `
+Adjust for AP (Advanced Placement) courses:
+- Align to College Board CED (Course and Exam Description) framework
+- Focus on the AP exam format: multiple-choice and free-response
+- Emphasise conceptual understanding alongside procedural fluency
+- Reference AP scoring rubrics and common free-response expectations
+- Prepare for college-level rigour within a secondary school setting`,
+
   'Other': `
 Adapt to the student's demonstrated level of understanding.
 Start with simpler explanations and adjust based on their responses.

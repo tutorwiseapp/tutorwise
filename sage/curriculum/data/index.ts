@@ -11,6 +11,15 @@ import type { CurriculumTopic } from '../types';
 import { mathsTopics } from './maths';
 import { scienceTopics } from './science';
 import { humanitiesTopics } from './humanities';
+import { ibTopics } from './ib';
+import { apTopics } from './ap';
+import { englishTopics } from './english';
+import { computingTopics } from './computing';
+import { aLevelMathsTopics } from './a-level-maths';
+import { aLevelScienceTopics } from './a-level-sciences';
+import { primaryTopics } from './primary';
+import { sqaTopics } from './sqa';
+import { cieTopics } from './cie';
 
 /**
  * All curriculum topics across all subjects
@@ -19,6 +28,15 @@ export const allTopics: CurriculumTopic[] = [
   ...mathsTopics,
   ...scienceTopics,
   ...humanitiesTopics,
+  ...ibTopics,
+  ...apTopics,
+  ...englishTopics,
+  ...computingTopics,
+  ...aLevelMathsTopics,
+  ...aLevelScienceTopics,
+  ...primaryTopics,
+  ...sqaTopics,
+  ...cieTopics,
 ];
 
 /**
@@ -68,3 +86,12 @@ export function searchTopics(query: string): CurriculumTopic[] {
 export { mathsTopics } from './maths';
 export { scienceTopics } from './science';
 export { humanitiesTopics } from './humanities';
+export { ibTopics } from './ib';
+export { apTopics } from './ap';
+export { englishTopics } from './english';
+export { computingTopics } from './computing';
+export { aLevelMathsTopics } from './a-level-maths';
+export { aLevelScienceTopics } from './a-level-sciences';
+export { primaryTopics } from './primary';
+export { sqaTopics } from './sqa';
+export { cieTopics } from './cie';
