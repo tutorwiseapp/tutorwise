@@ -9,6 +9,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import type { AIAgent, AIAgentType, CreateAIAgentInput, UpdateAIAgentInput } from '@sage/agents/base/types';
+import { getLimitTierForScore } from './limits';
 
 // --- Types ---
 
@@ -269,7 +270,8 @@ export async function getAIAgentLimits(userId: string): Promise<{
     .single();
 
   const caasScore = profile?.caas_score || 0;
-  const limit = Math.max(1, Math.min(50, Math.floor(caasScore / 20) + 1));
+  const tier = getLimitTierForScore(caasScore);
+  const limit = tier.maxAIAgents;
 
   const { data: agents } = await supabase
     .from('ai_agents')

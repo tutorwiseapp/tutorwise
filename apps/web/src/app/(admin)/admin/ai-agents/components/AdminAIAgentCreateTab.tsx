@@ -8,7 +8,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import AIAgentBuilderForm from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
 import type { AIAgentFormData } from '@/components/feature/ai-agents/builder/AIAgentBuilderForm';
@@ -20,7 +19,6 @@ interface AdminAIAgentCreateTabProps {
 }
 
 export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateTabProps) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,7 +31,7 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          is_platform_owned: true,  // 🔑 Mark as platform-owned
+          is_platform_owned: true,
           status: shouldPublish ? 'published' : 'draft',
         }),
       });
@@ -70,8 +68,6 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
   const handleCancel = () => {
     if (onSuccess) {
       onSuccess(); // Switch back to table view
-    } else {
-      router.push('/admin/ai-agents');
     }
   };
 
@@ -86,7 +82,7 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
       </div>
 
       <div className={styles.formContainer}>
-        {/* 🔥 REUSE - Don't duplicate the form */}
+        {/* Reuse shared builder form */}
         <AIAgentBuilderForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
@@ -98,7 +94,7 @@ export default function AdminAIAgentCreateTab({ onSuccess }: AdminAIAgentCreateT
       <div className={styles.adminNotes}>
         <h3>Admin Notes</h3>
         <ul>
-          <li>Platform AI tutors are marked with a ⭐ Platform badge in the marketplace</li>
+          <li>Platform AI tutors are marked with a Platform badge in the marketplace</li>
           <li>All revenue from platform AI tutors goes directly to the platform (no commission split)</li>
           <li>Platform AI tutors can be featured and prioritized in search results</li>
           <li>You can publish immediately or save as draft for later review</li>

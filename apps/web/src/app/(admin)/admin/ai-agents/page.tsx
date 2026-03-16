@@ -65,11 +65,6 @@ export default function AdminAIAgentsOverviewPage() {
   const totalSessionsMetric = useAdminMetric({ metric: 'ai_agent_sessions_total', compareWith: 'last_month' });
   const activeRateMetric = useAdminMetric({ metric: 'ai_agents_active_rate', compareWith: 'last_month' });
 
-  // Header actions
-  const getHeaderActions = () => {
-    return undefined;
-  };
-
   // Fetch trend data from platform_statistics_daily (last 7 days)
   const aiTutorTrendsQuery = useAdminTrendData({ metric: 'ai_agents_total', days: 7 });
   const sessionsTrendsQuery = useAdminTrendData({ metric: 'ai_agent_sessions_total', days: 7 });
@@ -85,9 +80,9 @@ export default function AdminAIAgentsOverviewPage() {
   // Authorization check (after all hooks)
   if (!canViewAIAgents) {
     return (
-      <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <h2 style={{ marginBottom: '1rem' }}>Unauthorized Access</h2>
-        <p style={{ color: '#6b7280' }}>You don't have permission to view AI Agents.</p>
+      <div className={styles.unauthorizedContainer}>
+        <h2>Unauthorized Access</h2>
+        <p>You don&apos;t have permission to view AI Agents.</p>
       </div>
     );
   }
@@ -98,7 +93,7 @@ export default function AdminAIAgentsOverviewPage() {
         <HubHeader
           title="AI Agents"
           subtitle="Manage platform and user AI agents"
-          actions={getHeaderActions()}
+          actions={undefined}
           className={styles.aiAgentsHeader}
         />
       }
@@ -245,7 +240,7 @@ export default function AdminAIAgentsOverviewPage() {
           {/* Charts Section */}
           <div className={styles.chartsSection}>
             {/* AI Tutor Growth Trend */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load AI tutor trends chart</div>}>
+            <ErrorBoundary fallback={<div className={styles.fallbackMessage}>Unable to load AI tutor trends chart</div>}>
               {isLoadingCharts ? (
                 <ChartSkeleton height="320px" />
               ) : (
@@ -260,7 +255,7 @@ export default function AdminAIAgentsOverviewPage() {
             </ErrorBoundary>
 
             {/* Ownership Breakdown */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load ownership breakdown chart</div>}>
+            <ErrorBoundary fallback={<div className={styles.fallbackMessage}>Unable to load ownership breakdown chart</div>}>
               <HubCategoryBreakdownChart
                 data={ownershipData}
                 title="Ownership Breakdown"
@@ -269,7 +264,7 @@ export default function AdminAIAgentsOverviewPage() {
             </ErrorBoundary>
 
             {/* Session Activity Trend */}
-            <ErrorBoundary fallback={<div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>Unable to load session trends chart</div>}>
+            <ErrorBoundary fallback={<div className={styles.fallbackMessage}>Unable to load session trends chart</div>}>
               {isLoadingCharts ? (
                 <ChartSkeleton height="320px" />
               ) : (

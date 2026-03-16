@@ -124,7 +124,7 @@ export function getUpgradeSuggestions(caasScore: number | null | undefined): str
   const nextTier = getNextTier(currentTier);
 
   if (!nextTier) {
-    return ['You\'re at the maximum tier! 🎉'];
+    return ['You\'re at the maximum tier!'];
   }
 
   const suggestions: string[] = [];

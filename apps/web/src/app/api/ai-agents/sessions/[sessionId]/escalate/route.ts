@@ -55,21 +55,13 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Verify session is active
-    if (session.status !== 'active') {
-      return NextResponse.json(
-        { error: 'Session is not active' },
-        { status: 403 }
-      );
-    }
-
     // Calculate session duration and cost
     const startedAt = new Date(session.started_at);
     const endedAt = new Date();
     const durationMinutes = Math.ceil((endedAt.getTime() - startedAt.getTime()) / (1000 * 60));
     const costPounds = (durationMinutes / 60) * session.price_per_hour;
 
-    // Update session status to escalated
+    // Atomic update — WHERE status='active' prevents race conditions
     const { data: updatedSession, error: updateError } = await supabase
       .from('ai_agent_sessions')
       .update({
@@ -80,6 +72,7 @@ export async function POST(
         escalated_to_human: true,
       })
       .eq('id', sessionId)
+      .eq('status', 'active')
       .select(
         `
         *,
@@ -93,13 +86,20 @@ export async function POST(
         )
       `
       )
-      .single();
+      .maybeSingle();
 
     if (updateError) {
       console.error('Error updating session:', updateError);
       return NextResponse.json(
         { error: 'Failed to escalate session' },
         { status: 500 }
+      );
+    }
+
+    if (!updatedSession) {
+      return NextResponse.json(
+        { error: 'Session is not active' },
+        { status: 400 }
       );
     }
 

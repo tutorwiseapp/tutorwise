@@ -23,10 +23,22 @@ export async function POST(
     let isSchedulerAuth = false;
     if (cronSecret) {
       const bearerToken = `Bearer ${cronSecret}`;
-      if (authHeader && authHeader.length === bearerToken.length) {
-        isSchedulerAuth = timingSafeEqual(Buffer.from(authHeader), Buffer.from(bearerToken));
-      } else if (cronHeader && cronHeader.length === cronSecret.length) {
-        isSchedulerAuth = timingSafeEqual(Buffer.from(cronHeader), Buffer.from(cronSecret));
+      if (authHeader) {
+        // Pad both to same length to avoid leaking secret length via timing
+        const maxLen = Math.max(authHeader.length, bearerToken.length);
+        const authBuf = Buffer.alloc(maxLen, 0);
+        const secretBuf = Buffer.alloc(maxLen, 0);
+        Buffer.from(authHeader).copy(authBuf);
+        Buffer.from(bearerToken).copy(secretBuf);
+        isSchedulerAuth = authHeader.length === bearerToken.length && timingSafeEqual(authBuf, secretBuf);
+      }
+      if (!isSchedulerAuth && cronHeader) {
+        const maxLen = Math.max(cronHeader.length, cronSecret.length);
+        const cronBuf = Buffer.alloc(maxLen, 0);
+        const secretBuf = Buffer.alloc(maxLen, 0);
+        Buffer.from(cronHeader).copy(cronBuf);
+        Buffer.from(cronSecret).copy(secretBuf);
+        isSchedulerAuth = cronHeader.length === cronSecret.length && timingSafeEqual(cronBuf, secretBuf);
       }
     }
 

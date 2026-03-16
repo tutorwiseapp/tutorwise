@@ -45,14 +45,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Prevent double-ending
-    if (session.status !== 'active') {
-      return NextResponse.json(
-        { error: 'Session is already ended', status: session.status },
-        { status: 400 }
-      );
-    }
-
     // Calculate duration in minutes
     const startedAt = new Date(session.started_at);
     const endedAt = new Date();
@@ -60,15 +52,30 @@ export async function PATCH(
       (endedAt.getTime() - startedAt.getTime()) / (1000 * 60)
     );
 
-    // Update session
-    await supabase
+    // Atomic update — WHERE status='active' prevents double-ending
+    const { data: updated, error: updateError } = await supabase
       .from('ai_agent_sessions')
       .update({
         ended_at: endedAt.toISOString(),
         duration_minutes: durationMinutes,
         status: 'completed',
       })
-      .eq('id', sessionId);
+      .eq('id', sessionId)
+      .eq('status', 'active')
+      .select('id')
+      .maybeSingle();
+
+    if (updateError) {
+      console.error('Error ending session:', updateError);
+      return NextResponse.json({ error: 'Failed to end session' }, { status: 500 });
+    }
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: 'Session is already ended', status: session.status },
+        { status: 400 }
+      );
+    }
 
     // Update AI tutor stats (increment session count and revenue)
     await supabase.rpc('ai_agent_increment_session_stats', {

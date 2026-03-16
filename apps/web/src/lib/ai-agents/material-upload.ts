@@ -260,7 +260,7 @@ export async function deleteMaterial(
 
   // Delete from storage (extract path from URL)
   const url = material.file_url;
-  const pathMatch = url.match(/ai-tutors\/.+/);
+  const pathMatch = url.match(/ai-agents\/.+/);
   if (pathMatch) {
     await supabase.storage
       .from('ai-tutor-materials')

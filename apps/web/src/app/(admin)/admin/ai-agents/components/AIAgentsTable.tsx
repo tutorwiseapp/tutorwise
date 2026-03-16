@@ -23,8 +23,9 @@ import { createClient } from '@/utils/supabase/client';
 import { HubDataTable } from '@/components/hub/data';
 import type { Column, Filter, PaginationConfig, BulkAction } from '@/components/hub/data';
 import AdminAIAgentDetailModal from './AdminAIAgentDetailModal';
-import { Bot, Activity, DollarSign } from 'lucide-react';
+import { Bot, Activity, DollarSign, Star, Check, X } from 'lucide-react';
 import VerticalDotsMenu from '@/components/ui/actions/VerticalDotsMenu';
+import toast from 'react-hot-toast';
 import { formatIdForDisplay } from '@/lib/utils/formatId';
 import styles from './AIAgentsTable.module.css';
 import StatusBadge from '@/components/admin/badges/StatusBadge';
@@ -390,7 +391,7 @@ export default function AIAgentsTable() {
                   .eq('id', aiTutor.id);
 
                 if (error) {
-                  alert('Failed to update status');
+                  toast.error('Failed to update status');
                 } else {
                   refetch();
                 }
@@ -403,9 +404,9 @@ export default function AIAgentsTable() {
                 if (confirm('Delete this AI tutor? This action cannot be undone.')) {
                   const { error } = await supabase.from('ai_agents').delete().eq('id', aiTutor.id);
                   if (error) {
-                    alert('Failed to delete AI tutor');
+                    toast.error('Failed to delete AI tutor');
                   } else {
-                    alert('AI tutor deleted successfully');
+                    toast.success('AI tutor deleted successfully');
                     refetch();
                   }
                 }
@@ -487,9 +488,9 @@ export default function AIAgentsTable() {
           .in('id', selectedIds);
 
         if (error) {
-          alert('Failed to publish AI tutors');
+          toast.error('Failed to publish AI tutors');
         } else {
-          alert(`${selectedIds.length} AI tutor(s) published successfully`);
+          toast.success(`${selectedIds.length} AI tutor(s) published successfully`);
           refetch();
           setSelectedRows(new Set());
         }
@@ -508,9 +509,9 @@ export default function AIAgentsTable() {
           .in('id', selectedIds);
 
         if (error) {
-          alert('Failed to unpublish AI tutors');
+          toast.error('Failed to unpublish AI tutors');
         } else {
-          alert(`${selectedIds.length} AI tutor(s) unpublished successfully`);
+          toast.success(`${selectedIds.length} AI tutor(s) unpublished successfully`);
           refetch();
           setSelectedRows(new Set());
         }
@@ -529,9 +530,9 @@ export default function AIAgentsTable() {
           .in('id', selectedIds);
 
         if (error) {
-          alert('Failed to delete AI tutors');
+          toast.error('Failed to delete AI tutors');
         } else {
-          alert(`${selectedIds.length} AI tutor(s) deleted successfully`);
+          toast.success(`${selectedIds.length} AI tutor(s) deleted successfully`);
           refetch();
           setSelectedRows(new Set());
         }
@@ -545,7 +546,7 @@ export default function AIAgentsTable() {
       <div className={styles.mobileCardHeader}>
         <div className={styles.mobileCardTitle}>
           <h3>{aiTutor.display_name}</h3>
-          {aiTutor.is_platform_owned && <span className={styles.platformBadge}>⭐</span>}
+          {aiTutor.is_platform_owned && <span className={styles.platformBadge}><Star size={12} /></span>}
           <StatusBadge variant={getAIAgentStatusVariant(aiTutor.status)} label={aiTutor.status} />
         </div>
         <div className={styles.mobileCardSubtitle}>
@@ -643,7 +644,7 @@ export default function AIAgentsTable() {
 
 // PriorityCell Component - Inline editable priority field (Phase 2A)
 interface PriorityCellProps {
-  tutor: any; // AITutor type
+  tutor: AITutor & { priority_rank?: number };
   onUpdate: () => void;
 }
 
@@ -673,7 +674,7 @@ function PriorityCell({ tutor, onUpdate }: PriorityCellProps) {
     } catch (error) {
       console.error('Error updating priority:', error);
       setValue(tutor.priority_rank || 0); // Revert on error
-      alert('Failed to update priority');
+      toast.error('Failed to update priority');
     } finally {
       setIsSaving(false);
     }
@@ -709,7 +710,7 @@ function PriorityCell({ tutor, onUpdate }: PriorityCellProps) {
           className={styles.saveBtn}
           title="Save"
         >
-          {isSaving ? '...' : '✓'}
+          {isSaving ? '...' : <Check size={14} />}
         </button>
         <button
           onClick={handleCancel}
@@ -717,7 +718,7 @@ function PriorityCell({ tutor, onUpdate }: PriorityCellProps) {
           className={styles.cancelBtn}
           title="Cancel"
         >
-          ✕
+          <X size={14} />
         </button>
       </div>
     );
@@ -729,7 +730,7 @@ function PriorityCell({ tutor, onUpdate }: PriorityCellProps) {
       onClick={() => setIsEditing(true)}
       title="Click to edit priority (higher = appears first)"
     >
-      {tutor.priority_rank > 0 ? (
+      {(tutor.priority_rank ?? 0) > 0 ? (
         <span className={styles.priorityBadge}>{tutor.priority_rank}</span>
       ) : (
         <span className={styles.priorityDefault}>0</span>

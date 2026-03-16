@@ -9,6 +9,8 @@
 import React from 'react';
 import Modal from '@/components/ui/feedback/Modal';
 import Button from '@/components/ui/actions/Button';
+import StatusBadge from '@/components/admin/badges/StatusBadge';
+import { Star } from 'lucide-react';
 import styles from './AdminAIAgentDetailModal.module.css';
 
 interface AITutor {
@@ -33,6 +35,14 @@ interface AITutor {
     email: string;
     avatar_url: string | null;
   };
+}
+
+function getStatusVariant(status: string) {
+  const s = status?.toLowerCase();
+  if (s === 'published' || s === 'active') return 'published' as const;
+  if (s === 'draft' || s === 'inactive') return 'pending' as const;
+  if (s === 'unpublished' || s === 'suspended' || s === 'canceled' || s === 'past_due') return 'removed' as const;
+  return 'neutral' as const;
 }
 
 interface AdminAIAgentDetailModalProps {
@@ -70,17 +80,13 @@ export default function AdminAIAgentDetailModal({
           <div className={styles.titleSection}>
             <h2>{aiTutor.display_name}</h2>
             {aiTutor.is_platform_owned && (
-              <span className={styles.platformBadge}>⭐ Platform AI Tutor</span>
+              <span className={styles.platformBadge}><Star size={14} /> Platform AI Tutor</span>
             )}
             <p className={styles.slug}>/{aiTutor.name}</p>
           </div>
           <div className={styles.statusSection}>
-            <span className={`${styles.statusBadge} ${styles[aiTutor.status]}`}>
-              {aiTutor.status}
-            </span>
-            <span className={`${styles.subBadge} ${styles[aiTutor.subscription_status]}`}>
-              {aiTutor.subscription_status}
-            </span>
+            <StatusBadge variant={getStatusVariant(aiTutor.status)} label={aiTutor.status} />
+            <StatusBadge variant={getStatusVariant(aiTutor.subscription_status)} label={aiTutor.subscription_status} />
           </div>
         </div>
 

@@ -107,3 +107,23 @@
     /* No margin-top - HubKPIGrid has margin-bottom: 2rem built-in */
   }
 }
+
+/* Error/unauthorized fallback */
+.fallbackMessage {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-tertiary, #666);
+}
+
+.unauthorizedContainer {
+  padding: 3rem;
+  text-align: center;
+}
+
+.unauthorizedContainer h2 {
+  margin-bottom: 1rem;
+}
+
+.unauthorizedContainer p {
+  color: var(--color-text-tertiary, #6b7280);
+}
