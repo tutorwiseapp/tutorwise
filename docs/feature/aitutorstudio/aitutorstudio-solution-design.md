@@ -1860,7 +1860,7 @@ async function canCreateAITutor(userId: string): Promise<{ allowed: boolean; lim
 
 **When AI tutor can't answer from uploaded materials, fallback to Sage's general knowledge.**
 
-> **Sage v3.0 (2026-03):** Sage now covers 676+ topics across KS1 to A-Level, IB, AP, SQA, and CIE curricula spanning 15+ subjects. This means Studio AI tutors benefit from a comprehensive fallback covering maths, english, science, computing, humanities, languages, social-sciences, business, arts, and more. Sage's PlatformUserContext and SEN/SEND adaptations are also available to Studio AI tutors via fallback, enabling accessibility-aware responses.
+> **Sage v3.0 (2026-03):** Sage now covers 467+ topics across KS1 to A-Level, IB, AP, SQA, and CIE curricula spanning 15+ subjects. This means Studio AI tutors benefit from a comprehensive fallback covering maths, english, science, computing, humanities, languages, social-sciences, business, arts, and more. Sage's PlatformUserContext and SEN/SEND adaptations are also available to Studio AI tutors via fallback, enabling accessibility-aware responses.
 
 #### How It Works
 
@@ -2824,7 +2824,7 @@ Example at minimum price (£5/hour):
 - ✅ No special cases
 
 **Fallback to Sage (Quality Safety Net):**
-- If AI tutor quality is low → AI falls back to Sage knowledge (676+ topics across KS1 to A-Level, IB, AP, SQA, CIE covering 15+ subjects)
+- If AI tutor quality is low → AI falls back to Sage knowledge (467+ topics across KS1 to A-Level, IB, AP, SQA, CIE covering 15+ subjects)
 - Client still gets help (never stuck with useless AI)
 - Owner sees feedback: "Needed Sage fallback" → uploads better materials
 - Self-regulating quality mechanism

@@ -1,26 +1,57 @@
 # Sage Solution Design
-**AI Tutor Agent for GCSE/A-Level – Maths, English, Science & General**
-**Version:** 2.1
+**AI Tutor Agent — UK Primary to University, IB, AP — 15+ Subjects with SEN/SEND Support**
+**Version:** 3.0
 **Created:** 2026-02-14
-**Last Updated:** 2026-02-22
+**Last Updated:** 2026-03-16
 **Status:** Approved for Implementation | Subscription Model: Free + Pro (£10/month)
 **Owner:** Michael Quan
 
 ---
 
+## Table of Contents
+
+1. [Vision & Objectives](#1-vision--objectives)
+2. [Subscription Model](#2-subscription-model)
+3. [Sage vs Lexi](#3-sage-vs-lexi)
+4. [Core Architecture](#4-core-architecture)
+5. [Role-Aware Personas](#5-role-aware-personas)
+6. [Knowledge Architecture (RAG)](#6-knowledge-architecture-rag)
+7. [Upload Pipeline](#7-upload-pipeline)
+8. [Subject Engines](#8-subject-engines)
+   - 8.1 [Curriculum Matrix](#81-curriculum-matrix)
+   - 8.2 [Exam Board Coverage](#82-exam-board-coverage)
+9. [DSPy Integration](#9-dspy-integration-full-implementation)
+10. [SEN/SEND Support](#10-sensend-support)
+11. [Platform Integration](#11-platform-integration)
+12. [Future-Proofing Components](#12-future-proofing-components)
+13. [Progress Tracking](#13-progress-tracking)
+14. [API Specification](#14-api-specification)
+15. [AI Provider Chain](#15-ai-provider-chain)
+16. [Competitive Positioning](#16-competitive-positioning)
+17. [UI Components](#17-ui-components)
+18. [Database Schema](#18-database-schema)
+19. [Design Tokens](#19-design-tokens)
+20. [Implementation Phases](#20-implementation-phases)
+21. [Success Metrics](#21-success-metrics)
+22. [Guiding Principles](#22-guiding-principles)
+23. [Related Documentation](#23-related-documentation)
+
+---
+
 ## 1. Vision & Objectives
 
-Sage is Tutorwise's specialised AI tutor that acts as a 24/7 personal teaching assistant. Unlike Lexi (the platform support assistant), Sage focuses exclusively on teaching and learning.
+Sage is Tutorwise's specialised AI tutor that acts as a 24/7 personal teaching assistant. Unlike Lexi (the platform support assistant), Sage focuses exclusively on teaching and learning. Sage covers the full UK education pipeline from KS1 through University, plus international curricula including IB, AP, SQA, and CIE, with built-in SEN/SEND adaptations compliant with the UK GDPR Children's Code.
 
 Sage must be:
-- **Curriculum-expert** – Grounded in UK GCSE/A-Level specifications
+- **Curriculum-expert** – Grounded in UK KS1 through University + IB + AP + SQA + CIE specifications, with SEN/SEND adaptations
 - **Role-aware** – Different behaviour for Tutor / Agent / Client / Student
-- **Personalised** – Uses uploaded teaching materials, homework, notes
-- **Safe & accurate** – No hallucinations on exam content
-- **Continuously improving** – Via DSPy + CAS feedback loop
-- **Future-proof** – Light A2A readiness, tool calling, capability discovery
+- **Personalised** – Uses uploaded teaching materials, homework, notes, and episodic memory
+- **Safe & accurate** – No hallucinations on exam content; safeguarding-first for under-18s
+- **Continuously improving** – Via DSPy + Conductor feedback loop + agent episodic memory
+- **Inclusive** – 11 SEN/SEND categories with privacy-preserving prompt adaptation
+- **Future-proof** – Light A2A readiness, tool calling, capability discovery, Conductor integration
 
-**Key differentiator:** Sage learns and teaches in the user's own voice (especially tutors' PowerPoints) while staying strictly aligned to official specs.
+**Key differentiator:** Sage learns and teaches in the user's own voice (especially tutors' PowerPoints) while staying strictly aligned to official specs across 15+ subjects and all major UK/international exam boards.
 
 ---
 
@@ -39,9 +70,9 @@ Sage operates on a freemium model with direct upgrade path from free tier to Pro
 | **Fallback** | Rules-based responses when quota exceeded | `lexi/providers/rules-provider.ts` |
 
 **Cost Control:**
-- Free tier users consume ~0.45p per question (Gemini Flash)
+- Free tier users consume ~0.45p per question (via 6-tier fallback chain)
 - 10 questions/day = £1.35/month average cost per active user
-- Storage costs negligible: 50 MB × £0.021/GB = £0.001/month
+- Storage costs negligible: 50 MB x £0.021/GB = £0.001/month
 
 ### 2.2 Sage Pro - £10/month
 
@@ -49,8 +80,9 @@ Sage operates on a freemium model with direct upgrade path from free tier to Pro
 |---------|-------|-------|
 | **Questions** | 5,000 per month (~167/day) | 500x more than free tier |
 | **Storage** | 1 GB for materials | 20x more than free tier |
-| **Subjects** | All: Maths, English, Science, General | Full subject access |
+| **Subjects** | All 15+ subjects across all levels (Maths, English, Science, Computing, Humanities, Languages, Social Sciences, Business & Economics, Arts & Creative, General) | Full subject access including IB, AP, SQA, CIE |
 | **Conversation History** | 100 messages | 10x longer sessions |
+| **SEN/SEND Adaptations** | All 11 categories | Personalised learning support |
 | **Advanced Features** | Priority responses, progress analytics, PDF transcripts | Pro-only capabilities |
 
 **Pricing Strategy:**
@@ -66,7 +98,7 @@ Sage operates on a freemium model with direct upgrade path from free tier to Pro
 **No Trial Period:**
 - Free tier provides extensive testing (10 questions/day = 300/month)
 - Users can experience all core features before upgrading
-- Direct upgrade path from free → Pro
+- Direct upgrade path from free to Pro
 - Simpler UX than traditional trial model
 
 **Subscription Management:**
@@ -90,16 +122,18 @@ Sage operates on a freemium model with direct upgrade path from free tier to Pro
 | **Personas** | 5 role-based (Support, Earnings Expert, etc.) | 4 role-based (Tutor, Agent, Client, Student) |
 | **Knowledge** | Platform features, help content | Curriculum specs, user uploads, tutoring materials |
 | **Tone** | Professional, helpful | Patient, encouraging, educational |
-| **Context** | User role, permissions, bookings | Subject, level, learning style, progress |
+| **Context** | User role, permissions, bookings | Subject, level, learning style, progress, SEN profile |
 | **Output** | Actions, suggestions, navigation | Explanations, examples, practice problems |
 | **Entry Points** | FAB on all authenticated pages | Tutor/Agent dashboard, Client/Student profile |
+| **Curriculum** | None | UK KS1-University, IB, AP, SQA, CIE |
 
 **Shared Infrastructure:**
 - `context/resolver.ts` – Role detection & context switching
 - `ai_feedback` table – Unified feedback storage
 - CAS message bus – Standardized JSON envelope
 - DSPy pipeline – Weekly optimization (shared job)
-- Provider routing – Gemini first, Claude fallback
+- AI provider chain – 6-tier fallback (xAI Grok 4 Fast primary)
+- PlatformUserContext – Enriched user context (from Conductor Phase 4C)
 
 ---
 
@@ -110,10 +144,9 @@ sage/
 ├── core/                      # Shared orchestration
 │   ├── orchestrator.ts        # Message routing
 │   └── index.ts
-├── providers/                 # LLM providers (shared with Lexi)
-│   ├── base-provider.ts
-│   ├── gemini-provider.ts
-│   └── claude-provider.ts
+├── providers/                 # LLM providers (shared AI service)
+│   ├── types.ts
+│   └── index.ts
 ├── context/                   # Role & session context
 │   ├── resolver.ts            # Role detection & mode switching
 │   └── index.ts
@@ -130,49 +163,126 @@ sage/
 │   └── student/
 │       ├── index.ts
 │       └── capabilities.json
-├── subjects/                  # Domain logic per subject
+├── subjects/                  # Domain logic per subject (10 subject configs)
+│   ├── index.ts               # SUBJECT_CONFIGS registry (10 entries)
+│   ├── types.ts               # SubjectConfig, TopicNode, etc.
+│   ├── dspy-types.ts          # DSPy integration types
+│   ├── engine-executor.ts     # Engine routing
 │   ├── maths/
 │   │   ├── engine.ts          # DSPy Chain-of-Thought solver
-│   │   └── curriculum.ts
+│   │   ├── topics.ts
+│   │   ├── curriculum.ts
+│   │   └── index.ts
 │   ├── english/
 │   │   ├── engine.ts
-│   │   └── curriculum.ts
+│   │   └── index.ts
 │   ├── science/
 │   │   ├── engine.ts
-│   │   └── curriculum.ts
+│   │   └── index.ts
 │   └── general/
-│       └── engine.ts
+│       ├── engine.ts          # Fallback engine for new subjects
+│       └── index.ts
+├── curriculum/                # Structured curriculum data
+│   ├── types.ts               # CurriculumTopic, ExamBoard, etc.
+│   ├── resolver.ts            # Topic resolution
+│   ├── content-generator.ts   # Dynamic content generation
+│   └── data/                  # 22 curriculum data files (~467 topics)
+│       ├── index.ts           # Centralised exports + query helpers
+│       ├── primary.ts         # KS1-KS2 core subjects
+│       ├── ks3-maths.ts       # KS3 Mathematics
+│       ├── ks3-science.ts     # KS3 Science
+│       ├── ks3-english.ts     # KS3 English
+│       ├── ks3-humanities.ts  # KS3 History & Geography
+│       ├── maths.ts           # GCSE Maths
+│       ├── science.ts         # GCSE Science (Combined + Triple)
+│       ├── english.ts         # GCSE English Language & Literature
+│       ├── humanities.ts      # GCSE History & Geography
+│       ├── computing.ts       # GCSE Computer Science
+│       ├── social-sciences.ts # GCSE Psychology, Sociology, RE
+│       ├── languages.ts       # GCSE French, Spanish, German, etc.
+│       ├── business-economics.ts # GCSE Business, Economics
+│       ├── creative-practical.ts # GCSE Music, Art, D&T, PE, Drama
+│       ├── a-level-maths.ts   # A-Level Pure, Mechanics, Statistics
+│       ├── a-level-sciences.ts # A-Level Biology, Chemistry, Physics
+│       ├── a-level-humanities.ts # A-Level History, Geography
+│       ├── a-level-other.ts   # A-Level Psychology, Economics, CS, Business
+│       ├── ib.ts              # IB Maths AA/AI, English, Sciences, ToK
+│       ├── ap.ts              # AP Calculus, Statistics, Sciences, English
+│       ├── sqa.ts             # SQA National 5 + Higher
+│       └── cie.ts             # CIE IGCSE core subjects
+├── sen/                       # SEN/SEND support module
+│   ├── types.ts               # SENCategory, SENProfile, SENAdaptation
+│   ├── adapter.ts             # SEN_ADAPTATIONS record, prompt generation
+│   └── index.ts               # Public API exports
+├── safety/                    # Safeguarding & content safety
+│   ├── types.ts
+│   ├── input-classifier.ts    # Input content classification
+│   ├── output-validator.ts    # Output content validation
+│   ├── wellbeing-detector.ts  # Student wellbeing detection
+│   ├── age-adapter.ts         # Age-appropriate content adaptation
+│   └── index.ts
+├── teaching/                  # Teaching mode strategies
+│   └── modes.ts               # Socratic, direct, adaptive, supportive
+├── assessment/                # Quiz and assessment tools
+│   ├── quiz-generator.ts      # Dynamic quiz generation
+│   └── answer-evaluator.ts    # Answer evaluation & feedback
+├── math/                      # Advanced maths tooling
+│   ├── hybrid-solver.ts       # Multi-strategy solver
+│   └── test-solver.ts
+├── rendering/                 # Output rendering
+│   └── math-renderer.ts       # LaTeX/MathJax rendering
 ├── knowledge/                 # Role-aware RAG storage
 │   ├── global/                # Platform-wide resources
 │   ├── users/{user_id}/       # Personal uploads
 │   ├── shared/{owner_id}/     # Tutor → Student sharing
+│   ├── types.ts               # Knowledge types
 │   ├── index.ts               # RAG retrieval
+│   ├── retriever.ts           # Base retriever
+│   ├── enhanced-retriever.ts  # Enhanced retrieval with re-ranking
+│   ├── enhanced-rag.ts        # RAG pipeline
 │   └── access-control.ts      # Visibility rules
 ├── upload/                    # Ingestion pipeline
 │   ├── processor.ts           # PPTX/PDF/DOCX extraction
 │   ├── embedder.ts            # pgvector embedding
+│   ├── index.ts
 │   └── config/
+│       ├── allowed-types.ts
 │       ├── tutor.json
 │       ├── agent.json
 │       ├── client.json
 │       └── student.json
 ├── services/
-│   ├── session-store.ts       # Redis sessions (sage: prefix)
+│   ├── session.ts             # Redis sessions (sage: prefix)
 │   ├── progress.ts            # Mastery scores, topic queue
 │   ├── report.ts              # Role-specific reports
-│   └── rate-limiter.ts
+│   ├── access-control.ts      # Access control service
+│   ├── student-model.ts       # Student modelling
+│   ├── feedback-service.ts    # Feedback collection
+│   └── index.ts
+├── agents/                    # AI agent integration
+│   ├── base/
+│   │   ├── BaseAgent.ts       # Base agent class
+│   │   ├── types.ts
+│   │   └── index.ts
+│   ├── MarketplaceAIAgent.ts  # Marketplace AI tutor
+│   ├── PlatformAIAgent.ts     # Platform AI agent
+│   ├── index.ts
+│   └── README.md
+├── links/                     # Cross-platform links
+│   └── index.ts
 ├── messages/                  # CAS message bus integration
 │   ├── envelope.ts            # Standardized JSON schema
 │   ├── validator.ts           # Envelope validation
 │   └── publisher.ts           # Send to CAS
 ├── tools/                     # OpenAI-compatible tool calling
+│   ├── types.ts
+│   ├── executor.ts            # Tool execution
 │   ├── registry.ts            # Tool registration
-│   ├── solve-gcse-maths.ts
-│   ├── explain-concept.ts
-│   └── generate-practice.ts
-├── extensions/                # Future role-specific overrides
-├── types/
 │   └── index.ts
+├── extensions/                # Future role-specific overrides
+│   └── index.ts
+├── types/
+│   └── index.ts               # All Sage types (SageSubject, SENCategory, etc.)
 └── index.ts
 ```
 
@@ -192,12 +302,14 @@ interface RoleContext {
   organisationId?: string;
   linkedStudents?: string[];  // For tutors/agents/clients
   linkedTutors?: string[];    // For students
+  senCategories?: SENCategory[];  // SEN/SEND profile
 }
 
 function resolveContext(user: UserInfo): RoleContext {
   // Detect role from profile.active_role
   // Determine mode based on context (viewing student? teaching? managing?)
   // Handle hybrid users (tutor who is also a student)
+  // Load SEN profile from sage_student_profiles if student role
 }
 ```
 
@@ -226,10 +338,15 @@ Each persona has a `capabilities.json` for future A2A discovery:
     "explain_for_student",
     "track_student_progress"
   ],
-  "subjects": ["maths", "english", "science", "general"],
-  "tiers": ["GCSE", "A-Level"],
+  "subjects": [
+    "maths", "english", "science", "computing",
+    "humanities", "languages", "social-sciences",
+    "business", "arts", "general"
+  ],
+  "levels": ["KS1", "KS2", "KS3", "GCSE", "A-Level", "IB", "AP", "SQA", "CIE", "University"],
   "input_types": ["text", "image", "document"],
-  "tool_calling": true
+  "tool_calling": true,
+  "sen_support": true
 }
 ```
 
@@ -241,7 +358,8 @@ Each persona has a `capabilities.json` for future A2A discovery:
 
 1. **User's own uploads** – Highest priority, personal context
 2. **Shared from tutor/agent** – Materials shared with specific students
-3. **Global platform resources** – Curriculum specs, verified content
+3. **Platform knowledge base** – Conductor Phase 4A knowledge chunks (768-dim vector, 18 categories)
+4. **Global platform resources** – Curriculum specs, verified content
 
 ### 6.2 Access Control
 
@@ -253,6 +371,7 @@ interface KnowledgeAccess {
   personal: boolean;         // Can access own uploads
   shared: string[];          // Can access shared/{owner_id}/ for these owners
   studentData: string[];     // Can access users/{student_id}/ for these students
+  platformKnowledge: boolean; // Can access platform_knowledge_chunks via RAG
 }
 
 function getAccessControl(context: RoleContext): KnowledgeAccess {
@@ -263,6 +382,7 @@ function getAccessControl(context: RoleContext): KnowledgeAccess {
         personal: true,
         shared: [],                              // Own shares visible elsewhere
         studentData: context.linkedStudents,     // Can see linked students' uploads
+        platformKnowledge: true,
       };
     case 'student':
       return {
@@ -270,6 +390,7 @@ function getAccessControl(context: RoleContext): KnowledgeAccess {
         personal: true,
         shared: context.linkedTutors,            // Can see tutor's shared materials
         studentData: [],
+        platformKnowledge: false,                // Students access via tutor
       };
     // ... agent, client
   }
@@ -283,7 +404,7 @@ User asks question
         │
         ▼
 ┌───────────────────┐
-│ Resolve Context   │ → Role, mode, linked users
+│ Resolve Context   │ → Role, mode, linked users, SEN profile
 └─────────┬─────────┘
           │
           ▼
@@ -294,13 +415,13 @@ User asks question
           ▼
 ┌───────────────────┐
 │ Query pgvector    │ → Search across allowed namespaces
-│ with access       │
+│ with access       │   (768-dim, gemini-embedding-001)
 │ filtering         │
 └─────────┬─────────┘
           │
           ▼
 ┌───────────────────┐
-│ Rank & Return     │ → User uploads > Shared > Global
+│ Rank & Return     │ → User uploads > Shared > Platform > Global
 └───────────────────┘
 ```
 
@@ -348,7 +469,7 @@ Tutor uploads PowerPoint
           ▼
 ┌───────────────────┐
 │ embedder.ts       │ → Chunk + embed with pgvector
-└─────────┬─────────┘
+└─────────┬─────────┘   (gemini-embedding-001, 768-dim)
           │
           ▼
 ┌───────────────────┐
@@ -367,9 +488,29 @@ Tutor uploads PowerPoint
 
 ## 8. Subject Engines
 
-### 8.1 Architecture
+### 8.0 Architecture
 
-Each subject has an engine with DSPy-powered reasoning:
+Sage uses a registry of 10 subject configs with 4 dedicated DSPy-powered engines and 6 subject configs that currently fall back to the general engine. Each subject config declares supported levels and exam boards.
+
+**Dedicated engines (full DSPy pipeline):**
+
+| Engine | Location | Capabilities |
+|--------|----------|-------------|
+| **Maths** | `subjects/maths/engine.ts` | Chain-of-Thought solver, error diagnosis, practice generation |
+| **English** | `subjects/english/engine.ts` | Reading comprehension, writing feedback, literary analysis |
+| **Science** | `subjects/science/engine.ts` | Experiment explanation, equation solving, concept mapping |
+| **General** | `subjects/general/engine.ts` | Study skills, exam prep, cross-subject support |
+
+**Extended subjects (general engine fallback):**
+
+| Subject Config | Location | Description |
+|----------------|----------|-------------|
+| **Computing** | `subjects/index.ts` | Computer Science, programming, digital literacy |
+| **Humanities** | `subjects/index.ts` | History, Geography |
+| **Languages** | `subjects/index.ts` | French, Spanish, German, Latin, Mandarin |
+| **Social Sciences** | `subjects/index.ts` | Psychology, Sociology, Religious Education |
+| **Business & Economics** | `subjects/index.ts` | Business Studies, Economics, Accounting |
+| **Arts & Creative** | `subjects/index.ts` | Music, Art & Design, D&T, PE, Drama |
 
 ```typescript
 // subjects/maths/engine.ts
@@ -383,7 +524,7 @@ const MathsSolver = dspy.ChainOfThought({
     answer: str,
     confidence: float
   `,
-  description: "Solve GCSE/A-Level maths problems step-by-step"
+  description: "Solve maths problems step-by-step across KS1 to University level"
 });
 
 const ErrorDiagnosis = dspy.Predict({
@@ -404,14 +545,56 @@ export class MathsEngine {
 }
 ```
 
-### 8.2 Subject Coverage
+### 8.1 Curriculum Matrix
 
-| Subject | GCSE Topics | A-Level Topics |
-|---------|-------------|----------------|
-| **Maths** | Algebra, Geometry, Statistics, Number, Ratio | Pure, Mechanics, Statistics |
-| **English** | Reading, Writing, Grammar, Literature | Language, Literature, Creative |
-| **Science** | Biology, Chemistry, Physics combined | Individual sciences |
-| **General** | Study skills, exam prep, cross-subject | Research, essay structure |
+Sage covers ~467 topics across 22 curriculum data files. The following matrix shows Level x Subject x Exam Board coverage:
+
+| Level | Subjects | Exam Boards | Data Files |
+|-------|----------|-------------|------------|
+| **KS1-KS2** | Primary Maths, Primary English, Primary Science | None (National Curriculum) | `primary.ts` |
+| **KS3** | Maths, Science, English, Humanities (History, Geography) | None (National Curriculum) | `ks3-maths.ts`, `ks3-science.ts`, `ks3-english.ts`, `ks3-humanities.ts` |
+| **GCSE** | Maths, English Language & Literature, Biology, Chemistry, Physics, Combined Science, History, Geography, Computer Science, French, Spanish, German, Psychology, Sociology, RE, Business Studies, Economics, Music, Art & Design, D&T, PE, Drama | AQA, Edexcel, OCR, WJEC, CCEA | `maths.ts`, `english.ts`, `science.ts`, `humanities.ts`, `computing.ts`, `languages.ts`, `social-sciences.ts`, `business-economics.ts`, `creative-practical.ts` |
+| **A-Level** | Maths (Pure, Mechanics, Statistics), Biology, Chemistry, Physics, History, Geography, Psychology, Economics, Computer Science, Business | AQA, Edexcel, OCR, WJEC, CCEA | `a-level-maths.ts`, `a-level-sciences.ts`, `a-level-humanities.ts`, `a-level-other.ts` |
+| **IB** | Maths AA (Analysis & Approaches), Maths AI (Applications & Interpretation), English Language & Literature, English Literature, Biology, Chemistry, Physics, Theory of Knowledge | IBO (SL/HL) | `ib.ts` |
+| **AP** | Calculus AB, Calculus BC, Statistics, English Language, English Literature, Biology, Chemistry, Physics 1, Physics 2, Physics C (Mechanics), Physics C (E&M) | College Board | `ap.ts` |
+| **SQA** | National 5 + Higher: Maths, English, Biology, Chemistry, Physics | SQA | `sqa.ts` |
+| **CIE** | IGCSE: Maths, English, Biology, Chemistry, Physics, Combined Science | CIE | `cie.ts` |
+
+**GCSE Tier Support:**
+- **Foundation** (Grades 1-5) and **Higher** (Grades 4-9) tiers are tracked per topic
+- Tier-specific content, worked examples, and difficulty calibration
+- `CurriculumTier` type: `'foundation' | 'higher' | 'both' | 'single' | 'sl' | 'hl'`
+
+**Difficulty Progression:**
+- Primary: `year-1-2`, `year-3-4`, `year-5-6`
+- KS3: `ks3-developing`, `ks3-secure`, `ks3-extending`
+- GCSE: `grade-1-2` through `grade-9`
+- A-Level: `a-level-as`, `a-level-a2`
+- SQA: `sqa-n5`, `sqa-higher`
+- IB: `ib-sl`, `ib-hl`
+- AP: `ap-intro`, `ap-core`, `ap-advanced`
+
+### 8.2 Exam Board Coverage
+
+Sage's curriculum data is tagged by exam board, enabling specification-accurate teaching for each board's unique content and assessment style.
+
+| Board | Full Name | Coverage | Notes |
+|-------|-----------|----------|-------|
+| **AQA** | Assessment and Qualifications Alliance | All GCSE subjects + A-Level | Largest UK exam board by entries |
+| **Edexcel** | Edexcel (Pearson) | All GCSE subjects + A-Level | Part of Pearson; strong in Maths and Sciences |
+| **OCR** | Oxford, Cambridge and RSA | All GCSE subjects + A-Level | Computer Science market leader |
+| **WJEC** | Welsh Joint Education Committee | Welsh + English GCSE/A-Level | Primary board for Wales |
+| **CCEA** | Council for the Curriculum, Examinations & Assessment | Northern Irish GCSE/A-Level | Sole board for Northern Ireland |
+| **SQA** | Scottish Qualifications Authority | National 5 + Higher (Maths, English, Sciences) | Scottish education system |
+| **CIE** | Cambridge International Examinations | IGCSE core subjects | International schools worldwide |
+| **IBO** | International Baccalaureate Organization | SL/HL across Maths, English, Sciences, ToK | Diploma programme (16-19) |
+| **CollegeBoard** | The College Board | AP courses (Calculus, Statistics, English, Sciences, Physics) | US Advanced Placement |
+
+**Board-specific features:**
+- Topic data includes `examBoards: ExamBoard[]` field per topic
+- Board-specific misconceptions, vocabulary, and assessment weightings
+- Content filtered by selected exam board in session context
+- Past paper question alignment (where available)
 
 ---
 
@@ -464,7 +647,7 @@ export class MathsEngine {
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 8.2 File Structure
+### 9.2 File Structure
 
 ```
 cas/optimization/
@@ -500,21 +683,22 @@ cas/optimization/
 └── requirements.txt
 ```
 
-### 8.3 DSPy Signatures (Python)
+### 9.3 DSPy Signatures (Python)
 
 ```python
 # cas/optimization/signatures/maths_solver.py
 import dspy
 
 class MathsSolver(dspy.Signature):
-    """Solve GCSE/A-Level maths problems with step-by-step working.
+    """Solve maths problems with step-by-step working across all levels.
 
     The solution must be pedagogically sound, showing each step clearly
-    so students can follow the reasoning.
+    so students can follow the reasoning. Adapts to the curriculum level
+    from KS1 primary through to A-Level and international qualifications.
     """
 
     question = dspy.InputField(desc="The maths problem to solve")
-    level = dspy.InputField(desc="GCSE, A-Level, or University")
+    level = dspy.InputField(desc="KS1, KS2, KS3, GCSE, A-Level, IB, AP, SQA, or University")
     student_context = dspy.InputField(
         desc="What the student has tried or where they're stuck",
         default=""
@@ -553,8 +737,8 @@ class ExplainConcept(dspy.Signature):
     """
 
     topic = dspy.InputField(desc="The concept to explain")
-    subject = dspy.InputField(desc="maths, english, or science")
-    level = dspy.InputField(desc="GCSE, A-Level, or University")
+    subject = dspy.InputField(desc="Subject area (maths, english, science, etc.)")
+    level = dspy.InputField(desc="KS1 through University, IB, AP, SQA, CIE")
     learning_style = dspy.InputField(
         desc="visual, auditory, reading, or kinesthetic",
         default="visual"
@@ -588,7 +772,7 @@ class GeneratePractice(dspy.Signature):
     solutions = dspy.OutputField(desc="Full solutions (hidden)")
 ```
 
-### 8.4 Metrics (Python)
+### 9.4 Metrics (Python)
 
 ```python
 # cas/optimization/metrics/tutoring_metrics.py
@@ -644,7 +828,6 @@ def tutoring_quality_metric(
 
     # 5. Matches expected answer (if available)
     if hasattr(example, 'expected_answer') and example.expected_answer:
-        # Normalize and compare
         pred_answer = normalize_answer(pred.answer)
         expected = normalize_answer(example.expected_answer)
         answer_match = 1.0 if pred_answer == expected else 0.0
@@ -655,7 +838,6 @@ def tutoring_quality_metric(
 
 def normalize_answer(answer: str) -> str:
     """Normalize answer for comparison."""
-    # Remove whitespace, lowercase, remove common formatting
     answer = answer.lower().strip()
     answer = re.sub(r'\s+', ' ', answer)
     answer = re.sub(r'[£$€]', '', answer)
@@ -666,26 +848,22 @@ def explanation_clarity_metric(example, pred, trace=None) -> float:
     """Metric for explanation clarity."""
     scores = []
 
-    # Has hook/introduction
     has_hook = len(pred.hook.strip()) > 10
     scores.append(1.0 if has_hook else 0.0)
 
-    # Has examples
     has_examples = len(pred.examples.strip()) > 20
     scores.append(1.0 if has_examples else 0.0)
 
-    # Has summary
     has_summary = len(pred.summary.strip()) > 10
     scores.append(1.0 if has_summary else 0.0)
 
-    # Uses bullet points or numbered lists
     has_structure = bool(re.search(r'[-•]\s|^\d+\.', pred.explanation))
     scores.append(1.0 if has_structure else 0.0)
 
     return sum(scores) / len(scores)
 ```
 
-### 8.5 Data Loader (Python)
+### 9.5 Data Loader (Python)
 
 ```python
 # cas/optimization/data/loader.py
@@ -707,12 +885,10 @@ def load_training_data(
 ) -> List[dspy.Example]:
     """
     Load training examples from production feedback.
-
     Returns examples with positive feedback for optimization.
     """
     supabase = get_supabase()
 
-    # Get sessions with positive feedback
     response = supabase.table('ai_feedback') \
         .select('''
             *,
@@ -738,14 +914,12 @@ def load_training_data(
 
         messages = session['messages']
 
-        # Extract user question and assistant response pairs
         for i in range(len(messages) - 1):
             if messages[i]['role'] == 'user' and messages[i+1]['role'] == 'assistant':
                 example = dspy.Example(
                     question=messages[i]['content'],
                     level=session.get('level', 'GCSE'),
                     subject=session.get('subject', 'general'),
-                    # The good response (since this had positive feedback)
                     response=messages[i+1]['content'],
                 ).with_inputs('question', 'level', 'subject')
 
@@ -758,9 +932,7 @@ def load_negative_examples(
     agent_type: str = 'sage',
     limit: int = 500
 ) -> List[dspy.Example]:
-    """
-    Load examples with negative feedback for contrast learning.
-    """
+    """Load examples with negative feedback for contrast learning."""
     supabase = get_supabase()
 
     response = supabase.table('ai_feedback') \
@@ -776,7 +948,7 @@ def load_negative_examples(
     return [...]
 ```
 
-### 8.6 Optimization Runner (Python)
+### 9.6 Optimization Runner (Python)
 
 ```python
 # cas/optimization/run_dspy.py
@@ -813,7 +985,6 @@ from metrics.tutoring_metrics import (
     explanation_clarity_metric,
 )
 
-# Configuration
 OUTPUT_DIR = Path(__file__).parent / 'output'
 HISTORY_DIR = OUTPUT_DIR / 'history'
 
@@ -827,7 +998,6 @@ SIGNATURES = {
 
 def setup_dspy():
     """Configure DSPy with LLM provider."""
-    # Use Gemini for optimization (cost-effective)
     lm = dspy.Google(
         model='gemini-1.5-flash',
         api_key=os.environ['GOOGLE_AI_API_KEY'],
@@ -842,20 +1012,14 @@ def optimize_signature(
     training_data,
     max_demos: int = 8,
 ) -> dict:
-    """
-    Optimize a single signature using BootstrapFewShot.
-
-    Returns the optimized prompt configuration.
-    """
+    """Optimize a single signature using BootstrapFewShot."""
     print(f"\n{'='*50}")
     print(f"Optimizing: {name}")
     print(f"Training examples: {len(training_data)}")
     print(f"{'='*50}")
 
-    # Create module from signature
     module = dspy.ChainOfThought(signature_class)
 
-    # Configure teleprompter
     teleprompter = BootstrapFewShotWithRandomSearch(
         metric=metric,
         max_bootstrapped_demos=max_demos,
@@ -864,13 +1028,11 @@ def optimize_signature(
         num_threads=4,
     )
 
-    # Run optimization
     optimized = teleprompter.compile(
         module,
         trainset=training_data,
     )
 
-    # Extract optimized configuration
     config = {
         'name': name,
         'signature': signature_class.__name__,
@@ -882,7 +1044,6 @@ def optimize_signature(
         'instructions': '',
     }
 
-    # Extract demos (few-shot examples)
     if hasattr(optimized, 'demos'):
         config['demos'] = [
             {
@@ -892,7 +1053,6 @@ def optimize_signature(
             for d in optimized.demos
         ]
 
-    # Extract optimized instructions if available
     if hasattr(optimized, 'extended_signature'):
         config['instructions'] = str(optimized.extended_signature.instructions)
 
@@ -910,11 +1070,9 @@ def export_prompts(optimized_configs: dict):
         'signatures': optimized_configs,
     }
 
-    # Write current
     with open(OUTPUT_DIR / 'optimized_prompts.json', 'w') as f:
         json.dump(output, f, indent=2)
 
-    # Archive to history
     timestamp = datetime.now().strftime('%Y-%m-%d_%H%M%S')
     with open(HISTORY_DIR / f'{timestamp}.json', 'w') as f:
         json.dump(output, f, indent=2)
@@ -931,18 +1089,15 @@ def main():
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
-    # Setup
     setup_dspy()
 
-    # Determine which signatures to optimize
     if args.all:
         sig_names = list(SIGNATURES.keys())
     elif args.signatures:
         sig_names = [s.strip() for s in args.signatures.split(',')]
     else:
-        sig_names = ['maths_solver', 'explain_concept']  # Default
+        sig_names = ['maths_solver', 'explain_concept']
 
-    # Load training data
     print("Loading training data...")
     training_data = load_training_data(agent_type=args.agent)
     print(f"Loaded {len(training_data)} training examples")
@@ -953,7 +1108,6 @@ def main():
         if not args.dry_run:
             return
 
-    # Optimize each signature
     optimized_configs = {}
     for name in sig_names:
         if name not in SIGNATURES:
@@ -975,7 +1129,6 @@ def main():
         )
         optimized_configs[name] = config
 
-    # Export
     if not args.dry_run and optimized_configs:
         export_prompts(optimized_configs)
 
@@ -986,7 +1139,7 @@ if __name__ == '__main__':
     main()
 ```
 
-### 8.7 TypeScript Integration
+### 9.7 TypeScript Integration
 
 ```typescript
 // sage/prompts/types.ts
@@ -1028,7 +1181,6 @@ class PromptLoader {
   }
 
   private initFallbacks() {
-    // Default prompts if optimization hasn't run yet
     this.fallbacks.set('maths_solver', {
       name: 'maths_solver',
       signature: 'MathsSolver',
@@ -1059,13 +1211,11 @@ Explain your reasoning so students can follow along.`,
     const sig = this.getSignature(signatureName);
     const messages: Array<{ role: string; content: string }> = [];
 
-    // System message with instructions
     messages.push({
       role: 'system',
       content: sig.instructions || this.getDefaultInstructions(signatureName),
     });
 
-    // Few-shot examples from DSPy optimization
     for (const demo of sig.demos) {
       messages.push({
         role: 'user',
@@ -1077,7 +1227,6 @@ Explain your reasoning so students can follow along.`,
       });
     }
 
-    // Current user input
     messages.push({
       role: 'user',
       content: this.formatInputs(userInput),
@@ -1114,7 +1263,7 @@ export const promptLoader = new PromptLoader();
 ```typescript
 // sage/subjects/maths/engine.ts
 import { promptLoader } from '@/sage/prompts/loader';
-import { geminiProvider } from '@/sage/providers/gemini-provider';
+import { getAIService } from '@/lib/ai';
 
 export class MathsEngine {
   async solve(
@@ -1122,17 +1271,18 @@ export class MathsEngine {
     level: string,
     studentContext?: string
   ): Promise<MathsSolution> {
-    // Build messages using DSPy-optimized prompts
     const messages = promptLoader.buildMessages('maths_solver', {
       question,
       level,
       student_context: studentContext || '',
     });
 
-    // Call LLM with optimized few-shot examples
-    const response = await geminiProvider.complete(messages);
+    const ai = getAIService();
+    const response = await ai.generate(
+      messages.map(m => m.content).join('\n'),
+      { temperature: 0.3 }
+    );
 
-    // Parse structured output
     return this.parseResponse(response);
   }
 
@@ -1149,15 +1299,16 @@ export class MathsEngine {
       student_working: studentWorking || '',
     });
 
-    const response = await geminiProvider.complete(messages);
+    const ai = getAIService();
+    const response = await ai.generate(
+      messages.map(m => m.content).join('\n'),
+      { temperature: 0.3 }
+    );
     return this.parseErrorDiagnosis(response);
   }
 
   private parseResponse(response: string): MathsSolution {
-    // Parse the structured response
-    // DSPy optimization ensures consistent output format
     const sections = this.extractSections(response);
-
     return {
       thinking: sections.thinking || '',
       working: sections.working || response,
@@ -1169,9 +1320,7 @@ export class MathsEngine {
 
   private extractSections(text: string): Record<string, string> {
     const sections: Record<string, string> = {};
-    const patterns = [
-      'thinking', 'working', 'answer', 'explanation', 'check'
-    ];
+    const patterns = ['thinking', 'working', 'answer', 'explanation', 'check'];
 
     for (const pattern of patterns) {
       const regex = new RegExp(`${pattern}:\\s*([\\s\\S]*?)(?=\\n\\w+:|$)`, 'i');
@@ -1186,7 +1335,7 @@ export class MathsEngine {
 }
 ```
 
-### 8.8 GitHub Actions Workflow
+### 9.8 GitHub Actions Workflow
 
 ```yaml
 # .github/workflows/dspy-optimize.yml
@@ -1194,8 +1343,7 @@ name: DSPy Prompt Optimization
 
 on:
   schedule:
-    # Run every Sunday at 3am UTC
-    - cron: '0 3 * * 0'
+    - cron: '0 3 * * 0'  # Every Sunday at 3am UTC
   workflow_dispatch:
     inputs:
       agent:
@@ -1265,7 +1413,6 @@ jobs:
         if: failure()
         run: |
           echo "DSPy optimization failed. Check logs for details."
-          # Could add Slack/Discord notification here
 
   notify-success:
     needs: optimize
@@ -1275,10 +1422,9 @@ jobs:
       - name: Success notification
         run: |
           echo "DSPy optimization completed successfully"
-          # Could add Slack/Discord notification here
 ```
 
-### 8.9 Requirements
+### 9.9 Requirements
 
 ```
 # cas/optimization/requirements.txt
@@ -1289,9 +1435,242 @@ python-dotenv>=1.0.0
 
 ---
 
-## 9. Future-Proofing Components
+## 10. SEN/SEND Support
 
-### 9.1 Standardized Message Envelope
+### 10.1 Overview
+
+Sage provides built-in support for 11 Special Educational Needs and Disabilities (SEN/SEND) categories, compliant with the UK GDPR Children's Code (Age Appropriate Design Code). The SEN module is orthogonal to age adaptation — a 7-year-old with dyslexia receives both primary age bracket adaptations AND dyslexia-specific prompt modifications.
+
+### 10.2 Supported Categories
+
+| Category | Key | Display Name | Recommended Modes |
+|----------|-----|-------------|-------------------|
+| Dyslexia | `dyslexia` | Dyslexia | Direct, Supportive |
+| Dyscalculia | `dyscalculia` | Dyscalculia | Direct, Supportive |
+| Dyspraxia | `dyspraxia` | Dyspraxia (DCD) | Direct, Adaptive |
+| ADHD | `adhd` | ADHD | Adaptive, Supportive |
+| Autism Spectrum | `asd` | Autism Spectrum | Direct, Adaptive |
+| Visual Impairment | `visual-impairment` | Visual Impairment | Direct, Adaptive |
+| Hearing Impairment | `hearing-impairment` | Hearing Impairment | Direct, Adaptive |
+| Speech & Language | `speech-language` | Speech & Language | Direct, Supportive |
+| SEMH | `social-emotional` | Social, Emotional & Mental Health | Supportive, Adaptive |
+| MLD | `moderate-learning` | Moderate Learning Difficulty | Direct, Supportive |
+| SpLD | `specific-learning` | Specific Learning Difficulty | Adaptive, Supportive |
+
+### 10.3 Privacy Architecture
+
+**Critical constraint:** SEN category labels are **never** sent to the LLM. Only behavioural instructions are injected into the system prompt. This complies with the UK GDPR Children's Code which requires data minimisation for under-18 users.
+
+```
+Student has SEN profile
+        │
+        ▼
+┌───────────────────────┐
+│ Load SENProfile from  │ → categories: ['dyslexia', 'adhd']
+│ sage_student_profiles │
+└─────────┬─────────────┘
+          │
+          ▼
+┌───────────────────────┐
+│ getSENAdaptations()   │ → Resolve adaptation profiles
+│ (adapter.ts)          │    (prompt guidelines, forbidden patterns)
+└─────────┬─────────────┘
+          │
+          ▼
+┌───────────────────────┐
+│ getSENSystemPrompt()  │ → Generate combined prompt block
+│                       │   "### LEARNING SUPPORT ADAPTATIONS"
+│                       │   - DO: [merged guidelines]
+│                       │   - DO NOT: [merged forbidden patterns]
+│                       │   NO category labels included
+└─────────┬─────────────┘
+          │
+          ▼
+┌───────────────────────┐
+│ Inject into LLM       │ → System prompt includes behavioural
+│ system prompt          │   instructions only
+└───────────────────────┘
+```
+
+### 10.4 Module Structure
+
+```
+sage/sen/
+├── types.ts               # SENCategory, SENProfile, SENAdaptation interfaces
+├── adapter.ts             # SEN_ADAPTATIONS record (11 entries), public API
+└── index.ts               # Re-exports
+```
+
+**Key types:**
+
+```typescript
+// sage/sen/types.ts
+
+type SENCategory =
+  | 'dyslexia' | 'dyscalculia' | 'dyspraxia' | 'adhd' | 'asd'
+  | 'visual-impairment' | 'hearing-impairment' | 'speech-language'
+  | 'social-emotional' | 'moderate-learning' | 'specific-learning';
+
+interface SENAdaptation {
+  category: SENCategory;
+  displayName: string;
+  promptGuidelines: string[];      // Injected into LLM system prompt
+  contentAdaptations: string[];    // Post-processing rules
+  forbiddenPatterns: string[];     // Patterns to avoid in output
+  recommendedModes: ('socratic' | 'direct' | 'adaptive' | 'supportive')[];
+}
+
+interface SENProfile {
+  categories: SENCategory[];
+  notes?: string;                  // Free-text from parent/tutor
+  adaptationLevel: 'mild' | 'moderate' | 'significant';
+}
+```
+
+**Public API:**
+
+```typescript
+// sage/sen/adapter.ts
+
+/** Get SEN adaptations for one or more categories */
+function getSENAdaptations(categories: SENCategory[]): SENAdaptation[];
+
+/** Generate combined system prompt block (no category labels) */
+function getSENSystemPrompt(categories: SENCategory[]): string;
+
+/** Get recommended teaching modes sorted by frequency */
+function getRecommendedModes(categories: SENCategory[]): ('socratic' | 'direct' | 'adaptive' | 'supportive')[];
+```
+
+### 10.5 Teaching Mode Adaptation
+
+SEN categories influence the teaching mode selection. When a student has SEN categories set, `getRecommendedModes()` aggregates the recommended modes across all active categories and sorts by frequency, giving the most commonly recommended mode the highest priority.
+
+| Teaching Mode | Description | Typical SEN Match |
+|---------------|-------------|-------------------|
+| **Direct** | Explicit instruction, clear steps, minimal ambiguity | Dyslexia, Dyscalculia, ASD, MLD |
+| **Supportive** | Warm, encouraging, growth mindset, celebrates effort | SEMH, Speech & Language, ADHD |
+| **Adaptive** | Varies format, multi-sensory, responds to engagement | ADHD, SpLD, Dyspraxia |
+| **Socratic** | Guided questioning (used sparingly with SEN) | Typically not recommended for SEN |
+
+### 10.6 Example: Dyslexia + ADHD Combined Prompt
+
+When a student has both dyslexia and ADHD, `getSENSystemPrompt(['dyslexia', 'adhd'])` produces:
+
+```
+### LEARNING SUPPORT ADAPTATIONS
+
+This student has specific learning needs. Follow these guidelines strictly:
+
+**DO:**
+- Use short paragraphs (2-3 sentences maximum)
+- Present information in bullet points rather than dense prose
+- Bold key terms when first introduced
+- Avoid walls of text — use clear visual spacing
+- Provide phonetic pronunciation for complex vocabulary in brackets
+- Use concrete, familiar words before introducing technical terms
+- Never rush — allow time to process without pressure
+- Offer structured vocabulary support (word → definition → example)
+- Keep responses SHORT and focused (3-5 sentences per section)
+- Use numbered steps for all procedures
+- Include frequent check-in questions ("Does that make sense so far?")
+- Provide clear structure with headers and visual breaks
+- Offer gamified progress markers ("Great — 2 out of 3 steps done!")
+- Vary the format between explanations (text, examples, questions)
+- Use positive reinforcement frequently
+- Minimise distractions — stay focused on one concept at a time
+
+**DO NOT:**
+- Timed exercises or countdown pressure
+- Dense blocks of unbroken text
+- Multiple instructions in a single sentence
+- Long unbroken explanations
+- Multiple topics in one response
+- Passive or monotonous tone
+```
+
+Note: No mention of "dyslexia" or "ADHD" appears in the prompt sent to the LLM.
+
+---
+
+## 11. Platform Integration
+
+### 11.1 PlatformUserContext Enrichment
+
+Sage integrates with the Conductor Phase 4C PlatformUserContext system. When a Sage session starts, the context resolver enriches the session with:
+
+```typescript
+// Integration with apps/web/src/lib/platform/user-context.ts
+
+interface EnrichedSageContext {
+  // Core role context
+  role: SagePersona;
+  userId: string;
+
+  // Platform enrichment (from PlatformUserContext)
+  growthScores?: GrowthScores;        // From growth_scores table
+  referralStats?: ReferralStats;      // Referral activity
+  marketplaceActivity?: MarketplaceActivity;  // Booking history
+  platformSignals?: PlatformSignal[];  // Engagement signals
+
+  // Sage-specific
+  senProfile?: SENProfile;
+  learningContext: LearningContext;
+  episodicMemory?: MemoryBlock;       // From agent memory
+}
+```
+
+### 11.2 Agent Episodic Memory
+
+Sage leverages the Phase 7 agent episodic memory system (`memory_episodes` + `memory_facts` tables) to remember previous interactions and build a longitudinal understanding of each student's learning journey.
+
+**Integration points:**
+- `AgentMemoryService.fetchMemoryBlock()` — retrieves relevant past episodes and facts at session start
+- Episodes are recorded after each session via `AgentMemoryService.recordEpisode()` (fire-and-forget)
+- Facts are extracted from longer sessions (>200 chars output) via `AgentMemoryService.extractAndStoreFacts()`
+- Memory is injected as a `PAST EXPERIENCE` section in the system prompt
+
+**Example memory facts for a student:**
+- "StudentA | struggles-with | quadratic-factoring" (valid_from: 2026-03-01)
+- "StudentA | mastered | simultaneous-equations" (valid_from: 2026-03-10)
+- "StudentA | prefers | visual-explanations" (valid_from: 2026-02-28)
+
+### 11.3 Conductor Ecosystem
+
+Sage operates within the Conductor ecosystem as both a consumer and producer:
+
+| Integration | Direction | Description |
+|------------|-----------|-------------|
+| **Knowledge Base** | Consumer | Queries `platform_knowledge_chunks` via RAG for curriculum content |
+| **Intelligence Layer** | Producer | Session data feeds into intelligence daily tables for analytics |
+| **Agent Teams** | Participant | Can be invoked as a specialist within team workflows |
+| **Process Studio** | Trigger | Booking lifecycle processes can trigger Sage onboarding sessions |
+
+### 11.4 Growth Agent Handoff
+
+When Sage detects that a user's query falls outside the teaching domain (e.g., pricing strategy, referral questions, business setup), it performs a seamless handoff to the Growth Agent via the `agent-handoff.ts` cross-agent handoff service:
+
+```
+Student asks about tutoring rates
+        │
+        ▼
+┌───────────────────┐
+│ Sage detects      │ → Not a teaching question
+│ off-domain query  │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│ agent-handoff.ts  │ → Transfer context to Growth Agent
+│ handoff service   │
+└───────────────────┘
+```
+
+---
+
+## 12. Future-Proofing Components
+
+### 12.1 Standardized Message Envelope
 
 Shared with Lexi and CAS for inter-agent communication:
 
@@ -1328,7 +1707,7 @@ interface MessageEnvelope {
 }
 ```
 
-### 9.2 OpenAI-Compatible Tool Calling
+### 12.2 OpenAI-Compatible Tool Calling
 
 Expose Sage actions as tools for external integration:
 
@@ -1339,12 +1718,13 @@ const sageTools = [
   {
     type: "function",
     function: {
-      name: "solve_gcse_maths",
-      description: "Solve a GCSE-level maths problem with step-by-step working",
+      name: "solve_maths",
+      description: "Solve a maths problem with step-by-step working at any level",
       parameters: {
         type: "object",
         properties: {
           question: { type: "string", description: "The maths problem" },
+          level: { type: "string", enum: ["KS1", "KS2", "KS3", "GCSE", "A-Level", "IB", "AP", "University"] },
           show_working: { type: "boolean", default: true }
         },
         required: ["question"]
@@ -1360,8 +1740,8 @@ const sageTools = [
         type: "object",
         properties: {
           topic: { type: "string" },
-          subject: { type: "string", enum: ["maths", "english", "science"] },
-          level: { type: "string", enum: ["GCSE", "A-Level"] }
+          subject: { type: "string", enum: ["maths", "english", "science", "computing", "humanities", "languages", "social-sciences", "business", "arts"] },
+          level: { type: "string", enum: ["KS1", "KS2", "KS3", "GCSE", "A-Level", "IB", "AP", "SQA", "CIE"] }
         },
         required: ["topic", "subject", "level"]
       }
@@ -1371,7 +1751,7 @@ const sageTools = [
 ];
 ```
 
-### 9.3 A2A/MCP Compatibility Markers
+### 12.3 A2A/MCP Compatibility Markers
 
 Version field allows future protocol negotiation:
 
@@ -1380,7 +1760,7 @@ Version field allows future protocol negotiation:
 if (message.protocol === 'a2a') {
   // Handle A2A protocol specifics
 } else if (message.protocol === 'mcp') {
-  // Handle MCP protocol
+  // Handle MCP protocol (Conductor Phase 8)
 } else {
   // Internal Tutorwise protocol
 }
@@ -1388,15 +1768,15 @@ if (message.protocol === 'a2a') {
 
 ---
 
-## 10. Progress Tracking
+## 13. Progress Tracking
 
-### 10.1 Data Model
+### 13.1 Data Model
 
 ```typescript
 interface StudentProgress {
   studentId: string;
-  subject: string;
-  level: string;
+  subject: SageSubject;
+  level: SageLevel;
 
   // Topic mastery
   topics: {
@@ -1416,31 +1796,47 @@ interface StudentProgress {
   totalQuestions: number;
   averageAccuracy: number;
   streak: number;
+
+  // SEN tracking
+  senCategories?: SENCategory[];
+  adaptationEffectiveness?: number; // 0-100, tracked over time
 }
 ```
 
-### 10.2 Role-Specific Views
+### 13.2 Role-Specific Views
 
 | Role | Progress View |
 |------|---------------|
-| **Student** | Personal dashboard: mastery, streak, next topics |
+| **Student** | Personal dashboard: mastery, streak, next topics, XP/badges |
 | **Client** | Child summary: overall progress, recent activity, areas to focus |
-| **Tutor** | Student overview: all linked students, group patterns |
+| **Tutor** | Student overview: all linked students, group patterns, SEN notes |
 | **Agent** | Portfolio view: all assigned students, aggregate metrics |
 
 ---
 
-## 11. API Specification
+## 14. API Specification
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/sage/session` | POST | Start session (subject, level, role context) |
-| `/api/sage/session` | DELETE | End session |
+| `/api/sage/session` | GET/POST | Start or retrieve session (subject, level, role context, SEN profile) |
+| `/api/sage/message` | POST | Send message (non-streaming response) |
 | `/api/sage/stream` | POST | Send message (streaming response) |
 | `/api/sage/capabilities` | GET | List capabilities for role |
-| `/api/sage/upload` | POST | Upload teaching material |
+| `/api/sage/history` | GET | Session history for current user |
+| `/api/sage/materials` | GET/POST | Teaching materials management |
 | `/api/sage/progress` | GET | Get progress for student(s) |
-| `/api/sage/tools` | GET | List available tools (OpenAI format) |
+| `/api/sage/mastery` | GET | Mastery tracking per topic |
+| `/api/sage/assessment` | POST | Assessment/quiz generation |
+| `/api/sage/grade` | POST | Grading/marking student work |
+| `/api/sage/feedback` | POST | Student feedback collection |
+| `/api/sage/gamification` | GET | Gamification metrics (XP, badges, streaks) |
+| `/api/sage/growth-report` | GET | Student growth reports |
+| `/api/sage/image-solve` | POST | Solve problems from uploaded images |
+| `/api/sage/ocr` | POST | Optical character recognition for handwriting |
+| `/api/sage/transcribe` | POST | Audio transcription for voice input |
+| `/api/sage/subscription` | GET | Sage Pro subscription status |
+| `/api/sage/usage` | GET | Usage statistics (questions remaining, storage) |
+| `/api/sage/admin-metrics` | GET | Admin analytics dashboard data |
 
 ### POST /api/sage/session
 
@@ -1449,7 +1845,8 @@ interface StudentProgress {
 {
   "subject": "maths",
   "level": "GCSE",
-  "sessionGoal": "homework_help"
+  "sessionGoal": "homework_help",
+  "examBoard": "AQA"
 }
 ```
 
@@ -1463,8 +1860,10 @@ interface StudentProgress {
   "capabilities": ["solve_problems", "explain_concepts", "generate_practice"],
   "context": {
     "level": "GCSE",
+    "examBoard": "AQA",
     "learningStyle": "visual",
-    "linkedTutors": ["tutor_xyz"]
+    "linkedTutors": ["tutor_xyz"],
+    "senAdaptationsActive": true
   },
   "expiresAt": "2026-02-15T08:33:00Z"
 }
@@ -1472,7 +1871,56 @@ interface StudentProgress {
 
 ---
 
-## 12. UI Components
+## 15. AI Provider Chain
+
+Sage uses the shared AI service (`apps/web/src/lib/ai/`) with a 6-tier fallback chain. The `getAIService()` singleton manages provider selection and automatic failover.
+
+| Tier | Provider | Model | Role | Env Var |
+|------|----------|-------|------|---------|
+| 1 | xAI | Grok 4 Fast | Primary | `XAI_AI_API_KEY` |
+| 2 | Google | Gemini Flash | Fast fallback | `GOOGLE_AI_API_KEY` |
+| 3 | DeepSeek | R1 | Reasoning fallback | `DEEPSEEK_AI_API_KEY` |
+| 4 | Anthropic | Claude Sonnet 4.6 | Quality fallback | `ANTHROPIC_AI_API_KEY` |
+| 5 | OpenAI | GPT-4o | Broad fallback | `OPENAI_AI_API_KEY` |
+| 6 | Rules-based | N/A | Offline fallback | None (hardcoded) |
+
+**Key behaviours:**
+- All providers check both `*_AI_API_KEY` and `*_API_KEY` naming conventions
+- Automatic failover on provider error, rate limit, or timeout
+- Rules-based fallback ensures Sage never returns an error to the student
+- Embedding model: `gemini-embedding-001` with `outputDimensionality: 768`
+- Shared singleton: `getAIService()` from `apps/web/src/lib/ai/`
+
+**Methods:**
+- `generate(prompt, options)` — Single-turn generation
+- `generateJSON<T>(prompt, options)` — Structured JSON output
+- `stream(prompt, options)` — Streaming response for chat UI
+
+---
+
+## 16. Competitive Positioning
+
+### 16.1 Market Landscape
+
+| Competitor | Strengths | Limitations | Sage Advantage |
+|-----------|-----------|-------------|----------------|
+| **Century Tech** | AI adaptive learning, real-time pathway adjustment, strong UK school adoption | Closed ecosystem, no marketplace, limited SEN support, expensive per-seat licensing | Marketplace integration, tutor-created content via RAG, 11 SEN categories, £10/month flat |
+| **Quizlet** | Massive flashcard library, AI-powered study modes, brand recognition | No tutoring capability, no curriculum alignment, no UK exam board specificity | Full UK curriculum alignment (AQA/Edexcel/OCR/WJEC/CCEA), step-by-step teaching, not just recall |
+| **Numerade** | Video + AI step-by-step, strong STEM coverage, large content library | US-focused, no UK curriculum, no SEN support, no marketplace integration | UK-first design, SEN/SEND compliant, connects AI tutoring with human tutor marketplace |
+| **Khanmigo** (Khan Academy) | Strong pedagogy research, Socratic method, free tier | US curriculum bias, limited exam board specificity, no tutor marketplace | UK exam board precision, tutor-uploaded materials, marketplace revenue loop |
+| **Seneca Learning** | Good GCSE/A-Level coverage, spaced repetition, free for students | No AI tutoring (pre-scripted), no personalisation, no SEN adaptations | AI-powered personalisation, SEN support, dynamic responses, tutor voice integration |
+
+### 16.2 Sage's Unique Value Proposition
+
+1. **Marketplace integration** — Sage is the only AI tutor embedded within a tutoring marketplace, creating a flywheel: AI tutoring drives platform engagement, which drives human tutor bookings
+2. **Tutor-created content** — RAG pipeline ingests tutors' own PowerPoints and materials, teaching in the tutor's voice even when they are offline
+3. **SEN/SEND compliance** — 11 categories with UK GDPR Children's Code privacy, no competitor offers this at scale
+4. **Full UK curriculum alignment** — Every topic tagged to exam board specifications (AQA, Edexcel, OCR, WJEC, CCEA) plus international (IB, AP, SQA, CIE)
+5. **6-tier AI resilience** — Never fails; rules-based fallback ensures 100% availability
+
+---
+
+## 17. UI Components
 
 ### Component Hierarchy
 
@@ -1481,15 +1929,25 @@ apps/web/src/components/feature/sage/
 ├── index.ts
 ├── SageChat.tsx               # Main chat interface
 ├── SageChat.module.css        # Purple/indigo theme
-├── SageChatModal.tsx          # Floating modal
-├── SageChatModal.module.css
-├── SageMessage.tsx            # Message bubble
 ├── SageMarkdown.tsx           # Markdown with LaTeX support
-├── SageSubjectPicker.tsx      # Subject/level selection
-├── SageProgress.tsx           # Progress indicators
-├── SageUpload.tsx             # File upload component
-├── useSageChat.ts             # Chat hook
-└── useSageProgress.ts         # Progress hook
+├── SageMarkdown.module.css
+├── SageProUpgradeModal.tsx    # Pro upgrade prompt
+├── SageProUpgradeModal.module.css
+├── SageQuotaDisplay.tsx       # Usage quota display
+├── SageQuotaDisplay.module.css
+├── useSageChat.ts             # Chat hook (session management, streaming)
+├── sidebar/                   # Sidebar widgets
+│   ├── SageHelpWidget.tsx     # Help/tips panel
+│   ├── SageStatsWidget.tsx    # Statistics display
+│   ├── SageTipWidget.tsx      # Learning tips
+│   └── SageVideoWidget.tsx    # Video tutorials
+└── widgets/                   # Feature widgets
+    ├── index.ts
+    ├── SageHelpWidget.tsx     # Contextual help
+    ├── SageProgressWidget.tsx # Progress display
+    ├── SageSubscriptionWidget.tsx  # Subscription status
+    ├── SageTipsWidget.tsx     # Tips collection
+    └── SageVideoWidget.tsx    # Video library
 ```
 
 ### Entry Points by Role
@@ -1503,7 +1961,7 @@ apps/web/src/components/feature/sage/
 
 ---
 
-## 13. Database Schema
+## 18. Database Schema
 
 ### sage_sessions
 ```sql
@@ -1511,8 +1969,9 @@ CREATE TABLE sage_sessions (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id),
   persona TEXT NOT NULL,           -- 'tutor', 'agent', 'client', 'student'
-  subject TEXT,                    -- 'maths', 'english', 'science', 'general'
-  level TEXT,                      -- 'GCSE', 'A-Level', etc.
+  subject TEXT,                    -- 'maths', 'english', 'science', 'computing', etc.
+  level TEXT,                      -- 'KS1', 'KS2', 'KS3', 'GCSE', 'A-Level', 'IB', 'AP', etc.
+  exam_board TEXT,                 -- 'AQA', 'Edexcel', 'OCR', 'WJEC', 'CCEA', 'SQA', 'CIE', 'IBO', 'CollegeBoard'
   session_goal TEXT,
   started_at TIMESTAMPTZ DEFAULT NOW(),
   ended_at TIMESTAMPTZ,
@@ -1542,6 +2001,87 @@ CREATE TABLE sage_progress (
 );
 ```
 
+### sage_student_profiles
+```sql
+CREATE TABLE sage_student_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) UNIQUE,
+  sen_categories TEXT[],             -- SEN/SEND category keys
+  sen_notes TEXT,                    -- Free-text notes from parent/tutor
+  sen_adaptation_level TEXT DEFAULT 'mild',  -- 'mild', 'moderate', 'significant'
+  preferred_learning_style TEXT,     -- 'visual', 'auditory', 'kinesthetic', 'mixed'
+  preferred_exam_board TEXT,         -- Default exam board preference
+  current_level TEXT,               -- Current curriculum level
+  overall_mastery INTEGER DEFAULT 0, -- 0-100 aggregate
+  total_xp INTEGER DEFAULT 0,       -- Gamification XP
+  streak_days INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### sage_curriculum_topics
+```sql
+CREATE TABLE sage_curriculum_topics (
+  id TEXT PRIMARY KEY,               -- e.g., 'maths-number-fractions-001'
+  name TEXT NOT NULL,
+  description TEXT,
+  parent_id TEXT REFERENCES sage_curriculum_topics(id),
+  subject TEXT NOT NULL,
+  level TEXT NOT NULL,
+  exam_boards TEXT[],
+  tier TEXT DEFAULT 'both',          -- 'foundation', 'higher', 'both', 'single', 'sl', 'hl'
+  difficulty TEXT,
+  learning_objectives JSONB,
+  prerequisites TEXT[],
+  misconceptions JSONB,
+  vocabulary JSONB,
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### sage_safeguarding_events
+```sql
+CREATE TABLE sage_safeguarding_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id TEXT REFERENCES sage_sessions(id),
+  user_id UUID REFERENCES auth.users(id),
+  event_type TEXT NOT NULL,          -- 'wellbeing_concern', 'inappropriate_content', 'safeguarding_flag'
+  severity TEXT NOT NULL,            -- 'low', 'medium', 'high', 'critical'
+  details JSONB,
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by UUID,
+  action_taken TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### sage_student_xp
+```sql
+CREATE TABLE sage_student_xp (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  xp_amount INTEGER NOT NULL,
+  reason TEXT NOT NULL,              -- 'session_complete', 'topic_mastered', 'streak_bonus', etc.
+  session_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### sage_badges
+```sql
+CREATE TABLE sage_badges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  badge_type TEXT NOT NULL,          -- 'first_session', 'maths_master', '7_day_streak', etc.
+  badge_name TEXT NOT NULL,
+  awarded_at TIMESTAMPTZ DEFAULT NOW(),
+  metadata JSONB,
+  UNIQUE(user_id, badge_type)
+);
+```
+
 ### ai_feedback (shared with Lexi)
 ```sql
 CREATE TABLE ai_feedback (
@@ -1551,7 +2091,7 @@ CREATE TABLE ai_feedback (
   user_id UUID REFERENCES auth.users(id),
   rating TEXT,                     -- 'thumbs_up' | 'thumbs_down'
   comment TEXT,
-  context JSONB,                   -- Subject, level, role, etc.
+  context JSONB,                   -- Subject, level, role, exam board, etc.
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
@@ -1573,7 +2113,7 @@ CREATE TABLE sage_uploads (
 
 ---
 
-## 14. Design Tokens
+## 19. Design Tokens
 
 | Property | Token | Value |
 |----------|-------|-------|
@@ -1588,49 +2128,68 @@ CREATE TABLE sage_uploads (
 
 ---
 
-## 15. Implementation Phases
+## 20. Implementation Phases
 
-### Phase 0 – Foundation (Week 1-2, Feb 2026)
-- [ ] Fork Lexi → Sage with optimum structure
-- [ ] Implement `context/resolver.ts` (role detection)
-- [ ] Create 4 persona folders with `capabilities.json`
-- [ ] Set up `messages/envelope.ts` + validation
-- [ ] Create `tools/registry.ts` with OpenAI format
-- [ ] Database migration: `sage_sessions`, `sage_progress`, `ai_feedback`
-- [ ] Basic API routes: session, stream
+### Phase 0 – Foundation (COMPLETE)
+- [x] Fork Lexi to Sage with optimum structure
+- [x] Implement `context/resolver.ts` (role detection)
+- [x] Create 4 persona folders with `capabilities.json`
+- [x] Set up `messages/envelope.ts` + validation
+- [x] Create `tools/registry.ts` with OpenAI format
+- [x] Database migration: `sage_sessions`, `sage_progress`, `ai_feedback`
+- [x] Basic API routes: session, stream
 
-### Phase 1 – Core Engine (Week 3-4, Mar 2026)
-- [ ] Build `subjects/maths/engine.ts` with DSPy solver
-- [ ] Create `upload/processor.ts` (PPTX extraction)
-- [ ] Build `upload/embedder.ts` (pgvector)
-- [ ] Implement `knowledge/access-control.ts`
-- [ ] Basic RAG retrieval with role filtering
-- [ ] UI: SageChat, SageSubjectPicker
-- [ ] "Ask Sage" buttons on tutor/agent/client/student dashboards
+### Phase 1 – Core Engine (COMPLETE)
+- [x] Build `subjects/maths/engine.ts` with DSPy solver
+- [x] Create `upload/processor.ts` (PPTX extraction)
+- [x] Build `upload/embedder.ts` (pgvector)
+- [x] Implement `knowledge/access-control.ts`
+- [x] Basic RAG retrieval with role filtering
+- [x] UI: SageChat, SageSubjectPicker
+- [x] "Ask Sage" buttons on tutor/agent/client/student dashboards
 
-### Phase 2 – Intelligence (Q1-Q2 2026)
-- [ ] Add English & Science engines
-- [ ] Implement progress tracking with mastery scores
-- [ ] Role-specific progress views
-- [ ] Feed sessions to CAS feedback loop
-- [ ] First DSPy optimization run
-- [ ] Upload sharing (tutor → student)
+### Phase 2 – Intelligence (COMPLETE)
+- [x] Add English & Science engines
+- [x] Implement progress tracking with mastery scores
+- [x] Role-specific progress views
+- [x] Feed sessions to CAS feedback loop
+- [x] First DSPy optimization run
+- [x] Upload sharing (tutor to student)
 
-### Phase 3 – Safety & Visibility (Q2 2026)
-- [ ] Predictive guardrails for tutoring accuracy
-- [ ] Role-specific reports
-- [ ] Unified CAS dashboard view (Lexi + Sage metrics)
-- [ ] Self-healing knowledge from error patterns
+### Phase 3 – Curriculum Expansion (COMPLETE)
+- [x] Expand from 4 to 10 subject configs
+- [x] Build 22 curriculum data files (~467 topics)
+- [x] Add KS1-KS2 Primary, KS3, IB, AP, SQA, CIE data
+- [x] Implement curriculum resolver + content generator
+- [x] Exam board tagging across all topics
+- [x] Update Subject Picker UI for expanded subjects/levels
 
-### Phase 4 – Maturity (Q3-Q4 2026)
-- [ ] Pluggable subject modules
+### Phase 4 – SEN/SEND & Safety (COMPLETE)
+- [x] Build `sage/sen/` module (types, adapter, index)
+- [x] Implement 11 SEN category adaptations
+- [x] Privacy-preserving prompt injection (no category labels to LLM)
+- [x] SEN-aware teaching mode selection
+- [x] `sage_student_profiles` table with SEN fields
+- [x] Safety module: input classifier, output validator, wellbeing detector, age adapter
+
+### Phase 5 – Platform Integration (COMPLETE)
+- [x] PlatformUserContext enrichment in sessions
+- [x] Agent episodic memory integration
+- [x] Conductor ecosystem connection
+- [x] Growth Agent handoff for off-domain queries
+- [x] 6-tier AI provider fallback chain
+
+### Phase 6 – Maturity (Q3-Q4 2026)
+- [ ] Dedicated engines for Computing, Humanities, Languages
 - [ ] Voice input/output
 - [ ] Full CAS autonomy ("Maintain Sage")
 - [ ] Prepare for external A2A protocols
+- [ ] XP/badge gamification system
+- [ ] Past paper integration per exam board
 
 ---
 
-## 16. Success Metrics
+## 21. Success Metrics
 
 | Metric | Target |
 |--------|--------|
@@ -1640,26 +2199,35 @@ CREATE TABLE sage_uploads (
 | Satisfaction rating | >4.0/5 average |
 | Human tutor complement | 30% of Sage users also book human tutors |
 | DSPy improvement | 5% accuracy gain per optimization cycle |
+| SEN session quality | >4.2/5 average for SEN-adapted sessions |
+| Curriculum coverage | >90% of GCSE topics with board-specific content |
+| Provider availability | >99.9% uptime via 6-tier fallback |
 
 ---
 
-## 17. Guiding Principles
+## 22. Guiding Principles
 
-1. **Inherit Lexi maturity** – Multi-LLM, lazy sessions, feedback loop
+1. **Inherit Lexi maturity** – Multi-LLM (6-tier fallback), lazy sessions, feedback loop
 2. **Strict role separation** – Tutor / Agent / Client / Student with shared core
 3. **Knowledge access controlled** – By role & relationship
 4. **No model training** – Only RAG + DSPy optimization
-5. **Single CAS loop** – Lexi + Sage improvements together
+5. **Single Conductor loop** – Sage improvements feed into intelligence layer
 6. **Light future-proofing** – Standardized messages, capability manifests, OpenAI tools
-7. **UK curriculum alignment** – Step-by-step pedagogy
+7. **Full UK curriculum alignment** – KS1 through University, all major exam boards
+8. **SEN/SEND first** – Privacy-preserving adaptations, never send labels to LLM
+9. **Safeguarding priority** – Age-appropriate content, wellbeing detection, event logging
 
 ---
 
-## 18. Related Documentation
+## 23. Related Documentation
 
 - [Lexi Solution Design](../lexi/lexi-solution-design.md)
+- [Conductor Solution Design](../../../conductor/conductor-solution-design.md)
 - [CAS Architecture](../../architecture/cas.md)
-- [CAS Roadmap](../cas/cas-roadmap.md)
+- [Growth Agent](../../../apps/web/src/lib/growth-agent/)
+- [Curriculum Expansion Notes](../../../sage/docs/CURRICULUM-EXPANSION.md)
+- [SEN/SEND Module](../../../sage/sen/)
+- [AI Service Layer](../../../apps/web/src/lib/ai/)
 - [Student Features](../students/README.md)
 - [Wisespace](../wisespace/README.md)
 
@@ -1667,7 +2235,7 @@ CREATE TABLE sage_uploads (
 
 ## Appendix A: Message Bus Integration
 
-### Feedback Flow (Sage → CAS)
+### Feedback Flow (Sage to CAS)
 
 ```
 Student gives thumbs-down
@@ -1690,72 +2258,68 @@ Student gives thumbs-down
           │
           ▼
 ┌───────────────────┐
-│ CAS processes     │ → Planner logs, Analyst reviews
-│ feedback          │
+│ CAS processes     │ → Conductor intelligence layer
+│ feedback          │    processes quality signals
 └───────────────────┘
 ```
 
 ---
 
-## Appendix B: Combined Roadmap (CAS + Lexi + Sage)
+## Appendix B: Topic Count Summary
 
-### Q1 2026 – Foundation
+| Data File | Level | Topics |
+|-----------|-------|--------|
+| `primary.ts` | KS1-KS2 | 21 |
+| `ks3-maths.ts` | KS3 | 24 |
+| `ks3-science.ts` | KS3 | 25 |
+| `ks3-english.ts` | KS3 | 15 |
+| `ks3-humanities.ts` | KS3 | 15 |
+| `maths.ts` | GCSE | 22 |
+| `science.ts` | GCSE | 21 |
+| `english.ts` | GCSE | 12 |
+| `humanities.ts` | GCSE | 23 |
+| `computing.ts` | GCSE | 14 |
+| `social-sciences.ts` | GCSE | 33 |
+| `languages.ts` | GCSE | 30 |
+| `business-economics.ts` | GCSE | 22 |
+| `creative-practical.ts` | GCSE | 20 |
+| `a-level-maths.ts` | A-Level | 12 |
+| `a-level-sciences.ts` | A-Level | 20 |
+| `a-level-humanities.ts` | A-Level | 20 |
+| `a-level-other.ts` | A-Level | 20 |
+| `ib.ts` | IB | 28 |
+| `ap.ts` | AP | 37 |
+| `sqa.ts` | SQA | 16 |
+| `cie.ts` | CIE | 17 |
+| **Total** | | **467** |
 
-**CAS:**
-- Git commit auto-plan updater
-- Message bus with JSON envelope (shared)
-- Capability manifests for 8 agents
-- OpenAI tool calling wrappers
-- DSPy framework integration
-- PowerPoint ingestion pipeline for Sage
+**Previous version (v2.1):** 131 topics across 5 data files (GCSE Maths, Science, Humanities only).
 
-**Lexi:**
-- Embed widget on all pages
-- 4-5 new personas
-- Feedback → CAS message bus
-- Capability manifests per persona
-- Provider routing (Gemini → Claude)
+---
 
-**Sage:**
-- Fork Lexi with role-aware structure
-- 4 personas (Tutor/Agent/Client/Student)
-- Maths engine with DSPy
-- Upload pipeline + RAG
-- "Ask Sage" entry points
+## Appendix C: Changelog
 
-### Q2 2026 – Intelligence & Safety
+### v3.0 (2026-03-16)
+- Expanded curriculum from GCSE/A-Level to full UK KS1 through University + IB + AP + SQA + CIE
+- Added 6 new subject configs (Computing, Humanities, Languages, Social Sciences, Business & Economics, Arts & Creative) for a total of 10
+- Expanded topic count from ~131 to ~467 across 22 curriculum data files
+- Added SEN/SEND support module (11 categories, privacy-preserving)
+- Updated AI provider chain from Gemini-only to 6-tier fallback
+- Added Platform Integration section (PlatformUserContext, Agent Memory, Conductor, Growth Agent)
+- Added Competitive Positioning section (vs Century Tech, Quizlet, Numerade, Khanmigo, Seneca)
+- Added Curriculum Matrix and Exam Board Coverage sections
+- Added `sage_student_profiles`, `sage_curriculum_topics`, `sage_safeguarding_events`, `sage_student_xp`, `sage_badges` to database schema
+- Updated implementation phases to reflect completed work
 
-**CAS:**
-- Predictive failure prevention
-- Security pre-deployment checks
-- Marketer agent expansion
+### v2.1 (2026-02-22)
+- Added DSPy integration with full Python optimization pipeline
+- Added GitHub Actions workflow for weekly prompt optimization
+- Updated subject coverage table
 
-**Lexi:**
-- DSPy optimization (shared with Sage)
-- Context-aware routing
-- Role-aware behaviour
+### v2.0 (2026-02-18)
+- Initial subject engines (Maths, English, Science, General)
+- RAG pipeline with role-aware access control
+- Upload pipeline for PPTX/PDF/DOCX
 
-**Sage:**
-- All subject engines
-- Progress tracking
-- DSPy optimization
-- Predictive guardrails
-
-### Q3-Q4 2026 – Autonomy & Ecosystem
-
-**CAS:**
-- Full Phase 2 autonomy
-- Plugin system
-- Multimodal support
-- A2A protocol readiness
-
-**Lexi:**
-- Plugin system
-- Voice support
-- Autonomous maintenance
-
-**Sage:**
-- Pluggable subject modules
-- Voice I/O
-- Full CAS autonomy
-- A2A protocol readiness
+### v1.0 (2026-02-14)
+- Initial design: personas, knowledge architecture, API specification
