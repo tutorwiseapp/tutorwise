@@ -47,3 +47,116 @@
   text-align: center;
   gap: var(--space-2);
 }
+
+/* ── Approve / Revise Modals ─────────────────────────────────── */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+  width: 480px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modalTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin: 0 0 0.25rem;
+}
+
+.modalSubtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  margin: 0 0 1.25rem;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-1);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: var(--space-3);
+}
+
+/* Revision type picker */
+.reviseTypeGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.reviseTypeBtn {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--border-radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.reviseTypeBtn:hover {
+  border-color: var(--color-warning-500);
+  color: var(--color-warning-500);
+}
+
+.reviseTypeBtnActive {
+  border-color: var(--color-warning-500);
+  background-color: #fffbeb;
+  color: #92400e;
+  font-weight: var(--font-weight-medium);
+}
+
+.reviseTextarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+  resize: vertical;
+  transition: all 0.15s ease;
+  line-height: 1.6;
+}
+
+.reviseTextarea:hover {
+  border-color: var(--color-gray-300);
+  background-color: var(--color-bg-card);
+}
+
+.reviseTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-card);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.08);
+}
+
+.reviseTextarea::placeholder {
+  color: var(--color-text-placeholder);
+}
