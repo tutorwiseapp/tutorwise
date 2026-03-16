@@ -38,6 +38,11 @@ export const scienceTopics: CurriculumTopic[] = [
       'Describe ecosystems and ecology',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking plants only respire at night (plants respire all the time)',
+      'Believing evolution happens to individuals rather than populations over time',
+      'Confusing respiration with breathing',
+    ],
     metadata: {
       teachingHours: 35,
       examWeight: 33,
@@ -112,6 +117,11 @@ export const scienceTopics: CurriculumTopic[] = [
       'Describe the structure and function of the heart and blood vessels',
     ],
     prerequisites: ['biology-cell-structure'],
+    misconceptions: [
+      'Thinking enzymes are living things (they are biological catalysts — proteins)',
+      'Confusing the digestive system breaking down food with the body absorbing energy directly from food in the stomach',
+      'Believing arteries always carry oxygenated blood (the pulmonary artery carries deoxygenated blood)',
+    ],
     vocabulary: ['tissue', 'organ', 'organ system', 'digestive system', 'circulatory system', 'enzyme', 'catalyst', 'substrate'],
   },
 
@@ -208,6 +218,11 @@ export const scienceTopics: CurriculumTopic[] = [
       'Explain rates of reaction and chemical analysis',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking chemical reactions create new atoms (atoms are rearranged, not created or destroyed)',
+      'Believing dissolving is a chemical change (it is usually a physical change)',
+      'Confusing compounds with mixtures',
+    ],
     metadata: {
       teachingHours: 35,
       examWeight: 33,
@@ -360,6 +375,11 @@ export const scienceTopics: CurriculumTopic[] = [
       'Explain atomic structure and radioactivity',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking heavier objects fall faster than lighter ones (in a vacuum they fall at the same rate)',
+      'Believing electricity is used up in a circuit',
+      'Confusing heat with temperature',
+    ],
     metadata: {
       teachingHours: 35,
       examWeight: 34,
@@ -458,6 +478,11 @@ export const scienceTopics: CurriculumTopic[] = [
       'Understand energy efficiency',
     ],
     prerequisites: ['physics-energy-stores'],
+    misconceptions: [
+      'Thinking nuclear energy is renewable (uranium is a finite resource)',
+      'Believing renewable energy sources have no environmental impact',
+      'Confusing efficiency with total energy output',
+    ],
     vocabulary: ['renewable', 'non-renewable', 'fossil fuels', 'solar', 'wind', 'hydroelectric', 'nuclear', 'biomass', 'geothermal', 'efficiency'],
   },
 

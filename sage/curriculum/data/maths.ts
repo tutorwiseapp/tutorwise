@@ -37,6 +37,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Apply number skills to real-world problems',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking multiplying always makes a number bigger (multiplying by a fraction makes it smaller)',
+      'Confusing negative numbers with zero',
+      'Believing dividing always makes a number smaller',
+    ],
     metadata: {
       teachingHours: 25,
       examWeight: 25,
@@ -61,6 +66,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Round numbers to a given number of decimal places or significant figures',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking 0.45 is bigger than 0.5 because 45 > 5',
+      'Confusing decimal places with significant figures when rounding',
+      'Believing the first significant figure is always the first digit (leading zeros do not count)',
+    ],
     vocabulary: ['place value', 'digit', 'decimal point', 'significant figures', 'rounding'],
   },
 
@@ -131,6 +141,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Round decimals to required accuracy',
     ],
     prerequisites: ['maths-number-place-value', 'maths-number-fractions'],
+    misconceptions: [
+      'Thinking 0.1 + 0.2 = 0.12 (place value error when adding decimals)',
+      'Believing all fractions give terminating decimals (e.g. 1/3 = 0.333... is recurring)',
+      'Moving the decimal point the wrong way when multiplying or dividing by powers of 10',
+    ],
     vocabulary: ['decimal point', 'decimal place', 'terminating decimal', 'recurring decimal'],
     relatedTopics: ['maths-number-fractions', 'maths-number-percentages'],
   },
@@ -178,6 +193,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use standard form (scientific notation)',
     ],
     prerequisites: ['maths-number-four-operations'],
+    misconceptions: [
+      'Thinking x^0 = 0 (any non-zero number to the power of 0 equals 1)',
+      'Confusing negative indices with negative numbers (x^-2 = 1/x^2, not -x^2)',
+      'Incorrectly adding indices when multiplying different bases (2^3 x 3^2 is not 6^5)',
+    ],
     vocabulary: ['power', 'index', 'indices', 'exponent', 'square', 'cube', 'square root', 'cube root', 'standard form'],
   },
 
@@ -200,6 +220,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Plot and interpret graphs',
     ],
     prerequisites: ['maths-number'],
+    misconceptions: [
+      'Thinking a letter always stands for a specific unknown number (it can represent a variable)',
+      'Confusing expressions, equations, identities, and formulae',
+      'Believing you can only use x as the variable in algebra',
+    ],
     metadata: {
       teachingHours: 30,
       examWeight: 30,
@@ -272,6 +297,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Interpret solutions in context',
     ],
     prerequisites: ['maths-algebra-linear-equations', 'maths-algebra-expressions'],
+    misconceptions: [
+      'Forgetting that a quadratic equation can have two solutions, one solution, or no real solutions',
+      'Only finding one root when factorising (e.g. x(x-3) = 0 gives x = 0 AND x = 3)',
+      'Incorrectly applying the quadratic formula by not making the equation equal to zero first',
+    ],
     vocabulary: ['quadratic', 'factorising', 'completing the square', 'quadratic formula', 'roots', 'solutions'],
   },
 
@@ -292,6 +322,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use sequence notation',
     ],
     prerequisites: ['maths-algebra-expressions'],
+    misconceptions: [
+      'Confusing the nth term rule with the term-to-term rule',
+      'Substituting n = 0 instead of n = 1 for the first term',
+      'Thinking all sequences with a pattern are arithmetic (geometric and quadratic sequences exist too)',
+    ],
     vocabulary: ['sequence', 'term', 'position', 'nth term', 'common difference', 'arithmetic sequence', 'geometric sequence'],
   },
 
@@ -313,6 +348,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Solve equations graphically',
     ],
     prerequisites: ['maths-algebra-linear-equations'],
+    misconceptions: [
+      'Reading the gradient as rise/run but getting the fraction inverted',
+      'Thinking a steeper line always has a positive gradient (steep negative gradients exist)',
+      'Confusing the y-intercept with the x-intercept',
+    ],
     vocabulary: ['coordinate', 'axis', 'quadrant', 'gradient', 'slope', 'y-intercept', 'linear', 'quadratic', 'parabola'],
   },
 
@@ -335,6 +375,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Apply ratio and proportion to real contexts',
     ],
     prerequisites: ['maths-number'],
+    misconceptions: [
+      'Confusing ratio with fraction (a ratio 2:3 does not mean 2/3 of the total)',
+      'Adding ratio parts incorrectly when sharing a quantity',
+      'Mixing up direct and inverse proportion',
+    ],
     metadata: {
       teachingHours: 15,
       examWeight: 20,
@@ -359,6 +404,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Convert between ratios and fractions',
     ],
     prerequisites: ['maths-number-fractions'],
+    misconceptions: [
+      'Not adding all ratio parts to find the total number of shares',
+      'Thinking ratios must always be written in a specific order (order matters and relates to the context)',
+      'Simplifying ratios incorrectly by not dividing all parts by the same number',
+    ],
     vocabulary: ['ratio', 'part', 'whole', 'simplify', 'share', 'proportion'],
   },
 
@@ -379,6 +429,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use graphs to show proportional relationships',
     ],
     prerequisites: ['maths-ratio-ratio', 'maths-algebra-graphs'],
+    misconceptions: [
+      'Thinking direct proportion means adding the same amount each time (it means multiplying by a constant)',
+      'Confusing inverse proportion with negative proportion',
+      'Not recognising that a directly proportional graph must pass through the origin',
+    ],
     vocabulary: ['direct proportion', 'inverse proportion', 'proportional', 'constant of proportionality'],
   },
 
@@ -401,6 +456,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Calculate area, perimeter, and volume',
     ],
     prerequisites: ['maths-number'],
+    misconceptions: [
+      'Confusing area with perimeter',
+      'Thinking all quadrilaterals have angles summing to 180 degrees (it is 360 degrees)',
+      'Believing a shape with equal sides must have equal angles (rhombus vs square)',
+    ],
     metadata: {
       teachingHours: 20,
       examWeight: 15,
@@ -425,6 +485,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use parallel line angle properties',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Confusing alternate angles with corresponding angles in parallel lines',
+      'Thinking vertically opposite angles are next to each other (they are across the vertex)',
+      'Believing exterior angles of a polygon depend on the number of sides (they always sum to 360 degrees)',
+    ],
     vocabulary: ['angle', 'acute', 'obtuse', 'right angle', 'reflex', 'parallel', 'corresponding', 'alternate', 'vertically opposite'],
   },
 
@@ -445,6 +510,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use sine and cosine rules (Higher)',
     ],
     prerequisites: ['maths-number-powers-roots', 'maths-geometry-angles'],
+    misconceptions: [
+      'Using Pythagoras theorem on non-right-angled triangles without the cosine rule',
+      'Mislabelling the opposite and adjacent sides relative to the angle being used',
+      'Forgetting to check whether to use sin, cos, or tan by identifying which sides are involved',
+    ],
     vocabulary: ['hypotenuse', 'opposite', 'adjacent', 'sine', 'cosine', 'tangent', 'SOHCAHTOA'],
   },
 
@@ -467,6 +537,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Use tree diagrams and Venn diagrams',
     ],
     prerequisites: ['maths-number-fractions'],
+    misconceptions: [
+      'Thinking the probability of an event is always 50% if there are two outcomes (e.g. win or lose)',
+      'Confusing independent events with mutually exclusive events',
+      'Adding probabilities on tree diagram branches instead of multiplying along branches',
+    ],
     metadata: {
       teachingHours: 12,
       examWeight: 5,
@@ -493,6 +568,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Analyse data distributions',
     ],
     prerequisites: ['maths-number'],
+    misconceptions: [
+      'Confusing mean, median, and mode and when each is most appropriate',
+      'Thinking a sample always represents the population accurately',
+      'Believing correlation implies causation',
+    ],
     metadata: {
       teachingHours: 10,
       examWeight: 5,
@@ -517,6 +597,11 @@ export const mathsTopics: CurriculumTopic[] = [
       'Calculate averages from frequency tables',
     ],
     prerequisites: ['maths-number-four-operations'],
+    misconceptions: [
+      'Using the range as an average instead of a measure of spread',
+      'Forgetting to order data before finding the median',
+      'Thinking the mean is always the best average to use (it is affected by outliers)',
+    ],
     vocabulary: ['mean', 'median', 'mode', 'range', 'average', 'frequency', 'data set'],
   },
 ];

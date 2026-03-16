@@ -37,6 +37,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Demonstrate chronological understanding',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking history is just about memorising dates rather than understanding causes and consequences',
+      'Believing primary sources are always more reliable than secondary sources',
+      'Assuming people in the past were less intelligent than people today',
+    ],
     metadata: {
       teachingHours: 40,
       examWeight: 100,
@@ -85,6 +90,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Understand why progress was slow despite new discoveries',
     ],
     prerequisites: ['history-medicine-medieval'],
+    misconceptions: [
+      'Thinking the Renaissance immediately transformed medical treatment (knowledge advanced but treatments stayed similar for decades)',
+      'Believing Vesalius and Harvey were immediately accepted by the medical establishment',
+      'Assuming the printing press only spread medical knowledge (it also spread incorrect ideas)',
+    ],
     vocabulary: ['Andreas Vesalius', 'William Harvey', 'anatomy', 'dissection', 'circulation', 'printing press', 'Renaissance'],
   },
 
@@ -128,6 +138,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Understand modern treatments like transplants and keyhole surgery',
     ],
     prerequisites: ['history-medicine-industrial'],
+    misconceptions: [
+      'Thinking Fleming discovered penicillin fully developed as a drug (Florey and Chain developed it for mass production)',
+      'Believing the NHS was universally popular when introduced (many doctors opposed it)',
+      'Assuming modern medicine has solved all health problems',
+    ],
     vocabulary: ['Alexander Fleming', 'penicillin', 'antibiotics', 'NHS', 'National Health Service', 'Beveridge Report', 'welfare state', 'transplant surgery', 'DNA'],
   },
 
@@ -173,6 +188,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate the impact of America entering the war',
     ],
     prerequisites: ['history-ww1-causes'],
+    misconceptions: [
+      'Thinking all soldiers spent all their time in the front-line trenches (they rotated between front, support, and reserve)',
+      'Believing generals like Haig were simply incompetent (they faced genuinely new challenges of industrial warfare)',
+      'Assuming new technology like tanks immediately changed the war (early tanks were unreliable and slow)',
+    ],
     vocabulary: ['Western Front', 'trench warfare', 'Somme', 'Verdun', 'stalemate', 'attrition', 'U-boat', 'Lusitania', 'tank', 'poison gas', 'armistice'],
   },
 
@@ -216,6 +236,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Analyse the impact of the Great Depression on Germany',
     ],
     prerequisites: ['history-treaty-versailles'],
+    misconceptions: [
+      'Thinking the Weimar Republic was always unstable (1924-1929 was a period of relative recovery)',
+      'Believing hyperinflation only affected the poor (the middle class lost their savings too)',
+      'Assuming the Great Depression caused the fall of Weimar on its own (multiple factors contributed)',
+    ],
     vocabulary: ['Weimar Republic', 'hyperinflation', 'Ruhr crisis', 'Dawes Plan', 'Young Plan', 'Great Depression', 'unemployment'],
   },
 
@@ -259,6 +284,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate the effectiveness of Nazi propaganda',
     ],
     prerequisites: ['history-hitler-rise'],
+    misconceptions: [
+      'Thinking all Germans actively supported Nazi persecution (many were passive bystanders or quietly opposed)',
+      'Believing Nazi propaganda was always believed by the public (many were sceptical but feared consequences)',
+      'Assuming the Holocaust happened suddenly (persecution escalated gradually over many years)',
+    ],
     vocabulary: ['totalitarian', 'Gestapo', 'concentration camp', 'Hitler Youth', 'propaganda', 'Joseph Goebbels', 'persecution', 'Kristallnacht', 'Aryan', 'anti-Semitism'],
   },
 
@@ -282,6 +312,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate case studies from around the world',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking geography is just about learning capitals and countries (it studies processes, patterns, and human-environment interactions)',
+      'Believing natural hazards only affect developing countries',
+      'Confusing weather (short-term) with climate (long-term patterns)',
+    ],
     metadata: {
       teachingHours: 40,
       examWeight: 100,
@@ -354,6 +389,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate economic activities in glaciated areas',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking glaciers only erode (they also transport and deposit material)',
+      'Confusing U-shaped valleys (glacial erosion) with V-shaped valleys (river erosion)',
+      'Believing glaciation only happened in the distant past (glaciers still exist and shape landscapes today)',
+    ],
     vocabulary: ['glacier', 'ice sheet', 'glaciation', 'plucking', 'abrasion', 'freeze-thaw', 'U-shaped valley', 'corrie', 'arête', 'pyramidal peak', 'moraine', 'drumlin', 'till'],
   },
 
@@ -447,6 +487,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Analyse green space provision',
     ],
     prerequisites: ['geography-urbanisation'],
+    misconceptions: [
+      'Thinking sustainability means stopping all development (it means meeting needs without compromising future generations)',
+      'Believing brownfield sites are always better to build on than greenfield sites (brownfield may have contamination issues)',
+      'Assuming recycling alone solves waste management problems (reduce and reuse are also essential)',
+    ],
     vocabulary: ['sustainability', 'regeneration', 'brownfield site', 'greenfield site', 'congestion', 'public transport', 'waste management', 'recycling', 'green space'],
   },
 
@@ -492,6 +537,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate strategies to increase food supply',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking food insecurity is only caused by lack of food production (distribution and affordability are major factors)',
+      'Believing GM crops are always harmful (scientific consensus shows approved GM crops are safe)',
+      'Assuming organic farming can feed the world on its own (it typically has lower yields per hectare)',
+    ],
     vocabulary: ['food security', 'malnutrition', 'undernourishment', 'famine', 'irrigation', 'GM crops', 'organic farming', 'intensive farming', 'sustainable agriculture'],
   },
 
@@ -511,6 +561,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate strategies to increase water supply',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking water scarcity only affects hot, dry countries (the UK has areas of water stress too)',
+      'Believing desalination is a simple solution to water shortages (it is expensive and energy-intensive)',
+      'Confusing water scarcity (lack of water) with water pollution (contaminated water)',
+    ],
     vocabulary: ['water security', 'water stress', 'water scarcity', 'groundwater', 'aquifer', 'desalination', 'water transfer', 'reservoir', 'drought'],
   },
 
@@ -530,6 +585,11 @@ export const humanitiesTopics: CurriculumTopic[] = [
       'Evaluate strategies for sustainable energy',
     ],
     prerequisites: [],
+    misconceptions: [
+      'Thinking renewable energy is completely free once installed (maintenance and infrastructure have ongoing costs)',
+      'Believing the UK can immediately switch to 100% renewable energy (storage and intermittency are challenges)',
+      'Confusing energy conservation (using less) with energy efficiency (getting more output per unit of energy)',
+    ],
     vocabulary: ['energy security', 'fossil fuels', 'coal', 'oil', 'natural gas', 'renewable energy', 'solar', 'wind', 'hydroelectric', 'nuclear', 'fracking', 'carbon capture'],
   },
 ];
