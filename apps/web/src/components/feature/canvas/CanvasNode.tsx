@@ -1,8 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { Handle, Position, NodeToolbar, useNodeId } from 'reactflow';
-import { Pencil, Copy, Trash2, ArrowRight, Info } from 'lucide-react';
+import { Handle, Position, useNodeId } from 'reactflow';
 import { useCanvasNodeActions } from './CanvasNodeActionsContext';
 import styles from './CanvasNode.module.css';
 
@@ -36,79 +35,13 @@ function CanvasNodeComponent({
   hasTargetHandle = true,
   hasSourceHandle = true,
   conditionHandles = false,
-  navigateType,
+  navigateType: _navigateType,
 }: CanvasNodeProps) {
-  const nodeId = useNodeId() ?? '';
-  const actions = useCanvasNodeActions();
-
-  const hasToolbar = nodeId && (
-    actions.onEdit ||
-    actions.onDelete ||
-    actions.onDuplicate ||
-    actions.onViewDetails ||
-    (actions.onNavigate && navigateType)
-  );
+  useNodeId();
+  useCanvasNodeActions();
 
   return (
     <>
-      {hasToolbar && (
-        <NodeToolbar isVisible={selected} position={Position.Top} offset={6}>
-          <div className={styles.toolbar}>
-            {actions.onViewDetails && (
-              <button
-                className={styles.toolbarBtn}
-                onClick={() => actions.onViewDetails!(nodeId)}
-                title="View details"
-              >
-                <Info size={13} />
-              </button>
-            )}
-            {actions.onEdit && (
-              <button
-                className={styles.toolbarBtn}
-                onClick={() => actions.onEdit!(nodeId)}
-                title="Edit"
-              >
-                <Pencil size={13} />
-              </button>
-            )}
-            {actions.onDuplicate && (
-              <button
-                className={styles.toolbarBtn}
-                onClick={() => actions.onDuplicate!(nodeId)}
-                title="Duplicate"
-              >
-                <Copy size={13} />
-              </button>
-            )}
-            {actions.onNavigate && navigateType && (
-              <>
-                <div className={styles.toolbarDivider} />
-                <button
-                  className={`${styles.toolbarBtn} ${styles.toolbarBtnNavigate}`}
-                  onClick={() => actions.onNavigate!(nodeId, navigateType)}
-                  title={navigateType === 'agents' ? 'Configure agent' : 'Configure team'}
-                >
-                  <ArrowRight size={13} />
-                </button>
-              </>
-            )}
-            {actions.onDelete && (
-              <>
-                <div className={styles.toolbarDivider} />
-                <button
-                  className={`${styles.toolbarBtn} ${styles.toolbarBtnDanger}`}
-                  onClick={() => actions.onDelete!(nodeId)}
-                  title="Delete"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </>
-            )}
-          </div>
-        </NodeToolbar>
-      )}
-
       <div
         className={`${styles.node} ${selected ? styles.selected : ''}`}
         style={{ '--accent-color': accentColor } as React.CSSProperties}

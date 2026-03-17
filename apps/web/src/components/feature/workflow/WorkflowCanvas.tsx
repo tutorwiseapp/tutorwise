@@ -25,7 +25,7 @@ import type {
   OnEdgesDelete,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { MessageSquare, Settings2, ArrowLeft, Upload, History, X, RotateCcw, Pencil, Copy, Trash2, ArrowRight } from 'lucide-react';
+import { MessageSquare, Settings2, ArrowLeft, Upload, History, X, RotateCcw, Copy, Trash2, ArrowRight } from 'lucide-react';
 import { useWorkflowStore } from './store';
 import { useDiscoveryStore } from './discovery-store';
 import { ProcessStepNode } from './ProcessStepNode';
@@ -909,7 +909,6 @@ function WorkflowCanvasInner({
   };
 
   const contextMenuItems: ContextMenuItem[] = contextMenu ? [
-    { icon: Pencil, label: 'Edit', onClick: () => { setSelectedNode(contextMenu.node.id); setRightPanelMode('properties'); } },
     { icon: Copy,   label: 'Duplicate', onClick: () => handleDuplicateNode(contextMenu.node.id) },
     ...(contextMenu.node.data.type === 'agent' ? [{ icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry') }] : []),
     ...(contextMenu.node.data.type === 'team'  ? [{ icon: ArrowRight, label: 'Configure Team',  variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry')  }] : []),

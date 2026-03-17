@@ -29,7 +29,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Bot, Building2, Users, ChevronRight, ChevronDown, ChevronUp, RefreshCw, Save, Maximize2, Minimize2, FilePlus, FileDown, FileUp, Undo2, Redo2, Trash2, Pencil, Copy, Settings2, MessageSquare, Play, Brain, Send } from 'lucide-react';
+import { Bot, Building2, Users, ChevronRight, ChevronDown, ChevronUp, RefreshCw, Save, Maximize2, Minimize2, FilePlus, FileDown, FileUp, Undo2, Redo2, Trash2, Copy, Settings2, MessageSquare, Play, Brain, Send } from 'lucide-react';
 import dagre from '@dagrejs/dagre';
 import { FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasContextMenu } from '@/components/feature/canvas';
 import type { ContextMenuItem } from '@/components/feature/canvas';
@@ -1279,19 +1279,15 @@ function BuildCanvasInner() {
     const { nodeEntityType, entityId, built_in, agentId } = node.data;
     const isVirtualNode = entityId === '__unassigned__';
 
-    const items: ContextMenuItem[] = [
-      {
-        icon: Pencil,
-        label: 'Edit',
-        onClick: () => selectNode(
-          nodeEntityType === 'agent' ? node.id : entityId,
-          nodeEntityType,
-        ),
-      },
-    ];
+    const items: ContextMenuItem[] = [];
 
-    // Level 0 — space nodes: delete (non-built-in, non-virtual)
-    if (level === 0 && nodeEntityType === 'space' && !built_in && !isVirtualNode) {
+    // Level 0 — space nodes: duplicate + delete (skip virtual nodes)
+    if (level === 0 && nodeEntityType === 'space' && !isVirtualNode) {
+      items.push({
+        icon: Copy,
+        label: 'Duplicate',
+        onClick: () => handleDuplicateNode(contextMenu.nodeId),
+      });
       items.push({
         icon: Trash2,
         label: 'Deactivate space',
@@ -1301,8 +1297,13 @@ function BuildCanvasInner() {
       });
     }
 
-    // Level 1 — team nodes: delete (non-built-in)
-    if (level === 1 && nodeEntityType === 'team' && !built_in) {
+    // Level 1 — team nodes: duplicate + delete
+    if (level === 1 && nodeEntityType === 'team') {
+      items.push({
+        icon: Copy,
+        label: 'Duplicate',
+        onClick: () => handleDuplicateNode(contextMenu.nodeId),
+      });
       items.push({
         icon: Trash2,
         label: 'Deactivate team',
