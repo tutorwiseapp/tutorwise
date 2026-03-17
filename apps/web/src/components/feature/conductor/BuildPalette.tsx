@@ -354,7 +354,8 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
                 key={space.id}
                 className={`${styles.navItem} ${selectedId === space.id ? styles.navItemSelected : ''}`}
                 onClick={() => onNavClick?.(space.id, space.name)}
-                title={`Open ${space.name}`}
+                onDoubleClick={() => onNavDrillIn?.(space.id, space.name)}
+                title={`Click to view properties · double-click to open ${space.name}`}
               >
                 <Building2 size={14} className={styles.navIcon} style={{ color: space.color || '#6b7280', flexShrink: 0 }} />
                 <div className={styles.navBody}>
@@ -383,7 +384,8 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
                 key={team.id}
                 className={`${styles.navItem} ${selectedId === team.id ? styles.navItemSelected : ''}`}
                 onClick={() => onNavClick?.(team.id, team.name)}
-                title={`Open ${team.name}`}
+                onDoubleClick={() => onNavDrillIn?.(team.id, team.name)}
+                title={`Click to view properties · double-click to open ${team.name}`}
               >
                 <Users size={14} className={styles.navIcon} style={{ color: PATTERN_COLORS[team.pattern] ?? '#6b7280', flexShrink: 0 }} />
                 <div className={styles.navBody}>

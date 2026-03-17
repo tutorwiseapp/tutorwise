@@ -984,26 +984,38 @@ function BuildCanvasInner() {
   // ── Node click → selection & drill-down ──────────────────────────────────────
 
   const handleNodeClick = useCallback((_e: React.MouseEvent, node: Node<BuildNodeData>) => {
-    const { nodeEntityType, entityId, label } = node.data;
-    // Space / team: click the card → drill in. Right-click → properties via context menu.
-    if (nodeEntityType === 'space') {
-      drillToSpace(entityId, label);
-    } else if (nodeEntityType === 'team') {
-      drillToTeam(entityId, label);
-    } else {
-      // Agent: click → select for properties panel
+    const { nodeEntityType, entityId } = node.data;
+    // Single click → select (show properties). Double-click or "Open" button → drill.
+    if (nodeEntityType === 'agent') {
       selectNode(node.id, nodeEntityType);
+    } else {
+      selectNode(entityId, nodeEntityType);
     }
-  }, [selectNode, drillToSpace, drillToTeam]);
+  }, [selectNode]);
 
-  const handleNodeDoubleClick = useCallback((_e: React.MouseEvent, _node: Node<BuildNodeData>) => {
-    // no-op — single click handles drill-in
-  }, []);
+  const handleNodeDoubleClick = useCallback((_e: React.MouseEvent, node: Node<BuildNodeData>) => {
+    const { nodeEntityType, entityId, label } = node.data;
+    if (nodeEntityType === 'space') drillToSpace(entityId, label);
+    else if (nodeEntityType === 'team') drillToTeam(entityId, label);
+  }, [drillToSpace, drillToTeam]);
 
   const handlePaneClick = useCallback(() => {
     selectNode(null, null);
     setContextMenu(null);
   }, [selectNode]);
+
+  // Sync store selection → ReactFlow node.selected so richNodeSelected style fires
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        selected:
+          selectedNodeType === 'agent'
+            ? n.id === selectedNodeId
+            : n.data.entityId === selectedNodeId,
+      }))
+    );
+  }, [selectedNodeId, selectedNodeType, setNodes]);
 
   const onNodeContextMenu = useCallback((e: React.MouseEvent, node: Node<BuildNodeData>) => {
     e.preventDefault();
@@ -1548,7 +1560,7 @@ function BuildCanvasInner() {
           navSpaces={navSpaces}
           navTeams={navTeams}
           selectedId={selectedNodeId}
-          onNavClick={(id, name) => { if (level === 0) drillToSpace(id, name); else drillToTeam(id, name); }}
+          onNavClick={(id) => { selectNode(id, level === 0 ? 'space' : 'team'); }}
           onNavDrillIn={(id, name) => { if (level === 0) drillToSpace(id, name); else drillToTeam(id, name); }}
           onAddAgentToCanvas={handleAddAgentFromPalette}
           triggerCreate={showNewForm}
@@ -1650,9 +1662,9 @@ function BuildCanvasInner() {
               </Panel>
               <Panel position="bottom-center" className={styles.hint}>
                 {level === 0
-                  ? 'Click a space to open its teams · right-click to edit properties · drag to reposition'
+                  ? 'Click to select & edit · double-click or "Open teams" to drill in · drag to reposition'
                   : level === 1
-                    ? 'Click a team to open its agents · right-click to edit properties · drag to reposition'
+                    ? 'Click to select & edit · double-click or "Open agents" to drill in · drag to reposition'
                     : 'Drag agents from the left panel · click to select · connect handles with edges'}
               </Panel>
             </ReactFlow>
