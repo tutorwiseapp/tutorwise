@@ -37,6 +37,7 @@ interface TeamsTableProps {
   loading: boolean;
   onEdit: (team: AgentTeam) => void;
   onDelete: (team: AgentTeam) => void;
+  onRestore: (team: AgentTeam) => void;
   onRun: (team: AgentTeam) => void;
   onClone: (team: AgentTeam) => void;
   onViewTopology: () => void;
@@ -59,7 +60,7 @@ const PATTERN_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 15;
 
-export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, onClone, onViewTopology, onNavigate, externalFilter, toolbarActions }: TeamsTableProps) {
+export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRestore, onRun, onClone, onViewTopology, onNavigate, externalFilter, toolbarActions }: TeamsTableProps) {
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
@@ -233,12 +234,13 @@ export function TeamsTable({ teams, spaces, loading, onEdit, onDelete, onRun, on
             { label: 'View Topology', onClick: () => onViewTopology() },
             { label: 'Run', onClick: () => onRun(row) },
             { label: 'Clone', onClick: () => onClone(row) },
-            ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
+            ...(row.built_in && row.seed_config ? [{ label: 'Restore to default', onClick: () => onRestore(row) }] : []),
+            { label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const },
           ]}
         />
       ),
     },
-  ], [spaceMap, onEdit, onDelete, onRun, onClone, onViewTopology, onNavigate]);
+  ], [spaceMap, onEdit, onDelete, onRestore, onRun, onClone, onViewTopology, onNavigate]);
 
   return (
     <HubDataTable<AgentTeam>

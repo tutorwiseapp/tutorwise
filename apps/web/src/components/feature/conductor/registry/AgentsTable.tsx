@@ -51,6 +51,7 @@ interface AgentsTableProps {
   onRun: (agent: SpecialistAgent) => void;
   onClone: (agent: SpecialistAgent) => void;
   onDelete: (agent: SpecialistAgent) => void;
+  onRestore: (agent: SpecialistAgent) => void;
   onViewTopology: () => void;
   onNavigate: (subTab: 'teams' | 'spaces', filter?: Record<string, string>) => void;
   externalFilter?: Record<string, string> | null;
@@ -61,7 +62,7 @@ const PAGE_SIZE = 15;
 
 export function AgentsTable({
   agents, teams, spaces, loading, agentToTeam,
-  onConfigure, onChat, onRun, onClone, onDelete, onViewTopology, onNavigate, externalFilter, toolbarActions,
+  onConfigure, onChat, onRun, onClone, onDelete, onRestore, onViewTopology, onNavigate, externalFilter, toolbarActions,
 }: AgentsTableProps) {
   const [sortKey, setSortKey] = useState<string>('name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
@@ -249,13 +250,14 @@ export function AgentsTable({
               { label: 'View Topology', onClick: () => onViewTopology() },
               { label: 'Run', onClick: () => onRun(row) },
               { label: 'Clone', onClick: () => onClone(row) },
-              ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
+              ...(row.built_in && row.seed_config ? [{ label: 'Restore to default', onClick: () => onRestore(row) }] : []),
+              { label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const },
             ];
           })()}
         />
       ),
     },
-  ], [agentToTeam, onConfigure, onChat, onRun, onClone, onDelete, onViewTopology, onNavigate]);
+  ], [agentToTeam, onConfigure, onChat, onRun, onClone, onDelete, onRestore, onViewTopology, onNavigate]);
 
   return (
     <HubDataTable<SpecialistAgent>

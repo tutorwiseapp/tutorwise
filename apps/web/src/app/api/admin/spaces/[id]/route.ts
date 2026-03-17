@@ -58,17 +58,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Prevent deleting built-in spaces
-    const { data: space } = await supabase
-      .from('agent_spaces')
-      .select('built_in')
-      .eq('id', id)
-      .single();
-
-    if (space?.built_in) {
-      return NextResponse.json({ error: 'Cannot delete a built-in space' }, { status: 403 });
-    }
-
     // Deactivate (soft delete) and unlink teams
     await supabase.from('agent_teams').update({ space_id: null }).eq('space_id', id);
     const { error } = await supabase

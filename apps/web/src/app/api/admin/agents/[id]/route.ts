@@ -147,7 +147,6 @@ export async function DELETE(
       .single();
 
     if (!existing) return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
-    if (existing.built_in) return NextResponse.json({ error: 'Cannot delete a built-in agent' }, { status: 403 });
 
     const { error } = await supabase
       .from('specialist_agents')

@@ -203,6 +203,40 @@ export function AgentRegistryPanel() {
     onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
   });
 
+  const restoreAgentMutation = useMutation({
+    mutationFn: async (agent: SpecialistAgent) => {
+      if (!confirm(`Restore "${agent.name}" to its default configuration? Your changes will be lost.`)) throw new Error('cancelled');
+      const res = await fetch(`/api/admin/agents/${agent.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset_seed' }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? `Failed to restore agent (HTTP ${res.status})`);
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-agents'] }),
+    onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
+  });
+
+  const restoreTeamMutation = useMutation({
+    mutationFn: async (team: AgentTeam) => {
+      if (!confirm(`Restore "${team.name}" to its default configuration? Your changes will be lost.`)) throw new Error('cancelled');
+      const res = await fetch(`/api/admin/teams/${team.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset_seed' }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? `Failed to restore team (HTTP ${res.status})`);
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-teams'] }),
+    onError: (err: Error) => { if (err.message !== 'cancelled') alert(err.message); },
+  });
+
   const runTeamMutation = useMutation({
     mutationFn: async (team: AgentTeam) => {
       const task = prompt(`Task for ${team.name}:`);
@@ -373,6 +407,7 @@ export function AgentRegistryPanel() {
               loading={isLoading}
               onEdit={(team) => setModal({ type: 'team', mode: 'edit', team })}
               onDelete={(team) => removeTeamMutation.mutate(team)}
+              onRestore={(team) => restoreTeamMutation.mutate(team)}
               onRun={(team) => runTeamMutation.mutate(team)}
               onClone={(team) => cloneTeamMutation.mutate(team)}
               onViewTopology={() => setActiveTab('build' as DiscoveryTab)}
@@ -394,6 +429,7 @@ export function AgentRegistryPanel() {
               onRun={handleRunAgent}
               onClone={(agent) => cloneAgentMutation.mutate(agent)}
               onDelete={(agent) => removeAgentMutation.mutate(agent)}
+              onRestore={(agent) => restoreAgentMutation.mutate(agent)}
               onViewTopology={() => setActiveTab('build' as DiscoveryTab)}
               onNavigate={handleNavigate}
               externalFilter={pendingFilter}
@@ -450,7 +486,7 @@ export function RegistrySidebar() {
         <div className={styles.tipsList}>
           <p>Hierarchy: Space → Team → Agent. Assign teams to spaces for multi-tenant isolation.</p>
           <p>Use supervisor pattern for complex routing, pipeline for sequential tasks.</p>
-          <p>Built-in agents cannot be deleted but their prompts and tools can be customised.</p>
+          <p>Built-in items can be edited and deleted. Use <strong>Restore to default</strong> to revert a built-in agent or team to its original seeded configuration.</p>
         </div>
       </HubWidgetCard>
     </>
