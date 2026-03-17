@@ -740,7 +740,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
   async query_financial_health(_input) {
     const supabase = await createServiceRoleClient();
 
-    const [metrics, clearingLive, anomalies] = await Promise.all([
+    const [metrics, stalledPending, anomalies] = await Promise.all([
       supabase
         .from('financials_platform_metrics_daily')
         .select('*')
@@ -749,7 +749,7 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
       supabase
         .from('transactions')
         .select('id, amount, created_at')
-        .eq('status', 'clearing')
+        .eq('status', 'Pending')
         .lt('created_at', new Date(Date.now() - 14 * 86400000).toISOString()),
       supabase
         .from('transactions')
@@ -758,10 +758,10 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
         .eq('status', 'Paid'),
     ]);
 
-    checkErrors([metrics, clearingLive, anomalies]);
+    checkErrors([metrics, stalledPending, anomalies]);
     return {
       trend: metrics.data ?? [],
-      stalledClearingItems: (clearingLive.data ?? []).length,
+      stalledPendingItems: (stalledPending.data ?? []).length,
       activePayout: anomalies.count ?? 0,
     };
   },
