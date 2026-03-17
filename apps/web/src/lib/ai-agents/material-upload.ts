@@ -121,7 +121,19 @@ export async function uploadMaterial(
 
   // Process document asynchronously (don't await in request handler)
   processAndEmbedMaterial(material.id, aiAgentId, fileBuffer, file.name, fileSizeMB)
-    .catch(err => console.error('[MaterialUpload] Background processing failed:', err));
+    .catch(async (err) => {
+      console.error('[MaterialUpload] Background processing failed:', err);
+      // Ensure material status is updated even if inner catch failed
+      try {
+        const fallbackSupabase = await createClient();
+        await fallbackSupabase
+          .from('ai_agent_materials')
+          .update({ status: 'failed', error_message: String(err?.message || 'Unknown processing error') })
+          .eq('id', material.id);
+      } catch (updateErr) {
+        console.error('[MaterialUpload] Could not update material status to failed:', updateErr);
+      }
+    });
 
   return material;
 }

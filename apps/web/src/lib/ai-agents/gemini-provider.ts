@@ -108,9 +108,13 @@ export class GeminiProvider {
       const result = await model.generateContentStream(prompt);
 
       for await (const chunk of result.stream) {
-        const text = chunk.text();
-        if (text) {
-          yield text;
+        try {
+          const text = chunk.text();
+          if (text) {
+            yield text;
+          }
+        } catch (chunkErr) {
+          console.warn('Gemini chunk parse error, skipping:', chunkErr instanceof Error ? chunkErr.message : chunkErr);
         }
       }
     } catch (error) {

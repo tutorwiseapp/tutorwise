@@ -24,6 +24,55 @@ const GROWTH_PRO_HOURLY_BURST_LIMIT = 100;
 const ROLLING_WINDOW_HOURS = 24;
 const ROLLING_WINDOW_MS = ROLLING_WINDOW_HOURS * 60 * 60 * 1000;
 
+// --- Circuit Breaker ---
+// When Redis is unavailable, enforce a conservative in-memory limit
+// instead of allowing unlimited access (which could be exploited).
+
+const EMERGENCY_LIMIT_PER_MINUTE = 3; // Conservative fallback when Redis is down
+const emergencyCounters = new Map<string, { count: number; resetAt: number }>();
+
+function checkEmergencyLimit(userId: string, agent: AIAgent): RateLimitResult {
+  const key = `${agent}:${userId}`;
+  const now = Date.now();
+  const entry = emergencyCounters.get(key);
+
+  if (!entry || now >= entry.resetAt) {
+    emergencyCounters.set(key, { count: 1, resetAt: now + 60_000 });
+    return {
+      allowed: true,
+      tier: 'free',
+      limit: EMERGENCY_LIMIT_PER_MINUTE,
+      used: 1,
+      remaining: EMERGENCY_LIMIT_PER_MINUTE - 1,
+      resetAt: new Date(now + 60_000),
+    };
+  }
+
+  entry.count += 1;
+
+  if (entry.count > EMERGENCY_LIMIT_PER_MINUTE) {
+    return {
+      allowed: false,
+      tier: 'free',
+      limit: EMERGENCY_LIMIT_PER_MINUTE,
+      used: entry.count,
+      remaining: 0,
+      resetAt: new Date(entry.resetAt),
+      error: 'hourly_burst_limit',
+      message: 'Service is temporarily limited. Please try again shortly.',
+    };
+  }
+
+  return {
+    allowed: true,
+    tier: 'free',
+    limit: EMERGENCY_LIMIT_PER_MINUTE,
+    used: entry.count,
+    remaining: EMERGENCY_LIMIT_PER_MINUTE - entry.count,
+    resetAt: new Date(entry.resetAt),
+  };
+}
+
 // --- Types ---
 
 export type AIAgent = 'lexi' | 'sage' | 'growth';
@@ -63,16 +112,9 @@ export async function checkAIAgentRateLimit(
   subscription?: SubscriptionStatus
 ): Promise<RateLimitResult> {
   if (!redis) {
-    // Redis not available - allow request but log warning
-    console.warn('[RateLimiter] Redis not available, allowing request');
-    return {
-      allowed: true,
-      tier: 'free',
-      limit: FREE_DAILY_LIMIT,
-      used: 0,
-      remaining: FREE_DAILY_LIMIT,
-      resetAt: getNextMidnightUTC(),
-    };
+    // Redis not available - enforce emergency in-memory limit
+    console.warn('[RateLimiter] Redis not available, using emergency limit');
+    return checkEmergencyLimit(userId, agent);
   }
 
   try {
@@ -95,16 +137,9 @@ export async function checkAIAgentRateLimit(
 
     return await checkFreeTierLimit(userId, agent);
   } catch (error) {
-    // Redis connection failed - allow request but log error
-    console.error('[RateLimiter] Redis connection error, allowing request:', error instanceof Error ? error.message : error);
-    return {
-      allowed: true,
-      tier: 'free',
-      limit: FREE_DAILY_LIMIT,
-      used: 0,
-      remaining: FREE_DAILY_LIMIT,
-      resetAt: getNextMidnightUTC(),
-    };
+    // Redis connection failed - enforce emergency in-memory limit
+    console.error('[RateLimiter] Redis connection error, using emergency limit:', error instanceof Error ? error.message : error);
+    return checkEmergencyLimit(userId, agent);
   }
 }
 
@@ -405,15 +440,6 @@ function getNextHourStart(): Date {
   const nextHour = new Date(now);
   nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
   return nextHour;
-}
-
-/**
- * Get next midnight UTC
- */
-function getNextMidnightUTC(): Date {
-  const now = new Date();
-  const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0, 0));
-  return tomorrow;
 }
 
 // --- Subscription Management ---

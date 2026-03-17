@@ -336,7 +336,10 @@ export async function POST(
               });
           }
 
-          // Fire-and-forget: Quality scoring workflow
+          // Post-stream background tasks — all fire-and-forget to avoid blocking SSE.
+          // Each logs with session context for debugging failed writes.
+          const bgCtx = { sessionId, agentId: session.agent_id, messageId };
+
           runQualityLoopWorkflow({
             messageId: `${messageId}_asst`,
             sessionId,
@@ -348,32 +351,29 @@ export async function POST(
               source: c.source,
               similarity: c.similarity,
             })),
-          }).catch(err => console.warn('[AI Agent Stream] Quality loop error:', err));
+          }).catch(err => console.error('[AI Agent Stream] Quality loop failed:', { error: err instanceof Error ? err.message : err, ...bgCtx }));
 
-          // Fire-and-forget: Student journey tracking
           runStudentJourneyWorkflow({
             sessionId,
             agentId: session.agent_id,
             studentId: session.client_id,
             userMessage: trimmedMessage,
             assistantResponse: fullResponse,
-          }).catch(err => console.warn('[AI Agent Stream] Student journey error:', err));
+          }).catch(err => console.error('[AI Agent Stream] Student journey failed:', { error: err instanceof Error ? err.message : err, ...bgCtx }));
 
-          // Fire-and-forget: Record agent-student memory episode (Phase A4)
           agentMemoryService.recordEpisode({
             agentSlug: agentMemorySlug,
             runId: messageId,
             task: sanitisedMessage,
             outputText: fullResponse,
-          }).catch(err => console.warn('[AI Agent Stream] Memory episode error:', err));
+          }).catch(err => console.error('[AI Agent Stream] Memory episode failed:', { error: err instanceof Error ? err.message : err, ...bgCtx }));
 
-          // Fire-and-forget: Extract facts from non-trivial responses (Phase A4)
           if (fullResponse.length > 200) {
             agentMemoryService.extractAndStoreFacts({
               agentSlug: agentMemorySlug,
               runId: messageId,
               outputText: fullResponse,
-            }).catch(err => console.warn('[AI Agent Stream] Memory facts error:', err));
+            }).catch(err => console.error('[AI Agent Stream] Memory facts failed:', { error: err instanceof Error ? err.message : err, ...bgCtx }));
           }
 
           // Fire-and-forget: Adaptive difficulty tracking (Phase A4)

@@ -20,6 +20,7 @@ import { useAIAgentChat } from '@/components/feature/ai-agents/session/useAIAgen
 import LexiMarkdown from '@/components/feature/lexi/LexiMarkdown';
 import SessionTimer from '@/components/feature/ai-agents/session/SessionTimer';
 import ReviewModal from '@/components/feature/ai-agents/session/ReviewModal';
+import { Bot, AlertTriangle } from 'lucide-react';
 import styles from './AIAgentSession.module.css';
 
 interface PageProps {
@@ -166,7 +167,7 @@ export default function AIAgentSessionPage({ params }: PageProps) {
       {/* Error banner */}
       {error && (
         <div className={styles.errorBanner}>
-          <span className={styles.errorIcon}>⚠️</span>
+          <span className={styles.errorIcon}><AlertTriangle size={16} /></span>
           <span className={styles.errorText}>{error}</span>
           <button onClick={clearError} className={styles.errorDismiss} aria-label="Dismiss">
             ×
@@ -178,7 +179,7 @@ export default function AIAgentSessionPage({ params }: PageProps) {
       <div className={styles.messagesContainer}>
         {messages.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>🤖</div>
+            <div className={styles.emptyIcon}><Bot size={32} /></div>
             <p className={styles.emptyText}>Start chatting with {session.ai_agent.display_name}</p>
             <p className={styles.emptySubtext}>Ask any questions about {session.ai_agent.subject}</p>
           </div>

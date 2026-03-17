@@ -44,6 +44,38 @@ export interface ToolExecutionContext {
 // --- Registry ---
 
 const handlerMap = new Map<string, ToolHandler>();
+const toolSchemas = new Map<string, Record<string, unknown>>();
+
+/** Lightweight param validation against JSON Schema (required fields + type checks). */
+function validateParams(
+  params: Record<string, unknown>,
+  schema: Record<string, unknown>
+): string | null {
+  const properties = (schema.properties || {}) as Record<string, { type?: string }>;
+  const required = (schema.required || []) as string[];
+
+  for (const key of required) {
+    if (params[key] === undefined || params[key] === null) {
+      return `Missing required parameter: ${key}`;
+    }
+  }
+
+  for (const [key, value] of Object.entries(params)) {
+    const propSchema = properties[key];
+    if (!propSchema) continue; // Allow extra params (forward-compat)
+
+    const expectedType = propSchema.type;
+    if (!expectedType) continue;
+
+    const actualType = Array.isArray(value) ? 'array' : typeof value;
+    if (expectedType === 'integer' && typeof value === 'number') continue;
+    if (actualType !== expectedType) {
+      return `Parameter "${key}" must be type ${expectedType}, got ${actualType}`;
+    }
+  }
+
+  return null; // Valid
+}
 
 /**
  * Register a built-in tool handler.
@@ -71,9 +103,18 @@ export async function getAgentTools(
 
   if (error || !data) return [];
 
-  return data
+  const tools = data
     .map((row: any) => row.tool)
     .filter((t: any) => t != null) as AgentTool[];
+
+  // Cache schemas for validation during execution
+  for (const tool of tools) {
+    if (tool.parameters_schema) {
+      toolSchemas.set(tool.slug, tool.parameters_schema);
+    }
+  }
+
+  return tools;
 }
 
 /**
@@ -126,6 +167,19 @@ export async function executeTool(
       error: `Unknown tool: ${slug}`,
       duration_ms: Date.now() - start,
     };
+  }
+
+  // Validate params against cached schema
+  const schema = toolSchemas.get(slug);
+  if (schema) {
+    const validationError = validateParams(params, schema);
+    if (validationError) {
+      return {
+        success: false,
+        error: validationError,
+        duration_ms: Date.now() - start,
+      };
+    }
   }
 
   try {

@@ -168,9 +168,13 @@ export async function* streamWithGemini(
   const result = await model.generateContentStream(prompt);
 
   for await (const chunk of result.stream) {
-    const text = chunk.text();
-    if (text) {
-      yield text;
+    try {
+      const text = chunk.text();
+      if (text) {
+        yield text;
+      }
+    } catch (chunkErr) {
+      console.warn('[streamWithGemini] Chunk parse error, skipping:', chunkErr instanceof Error ? chunkErr.message : chunkErr);
     }
   }
 }

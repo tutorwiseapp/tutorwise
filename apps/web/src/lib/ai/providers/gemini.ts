@@ -70,9 +70,13 @@ export class GeminiProvider implements AIProvider {
     ]);
 
     for await (const chunk of result.stream) {
-      const content = chunk.text();
-      if (content) {
-        yield { content, done: false };
+      try {
+        const content = chunk.text();
+        if (content) {
+          yield { content, done: false };
+        }
+      } catch (chunkErr) {
+        console.warn('[GeminiProvider] Chunk parse error, skipping:', chunkErr instanceof Error ? chunkErr.message : chunkErr);
       }
     }
     yield { content: '', done: true };

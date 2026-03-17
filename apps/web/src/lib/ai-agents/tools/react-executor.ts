@@ -95,8 +95,9 @@ export async function executeReactLoop(
     // Execute the tool
     const result = await executeTool(toolCall.slug, toolCall.params, context);
 
-    // Log the tool call (fire-and-forget)
-    logToolCall(supabase, context.agentId, context.sessionId, toolCall.slug, toolCall.params, result).catch(() => {});
+    // Log the tool call (fire-and-forget with error visibility)
+    logToolCall(supabase, context.agentId, context.sessionId, toolCall.slug, toolCall.params, result)
+      .catch(err => console.error('[ReActExecutor] Tool call logging failed:', err instanceof Error ? err.message : err));
 
     // Format result for LLM
     const resultText = result.success

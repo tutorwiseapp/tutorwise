@@ -7,13 +7,24 @@
  * @module lib/ai-agents/tools/handlers
  */
 
-import { registerHandler, type ToolCallResult, type ToolExecutionContext } from './registry';
+import { registerHandler, type ToolCallResult } from './registry';
+
+/** Sanitize user-supplied text before embedding in notifications/DB fields. */
+function sanitizeText(input: string, maxLength = 200): string {
+  // eslint-disable-next-line no-control-regex
+  const controlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F]/g;
+  return input
+    .replace(/[<>]/g, '') // Strip angle brackets (prevent HTML injection)
+    .replace(controlChars, '') // Strip control chars (keep \n, \r, \t)
+    .trim()
+    .slice(0, maxLength);
+}
 
 // --- generate-quiz ---
 registerHandler('generate-quiz', async (params, ctx): Promise<ToolCallResult> => {
-  const topic = params.topic as string;
-  const difficulty = (params.difficulty as number) || 3;
-  const count = (params.question_count as number) || 5;
+  const topic = sanitizeText(params.topic as string, 100);
+  const difficulty = Math.min(5, Math.max(1, (params.difficulty as number) || 3));
+  const count = Math.min(20, Math.max(1, (params.question_count as number) || 5));
 
   // Pull from problem bank if available
   const { data: problems } = await ctx.supabase
@@ -61,8 +72,8 @@ registerHandler('generate-quiz', async (params, ctx): Promise<ToolCallResult> =>
 
 // --- create-flashcards ---
 registerHandler('create-flashcards', async (params, _ctx): Promise<ToolCallResult> => {
-  const topic = params.topic as string;
-  const count = (params.count as number) || 10;
+  const topic = sanitizeText(params.topic as string, 100);
+  const count = Math.min(50, Math.max(1, (params.count as number) || 10));
 
   return {
     success: true,
@@ -77,9 +88,9 @@ registerHandler('create-flashcards', async (params, _ctx): Promise<ToolCallResul
 
 // --- schedule-revision ---
 registerHandler('schedule-revision', async (params, ctx): Promise<ToolCallResult> => {
-  const topic = params.topic as string;
-  const date = params.date as string;
-  const time = (params.time as string) || '18:00';
+  const topic = sanitizeText(params.topic as string, 100);
+  const date = sanitizeText(params.date as string, 10);
+  const time = sanitizeText((params.time as string) || '18:00', 5);
 
   // Create platform notification
   const { error } = await ctx.supabase.from('platform_notifications').insert({
@@ -137,15 +148,17 @@ registerHandler('send-progress-summary', async (_params, ctx): Promise<ToolCallR
   // Create notification for each linked person
   const topicsCovered = messages
     .filter((m: any) => m.role === 'user')
-    .map((m: any) => m.content.substring(0, 50))
+    .map((m: any) => sanitizeText(m.content, 50))
     .slice(0, 3);
+
+  const sanitizedTopics = topicsCovered.join(', ').slice(0, 150);
 
   for (const recipientId of recipientIds) {
     await ctx.supabase.from('platform_notifications').insert({
       user_id: recipientId,
       type: 'session_summary',
       title: 'AI Tutor Session Summary',
-      message: `Your student completed a tutoring session. Topics discussed: ${topicsCovered.join(', ')}`,
+      message: `Your student completed a tutoring session. Topics discussed: ${sanitizedTopics}`,
       metadata: { session_id: ctx.sessionId, agent_id: ctx.agentId },
     });
   }
@@ -239,8 +252,8 @@ registerHandler('check-answer', async (params, _ctx): Promise<ToolCallResult> =>
 
 // --- lookup-curriculum ---
 registerHandler('lookup-curriculum', async (params, ctx): Promise<ToolCallResult> => {
-  const topic = params.topic as string;
-  const examBoard = params.exam_board as string | undefined;
+  const topic = sanitizeText(params.topic as string, 100);
+  const examBoard = params.exam_board ? sanitizeText(params.exam_board as string, 50) : undefined;
 
   // Search sage_knowledge_chunks for curriculum content
   const { data: chunks } = await ctx.supabase
@@ -268,7 +281,7 @@ registerHandler('lookup-curriculum', async (params, ctx): Promise<ToolCallResult
 
 // --- search-materials ---
 registerHandler('search-materials', async (params, ctx): Promise<ToolCallResult> => {
-  const query = params.query as string;
+  const query = sanitizeText(params.query as string, 200);
 
   // Use the existing RAG retrieval
   try {
