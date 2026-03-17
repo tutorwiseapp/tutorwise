@@ -1290,7 +1290,7 @@ function BuildCanvasInner() {
       });
       items.push({
         icon: Trash2,
-        label: 'Deactivate space',
+        label: 'Delete',
         onClick: () => deleteSpaceMutation.mutate(entityId),
         variant: 'danger',
         dividerBefore: true,
@@ -1306,7 +1306,7 @@ function BuildCanvasInner() {
       });
       items.push({
         icon: Trash2,
-        label: 'Deactivate team',
+        label: 'Delete',
         onClick: () => deleteTeamMutation.mutate(entityId),
         variant: 'danger',
         dividerBefore: true,
@@ -1322,7 +1322,7 @@ function BuildCanvasInner() {
       });
       items.push({
         icon: Trash2,
-        label: 'Remove from team',
+        label: 'Delete',
         onClick: () => handleDeleteNode(contextMenu.nodeId),
         variant: 'danger',
         dividerBefore: true,
@@ -1330,7 +1330,7 @@ function BuildCanvasInner() {
       if (!built_in && agentId) {
         items.push({
           icon: Trash2,
-          label: 'Deactivate agent',
+          label: 'Delete',
           onClick: () => deactivateAgentMutation.mutate(agentId),
           variant: 'danger',
         });
