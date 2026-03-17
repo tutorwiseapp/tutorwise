@@ -174,7 +174,7 @@ export function SpacesTable({ spaces, teams, loading, onEdit, onDelete, onViewTo
             { label: 'View Teams', onClick: () => onNavigate('teams', { space_id: row.id }) },
             { label: 'View Agents', onClick: () => onNavigate('agents', { space_id: row.id }) },
             { label: 'View Topology', onClick: () => onViewTopology() },
-            ...(!row.built_in ? [{ label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const }] : []),
+            { label: 'Delete', onClick: () => onDelete(row), variant: 'danger' as const },
           ]}
         />
       ),
