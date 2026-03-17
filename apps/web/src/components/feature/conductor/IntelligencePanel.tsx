@@ -25,7 +25,7 @@ type IntelTab =
   | 'caas' | 'resources' | 'seo' | 'signal' | 'marketplace'
   | 'listings' | 'bookings' | 'financials' | 'virtualspace' | 'referral'
   | 'retention' | 'ai_adoption' | 'org_conversion' | 'ai_studio' | 'onboarding'
-  | 'tier_calibration' | 'process_mining';
+  | 'tier_calibration' | 'process_mining' | 'agent_quality';
 
 type IntelTabDef = { id: IntelTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> };
 
@@ -78,6 +78,7 @@ const INTEL_CATEGORIES: { id: IntelCategory; label: string; tabs: IntelTabDef[] 
     tabs: [
       { id: 'tier_calibration', label: 'Autonomy',       icon: Target },
       { id: 'process_mining',   label: 'Process Mining', icon: GitBranch },
+      { id: 'agent_quality',    label: 'Agent Quality',  icon: Gauge },
     ],
   },
 ];
@@ -94,7 +95,7 @@ for (const cat of INTEL_CATEGORIES) {
 }
 
 // Tabs with their own internal data fetching (skip standard useQuery)
-const SELF_FETCHING_TABS: Set<IntelTab> = new Set(['gtm', 'tier_calibration', 'process_mining']);
+const SELF_FETCHING_TABS: Set<IntelTab> = new Set(['gtm', 'tier_calibration', 'process_mining', 'agent_quality']);
 
 const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
   gtm:           null,  // self-fetching via GTMLifecycleSection
@@ -115,6 +116,7 @@ const TAB_ENDPOINTS: Record<IntelTab, string | null> = {
   onboarding:        '/api/admin/onboarding/intelligence',
   tier_calibration:  null,  // self-fetching via TierCalibrationPanel
   process_mining:    null,  // self-fetching via ProcessMiningIntelSection
+  agent_quality:     null,  // self-fetching via AgentQualitySection
 };
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -1320,11 +1322,99 @@ function GTMLifecycleSection() {
   );
 }
 
+// ── Agent Quality Section ─────────────────────────────────────────────────────
+
+interface AgentQualityRow {
+  agent_slug: string;
+  run_count: number;
+  avg_quality_score: number | null;
+  trend_pct: number | null;
+  regression: boolean;
+  tool_success_rate: number | null;
+  avg_output_length: number;
+  avg_duration_ms: number;
+  sparkline: number[];
+  flags: string[];
+}
+
+function AgentQualitySection() {
+  const { data: resp, isFetching, error } = useQuery<{ success: boolean; data: AgentQualityRow[] }>({
+    queryKey: ['agent-quality'],
+    queryFn: () => fetch('/api/admin/conductor/agent-quality?last_n=20').then(r => r.json()),
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const rows = resp?.data ?? [];
+  const flagged = rows.filter(r => r.flags.length > 0);
+
+  if (isFetching && rows.length === 0) return <InlineEmpty icon={Gauge} message="Loading quality metrics…" />;
+  if (error) return <InlineEmpty icon={Gauge} message="Failed to load quality metrics." />;
+  if (rows.length === 0) return <InlineEmpty icon={Gauge} message="No quality data yet." hint="Metrics populate after each agent run." />;
+
+  return (
+    <div style={{ padding: '0 4px' }}>
+      {flagged.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'rgba(239,68,68,0.08)', color: '#b91c1c', fontSize: 12, fontWeight: 600 }}>
+          <AlertTriangle size={13} />
+          {flagged.length} agent{flagged.length > 1 ? 's' : ''} flagged — {flagged.map(r => r.agent_slug).join(', ')}
+        </div>
+      )}
+      <HubWidgetCard title="Agent Run Quality (last 20 runs)" icon={Gauge} flush>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+              {['Agent', 'Quality', 'Trend', 'Tool Success', 'Avg Output', 'Avg Duration', 'Flags'].map(h => (
+                <th key={h} style={{ padding: '6px 10px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.agent_slug} style={{ borderBottom: '1px solid var(--border-subtle)', background: row.regression ? 'rgba(239,68,68,0.04)' : undefined }}>
+                <td style={{ padding: '6px 10px', fontWeight: 500 }}>{row.agent_slug}</td>
+                <td style={{ padding: '6px 10px' }}>
+                  {row.avg_quality_score != null ? (
+                    <span style={{ color: row.avg_quality_score >= 0.7 ? '#059669' : row.avg_quality_score >= 0.5 ? '#d97706' : '#dc2626', fontWeight: 600 }}>
+                      {(row.avg_quality_score * 100).toFixed(0)}%
+                    </span>
+                  ) : '—'}
+                </td>
+                <td style={{ padding: '6px 10px' }}>
+                  {row.trend_pct != null ? (
+                    <span style={{ color: row.trend_pct >= 0 ? '#059669' : '#dc2626', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      {row.trend_pct >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                      {row.trend_pct > 0 ? '+' : ''}{row.trend_pct.toFixed(1)}%
+                    </span>
+                  ) : '—'}
+                </td>
+                <td style={{ padding: '6px 10px' }}>
+                  {row.tool_success_rate != null ? `${(row.tool_success_rate * 100).toFixed(0)}%` : 'n/a'}
+                </td>
+                <td style={{ padding: '6px 10px' }}>{row.avg_output_length > 0 ? `${row.avg_output_length} chars` : '—'}</td>
+                <td style={{ padding: '6px 10px' }}>{row.avg_duration_ms > 0 ? `${(row.avg_duration_ms / 1000).toFixed(1)}s` : '—'}</td>
+                <td style={{ padding: '6px 10px' }}>
+                  {row.flags.length > 0 ? (
+                    <span style={{ color: '#dc2626', fontSize: 11 }}>{row.flags.join(', ')}</span>
+                  ) : (
+                    <span style={{ color: '#059669', fontSize: 11 }}>✓ ok</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </HubWidgetCard>
+    </div>
+  );
+}
+
 // ── Section router ───────────────────────────────────────────────────────────
 
 function SectionContent({ tab, data }: { tab: IntelTab; data: any }) {
   switch (tab) {
     case 'gtm':            return <GTMLifecycleSection />;
+    case 'agent_quality':  return <AgentQualitySection />;
   }
   if (!data) return <InlineEmpty icon={BarChart2} message="No data loaded." />;
   switch (tab) {

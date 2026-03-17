@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Target, CheckCircle, XCircle, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Target, CheckCircle, XCircle, TrendingUp, AlertTriangle, Wand2, Bot, ChevronDown, ChevronUp } from 'lucide-react';
 import { UnifiedSelect } from '@/components/ui/forms';
 import styles from './TierCalibrationPanel.module.css';
 
@@ -190,6 +190,147 @@ function ProcessCard({ config }: { config: AutonomyConfig }) {
   );
 }
 
+// ── Prompt Variants Section ───────────────────────────────────────────────────
+
+interface PromptVariant {
+  id: string;
+  agent_slug: string;
+  proposed_instructions: string;
+  rationale: string;
+  failure_pattern: string | null;
+  quality_delta_pct: number | null;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  specialist_agents: { name: string; role: string; department: string };
+}
+
+function PromptVariantCard({ variant }: { variant: PromptVariant }) {
+  const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
+
+  const actionMutation = useMutation({
+    mutationFn: async (action: 'approve' | 'reject') => {
+      const res = await fetch(`/api/admin/conductor/prompt-variants/${variant.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? `HTTP ${res.status}`);
+      }
+      return res.json();
+    },
+    onSuccess: (_data, action) => {
+      toast.success(action === 'approve' ? 'Prompt variant applied to agent' : 'Proposal rejected');
+      queryClient.invalidateQueries({ queryKey: ['prompt-variants'] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : 'Action failed'),
+  });
+
+  return (
+    <div className={styles.processCard}>
+      <div className={styles.processCardHeader}>
+        <Bot size={13} style={{ color: '#6366f1', flexShrink: 0 }} />
+        <span className={styles.processName}>{variant.specialist_agents?.name ?? variant.agent_slug}</span>
+        <span className={styles.processMode} style={{ marginLeft: 'auto' }}>
+          {variant.specialist_agents?.department}
+        </span>
+        {variant.quality_delta_pct != null && (
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#059669', padding: '1px 7px', borderRadius: 10, background: 'rgba(5,150,105,0.1)' }}>
+            +{variant.quality_delta_pct}% expected
+          </span>
+        )}
+      </div>
+
+      {variant.failure_pattern && (
+        <div style={{ fontSize: 11, color: '#b45309', padding: '4px 8px', background: 'rgba(217,119,6,0.08)', borderRadius: 4, margin: '4px 0' }}>
+          <AlertTriangle size={11} style={{ display: 'inline', marginRight: 4 }} />
+          {variant.failure_pattern}
+        </div>
+      )}
+
+      <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 6px' }}>
+        {variant.rationale}
+      </div>
+
+      <button
+        onClick={() => setExpanded(e => !e)}
+        style={{ fontSize: 11, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: 0, marginBottom: 6 }}
+        type="button"
+      >
+        {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+        {expanded ? 'Hide' : 'Show'} proposed instructions
+      </button>
+
+      {expanded && (
+        <pre style={{ fontSize: 11, background: 'var(--bg-subtle)', padding: '8px 10px', borderRadius: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--text-primary)', marginBottom: 8, maxHeight: 200, overflow: 'auto' }}>
+          {variant.proposed_instructions}
+        </pre>
+      )}
+
+      <div className={styles.proposalActions}>
+        <button
+          className={styles.approveBtn}
+          onClick={() => actionMutation.mutate('approve')}
+          disabled={actionMutation.isPending}
+          type="button"
+        >
+          <CheckCircle size={12} /> Apply to agent
+        </button>
+        <button
+          className={styles.rejectBtn}
+          onClick={() => actionMutation.mutate('reject')}
+          disabled={actionMutation.isPending}
+          type="button"
+        >
+          <XCircle size={12} /> Reject
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PromptVariantsSection() {
+  const { data: resp, isFetching } = useQuery<{ success: boolean; data: PromptVariant[] }>({
+    queryKey: ['prompt-variants'],
+    queryFn: () => fetch('/api/admin/conductor/prompt-variants?status=pending').then(r => r.json()),
+    staleTime: 2 * 60_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const variants = resp?.data ?? [];
+
+  return (
+    <div className={styles.panel} style={{ marginTop: 16 }}>
+      <div className={styles.toolbar}>
+        <h3 className={styles.toolbarTitle}>
+          <Wand2 size={15} />
+          Prompt Optimisation Proposals
+          {variants.length > 0 && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '1px 8px', borderRadius: 10, background: 'rgba(99,102,241,0.12)', color: '#4338ca', fontSize: 11, fontWeight: 700 }}>
+              {variants.length} pending
+            </span>
+          )}
+        </h3>
+      </div>
+      <div className={styles.body}>
+        {isFetching && variants.length === 0 && (
+          <div className={styles.loading}>Loading proposals…</div>
+        )}
+        {!isFetching && variants.length === 0 && (
+          <div className={styles.empty}>
+            <Wand2 size={28} className={styles.emptyIcon} />
+            <span>No pending proposals.</span>
+            <span className={styles.emptyHint}>The autonomy-calibrator generates these weekly based on agent quality data.</span>
+          </div>
+        )}
+        {variants.map(v => <PromptVariantCard key={v.id} variant={v} />)}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Panel ────────────────────────────────────────────────────────────────
 
 export function TierCalibrationPanel() {
@@ -258,6 +399,7 @@ export function TierCalibrationPanel() {
           <ProcessCard key={config.id} config={config} />
         ))}
       </div>
+      <PromptVariantsSection />
     </div>
   );
 }

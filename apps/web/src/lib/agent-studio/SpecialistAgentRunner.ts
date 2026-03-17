@@ -292,6 +292,18 @@ export class SpecialistAgentRunner {
       })
       .eq('id', runId);
 
+    // Persist run quality metrics (non-blocking, fail-silently)
+    const toolSuccesses = toolsCalled.filter((t) => !(t.output as { error?: unknown })?.error).length;
+    void supabase.from('agent_run_quality').insert({
+      run_id: runId,
+      agent_id: agent.id,
+      agent_slug: agent.slug,
+      duration_ms: durationMs,
+      tool_calls: toolsCalled.length,
+      tool_successes: toolSuccesses,
+      output_length: outputText.length,
+    });
+
     // Phase 7: Record episode + extract facts (non-blocking, fail-silently)
     agentMemoryService.recordEpisode({
       agentSlug: agent.slug,

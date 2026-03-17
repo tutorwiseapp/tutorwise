@@ -68,6 +68,17 @@ const TOOL_SCHEMAS: Record<string, ParamDef[]> = {
   query_network_intelligence: [],
   query_process_patterns:     [],
   query_autonomy_calibration: [],
+  query_agent_quality: [
+    { key: 'agent_slug', type: 'string' },
+    { key: 'last_n_runs', type: 'number', default: 20 },
+  ],
+  propose_prompt_variant: [
+    { key: 'agent_slug', type: 'string', required: true },
+    { key: 'proposed_instructions', type: 'string', required: true },
+    { key: 'rationale', type: 'string', required: true },
+    { key: 'failure_pattern', type: 'string' },
+    { key: 'quality_delta_pct', type: 'number' },
+  ],
   query_onboarding_health:    [{ key: 'days', type: 'number', default: 30 }],
   query_content_pipeline: [
     { key: 'series', type: 'string' },
@@ -1535,6 +1546,104 @@ const TOOL_EXECUTORS: Record<string, ToolFn> = {
 
     if (error) throw new Error(`Failed to insert article: ${error.message}`);
     return { created: true, article_id: data.id, slug: data.slug };
+  },
+
+  async query_agent_quality(input) {
+    const supabase = await createServiceRoleClient();
+    const lastN = Math.min(Number(input.last_n_runs ?? 20), 50);
+    const agentSlug = input.agent_slug as string | undefined;
+
+    // Get all agent slugs to process
+    let agentSlugs: string[];
+    if (agentSlug) {
+      agentSlugs = [agentSlug];
+    } else {
+      const { data: agents } = await supabase
+        .from('specialist_agents')
+        .select('slug')
+        .eq('status', 'active');
+      agentSlugs = (agents ?? []).map((a) => a.slug);
+    }
+
+    const results = await Promise.all(agentSlugs.map(async (slug) => {
+      const { data: rows } = await supabase
+        .from('agent_run_quality')
+        .select('quality_score, tool_calls, tool_successes, output_length, duration_ms, created_at')
+        .eq('agent_slug', slug)
+        .order('created_at', { ascending: false })
+        .limit(lastN * 2); // fetch double to compute trend window
+
+      if (!rows || rows.length === 0) return { agent_slug: slug, status: 'no_data' };
+
+      const recent = rows.slice(0, lastN);
+      const prior  = rows.slice(lastN, lastN * 2);
+
+      const avg = (arr: { quality_score: unknown }[]) =>
+        arr.length === 0 ? null :
+        arr.reduce((s, r) => s + Number(r.quality_score ?? 0), 0) / arr.length;
+
+      const recentAvg = avg(recent);
+      const priorAvg  = avg(prior);
+      const trend = priorAvg && recentAvg != null
+        ? ((recentAvg - priorAvg) / priorAvg) * 100
+        : null;
+      const regression = trend != null && trend < -15;
+
+      const toolCallTotal = recent.reduce((s, r) => s + (r.tool_calls ?? 0), 0);
+      const toolSuccessTotal = recent.reduce((s, r) => s + (r.tool_successes ?? 0), 0);
+      const toolSuccessRate = toolCallTotal > 0 ? toolSuccessTotal / toolCallTotal : null;
+      const avgOutputLength = recent.reduce((s, r) => s + (r.output_length ?? 0), 0) / recent.length;
+      const avgDurationMs = recent.reduce((s, r) => s + (r.duration_ms ?? 0), 0) / recent.length;
+
+      return {
+        agent_slug: slug,
+        run_count: recent.length,
+        avg_quality_score: recentAvg != null ? Number(recentAvg.toFixed(4)) : null,
+        prior_avg_quality_score: priorAvg != null ? Number(priorAvg.toFixed(4)) : null,
+        trend_pct: trend != null ? Number(trend.toFixed(1)) : null,
+        regression,
+        tool_success_rate: toolSuccessRate != null ? Number(toolSuccessRate.toFixed(3)) : null,
+        avg_output_length: Math.round(avgOutputLength),
+        avg_duration_ms: Math.round(avgDurationMs),
+        flags: [
+          ...(regression ? [`quality_regression: ${trend?.toFixed(1)}% drop`] : []),
+          ...(toolSuccessRate != null && toolSuccessRate < 0.6 ? [`low_tool_success: ${(toolSuccessRate * 100).toFixed(0)}%`] : []),
+          ...(avgOutputLength < 150 ? [`short_output: avg ${Math.round(avgOutputLength)} chars`] : []),
+        ],
+      };
+    }));
+
+    const flagged = results.filter((r) => 'flags' in r && Array.isArray(r.flags) && r.flags.length > 0);
+    return { agents: results, flagged_count: flagged.length, flagged_agents: flagged.map((r) => r.agent_slug) };
+  },
+
+  async propose_prompt_variant(input) {
+    const supabase = await createServiceRoleClient();
+    const agentSlug = input.agent_slug as string;
+
+    const { data: agent, error: agentErr } = await supabase
+      .from('specialist_agents')
+      .select('id')
+      .eq('slug', agentSlug)
+      .single();
+    if (agentErr || !agent) throw new Error(`Agent not found: ${agentSlug}`);
+
+    const { data, error } = await supabase
+      .from('agent_prompt_variants')
+      .insert({
+        agent_id: agent.id,
+        agent_slug: agentSlug,
+        proposed_instructions: input.proposed_instructions as string,
+        rationale: input.rationale as string,
+        failure_pattern: (input.failure_pattern as string | undefined) ?? null,
+        quality_delta_pct: input.quality_delta_pct != null ? Number(input.quality_delta_pct) : null,
+        status: 'pending',
+      })
+      .select('id')
+      .single();
+
+    if (error) throw new Error(`Failed to record variant: ${error.message}`);
+    return { recorded: true, variant_id: data.id, agent_slug: agentSlug, status: 'pending' };
   },
 };
 
