@@ -41,8 +41,8 @@ export default function HelpCentreLayout({
           aria-label="View help and quick actions"
         >
           <svg
-            width="24"
-            height="24"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -55,6 +55,7 @@ export default function HelpCentreLayout({
               strokeLinecap="round"
             />
           </svg>
+          <span>Quick Help</span>
         </button>
       )}
 
@@ -112,8 +113,8 @@ export default function HelpCentreLayout({
         aria-label="Toggle navigation menu"
       >
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -126,6 +127,7 @@ export default function HelpCentreLayout({
             strokeLinejoin="round"
           />
         </svg>
+        <span>Topics</span>
       </button>
 
       {/* Mobile Backdrop for left sidebar (close menu when clicked) */}

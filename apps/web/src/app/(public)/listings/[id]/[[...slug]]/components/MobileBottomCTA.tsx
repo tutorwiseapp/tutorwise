@@ -12,6 +12,7 @@ import type { ListingV41 } from '@/types/listing-v4.1';
 import Button from '@/components/ui/actions/Button';
 import toast from 'react-hot-toast';
 import { createBooking } from '@/lib/api/bookings';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './MobileBottomCTA.module.css';
 
 interface MobileBottomCTAProps {
@@ -21,6 +22,10 @@ interface MobileBottomCTAProps {
 export default function MobileBottomCTA({ listing }: MobileBottomCTAProps) {
   const [isBooking, setIsBooking] = useState(false);
   const router = useRouter();
+  const { user } = useUserProfile();
+
+  // Signed-in users have the bottom nav + inline page buttons — CTA bar not needed.
+  if (user) return null;
 
   const handleBookNow = async () => {
     setIsBooking(true);

@@ -115,6 +115,9 @@ export function MobileBottomCTA({ profile, currentUser, isOwnProfile: _isOwnProf
     // Don't reset isBooking here - user is being redirected
   };
 
+  // Signed-in users have the bottom nav + inline page buttons — CTA bar not needed.
+  if (currentUser) return null;
+
   return (
     <div className={styles.mobileBottomCTA}>
       <div className={styles.ctaContainer}>

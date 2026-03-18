@@ -137,33 +137,37 @@
   background-color: #9ca3af;
 }
 
-/* Mobile menu button (for opening drawer) - Circular design matching info button */
+/* Mobile menu button (for opening drawer) - Pill design with label */
 .mobileMenuButton {
   display: none;
   position: fixed;
-  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  bottom: calc(5.5rem + 66px); /* Symmetric with floatingButton: 10px above Lexi FAB */
   left: 16px;
   z-index: 998;
-  width: 56px;
-  height: 56px;
-  padding: 0;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
   background-color: var(--color-primary, #006c67);
   color: #ffffff;
   border: none;
-  border-radius: 50%;
+  border-radius: 28px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 .mobileMenuButton:hover {
   background-color: var(--color-primary-dark, #005550);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 .mobileMenuButton:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 @media (max-width: 1023px) {
@@ -206,28 +210,33 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: calc(5.5rem + 66px); /* 10px above Lexi FAB (5.5rem tall + 56px height) */
+    bottom: calc(5.5rem + 66px); /* 10px above Lexi FAB */
     right: 16px;
-    width: 56px;
-    height: 56px;
+    width: auto;
+    height: auto;
+    padding: 8px 16px;
     background-color: var(--color-primary, #006c67);
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 28px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     z-index: 45;
     transition: all 0.2s ease;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
   }
 
   .floatingButton:hover {
     background-color: var(--color-primary-dark, #005550);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    transform: scale(1.05);
+    transform: scale(1.03);
   }
 
   .floatingButton:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 
   /* Right sidebar backdrop */

@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import BottomNav from './BottomNav';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './Layout.module.css'; // This import will now find the file
 
 // Lazy load LexiChatModal to reduce initial bundle size and prevent hydration issues
@@ -28,6 +29,7 @@ const LexiChatModal = dynamic(
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const { user } = useUserProfile();
 
   // Define public pages that should show the footer
   // All other pages (authenticated hub pages) will NOT show the footer
@@ -68,9 +70,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     pathname === path || pathname?.startsWith(path + '/')
   ) || pathname?.startsWith('/public-profile/');
 
-  const shouldShowBottomNav = !publicRoutesWithoutBottomNav.some(path =>
-    pathname === path || pathname?.startsWith(path + '/')
-  );
+  // Signed-in users always get bottom nav regardless of page type.
+  // Guests skip it on public/marketing pages (those use sticky CTAs instead).
+  const shouldShowBottomNav = user
+    ? true
+    : !publicRoutesWithoutBottomNav.some(path =>
+        pathname === path || pathname?.startsWith(path + '/')
+      );
 
   return (
     <div className={styles.appWrapper}>

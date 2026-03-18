@@ -8,6 +8,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Calendar, Briefcase } from 'lucide-react';
+import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import styles from './MobileBottomCTA.module.css';
 
 interface MobileBottomCTAProps {
@@ -17,9 +18,10 @@ interface MobileBottomCTAProps {
 
 export function MobileBottomCTA({ organisation, isOwner }: MobileBottomCTAProps) {
   const router = useRouter();
+  const { user } = useUserProfile();
 
-  // Don't show for owners
-  if (isOwner) {
+  // Don't show for owners or any signed-in user (they have bottom nav + inline buttons)
+  if (isOwner || user) {
     return null;
   }
 

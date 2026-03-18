@@ -61,6 +61,9 @@ export function AIAgentMobileBottomCTA({ agent }: AIAgentMobileBottomCTAProps) {
     }
   };
 
+  // Signed-in users have the bottom nav + inline page buttons — CTA bar not needed.
+  if (currentUser) return null;
+
   return (
     <div className={styles.mobileBottomCTA}>
       <div className={styles.ctaContainer}>
