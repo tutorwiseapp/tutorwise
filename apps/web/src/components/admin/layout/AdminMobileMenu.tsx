@@ -102,6 +102,27 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
           >
             Dashboard
           </Link>
+          <Link
+            href="/admin/operations"
+            className={`${styles.menuItem} ${isActive('/admin/operations') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Operations
+          </Link>
+          <Link
+            href="/admin/conductor"
+            className={`${styles.menuItem} ${isActive('/admin/conductor') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Conductor
+          </Link>
+          <Link
+            href="/admin/scheduler"
+            className={`${styles.menuItem} ${isActive('/admin/scheduler') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Scheduler
+          </Link>
 
           {/* Signal */}
           <Link
@@ -123,6 +144,12 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
           <Link href="/admin/resources/seo" className={styles.subMenuItem} onClick={handleLinkClick}>
             SEO Performance
           </Link>
+          <Link href="/admin/resources/categories" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Categories
+          </Link>
+          <Link href="/admin/resources/settings" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Settings
+          </Link>
 
           {/* SEO with sub-items */}
           <div className={styles.menuSection}>SEO</div>
@@ -138,6 +165,21 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
           <Link href="/admin/seo/keywords" className={styles.subMenuItem} onClick={handleLinkClick}>
             Keywords
           </Link>
+          <Link href="/admin/seo/backlinks" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Backlinks
+          </Link>
+          <Link href="/admin/seo/citations" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Citations
+          </Link>
+          <Link href="/admin/seo/templates" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Templates
+          </Link>
+          <Link href="/admin/seo/config" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Configuration
+          </Link>
+          <Link href="/admin/seo/settings" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Settings
+          </Link>
 
           <div className={styles.separator} />
 
@@ -148,6 +190,41 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
             onClick={handleLinkClick}
           >
             Listings
+          </Link>
+          <Link
+            href="/admin/ai-agents"
+            className={`${styles.menuItem} ${isActive('/admin/ai-agents') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            AI Studio
+          </Link>
+          <Link
+            href="/admin/sage"
+            className={`${styles.menuItem} ${isActive('/admin/sage') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Sage AI Tutor
+          </Link>
+          <Link
+            href="/admin/growth"
+            className={`${styles.menuItem} ${isActive('/admin/growth') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            AI Growth
+          </Link>
+          <Link
+            href="/admin/lexi"
+            className={`${styles.menuItem} ${isActive('/admin/lexi') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Lexi AI Agent
+          </Link>
+          <Link
+            href="/admin/network"
+            className={`${styles.menuItem} ${isActive('/admin/network') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Network Intelligence
           </Link>
           <Link
             href="/admin/bookings"
@@ -193,6 +270,21 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
             Disputes
           </Link>
 
+          {/* EduPay with sub-items */}
+          <div className={styles.menuSection}>EduPay</div>
+          <Link href="/admin/edupay" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Overview
+          </Link>
+          <Link href="/admin/edupay/rules" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Earning Rules
+          </Link>
+          <Link href="/admin/edupay/providers" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Providers
+          </Link>
+          <Link href="/admin/edupay/compliance" className={styles.subMenuItem} onClick={handleLinkClick}>
+            Compliance
+          </Link>
+
           <div className={styles.separator} />
 
           <Link
@@ -201,6 +293,13 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
             onClick={handleLinkClick}
           >
             Reviews
+          </Link>
+          <Link
+            href="/admin/reports"
+            className={`${styles.menuItem} ${isActive('/admin/reports') ? styles.menuItemActive : ''}`}
+            onClick={handleLinkClick}
+          >
+            Reports
           </Link>
           <Link
             href="/admin/configurations"

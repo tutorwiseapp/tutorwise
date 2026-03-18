@@ -114,6 +114,32 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
               <Link href="/listings" className={styles.menuItem} onClick={handleLinkClick}>
                 Listings
               </Link>
+              <Link href="/virtualspace" className={styles.menuItem} onClick={handleLinkClick}>
+                VirtualSpace
+              </Link>
+
+              {/* AI Tools (role-based) */}
+              {(activeRole === 'student' || activeRole === 'client' || activeRole === 'tutor' || activeRole === 'agent') && (
+                <Link href="/sage" className={styles.menuItem} onClick={handleLinkClick}>
+                  AI Tutor
+                </Link>
+              )}
+              {(activeRole === 'tutor' || activeRole === 'agent') && (
+                <Link href="/growth" className={styles.menuItem} onClick={handleLinkClick}>
+                  AI Growth
+                </Link>
+              )}
+              {(activeRole === 'tutor' || activeRole === 'agent') && (
+                <>
+                  <div className={styles.menuItem}>AI Studio</div>
+                  <Link href="/ai-agents" className={styles.subMenuItem} onClick={handleLinkClick}>
+                    My AI Agents
+                  </Link>
+                  <Link href="/ai-agents/create" className={styles.subMenuItem} onClick={handleLinkClick}>
+                    Create AI Agent
+                  </Link>
+                </>
+              )}
 
               {/* Financials with sub-items */}
               <div className={styles.menuItem}>Financials</div>
@@ -125,6 +151,18 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
               </Link>
               <Link href="/financials/disputes" className={styles.subMenuItem} onClick={handleLinkClick}>
                 Disputes
+              </Link>
+
+              {/* EduPay with sub-items */}
+              <div className={styles.menuItem}>EduPay</div>
+              <Link href="/edupay" className={styles.subMenuItem} onClick={handleLinkClick}>
+                Wallet
+              </Link>
+              <Link href="/edupay/cashback" className={styles.subMenuItem} onClick={handleLinkClick}>
+                Cashback
+              </Link>
+              <Link href="/edupay/savings" className={styles.subMenuItem} onClick={handleLinkClick}>
+                Savings
               </Link>
 
               <Link href="/messages" className={styles.menuItem} onClick={handleLinkClick}>
