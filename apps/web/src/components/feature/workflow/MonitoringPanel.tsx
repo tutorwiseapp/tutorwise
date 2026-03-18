@@ -470,12 +470,12 @@ function ActiveWorkflows() {
 
 function OperationalBriefing() {
   const { data: briefing, isFetching, dataUpdatedAt } = useQuery({
-    queryKey: ['workflow-briefing'],
+    queryKey: ['admin', 'operations', 'brief'],
     queryFn: async () => {
-      const res = await fetch('/api/admin/workflow/briefing');
+      const res = await fetch('/api/admin/operations/brief');
       const data = await res.json();
       if (!data.success) throw new Error('Failed to load briefing');
-      return data.data.briefing as string;
+      return data.data.brief as string;
     },
     staleTime: 5 * 60_000,
   });
