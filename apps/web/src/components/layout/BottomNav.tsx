@@ -50,7 +50,7 @@ export default function BottomNav() {
 
   const navItems: NavItem[] = [
     {
-      href: '/marketplace',
+      href: '/',
       label: 'Explore',
       icon: <Compass size={22} strokeWidth={1.75} />,
     },
@@ -81,9 +81,9 @@ export default function BottomNav() {
   const isActive = (href?: string) => {
     if (!href) return false;
 
-    // Explore is active for /marketplace, /, and /about-tutorwise
-    if (href === '/marketplace') {
-      return pathname === '/marketplace' || pathname === '/' || pathname === '/about-tutorwise';
+    // Explore is active for /, /marketplace, and /about-tutorwise
+    if (href === '/') {
+      return pathname === '/' || pathname === '/marketplace' || pathname === '/about-tutorwise';
     }
     return pathname?.startsWith(href);
   };
