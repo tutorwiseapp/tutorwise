@@ -1,0 +1,295 @@
+/* BuildAgentModal — Configure New Agent (800px HubComplexModal) */
+
+.body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Layout */
+.fullRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Labels */
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.required {
+  color: var(--color-error-500, #ef4444);
+}
+
+/* Inputs */
+.input {
+  font-size: 14px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-primary, #111827);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 6px);
+  padding: 8px 12px;
+  background: var(--color-white, #fff);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+.input[type='number'] {
+  -moz-appearance: textfield;
+}
+.input[type='number']::-webkit-outer-spin-button,
+.input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.textarea {
+  font-size: 14px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-primary, #111827);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 6px);
+  padding: 8px 12px;
+  background: var(--color-white, #fff);
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.5;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #006C67);
+  box-shadow: 0 0 0 3px rgba(0, 108, 103, 0.1);
+}
+
+/* Slug preview */
+.slugPreview {
+  font-size: 11px;
+  color: var(--color-text-tertiary, #9ca3af);
+}
+
+.slugPreview code {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  background: var(--color-bg-light, #f9fafb);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.slugError {
+  color: var(--color-error-500, #ef4444);
+}
+
+/* Skills row */
+.skillRow {
+  display: flex;
+  gap: 8px;
+}
+
+.skillRow .input {
+  flex: 1;
+}
+
+.addBtn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+  border: none;
+  border-radius: var(--border-radius-sm, 6px);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.addBtn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #005a55);
+}
+
+.addBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 12px;
+  background: #e6f0f0;
+  color: var(--color-primary, #006C67);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.chipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-primary, #006C67);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.65;
+  transition: opacity 0.1s ease;
+  line-height: 1;
+}
+
+.chipRemove:hover {
+  opacity: 1;
+}
+
+/* Tools */
+.toolsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.toolsBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary, #006C67);
+  background: #e6f0f0;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.toolsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toolChip {
+  padding: 5px 12px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-sm, 6px);
+  background: var(--color-white, #fff);
+  font-size: 12px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolChip:hover {
+  border-color: var(--color-primary, #006C67);
+  color: var(--color-primary, #006C67);
+}
+
+.toolChipOn {
+  background: var(--color-primary, #006C67);
+  border-color: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+}
+
+.toolChipOn:hover {
+  background: var(--color-primary-hover, #005a55);
+  border-color: var(--color-primary-hover, #005a55);
+  color: var(--color-white, #fff);
+}
+
+.toolsEmpty {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #9ca3af);
+  padding: 4px 0;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+}
+
+.cancelBtn {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-white, #fff);
+  color: var(--color-text-secondary, #6b7280);
+  font-size: 14px;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: var(--color-bg-light, #f9fafb);
+}
+
+.createBtn {
+  height: 36px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--border-radius-md, 8px);
+  background: var(--color-primary, #006C67);
+  color: var(--color-white, #fff);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+
+.createBtn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #005a55);
+}
+
+.createBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}

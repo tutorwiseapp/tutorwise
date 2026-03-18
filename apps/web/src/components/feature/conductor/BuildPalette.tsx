@@ -5,6 +5,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Building2, Users, Bot } from 'lucide-react';
 import { toast } from 'sonner';
 import { UnifiedSelect } from '@/components/ui/forms';
+import { HubComplexModal } from '@/components/hub/modal';
+import { BuildAgentModal } from './BuildAgentModal';
 import type { BuildLevel } from './build-store';
 import styles from './BuildPalette.module.css';
 
@@ -57,9 +59,9 @@ function toSlug(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
-// ── New Space form ─────────────────────────────────────────────────────────────
+// ── Space modal body ───────────────────────────────────────────────────────────
 
-function NewSpaceForm({ onDone }: { onDone: () => void }) {
+function SpaceModalBody({ onDone }: { onDone: () => void }) {
   const qc = useQueryClient();
   const [name, setName] = useState('');
 
@@ -83,29 +85,34 @@ function NewSpaceForm({ onDone }: { onDone: () => void }) {
   });
 
   return (
-    <div className={styles.form}>
-      <label className={styles.formLabel}>New Space</label>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <input
-        className={styles.formInput}
-        placeholder="Space name"
+        style={{ fontSize: 14, border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', fontFamily: 'inherit' }}
+        placeholder="Space name (e.g. Go-To-Market)"
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && name.trim() && mutation.mutate()}
         autoFocus
       />
-      <div className={styles.formRow}>
-        <button className={styles.formSaveBtn} onClick={() => mutation.mutate()} disabled={!name.trim() || mutation.isPending}>
-          {mutation.isPending ? 'Creating…' : 'Create'}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <button onClick={onDone} style={{ height: 34, padding: '0 14px', border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
+          Cancel
         </button>
-        <button className={styles.formCancelBtn} onClick={onDone}>Cancel</button>
+        <button
+          onClick={() => mutation.mutate()}
+          disabled={!name.trim() || mutation.isPending}
+          style={{ height: 34, padding: '0 18px', border: 'none', borderRadius: 8, background: name.trim() ? '#006C67' : '#d1d5db', color: '#fff', cursor: name.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600, fontFamily: 'inherit' }}
+        >
+          {mutation.isPending ? 'Creating…' : 'Create Space'}
+        </button>
       </div>
     </div>
   );
 }
 
-// ── New Team form ──────────────────────────────────────────────────────────────
+// ── Team modal body ────────────────────────────────────────────────────────────
 
-function NewTeamForm({ spaceId, onDone }: { spaceId: string; onDone: () => void }) {
+function TeamModalBody({ spaceId, onDone }: { spaceId: string; onDone: () => void }) {
   const qc = useQueryClient();
   const [name, setName] = useState('');
   const [pattern, setPattern] = useState<'supervisor' | 'pipeline' | 'swarm'>('supervisor');
@@ -130,11 +137,10 @@ function NewTeamForm({ spaceId, onDone }: { spaceId: string; onDone: () => void 
   });
 
   return (
-    <div className={styles.form}>
-      <label className={styles.formLabel}>New Team</label>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <input
-        className={styles.formInput}
-        placeholder="Team name"
+        style={{ fontSize: 14, border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', fontFamily: 'inherit' }}
+        placeholder="Team name (e.g. DevOps Team)"
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && name.trim() && mutation.mutate()}
@@ -144,77 +150,23 @@ function NewTeamForm({ spaceId, onDone }: { spaceId: string; onDone: () => void 
         value={pattern}
         onChange={(v) => setPattern(v as typeof pattern)}
         options={[
-          { value: 'supervisor', label: 'Supervisor' },
-          { value: 'pipeline',   label: 'Pipeline' },
-          { value: 'swarm',      label: 'Swarm' },
+          { value: 'supervisor', label: 'Supervisor — one agent routes tasks' },
+          { value: 'pipeline',   label: 'Pipeline — sequential task chain' },
+          { value: 'swarm',      label: 'Swarm — dynamic agent routing' },
         ]}
-        size="sm"
+        size="md"
       />
-      <div className={styles.formRow}>
-        <button className={styles.formSaveBtn} onClick={() => mutation.mutate()} disabled={!name.trim() || mutation.isPending}>
-          {mutation.isPending ? 'Creating…' : 'Create'}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <button onClick={onDone} style={{ height: 34, padding: '0 14px', border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 14, fontFamily: 'inherit' }}>
+          Cancel
         </button>
-        <button className={styles.formCancelBtn} onClick={onDone}>Cancel</button>
-      </div>
-    </div>
-  );
-}
-
-// ── New Agent form ─────────────────────────────────────────────────────────────
-
-interface NewAgentFormProps {
-  onDone: () => void;
-  onAddToCanvas?: (agent: SpecialistAgentSummary) => void;
-}
-
-function NewAgentForm({ onDone, onAddToCanvas }: NewAgentFormProps) {
-  const qc = useQueryClient();
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [department, setDepartment] = useState('Engineering');
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/admin/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          slug: toSlug(name),
-          role: role.trim() || 'Agent',
-          department: department.trim() || 'General',
-        }),
-      });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error ?? 'Failed to create agent');
-      return json.data as SpecialistAgentSummary;
-    },
-    onSuccess: (agent) => {
-      toast.success('Agent created');
-      qc.invalidateQueries({ queryKey: ['build-agents-palette'] });
-      qc.invalidateQueries({ queryKey: ['build-agents'] });
-      onAddToCanvas?.(agent);
-      onDone();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : 'Failed'),
-  });
-
-  return (
-    <div className={styles.form}>
-      <label className={styles.formLabel}>New Agent</label>
-      <input className={styles.formInput} placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-      <input className={styles.formInput} placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
-      <UnifiedSelect
-        value={department}
-        onChange={(v) => setDepartment(v as string)}
-        options={KNOWN_DEPARTMENTS.map((d) => ({ value: d, label: d }))}
-        size="sm"
-      />
-      <div className={styles.formRow}>
-        <button className={styles.formSaveBtn} onClick={() => mutation.mutate()} disabled={!name.trim() || mutation.isPending}>
-          {mutation.isPending ? 'Creating…' : 'Create'}
+        <button
+          onClick={() => mutation.mutate()}
+          disabled={!name.trim() || mutation.isPending}
+          style={{ height: 34, padding: '0 18px', border: 'none', borderRadius: 8, background: name.trim() ? '#006C67' : '#d1d5db', color: '#fff', cursor: name.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600, fontFamily: 'inherit' }}
+        >
+          {mutation.isPending ? 'Creating…' : 'Create Team'}
         </button>
-        <button className={styles.formCancelBtn} onClick={onDone}>Cancel</button>
       </div>
     </div>
   );
@@ -261,18 +213,26 @@ interface BuildPaletteProps {
 
 export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, navTeams, selectedId, onNavClick, onNavDrillIn, onAddAgentToCanvas, triggerCreate, onTriggerCreateHandled }: BuildPaletteProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [showNewSpace, setShowNewSpace] = useState(false);
-  const [showNewTeam, setShowNewTeam] = useState(false);
-  const [showNewAgent, setShowNewAgent] = useState(false);
+  const [showSpaceModal, setShowSpaceModal] = useState(false);
+  const [showTeamModal,  setShowTeamModal]  = useState(false);
+  const [showAgentModal, setShowAgentModal] = useState(false);
 
+  // Open the correct modal when toolbar "New" button fires
   useEffect(() => {
     if (!triggerCreate) return;
     setCollapsed(false);
-    setShowNewSpace(level === 0);
-    setShowNewTeam(level === 1);
-    setShowNewAgent(level === 2);
+    if (level === 0) setShowSpaceModal(true);
+    if (level === 1) setShowTeamModal(true);
+    if (level === 2) setShowAgentModal(true);
     onTriggerCreateHandled?.();
   }, [triggerCreate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear modals when drilling between levels (fixes persistence bug)
+  useEffect(() => {
+    setShowSpaceModal(false);
+    setShowTeamModal(false);
+    setShowAgentModal(false);
+  }, [level]);
 
   const { data: agents } = useQuery<SpecialistAgentSummary[]>({
     queryKey: ['build-agents-palette'],
@@ -331,15 +291,32 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
         </button>
       </div>
 
-      {/* Inline create forms */}
-      {showNewSpace && <NewSpaceForm onDone={() => setShowNewSpace(false)} />}
-      {showNewTeam && spaceId && <NewTeamForm spaceId={spaceId} onDone={() => setShowNewTeam(false)} />}
-      {showNewAgent && (
-        <NewAgentForm
-          onDone={() => setShowNewAgent(false)}
-          onAddToCanvas={onAddAgentToCanvas}
-        />
-      )}
+      {/* Modals — portalled to document.body, no z-index conflicts */}
+      <HubComplexModal
+        isOpen={showSpaceModal}
+        onClose={() => setShowSpaceModal(false)}
+        title="New Space"
+        subtitle="Spaces group related teams and agents"
+        size="sm"
+      >
+        <SpaceModalBody onDone={() => setShowSpaceModal(false)} />
+      </HubComplexModal>
+
+      <HubComplexModal
+        isOpen={showTeamModal && !!spaceId}
+        onClose={() => setShowTeamModal(false)}
+        title="New Team"
+        subtitle="Teams coordinate groups of specialist agents"
+        size="sm"
+      >
+        {spaceId && <TeamModalBody spaceId={spaceId} onDone={() => setShowTeamModal(false)} />}
+      </HubComplexModal>
+
+      <BuildAgentModal
+        isOpen={showAgentModal}
+        onClose={() => setShowAgentModal(false)}
+        onCreated={onAddAgentToCanvas}
+      />
 
       <div className={styles.paletteBody}>
         {/* Level 0: Space navigator */}
