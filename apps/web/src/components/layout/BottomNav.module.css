@@ -5,19 +5,18 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--color-background-primary, #ffffff);
-  border-top: 1px solid var(--color-border, #e0e0e0);
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
   z-index: 100;
-  display: none; /* Hidden by default, shown on mobile */
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  display: none;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .navContainer {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 4px 0 max(4px, env(safe-area-inset-bottom));
+  padding: 6px 0 max(8px, env(safe-area-inset-bottom));
   max-width: 100%;
 }
 
@@ -26,54 +25,61 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 4px 8px;
-  min-height: 44px;
-  color: var(--color-text-secondary, #666);
+  gap: 3px;
+  padding: 4px 6px;
+  min-height: 52px;
+  color: #9ca3af;
   text-decoration: none;
   background: transparent;
   border: none;
-  transition: all 0.2s ease;
   flex: 1;
   min-width: 0;
   position: relative;
   cursor: pointer;
+  transition: color 0.18s ease;
 }
 
 .navItem:hover {
-  color: #00c6c7;
+  color: #006c67;
 }
 
 .navItemActive {
-  color: #00c6c7;
+  color: #006c67;
 }
 
-.navItemActive .iconWrapper {
-  transform: scale(1.05);
-}
-
+/* Pill background behind active icon */
 .iconWrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s ease;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  transition: background-color 0.18s ease;
+}
+
+.navItemActive .iconWrapper {
+  background-color: rgba(0, 108, 103, 0.1);
 }
 
 .label {
-  font-size: 0.625rem;
+  font-size: 0.6875rem; /* 11px */
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
+  transition: font-weight 0.18s ease;
+}
+
+.navItemActive .label {
+  font-weight: 600;
 }
 
 .badge {
   position: absolute;
   top: -4px;
-  right: -6px;
-  background: var(--color-error, #ff4444);
+  right: -4px;
+  background: #ef4444;
   color: white;
   font-size: 0.625rem;
   font-weight: 700;
@@ -82,7 +88,7 @@
   min-width: 16px;
   text-align: center;
   line-height: 1;
-  border: 2px solid var(--color-background-primary, #ffffff);
+  border: 2px solid #ffffff;
 }
 
 /* Show on mobile and tablet screens */
@@ -92,23 +98,13 @@
   }
 }
 
-/* Extra small devices - adjust spacing */
+/* Extra small devices */
 @media (max-width: 360px) {
-  .navItem {
-    padding: 6px 8px;
+  .iconWrapper {
+    width: 44px;
   }
 
   .label {
     font-size: 0.625rem;
-  }
-
-  .iconWrapper {
-    width: 24px;
-    height: 24px;
-  }
-
-  .iconWrapper svg {
-    width: 20px;
-    height: 20px;
   }
 }

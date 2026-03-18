@@ -20,6 +20,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { Compass, LayoutDashboard, CalendarDays, Users, Menu as MenuIcon } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import MobileMenu from './MobileMenu';
 import AdminBottomNav from '@/components/admin/layout/AdminBottomNav';
@@ -49,119 +50,30 @@ export default function BottomNav() {
 
   const navItems: NavItem[] = [
     {
-      href: '/',
-      label: 'Home',
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9 22V12h6v10"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      href: '/marketplace',
+      label: 'Explore',
+      icon: <Compass size={22} strokeWidth={1.75} />,
     },
     {
       href: '/dashboard',
       label: 'Dashboard',
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
-          <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
-          <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
-          <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      ),
+      icon: <LayoutDashboard size={22} strokeWidth={1.75} />,
     },
     {
       href: '/bookings',
       label: 'Bookings',
-      icon: (
-        <svg width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M12 14l9-5-9-5-9 5 9 5z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <CalendarDays size={22} strokeWidth={1.75} />,
       requiresAuth: true,
     },
     {
       href: '/referrals',
       label: 'Referrals',
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M20 12v8H4v-8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M22 7H2l2-4h16l2 4z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 12v8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M12 7v5"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <Users size={22} strokeWidth={1.75} />,
       requiresAuth: true,
     },
     {
       label: 'Menu',
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M3 12h18M3 6h18M3 18h18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <MenuIcon size={22} strokeWidth={1.75} />,
       isMenuButton: true,
     },
   ];
@@ -169,9 +81,9 @@ export default function BottomNav() {
   const isActive = (href?: string) => {
     if (!href) return false;
 
-    // Home is active for /, /marketplace, and /about-tutorwise
-    if (href === '/') {
-      return pathname === '/' || pathname === '/marketplace' || pathname === '/about-tutorwise';
+    // Explore is active for /marketplace, /, and /about-tutorwise
+    if (href === '/marketplace') {
+      return pathname === '/marketplace' || pathname === '/' || pathname === '/about-tutorwise';
     }
     return pathname?.startsWith(href);
   };
