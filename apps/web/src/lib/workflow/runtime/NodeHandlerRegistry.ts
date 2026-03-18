@@ -30,6 +30,7 @@ import { handleReviewRequest } from './handlers/review';
 import { handleSchedulingNegotiate } from './handlers/scheduling';
 import { handleReferralAttribute, handleReferralUpdateStatus } from './handlers/referral';
 import { handleCasAgent } from './handlers/cas-agent';
+import { handleSubprocessExecute } from './handlers/subprocess';
 
 export type HandlerContext = Record<string, unknown>;
 
@@ -75,6 +76,9 @@ const HANDLERS: Record<string, HandlerFn> = {
 
   // Phase 2 — Agent + Team nodes
   'cas_agent': handleCasAgent,
+
+  // Phase 5 — Subprocess execution
+  'subprocess.execute': handleSubprocessExecute,
 };
 
 // ---------------------------------------------------------------------------

@@ -157,6 +157,7 @@ function WorkflowCanvasInner({
     setAutoSaveStatus,
     drillDownTarget,
     clearDrillDown,
+    requestDrillDown,
     navigationHistory,
     pushHistory,
     popHistory,
@@ -285,6 +286,10 @@ function WorkflowCanvasInner({
     [setEdges, pushSnapshot, markDirty, readOnly]
   );
 
+  const setConductorTab  = useDiscoveryStore((s) => s.setActiveTab);
+  const navigateToTeam   = useDiscoveryStore((s) => s.navigateToTeam);
+  const navigateToAgent  = useDiscoveryStore((s) => s.navigateToRegistry);
+
   const onNodeClick: NodeMouseHandler = useCallback(
     (_event, node) => {
       if (!readOnly) {
@@ -295,6 +300,26 @@ function WorkflowCanvasInner({
       }
     },
     [setSelectedNode, readOnly, onNodeStatusClick, taskStatusMap]
+  );
+
+  const onNodeDoubleClick: NodeMouseHandler = useCallback(
+    (_event, node) => {
+      if (readOnly) return;
+      const data = node.data;
+      if (data.type === 'subprocess') {
+        const name = data.templateName;
+        if (name) requestDrillDown(name);
+      } else if (data.type === 'agent') {
+        const slug = (data.handler_config as Record<string, unknown> | undefined)?.agent_slug as string | undefined;
+        if (slug) router.push(`/admin/conductor/agents/${slug}`);
+        else navigateToAgent('agents');
+      } else if (data.type === 'team') {
+        const slug = (data.handler_config as Record<string, unknown> | undefined)?.team_slug as string | undefined;
+        if (slug) navigateToTeam(slug);
+        else setConductorTab('build');
+      }
+    },
+    [readOnly, requestDrillDown, router, navigateToAgent, navigateToTeam, setConductorTab]
   );
 
   const onPaneClick = useCallback(() => {
@@ -393,8 +418,6 @@ function WorkflowCanvasInner({
     },
     [readOnly]
   );
-
-  const setConductorTab = useDiscoveryStore((s) => s.setActiveTab);
 
   // --- Save Mutation ---
   const saveMutation = useMutation({
@@ -905,13 +928,39 @@ function WorkflowCanvasInner({
     onEdit: (id: string) => { setSelectedNode(id); setRightPanelMode('properties'); },
     onDuplicate: handleDuplicateNode,
     onDelete: handleDeleteNode,
-    onNavigate: (_id: string, _tab: 'agents' | 'teams') => setConductorTab('registry'),
+    onNavigate: (id: string, tab: 'agents' | 'teams') => {
+      const node = nodes.find((n) => n.id === id) as ProcessNode | undefined;
+      const config = node?.data.handler_config as Record<string, unknown> | undefined;
+      if (tab === 'agents') {
+        const slug = config?.agent_slug as string | undefined;
+        if (slug) router.push(`/admin/conductor/agents/${slug}`);
+        else navigateToAgent('agents');
+      } else {
+        const slug = config?.team_slug as string | undefined;
+        if (slug) navigateToTeam(slug);
+        else setConductorTab('build');
+      }
+    },
   };
 
   const contextMenuItems: ContextMenuItem[] = contextMenu ? [
     { icon: Copy,   label: 'Duplicate', onClick: () => handleDuplicateNode(contextMenu.node.id) },
-    ...(contextMenu.node.data.type === 'agent' ? [{ icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry') }] : []),
-    ...(contextMenu.node.data.type === 'team'  ? [{ icon: ArrowRight, label: 'Configure Team',  variant: 'navigate' as const, dividerBefore: true, onClick: () => setConductorTab('registry')  }] : []),
+    ...(contextMenu.node.data.type === 'agent' ? [{
+      icon: ArrowRight, label: 'Configure Agent', variant: 'navigate' as const, dividerBefore: true,
+      onClick: () => {
+        const slug = (contextMenu.node.data.handler_config as Record<string, unknown> | undefined)?.agent_slug as string | undefined;
+        if (slug) router.push(`/admin/conductor/agents/${slug}`);
+        else navigateToAgent('agents');
+      },
+    }] : []),
+    ...(contextMenu.node.data.type === 'team' ? [{
+      icon: ArrowRight, label: 'Configure Team', variant: 'navigate' as const, dividerBefore: true,
+      onClick: () => {
+        const slug = (contextMenu.node.data.handler_config as Record<string, unknown> | undefined)?.team_slug as string | undefined;
+        if (slug) navigateToTeam(slug);
+        else setConductorTab('build');
+      },
+    }] : []),
     { icon: Trash2, label: 'Delete', variant: 'danger' as const, dividerBefore: true, onClick: () => handleDeleteNode(contextMenu.node.id) },
   ] : [];
 
@@ -950,6 +999,7 @@ function WorkflowCanvasInner({
             onEdgesChange={handleEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onNodeDoubleClick={onNodeDoubleClick}
             onPaneClick={onPaneClick}
             onNodeContextMenu={onNodeContextMenu as never}
             onNodesDelete={onNodesDelete}
