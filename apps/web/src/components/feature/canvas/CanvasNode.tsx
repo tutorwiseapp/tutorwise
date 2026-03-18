@@ -19,6 +19,8 @@ export interface CanvasNodeProps {
   meta?: React.ReactNode;
   hasTargetHandle?: boolean;
   hasSourceHandle?: boolean;
+  /** Show left (target) and right (source) side handles — matches build canvas 4-point design */
+  hasSideHandles?: boolean;
   conditionHandles?: boolean;
   /** Which Conductor tab to navigate to (shows the → button in toolbar/menu) */
   navigateType?: 'agents' | 'teams';
@@ -37,6 +39,7 @@ function CanvasNodeComponent({
   meta,
   hasTargetHandle = true,
   hasSourceHandle = true,
+  hasSideHandles = false,
   conditionHandles = false,
   navigateType: _navigateType,
 }: CanvasNodeProps) {
@@ -53,6 +56,9 @@ function CanvasNodeComponent({
       >
         {hasTargetHandle && (
           <Handle type="target" position={Position.Top} className={styles.handle} />
+        )}
+        {hasSideHandles && (
+          <Handle type="target" position={Position.Left} id="left" className={styles.handle} />
         )}
 
         <div className={styles.typeBadge} aria-hidden="true">
@@ -106,6 +112,10 @@ function CanvasNodeComponent({
         ) : hasSourceHandle ? (
           <Handle type="source" position={Position.Bottom} className={styles.handle} />
         ) : null}
+
+        {hasSideHandles && (
+          <Handle type="source" position={Position.Right} id="right" className={styles.handle} />
+        )}
       </div>
     </>
   );

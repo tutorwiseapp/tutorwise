@@ -112,6 +112,7 @@ function ProcessStepNodeComponent({ data, selected }: NodeProps<ProcessStepData>
       meta={meta}
       hasTargetHandle
       hasSourceHandle={data.type !== 'condition'}
+      hasSideHandles
       conditionHandles={data.type === 'condition'}
       navigateType={navigateType}
     />
