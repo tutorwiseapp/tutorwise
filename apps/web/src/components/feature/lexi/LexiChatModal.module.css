@@ -174,7 +174,7 @@
 /* Responsive */
 @media (max-width: 480px) {
   .container {
-    bottom: 9rem; /* Position above info CTA (144px) */
+    bottom: 5.5rem; /* Position above mobile CTA bar (~65px) */
     right: 1rem;
     /* Don't set left - keep FAB on the right side only */
   }
@@ -192,9 +192,9 @@
     position: fixed;
     left: 0.5rem;
     right: 0.5rem;
-    bottom: 9rem;
+    bottom: 5.5rem;
     width: auto;
-    height: calc(100vh - 220px);
+    height: calc(100vh - 160px);
     max-height: none;
     transform-origin: bottom center;
   }

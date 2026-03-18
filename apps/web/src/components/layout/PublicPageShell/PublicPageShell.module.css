@@ -96,7 +96,7 @@
   }
 
   .bottomSpacer {
-    height: 120px; /* 65px CTA bar + 56px bottom nav bar (if present) */
+    height: 70px; /* CTA bar height (~65px) + small margin */
   }
 }
 

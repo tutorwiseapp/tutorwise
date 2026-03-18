@@ -2,7 +2,7 @@
 
 .mobileBottomCTA {
   position: fixed;
-  bottom: 56px;
+  bottom: 0;
   left: 0;
   right: 0;
   background: #ffffff;
@@ -56,6 +56,6 @@
 }
 
 @media (max-width: 480px) {
-  .mobileBottomCTA { padding: 10px 12px; bottom: 54px; }
+  .mobileBottomCTA { padding: 10px 12px; }
   .ctaButton { font-size: 0.9375rem !important; }
 }

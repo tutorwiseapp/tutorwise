@@ -45,10 +45,32 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     '/developer/docs', // Public API documentation
   ];
 
+  // Public-facing pages where the bottom nav should NOT appear.
+  // These pages use sticky CTAs instead (MobileBottomCTA) and don't need app navigation.
+  const publicRoutesWithoutBottomNav = [
+    '/',
+    '/marketplace',
+    '/about-tutorwise',
+    '/resources',
+    '/help-centre',
+    '/agencies',
+    '/companies',
+    '/schools',
+    '/join',
+    '/w',
+    '/listings',
+    '/public-profile',
+    '/org',
+  ];
+
   // Check if current page should show footer
   const shouldShowFooter = publicPagesWithFooter.some(path =>
     pathname === path || pathname?.startsWith(path + '/')
   ) || pathname?.startsWith('/public-profile/');
+
+  const shouldShowBottomNav = !publicRoutesWithoutBottomNav.some(path =>
+    pathname === path || pathname?.startsWith(path + '/')
+  );
 
   return (
     <div className={styles.appWrapper}>
@@ -57,7 +79,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
       {shouldShowFooter && <Footer />}
-      <BottomNav />
+      {shouldShowBottomNav && <BottomNav />}
       {/* Lexi AI Assistant - Available on all pages */}
       <LexiChatModal />
     </div>
