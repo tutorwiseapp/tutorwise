@@ -44,7 +44,7 @@ export function Toolbar({
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { processName, setProcessName, isDirty, lastSavedAt, autoSaveStatus } =
+  const { processName, setProcessName, isDirty, lastSavedAt, autoSaveStatus, processId } =
     useWorkflowStore();
 
   const handleFileImport = useCallback(
@@ -107,7 +107,8 @@ export function Toolbar({
         <button
           className={styles.button}
           onClick={onNew}
-          title="New process"
+          disabled={!processId}
+          title={processId ? 'New process' : 'Save this process first to create another'}
         >
           <FilePlus size={14} /> New
         </button>

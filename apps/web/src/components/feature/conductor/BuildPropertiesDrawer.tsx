@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Save, RefreshCw, MousePointerClick } from 'lucide-react';
 import { UnifiedSelect } from '@/components/ui/forms';
 import { useBuildStore } from './build-store';
+import type { SkillCategory } from '@/app/api/admin/skill-categories/route';
 import styles from './BuildPropertiesDrawer.module.css';
+
+const DOMAIN_ORDER = ['human', 'ai', 'enterprise', 'education', 'workspace'];
+const DOMAIN_LABELS: Record<string, string> = { human: 'Human', ai: 'AI', enterprise: 'Enterprise', education: 'Education', workspace: 'Workspace' };
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -33,7 +37,8 @@ export interface AgentData {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
+  sub_category: string | null;
   description: string | null;
   status: string;
 }
@@ -230,18 +235,57 @@ function TeamForm({ data, saveTrigger, onStateChange, onSaved }: { data: TeamDat
 
 function AgentForm({ data, saveTrigger, onStateChange, onSaved }: { data: AgentData } & FormSharedProps) {
   const qc = useQueryClient();
-  const [name, setName] = useState(data.name);
-  const [role, setRole] = useState(data.role);
-  const [department, setDepartment] = useState(data.department);
+  const [name,        setName]        = useState(data.name);
+  const [role,        setRole]        = useState(data.role);
+  const [category,    setCategory]    = useState(data.category);
+  const [subCategory, setSubCategory] = useState(data.sub_category ?? '');
   const [description, setDescription] = useState(data.description ?? '');
   const prevTrigger = useRef(saveTrigger);
 
   useEffect(() => {
     setName(data.name);
     setRole(data.role);
-    setDepartment(data.department);
+    setCategory(data.category);
+    setSubCategory(data.sub_category ?? '');
     setDescription(data.description ?? '');
-  }, [data.id, data.name, data.role, data.department, data.description]);
+  }, [data.id, data.name, data.role, data.category, data.sub_category, data.description]);
+
+  const { data: skillCategories = [] } = useQuery<SkillCategory[]>({
+    queryKey: ['skill-categories'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/skill-categories');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  const categoryOptions = useMemo(() => {
+    const topLevel = skillCategories.filter((c) => !c.parent_slug);
+    const grouped: Record<string, SkillCategory[]> = {};
+    for (const cat of topLevel) {
+      if (!grouped[cat.domain]) grouped[cat.domain] = [];
+      grouped[cat.domain].push(cat);
+    }
+    const opts: { value: string; label: string }[] = [];
+    for (const domain of DOMAIN_ORDER) {
+      for (const cat of grouped[domain] ?? []) {
+        opts.push({ value: cat.slug, label: `${DOMAIN_LABELS[domain]} · ${cat.label}` });
+      }
+    }
+    return opts.length > 0 ? opts : [{ value: 'engineering', label: 'Human · Engineering' }];
+  }, [skillCategories]);
+
+  const subCategoryOptions = useMemo(() =>
+    skillCategories
+      .filter((c) => c.parent_slug === category)
+      .map((c) => ({ value: c.slug, label: c.label })),
+  [skillCategories, category]);
+
+  const handleCategoryChange = (v: string) => {
+    setCategory(v);
+    setSubCategory('');
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -251,7 +295,8 @@ function AgentForm({ data, saveTrigger, onStateChange, onSaved }: { data: AgentD
         body: JSON.stringify({
           name: name.trim(),
           role: role.trim(),
-          department: department.trim(),
+          category: category.trim(),
+          sub_category: subCategory || null,
           description: description.trim() || null,
         }),
       });
@@ -288,8 +333,24 @@ function AgentForm({ data, saveTrigger, onStateChange, onSaved }: { data: AgentD
         <input className={styles.input} value={role} onChange={(e) => setRole(e.target.value)} />
       </div>
       <div className={styles.field}>
-        <label className={styles.label}>Department</label>
-        <input className={styles.input} value={department} onChange={(e) => setDepartment(e.target.value)} />
+        <label className={styles.label}>Category</label>
+        <UnifiedSelect
+          options={categoryOptions}
+          value={category}
+          onChange={(v) => handleCategoryChange(String(v))}
+          size="sm"
+        />
+      </div>
+      <div className={styles.field}>
+        <label className={styles.label}>Sub-category</label>
+        <UnifiedSelect
+          options={[{ value: '', label: 'General' }, ...subCategoryOptions]}
+          value={subCategory}
+          onChange={(v) => setSubCategory(String(v))}
+          placeholder={subCategoryOptions.length > 0 ? 'Select subject…' : 'No sub-categories'}
+          size="sm"
+          disabled={subCategoryOptions.length === 0}
+        />
       </div>
       <div className={styles.field}>
         <label className={styles.label}>Description</label>

@@ -34,8 +34,9 @@ import dagre from '@dagrejs/dagre';
 import { FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasContextMenu } from '@/components/feature/canvas';
 import type { ContextMenuItem } from '@/components/feature/canvas';
 import { useBuildStore } from './build-store';
-import { BuildPalette, getDeptColor } from './BuildPalette';
+import { BuildPalette, getCategoryColor } from './BuildPalette';
 import type { SpecialistAgentSummary, NavSpace, NavTeam } from './BuildPalette';
+import type { SkillCategory } from '@/app/api/admin/skill-categories/route';
 import { BuildPropertiesDrawer } from './BuildPropertiesDrawer';
 import type { SpaceData, TeamData, AgentData } from './BuildPropertiesDrawer';
 import styles from './BuildCanvas.module.css';
@@ -85,7 +86,7 @@ interface BuildNodeData {
   teamCount?: number;
   agentCount?: number;
   pattern?: 'supervisor' | 'pipeline' | 'swarm';
-  department?: string;
+  category?: string;
   isCoordinator?: boolean;
   // Raw entity for properties drawer
   spaceEntity?: SpaceData;
@@ -378,8 +379,8 @@ const BuildNodeComponent = ({ id, data, selected }: { id: string; data: BuildNod
                   <Bot size={9} /> {data.agentCount ?? 0} agent{data.agentCount !== 1 ? 's' : ''}
                 </span>
               )}
-              {isAgent && data.department && (
-                <span className={styles.richNodeStat}>{data.department}</span>
+              {isAgent && data.category && (
+                <span className={styles.richNodeStat}>{data.category}</span>
               )}
             </div>
             {/* Live CAS status (agent nodes only) */}
@@ -661,6 +662,22 @@ function BuildCanvasInner() {
     refetchOnWindowFocus: true,
   });
 
+  // Categories — shared React Query cache with BuildPalette/BuildAgentModal (queryKey: skill-categories)
+  const { data: categories = [] } = useQuery<SkillCategory[]>({
+    queryKey: ['skill-categories'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/skill-categories');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  const categoryMap = useMemo(
+    () => new Map(categories.map((c) => [c.slug, c])),
+    [categories],
+  );
+
   // No inline `= []` default — that creates a new array reference every render,
   // destabilising casStatusMap → graphData → setNodes effect → infinite loop.
   const { data: casStatusList } = useQuery<CasAgentLiveStatus[]>({
@@ -790,7 +807,7 @@ function BuildCanvasInner() {
     const rawNodes: Node<BuildNodeData>[] = team.nodes.map((n, i) => {
       const agent = agentMap.get(n.data.agentSlug);
       const isCoord = n.data.isCoordinator || n.data.agentSlug === team.coordinator_slug;
-      const color = agent ? getDeptColor(agent.department, i) : '#c1c8d1';
+      const color = agent ? getCategoryColor(agent.category, categoryMap, i) : '#c1c8d1';
       const storedPos = (n as unknown as { position?: { x: number; y: number } }).position;
       const cas = agent ? casStatusMap.get(agent.id) : undefined;
 
@@ -808,7 +825,7 @@ function BuildCanvasInner() {
           entityId: n.id,
           agentSlug: n.data.agentSlug,
           agentId: agent?.id,
-          department: agent?.department,
+          category: agent?.category,
           isCoordinator: isCoord,
           built_in: agent?.built_in,
           liveStatus: cas?.status,
@@ -818,7 +835,7 @@ function BuildCanvasInner() {
                 slug: agent.slug,
                 name: agent.name,
                 role: agent.role,
-                department: agent.department,
+                category: agent.category,
                 description: null,
                 status: agent.status,
               }
@@ -1147,7 +1164,7 @@ function BuildCanvasInner() {
 
     const agentSlug = e.dataTransfer.getData('application/build-agent-slug');
     const agentName = e.dataTransfer.getData('application/build-agent-name');
-    const agentDept = e.dataTransfer.getData('application/build-agent-dept');
+    const agentDept = e.dataTransfer.getData('application/build-agent-category');
     if (!agentSlug) return;
 
     // Don't add duplicates
@@ -1170,7 +1187,7 @@ function BuildCanvasInner() {
         label: agentName,
         typeLabel: 'AGENT',
         nodeEntityType: 'agent',
-        accentColor: getDeptColor(agentDept, nodes.length),
+        accentColor: getCategoryColor(agentDept, categoryMap, nodes.length),
         description: undefined,
         entityId: `agent-${agentSlug}`,
         agentSlug,
@@ -1195,11 +1212,11 @@ function BuildCanvasInner() {
         label: agent.name,
         typeLabel: 'AGENT',
         nodeEntityType: 'agent',
-        accentColor: getDeptColor(agent.department, nodes.length),
+        accentColor: getCategoryColor(agent.category, categoryMap, nodes.length),
         description: agent.role,
         entityId: `agent-${agent.slug}`,
         agentSlug: agent.slug,
-        agentEntity: { id: agent.id, slug: agent.slug, name: agent.name, role: agent.role, department: agent.department, description: null, status: agent.status },
+        agentEntity: { id: agent.id, slug: agent.slug, name: agent.name, role: agent.role, category: agent.category, sub_category: null, description: null, status: agent.status },
       },
     };
     setNodes((nds) => [...nds, newNode]);

@@ -24,7 +24,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
   config: AgentConfig;
   seed_config?: AgentConfig | null;
@@ -239,7 +239,7 @@ export default function AgentChatPage() {
             <Brain size={20} />
             <div>
               <div className={styles.agentName}>{agent.name}</div>
-              <div className={styles.agentRole}>{agent.role} · {agent.department}</div>
+              <div className={styles.agentRole}>{agent.role} · {agent.category}</div>
             </div>
           </div>
           <button

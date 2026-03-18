@@ -39,7 +39,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
 }
 
 interface Space {
@@ -126,7 +126,7 @@ export function TeamConfigModal({ mode, team, onClose }: TeamConfigModalProps) {
       list = list.filter(a =>
         a.name.toLowerCase().includes(q) ||
         a.slug.toLowerCase().includes(q) ||
-        a.department.toLowerCase().includes(q)
+        a.category.toLowerCase().includes(q)
       );
     }
     return list.sort((a, b) => {
@@ -379,7 +379,7 @@ export function TeamConfigModal({ mode, team, onClose }: TeamConfigModalProps) {
                       />
                       <div className={styles.agentRowInfo}>
                         <span className={styles.agentRowName}>{agent.name}</span>
-                        <span className={styles.agentRowDept}>{agent.department}</span>
+                        <span className={styles.agentRowDept}>{agent.category}</span>
                       </div>
                       <span className={styles.agentRowBadge}>{agent.role.slice(0, 20)}</span>
                       {seedStatus === 'seed' && <span className={styles.seedOriginal}>seed</span>}

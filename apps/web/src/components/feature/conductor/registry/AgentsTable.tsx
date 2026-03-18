@@ -17,7 +17,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
   config: AgentConfig;
   seed_config?: AgentConfig | null;
@@ -135,7 +135,7 @@ export function AgentsTable({
       data = data.filter(a =>
         a.name.toLowerCase().includes(q) ||
         a.role.toLowerCase().includes(q) ||
-        a.department.toLowerCase().includes(q) ||
+        a.category.toLowerCase().includes(q) ||
         a.description?.toLowerCase().includes(q)
       );
     }
@@ -185,11 +185,11 @@ export function AgentsTable({
       render: (row) => <span className={styles.cellText}>{row.role}</span>,
     },
     {
-      key: 'department',
+      key: 'category',
       label: 'Department',
       width: '130px',
       hideOnMobile: true,
-      render: (row) => <span className={styles.cellText}>{row.department}</span>,
+      render: (row) => <span className={styles.cellText}>{row.category}</span>,
     },
     {
       key: 'team',

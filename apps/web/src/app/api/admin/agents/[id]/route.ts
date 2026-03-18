@@ -106,7 +106,7 @@ export async function PUT(
     }
 
     const allowed: Record<string, unknown> = {};
-    for (const key of ['name', 'role', 'department', 'description', 'config', 'status']) {
+    for (const key of ['name', 'role', 'category', 'sub_category', 'description', 'config', 'status']) {
       if (key in body) allowed[key] = body[key];
     }
     if (!existing.built_in && 'slug' in body) allowed.slug = body.slug;

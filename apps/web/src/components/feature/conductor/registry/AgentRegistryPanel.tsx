@@ -30,7 +30,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
   config: AgentConfig;
   seed_config?: AgentConfig | null;
@@ -264,7 +264,7 @@ export function AgentRegistryPanel() {
           slug: agent.slug + '-copy',
           name: agent.name + ' (Copy)',
           role: agent.role,
-          department: agent.department,
+          category: agent.category,
           description: agent.description,
           config: agent.config,
         }),

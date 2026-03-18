@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { HubComplexModal } from '@/components/hub/modal';
-import { UnifiedSelect } from '@/components/ui/forms';
-import { KNOWN_DEPARTMENTS, type SpecialistAgentSummary } from './BuildPalette';
+import { UnifiedSelect, UnifiedMultiSelect } from '@/components/ui/forms';
+import type { SkillCategory } from '@/app/api/admin/skill-categories/route';
+import type { SpecialistAgentSummary } from './BuildPalette';
 import styles from './BuildAgentModal.module.css';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -29,6 +30,15 @@ const STRATEGY_OPTIONS = [
   { value: 'sequential', label: 'Sequential' },
   { value: 'parallel',   label: 'Parallel' },
 ];
+
+const DOMAIN_ORDER = ['human', 'ai', 'enterprise', 'education', 'workspace'];
+const DOMAIN_LABELS: Record<string, string> = {
+  human:      'Human',
+  ai:         'AI',
+  enterprise: 'Enterprise',
+  education:  'Education',
+  workspace:  'Workspace',
+};
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -54,22 +64,72 @@ export interface BuildAgentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated?: (agent: SpecialistAgentSummary) => void;
+  categoryMap?: Map<string, SkillCategory>;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalProps) {
+export function BuildAgentModal({ isOpen, onClose, onCreated, categoryMap }: BuildAgentModalProps) {
   const qc = useQueryClient();
 
-  const [name,        setName]        = useState('');
-  const [role,        setRole]        = useState('Specialist');
-  const [department,  setDepartment]  = useState('Engineering');
-  const [description, setDescription] = useState('');
-  const [maxTasks,    setMaxTasks]    = useState(5);
-  const [strategy,    setStrategy]    = useState('hybrid');
-  const [skills,      setSkills]      = useState<string[]>([]);
-  const [skillInput,  setSkillInput]  = useState('');
-  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [name,           setName]          = useState('');
+  const [role,           setRole]          = useState('Specialist');
+  const [category,       setCategory]      = useState('engineering');
+  const [subCategory,    setSubCategory]   = useState('');
+  const [description,    setDescription]   = useState('');
+  const [maxTasks,       setMaxTasks]      = useState(5);
+  const [strategy,       setStrategy]      = useState('hybrid');
+  const [selectedTools,  setSelectedTools] = useState<string[]>([]);
+
+  // Fetch categories from DB (falls back to passed categoryMap)
+  const { data: categories = [] } = useQuery<SkillCategory[]>({
+    queryKey: ['skill-categories'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/skill-categories');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    },
+    staleTime: 30 * 60_000,
+    enabled: isOpen,
+  });
+
+  // Top-level category options grouped by domain
+  const categoryOptions = useMemo(() => {
+    const source = categories.length > 0
+      ? categories
+      : categoryMap ? Array.from(categoryMap.values()) : [];
+
+    const topLevel = source.filter((c) => !c.parent_slug);
+    const grouped: Record<string, SkillCategory[]> = {};
+    for (const cat of topLevel) {
+      if (!grouped[cat.domain]) grouped[cat.domain] = [];
+      grouped[cat.domain].push(cat);
+    }
+
+    const opts: { value: string; label: string }[] = [];
+    for (const domain of DOMAIN_ORDER) {
+      for (const cat of grouped[domain] ?? []) {
+        opts.push({ value: cat.slug, label: `${DOMAIN_LABELS[domain]} · ${cat.label}` });
+      }
+    }
+    return opts.length > 0 ? opts : [{ value: 'engineering', label: 'Human · Engineering' }];
+  }, [categories, categoryMap]);
+
+  // Sub-category options — children of the selected category
+  const subCategoryOptions = useMemo(() => {
+    const source = categories.length > 0
+      ? categories
+      : categoryMap ? Array.from(categoryMap.values()) : [];
+    return source
+      .filter((c) => c.parent_slug === category)
+      .map((c) => ({ value: c.slug, label: c.label }));
+  }, [categories, categoryMap, category]);
+
+  // Reset sub-category when category changes
+  const handleCategoryChange = (v: string) => {
+    setCategory(v);
+    setSubCategory('');
+  };
 
   // Fetch available tools when modal opens
   const { data: tools = [] } = useQuery<AnalystTool[]>({
@@ -95,11 +155,11 @@ export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalP
           name: name.trim(),
           slug,
           role,
-          department,
+          category,
+          sub_category: subCategory || undefined,
           description: description.trim() || undefined,
           config: {
             tools: selectedTools,
-            skills,
             max_concurrent_tasks: maxTasks,
             strategy,
           },
@@ -120,22 +180,10 @@ export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalP
   });
 
   function handleClose() {
-    setName(''); setRole('Specialist'); setDepartment('Engineering');
-    setDescription(''); setMaxTasks(5); setStrategy('hybrid');
-    setSkills([]); setSkillInput(''); setSelectedTools([]);
+    setName(''); setRole('Specialist'); setCategory('engineering');
+    setSubCategory(''); setDescription(''); setMaxTasks(5);
+    setStrategy('hybrid'); setSelectedTools([]);
     onClose();
-  }
-
-  function addSkill() {
-    const s = skillInput.trim();
-    if (s && !skills.includes(s)) setSkills((prev) => [...prev, s]);
-    setSkillInput('');
-  }
-
-  function toggleTool(toolSlug: string) {
-    setSelectedTools((prev) =>
-      prev.includes(toolSlug) ? prev.filter((s) => s !== toolSlug) : [...prev, toolSlug]
-    );
   }
 
   const canCreate = name.trim().length >= 2 && slugValid && !mutation.isPending;
@@ -190,7 +238,7 @@ export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalP
           )}
         </div>
 
-        {/* Role + Department */}
+        {/* Role + Category */}
         <div className={styles.twoCol}>
           <div className={styles.field}>
             <label className={styles.label}>
@@ -204,14 +252,30 @@ export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalP
             />
           </div>
           <div className={styles.field}>
-            <label className={styles.label}>Department</label>
+            <label className={styles.label}>Category</label>
             <UnifiedSelect
-              value={department}
-              onChange={(v) => setDepartment(v as string)}
-              options={KNOWN_DEPARTMENTS.map((d) => ({ value: d, label: d }))}
+              value={category}
+              onChange={(v) => handleCategoryChange(v as string)}
+              options={categoryOptions}
               size="md"
             />
           </div>
+        </div>
+
+        {/* Sub-category — always visible, enabled only when category has children */}
+        <div className={styles.fullRow}>
+          <label className={styles.label}>Sub-category</label>
+          <UnifiedSelect
+            value={subCategory}
+            onChange={(v) => setSubCategory(v as string)}
+            placeholder={subCategoryOptions.length > 0 ? 'Select subject…' : 'No sub-categories'}
+            options={[
+              { value: '', label: 'General' },
+              ...subCategoryOptions,
+            ]}
+            size="md"
+            disabled={subCategoryOptions.length === 0}
+          />
         </div>
 
         {/* Description */}
@@ -250,73 +314,17 @@ export function BuildAgentModal({ isOpen, onClose, onCreated }: BuildAgentModalP
           </div>
         </div>
 
-        {/* Skills */}
-        <div className={styles.fullRow}>
-          <label className={styles.label}>Skills</label>
-          <div className={styles.skillRow}>
-            <input
-              className={styles.input}
-              placeholder="Add a skill (e.g. Data Analysis, Email Processing)"
-              value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
-            />
-            <button
-              className={styles.addBtn}
-              onClick={addSkill}
-              type="button"
-              disabled={!skillInput.trim()}
-              title="Add skill"
-            >
-              <Plus size={14} />
-            </button>
-          </div>
-          {skills.length > 0 && (
-            <div className={styles.chips}>
-              {skills.map((skill) => (
-                <span key={skill} className={styles.chip}>
-                  {skill}
-                  <button
-                    className={styles.chipRemove}
-                    onClick={() => setSkills((prev) => prev.filter((s) => s !== skill))}
-                    type="button"
-                    aria-label={`Remove ${skill}`}
-                  >
-                    <X size={10} />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Tools */}
-        <div className={styles.fullRow}>
-          <div className={styles.toolsHeader}>
-            <label className={styles.label}>Available Tools</label>
-            {selectedTools.length > 0 && (
-              <span className={styles.toolsBadge}>{selectedTools.length} selected</span>
-            )}
-          </div>
-          <div className={styles.toolsGrid}>
-            {tools.map((tool) => {
-              const selected = selectedTools.includes(tool.slug);
-              return (
-                <button
-                  key={tool.slug}
-                  className={`${styles.toolChip} ${selected ? styles.toolChipOn : ''}`}
-                  onClick={() => toggleTool(tool.slug)}
-                  type="button"
-                  title={tool.description}
-                >
-                  {tool.name}
-                </button>
-              );
-            })}
-            {tools.length === 0 && (
-              <span className={styles.toolsEmpty}>Loading tools…</span>
-            )}
-          </div>
+        <div className={styles.toolsField}>
+          <label className={styles.label}>Available Tools</label>
+          <UnifiedMultiSelect
+            triggerLabel="Available Tools"
+            placeholder="Select tools…"
+            options={tools.map((t) => ({ value: t.slug, label: t.name }))}
+            selectedValues={selectedTools}
+            onSelectionChange={setSelectedTools}
+            disabled={tools.length === 0}
+          />
         </div>
 
       </div>

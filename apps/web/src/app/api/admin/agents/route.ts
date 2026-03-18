@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('specialist_agents')
-      .select('id, slug, name, role, department, description, config, seed_config, status, built_in, created_at, updated_at')
+      .select('id, slug, name, role, category, sub_category, description, config, seed_config, status, built_in, created_at, updated_at')
       .order('built_in', { ascending: false })
       .order('name');
 
@@ -50,7 +50,8 @@ export async function POST(request: NextRequest) {
       slug: string;
       name: string;
       role: string;
-      department?: string;
+      category?: string;
+      sub_category?: string;
       description?: string;
       config?: Record<string, unknown>;
     };
@@ -69,7 +70,8 @@ export async function POST(request: NextRequest) {
         slug: body.slug,
         name: body.name,
         role: body.role,
-        department: body.department ?? 'Engineering',
+        category: body.category ?? 'engineering',
+        sub_category: body.sub_category ?? null,
         description: body.description ?? null,
         config: body.config ?? {},
         created_by: user.id,

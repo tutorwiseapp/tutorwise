@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { SkillCategory } from '@/app/api/admin/skill-categories/route';
 import { RotateCcw, Stamp } from 'lucide-react';
 import HubComplexModal from '@/components/hub/modal/HubComplexModal/HubComplexModal';
 import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
@@ -22,7 +23,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
   config: AgentConfig;
   seed_config?: AgentConfig | null;
@@ -46,8 +47,9 @@ interface AgentConfigModalProps {
   onClose: () => void;
 }
 
-const DEPARTMENTS = ['Engineering', 'Marketing', 'Operations', 'Analytics', 'Security', 'Product', 'Content'] as const;
-const CATEGORIES = ['all', 'analytics', 'actions', 'notifications'] as const;
+const DOMAIN_ORDER = ['human', 'ai', 'enterprise', 'education', 'workspace'];
+const DOMAIN_LABELS: Record<string, string> = { human: 'Human', ai: 'AI', enterprise: 'Enterprise', education: 'Education', workspace: 'Workspace' };
+const TOOL_CATEGORIES = ['all', 'analytics', 'actions', 'notifications'] as const;
 
 /* ── Component ── */
 
@@ -58,7 +60,7 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
   const [name, setName] = useState(agent?.name ?? '');
   const [slug, setSlug] = useState(agent?.slug ?? '');
   const [role, setRole] = useState(agent?.role ?? '');
-  const [department, setDepartment] = useState(agent?.department ?? 'Engineering');
+  const [category, setCategory] = useState(agent?.category ?? 'engineering');
   const [description, setDescription] = useState(agent?.description ?? '');
   const [instructions, setInstructions] = useState((agent?.config?.instructions as string) ?? '');
   const [selectedTools, setSelectedTools] = useState<string[]>(agent?.config?.tools ?? []);
@@ -91,6 +93,33 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
     },
     staleTime: 5 * 60_000,
   });
+
+  // Fetch skill categories from DB
+  const { data: skillCategories = [] } = useQuery<SkillCategory[]>({
+    queryKey: ['skill-categories'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/skill-categories');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  const categoryOptions = useMemo(() => {
+    const topLevel = skillCategories.filter((c) => !c.parent_slug);
+    const grouped: Record<string, SkillCategory[]> = {};
+    for (const cat of topLevel) {
+      if (!grouped[cat.domain]) grouped[cat.domain] = [];
+      grouped[cat.domain].push(cat);
+    }
+    const opts: { value: string; label: string }[] = [];
+    for (const domain of DOMAIN_ORDER) {
+      for (const cat of grouped[domain] ?? []) {
+        opts.push({ value: cat.slug, label: `${DOMAIN_LABELS[domain]} · ${cat.label}` });
+      }
+    }
+    return opts.length > 0 ? opts : [{ value: 'engineering', label: 'Human · Engineering' }];
+  }, [skillCategories]);
 
   // Seed tools (for built-in agents only)
   const seedTools = useMemo<string[]>(() => {
@@ -163,7 +192,7 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
         const res = await fetch('/api/admin/agents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug, name, role, department, description: description || null, config }),
+          body: JSON.stringify({ slug, name, role, category, description: description || null, config }),
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? 'Failed to create agent');
@@ -173,7 +202,7 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
         const res = await fetch(`/api/admin/agents/${agent.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, role, department, description: description || null, config }),
+          body: JSON.stringify({ name, role, category, description: description || null, config }),
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error ?? 'Failed to update agent');
@@ -270,11 +299,11 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
               <input className={styles.input} value={role} onChange={e => setRole(e.target.value)} placeholder="Market Intelligence Analyst" disabled={isPending} />
             </div>
             <div className={styles.field}>
-              <label className={styles.label}>Department</label>
+              <label className={styles.label}>Category</label>
               <UnifiedSelect
-                options={DEPARTMENTS.map(d => ({ value: d, label: d }))}
-                value={department}
-                onChange={v => setDepartment(String(v))}
+                options={categoryOptions}
+                value={category}
+                onChange={v => setCategory(String(v))}
                 disabled={isPending}
               />
             </div>
@@ -313,7 +342,7 @@ export function AgentConfigModal({ mode, agent, onClose }: AgentConfigModalProps
             />
 
             <div className={styles.categoryChips}>
-              {CATEGORIES.map(cat => (
+              {TOOL_CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   className={categoryFilter === cat ? styles.categoryChipActive : styles.categoryChip}

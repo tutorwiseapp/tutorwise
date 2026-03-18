@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Building2, Users, Bot } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import { UnifiedSelect } from '@/components/ui/forms';
 import { HubComplexModal } from '@/components/hub/modal';
 import { BuildAgentModal } from './BuildAgentModal';
 import type { BuildLevel } from './build-store';
+import type { SkillCategory } from '@/app/api/admin/skill-categories/route';
 import styles from './BuildPalette.module.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -17,42 +18,32 @@ export interface SpecialistAgentSummary {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
+  sub_category?: string | null;
   status: 'active' | 'inactive';
   built_in?: boolean;
 }
 
-// ── Department colors (match TeamCanvas) ──────────────────────────────────────
-
-const DEPARTMENT_COLORS: Record<string, string> = {
-  Development:  '#8b5cf6',
-  Quality:      '#f59e0b',
-  Security:     '#ef4444',
-  Marketing:    '#ec4899',
-  Analytics:    '#3b82f6',
-  Planning:     '#14b8a6',
-  Engineering:  '#6366f1',
-  Strategy:     '#7c3aed',
-  Management:   '#0891b2',
-  Operations:   '#14b8a6',
-  Finance:      '#10b981',
-  HR:           '#f97316',
-  Legal:        '#64748b',
-  Product:      '#6366f1',
-  Sales:        '#0ea5e9',
-  Support:      '#84cc16',
-};
-
-// Known departments available in the New Agent dropdown
-export const KNOWN_DEPARTMENTS = Object.keys(DEPARTMENT_COLORS);
+// ── Category color lookup (driven by DB) ──────────────────────────────────────
 
 const FALLBACK_PALETTE = [
   '#3b82f6', '#8b5cf6', '#14b8a6', '#f59e0b',
   '#ec4899', '#6366f1', '#ef4444', '#10b981',
 ];
 
-export function getDeptColor(department: string, index: number): string {
-  return DEPARTMENT_COLORS[department] ?? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length];
+export function getCategoryColor(
+  categorySlug: string,
+  categoryMap: Map<string, SkillCategory>,
+  index = 0,
+): string {
+  return categoryMap.get(categorySlug)?.color ?? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length];
+}
+
+export function getCategoryLabel(
+  categorySlug: string,
+  categoryMap: Map<string, SkillCategory>,
+): string {
+  return categoryMap.get(categorySlug)?.label ?? categorySlug;
 }
 
 function toSlug(name: string): string {
@@ -87,7 +78,7 @@ function SpaceModalBody({ onDone }: { onDone: () => void }) {
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <input
-        style={{ fontSize: 14, border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', fontFamily: 'inherit' }}
+        style={{ fontSize: 14, border: '1px solid #dfe1e5', borderRadius: 8, height: 44, padding: '0 16px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', outline: 'none' }}
         placeholder="Space name (e.g. Go-To-Market)"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -139,7 +130,7 @@ function TeamModalBody({ spaceId, onDone }: { spaceId: string; onDone: () => voi
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
       <input
-        style={{ fontSize: 14, border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', fontFamily: 'inherit' }}
+        style={{ fontSize: 14, border: '1px solid #dfe1e5', borderRadius: 8, height: 44, padding: '0 16px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box', outline: 'none' }}
         placeholder="Team name (e.g. DevOps Team)"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -234,6 +225,22 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
     setShowAgentModal(false);
   }, [level]);
 
+  // Fetch categories from DB for color + label lookup
+  const { data: categories = [] } = useQuery<SkillCategory[]>({
+    queryKey: ['skill-categories'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/skill-categories');
+      const json = await res.json();
+      return json.success ? json.data : [];
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  const categoryMap = useMemo(
+    () => new Map(categories.map((c) => [c.slug, c])),
+    [categories],
+  );
+
   const { data: agents } = useQuery<SpecialistAgentSummary[]>({
     queryKey: ['build-agents-palette'],
     queryFn: async () => {
@@ -247,9 +254,9 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
   });
 
   const grouped = (agents ?? []).reduce<Record<string, SpecialistAgentSummary[]>>((acc, agent) => {
-    const dept = agent.department || 'Other';
-    if (!acc[dept]) acc[dept] = [];
-    acc[dept].push(agent);
+    const key = agent.category || 'other';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(agent);
     return acc;
   }, {});
 
@@ -257,7 +264,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
     if (level !== 2) { e.preventDefault(); return; }
     e.dataTransfer.setData('application/build-agent-slug', agent.slug);
     e.dataTransfer.setData('application/build-agent-name', agent.name);
-    e.dataTransfer.setData('application/build-agent-dept', agent.department);
+    e.dataTransfer.setData('application/build-agent-category', agent.category);
     e.dataTransfer.effectAllowed = 'copy';
   };
 
@@ -297,7 +304,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
         onClose={() => setShowSpaceModal(false)}
         title="New Space"
         subtitle="Spaces group related teams and agents"
-        size="sm"
+        size="lg"
       >
         <SpaceModalBody onDone={() => setShowSpaceModal(false)} />
       </HubComplexModal>
@@ -307,7 +314,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
         onClose={() => setShowTeamModal(false)}
         title="New Team"
         subtitle="Teams coordinate groups of specialist agents"
-        size="sm"
+        size="lg"
       >
         {spaceId && <TeamModalBody spaceId={spaceId} onDone={() => setShowTeamModal(false)} />}
       </HubComplexModal>
@@ -316,6 +323,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
         isOpen={showAgentModal}
         onClose={() => setShowAgentModal(false)}
         onCreated={onAddAgentToCanvas}
+        categoryMap={categoryMap}
       />
 
       <div className={styles.paletteBody}>
@@ -385,10 +393,12 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
             {(agents ?? []).length === 0 && (
               <div className={styles.emptyHint}>No agents available.</div>
             )}
-            {Object.entries(grouped).map(([dept, deptAgents]) => (
-              <div key={dept} className={styles.group}>
-                <div className={styles.groupLabel}>{dept}</div>
-                {deptAgents.map((agent, i) => (
+            {Object.entries(grouped).map(([categorySlug, categoryAgents]) => (
+              <div key={categorySlug} className={styles.group}>
+                <div className={styles.groupLabel}>
+                  {getCategoryLabel(categorySlug, categoryMap)}
+                </div>
+                {categoryAgents.map((agent, i) => (
                   <div
                     key={agent.slug}
                     className={styles.paletteItem}
@@ -399,7 +409,7 @@ export function BuildPalette({ level, spaceId, spaceName, teamName, navSpaces, n
                     <Bot
                       size={14}
                       className={styles.navIcon}
-                      style={{ color: getDeptColor(agent.department, i), flexShrink: 0 }}
+                      style={{ color: getCategoryColor(agent.category, categoryMap, i), flexShrink: 0 }}
                     />
                     <div className={styles.navBody}>
                       <div className={styles.itemName}>{agent.name}</div>

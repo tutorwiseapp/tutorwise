@@ -38,6 +38,7 @@ import { ProcessInput } from './ProcessInput';
 import { TemplateSelector } from './TemplateSelector';
 import { ChatPanel } from './ChatPanel';
 import { useUndoRedo } from './useUndoRedo';
+import { HubComplexModal } from '@/components/hub/modal';
 import { autoLayout } from './layout';
 import { exportWorkflowPDF } from './PDFExporter';
 import { validateForPublish } from '@/lib/workflow/validation';
@@ -132,6 +133,13 @@ function WorkflowCanvasInner({
   // Version history — open/close state (query handles the fetch)
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
+  // Name-prompt dialog — shown when saving a new (unsaved) process
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [nameDialogValue, setNameDialogValue] = useState('');
+
+  // New-process confirmation dialog
+  const [showNewDialog, setShowNewDialog] = useState(false);
+
   // Live overlay: task status map nodeId → status
   const [taskStatusMap, setTaskStatusMap] = useState<Record<string, string>>({});
 
@@ -151,6 +159,7 @@ function WorkflowCanvasInner({
     setProcessId,
     setSelectedNode,
     selectedNodeId,
+    isDirty,
     markDirty,
     markSaved,
     setProcessName,
@@ -474,6 +483,14 @@ function WorkflowCanvasInner({
 
   const handleSave = useCallback(async (silent = false) => {
     if (readOnly) return;
+    // Read live state to avoid stale closure
+    const { processId: pid, processName: pname } = useWorkflowStore.getState();
+    // New process with default name — prompt before creating DB record
+    if (!pid && (!pname || pname === 'Untitled Process') && !silent) {
+      setNameDialogValue('');
+      setShowNameDialog(true);
+      return;
+    }
     await saveMutation.mutateAsync(silent);
   }, [readOnly, saveMutation]);
 
@@ -581,17 +598,17 @@ function WorkflowCanvasInner({
   }, [popHistory, pushSnapshot, setNodes, setEdges, setProcessName, setProcessDescription, setProcessId, markSaved, fitView]);
 
   // --- New Process Handler ---
-  const handleNew = useCallback(() => {
-    const confirmed = !useWorkflowStore.getState().isDirty ||
-      window.confirm('You have unsaved changes. Start a new process?');
-    if (confirmed) {
-      clearHistory();
-      resetStore();
-      setNodes(DEFAULT_NODES);
-      setEdges([]);
-      setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
-    }
+  const doNewProcess = useCallback(() => {
+    clearHistory();
+    resetStore();
+    setNodes(DEFAULT_NODES);
+    setEdges([]);
+    setTimeout(() => fitView(FIT_VIEW_OPTIONS), 100);
   }, [resetStore, setNodes, setEdges, clearHistory, fitView]);
+
+  const handleNew = useCallback(() => {
+    setShowNewDialog(true);
+  }, []);
 
   // --- Load Process Handler ---
   const handleLoadProcess = useCallback(
@@ -1123,6 +1140,90 @@ function WorkflowCanvasInner({
           </div>
         )}
       </div>
+
+      {/* New process confirmation dialog */}
+      <HubComplexModal
+        isOpen={showNewDialog}
+        onClose={() => setShowNewDialog(false)}
+        title="Start a new process?"
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, width: '100%' }}>
+            <button className={styles.dialogCancel} onClick={() => setShowNewDialog(false)}>
+              Cancel
+            </button>
+            <button
+              className={styles.dialogCancel}
+              onClick={() => { setShowNewDialog(false); doNewProcess(); }}
+            >
+              Discard &amp; New
+            </button>
+            {isDirty && (
+              <button
+                className={styles.dialogConfirm}
+                disabled={saveMutation.isPending}
+                onClick={async () => {
+                  setShowNewDialog(false);
+                  await handleSave(false);
+                  doNewProcess();
+                }}
+              >
+                {saveMutation.isPending ? 'Saving…' : 'Save & New'}
+              </button>
+            )}
+          </div>
+        }
+      >
+        <div style={{ padding: '16px 24px', color: 'var(--color-text-secondary, #6b7280)', fontSize: 14, lineHeight: 1.6 }}>
+          {isDirty
+            ? 'You have unsaved changes. Save before starting a new process, or discard them.'
+            : <>The current process <strong style={{ color: 'var(--color-text-primary, #111827)' }}>{processName || 'Untitled Process'}</strong> will be unloaded. Any unsaved changes will be lost.</>}
+        </div>
+      </HubComplexModal>
+
+      {/* Name prompt dialog — shown when saving a new process with default name */}
+      <HubComplexModal
+        isOpen={showNameDialog}
+        onClose={() => setShowNameDialog(false)}
+        title="Name your process"
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, width: '100%' }}>
+            <button className={styles.dialogCancel} onClick={() => setShowNameDialog(false)}>
+              Cancel
+            </button>
+            <button
+              className={styles.dialogConfirm}
+              disabled={!nameDialogValue.trim() || saveMutation.isPending}
+              onClick={() => {
+                setProcessName(nameDialogValue.trim());
+                setShowNameDialog(false);
+                saveMutation.mutate(false);
+              }}
+            >
+              {saveMutation.isPending ? 'Saving…' : 'Save Process'}
+            </button>
+          </div>
+        }
+      >
+        <div style={{ padding: '4px 0' }}>
+          <input
+            className={styles.namePromptInput}
+            autoFocus
+            placeholder="e.g. Tutor Onboarding, Commission Payout…"
+            value={nameDialogValue}
+            onChange={(e) => setNameDialogValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && nameDialogValue.trim()) {
+                setProcessName(nameDialogValue.trim());
+                setShowNameDialog(false);
+                saveMutation.mutate(false);
+              }
+              if (e.key === 'Escape') setShowNameDialog(false);
+            }}
+          />
+        </div>
+      </HubComplexModal>
 
       {/* Publish Validation Dialog */}
       {publishResult && (

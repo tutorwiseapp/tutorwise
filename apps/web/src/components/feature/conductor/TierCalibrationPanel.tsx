@@ -201,7 +201,7 @@ interface PromptVariant {
   quality_delta_pct: number | null;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
-  specialist_agents: { name: string; role: string; department: string };
+  specialist_agents: { name: string; role: string; category: string };
 }
 
 function PromptVariantCard({ variant }: { variant: PromptVariant }) {
@@ -234,7 +234,7 @@ function PromptVariantCard({ variant }: { variant: PromptVariant }) {
         <Bot size={13} style={{ color: '#6366f1', flexShrink: 0 }} />
         <span className={styles.processName}>{variant.specialist_agents?.name ?? variant.agent_slug}</span>
         <span className={styles.processMode} style={{ marginLeft: 'auto' }}>
-          {variant.specialist_agents?.department}
+          {variant.specialist_agents?.category}
         </span>
         {variant.quality_delta_pct != null && (
           <span style={{ fontSize: 11, fontWeight: 700, color: '#059669', padding: '1px 7px', borderRadius: 10, background: 'rgba(5,150,105,0.1)' }}>

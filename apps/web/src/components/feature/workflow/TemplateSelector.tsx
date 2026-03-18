@@ -73,7 +73,7 @@ export function TemplateSelector({
   currentDescription,
 }: TemplateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('templates');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('processes');
   const [templates, setTemplates] = useState<WorkflowProcessTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

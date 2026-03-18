@@ -52,7 +52,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
   config: AgentConfig;
 }
@@ -94,7 +94,7 @@ function buildSystemPrompt(
     ? `\nPAST EXPERIENCE (your own memory from similar previous runs):\n${memoryBlock}\n`
     : '';
 
-  return `You are ${agent.name}, a ${agent.role} specialist at Tutorwise (${agent.department}).
+  return `You are ${agent.name}, a ${agent.role} specialist at Tutorwise (${agent.category}).
 ${agent.description ?? ''}
 
 Skills: ${skills}${instructions}${knowledgeSection}${memorySection}
@@ -187,7 +187,7 @@ export class SpecialistAgentRunner {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agentId);
     const { data: agent, error } = await supabase
       .from('specialist_agents')
-      .select('id, slug, name, role, department, description, config')
+      .select('id, slug, name, role, category, description, config')
       .eq(isUuid ? 'id' : 'slug', agentId)
       .single();
 
@@ -328,7 +328,7 @@ export class SpecialistAgentRunner {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(agentId);
     const { data: agent, error } = await supabase
       .from('specialist_agents')
-      .select('id, slug, name, role, department, description, config')
+      .select('id, slug, name, role, category, description, config')
       .eq(isUuid ? 'id' : 'slug', agentId)
       .single();
 

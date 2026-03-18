@@ -9,7 +9,7 @@ interface SpecialistAgent {
   slug: string;
   name: string;
   role: string;
-  department: string;
+  category: string;
   description: string | null;
 }
 
@@ -171,7 +171,7 @@ export function AgentChatPanel({ agent, onClose }: AgentChatPanelProps) {
           <Brain size={28} style={{ color: 'var(--color-text-tertiary, #9ca3af)' }} />
           <div className={styles.emptyTitle}>Chat with {agent.name}</div>
           <div className={styles.emptyDescription}>
-            {agent.description ?? `${agent.role} · ${agent.department}`}
+            {agent.description ?? `${agent.role} · ${agent.category}`}
           </div>
         </div>
       ) : (
