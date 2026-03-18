@@ -141,7 +141,7 @@
 .mobileMenuButton {
   display: none;
   position: fixed;
-  bottom: 80px; /* Match floating button height (above bottom nav) */
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   left: 16px;
   z-index: 998;
   width: 56px;
@@ -206,7 +206,7 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: 80px; /* Above bottom nav (64px) + spacing */
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 56px;
     height: 56px;
