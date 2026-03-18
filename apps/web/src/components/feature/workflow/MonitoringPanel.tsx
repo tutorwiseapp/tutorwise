@@ -469,30 +469,45 @@ function ActiveWorkflows() {
 // --- Operational Briefing ---
 
 function OperationalBriefing() {
-  const { data: briefing, isFetching, dataUpdatedAt } = useQuery({
+  const queryClient = useQueryClient();
+  const { data: briefData, isFetching } = useQuery<{ date: string; brief: string; generatedAt: string }>({
     queryKey: ['admin', 'operations', 'brief'],
     queryFn: async () => {
       const res = await fetch('/api/admin/operations/brief');
       const data = await res.json();
       if (!data.success) throw new Error('Failed to load briefing');
-      return data.data.brief as string;
+      return data.data;
     },
     staleTime: 5 * 60_000,
+  });
+
+  const refreshBrief = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/admin/operations/brief?refresh=true');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error ?? 'Failed to refresh');
+      return data.data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['admin', 'operations', 'brief'], data);
+    },
   });
 
   return (
     <HubWidgetCard
       title="Operational Briefing"
       icon={Brain}
-      loading={isFetching && !briefing}
+      loading={isFetching && !briefData}
+      onRefresh={() => refreshBrief.mutate()}
+      refreshing={refreshBrief.isPending}
     >
-      {dataUpdatedAt > 0 && (
+      {briefData?.generatedAt && (
         <div className={styles.briefingTime}>
-          Last updated: {new Date(dataUpdatedAt).toLocaleString()}
+          Generated {new Date(briefData.generatedAt).toLocaleString()}
         </div>
       )}
-      {briefing ? (
-        <div className={styles.briefingText}>{briefing}</div>
+      {briefData?.brief ? (
+        <div className={styles.briefingText}>{briefData.brief}</div>
       ) : !isFetching ? (
         <div className={styles.widgetEmpty}>No briefing available</div>
       ) : null}
