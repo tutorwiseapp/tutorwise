@@ -206,7 +206,7 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(5.5rem + 66px); /* 10px above Lexi FAB (5.5rem tall + 56px height) */
     right: 16px;
     width: 56px;
     height: 56px;
