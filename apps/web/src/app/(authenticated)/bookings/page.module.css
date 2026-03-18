@@ -29,3 +29,16 @@
   margin-bottom: 1rem;
 }
 
+@media (max-width: 768px) {
+  .bookingsList {
+    gap: 0.75rem;
+  }
+
+  .paginationContainer {
+    margin-top: 0.75rem;
+  }
+
+  .error {
+    padding: 0.75rem;
+  }
+}

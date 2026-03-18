@@ -22,3 +22,17 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+@media (max-width: 768px) {
+  .wiselistsList {
+    gap: 0.75rem;
+  }
+
+  .wiselistsGrid {
+    gap: 0.75rem;
+  }
+
+  .savedItemsList {
+    gap: 0.75rem;
+  }
+}

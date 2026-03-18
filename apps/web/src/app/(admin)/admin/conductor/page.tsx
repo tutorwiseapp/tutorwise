@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useCallback } from 'react';
+import { Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { HubPageLayout, HubHeader } from '@/components/hub/layout';
@@ -149,6 +150,14 @@ export default function ConductorPage() {
       fullWidth
       sidebar={sidebar}
     >
+      <div className={styles.mobileBlock}>
+        <Monitor size={48} color="#9ca3af" />
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: 0 }}>Desktop required</h2>
+        <p style={{ fontSize: '0.9375rem', color: '#6b7280', maxWidth: '320px', textAlign: 'center', margin: 0 }}>
+          Conductor is designed for desktop. Please switch to a larger screen.
+        </p>
+      </div>
+
       <div className={styles.navRow}>
         {/* Lifecycle stage bar */}
         <div className={styles.stageBar}>

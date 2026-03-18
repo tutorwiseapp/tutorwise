@@ -17,6 +17,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { X } from 'lucide-react';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { performLogout } from '@/lib/utils/logout';
 import type { Role } from '@/types';
@@ -93,7 +94,7 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
             </div>
           )}
           <button className={styles.closeButton} onClick={onClose} aria-label="Close menu">
-            ✕
+            <X size={20} />
           </button>
         </div>
 

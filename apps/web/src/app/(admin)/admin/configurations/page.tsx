@@ -31,7 +31,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Edit2, Trash2, X, Check } from 'lucide-react';
+import { GripVertical, Edit2, Trash2, X, Check, Monitor } from 'lucide-react';
 import { HubPageLayout, HubHeader, HubTabs } from '@/components/hub/layout';
 import HubSidebar, { SidebarWidget } from '@/components/hub/sidebar/HubSidebar';
 import HubToolbar from '@/components/hub/toolbar/HubToolbar';
@@ -491,6 +491,14 @@ export default function SharedFieldsPage() {
         </HubSidebar>
       }
     >
+      <div className={styles.mobileBlock}>
+        <Monitor size={48} color="#9ca3af" />
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: 0 }}>Desktop required</h2>
+        <p style={{ fontSize: '0.9375rem', color: '#6b7280', maxWidth: '320px', textAlign: 'center', margin: 0 }}>
+          Configurations is designed for desktop. Please switch to a larger screen.
+        </p>
+      </div>
+
       {/* HubToolbar - positioned above 2-column layout */}
       <div style={{ marginTop: '-0.5rem' }}>
         <HubToolbar

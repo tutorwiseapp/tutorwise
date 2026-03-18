@@ -28,6 +28,7 @@
   justify-content: center;
   gap: 2px;
   padding: 4px 8px;
+  min-height: 44px;
   color: var(--color-text-secondary, #666);
   text-decoration: none;
   background: transparent;

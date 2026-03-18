@@ -15,7 +15,7 @@ import { AdminStatsWidget } from '@/components/admin/widgets';
 import ErrorBoundary from '@/components/ui/feedback/ErrorBoundary';
 import Button from '@/components/ui/actions/Button';
 import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
-import { Plus, Zap } from 'lucide-react';
+import { Plus, Zap, Monitor } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SchedulerCalendar from '@/components/feature/scheduler/SchedulerCalendar';
 import type { ScheduledItem } from '@/components/feature/scheduler/SchedulerCalendar';
@@ -212,6 +212,14 @@ export default function SchedulerPage() {
 
   return (
     <ErrorBoundary>
+      <div className={styles.mobileBlock}>
+        <Monitor size={48} color="#9ca3af" />
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#111827', margin: 0 }}>Desktop required</h2>
+        <p style={{ fontSize: '0.9375rem', color: '#6b7280', maxWidth: '320px', textAlign: 'center', margin: 0 }}>
+          The Scheduler is designed for desktop. Please switch to a larger screen.
+        </p>
+      </div>
+
       <HubPageLayout
         header={
           <HubHeader
