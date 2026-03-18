@@ -63,6 +63,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     '/listings',
     '/public-profile',
     '/org',
+    // Auth pages — focused screens, no nav needed
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
   ];
 
   // Check if current page should show footer

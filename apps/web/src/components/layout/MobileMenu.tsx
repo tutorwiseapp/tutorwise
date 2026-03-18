@@ -284,6 +284,9 @@ export default function MobileMenu({ isOpen, onClose, isAdminUser }: MobileMenuP
               <Link href="/help-centre" className={styles.menuItem} onClick={handleLinkClick}>
                 Help Centre
               </Link>
+              <Link href="/resources" className={styles.menuItem} onClick={handleLinkClick}>
+                Resources
+              </Link>
             </>
           )}
         </div>
