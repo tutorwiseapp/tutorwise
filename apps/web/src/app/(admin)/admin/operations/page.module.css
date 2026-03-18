@@ -412,9 +412,7 @@
 }
 
 .commandInput:focus {
-  outline: 2px solid #4CAEAD;
-  outline-offset: -2px;
-  border-radius: 4px;
+  outline: none;
 }
 
 .commandInput::placeholder {
