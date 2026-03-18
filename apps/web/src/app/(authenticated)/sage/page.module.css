@@ -6,7 +6,7 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: calc(100dvh - 400px);
+  height: calc(100dvh - 400px - env(safe-area-inset-bottom, 0px));
   min-height: 400px;
   background: #ffffff;
   border-radius: 8px;
@@ -78,7 +78,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .chatContainer {
-    height: calc(100dvh - 280px);
+    height: calc(100dvh - 280px - env(safe-area-inset-bottom, 0px));
     min-height: 300px;
     border-radius: 0;
   }
@@ -92,7 +92,7 @@
 /* Tablet */
 @media (min-width: 769px) and (max-width: 1024px) {
   .chatContainer {
-    height: calc(100dvh - 350px);
+    height: calc(100dvh - 350px - env(safe-area-inset-bottom, 0px));
     min-height: 350px;
   }
 }

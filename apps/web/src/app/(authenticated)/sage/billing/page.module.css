@@ -355,6 +355,10 @@
   padding: 2px 8px;
   border-radius: 10px;
   text-transform: capitalize;
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status_paid { background: #dcfce7; color: #166534; }
@@ -428,6 +432,20 @@
 .cancelModalKeep:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ── Responsive ────────────────────────────────────────────── */
+
+/* Tablet: stack status box + payment grid */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .statusContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .paymentMethodsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .statusContent {
     flex-direction: column;
@@ -437,5 +455,11 @@
   .paymentMethodsGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  /* Invoice row: collapse 4 columns into 2×2 grid */
+  .invoiceRow {
+    grid-template-columns: 1fr auto;
+    row-gap: 0.25rem;
   }
 }

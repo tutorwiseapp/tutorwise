@@ -112,10 +112,9 @@
   }
 
   .actionsSection {
-    margin-left: auto;
-    width: 100%;
     flex: 1 1 100%;
     justify-content: flex-end;
+    flex-wrap: wrap;
   }
 
   .filtersRow {

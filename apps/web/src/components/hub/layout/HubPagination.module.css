@@ -107,3 +107,34 @@
   color: #374151;
   user-select: none;
 }
+
+/* Mobile: larger tap targets, wrap page numbers */
+@media (max-width: 480px) {
+  .paginationContainer {
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .arrowButton {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .pageButton {
+    min-width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .ellipsis {
+    min-width: 24px;
+    height: 40px;
+  }
+
+  .pageNumbers {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+}

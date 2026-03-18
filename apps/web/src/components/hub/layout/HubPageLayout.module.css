@@ -86,7 +86,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-    padding-bottom: 80px; /* Space for bottom nav (64px) + extra spacing */
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebarPanel.sidebarOpen {
@@ -107,7 +107,7 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: 80px; /* Above bottom nav (64px) + spacing */
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 56px;
     height: 56px;

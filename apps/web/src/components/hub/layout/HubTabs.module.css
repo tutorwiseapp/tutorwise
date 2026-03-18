@@ -79,9 +79,29 @@
     margin-bottom: 1.5rem;
   }
 
+  /* Hide scrollbar on mobile — touch-swipe is the gesture */
   .filterTabs {
     padding-left: 1rem;
-    padding-right: 1rem;
+    padding-right: 2.5rem; /* Extra right padding so last tab isn't hidden by fade */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .filterTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Right-fade gradient indicates more tabs are off-screen */
+  .filterTabsContainer::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 2px; /* Stop above the bottom border */
+    width: 2.5rem;
+    background: linear-gradient(to right, transparent, #ffffff 80%);
+    pointer-events: none;
+    z-index: 1;
   }
 }
 

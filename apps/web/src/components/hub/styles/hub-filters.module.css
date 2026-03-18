@@ -80,19 +80,21 @@
   }
 }
 
-/* Tablet - Keep desktop sizes for better UX */
+/* Tablet - Shrinkable inputs to prevent overflow on narrow viewports */
 @media (min-width: 769px) and (max-width: 1024px) {
   .filtersContainer {
     gap: 0.75rem;
   }
 
   .searchInput {
-    width: 280px; /* Slightly narrower on tablet */
-    min-width: 280px;
+    width: 240px;
+    min-width: 0; /* Allow shrinking below ideal width when space is tight */
+    flex-shrink: 1;
   }
 
   .filterSelect {
-    width: 180px; /* Keep same as desktop */
-    min-width: 180px;
+    width: 160px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 }
