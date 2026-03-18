@@ -13,6 +13,7 @@ import ReactFlow, {
   Background,
   MiniMap,
   Panel,
+  MarkerType,
 } from 'reactflow';
 import { FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasNodeActionsContext, CanvasContextMenu } from '@/components/feature/canvas';
 import type { ContextMenuItem } from '@/components/feature/canvas';
@@ -61,7 +62,12 @@ const EDGE_TYPES = {
 };
 
 // Stable reference — prevents ReactFlow nodeTypes/edgeTypes change warning
-const DEFAULT_EDGE_OPTIONS = { type: 'workflowEdge', animated: true };
+const DEFAULT_EDGE_OPTIONS = {
+  type: 'workflowEdge',
+  animated: false,
+  style: { stroke: '#c1c8d1', strokeWidth: 2 },
+  markerEnd: { type: MarkerType.ArrowClosed, color: '#c1c8d1', width: 16, height: 16 },
+};
 
 const DEFAULT_NODES: ProcessNode[] = [
   {

@@ -101,8 +101,8 @@ export function WorkflowEdge({
   const { deleteElements } = useReactFlow();
   const label = data?.label;
 
-  const stroke       = selected ? 'var(--color-primary, #006C67)' : '#94a3b8';
-  const strokeWidth  = selected ? 2 : 1.5;
+  const stroke       = selected ? 'var(--color-primary, #006C67)' : '#c1c8d1';
+  const strokeWidth  = selected ? 2.5 : 2;
 
   return (
     <>
