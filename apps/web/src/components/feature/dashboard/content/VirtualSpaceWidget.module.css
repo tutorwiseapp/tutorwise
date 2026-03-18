@@ -1,26 +1,20 @@
 /**
  * Filename: VirtualSpaceWidget.module.css
- * Purpose: Styles for VirtualSpace dashboard widget (v5.9)
- * Created: 2026-02-14
- *
- * Pattern: Widget card with header and content
- * - White background with subtle border
- * - Blue header background (VirtualSpace brand color)
- * - Quick create button
- * - Session list with join actions
+ * Purpose: Styles for VirtualSpace dashboard widget
+ * Updated: 2026-03-18 — align to design system tokens (teal brand, not blue)
  */
 
 .widget {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--color-bg-card, #ffffff);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.04));
   overflow: hidden;
   transition: box-shadow 0.2s ease-in-out;
 }
 
 .widget:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08));
 }
 
 /* Header */
@@ -29,8 +23,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: #eff6ff; /* Light blue for VirtualSpace */
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--color-primary-light, #E6F0F0);
+  border-bottom: 1px solid var(--color-border, #dfe1e5);
 }
 
 .headerLeft {
@@ -40,39 +34,42 @@
 }
 
 .icon {
-  color: #2563eb;
+  color: var(--color-primary, #006c67);
   flex-shrink: 0;
 }
 
 .title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-gray-800, #1f2937);
   margin: 0;
   line-height: 1.4;
 }
 
+/* + New button in header — compact (32px) */
 .createButton {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  background-color: #2563eb;
-  color: white;
+  padding: 0 12px;
+  height: var(--button-height-compact, 32px);
+  background-color: var(--color-primary, #006c67);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: background-color 0.15s ease-in-out;
+  white-space: nowrap;
 }
 
 .createButton:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-dark, #005550);
 }
 
 .createButton:disabled {
-  background-color: #93c5fd;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -82,10 +79,12 @@
 }
 
 .description {
-  font-size: 13px;
-  color: #374151;
-  margin: 0 0 12px 0;
-  font-weight: 500;
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-gray-500, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px 0;
 }
 
 /* Empty state */
@@ -95,32 +94,34 @@
 }
 
 .emptyText {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-gray-500, #6b7280);
   margin: 0 0 16px 0;
+  line-height: 1.5;
 }
 
 .emptyButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
-  background-color: #2563eb;
-  color: white;
+  padding: 0 20px;
+  height: var(--button-height-standard, 40px);
+  background-color: var(--color-primary, #006c67);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: background-color 0.15s ease-in-out;
 }
 
 .emptyButton:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-dark, #005550);
 }
 
 .emptyButton:disabled {
-  background-color: #93c5fd;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -136,15 +137,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 10px 12px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  background-color: var(--color-gray-50, #f9fafb);
+  border: 1px solid var(--color-border, #dfe1e5);
+  border-radius: var(--border-radius-md, 8px);
   transition: background-color 0.15s ease-in-out;
 }
 
 .sessionItem:hover {
-  background-color: #eff6ff;
+  background-color: var(--color-primary-light, #E6F0F0);
 }
 
 .sessionInfo {
@@ -153,10 +155,10 @@
 }
 
 .sessionName {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 4px 0;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-gray-800, #1f2937);
+  margin: 0 0 3px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -166,66 +168,50 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  color: #9ca3af;
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-gray-400, #9ca3af);
   margin: 0;
-  font-weight: 500;
 }
 
+/* Join button — compact, inline */
 .joinButton {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 10px;
-  background-color: #2563eb;
-  color: white;
+  padding: 0 12px;
+  height: var(--button-height-compact, 32px);
+  background-color: var(--color-primary, #006c67);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: background-color 0.15s ease-in-out;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .joinButton:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-primary-dark, #005550);
 }
 
+/* View all link */
 .viewAllButton {
   display: block;
   width: 100%;
   padding: 8px;
   background: none;
   border: none;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 600;
+  color: var(--color-primary, #006c67);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
   cursor: pointer;
   text-align: center;
   transition: color 0.15s ease-in-out;
 }
 
 .viewAllButton:hover {
-  color: #1d4ed8;
+  color: var(--color-primary-dark, #005550);
   text-decoration: underline;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .sessionItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .joinButton {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .sessionName {
-    font-size: 12px;
-  }
 }
