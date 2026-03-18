@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import type { NodeProps } from 'reactflow';
-import { User, Clock, ChevronRight, ExternalLink } from 'lucide-react';
+import { User, Clock, ExternalLink, ChevronRight } from 'lucide-react';
 import { NODE_TYPE_CONFIG } from './types';
 import type { ProcessStepData, ProcessStepType } from './types';
 import { useWorkflowStore } from './store';
@@ -22,10 +22,29 @@ export const TYPE_COLORS: Record<ProcessStepType, string> = {
   team:         '#0891b2',
 };
 
+/** Derive a human-readable subtitle from node data */
+function resolveSubtitle(data: ProcessStepData): string | undefined {
+  const cfg = data.handler_config as Record<string, unknown> | undefined;
+  if (data.type === 'agent') {
+    const slug = cfg?.agent_slug as string | undefined;
+    return slug ? slug.replace(/-/g, ' ') : undefined;
+  }
+  if (data.type === 'team') {
+    const slug = cfg?.team_slug as string | undefined;
+    return slug ? slug.replace(/-/g, ' ') : undefined;
+  }
+  if (data.type === 'subprocess' && data.templateName) {
+    return data.templateName;
+  }
+  return undefined;
+}
+
 function ProcessStepNodeComponent({ data, selected }: NodeProps<ProcessStepData>) {
   const config = NODE_TYPE_CONFIG[data.type];
   const requestDrillDown = useWorkflowStore((s) => s.requestDrillDown);
   const isSubprocess = data.type === 'subprocess' || !!data.templateName;
+
+  const subtitle = resolveSubtitle(data);
 
   const footer = isSubprocess ? (
     <div className={styles.subprocessFooter}>
@@ -85,6 +104,7 @@ function ProcessStepNodeComponent({ data, selected }: NodeProps<ProcessStepData>
       typeLabel={config.label}
       icon={config.icon}
       accentColor={TYPE_COLORS[data.type]}
+      subtitle={subtitle}
       description={data.description}
       status={data.status}
       selected={selected}

@@ -11,6 +11,8 @@ export interface CanvasNodeProps {
   icon: React.ComponentType<{ size?: number }>;
   accentColor: string;
   description?: string;
+  /** Secondary line below the label (e.g. agent slug, template name) */
+  subtitle?: string;
   status?: 'pending' | 'active' | 'online' | 'completed' | 'skipped' | 'running';
   selected?: boolean;
   footer?: React.ReactNode;
@@ -28,6 +30,7 @@ function CanvasNodeComponent({
   icon: Icon,
   accentColor,
   description,
+  subtitle,
   status,
   selected,
   footer,
@@ -67,6 +70,10 @@ function CanvasNodeComponent({
             />
           )}
         </div>
+
+        {subtitle && (
+          <div className={styles.subtitle}>{subtitle}</div>
+        )}
 
         {description && (
           <div className={styles.description}>{description}</div>

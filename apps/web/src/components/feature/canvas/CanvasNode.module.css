@@ -1,12 +1,12 @@
 /* CanvasNode — Shared canvas node, left-accent-strip design */
 
 .node {
-  width: 160px;
+  width: 220px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-left: 4px solid var(--accent-color, #9ca3af);
   border-radius: 0 8px 8px 0;
-  padding: 8px 10px;
+  padding: 9px 12px;
   font-family: var(--font-primary, 'Inter', sans-serif);
   cursor: grab;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -55,6 +55,18 @@
   white-space: nowrap;
   flex: 1;
   min-width: 0;
+}
+
+/* Subtitle (e.g. agent slug, template name) */
+.subtitle {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 1px;
+  margin-bottom: 2px;
 }
 
 /* Status dot */
