@@ -8,7 +8,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Tldraw, TLRecord, createTLStore, defaultShapeUtils } from 'tldraw';
+import { Tldraw, defaultShapeUtils } from 'tldraw';
+import { createTLStore, type TLRecord } from '@tldraw/editor';
 import { useChannel } from 'ably/react';
 import 'tldraw/tldraw.css';
 
@@ -83,7 +84,7 @@ export function EmbeddedWhiteboard({ channelName, onSnapshotRequest }: EmbeddedW
   }, [onSnapshotRequest]);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, top: '60px' }}>
+    <div style={{ position: 'fixed', inset: 0, top: '56px' }}>
       <Tldraw
         store={storeRef.current}
         autoFocus

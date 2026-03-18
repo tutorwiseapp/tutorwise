@@ -16,11 +16,12 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { Plus, Video, Users, Clock, ExternalLink, Copy } from 'lucide-react';
+import { Plus, Video, ExternalLink, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { VirtualSpaceSessionListItem } from '@/lib/virtualspace';
 import HubSidebar from '@/components/hub/sidebar/HubSidebar';
 import { HubPageLayout, HubHeader, HubTabs, HubPagination } from '@/components/hub/layout';
+import HubDetailCard from '@/components/hub/content/HubDetailCard/HubDetailCard';
 import HubEmptyState from '@/components/hub/content/HubEmptyState';
 import Button from '@/components/ui/actions/Button';
 import UnifiedSelect from '@/components/ui/forms/UnifiedSelect';
@@ -207,20 +208,6 @@ export default function VirtualSpaceListPage() {
     return `${diffDays}d ago`;
   };
 
-  // Get mode badge color (using design system colors)
-  const getModeStyles = (mode: string) => {
-    switch (mode) {
-      case 'standalone':
-        return styles.modeStandalone;
-      case 'booking':
-        return styles.modeBooking;
-      case 'free_help':
-        return styles.modeFreeHelp;
-      default:
-        return styles.modeDefault;
-    }
-  };
-
   // Show loading state
   if (profileLoading || isLoading) {
     return (
@@ -389,60 +376,74 @@ export default function VirtualSpaceListPage() {
         />
       )}
 
-      {/* Sessions Grid */}
+      {/* Sessions List */}
       {paginatedSessions.length > 0 && (
-        <div className={styles.sessionsGrid}>
-          {paginatedSessions.map((session) => (
-            <div
-              key={session.id}
-              className={styles.sessionCard}
-              onClick={() => router.push(`/virtualspace/${session.id}`)}
-            >
-              <div className={styles.cardHeader}>
-                <h3 className={styles.sessionTitle}>{session.title}</h3>
-                <span className={`${styles.modeBadge} ${getModeStyles(session.mode)}`}>
-                  {session.mode.replace('_', ' ')}
-                </span>
-              </div>
+        <div className={styles.sessionsList}>
+          {paginatedSessions.map((session) => {
+            const titleInitials = (session.title || 'VS')
+              .split(' ')
+              .slice(0, 2)
+              .map((w: string) => w[0])
+              .join('')
+              .toUpperCase();
 
-              <div className={styles.sessionMeta}>
-                <span className={styles.metaItem}>
-                  <Users size={14} />
-                  {session.participantCount}
-                </span>
-                <span className={styles.metaItem}>
-                  <Clock size={14} />
-                  {formatRelativeTime(session.lastActivityAt)}
-                </span>
-                {session.isOwner && <span className={styles.ownerBadge}>Owner</span>}
-              </div>
+            const modeLabel =
+              session.mode === 'standalone'
+                ? 'Standalone'
+                : session.mode === 'booking'
+                  ? 'Booking'
+                  : 'Free Help';
 
-              <div className={styles.cardActions}>
+            const details = [
+              { label: 'Participants', value: String(session.participantCount) },
+              { label: 'Last Activity', value: formatRelativeTime(session.lastActivityAt) },
+              { label: 'Mode', value: modeLabel },
+              { label: 'Role', value: session.isOwner ? 'Owner' : 'Participant' },
+            ];
+
+            const actions = (
+              <>
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    router.push(`/virtualspace/${session.id}`);
-                  }}
+                  onClick={() => router.push(`/virtualspace/${session.id}`)}
                 >
                   <ExternalLink size={14} />
-                  Join
+                  Join Session
                 </Button>
                 {session.mode === 'standalone' && session.isOwner && (
                   <Button
                     variant="secondary"
                     size="sm"
-                    square
                     onClick={(e: React.MouseEvent) => handleCopyInviteLink(session.id, e)}
-                    title="Copy invite link"
                   >
                     <Copy size={14} />
+                    Copy Link
                   </Button>
                 )}
-              </div>
-            </div>
-          ))}
+              </>
+            );
+
+            return (
+              <HubDetailCard
+                key={session.id}
+                image={{
+                  src: null,
+                  alt: session.title || 'Session',
+                  fallbackChar: titleInitials,
+                }}
+                title={session.title || 'Untitled Session'}
+                titleHref={`/virtualspace/${session.id}`}
+                status={{
+                  label: session.status === 'active' ? 'Active' : 'Completed',
+                  variant: session.status === 'active' ? 'success' : 'neutral',
+                }}
+                description={modeLabel}
+                details={details}
+                actions={actions}
+              />
+            );
+          })}
         </div>
       )}
 

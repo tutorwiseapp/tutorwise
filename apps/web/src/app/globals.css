@@ -383,3 +383,22 @@ h1,h2,h3,h4,h5,h6 {
   font-weight: var(--font-weight-semibold, 600);
   color: var(--color-text-primary, #202124);
 }
+
+/* VirtualSpace — align tldraw style panel with header buttons */
+.tlui-style-panel__wrapper {
+  margin-right: 16px !important;
+  margin-top: 16px !important;
+}
+
+/* VirtualSpace — offset tldraw top bar (grey panel) right and down */
+.tlui-layout__top__left {
+  margin-left: 264px !important;
+  margin-top: 16px !important;
+}
+
+/* VirtualSpace — uniform border-radius on the page menu zone panel */
+.tlui-menu-zone {
+  border-radius: var(--tl-radius-4) !important;
+  border: none !important;
+}
+

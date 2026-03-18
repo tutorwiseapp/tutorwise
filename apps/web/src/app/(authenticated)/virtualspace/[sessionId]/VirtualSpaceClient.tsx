@@ -10,11 +10,11 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AblyProvider } from 'ably/react';
+import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Users } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
@@ -31,11 +31,16 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  // Initialize Ably client
-  const ablyClient = new Ably.Realtime({
+  // Initialize Ably client once (stable ref — not recreated on re-renders)
+  const [ablyClient] = useState(() => new Ably.Realtime({
     key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
     clientId: context.currentUserId,
-  });
+  }));
+
+  // Clean up Ably connection on unmount
+  useEffect(() => {
+    return () => { ablyClient.close(); };
+  }, [ablyClient]);
 
   // Build session title
   const getSessionTitle = () => {
@@ -72,6 +77,17 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
       console.error(error);
     }
   }, [context.sessionId, context.title]);
+
+  const handleJoinVideoRoom = useCallback(() => {
+    const roomName = `tutorwise-${context.sessionId.slice(0, 8)}`;
+    const jitsiUrl = `https://meet.jit.si/${roomName}`;
+    const width = 1280;
+    const height = 720;
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    window.open(jitsiUrl, 'JitsiMeet', `width=${width},height=${height},left=${left},top=${top},resizable=yes`);
+    toast.success('Video room opened — share with your student to join the same room');
+  }, [context.sessionId]);
 
   const handleSaveSnapshot = useCallback(async () => {
     setIsSaving(true);
@@ -215,13 +231,23 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             </button>
           )}
 
-          {/* Google Meet button */}
+          {/* Jitsi Video Room — deterministic room, both users join the same room */}
+          <button
+            onClick={handleJoinVideoRoom}
+            className={styles.secondaryButton}
+            title="Join shared video room — same link for tutor and student"
+          >
+            <Tv2 size={16} />
+            Join Video Room
+          </button>
+
+          {/* Google Meet — manual link sharing */}
           <button
             onClick={handleStartGoogleMeet}
             className={styles.primaryButton}
             title="Start Google Meet in new window"
           >
-            <Video size={20} />
+            <Video size={16} />
             Start Google Meet
           </button>
 
@@ -254,7 +280,9 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
       </header>
 
       {/* Whiteboard */}
-      <EmbeddedWhiteboard channelName={context.channelName} />
+      <ChannelProvider channelName={context.channelName}>
+        <EmbeddedWhiteboard channelName={context.channelName} />
+      </ChannelProvider>
     </AblyProvider>
   );
 }

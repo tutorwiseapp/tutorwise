@@ -108,6 +108,7 @@ export default function RootLayout({
         <Providers>
           <Toaster
             position="top-center"
+            containerStyle={{ zIndex: 99999, top: 72 }}
             toastOptions={{
               duration: 3000,
             }}

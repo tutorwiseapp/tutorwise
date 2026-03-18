@@ -9,41 +9,50 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 0 16px;
   background: white;
   border-bottom: 1px solid #e5e7eb;
-  height: 60px;
-  position: sticky;
+  height: 56px;
+  position: fixed;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  left: 0;
+  right: 0;
+  z-index: 9999; /* Above tldraw panels (~300) and app sidebar (~200) */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .rightSection {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .backButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 0 12px;
+  height: 36px;
   background: transparent;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .backButton:hover {
@@ -52,10 +61,13 @@
 }
 
 .title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .badge {
@@ -68,16 +80,18 @@
 .primaryButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 6px;
+  padding: 0 14px;
+  height: 36px;
   background: #006c67;
   border: none;
   border-radius: 6px;
   color: white;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .primaryButton:hover {
@@ -92,16 +106,18 @@
 .secondaryButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 6px;
+  padding: 0 14px;
+  height: 36px;
   background: white;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .secondaryButton:hover {
@@ -119,16 +135,18 @@
 .completeButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 6px;
+  padding: 0 14px;
+  height: 36px;
   background: #10b981;
   border: none;
   border-radius: 6px;
   color: white;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .completeButton:hover {
