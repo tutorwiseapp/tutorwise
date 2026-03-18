@@ -282,18 +282,18 @@ export default function AdminOperationsPage() {
           {/* Command Bar — conversational input */}
           <div className={styles.commandSection}>
             <form className={styles.commandForm} onSubmit={handleSubmit}>
-              <textarea
+              <input
+                type="text"
                 className={styles.commandInput}
                 value={command}
                 onChange={(e) => setCommand(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
+                  if (e.key === 'Enter') {
                     e.preventDefault();
                     handleCommand(command);
                   }
                 }}
                 placeholder='e.g. "Show at-risk tutors" or "Run commission payout" or "Show referral analytics"'
-                rows={1}
                 disabled={isRunning}
                 aria-label="Operations command input"
               />

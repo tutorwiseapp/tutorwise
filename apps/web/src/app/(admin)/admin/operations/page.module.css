@@ -405,8 +405,6 @@
   line-height: 1.5;
   color: #202124;
   background: transparent;
-  resize: none;
-  max-height: 120px;
   font-family: inherit;
   padding: 6px 0;
 }
