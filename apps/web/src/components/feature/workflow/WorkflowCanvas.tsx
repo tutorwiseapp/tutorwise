@@ -226,6 +226,12 @@ function WorkflowCanvasInner({
     });
   }, [nodes, taskStatusMap, showLiveOverlay]);
 
+  // Normalize all edges to the canonical style regardless of what's stored in DB
+  const displayEdges = useMemo(
+    () => edges.map((e) => ({ ...e, ...DEFAULT_EDGE_OPTIONS })),
+    [edges],
+  );
+
   // Subscribe to workflow_tasks for live overlay
   useEffect(() => {
     if (!showLiveOverlay || !executionId) return;
@@ -285,7 +291,7 @@ function WorkflowCanvasInner({
       if (readOnly) return;
       pushSnapshot('Connect nodes');
       setEdges((eds) =>
-        addEdge({ ...connection, type: 'workflowEdge', animated: true }, eds)
+        addEdge({ ...connection, ...DEFAULT_EDGE_OPTIONS }, eds)
       );
       markDirty();
     },
@@ -1000,7 +1006,7 @@ function WorkflowCanvasInner({
         >
           <ReactFlow
             nodes={displayNodes}
-            edges={edges}
+            edges={displayEdges}
             onNodesChange={handleNodesChange}
             onEdgesChange={handleEdgesChange}
             onConnect={onConnect}
@@ -1018,6 +1024,7 @@ function WorkflowCanvasInner({
             defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
             fitView
             fitViewOptions={FIT_VIEW_OPTIONS}
+            connectionLineStyle={{ stroke: '#c1c8d1', strokeWidth: 2 }}
             deleteKeyCode={readOnly ? null : 'Delete'}
             nodesDraggable={!readOnly}
             nodesConnectable={!readOnly}

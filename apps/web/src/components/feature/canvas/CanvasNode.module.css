@@ -131,15 +131,6 @@
   flex-wrap: wrap;
 }
 
-/* ReactFlow handles — matches build canvas dot style */
-.handle {
-  width: 9px;
-  height: 9px;
-  background: #c1c8d1;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  opacity: 0.85;
-}
 
 /* Condition node yes/no labels */
 .conditionLabels {

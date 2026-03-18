@@ -26,6 +26,15 @@ export interface CanvasNodeProps {
   navigateType?: 'agents' | 'teams';
 }
 
+const HANDLE_STYLE: React.CSSProperties = {
+  background: '#c1c8d1',
+  width: 9,
+  height: 9,
+  border: '2px solid #fff',
+  borderRadius: '50%',
+  opacity: 0.85,
+};
+
 function CanvasNodeComponent({
   label,
   typeLabel,
@@ -55,10 +64,10 @@ function CanvasNodeComponent({
         aria-label={`${typeLabel}: ${label}`}
       >
         {hasTargetHandle && (
-          <Handle type="target" position={Position.Top} className={styles.handle} />
+          <Handle type="target" position={Position.Top} style={HANDLE_STYLE} />
         )}
         {hasSideHandles && (
-          <Handle type="target" position={Position.Left} id="left" className={styles.handle} />
+          <Handle type="target" position={Position.Left} id="left" style={HANDLE_STYLE} />
         )}
 
         <div className={styles.typeBadge} aria-hidden="true">
@@ -94,15 +103,13 @@ function CanvasNodeComponent({
               type="source"
               position={Position.Bottom}
               id="yes"
-              className={styles.handle}
-              style={{ left: '30%' }}
+              style={{ ...HANDLE_STYLE, left: '30%' }}
             />
             <Handle
               type="source"
               position={Position.Bottom}
               id="no"
-              className={styles.handle}
-              style={{ left: '70%' }}
+              style={{ ...HANDLE_STYLE, left: '70%' }}
             />
             <div className={styles.conditionLabels}>
               <span className={styles.conditionYes}>Yes</span>
@@ -110,11 +117,11 @@ function CanvasNodeComponent({
             </div>
           </>
         ) : hasSourceHandle ? (
-          <Handle type="source" position={Position.Bottom} className={styles.handle} />
+          <Handle type="source" position={Position.Bottom} style={HANDLE_STYLE} />
         ) : null}
 
         {hasSideHandles && (
-          <Handle type="source" position={Position.Right} id="right" className={styles.handle} />
+          <Handle type="source" position={Position.Right} id="right" style={HANDLE_STYLE} />
         )}
       </div>
     </>

@@ -13,6 +13,7 @@ export function ProcessBrowser({ onLoad }: ProcessBrowserProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [processes, setProcesses] = useState<WorkflowProcess[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProcesses = useCallback(async () => {
@@ -40,9 +41,22 @@ export function ProcessBrowser({ onLoad }: ProcessBrowserProps) {
   }, [isOpen, fetchProcesses]);
 
   const handleLoad = useCallback(
-    (process: WorkflowProcess) => {
-      onLoad(process);
-      setIsOpen(false);
+    async (process: WorkflowProcess) => {
+      setLoadingId(process.id);
+      try {
+        const res = await fetch(`/api/admin/workflow/processes/${process.id}`);
+        const data = await res.json();
+        if (data.success) {
+          onLoad(data.data);
+          setIsOpen(false);
+        } else {
+          setError(data.error || 'Failed to load process');
+        }
+      } catch {
+        setError('Failed to load process');
+      } finally {
+        setLoadingId(null);
+      }
     },
     [onLoad]
   );
@@ -138,8 +152,12 @@ export function ProcessBrowser({ onLoad }: ProcessBrowserProps) {
                 key={process.id}
                 className={styles.processCard}
                 onClick={() => handleLoad(process)}
+                disabled={loadingId !== null}
               >
-                <FileText size={20} style={{ flexShrink: 0, color: 'var(--color-primary, #006C67)' }} />
+                {loadingId === process.id
+                  ? <Loader2 size={20} style={{ flexShrink: 0, color: 'var(--color-primary, #006C67)', animation: 'spin 1s linear infinite' }} />
+                  : <FileText size={20} style={{ flexShrink: 0, color: 'var(--color-primary, #006C67)' }} />
+                }
                 <div className={styles.processInfo}>
                   <div className={styles.processName}>{process.name}</div>
                   {process.description && (
