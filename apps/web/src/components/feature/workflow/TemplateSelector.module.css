@@ -27,6 +27,40 @@
   outline-offset: 2px;
 }
 
+/* Tab bar */
+.tabBar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  margin-bottom: 4px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: var(--font-size-sm, 14px);
+  font-family: var(--font-primary, 'Inter', sans-serif);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #6b7280);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-text-primary, #111827);
+}
+
+.tabActive {
+  color: var(--color-primary, #006C67);
+  border-bottom-color: var(--color-primary, #006C67);
+}
+
 /* Overlay */
 .overlay {
   position: fixed;

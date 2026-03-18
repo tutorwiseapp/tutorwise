@@ -1052,6 +1052,7 @@ function WorkflowCanvasInner({
                 <ProcessInput onParse={handleAIParse} isParsing={isParsing} />
                 <TemplateSelector
                   onSelect={handleTemplateSelect}
+                  onLoadProcess={handleLoadProcess}
                   currentNodes={nodes as ProcessNode[]}
                   currentEdges={edges as ProcessEdge[]}
                   currentName={processName}

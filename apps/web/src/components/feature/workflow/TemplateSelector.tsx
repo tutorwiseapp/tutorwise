@@ -10,9 +10,13 @@ import {
   Trash2,
   Plus,
   Save,
+  FolderOpen,
+  FileText,
 } from 'lucide-react';
-import type { WorkflowProcessTemplate, ProcessNode, ProcessEdge } from './types';
+import type { WorkflowProcessTemplate, WorkflowProcess, ProcessNode, ProcessEdge } from './types';
 import styles from './TemplateSelector.module.css';
+
+type ActiveTab = 'templates' | 'processes';
 
 interface TemplateSelectorProps {
   onSelect: (
@@ -21,6 +25,7 @@ interface TemplateSelectorProps {
     name: string,
     description: string
   ) => void;
+  onLoadProcess: (process: WorkflowProcess) => void;
   currentNodes?: ProcessNode[];
   currentEdges?: ProcessEdge[];
   currentName?: string;
@@ -61,12 +66,14 @@ const EMPTY_FORM: TemplateFormData = {
 
 export function TemplateSelector({
   onSelect,
+  onLoadProcess,
   currentNodes,
   currentEdges,
   currentName,
   currentDescription,
 }: TemplateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('templates');
   const [templates, setTemplates] = useState<WorkflowProcessTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +82,11 @@ export function TemplateSelector({
   const [formData, setFormData] = useState<TemplateFormData>(EMPTY_FORM);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  // My Processes tab state
+  const [processes, setProcesses] = useState<WorkflowProcess[]>([]);
+  const [processesLoading, setProcessesLoading] = useState(false);
+  const [processesError, setProcessesError] = useState<string | null>(null);
+  const [loadingProcessId, setLoadingProcessId] = useState<string | null>(null);
 
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
@@ -100,11 +112,53 @@ export function TemplateSelector({
     }
   }, []);
 
+  const fetchProcesses = useCallback(async () => {
+    setProcessesLoading(true);
+    setProcessesError(null);
+    try {
+      const res = await fetch('/api/admin/workflow/processes');
+      const data = await res.json();
+      if (data.success) {
+        setProcesses(data.data);
+      } else {
+        setProcessesError(data.error || 'Failed to load processes');
+      }
+    } catch {
+      setProcessesError('Failed to load processes');
+    } finally {
+      setProcessesLoading(false);
+    }
+  }, []);
+
+  const handleLoadProcess = useCallback(async (process: WorkflowProcess) => {
+    setLoadingProcessId(process.id);
+    try {
+      const res = await fetch(`/api/admin/workflow/processes/${process.id}`);
+      const data = await res.json();
+      if (data.success) {
+        onLoadProcess(data.data as WorkflowProcess);
+        setIsOpen(false);
+      } else {
+        setProcessesError(data.error || 'Failed to load process');
+      }
+    } catch {
+      setProcessesError('Failed to load process');
+    } finally {
+      setLoadingProcessId(null);
+    }
+  }, [onLoadProcess]);
+
   useEffect(() => {
     if (isOpen && templates.length === 0) {
       fetchTemplates();
     }
   }, [isOpen, templates.length, fetchTemplates]);
+
+  useEffect(() => {
+    if (isOpen && activeTab === 'processes') {
+      fetchProcesses();
+    }
+  }, [isOpen, activeTab, fetchProcesses]);
 
   const handleSelect = useCallback(
     (template: WorkflowProcessTemplate) => {
@@ -126,6 +180,7 @@ export function TemplateSelector({
     setEditingId(null);
     setShowCreateForm(false);
     setFormData(EMPTY_FORM);
+    setProcessesError(null);
   }, []);
 
   const handleEdit = useCallback((template: WorkflowProcessTemplate) => {
@@ -345,22 +400,24 @@ export function TemplateSelector({
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>
             <LayoutTemplate size={18} />
-            <span>Process Templates</span>
+            <span>Open Process</span>
           </div>
           <div className={styles.headerActions}>
-            <button
-              className={`${styles.manageButton} ${isManageMode ? styles.manageActive : ''}`}
-              onClick={() => {
-                setIsManageMode(!isManageMode);
-                setEditingId(null);
-                setShowCreateForm(false);
-                setFormData(EMPTY_FORM);
-              }}
-              title={isManageMode ? 'Exit manage mode' : 'Manage templates'}
-            >
-              <Pencil size={14} />
-              {isManageMode ? 'Done' : 'Manage'}
-            </button>
+            {activeTab === 'templates' && (
+              <button
+                className={`${styles.manageButton} ${isManageMode ? styles.manageActive : ''}`}
+                onClick={() => {
+                  setIsManageMode(!isManageMode);
+                  setEditingId(null);
+                  setShowCreateForm(false);
+                  setFormData(EMPTY_FORM);
+                }}
+                title={isManageMode ? 'Exit manage mode' : 'Manage templates'}
+              >
+                <Pencil size={14} />
+                {isManageMode ? 'Done' : 'Manage'}
+              </button>
+            )}
             <button
               className={styles.closeButton}
               onClick={handleClose}
@@ -371,121 +428,188 @@ export function TemplateSelector({
           </div>
         </div>
 
-        <p className={styles.modalSubtitle}>
-          {isManageMode
-            ? 'Edit, delete, or create templates.'
-            : 'Choose a template to get started quickly. You can customise it after loading.'}
-        </p>
+        {/* Tab bar */}
+        <div className={styles.tabBar}>
+          <button
+            className={`${styles.tab} ${activeTab === 'processes' ? styles.tabActive : ''}`}
+            onClick={() => { setActiveTab('processes'); setIsManageMode(false); }}
+          >
+            <FolderOpen size={14} /> My Processes
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'templates' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('templates')}
+          >
+            <LayoutTemplate size={14} /> Templates
+          </button>
+        </div>
 
-        {isManageMode && (
-          <div className={styles.manageActions}>
-            <button
-              className={styles.createButton}
-              onClick={() => {
-                setShowCreateForm(true);
-                setEditingId(null);
-                setFormData(EMPTY_FORM);
-              }}
-            >
-              <Plus size={14} /> New Template
-            </button>
-            {currentNodes && currentNodes.length > 0 && (
+        {/* My Processes tab */}
+        {activeTab === 'processes' && (
+          <div className={styles.templateGrid}>
+            {processesLoading && (
+              <div className={styles.loadingState}>
+                <Loader2 size={24} className={styles.spinner} />
+                <span>Loading saved processes...</span>
+              </div>
+            )}
+            {processesError && (
+              <div className={styles.errorState}>
+                <span>{processesError}</span>
+                <button className={styles.retryButton} onClick={fetchProcesses}>Try again</button>
+              </div>
+            )}
+            {!processesLoading && !processesError && processes.map((p) => (
               <button
-                className={styles.createButton}
-                onClick={handleSaveCurrentAsTemplate}
+                key={p.id}
+                className={styles.templateCard}
+                onClick={() => handleLoadProcess(p)}
+                disabled={loadingProcessId !== null}
               >
-                <Save size={14} /> Save Current as Template
+                <div className={styles.cardHeader}>
+                  <span className={styles.cardName}>
+                    {loadingProcessId === p.id
+                      ? <Loader2 size={13} className={styles.spinner} />
+                      : <FileText size={13} style={{ color: 'var(--color-primary, #006C67)' }} />
+                    }
+                    {' '}{p.name}
+                  </span>
+                  <span className={`${styles.complexityBadge} ${styles[p.execution_mode === 'live' ? 'simple' : p.execution_mode === 'shadow' ? 'medium' : 'advanced']}`}>
+                    {p.execution_mode}
+                  </span>
+                </div>
+                {p.description && <p className={styles.cardDescription}>{p.description}</p>}
+                <p className={styles.cardDescription} style={{ color: 'var(--color-text-tertiary)' }}>
+                  {p.category} · Updated {new Date(p.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
               </button>
+            ))}
+            {!processesLoading && !processesError && processes.length === 0 && (
+              <div className={styles.emptyState}>No saved processes yet. Create one and save it to see it here.</div>
             )}
           </div>
         )}
 
-        {(showCreateForm || editingId) && renderForm()}
+        {/* Templates tab */}
+        {activeTab === 'templates' && (
+          <>
+            <p className={styles.modalSubtitle}>
+              {isManageMode
+                ? 'Edit, delete, or create templates.'
+                : 'Choose a template to get started quickly. You can customise it after loading.'}
+            </p>
 
-        <div className={styles.templateGrid}>
-          {isLoading && (
-            <div className={styles.loadingState}>
-              <Loader2 size={24} className={styles.spinner} />
-              <span>Loading templates...</span>
-            </div>
-          )}
-
-          {error && (
-            <div className={styles.errorState}>
-              <span>{error}</span>
-              <button className={styles.retryButton} onClick={fetchTemplates}>
-                Try again
-              </button>
-            </div>
-          )}
-
-          {!isLoading &&
-            !error &&
-            templates.map((template) => (
-              <div key={template.id} className={styles.templateCardWrapper}>
+            {isManageMode && (
+              <div className={styles.manageActions}>
                 <button
-                  className={styles.templateCard}
-                  onClick={() => handleSelect(template)}
-                  disabled={isManageMode}
+                  className={styles.createButton}
+                  onClick={() => {
+                    setShowCreateForm(true);
+                    setEditingId(null);
+                    setFormData(EMPTY_FORM);
+                  }}
                 >
-                  <div className={styles.cardHeader}>
-                    <span className={styles.cardName}>{template.name}</span>
-                    <span
-                      className={`${styles.complexityBadge} ${styles[template.complexity]}`}
-                    >
-                      {COMPLEXITY_LABELS[template.complexity] || template.complexity}
-                    </span>
-                  </div>
-                  {template.description && (
-                    <p className={styles.cardDescription}>{template.description}</p>
-                  )}
-                  {template.preview_steps && template.preview_steps.length > 0 && (
-                    <div className={styles.previewSteps}>
-                      {template.preview_steps.map((step, i) => (
-                        <span key={i} className={styles.stepChip}>
-                          {i > 0 && <ArrowRight size={10} className={styles.stepArrow} />}
-                          {step}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {template.tags && template.tags.length > 0 && (
-                    <div className={styles.tags}>
-                      {template.tags.map((tag) => (
-                        <span key={tag} className={styles.tag}>
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <Plus size={14} /> New Template
                 </button>
-                {isManageMode && (
-                  <div className={styles.cardActions}>
-                    <button
-                      className={styles.cardActionButton}
-                      onClick={() => handleEdit(template)}
-                      title="Edit template metadata"
-                    >
-                      <Pencil size={12} />
-                    </button>
-                    {!template.is_system && (
-                      <button
-                        className={`${styles.cardActionButton} ${styles.cardActionDanger}`}
-                        onClick={() => handleDelete(template.id, template.name)}
-                        title="Delete template"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
-                  </div>
+                {currentNodes && currentNodes.length > 0 && (
+                  <button
+                    className={styles.createButton}
+                    onClick={handleSaveCurrentAsTemplate}
+                  >
+                    <Save size={14} /> Save Current as Template
+                  </button>
                 )}
               </div>
-            ))}
+            )}
 
-          {!isLoading && !error && templates.length === 0 && (
-            <div className={styles.emptyState}>No templates available.</div>
-          )}
-        </div>
+            {(showCreateForm || editingId) && renderForm()}
+
+            <div className={styles.templateGrid}>
+              {isLoading && (
+                <div className={styles.loadingState}>
+                  <Loader2 size={24} className={styles.spinner} />
+                  <span>Loading templates...</span>
+                </div>
+              )}
+
+              {error && (
+                <div className={styles.errorState}>
+                  <span>{error}</span>
+                  <button className={styles.retryButton} onClick={fetchTemplates}>
+                    Try again
+                  </button>
+                </div>
+              )}
+
+              {!isLoading &&
+                !error &&
+                templates.map((template) => (
+                  <div key={template.id} className={styles.templateCardWrapper}>
+                    <button
+                      className={styles.templateCard}
+                      onClick={() => handleSelect(template)}
+                      disabled={isManageMode}
+                    >
+                      <div className={styles.cardHeader}>
+                        <span className={styles.cardName}>{template.name}</span>
+                        <span
+                          className={`${styles.complexityBadge} ${styles[template.complexity]}`}
+                        >
+                          {COMPLEXITY_LABELS[template.complexity] || template.complexity}
+                        </span>
+                      </div>
+                      {template.description && (
+                        <p className={styles.cardDescription}>{template.description}</p>
+                      )}
+                      {template.preview_steps && template.preview_steps.length > 0 && (
+                        <div className={styles.previewSteps}>
+                          {template.preview_steps.map((step, i) => (
+                            <span key={i} className={styles.stepChip}>
+                              {i > 0 && <ArrowRight size={10} className={styles.stepArrow} />}
+                              {step}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {template.tags && template.tags.length > 0 && (
+                        <div className={styles.tags}>
+                          {template.tags.map((tag) => (
+                            <span key={tag} className={styles.tag}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                    {isManageMode && (
+                      <div className={styles.cardActions}>
+                        <button
+                          className={styles.cardActionButton}
+                          onClick={() => handleEdit(template)}
+                          title="Edit template metadata"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                        {!template.is_system && (
+                          <button
+                            className={`${styles.cardActionButton} ${styles.cardActionDanger}`}
+                            onClick={() => handleDelete(template.id, template.name)}
+                            title="Delete template"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+              {!isLoading && !error && templates.length === 0 && (
+                <div className={styles.emptyState}>No templates available.</div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
