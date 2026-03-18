@@ -81,6 +81,7 @@ export interface Profile {
   stripe_customer_id?: string;
   roles: Role[];
   active_role?: Role;
+  is_admin?: boolean; // Whether user has admin access
   created_at: string;
   preferences?: Record<string, any>;
   onboarding_progress?: OnboardingProgress;

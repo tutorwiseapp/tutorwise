@@ -21,7 +21,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { useIsAdmin } from '@/lib/rbac/hooks';
 import MobileMenu from './MobileMenu';
 import AdminBottomNav from '@/components/admin/layout/AdminBottomNav';
 import styles from './BottomNav.module.css';
@@ -39,7 +38,7 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useUserProfile();
-  const { isAdmin: isAdminUser } = useIsAdmin();
+  const isAdminUser = profile?.is_admin === true;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Route-based detection: if on admin routes, render AdminBottomNav

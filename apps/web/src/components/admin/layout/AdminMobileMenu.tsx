@@ -14,6 +14,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useAdminProfile } from '@/lib/rbac';
@@ -74,7 +75,7 @@ export default function AdminMobileMenu({ isOpen, onClose }: AdminMobileMenuProp
             </div>
           )}
           <button className={styles.closeButton} onClick={onClose} aria-label="Close menu">
-            ✕
+            <X size={20} />
           </button>
         </div>
 
