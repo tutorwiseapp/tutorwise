@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { Tldraw, defaultShapeUtils } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
 import { useChannel } from 'ably/react';
@@ -173,19 +173,19 @@ export function EmbeddedWhiteboard({
   // Session channel name for chat/timer/reactions (distinct from draw channel)
   const sessionChannelName = `session:${channelName}`;
 
-  // Build stable tldraw components with displayName closure
-  const TLDRAW_COMPONENTS = {
+  // Stable component map — only recreates when displayName changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => <InFrontOfTheCanvas displayName={displayName} />,
     TopPanel,
-  };
+  }), [displayName]);
 
   return (
     <SessionProvider channelName={sessionChannelName} currentUserId={currentUserId}>
       <div style={{ position: 'fixed', inset: 0, top: '56px' }}>
         <Tldraw
           store={storeRef.current}
-          shapeUtils={CUSTOM_SHAPE_UTILS}
-          components={TLDRAW_COMPONENTS}
+          components={tldrawComponents}
           autoFocus
         />
       </div>

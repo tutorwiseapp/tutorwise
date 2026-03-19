@@ -11,7 +11,7 @@ import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from
 import { useState, useCallback } from 'react';
 
 export type EmbedShape = TLBaseShape<
-  'embed',
+  'tool-embed',
   {
     w: number;
     h: number;
@@ -52,7 +52,7 @@ function EmbedEditor({ shape, onClose }: { shape: EmbedShape; onClose: () => voi
     }
     (editor as any).updateShape({
       id: shape.id,
-      type: 'embed',
+      type: 'tool-embed',
       props: { url, label },
     });
     onClose();
@@ -126,7 +126,7 @@ function EmbedComponent({ shape }: { shape: EmbedShape }) {
 }
 
 export class EmbedShapeUtil extends ShapeUtil<any> {
-  static override type = 'embed' as const;
+  static override type = 'tool-embed' as const;
 
   static override props = {
     w: T.number,

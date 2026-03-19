@@ -407,7 +407,7 @@ function getMathsTools(): ToolItem[] {
         const id = createShapeId();
         create(editor, {
           id,
-          type: 'embed',
+          type: 'tool-embed',
           x: x - 240,
           y: y - 180,
           props: { w: 480, h: 360, url: 'https://www.desmos.com/calculator', label: 'Desmos Graphing' },
@@ -757,7 +757,7 @@ function getScienceTools(): ToolItem[] {
         const id = createShapeId();
         create(editor, {
           id,
-          type: 'embed',
+          type: 'tool-embed',
           x: x - 240,
           y: y - 180,
           props: { w: 480, h: 360, url: 'https://www.geogebra.org/graphing', label: 'GeoGebra Graphing' },
