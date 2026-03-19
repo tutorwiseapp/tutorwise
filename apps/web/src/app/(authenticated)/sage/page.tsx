@@ -38,8 +38,19 @@ interface HandoffContext {
   conversationContext?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
+import type { SageLevel } from '@/components/feature/sage/useSageChat';
+
 type SubjectType = 'maths' | 'english' | 'science' | 'general';
 type LevelType = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
+
+const LEVEL_MAP: Record<LevelType, SageLevel> = {
+  'primary':    'KS2',
+  'ks3':        'KS3',
+  'gcse':       'GCSE',
+  'a-level':    'A-Level',
+  'university': 'University',
+  'adult':      'Other',
+};
 
 const SUBJECTS = [
   { value: 'maths', label: 'Mathematics' },
@@ -280,7 +291,7 @@ export default function SagePage() {
         <div className={styles.chatContainer}>
           <SageChat
             subject={subject}
-            level={level}
+            level={LEVEL_MAP[level]}
             autoStart={true}
             streaming={true}
             onSessionStart={() => setSessionStarted(true)}
