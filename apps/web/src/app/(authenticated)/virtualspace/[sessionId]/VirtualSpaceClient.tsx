@@ -22,6 +22,7 @@ import type { VirtualSpaceSession } from '@/lib/virtualspace';
 import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
 import { useSageVirtualSpace } from '@/components/feature/virtualspace/hooks/useSageVirtualSpace';
 import { SagePanel } from '@/components/feature/virtualspace/SagePanel';
+import type { SageCanvasShapeSpec } from '@/components/feature/virtualspace/canvas/canvasBlockParser';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -32,10 +33,20 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
 
+  // Pending shapes from AI assistant — bridged into the tldraw canvas
+  const [pendingShapes, setPendingShapes] = useState<SageCanvasShapeSpec[]>([]);
+  const dispatchShape = useCallback((shape: SageCanvasShapeSpec) => {
+    setPendingShapes(prev => [...prev, shape]);
+  }, []);
+  const clearPendingShapes = useCallback(() => {
+    setPendingShapes([]);
+  }, []);
+
   // Sage integration
   const sage = useSageVirtualSpace({
     sessionId: context.sessionId,
     currentUserId: context.currentUserId,
+    dispatchShape,
   });
 
   // Initialize Ably client once (stable ref — not recreated on re-renders)
@@ -319,6 +330,8 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           channelName={context.channelName}
           currentUserId={context.currentUserId}
           displayName={context.participants.find((p) => p.userId === context.currentUserId)?.displayName ?? context.ownerName}
+          pendingShapes={pendingShapes}
+          onShapesStamped={clearPendingShapes}
         />
       </ChannelProvider>
 

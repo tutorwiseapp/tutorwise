@@ -46,6 +46,10 @@ import { ReactionOverlay } from './whiteboard/session/ReactionOverlay';
 // Subject tools panel
 import { SubjectToolsPanel } from './whiteboard/panels/SubjectToolsPanel';
 
+// Sage canvas writer — stamps shapes requested by Sage onto the tldraw canvas
+import { SageCanvasWriter } from './canvas/SageCanvasWriter';
+import type { SageCanvasShapeSpec } from './canvas/canvasBlockParser';
+
 // ── All custom shape utils (stable module-level array) ─────────────────────
 
 const CUSTOM_SHAPE_UTILS = [
@@ -72,13 +76,22 @@ const CUSTOM_SHAPE_UTILS = [
 // All floating UI layers rendered on top of the tldraw canvas.
 // Must access SessionContext, which lives above <Tldraw>.
 
-function InFrontOfTheCanvas({ displayName }: { displayName: string }) {
+function InFrontOfTheCanvas({
+  displayName,
+  pendingShapes,
+  onShapesStamped,
+}: {
+  displayName: string;
+  pendingShapes: SageCanvasShapeSpec[];
+  onShapesStamped: () => void;
+}) {
   return (
     <>
       <SubjectToolsPanel />
       <ChatPanel displayName={displayName} />
       <TimerWidget />
       <ReactionOverlay />
+      <SageCanvasWriter pendingShapes={pendingShapes} onShapesStamped={onShapesStamped} />
     </>
   );
 }
@@ -92,6 +105,10 @@ interface EmbeddedWhiteboardProps {
   currentUserId: string;
   /** Display name shown in chat and raise-hand */
   displayName?: string;
+  /** Shapes queued by the AI assistant to be stamped onto the canvas */
+  pendingShapes?: SageCanvasShapeSpec[];
+  /** Called after pendingShapes have been stamped, so the parent can clear the queue */
+  onShapesStamped?: () => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -100,6 +117,8 @@ export function EmbeddedWhiteboard({
   channelName,
   currentUserId,
   displayName = 'You',
+  pendingShapes,
+  onShapesStamped,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
   // Initialize tldraw store with all custom shape utils
@@ -162,10 +181,16 @@ export function EmbeddedWhiteboard({
   // Session channel name for chat/timer/reactions (distinct from draw channel)
   const sessionChannelName = `session:${channelName}`;
 
-  // Stable component map — only recreates when displayName changes
+  // Stable component map — only recreates when displayName or pendingShapes/onShapesStamped change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const tldrawComponents = useMemo(() => ({
-    InFrontOfTheCanvas: () => <InFrontOfTheCanvas displayName={displayName} />,
+    InFrontOfTheCanvas: () => (
+      <InFrontOfTheCanvas
+        displayName={displayName}
+        pendingShapes={pendingShapes ?? []}
+        onShapesStamped={onShapesStamped ?? (() => {})}
+      />
+    ),
     StylePanel: () => (
       <div style={{
         '--tl-color-panel': 'hsl(204, 16%, 94%)',
@@ -177,7 +202,7 @@ export function EmbeddedWhiteboard({
         <DefaultStylePanel />
       </div>
     ),
-  }), [displayName]);
+  }), [displayName, pendingShapes, onShapesStamped]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>

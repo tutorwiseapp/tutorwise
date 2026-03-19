@@ -46,6 +46,7 @@ interface StreamRequestBody {
   subject?: SageSubject;
   level?: SageLevel;
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  extraSystemContext?: string;
 }
 
 /**
@@ -412,8 +413,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Combine RAG context with signature prompt, math solutions, curriculum context, teaching mode, and age adaptation
-    const combinedRagContext = [ragContext, signaturePrompt, mathContext, curriculumContext, teachingModePrompt, agePrompt, studentContextPrompt].filter(Boolean).join('\n') || undefined;
+    // Combine RAG context with signature prompt, math solutions, curriculum context, teaching mode, age adaptation, and any caller-provided extra context
+    const combinedRagContext = [
+      ragContext, signaturePrompt, mathContext, curriculumContext,
+      teachingModePrompt, agePrompt, studentContextPrompt,
+      body.extraSystemContext,
+    ].filter(Boolean).join('\n') || undefined;
 
     // Create SSE stream
     const encoder = new TextEncoder();

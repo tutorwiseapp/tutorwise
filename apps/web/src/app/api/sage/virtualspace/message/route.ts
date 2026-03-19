@@ -67,6 +67,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Canvas writing instructions — injected into the system prompt so Sage can
+    // stamp shapes on the whiteboard by emitting [CANVAS]{...}[/CANVAS] blocks.
+    const CANVAS_INSTRUCTIONS = `## Canvas Writing
+You can draw shapes on the whiteboard. When a visual aid would genuinely help the student understand (equations, diagrams, number lines, charts), include a [CANVAS] block in your response:
+
+[CANVAS]
+{"type":"<type>","props":{...}}
+[/CANVAS]
+
+Supported types and their required props:
+- "math-equation": {"latex":"...","displayMode":true}
+- "annotation": {"text":"...","annotationType":"highlight"|"comment"|"technique","label":"...","showBadge":false}
+- "number-line": {"min":0,"max":10,"step":1,"label":"..."}
+- "fraction-bar": {"numerator":1,"denominator":4,"showLabel":true}
+- "venn-diagram": {"leftLabel":"...","rightLabel":"...","leftContent":["..."],"centerContent":["..."],"rightContent":["..."],"title":"..."}
+- "graph-axes": {"xMin":-10,"xMax":10,"yMin":-10,"yMax":10,"showGrid":true}
+- "pie-chart": {"segments":"[{\\"label\\":\\"A\\",\\"value\\":50,\\"color\\":\\"#3b82f6\\"}]","title":"..."}
+- "bar-chart": {"bars":"[{\\"label\\":\\"A\\",\\"value\\":10,\\"color\\":\\"#3b82f6\\"}]","title":"...","xLabel":"...","yLabel":"..."}
+- "timeline": {"events":"[{\\"label\\":\\"Event\\",\\"date\\":\\"1066\\",\\"color\\":\\"#3b82f6\\"}]","title":"..."}
+- "pythagoras": {"sideA":3,"sideB":4,"showWorking":true}
+
+Rules:
+- Only add a canvas shape when it genuinely aids understanding.
+- Put [CANVAS] on its own line — never inside a markdown code fence.
+- At most one [CANVAS] block per response unless the student explicitly asks for multiple shapes.
+- Valid JSON only — no comments, no trailing commas.`;
+
     // Forward to the existing /api/sage/stream endpoint.
     // We reconstruct the request with the correct sessionId, subject, level
     // so all the existing safety, RAG, curriculum, and streaming logic runs as-is.
@@ -76,6 +103,7 @@ export async function POST(request: NextRequest) {
       subject: sageSession.subject,
       level: sageSession.level,
       conversationHistory: conversationHistory ?? [],
+      extraSystemContext: CANVAS_INSTRUCTIONS,
     };
 
     // Build a new Request object targeting the stream route

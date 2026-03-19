@@ -4,12 +4,16 @@
  * useSageVirtualSpace
  *
  * Manages Sage state within a VirtualSpace session.
- * Handles activation, messaging, quota display, and deactivation.
+ * Handles activation, streaming (with [CANVAS] block parsing), quota display, and deactivation.
  *
  * @module components/feature/virtualspace/hooks/useSageVirtualSpace
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { parseStreamingBuffer } from '../canvas/canvasBlockParser';
+import type { SageCanvasShapeSpec } from '../canvas/canvasBlockParser';
+
+export type { SageCanvasShapeSpec };
 
 // --- Types ---
 
@@ -26,6 +30,8 @@ export interface SageMessage {
 export interface UseSageVirtualSpaceOptions {
   sessionId: string;
   currentUserId: string;
+  /** Called whenever Sage requests a shape to be drawn on the canvas. */
+  dispatchShape?: (shape: SageCanvasShapeSpec) => void;
 }
 
 export interface UseSageVirtualSpaceReturn {
@@ -47,10 +53,14 @@ export interface UseSageVirtualSpaceReturn {
   clearError: () => void;
 }
 
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // --- Hook Implementation ---
 
 export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSageVirtualSpaceReturn {
-  const { sessionId } = options;
+  const { sessionId, dispatchShape } = options;
 
   const [isActive, setIsActive] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -62,10 +72,14 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
   const [sageSessionId, setSageSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Keep sageSessionId in a ref so sendMessage closure always has latest value
+  // Stable refs so callbacks always have the latest values without re-creating
   const sageSessionIdRef = useRef<string | null>(null);
-  // Keep messages in a ref for conversation history building
   const messagesRef = useRef<SageMessage[]>([]);
+  const dispatchShapeRef = useRef(dispatchShape);
+
+  useEffect(() => {
+    dispatchShapeRef.current = dispatchShape;
+  }, [dispatchShape]);
 
   const updateSageSessionId = useCallback((id: string | null) => {
     sageSessionIdRef.current = id;
@@ -82,7 +96,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
 
   /**
    * Activate Sage for this VirtualSpace session.
-   * Calls POST /api/sage/virtualspace/activate.
    */
   const activate = useCallback(async (): Promise<void> => {
     if (isActivating || isActive) return;
@@ -104,7 +117,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
           setQuotaExhausted(true);
           setQuotaRemaining(0);
           setIsActivating(false);
-          // Add a system-style message explaining the quota state
           const quotaMsg: SageMessage = {
             id: `msg_quota_${Date.now()}`,
             role: 'assistant',
@@ -112,7 +124,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
             timestamp: new Date(),
           };
           updateMessages(() => [quotaMsg]);
-          setIsActive(true); // Show panel with upgrade prompt
+          setIsActive(true);
           return;
         }
         throw new Error(data.error || 'Failed to activate Sage');
@@ -124,7 +136,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       setQuotaExhausted(false);
       setIsActive(true);
 
-      // Add a greeting message
       const subjectLabel = data.subject && data.subject !== 'general'
         ? ` for ${capitalize(data.subject)}`
         : '';
@@ -159,7 +170,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
 
   /**
    * Send a text message to Sage and stream the response.
-   * Calls POST /api/sage/virtualspace/message which proxies to the existing stream route.
+   * Parses [CANVAS] blocks from the stream and dispatches shapes to the canvas.
    */
   const sendMessage = useCallback(async (text: string): Promise<void> => {
     const currentSageSessionId = sageSessionIdRef.current;
@@ -168,7 +179,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     const trimmedText = text.trim();
     setError(null);
 
-    // Add user message immediately
     const userMsg: SageMessage = {
       id: `msg_user_${Date.now()}`,
       role: 'user',
@@ -176,8 +186,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       timestamp: new Date(),
     };
 
-    // Add streaming placeholder for assistant
-    const streamingMsgId = `msg_streaming_${Date.now()}`;
+    const streamingMsgId = `msg_sage_${Date.now()}`;
     const streamingMsg: SageMessage = {
       id: streamingMsgId,
       role: 'assistant',
@@ -190,7 +199,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     setIsStreaming(true);
 
     try {
-      // Build conversation history (exclude loading messages, last 10)
       const conversationHistory = messagesRef.current
         .filter(m => !m.isLoading && m.id !== streamingMsgId)
         .slice(-10)
@@ -208,67 +216,83 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to send message');
+        throw new Error((errData as { error?: string }).error || 'Failed to send message');
       }
 
-      // Parse SSE stream
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response body');
 
       const decoder = new TextDecoder();
-      let buffer = '';
-      let accumulatedContent = '';
+      let sseBuffer = '';
       let eventType = '';
+
+      // Canvas block streaming state — tracks complete content for incremental parsing
+      let rawBuffer = '';
+      let dispatchedCount = 0;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
+        sseBuffer += decoder.decode(value, { stream: true });
+        const lines = sseBuffer.split('\n');
+        sseBuffer = lines.pop() ?? '';
 
         for (const line of lines) {
           if (line.startsWith('event: ')) {
             eventType = line.slice(7).trim();
           } else if (line.startsWith('data: ')) {
-            const rawData = line.slice(6);
             let data: Record<string, unknown>;
             try {
-              data = JSON.parse(rawData);
+              data = JSON.parse(line.slice(6)) as Record<string, unknown>;
             } catch {
               continue;
             }
 
             switch (eventType) {
-              case 'chunk':
-                accumulatedContent += (data.content as string) ?? '';
+              case 'chunk': {
+                rawBuffer += (data.content as string) ?? '';
+
+                // Incrementally parse canvas blocks — hides partial [CANVAS] blocks mid-stream
+                const { displayText, shapes } = parseStreamingBuffer(rawBuffer);
+
+                // Dispatch any newly completed shapes since last chunk
+                for (let i = dispatchedCount; i < shapes.length; i++) {
+                  dispatchShapeRef.current?.(shapes[i]);
+                }
+                dispatchedCount = shapes.length;
+
                 updateMessages(prev =>
                   prev.map(m =>
                     m.id === streamingMsgId
-                      ? { ...m, content: accumulatedContent, isLoading: true }
+                      ? { ...m, content: displayText, isLoading: true }
                       : m
                   )
                 );
                 break;
+              }
 
               case 'done': {
-                const finalId = (data.id as string) ?? streamingMsgId;
-                // Update quota remaining from rate limit info
+                // Final pass — catch any shapes that arrived in the last chunk
+                const { displayText: finalDisplay, shapes: finalShapes } =
+                  parseStreamingBuffer(rawBuffer);
+                for (let i = dispatchedCount; i < finalShapes.length; i++) {
+                  dispatchShapeRef.current?.(finalShapes[i]);
+                }
+
                 const rl = data.rateLimit as { remaining?: number } | undefined;
                 if (rl?.remaining !== undefined) {
                   setQuotaRemaining(rl.remaining);
-                  if (rl.remaining <= 0) {
-                    setQuotaExhausted(true);
-                  }
+                  if (rl.remaining <= 0) setQuotaExhausted(true);
                 }
+
                 updateMessages(prev =>
                   prev.map(m =>
                     m.id === streamingMsgId
                       ? {
                           ...m,
-                          id: finalId,
-                          content: accumulatedContent,
+                          id: (data.id as string) ?? streamingMsgId,
+                          content: finalDisplay,
                           timestamp: new Date((data.timestamp as string) ?? Date.now()),
                           isLoading: false,
                         }
@@ -279,7 +303,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
               }
 
               case 'error':
-                // Recoverable errors — provider is falling back
                 if (!(data.recoverable as boolean)) {
                   throw new Error((data.error as string) ?? 'Stream error');
                 }
@@ -291,7 +314,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to send message';
       setError(msg);
-      // Remove the streaming placeholder on error
       updateMessages(prev => prev.filter(m => m.id !== streamingMsgId));
     } finally {
       setIsStreaming(false);
@@ -317,12 +339,6 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     sendMessage,
     clearError,
   };
-}
-
-// --- Helpers ---
-
-function capitalize(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export default useSageVirtualSpace;
