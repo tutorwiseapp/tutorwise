@@ -300,35 +300,13 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     return () => clearInterval(id);
   }, [isActive, recomputeProfile]);
 
-  // ── Phase 5: Fire auto-calibration after activation (Tutor profile) ─────
+  // ── Phase 5: Ensure calibration drive phase is set after activation ──────
+  // Greeting and calibration prompt are now merged into one message (set at activation).
+  // This effect is a safety net in case drivePhase wasn't set during activate().
   useEffect(() => {
-    if (!isActive) return;
-
-    // Calibration is only relevant in Tutor profile (solo student session)
-    if (profile !== 'tutor') return;
-
-    // Only calibrate if there's exactly one message (the greeting)
-    if (messagesRef.current.length !== 1) return;
-
-    // Fire after a brief pause so the panel renders first
-    const timer = setTimeout(() => {
-      // Still one message and tutor profile → inject calibration message
-      if (messagesRef.current.length !== 1 || profileRef.current !== 'tutor') return;
-
-      const sageSessionIdNow = sageSessionIdRef.current;
-      if (!sageSessionIdNow) return;
-
-      const calibrationMsg: SageMessage = {
-        id: `msg_calibration_${Date.now()}`,
-        role: 'assistant',
-        content: "What would you like to work on today? Tell me the topic and I'll guide you through it — or just share what's on your whiteboard.",
-        timestamp: new Date(),
-      };
-      updateMessages(prev => [...prev, calibrationMsg]);
-      setDrivePhase('calibration');
-    }, 3_000);
-
-    return () => clearTimeout(timer);
+    if (!isActive || profile !== 'tutor') return;
+    if (drivePhase === 'calibration') return;
+    if (messagesRef.current.length === 1) setDrivePhase('calibration');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, profile]);
 
@@ -346,7 +324,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
   useEffect(() => {
     if (drivePhase !== 'activation') return;
     const assistantMessages = messagesRef.current.filter(m => m.role === 'assistant' && !m.isLoading);
-    if (assistantMessages.length >= 3) { // greeting + calibration + first substantive response
+    if (assistantMessages.length >= 2) { // greeting + first substantive response (calibration merged into greeting)
       setDrivePhase('loop');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -435,14 +413,19 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       const subjectLabel = data.subject && data.subject !== 'general'
         ? ` for ${capitalize(data.subject)}`
         : '';
-      const levelLabel = data.level ? ` (${data.level})` : '';
+
+      const greetingContent = data.profile === 'copilot'
+        ? `Hi! I'm Sage, your teaching co-pilot${subjectLabel}. I'll watch the session and whisper suggestions privately to you — lesson pacing, concept gaps, shapes to draw on the board, and next steps. You stay in control; I'll support from the sidelines. Ready when you are.`
+        : `Hi! I'm Sage, your AI tutor${subjectLabel}. I can explain concepts, work through problems step by step, and even draw diagrams directly on the whiteboard. I cover GCSE, A-Level, IB, AP, and Primary — across Maths, Sciences, English, Languages, Humanities, and more. What would you like to work on today?`;
+
       const greeting: SageMessage = {
         id: `msg_greeting_${Date.now()}`,
         role: 'assistant',
-        content: `Hi! I'm Sage, your AI tutor${subjectLabel}${levelLabel}. I'm here to help — ask me anything, or share what you're working on!`,
+        content: greetingContent,
         timestamp: new Date(),
       };
       updateMessages(() => [greeting]);
+      setDrivePhase('calibration');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to activate Sage';
       setError(msg);
