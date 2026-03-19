@@ -6,18 +6,23 @@
  * Must be rendered inside InFrontOfTheCanvas (which has useEditor() access).
  * Watches pendingShapes, stamps each shape onto the tldraw canvas, then clears them.
  *
+ * Phase 2: Spatial intelligence — finds whitespace before stamping (design §7.3).
+ * Phase 2: Attribution styling — dashed teal frame + "Sage" label + opacity 0.85 (design §13.3).
+ * Phase 3: Snapshot capture — registers editor.toImage() bridge for observe route.
+ * Phase 3: Erase pattern tracking — subscribes to store delete events, fires onErasePattern.
+ *
  * @module components/feature/virtualspace/canvas/SageCanvasWriter
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useEditor } from '@tldraw/editor';
 import { createShapeId } from 'tldraw';
 import type { SageCanvasShapeSpec } from './canvasBlockParser';
 
 // ── Shape defaults registry ────────────────────────────────────────────────
-// Provides fallback values for any props the LLM didn't specify.
 
 const SHAPE_DEFAULTS: Record<string, Record<string, unknown>> = {
+  // Phase 2 original set
   'math-equation':  { w: 280, h: 80,  latex: '',        displayMode: true,  color: '#1e293b', fontSize: 16 },
   'annotation':     { w: 240, h: 80,  text: '',         annotationType: 'comment', label: '', showBadge: false, highlightColor: '#fef08a' },
   'number-line':    { w: 320, h: 80,  min: 0, max: 10,  step: 1, showMinorTicks: true, markers: [], label: '', showFractions: false },
@@ -28,6 +33,10 @@ const SHAPE_DEFAULTS: Record<string, Record<string, unknown>> = {
   'bar-chart':      { w: 320, h: 280, bars: '[]',       title: '', xLabel: '', yLabel: '', showValues: true, showGrid: true },
   'timeline':       { w: 400, h: 200, events: '[]',     title: '', lineColor: '#3b82f6' },
   'pythagoras':     { w: 280, h: 280, sideA: 3, sideB: 4, showWorking: true, showAngles: false, color: '#3b82f6' },
+  // P2-3: Added to align with design §7.2 supported list
+  'protractor':     { w: 200, h: 120, angle: 45, showDegrees: true, color: '#3b82f6' },
+  'unit-circle':    { w: 320, h: 320, showAngles: true, showCoordinates: true, highlightAngle: 0 },
+  'text-block':     { w: 260, h: 80,  text: '',         fontSize: 14, color: '#1e293b', bold: false },
 };
 
 // Fields tldraw expects as JSON strings but the LLM may provide as arrays
@@ -35,6 +44,7 @@ const ARRAY_FIELDS: Record<string, string[]> = {
   'pie-chart': ['segments'],
   'bar-chart': ['bars'],
   'timeline':  ['events'],
+  'venn-diagram': ['leftContent', 'centerContent', 'rightContent'],
 };
 
 function coerceArrayField(value: unknown): string {
@@ -43,7 +53,124 @@ function coerceArrayField(value: unknown): string {
   return '[]';
 }
 
-function buildShape(spec: SageCanvasShapeSpec, cx: number, cy: number, offset: number) {
+// ── Spatial intelligence ───────────────────────────────────────────────────
+// Design §7.3: find whitespace in viewport, 24px clearance from nearest shape edge.
+
+/**
+ * Find a stamp position that avoids existing student shapes.
+ * Strategy:
+ *   1. If viewport is empty → viewport centre (cascade for multiple shapes).
+ *   2. Otherwise → place to the right of the rightmost student shape, vertically centred.
+ *   3. If that falls outside the viewport right edge → place below all content, horizontally centred.
+ */
+function findStampPosition(
+  editor: ReturnType<typeof useEditor>,
+  shapeW: number,
+  shapeH: number,
+  index: number,
+): { x: number; y: number } {
+  const GAP = 24;
+  const CASCADE = 24;
+  const vp = editor.getViewportPageBounds();
+  const cx = vp.x + vp.w / 2;
+  const cy = vp.y + vp.h / 2;
+
+  // Collect bounding boxes of non-Sage shapes that are visible in the viewport
+  const shapes = editor.getCurrentPageShapes();
+  const studentBounds = shapes
+    .filter(s => !(s.meta as Record<string, unknown>)?.sageAttributed)
+    .map(s => editor.getShapePageBounds(s.id))
+    .filter((b): b is NonNullable<typeof b> => !!b && (
+      b.x < vp.x + vp.w && b.x + b.w > vp.x &&
+      b.y < vp.y + vp.h && b.y + b.h > vp.y
+    ));
+
+  if (studentBounds.length === 0) {
+    // Empty canvas — place at centre with cascade offset
+    return {
+      x: cx - shapeW / 2 + index * CASCADE,
+      y: cy - shapeH / 2 + index * CASCADE,
+    };
+  }
+
+  // Find rightmost and bottommost extents of student work
+  const rightmostX  = Math.max(...studentBounds.map(b => b.x + b.w));
+  const bottommostY = Math.max(...studentBounds.map(b => b.y + b.h));
+
+  const candidateX = rightmostX + GAP + index * CASCADE;
+  const candidateY = cy - shapeH / 2 + index * CASCADE;
+
+  if (candidateX + shapeW <= vp.x + vp.w) {
+    // Fits to the right → use it
+    return { x: candidateX, y: candidateY };
+  }
+
+  // Doesn't fit right → place below all content, horizontally centred
+  return {
+    x: cx - shapeW / 2 + index * CASCADE,
+    y: bottommostY + GAP + index * CASCADE,
+  };
+}
+
+// ── Attribution shapes ─────────────────────────────────────────────────────
+// Design §13.3: dashed teal border + "Sage" label + opacity 0.85.
+// Implemented as a companion geo frame + text shape alongside the main shape.
+
+function buildAttributionShapes(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): Array<Record<string, unknown>> {
+  const PAD = 4;
+  return [
+    // Dashed teal frame
+    {
+      id: createShapeId(),
+      type: 'geo',
+      x: x - PAD,
+      y: y - PAD,
+      opacity: 0.6,
+      props: {
+        geo: 'rectangle',
+        w: w + PAD * 2,
+        h: h + PAD * 2,
+        color: 'green', // closest tldraw named colour to Sage teal (#006c67)
+        fill: 'none',
+        dash: 'dashed',
+        size: 's',
+        text: '',
+      },
+      meta: { sageFrame: true },
+    },
+    // "↗ Sage" label — placed at top-left corner of the frame
+    {
+      id: createShapeId(),
+      type: 'text',
+      x: x - PAD,
+      y: y - PAD - 18,
+      opacity: 0.7,
+      props: {
+        text: '↗ Sage',
+        color: 'green',
+        size: 'xs',
+        font: 'sans',
+        textAlign: 'start',
+        w: 60,
+        autoSize: true,
+      },
+      meta: { sageLabel: true },
+    },
+  ];
+}
+
+// ── Main shape builder ─────────────────────────────────────────────────────
+
+function buildShape(
+  spec: SageCanvasShapeSpec,
+  x: number,
+  y: number,
+): Record<string, unknown> {
   const defaults = SHAPE_DEFAULTS[spec.type] ?? {};
   let props: Record<string, unknown> = { ...defaults, ...spec.props };
 
@@ -52,41 +179,157 @@ function buildShape(spec: SageCanvasShapeSpec, cx: number, cy: number, offset: n
     if (field in props) props = { ...props, [field]: coerceArrayField(props[field]) };
   }
 
-  const w = (props.w as number | undefined) ?? 280;
-  const h = (props.h as number | undefined) ?? 80;
-
   return {
     id: createShapeId(),
     type: spec.type,
-    x: cx - w / 2 + offset * 24,
-    y: cy - h / 2 + offset * 24,
+    x,
+    y,
+    opacity: 0.85, // design §13.3: lower opacity until student interacts
     props,
     meta: { sageAttributed: true },
   };
 }
+
+// ── Erase pattern detection ────────────────────────────────────────────────
+// Design §6: "Repeated erase + redraw of same area (≥2 times) → Medium stuck signal"
+
+interface DeletionRecord {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  time: number;
+}
+
+const ERASE_CLUSTER_RADIUS = 200; // px — shapes within this radius count as "same region"
+const ERASE_WINDOW_MS = 2 * 60 * 1000; // 2-minute rolling window
+const ERASE_CLUSTER_THRESHOLD = 2; // ≥2 deletions in same region → pattern detected
 
 // ── Component ─────────────────────────────────────────────────────────────
 
 interface SageCanvasWriterProps {
   pendingShapes: SageCanvasShapeSpec[];
   onShapesStamped: () => void;
+  /** Called once on mount with a function that captures the viewport as a base64 PNG. */
+  onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
+  /** Called when a repeated-erase pattern is detected. Arg = cluster count. */
+  onErasePattern?: (clusterCount: number) => void;
 }
 
-export function SageCanvasWriter({ pendingShapes, onShapesStamped }: SageCanvasWriterProps) {
+export function SageCanvasWriter({
+  pendingShapes,
+  onShapesStamped,
+  onRegisterSnapshot,
+  onErasePattern,
+}: SageCanvasWriterProps) {
   const editor = useEditor();
 
+  // Register snapshot capture function on mount
+  useEffect(() => {
+    if (!onRegisterSnapshot) return;
+
+    onRegisterSnapshot(async () => {
+      try {
+        const shapeIds = [...editor.getCurrentPageShapeIds()];
+        if (shapeIds.length === 0) return null;
+
+        const result = await (editor as any).toImage?.(shapeIds, {
+          format: 'png',
+          scale: 0.75,
+          background: true,
+        });
+
+        if (!result?.src) return null;
+        return (result.src as string).replace(/^data:[^;]+;base64,/, '');
+      } catch (err) {
+        console.warn('[SageCanvasWriter] Snapshot capture failed:', err);
+        return null;
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Erase pattern tracking — subscribe to store delete events (design §6)
+  const handleErasePattern = useCallback((clusterCount: number) => {
+    onErasePattern?.(clusterCount);
+  }, [onErasePattern]);
+
+  useEffect(() => {
+    if (!onErasePattern) return;
+
+    const deletionHistory: DeletionRecord[] = [];
+
+    const unsubscribe = editor.store.listen((entry) => {
+      const removed = Object.values(entry.changes.removed);
+      if (removed.length === 0) return;
+
+      const now = Date.now();
+
+      // Prune history outside the rolling window
+      const cutoff = now - ERASE_WINDOW_MS;
+      while (deletionHistory.length > 0 && deletionHistory[0].time < cutoff) {
+        deletionHistory.shift();
+      }
+
+      for (const record of removed) {
+        if (!('type' in record) || !('x' in record)) continue;
+        const r = record as unknown as { type: string; x: number; y: number; meta?: Record<string, unknown>; props?: Record<string, unknown> };
+        // Skip Sage's own shapes and non-shape records
+        if (r.meta?.sageAttributed || r.meta?.sageFrame || r.meta?.sageLabel) continue;
+
+        const w = (r.props?.w as number | undefined) ?? 50;
+        const h = (r.props?.h as number | undefined) ?? 50;
+        deletionHistory.push({ x: r.x, y: r.y, w, h, time: now });
+      }
+
+      // Detect cluster: ≥ THRESHOLD deletions within CLUSTER_RADIUS
+      for (const ref of deletionHistory) {
+        let count = 0;
+        for (const d of deletionHistory) {
+          const dx = Math.abs(d.x - ref.x);
+          const dy = Math.abs(d.y - ref.y);
+          if (dx < ERASE_CLUSTER_RADIUS && dy < ERASE_CLUSTER_RADIUS) count++;
+        }
+        if (count >= ERASE_CLUSTER_THRESHOLD) {
+          handleErasePattern(count);
+          // Clear history after firing to avoid re-triggering until new deletions accumulate
+          deletionHistory.length = 0;
+          break;
+        }
+      }
+    }, { scope: 'document', source: 'user' });
+
+    return () => unsubscribe();
+  }, [editor, handleErasePattern, onErasePattern]);
+
+  // Stamp pending shapes with spatial intelligence + attribution
   useEffect(() => {
     if (!pendingShapes.length) return;
 
-    const vp = editor.getViewportPageBounds();
-    const cx = vp.x + vp.w / 2;
-    const cy = vp.y + vp.h / 2;
+    const shapesToCreate: Parameters<typeof editor.createShapes>[0] = [];
 
     for (let i = 0; i < pendingShapes.length; i++) {
+      const spec = pendingShapes[i];
+      const defaults = SHAPE_DEFAULTS[spec.type] ?? {};
+      const w = (spec.props.w as number | undefined) ?? (defaults.w as number | undefined) ?? 280;
+      const h = (spec.props.h as number | undefined) ?? (defaults.h as number | undefined) ?? 80;
+
+      const { x, y } = findStampPosition(editor, w, h, i);
+
       try {
-        editor.createShape(buildShape(pendingShapes[i], cx, cy, i) as Parameters<typeof editor.createShape>[0]);
+        const mainShape = buildShape(spec, x, y);
+        const attributionShapes = buildAttributionShapes(x, y, w, h);
+        shapesToCreate.push(mainShape as any, ...attributionShapes.map(s => s as any));
       } catch (err) {
-        console.warn('[SageCanvasWriter] Failed to stamp shape:', pendingShapes[i].type, err);
+        console.warn('[SageCanvasWriter] Failed to build shape:', spec.type, err);
+      }
+    }
+
+    if (shapesToCreate.length > 0) {
+      try {
+        editor.createShapes(shapesToCreate);
+      } catch (err) {
+        console.warn('[SageCanvasWriter] Failed to stamp shapes:', err);
       }
     }
 

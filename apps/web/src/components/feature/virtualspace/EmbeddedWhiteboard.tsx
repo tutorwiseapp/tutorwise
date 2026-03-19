@@ -80,10 +80,14 @@ function InFrontOfTheCanvas({
   displayName,
   pendingShapes,
   onShapesStamped,
+  onRegisterSnapshot,
+  onErasePattern,
 }: {
   displayName: string;
   pendingShapes: SageCanvasShapeSpec[];
   onShapesStamped: () => void;
+  onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
+  onErasePattern?: (clusterCount: number) => void;
 }) {
   return (
     <>
@@ -91,7 +95,12 @@ function InFrontOfTheCanvas({
       <ChatPanel displayName={displayName} />
       <TimerWidget />
       <ReactionOverlay />
-      <SageCanvasWriter pendingShapes={pendingShapes} onShapesStamped={onShapesStamped} />
+      <SageCanvasWriter
+        pendingShapes={pendingShapes}
+        onShapesStamped={onShapesStamped}
+        onRegisterSnapshot={onRegisterSnapshot}
+        onErasePattern={onErasePattern}
+      />
     </>
   );
 }
@@ -109,6 +118,10 @@ interface EmbeddedWhiteboardProps {
   pendingShapes?: SageCanvasShapeSpec[];
   /** Called after pendingShapes have been stamped, so the parent can clear the queue */
   onShapesStamped?: () => void;
+  /** Called once on mount with a snapshot capture function (canvas → base64 PNG) */
+  onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
+  /** Called when a repeated-erase pattern is detected in the student's work */
+  onErasePattern?: (clusterCount: number) => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -119,6 +132,8 @@ export function EmbeddedWhiteboard({
   displayName = 'You',
   pendingShapes,
   onShapesStamped,
+  onRegisterSnapshot,
+  onErasePattern,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
   // Initialize tldraw store with all custom shape utils
@@ -189,6 +204,8 @@ export function EmbeddedWhiteboard({
         displayName={displayName}
         pendingShapes={pendingShapes ?? []}
         onShapesStamped={onShapesStamped ?? (() => {})}
+        onRegisterSnapshot={onRegisterSnapshot}
+        onErasePattern={onErasePattern}
       />
     ),
     StylePanel: () => (
@@ -202,7 +219,7 @@ export function EmbeddedWhiteboard({
         <DefaultStylePanel />
       </div>
     ),
-  }), [displayName, pendingShapes, onShapesStamped]);
+  }), [displayName, pendingShapes, onShapesStamped, onRegisterSnapshot, onErasePattern]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>

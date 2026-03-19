@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Canvas writing instructions — injected into the system prompt so Sage can
     // stamp shapes on the whiteboard by emitting [CANVAS]{...}[/CANVAS] blocks.
+    // Shape types aligned with design §7.2 supported list.
     const CANVAS_INSTRUCTIONS = `## Canvas Writing
 You can draw shapes on the whiteboard. When a visual aid would genuinely help the student understand (equations, diagrams, number lines, charts), include a [CANVAS] block in your response:
 
@@ -87,6 +88,9 @@ Supported types and their required props:
 - "bar-chart": {"bars":"[{\\"label\\":\\"A\\",\\"value\\":10,\\"color\\":\\"#3b82f6\\"}]","title":"...","xLabel":"...","yLabel":"..."}
 - "timeline": {"events":"[{\\"label\\":\\"Event\\",\\"date\\":\\"1066\\",\\"color\\":\\"#3b82f6\\"}]","title":"..."}
 - "pythagoras": {"sideA":3,"sideB":4,"showWorking":true}
+- "protractor": {"angle":45,"showDegrees":true}
+- "unit-circle": {"showAngles":true,"showCoordinates":true,"highlightAngle":0}
+- "text-block": {"text":"...","fontSize":14,"bold":false}
 
 Rules:
 - Only add a canvas shape when it genuinely aids understanding.

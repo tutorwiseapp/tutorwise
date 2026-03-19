@@ -13,13 +13,15 @@
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Brain, X, Send, Lock } from 'lucide-react';
-import type { UseSageVirtualSpaceReturn, SageVirtualSpaceProfile } from './hooks/useSageVirtualSpace';
+import { Brain, X, Send, Lock, ScanLine, CheckCircle2, ChevronRight, ArrowRight } from 'lucide-react';
+import type { UseSageVirtualSpaceReturn, SageVirtualSpaceProfile, DrivePhase, SessionRecap } from './hooks/useSageVirtualSpace';
+import type { StuckLevel } from './hooks/useSageStuckDetector';
 
 // --- Types ---
 
 interface SagePanelProps {
   sage: UseSageVirtualSpaceReturn;
+  stuckLevel?: StuckLevel;
 }
 
 // --- Profile badge colours ---
@@ -33,7 +35,16 @@ const PROFILE_BADGE: Record<SageVirtualSpaceProfile, { label: string; color: str
 
 // --- Component ---
 
-export function SagePanel({ sage }: SagePanelProps) {
+// Drive phase display labels
+const DRIVE_PHASE_LABEL: Record<DrivePhase, string> = {
+  'calibration':   'Calibrating…',
+  'activation':    'Setting up',
+  'loop':          'Practice loop',
+  'consolidation': 'Consolidating',
+  'wrap-up':       'Wrapping up',
+};
+
+export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
   const {
     isActive,
     profile,
@@ -41,10 +52,15 @@ export function SagePanel({ sage }: SagePanelProps) {
     quotaExhausted,
     messages,
     isStreaming,
+    isObserving,
     error,
+    drivePhase,
+    sessionRecap,
     deactivate,
     sendMessage,
+    observe,
     clearError,
+    clearRecap,
   } = sage;
 
   const [inputValue, setInputValue] = useState('');
@@ -63,6 +79,11 @@ export function SagePanel({ sage }: SagePanelProps) {
     ta.style.height = 'auto';
     ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
   }, []);
+
+  const handleObserve = useCallback(async () => {
+    if (isStreaming || isObserving || quotaExhausted) return;
+    await observe('manual');
+  }, [isStreaming, isObserving, quotaExhausted, observe]);
 
   const handleSend = useCallback(async () => {
     if (!inputValue.trim() || isStreaming || quotaExhausted) return;
@@ -105,6 +126,12 @@ export function SagePanel({ sage }: SagePanelProps) {
       role="complementary"
       aria-label="Sage AI tutor panel"
     >
+      <style>{`
+        @keyframes sage-brain-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.15); }
+        }
+      `}</style>
       {/* ── Header ── */}
       <div
         style={{
@@ -117,7 +144,17 @@ export function SagePanel({ sage }: SagePanelProps) {
           flexShrink: 0,
         }}
       >
-        <Brain size={18} color="#006c67" />
+        <Brain
+          size={18}
+          color={stuckLevel === 'high' ? '#d97706' : '#006c67'}
+          style={{
+            flexShrink: 0,
+            transition: 'color 0.3s ease',
+            ...(stuckLevel !== 'none' && {
+              animation: 'sage-brain-pulse 2s ease-in-out infinite',
+            }),
+          }}
+        />
         <span
           style={{
             fontWeight: 600,
@@ -170,6 +207,33 @@ export function SagePanel({ sage }: SagePanelProps) {
           <X size={16} />
         </button>
       </div>
+
+      {/* ── Session Drive phase strip ── */}
+      {drivePhase && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '5px 12px',
+            background: '#f0fdfb',
+            borderBottom: '1px solid #ccf3f0',
+            fontSize: '0.75rem',
+            color: '#006c67',
+            fontWeight: 500,
+          }}
+        >
+          <ChevronRight size={12} />
+          <span>Session Drive</span>
+          <ArrowRight size={10} style={{ opacity: 0.5 }} />
+          <span>{DRIVE_PHASE_LABEL[drivePhase]}</span>
+        </div>
+      )}
+
+      {/* ── Session recap card ── */}
+      {sessionRecap && (
+        <SessionRecapCard recap={sessionRecap} onDismiss={clearRecap} />
+      )}
 
       {/* ── Message stream ── */}
       <div
@@ -281,10 +345,39 @@ export function SagePanel({ sage }: SagePanelProps) {
             borderTop: '1px solid #e5e7eb',
             flexShrink: 0,
             display: 'flex',
-            alignItems: 'flex-end',
-            gap: 8,
+            flexDirection: 'column',
+            gap: 6,
           }}
         >
+          {/* Review my work button */}
+          <button
+            onClick={handleObserve}
+            disabled={isStreaming || isObserving}
+            title="Ask Sage to review your whiteboard work"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              width: '100%',
+              padding: '6px 10px',
+              background: isObserving ? '#f0fdfb' : stuckLevel !== 'none' ? '#fffbeb' : '#f9fafb',
+              border: `1px solid ${isObserving ? '#99e6e2' : stuckLevel !== 'none' ? '#fde68a' : '#e5e7eb'}`,
+              borderRadius: 6,
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              color: isObserving ? '#006c67' : stuckLevel !== 'none' ? '#92400e' : '#374151',
+              cursor: isStreaming || isObserving ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              opacity: isStreaming ? 0.5 : 1,
+            }}
+          >
+            <ScanLine size={14} />
+            {isObserving ? 'Reviewing your work…' : 'Review my work'}
+          </button>
+
+          {/* Text input row */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
           <textarea
             ref={textareaRef}
             value={inputValue}
@@ -335,6 +428,7 @@ export function SagePanel({ sage }: SagePanelProps) {
           >
             <Send size={15} />
           </button>
+          </div>
         </div>
       )}
     </div>
@@ -382,6 +476,81 @@ function MessageBubble({ message }: MessageBubbleProps) {
           message.content
         )}
       </div>
+    </div>
+  );
+}
+
+// --- Session Recap Card ---
+
+interface SessionRecapCardProps {
+  recap: SessionRecap;
+  onDismiss: () => void;
+}
+
+function SessionRecapCard({ recap, onDismiss }: SessionRecapCardProps) {
+  return (
+    <div
+      style={{
+        margin: '8px 12px',
+        padding: '12px',
+        background: '#f0fdfb',
+        border: '1px solid #99e6e2',
+        borderRadius: 8,
+        fontSize: '0.8125rem',
+        color: '#374151',
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+        <CheckCircle2 size={14} color="#006c67" />
+        <span style={{ fontWeight: 600, color: '#006c67' }}>Session recap</span>
+        <button
+          onClick={onDismiss}
+          style={{ marginLeft: 'auto', border: 'none', background: 'none', cursor: 'pointer', color: '#9ca3af', padding: 0, fontSize: '0.75rem' }}
+        >
+          Dismiss
+        </button>
+      </div>
+
+      {recap.topicsCovered.length > 0 && (
+        <p style={{ margin: '0 0 4px' }}>
+          <strong>Covered:</strong> {recap.topicsCovered.join(', ')}
+        </p>
+      )}
+
+      {recap.timeSpent > 0 && (
+        <p style={{ margin: '0 0 4px', color: '#6b7280' }}>
+          {recap.timeSpent} min · mastery +{(recap.masteryDelta * 100).toFixed(0)}%
+        </p>
+      )}
+
+      {recap.strongMoments.length > 0 && (
+        <p style={{ margin: '0 0 4px' }}>
+          <strong>Well done:</strong> {recap.strongMoments[0]}
+        </p>
+      )}
+
+      {recap.suggestedNextSteps.length > 0 && (
+        <p style={{ margin: '0 0 6px' }}>
+          <strong>Next:</strong> {recap.suggestedNextSteps[0]}
+        </p>
+      )}
+
+      {recap.lessonPlanPrompt && (
+        <a
+          href={`/account/sage-pro?planPrompt=${encodeURIComponent(recap.lessonPlanPrompt)}`}
+          style={{
+            display: 'inline-block',
+            marginTop: 4,
+            fontSize: '0.75rem',
+            color: '#006c67',
+            fontWeight: 600,
+            textDecoration: 'underline',
+          }}
+        >
+          Create follow-up lesson plan →
+        </a>
+      )}
     </div>
   );
 }

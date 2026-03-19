@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
@@ -21,8 +21,15 @@ import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWh
 import type { VirtualSpaceSession } from '@/lib/virtualspace';
 import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
 import { useSageVirtualSpace } from '@/components/feature/virtualspace/hooks/useSageVirtualSpace';
+import { useSageStuckDetector } from '@/components/feature/virtualspace/hooks/useSageStuckDetector';
+import { useCopilotWhispers } from '@/components/feature/virtualspace/hooks/useCopilotWhispers';
 import { SagePanel } from '@/components/feature/virtualspace/SagePanel';
+import { CopilotWhisperOverlay } from '@/components/feature/virtualspace/CopilotWhisperOverlay';
+import { useLessonPlan } from '@/components/feature/virtualspace/hooks/useLessonPlan';
+import { LessonPlanDrawer } from '@/components/feature/virtualspace/LessonPlanDrawer';
+import { useMultiStudentIntelligence } from '@/components/feature/virtualspace/hooks/useMultiStudentIntelligence';
 import type { SageCanvasShapeSpec } from '@/components/feature/virtualspace/canvas/canvasBlockParser';
+import { BookOpen } from 'lucide-react';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -42,14 +49,19 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     setPendingShapes([]);
   }, []);
 
-  // Sage integration
-  const sage = useSageVirtualSpace({
-    sessionId: context.sessionId,
-    currentUserId: context.currentUserId,
-    dispatchShape,
-  });
+  // Snapshot capture ref — populated by SageCanvasWriter on mount
+  const snapshotFnRef = useRef<(() => Promise<string | null>) | null>(null);
+  const registerSnapshotFn = useCallback((fn: () => Promise<string | null>) => {
+    snapshotFnRef.current = fn;
+  }, []);
 
-  // Initialize Ably client once (stable ref — not recreated on re-renders)
+  // Erase pattern counter — incremented when SageCanvasWriter detects repeated erasures
+  const [eraseCount, setEraseCount] = useState(0);
+  const handleErasePattern = useCallback(() => {
+    setEraseCount(c => c + 1);
+  }, []);
+
+  // Initialize Ably client once (stable ref — must come before useSageVirtualSpace)
   const [ablyClient] = useState(() => new Ably.Realtime({
     key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
     clientId: context.currentUserId,
@@ -59,6 +71,113 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   useEffect(() => {
     return () => { ablyClient.close(); };
   }, [ablyClient]);
+
+  // Sage integration — Phase 4: pass Ably client + tutor context for presence monitoring
+  const sage = useSageVirtualSpace({
+    sessionId: context.sessionId,
+    currentUserId: context.currentUserId,
+    dispatchShape,
+    snapshotFnRef,
+    ablyClient,
+    channelName: context.channelName,
+    tutorId: context.booking?.tutorId,
+  });
+
+  // Stuck detector — only active when Sage panel is open
+  const { stuckLevel, resetIdleTimer, resetEraseCount } = useSageStuckDetector(
+    sage.isActive,
+    eraseCount,
+  );
+
+  // Auto-observe at High stuck level
+  useEffect(() => {
+    if (
+      stuckLevel === 'high' &&
+      sage.isActive &&
+      !sage.isStreaming &&
+      !sage.isObserving &&
+      !sage.quotaExhausted
+    ) {
+      sage.observe('stuck');
+      resetIdleTimer();
+      resetEraseCount();
+      setEraseCount(0);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stuckLevel]);
+
+  // Phase 6: tutor last-active tracking (for co-pilot quiet period)
+  const tutorLastActiveAtRef = useRef<number>(0);
+  const handleTutorActivity = useCallback(() => {
+    tutorLastActiveAtRef.current = Date.now();
+  }, []);
+  // Update tutor activity whenever the tutor stamps a shape (draw events)
+  useEffect(() => {
+    if (!ablyClient) return;
+    const ch = ablyClient.channels.get(context.channelName);
+    const handler = (msg: Ably.Message) => {
+      if (msg.clientId === context.currentUserId) handleTutorActivity();
+    };
+    ch.subscribe('draw', handler);
+    return () => ch.unsubscribe('draw', handler);
+  }, [ablyClient, context.channelName, context.currentUserId, handleTutorActivity]);
+
+  // Phase 6: co-pilot whispers  (M1 fix: pass ref, not computed value)
+  const copilot = useCopilotWhispers({
+    ablyClient,
+    sessionId: context.sessionId,
+    sageSessionId: sage.sageSessionId,
+    currentUserId: context.currentUserId,
+    tutorId: context.booking?.tutorId,
+    profile: sage.profile,
+    isActive: sage.isActive,
+    isStreaming: sage.isStreaming,
+    stuckSignal: stuckLevel,
+    messages: sage.messages,
+    tutorLastActiveAtRef,
+  });
+
+  // Stamp shape from co-pilot accept — tutor attribution (no Sage branding)
+  const handleCopilotStamp = useCallback((shape: { type: string; props?: Record<string, unknown> }) => {
+    // Dispatch as a regular canvas shape without sageAttributed flag
+    // Use pendingShapes but tag as tutor-attributed via a special meta flag
+    setPendingShapes(prev => [
+      ...prev,
+      { type: shape.type, props: { ...(shape.props ?? {}), _tutorAttributed: true } } as SageCanvasShapeSpec,
+    ]);
+  }, []);
+
+  // Phase 7: lesson plan
+  const isTutor = context.currentUserId === context.booking?.tutorId;
+  const lessonPlan = useLessonPlan({
+    sessionId: context.sessionId,
+    sageSessionId: sage.sageSessionId,
+    isActive: sage.isActive,
+  });
+
+  // Phase 8: multi-student intelligence (R&D — H4 wiring fix)
+  // Participants excluding the human tutor (tutor's activity is tracked separately)
+  const studentParticipants = context.participants.filter(
+    p => p.userId !== context.booking?.tutorId
+  );
+  const multiStudent = useMultiStudentIntelligence({
+    participants: studentParticipants,
+    isActive: sage.isActive,
+  });
+
+  // Wire multiStudent.recordActivity to draw channel events
+  useEffect(() => {
+    if (!ablyClient || !sage.isActive) return;
+    const ch = ablyClient.channels.get(context.channelName);
+    const handler = (msg: Ably.Message) => {
+      const participant = context.participants.find(p => p.userId === msg.clientId);
+      if (participant && msg.clientId && msg.clientId !== context.booking?.tutorId) {
+        multiStudent.recordActivity(msg.clientId, participant.displayName);
+      }
+    };
+    ch.subscribe('draw', handler);
+    return () => { ch.unsubscribe('draw', handler); };
+  }, [ablyClient, sage.isActive, context.channelName, context.participants, context.booking?.tutorId, multiStudent]);
 
   // Build session title
   const getSessionTitle = () => {
@@ -269,32 +388,61 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             Start Google Meet
           </button>
 
-          {/* Sage button */}
-          <button
-            onClick={sage.isActive ? sage.deactivate : sage.activate}
-            disabled={sage.isActivating}
-            title={sage.isActive ? 'Close Sage panel' : 'Activate Sage AI tutor'}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '0 14px',
-              height: 36,
-              background: sage.isActive ? '#006c67' : 'white',
-              border: `1px solid ${sage.isActive ? '#006c67' : '#d1d5db'}`,
-              borderRadius: 6,
-              color: sage.isActive ? 'white' : '#374151',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              cursor: sage.isActivating ? 'wait' : 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap',
-              opacity: sage.isActivating ? 0.7 : 1,
-            }}
-          >
-            <Brain size={16} />
-            {sage.isActivating ? 'Starting...' : 'Sage'}
-          </button>
+          {/* Sage button — colour reflects active profile (design §13.1) */}
+          {(() => {
+            // Profile-specific background colours
+            const PROFILE_BG: Record<string, string> = {
+              tutor:    '#006c67',
+              copilot:  '#7c3aed',
+              wingman:  '#d97706',
+              observer: '#64748b',
+            };
+            const activeBg = sage.isActive && sage.profile
+              ? (PROFILE_BG[sage.profile] ?? '#006c67')
+              : '#006c67';
+            const profileLabel = sage.isActive && sage.profile && sage.profile !== 'tutor'
+              ? ` (${sage.profile.charAt(0).toUpperCase() + sage.profile.slice(1)})`
+              : '';
+            return (
+              <button
+                onClick={sage.isActive ? sage.deactivate : sage.activate}
+                disabled={sage.isActivating}
+                title={sage.isActive ? 'Close Sage panel' : 'Activate Sage AI tutor'}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '0 14px',
+                  height: 36,
+                  background: sage.isActive ? activeBg : 'white',
+                  border: `1px solid ${sage.isActive ? activeBg : '#d1d5db'}`,
+                  borderRadius: 6,
+                  color: sage.isActive ? 'white' : '#374151',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  cursor: sage.isActivating ? 'wait' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  opacity: sage.isActivating ? 0.7 : 1,
+                }}
+              >
+                <Brain size={16} />
+                {sage.isActivating ? 'Starting...' : `Sage${profileLabel}`}
+              </button>
+            );
+          })()}
+
+          {/* Phase 7: Load Plan button — tutor only */}
+          {isTutor && sage.isActive && (
+            <button
+              onClick={lessonPlan.openDrawer}
+              className={styles.secondaryButton}
+              title="Load a lesson plan into this session"
+            >
+              <BookOpen size={16} />
+              Load Plan
+            </button>
+          )}
 
           {/* Save Snapshot button */}
           {context.capabilities.canSaveSnapshot && (
@@ -332,11 +480,25 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           displayName={context.participants.find((p) => p.userId === context.currentUserId)?.displayName ?? context.ownerName}
           pendingShapes={pendingShapes}
           onShapesStamped={clearPendingShapes}
+          onRegisterSnapshot={registerSnapshotFn}
+          onErasePattern={handleErasePattern}
         />
       </ChannelProvider>
 
       {/* Sage panel — overlay, does not resize the canvas */}
-      <SagePanel sage={sage} />
+      <SagePanel sage={sage} stuckLevel={stuckLevel} />
+
+      {/* Phase 6: Co-pilot whisper overlay — tutor-only, bottom-right */}
+      {isTutor && (
+        <CopilotWhisperOverlay
+          copilot={copilot}
+          onStampShape={handleCopilotStamp}
+          onAskSage={sage.sendMessage}
+        />
+      )}
+
+      {/* Phase 7: Lesson plan drawer — slide-in from right */}
+      <LessonPlanDrawer lessonPlan={lessonPlan} />
     </AblyProvider>
   );
 }
