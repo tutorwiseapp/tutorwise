@@ -844,6 +844,15 @@ export function SubjectToolsPanel() {
         {(['maths', 'science', 'english'] as Tab[]).map((t) => {
           const cfg = SUBJECT_CONFIG[t];
           const active = openTab === t;
+
+          // science = triangle via clip-path, english = square (rounded), maths = circle
+          const extraStyle: React.CSSProperties =
+            t === 'science'
+              ? { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: 0, border: 'none' }
+              : t === 'english'
+              ? { borderRadius: 6 }
+              : { borderRadius: '50%' };
+
           return (
             <button
               key={t}
@@ -852,28 +861,17 @@ export function SubjectToolsPanel() {
               style={{
                 width: 36,
                 height: 36,
-                borderRadius: '50%',
-                border: `2.5px solid ${active ? cfg.dotBorder : cfg.dotBorder + '80'}`,
+                border: t === 'science' ? 'none' : `2.5px solid ${active ? cfg.dotBorder : cfg.dotBorder + '80'}`,
                 background: active ? cfg.dotColor : cfg.dotColor + 'aa',
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: 'block',
                 boxShadow: active ? `0 0 0 3px ${cfg.dotBorder}40` : '0 2px 6px rgba(0,0,0,0.12)',
                 transition: 'all 0.15s',
                 padding: 0,
                 flexShrink: 0,
+                ...extraStyle,
               }}
-            >
-              <span style={{
-                width: 14,
-                height: 14,
-                borderRadius: '50%',
-                background: cfg.dotBorder,
-                display: 'inline-block',
-                flexShrink: 0,
-              }} />
-            </button>
+            />
           );
         })}
       </div>
