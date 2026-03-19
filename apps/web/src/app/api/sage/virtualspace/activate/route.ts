@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { sessionId } = body as { sessionId?: string };
+    const { sessionId, topic } = body as { sessionId?: string; topic?: string };
 
     if (!sessionId) {
       return NextResponse.json(
@@ -165,11 +165,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Infer subject and level
+    const existingConfig = vsSession.sage_config as { subject?: string; level?: string; topic?: string } | null;
     const sessionWithBooking = {
       title: vsSession.title,
-      sage_config: vsSession.sage_config as { subject?: string; level?: string } | null,
+      sage_config: existingConfig,
       booking: booking ?? null,
     };
+
+    // Resolve topic: prefer request body, fall back to previous sage_config (re-activation)
+    const resolvedTopic: string | null = topic ?? existingConfig?.topic ?? null;
     const subject = inferSubject(sessionWithBooking);
     const level = inferLevel(sessionWithBooking);
     const profile = inferProfile({ isTutor, hasBooking: !!booking });
@@ -224,6 +228,7 @@ export async function POST(request: NextRequest) {
       profile,
       subject,
       level,
+      topic: resolvedTopic,
       chargedTo,
       quotaOwnerId,
     };
@@ -242,6 +247,7 @@ export async function POST(request: NextRequest) {
       profile,
       subject,
       level,
+      topic: resolvedTopic,
       quotaRemaining: rateLimit.remaining,
       chargedTo,
     });

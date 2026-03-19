@@ -72,6 +72,44 @@ const CUSTOM_SHAPE_UTILS = [
   EmbedShapeUtil,
 ];
 
+// ── CollapsibleStylePanel ──────────────────────────────────────────────────
+// Module-level component (stable reference — never recreated by useMemo).
+// Shows only the first colour row (38px) by default; expands on hover.
+
+function CollapsibleStylePanel() {
+  useEffect(() => {
+    if (document.getElementById('vs-panel-collapsible')) return;
+    const style = document.createElement('style');
+    style.id = 'vs-panel-collapsible';
+    style.textContent = `
+      .tlui-style-panel__wrapper {
+        max-height: 40px !important;
+        overflow: hidden !important;
+        border-radius: 8px !important;
+        transition: max-height 0.2s ease 300ms !important;
+      }
+      .tlui-style-panel__wrapper:hover {
+        max-height: 400px !important;
+        transition: max-height 0.2s ease 0ms !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => { document.getElementById('vs-panel-collapsible')?.remove(); };
+  }, []);
+
+  return (
+    <div style={{
+      '--tl-color-panel': 'hsl(204, 16%, 94%)',
+      '--tl-shadow-1': 'none',
+      '--tl-shadow-2': 'none',
+      '--tl-shadow-3': 'none',
+      '--tl-shadow-4': 'none',
+    } as React.CSSProperties}>
+      <DefaultStylePanel />
+    </div>
+  );
+}
+
 // ── InFrontOfTheCanvas ─────────────────────────────────────────────────────
 // All floating UI layers rendered on top of the tldraw canvas.
 // Must access SessionContext, which lives above <Tldraw>.
@@ -208,17 +246,7 @@ export function EmbeddedWhiteboard({
         onErasePattern={onErasePattern}
       />
     ),
-    StylePanel: () => (
-      <div style={{
-        '--tl-color-panel': 'hsl(204, 16%, 94%)',
-        '--tl-shadow-1': 'none',
-        '--tl-shadow-2': 'none',
-        '--tl-shadow-3': 'none',
-        '--tl-shadow-4': 'none',
-      } as React.CSSProperties}>
-        <DefaultStylePanel />
-      </div>
-    ),
+    StylePanel: CollapsibleStylePanel,
   }), [displayName, pendingShapes, onShapesStamped, onRegisterSnapshot, onErasePattern]);
 
   return (
