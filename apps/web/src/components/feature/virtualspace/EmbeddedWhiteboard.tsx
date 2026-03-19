@@ -13,7 +13,7 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { Tldraw, defaultShapeUtils } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
-import { useChannel } from 'ably/react';
+import { useChannel, ChannelProvider } from 'ably/react';
 import 'tldraw/tldraw.css';
 import 'katex/dist/katex.min.css';
 
@@ -181,14 +181,16 @@ export function EmbeddedWhiteboard({
   }), [displayName]);
 
   return (
-    <SessionProvider channelName={sessionChannelName} currentUserId={currentUserId}>
-      <div style={{ position: 'fixed', inset: 0, top: '56px' }}>
-        <Tldraw
-          store={storeRef.current}
-          components={tldrawComponents}
-          autoFocus
-        />
-      </div>
-    </SessionProvider>
+    <ChannelProvider channelName={sessionChannelName}>
+      <SessionProvider channelName={sessionChannelName} currentUserId={currentUserId}>
+        <div style={{ position: 'fixed', inset: 0, top: '56px' }}>
+          <Tldraw
+            store={storeRef.current}
+            components={tldrawComponents}
+            autoFocus
+          />
+        </div>
+      </SessionProvider>
+    </ChannelProvider>
   );
 }
