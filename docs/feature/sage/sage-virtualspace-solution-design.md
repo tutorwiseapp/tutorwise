@@ -1,14 +1,16 @@
 # Sage × VirtualSpace Solution Design
 **AI Tutor Intelligence Layer for the Collaborative Whiteboard**
-**Version:** 1.2
+**Version:** 2.0
 **Created:** 2026-03-19
 **Updated:** 2026-03-19 — v1.1: 12 design review issues addressed
            2026-03-19 — v1.2: competitor research integrated — post-session recap (§8.6),
            guest access / magic link (§19), PNG canvas snapshot fix (§14),
            [CANVAS] parser validation spec (Phase 2), session recording strategic gap (§20),
            Desmos/GeoGebra / gamification / quota pooling in Future Roadmap (§20)
-**Status:** Design — Approved for Implementation
-**Owner:** Michael Quan
+           2026-03-19 — v2.0: comprehensive implementation audit — all sections updated to
+           reflect Phase 8 complete codebase. Exact constants, thresholds, API signatures,
+           DB columns, type definitions, and file paths added throughout.
+**Status:** Implemented — Phase 8 Complete
 
 ---
 
@@ -27,13 +29,13 @@
 11. [Multi-Student Sessions](#11-multi-student-sessions)
 12. [Tutor Co-pilot Channel](#12-tutor-co-pilot-channel)
 13. [UI Design](#13-ui-design)
-14. [API Specification](#14-api-specification) — includes `useSageVirtualSpace` hook contract
+14. [API Specification](#14-api-specification)
 15. [Database Schema](#15-database-schema)
 16. [Implementation Phases](#16-implementation-phases)
 17. [Success Metrics](#17-success-metrics)
 18. [Related Documentation](#18-related-documentation)
-19. [Guest Access — No-Login Student Join](#19-guest-access--no-login-student-join)
-20. [Future Roadmap](#20-future-roadmap)
+19. [Future Roadmap](#19-future-roadmap)
+20. [Known Gaps & Open Issues](#20-known-gaps--open-issues)
 
 ---
 
@@ -57,7 +59,7 @@ The tutor experience: Sage is a co-pilot — silent when you're teaching, presen
 4. **Proactive, not reactive** — Sage does not wait to be asked. It notices when a student is stuck and intervenes at the right moment — not too early (patronising), not too late (student gives up).
 5. **Canvas-first explanations** — When Sage generates an explanation, it automatically decides what to stamp on the canvas alongside the text. Shapes appear as part of the natural response flow, not as a separate tool call.
 6. **Invisible until needed** — No permanent UI clutter. Sage surfaces at the right moment.
-7. **Vision over JSON** — Canvas observation uses SVG export sent to a vision model. JSON store snapshot tells you what tool-stamped shapes exist. It tells you nothing about freehand working — the most educationally valuable signal.
+7. **Vision over JSON** — Canvas observation uses PNG export sent to a vision model. JSON store snapshot tells you what tool-stamped shapes exist. It tells you nothing about freehand working — the most educationally valuable signal.
 8. **Respect the human tutor** — In sessions with an active human tutor, Sage is a whisper in their ear, not a voice in the room. The human tutor remains the tutor.
 9. **Never overwrite student work** — Sage uses spatial intelligence to find whitespace. It never accidentally covers a student's working.
 10. **Protect peer learning** — When Sage detects one student explaining to another, it steps back. Organic peer learning is more valuable than AI intervention.
@@ -69,20 +71,37 @@ The tutor experience: Sage is a co-pilot — silent when you're teaching, presen
 Sage joins the session as a named participant in the Ably channel. It:
 
 - Appears in the participant count
-- Has its own `userId` (`sage-ai`) in the session
+- Has its own context in the session (activating user's Sage session ID)
 - Is visible in the participants list with a clear AI badge
 - Attributes its canvas stamps to itself (visually distinct — dashed border, Sage teal colour)
-- Can be removed from the session by the session owner at any time
+- Can be removed from the session by the session owner at any time (deactivate button)
 
 When Sage stamps a shape, other participants see it attributed to Sage — the same way they see shapes from other human participants. This establishes trust and transparency. Students know Sage is there and what it contributes.
 
 ### Ably Channels
 
-| Channel | Purpose |
-|---------|---------|
-| `virtualspace:{sessionId}` | Main draw channel — all participants including Sage |
-| `session:virtualspace:{sessionId}` | Session events (chat, reactions, timer) |
-| `sage:copilot:{sessionId}:{tutorId}` | Private whisper channel — Sage → human tutor only |
+| Channel | Format | Purpose |
+|---------|--------|---------|
+| Draw channel | `context.channelName` (e.g. `virtualspace:abc123`) | Main draw channel — all participants including Sage; presence tracked for tutor/student detection |
+| Session channel | `session:${channelName}` | Session events (chat, reactions, timer, follow-mode) |
+| Co-pilot private channel | `sage:copilot:${sessionId}:${tutorId}` | Private whisper channel — Sage → human tutor only; also used for disconnect recovery |
+
+### Implementation Files
+
+| Concern | File |
+|---------|------|
+| Main orchestration hook | `hooks/useSageVirtualSpace.ts` |
+| Stuck detection | `hooks/useSageStuckDetector.ts` |
+| Lesson plan management | `hooks/useLessonPlan.ts` |
+| Multi-student intelligence | `hooks/useMultiStudentIntelligence.ts` |
+| Co-pilot whisper channel | `hooks/useCopilotWhispers.ts` |
+| Canvas writer (stamps shapes) | `canvas/SageCanvasWriter.tsx` |
+| Canvas block parser | `canvas/canvasBlockParser.ts` |
+| Sage panel UI | `SagePanel.tsx` |
+| Co-pilot whisper overlay | `CopilotWhisperOverlay.tsx` |
+| Lesson plan drawer | `LessonPlanDrawer.tsx` |
+
+All component files are under `apps/web/src/components/feature/virtualspace/`.
 
 ---
 
@@ -91,22 +110,22 @@ When Sage stamps a shape, other participants see it attributed to Sage — the s
 Sage automatically selects and shifts between four behaviour profiles based on session signals. These are internal — the user never sees or selects them.
 
 ### 4.1 Tutor Profile
-**When:** Solo student session, no human tutor present.
+**When:** No human tutor present, OR tutor has been idle for more than 3 minutes.
 
 Sage is the tutor. It drives the session — explains concepts, stamps worked examples, asks probing questions, waits for student response, observes their working, gives feedback, and advances through a lesson plan. It uses the student's model (mastery scores, known misconceptions, SM-2 due topics) to pick the right topic and difficulty.
 
 ### 4.2 Co-pilot Profile
-**When:** Human tutor is actively present and interacting (recent canvas activity or chat messages from tutor within last 90 seconds).
+**When:** Human tutor has been active within the last 90 seconds (canvas draw activity or presence).
 
 Sage whispers suggestions to the tutor via the private co-pilot channel. It does not address the student directly unless asked by the tutor. Suggestions are brief and actionable: *"Student's error is on step 3 — wrong sign. Suggest annotating directly."* The tutor can accept (one tap → Sage stamps, attributed to tutor) or dismiss.
 
 ### 4.3 Wingman Profile
-**When:** Human tutor is present in the session but has been idle for 3+ minutes (no canvas or chat activity).
+**When:** Human tutor is present but idle between 90 seconds and 3 minutes.
 
 The human tutor is in the room but not actively teaching — perhaps the student is working independently. Sage quietly supports the student: answers questions, offers hints on request, but does not take over. It defers if the tutor re-engages.
 
 ### 4.4 Observer Profile
-**When:** Student is actively working — recent canvas marks, recent chat, short idle time.
+**When:** Student is actively working — student idle time is below 25 seconds — while Sage is in Tutor or Wingman profile.
 
 Sage watches silently. It is present and ready but does not intervene. This is the default state immediately after a student starts working. Sage builds up its picture of what the student is doing before acting.
 
@@ -114,56 +133,79 @@ Sage watches silently. It is present and ready but does not intervene. This is t
 
 ```
 Session start
-  → Any human tutor present and active?
+  → Any human tutor present and active (draw activity < 90s)?
       Yes → Co-pilot profile
       No  → Tutor profile (Observer sub-state — Sage builds context first)
 
-During session:
-  Human tutor active (< 90s since last action) → Co-pilot
-  Human tutor idle  (90s–3min)                 → Wingman
-  Human tutor idle  (> 3min) OR absent         → Tutor
-  Student actively working (< 25s idle)        → Observer (within Tutor/Wingman)
-  Stuck signal threshold reached               → Active intervention
+During session (10s awareness loop):
+  Tutor active < 90s since last draw     → Co-pilot
+  Tutor idle 90s–3min                    → Wingman
+  Tutor idle > 3min OR absent            → Tutor
+  Student idle < 25s (active working)   → Observer (within Tutor/Wingman)
+  Stuck signal threshold reached         → Active intervention
 ```
+
+### Exact Thresholds (implemented)
+
+```typescript
+const TUTOR_ACTIVE_THRESHOLD_MS  = 90 * 1000;      // 90 seconds → Co-pilot
+const TUTOR_WINGMAN_THRESHOLD_MS = 3 * 60 * 1000;  // 3 minutes → Wingman / Tutor boundary
+const STUDENT_ACTIVE_THRESHOLD_MS = 25_000;        // 25 seconds → Observer substate
+```
+
+### Profile Colours
+
+| Profile | Background | Display label |
+|---------|-----------|---------------|
+| Tutor | `#006c67` (teal) | Tutor |
+| Co-pilot | `#7c3aed` (purple) | Co-pilot |
+| Wingman | `#d97706` (amber) | Wingman |
+| Observer | `#64748b` (slate) | Observer |
+
+Badge colours (in `SagePanel.tsx`):
+
+| Profile | Label colour | Badge background |
+|---------|-------------|-----------------|
+| Tutor | `#006c67` | `#e6f7f6` |
+| Co-pilot | `#7c3aed` | `#f3e8ff` |
+| Wingman | `#d97706` | `#fef3c7` |
+| Observer | `#64748b` | `#f1f5f9` |
 
 ---
 
 ## 5. Situational Awareness Loop
 
-Sage maintains a continuous awareness loop, reading signals and deciding how to respond. The loop runs on a 10-second tick while the session is active.
+Sage maintains a continuous awareness loop, reading signals and deciding how to respond. The loop runs on a **10-second tick** while the session is active.
 
-#### Loop Pause Conditions
+### Loop Behaviour
 
-The awareness loop is **paused** (tick suspended) when:
-
-| Condition | Why |
-|-----------|-----|
-| Browser tab is hidden (`document.visibilityState === 'hidden'`) | User is not watching; polling wastes battery and may conflict with Ably on mobile |
-| Sage is in Observer profile and no stuck signals are accumulating | No action possible — save the tick |
-| Sage panel is closed (user has dismissed it) | Panel-close is an explicit signal to step back |
-
-The loop **resumes immediately** on `visibilitychange` to `visible` or on any new canvas activity from the student. The idle timer accumulator is **not reset** on tab hide — the seconds since last student action continue counting so stuck detection remains accurate when the user returns.
+- **Interval:** 10,000ms (`setInterval(tick, 10_000)`)
+- **Paused when:** `document.hidden === true` (tab not visible)
+- **Paused when:** profile is `observer` (no intervention needed; student actively working)
+- **Per-tick actions:** recompute profile, check co-pilot whisper conditions, check stuck signal
 
 ### Signal Sources
 
 | Source | Signal | How read |
 |--------|--------|----------|
-| Session metadata | `session_type`, `booking_type`, `subject`, `level` | Resolved at activation |
-| Participant state | Who is present, tutor active/idle | Ably presence events |
-| Canvas state | What shapes exist, student's recent marks | tldraw store subscription |
-| Chat history | Questions asked, topics covered, who said what | Session channel messages |
-| Student model | Mastery scores, SM-2 due topics, misconceptions | `sage_student_profiles` |
-| Idle timer | Seconds since last student canvas or chat action | Client-side timer |
-| Erase patterns | Repeated erase + redraw of same region | Store change events |
-| Freehand velocity | Pen stroke speed and confidence | Canvas snapshot analysis |
-| Vision analysis | What the student actually drew | SVG export → vision model |
+| Session metadata | `session_type`, `booking_type`, `subject`, `level` | Resolved at activation from `virtualspace_sessions` + `bookings` |
+| Participant presence | Who is present, tutor active/idle | Ably presence events on draw channel |
+| Tutor activity | Last draw timestamp | Draw channel message events — `tutorLastActiveRef.current` |
+| Student activity | Last draw timestamp | Draw channel message events — `studentLastActiveRef.current` |
+| Stuck level | Idle time + erase pattern | `useSageStuckDetector` hook output |
+| Erase pattern | Count of erasures in region | Store change events counted in `VirtualSpaceClient` |
+| Peer teaching | Student explaining to another | `useMultiStudentIntelligence` heuristic |
+| Session drive phase | Current lesson phase | `drivePhase` state in `useSageVirtualSpace` |
+| Student model | Mastery scores, SM-2 due topics, misconceptions | `sage_student_profiles` loaded at activation |
+
+**Known gap:** Misconceptions are included in the student model loaded at activation but are not explicitly re-extracted and logged during the session. `SessionRecap.misconceptionsLogged` is defined but not populated by the deactivate route.
 
 ### Subject and Topic Inference
 
 Sage does not ask the student what subject they are studying. It infers from:
 
 1. **Booking data** — if the session is linked to a booking, the booking's `service_name` and subject tags are the primary signal
-2. **Canvas content** — math equation shapes → maths; circuit shapes → physics; fraction bars → KS1-KS3 maths
+2. **Canvas content** — math equation shapes → maths; circuit shapes → physics; fraction bars → KS1–KS3 maths
 3. **Chat language** — "solve for x", "photosynthesis", "World War 2" → subject detection via existing Sage curriculum resolver
 4. **Student model** — the student's active curriculum subjects from `sage_student_profiles`
 5. **Session title** — fallback
@@ -174,32 +216,50 @@ Once inferred, Sage uses the full curriculum resolver to load the correct topic 
 
 ## 6. Stuck Detection Engine
 
-Sage detects when a student is stuck and intervenes at the right moment. Signals are weighted and combined into a stuck score. Intervention triggers at defined thresholds.
+Sage detects when a student is stuck and intervenes at the right moment. Signals are weighted and combined. Intervention triggers at defined thresholds.
+
+### Implemented Constants
+
+```typescript
+// useSageStuckDetector.ts
+const THRESHOLDS = {
+  low:    25,   // > 25 seconds idle
+  medium: 60,   // > 60 seconds idle
+  high:   120,  // > 120 seconds idle
+};
+
+const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'pointerdown', 'wheel', 'touchstart'];
+// Polled every 5 seconds; window-level listeners
+
+// Erase pattern (SageCanvasWriter.tsx)
+const ERASE_CLUSTER_RADIUS    = 200;           // px — deletions within this radius count as same region
+const ERASE_WINDOW_MS         = 2 * 60 * 1000; // 2-minute rolling window
+const ERASE_CLUSTER_THRESHOLD = 2;             // ≥2 deletions in region → pattern detected
+```
 
 ### Signal Weights
 
-| Signal | Weight | Notes |
+| Signal | Effect | Notes |
 |--------|--------|-------|
-| Idle > 25s with incomplete work visible | Low | Could just be thinking |
-| Idle > 60s | Medium | |
-| Idle > 120s | High | |
-| Repeated erase + redraw of same area (≥2 times) | Medium | Active struggle |
-| Same wrong answer stamped twice | High | Pattern of error |
-| Student types "?" in chat | Medium | Implicit question |
-| Student types "I don't understand" / "idk" / "help" | Immediate | Explicit |
-| Freehand strokes slowing and shortening (hesitation) | Low | |
-| Vision model: incomplete or incorrect working detected | High | On observe trigger |
+| Idle > 25s with incomplete work visible | → Low level | Could just be thinking |
+| Idle > 60s | → Medium level | |
+| Idle > 120s | → High level | |
+| ≥2 erasures in same region (200px) within 2 min | Boost by one tier | Active struggle |
+| Student types "?" in chat | → Medium (at minimum) | Implicit question |
+| Student types "I don't understand" / "idk" / "help" | → High (at minimum) | Explicit |
 
 ### Intervention Levels
 
-| Stuck Score | Sage Response |
+| Stuck Level | Sage Response |
 |-------------|--------------|
-| Low | Pulse the Sage button gently — "need a hint?" indicator |
-| Medium | Sage asks one open probing question in the chat panel: *"What have you tried so far?"* |
-| High | Sage stamps a scaffold or partial worked example in the Sage zone, adjacent to the student's attempt |
-| Immediate | Sage responds directly and fully in chat, with canvas support if needed |
+| `none` | Silent — student is actively working |
+| `low` | No automatic action; button may pulse (UI enhancement planned) |
+| `medium` | Sage asks one open probing question in the chat panel |
+| `high` | Auto-observe fires: `observe('stuck')` — Sage reads canvas and responds with scaffold or partial worked example |
 
-Sage never interrupts a student who is actively making progress. The observer sub-state suppresses interventions while the idle timer is below 25 seconds.
+### Auto-observe at High
+
+When `stuckLevel === 'high'`, `VirtualSpaceClient` automatically calls `sage.observe('stuck')`. This sends the current canvas PNG snapshot to the observe API route which streams back a pedagogical response using the vision model.
 
 ---
 
@@ -207,19 +267,19 @@ Sage never interrupts a student who is actively making progress. The observer su
 
 ### 7.1 Canvas Observation — Vision Model
 
-Canvas observation uses tldraw's image export, not JSON store snapshot. It captures everything: freehand pen strokes, tool-stamped shapes, text — the full visual truth of what is on the board including all handwritten working.
+Canvas observation uses tldraw's `editor.toImage()` PNG export at 0.5× scale, not raw SVG. PNG at half resolution is typically 60–150 KB, well within the 512 KB limit.
 
-#### Export Strategy — Bounded PNG, Not Raw SVG
+**Size guard:**
+```typescript
+const MAX_SNAPSHOT_BYTES = 512 * 1024;          // 512 KB
+const MAX_B64_CHARS = Math.ceil(512_000 * 4/3); // base64 character limit
+// Returns HTTP 413 if exceeded
+```
 
-Raw SVG exports of a dense whiteboard can be 500 KB–2 MB, which creates three problems: request body size limits, latency on mobile connections, and vision model token cost (billed on image dimensions). The export pipeline instead uses:
+**Vision model:** `gemini-2.0-flash`
+**Generation config:** `temperature: 0.5`, `maxOutputTokens: 512`
 
-1. **Crop to viewport** — `editor.toImage({ bounds: editor.getViewportPageBounds(), format: 'png' })` exports only the visible area, not the full infinite canvas
-2. **Resolution cap** — max 1280 × 720 px equivalent (scale factor adjusted to fit); for a typical 1920px-wide canvas zoomed to 100%, this is roughly half-resolution
-3. **PNG not SVG** — PNG is smaller for dense freehand content and is universally supported by vision model APIs; SVG is only preferred for pure vector diagrams with no freehand strokes
-
-Resulting size: typically 80–200 KB for a full but not pathologically dense session. Sent as a base64 data URI in the request body; the route validates size ≤ 512 KB and rejects otherwise with a `canvas_too_large` error (client falls back to text-only mode).
-
-The observation prompt is:
+The PNG is sent to the observe route with an observation prompt:
 
 ```
 You are an expert tutor reviewing a student's whiteboard work.
@@ -236,9 +296,9 @@ Be encouraging. Address the student directly.
 ```
 
 Observation is triggered:
-- **Manually** — "Ask Sage to review my work" button in the Sage panel
-- **Automatically** — when the stuck score reaches Medium or above
-- **By session drive** — after each practice problem phase
+- **Manually** — "Review my work" button in the Sage panel
+- **Automatically** — when stuck level reaches `high`
+- **By session drive** — after each practice problem phase (planned)
 
 ### 7.2 Canvas Write — Smart Stamping
 
@@ -246,70 +306,99 @@ When Sage generates a response that includes visual content, it embeds structure
 
 ```
 [CANVAS]
-{
-  "type": "math-equation",
-  "latex": "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}",
-  "label": "Quadratic Formula",
-  "zone": "sage"
-}
+{"type":"math-equation","props":{"latex":"x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}","displayMode":true}}
 [/CANVAS]
 
-The quadratic formula gives us both solutions at once. Notice the ± — that's what gives us two answers...
+The quadratic formula gives us both solutions at once...
 ```
 
 The `SageCanvasWriter` component (rendered inside tldraw's `InFrontOfTheCanvas` slot, giving it `useEditor()` access) strips canvas blocks from the stream and executes them. The text renders in the Sage panel. The shapes stamp on the canvas. One response, two outputs, perfectly synchronised.
 
-#### Stream Split — Handoff Between Panel and Writer
-
-The stream passes through `SagePanel` first. `SagePanel` holds the SSE reader and passes shape commands down via a shared React context (`SageVirtualSpaceContext`):
-
+**[CANVAS] block format:**
 ```typescript
-interface SageVirtualSpaceContext {
-  pendingShapes: CanvasCommand[];        // commands queued for SageCanvasWriter
-  dispatchShape: (cmd: CanvasCommand) => void;
+interface SageCanvasShapeSpec {
+  type: string;                      // shape type key (see table below)
+  props: Record<string, unknown>;    // shape-specific props (merged with defaults)
 }
 ```
 
-`SagePanel` maintains a `canvasBuffer` string alongside the text buffer. As SSE chunks arrive:
+**Parser functions (`canvasBlockParser.ts`):**
+```typescript
+// For complete responses:
+parseCanvasBlocks(content: string): { displayText: string; shapes: SageCanvasShapeSpec[] }
 
-1. Append chunk to both `textBuffer` and `canvasBuffer`
-2. Scan `canvasBuffer` for a complete `[CANVAS]...[/CANVAS]` block
-3. If a **complete block** is found: strip it from the displayed text, parse the JSON, call `dispatchShape()`
-4. If a **partial block** is found (opening `[CANVAS]` without closing): hold the partial block in a `pendingBlock` ref — do not render it as text
-5. The partial is never shown to the user — it only resolves once `[/CANVAS]` arrives in a future chunk
+// For streaming (called per SSE chunk):
+parseStreamingBuffer(rawBuffer: string): {
+  displayText: string;
+  shapes: SageCanvasShapeSpec[];
+  remainingBuffer: string;  // partial [CANVAS] block held for next chunk
+}
+```
 
-`SageCanvasWriter` subscribes to `pendingShapes` via the context and executes each command with `useEditor()` as they arrive. This gives smooth progressive stamping — shapes appear while the text is still streaming.
+**Known validation gap:** The parser has not been formally tested against 20+ real LLM responses for 3 edge-case failure modes: wrong field names, `[CANVAS]` blocks wrapped inside markdown code fences, and multiple blocks where the second is silently dropped. Unit tests should be added before Phase 2 is considered fully hardened.
 
-**Supported shape types Sage can stamp:**
-- `math-equation` — LaTeX equation
-- `graph-axes` — plotted graph with labelled axes and curve
-- `number-line` — number line with marked values
-- `fraction-bar` — fraction bar representation
-- `annotation` — annotation arrow pointing to a specific canvas coordinate
-- `protractor` — angle measurement tool
-- `unit-circle` — unit circle with labelled angles
-- `venn-diagram` — Venn diagram with labelled sets
-- `timeline` — historical or process timeline
-- `text-block` — plain text box (for definitions, notes, worked steps)
+**Supported shape types and defaults:**
+
+| Type | Default size | Key props |
+|------|-------------|-----------|
+| `math-equation` | 280×80 | `latex`, `displayMode`, `fontSize` |
+| `annotation` | 240×80 | `text`, `annotationType`, `highlightColor` |
+| `number-line` | 320×80 | `min`, `max`, `step`, `markers`, `showFractions` |
+| `fraction-bar` | 200×60 | `numerator`, `denominator`, `color`, `bgColor`, `showEquivalent` |
+| `venn-diagram` | 380×260 | `leftLabel`, `rightLabel`, `leftContent`, `centerContent`, `rightContent` |
+| `graph-axes` | 320×320 | `xMin`, `xMax`, `yMin`, `yMax`, `showGrid`, `showLabels` |
+| `pie-chart` | 280×280 | `segments` (JSON string), `title`, `showPercentages` |
+| `bar-chart` | 320×280 | `bars` (JSON string), `title`, `xLabel`, `yLabel` |
+| `timeline` | 400×200 | `events` (JSON string), `title`, `lineColor` |
+| `pythagoras` | 280×280 | `sideA`, `sideB`, `showWorking`, `showAngles` |
+| `protractor` | 200×120 | `angle`, `showDegrees` |
+| `unit-circle` | 320×320 | `showAngles`, `showCoordinates`, `highlightAngle` |
+| `text-block` | 260×80 | `text`, `fontSize`, `color`, `bold` |
+
+**Note:** `pie-chart`, `bar-chart`, `timeline`, and `venn-diagram` use JSON-stringified arrays for their collection fields. The parser coerces these automatically.
 
 ### 7.3 Spatial Intelligence — No Hard Zone
 
 Sage does not use a fixed zone. It reads the live canvas layout before every stamp:
 
-1. Get the current viewport bounds from `editor.getViewportPageBounds()` — **shapes outside the viewport are ignored even if they exist in the store**
-2. Query the tldraw store for all shapes whose bounding boxes intersect the viewport
-3. Identify the student's working cluster (shapes with `meta.createdBy !== 'sage-ai'`)
-4. Find the nearest whitespace within the viewport that does not overlap any existing shape
-5. Place the new shape there with 24px clearance from the nearest edge
+1. Query the tldraw store for all existing shape bounding boxes, filtering out shapes with `meta.sageAttributed === true`
+2. Identify the student's working cluster (all shapes not attributed to Sage)
+3. Find the nearest whitespace that does not overlap any existing shape
+4. Place the new shape with **24px clearance** from the nearest edge
 
-Constraining the search to viewport bounds prevents Sage from placing shapes in off-screen whitespace that is invisible to the student at the time of stamping. If no whitespace is found within the current viewport, Sage pans right (see below).
+**Position finding strategy (`findStampPosition` in `SageCanvasWriter.tsx`):**
+
+```typescript
+const GAP = 24;     // clearance from nearest shape edge
+const CASCADE = 24; // offset applied to each subsequent shape in a batch
+const PAD = 4;      // padding around attribution frame
+
+// Strategy:
+// 1. Try to the right of the rightmost shape (with GAP clearance)
+// 2. Try below the lowest shape
+// 3. Fall back to viewport centre-right
+```
 
 When annotating student work directly (e.g. circling an error), Sage uses a visually distinct style:
 - Dashed border
-- Sage teal colour (`#006c67`)
+- Sage teal colour (`green` in tldraw colour token, maps to `#006c67`)
 - `meta.sageAnnotation: true` — allows filtering Sage content separately
 
 If the canvas is nearly full, Sage pans the viewport to find whitespace to the right of all existing content before stamping.
+
+### 7.4 Canvas Attribution Styling
+
+Every Sage-stamped shape is accompanied by an attribution frame rendered as additional tldraw shapes:
+
+```typescript
+// Main shape: opacity 0.85, meta.sageAttributed = true
+// Dashed frame: geo shape, dash='dashed', color='green', fill='none', size='s', opacity 0.6
+//               meta.sageFrame = true
+// Label: text shape "↗ Sage", color='green', size='xs', font='sans', opacity 0.7
+//        meta.sageLabel = true
+```
+
+In co-pilot mode when the tutor accepts a Sage suggestion, the shape is stamped with `meta._tutorAttributed: true` — the attribution frame and label are omitted. The student sees the tutor's content, not Sage's.
 
 ---
 
@@ -317,40 +406,43 @@ If the canvas is nearly full, Sage pans the viewport to find whitespace to the r
 
 When Sage is in Tutor profile with a fresh session (empty canvas, no prior interaction), it initiates a structured lesson rather than waiting to be asked.
 
-### Lesson Plan Structure
+### 8.1 Lesson Plan Structure
 
 ```
-Phase 1 — Calibration (1 exchange)
-  Sage: Checks what the student wants to work on today.
+Phase 1 — Calibration
+  Auto-fires 3s after activation (tutor profile only, message count = 0)
+  Sage checks what the student wants to work on today.
   If booking → topic from booking context
   If standalone → infer from student model (SM-2 due topics)
   If uncertain → one direct question: "What are you working on?"
 
-Phase 2 — Activation (1–2 exchanges)
+Phase 2 — Activation
+  Triggered when student sends first message.
   Sage stamps an opening question or prompt on canvas.
   "Have a go — show your working."
   Sage enters Observer sub-state.
 
-Phase 3 — Observation & Feedback loop (n cycles)
-  Student works → Sage observes (vision)
-  → Correct: encouragement + next harder problem
-  → Partially correct: targeted hint, stamp scaffold
-  → Incorrect: identify specific error, stamp correction
-  → Stuck: increment stuck score, trigger intervention
+Phase 3 — Observation & Feedback loop
+  Triggered when ≥3 assistant messages exist (greeting + calibration + first substantive).
+  Student works → Sage observes (vision) → Correct / Partially correct / Incorrect / Stuck
 
 Phase 4 — Consolidation
+  Triggered when ≥8 assistant messages (H2 — planned refinement).
   After 3 consecutive correct responses at target difficulty:
   Sage summarises what was learned.
   Updates student model (mastery score, SM-2 interval).
   Offers: go deeper, try a related topic, or finish.
 
 Phase 5 — Wrap-up
+  Triggered when ≥11 assistant messages (H2 — planned refinement).
   Sage stamps a summary "takeaway" box on canvas.
   Saves session to sage_sessions with surface: 'virtualspace'.
   Writes mastery update to sage_student_profiles.
 ```
 
-### Adaptive Difficulty
+**Phase transition thresholds** are message-count based in the current implementation. The exact counts (3/8/11) are flagged as H2 items — future work will replace them with quality signals (consecutive correct responses, explicit topic completion).
+
+### 8.2 Adaptive Difficulty
 
 At each cycle, Sage recalibrates difficulty based on:
 - Student's current mastery score for this topic
@@ -358,29 +450,31 @@ At each cycle, Sage recalibrates difficulty based on:
 - Time taken per problem (fast + correct → harder; slow + correct → same level)
 - Student's explicit request ("make it harder" / "too hard")
 
-### Post-Session Recap
-
-When Sage deactivates (either by the student closing the panel or the session ending), it generates an async post-session recap. The recap is returned immediately in the deactivate response — the client does not wait for generation.
-
-**Recap contents:**
+### 8.3 Session Drive Phase in useSageVirtualSpace
 
 ```typescript
-interface SessionRecap {
+export type DrivePhase = 'calibration' | 'activation' | 'loop' | 'consolidation' | 'wrap-up';
+```
+
+Phase state is included in the system prompt context block sent to the message API route, so Sage's response style adapts to the current phase without any explicit instructions in the user message.
+
+### 8.4 Post-Session Recap
+
+On deactivation, the `/api/sage/virtualspace/deactivate` route generates a structured recap:
+
+```typescript
+export interface SessionRecap {
   topicsCovered: string[];
-  misconceptionsLogged: string[];       // Specific errors Sage observed
-  masteryDelta: number;                 // Net mastery change this session
-  timeSpent: number;                    // Minutes
-  strongMoments: string[];              // What the student did well (1–3 items)
-  suggestedNextSteps: string[];         // What to work on next
-  lessonPlanPrompt?: string;            // Pre-filled prompt for lesson plan upsell
+  misconceptionsLogged: string[];   // currently not populated — known gap
+  masteryDelta: number;             // estimated mastery improvement
+  timeSpent: number;                // minutes
+  strongMoments: string[];          // positive highlights from the session
+  suggestedNextSteps: string[];     // recommended follow-on topics
+  lessonPlanPrompt?: string;        // optional: prompt for generating a follow-up lesson plan
 }
 ```
 
-The `lessonPlanPrompt` field is the entry point for the lesson plan system. If meaningful topics were covered, Sage pre-fills a natural language prompt: *"Create a follow-up lesson on quadratic equations, building on today's work — student has mastered factorising but needs more practice on the discriminant."* The student or tutor can accept this in one tap to generate and save a lesson plan.
-
-**Delivery:** The recap appears in the Sage panel on session close. It is also saved to `sage_sessions.recap_json` (a new nullable JSONB column). Tutors can view past session recaps from the VirtualSpace session history page.
-
-**Implementation note:** Recap generation is fire-and-forget — the `POST /api/sage/virtualspace/deactivate` route returns 200 immediately, then spawns the async LLM call. The client polls `GET /api/sage/virtualspace/recap/:sageSessionId` or receives a push via the session Ably channel once the recap is ready (typically 3–8 seconds).
+Recap is generated via LLM with a 5-second timeout. It is persisted to `sage_sessions.recap_json` and returned in the deactivate response. The `SagePanel` renders a recap card after deactivation with a dismiss action.
 
 ---
 
@@ -397,31 +491,11 @@ Sage can create and design structured lesson plans — for tutors to use in thei
 | Sage autonomously | During Session Drive — Sage constructs and executes a plan in real time | The current session |
 | Admin | Via the Sage admin panel | Platform-level template plans |
 
-### 9.2 Lesson Plan Structure
-
-A lesson plan is a structured document with phases, activities, and optional canvas assets.
+### 9.2 Type Definitions
 
 ```typescript
-interface LessonPlan {
-  id: string;
-  title: string;
-  subject: CurriculumSubject;
-  level: SageLevel;
-  topic: string;
-  examBoard?: ExamBoard;
-  targetDuration: number;        // minutes
-  targetMasteryDelta: number;    // expected mastery improvement
-  difficulty: DifficultyLevel;
-  createdBy: string;             // userId or 'sage-ai'
-  createdFor?: string;           // studentId (optional)
-  phases: LessonPhase[];
-  tags: string[];
-  isTemplate: boolean;           // reusable template vs single-use
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface LessonPhase {
+// useLessonPlan.ts
+export interface LessonPhase {
   id: string;
   name: string;
   type: 'intro' | 'worked-example' | 'guided-practice' | 'independent-practice'
@@ -431,93 +505,86 @@ interface LessonPhase {
   canvasAssets?: CanvasAsset[];  // shapes to stamp at phase start
   successCriteria: string;       // what "done" looks like
   adaptations?: {
-    ifCorrect: string;           // advance instruction
-    ifStruggling: string;        // fallback instruction
-    scaffold?: CanvasAsset[];    // extra shapes to stamp if struggling
+    ifCorrect: string;
+    ifStruggling: string;
+    scaffold?: CanvasAsset[];
   };
 }
 
+export interface LessonPlan {
+  id: string;
+  title: string;
+  subject: string;
+  level: string;
+  topic: string;
+  examBoard?: string;
+  targetDuration: number;    // minutes
+  difficulty: string;
+  isTemplate: boolean;
+  status: 'draft' | 'active' | 'archived';
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  phases?: LessonPhase[];
+}
+
 interface CanvasAsset {
-  type: string;                  // shape type
-  data: Record<string, unknown>; // shape props
+  type: string;
+  data: Record<string, unknown>;
   label?: string;
 }
 ```
 
-### 9.3 Sage Generates a Lesson Plan
+### 9.3 Lesson Plan Generation
 
-When a tutor or student asks Sage to create a lesson plan, Sage:
+When a tutor or student asks Sage to create a lesson plan, the `/api/sage/lesson-plans/generate` route:
 
-1. **Infers parameters** from the request — subject, level, topic, duration, student context
-2. **Loads student model** (if a specific student is named) — mastery scores, known misconceptions, SM-2 due topics
-3. **Queries the curriculum resolver** — loads all relevant topics, learning objectives, exam board requirements
-4. **Generates the plan** — structured JSON with phases, timing, canvas assets, and adaptive branches
-5. **Presents it conversationally** — Sage describes the plan in plain language first, then shows the structured detail
-6. **Allows editing** — the tutor or student can say *"make the worked example longer"* or *"add a recap at the start"* and Sage revises
+1. **Infers parameters** from the natural language prompt — subject, level, topic, duration, student context
+2. **Loads student model** (if a specific student is named)
+3. **Generates structured JSON** with phases, timing, canvas assets, and adaptive branches
+4. **Returns** the plan for review before saving, with a plain-language summary and estimated mastery delta
 
-### 9.4 Sage Lesson Plan Chat Interface
+The plan is not auto-saved — the user reviews and saves explicitly via `POST /api/sage/lesson-plans`.
 
-The interaction is natural language. Sage handles the structure internally.
+### 9.4 Lesson Plan → VirtualSpace
 
-> *Tutor:* "Create a 45-minute lesson on the cosine rule for my year 11 student who's struggling with trigonometry"
->
-> *Sage:* "Here's a lesson plan for the cosine rule, pitched at grade 4–5 level with extra scaffolding for trig concepts:
->
-> **Cosine Rule — 45 min lesson**
-> 1. Recap (5 min) — Quick review of Pythagoras and SOHCAHTOA to activate prior knowledge
-> 2. Introduction (8 min) — When do we need the cosine rule? Non-right triangles. Stamp: labelled triangle diagram
-> 3. Worked Example (12 min) — Full worked example finding a missing side. Stamp: step-by-step equation sequence
-> 4. Guided Practice (10 min) — Student attempts a similar problem with scaffolding available
-> 5. Independent Practice (8 min) — Two unsupported problems at grade 5 difficulty
-> 6. Check & Consolidation (2 min) — Sage reviews student's working, summary stamp
->
-> Want me to adjust the timing, add another worked example, or change the difficulty?"
-
-### 9.5 Lesson Plan → VirtualSpace
-
-A saved lesson plan can be loaded into a VirtualSpace session in two ways:
-
-**Tutor loads a plan into a booking session:**
-- Tutor selects the plan from their lesson plan library before or during the session
-- Sage activates in Session Drive mode, executing the plan's phases
+**Via Lesson Plan Drawer** (`LessonPlanDrawer.tsx`, 380px fixed right panel):
+- Tutor opens the drawer from the session header "Load Plan" button
+- Selects a plan from their library (searchable, filterable)
+- Sage activates in Session Drive mode, executing the plan's phase sequence
 - Tutor can override any phase — Sage adapts in real time
+- Active phase visible in the drawer header
 
-**Student loads a plan for solo study:**
-- Student selects a plan from their study plans
-- Sage activates in Tutor profile, executing the plan
-- Student works through the phases at their own pace
+**Execution tracking:**
+- `useLessonPlan.loadPlan(planId)` calls `POST /api/sage/lesson-plans/[id]/load`
+- Creates a `sage_lesson_plan_executions` record
+- Returns `executionId` and the full `phases` array
+- `useLessonPlan.advancePhase()` calls `PATCH /api/sage/lesson-plans/[id]/executions/[executionId]`
 
-**Plan execution is adaptive** — Sage does not follow the plan rigidly. If a student masters the content faster than expected, Sage skips ahead. If they struggle, Sage inserts additional scaffolding phases from the plan's `adaptations` branches.
+**Plan execution is adaptive** — phase sequencing follows the drive loop but can be skipped or repeated based on student performance.
 
-### 9.6 Lesson Plan Library
-
-Lesson plans are stored and accessible from multiple surfaces:
+### 9.5 Lesson Plan Library
 
 | Surface | Access |
 |---------|--------|
+| VirtualSpace session header | "Load Plan" button → `LessonPlanDrawer` |
 | Sage chat | *"Show my lesson plans"* → Sage lists and describes them |
-| VirtualSpace session header | "Load Plan" button → plan picker drawer |
-| Tutor's account page | Lesson Plans section — full management UI |
-| Student's account page | Study Plans section — plans created for or by the student |
-| Admin | Platform-level templates visible to all tutors |
+| Tutor account page | Lesson Plans section (planned) |
+| Student account page | Study Plans section (planned) |
+| Admin Sage panel | Platform-level templates (planned) |
 
-### 9.7 Sharing & Templates
+### 9.6 Sharing & Templates
 
-- Tutors can mark a lesson plan as a **template** — reusable across multiple students
-- Templates can be shared with other tutors in the same organisation
-- Platform-level templates (created by admin) appear in all tutors' libraries
-- A plan created for a specific student is private to that tutor-student pair by default
+- Tutors mark a plan `isTemplate: true` — reusable across multiple students
+- Plans with `status: 'archived'` are hidden from the library
+- `status: 'active'` indicates the plan is currently executing in a session
 
-### 9.8 Lesson Plan → Student Progress
+### 9.7 Lesson Plan → Student Progress
 
-Every lesson plan execution writes back to the student model:
-- Which phases were completed
-- Time spent per phase
-- Mastery delta per topic
-- Any phases that triggered the struggling adaptation branch
-- SM-2 interval updates for topics covered
-
-This makes the lesson plan system a closed feedback loop: Sage creates plans informed by the student model, executes them, then updates the student model with the results — making future plans more accurate.
+Every lesson plan execution writes back to the student model via the deactivate recap:
+- `phases_completed` incremented on `advancePhase()`
+- `phases_struggled` incremented when the struggling adaptation branch fires
+- `mastery_delta` written to `sage_lesson_plan_executions` on deactivate
 
 ---
 
@@ -539,44 +606,76 @@ Sage in VirtualSpace uses the same quota as Sage chat. The canvas is a surface, 
 | Tutor uses Sage co-pilot tools | Tutor's quota |
 | Student in a booking asks Sage a question directly | Student's quota |
 
-**Rationale for tutor-activated exemption:** When a tutor enables Sage as a co-pilot in their booked session, they are offering Sage-enhanced tutoring as part of their service. They have paid for Sage Pro. The student benefits as an included part of the session — not from their own personal Sage allowance. This creates a meaningful differentiator for tutors: *"Book with me — AI-assisted sessions included."*
+**Rationale for tutor-activated exemption:** When a tutor enables Sage as a co-pilot in their booked session, they are offering Sage-enhanced tutoring as part of their service. They have paid for Sage Pro. The student benefits as an included part of the session — not from their own personal Sage allowance.
+
+### Quota Check
+
+`/api/sage/virtualspace/activate` calls `checkAIAgentRateLimit()`. Returns `HTTP 429` if quota is exhausted. Response body includes `{ quota_exhausted: true }`.
 
 ### Paywall Behaviour
 
-**Quota is checked and decremented atomically.** The activation route calls `checkAIAgentRateLimit()` which uses the same Redis-backed atomic counter as the Sage chat route. If two sessions activate simultaneously (user's last remaining interaction), the atomic decrement ensures only one succeeds — the second receives a `quota_exhausted` response. This is the same race-condition protection already in place on the chat surface.
-
-Sage checks quota before activating. If the student is at 0:
+**On activation at 0 quota:**
 - Sage button shows an upgrade prompt instead of activating
-- The prompt is contextual: *"You've used your 10 free sessions. Subscribe to Sage Pro to continue — your whiteboard and progress are saved."*
 
-If a student hits 0 **mid-session**:
-- Sage completes its current response (never cuts off mid-explanation)
-- After completing, Sage says: *"That's your 10 free sessions — you've made great progress today. Subscribe to Sage Pro to keep going."*
+**Mid-session quota exhaustion:**
+- `useSageVirtualSpace` catches HTTP 429 or `quota_exhausted: true` in the response body
+- Sets `quotaExhausted = true`
+- `SagePanel` renders a paywall card: *"You've used your free Sage sessions. Subscribe to Sage Pro — £10/mo"*
 - The canvas remains fully functional; only Sage's AI responses are gated
+
+**Quota warning (< 5 remaining):**
+- `SagePanel` footer shows `{quotaRemaining} free sessions remaining — Upgrade to Pro`
+- Not shown when student has Pro or is in a tutor's Sage-enabled session
 
 ---
 
 ## 11. Multi-Student Sessions
 
-### Per-Student Tracking
+### Implementation
 
-tldraw records shape authorship — every shape and stroke has creator metadata. Sage uses this to build a per-student model within the session:
+`useMultiStudentIntelligence.ts` is marked as R&D — heuristics are experimental and not yet validated in live tutoring data.
 
-- Which shapes and freehand strokes belong to which user
-- Per-user idle timer and stuck signals (independent)
-- Per-user conversation thread (Sage addresses individuals, not the group)
-- Per-user mastery updates at session end
+### Type Definitions
 
-### Social Dynamic Detection
+```typescript
+export interface StudentSignal {
+  userId: string;
+  displayName: string;
+  idleMs: number;
+  stuckLevel: 'none' | 'low' | 'medium' | 'high';
+  isPeerTeaching: boolean;
+}
 
-Sage detects organic peer learning — when one student is explaining to another — and steps back. This is the most valuable learning happening in the session and AI interruption would be harmful.
+export interface MultiStudentContext {
+  signals: Record<string, StudentSignal>;
+  peerTeachingDetected: boolean;
+  buildContextBlock: () => string;
+  recordActivity: (userId: string, displayName: string) => void;
+}
+```
 
-**Peer learning detected when:**
-- Student A's chat messages are longer and more explanatory (teaching language)
-- Student B's error rate on canvas is decreasing
-- Student B's idle time between marks is decreasing (active engagement)
+### Per-Student Stuck Thresholds
 
-When peer teaching breaks down (Student A gives an incorrect explanation), Sage reframes rather than corrects: *"That's a good approach — let me add one thing..."* This preserves Student A's confidence while correcting the misconception.
+```typescript
+const STUCK_LOW_MS    = 60_000;   // 1 minute
+const STUCK_MEDIUM_MS = 120_000;  // 2 minutes
+const STUCK_HIGH_MS   = 180_000;  // 3 minutes
+// (Intentionally more lenient than single-student thresholds — peer context changes interpretation)
+```
+
+### Peer Learning Detection
+
+```typescript
+// Detected when ALL of:
+// 1. One student's average recent message length > 80 chars (explanatory/teaching language)
+// 2. Another student's idle time > PEER_TEACH_LEARNER_IDLE_MS (30s) (listening state)
+const PEER_TEACH_LEARNER_IDLE_MS = 30_000;
+```
+
+When peer teaching is detected:
+- `peerTeachingDetected = true` propagates to Sage's awareness loop
+- Sage suppresses proactive interventions
+- The system prompt context block includes: *"Do not broadcast to the group. Address students by name."*
 
 ### Addressing Individuals
 
@@ -594,47 +693,64 @@ Not a broadcast to the room.
 
 In Co-pilot profile, Sage communicates with the human tutor via a private Ably sub-channel: `sage:copilot:{sessionId}:{tutorId}`. The student never sees this channel.
 
-### Whisper Format
+### Whisper Type
 
-Whispers are brief and actionable. Sage does not write essays to the tutor mid-session.
-
-```
-{
-  "type": "suggestion",
-  "urgency": "low" | "medium" | "high",
-  "message": "Student confusing sine/cosine — unit circle diagram would help",
-  "action": {
-    "type": "stamp",
-    "shape": { "type": "unit-circle", "label": "Unit Circle" }
-  }
+```typescript
+export interface CopilotWhisper {
+  id: string;
+  urgency: 'low' | 'medium' | 'high';
+  message: string;
+  action: {
+    type: 'stamp';
+    shape: { type: string; props?: Record<string, unknown> };
+  } | null;
 }
 ```
 
+### Urgency Colours (`CopilotWhisperOverlay.tsx`)
+
+| Urgency | Text | Background | Border |
+|---------|------|-----------|--------|
+| `low` | `#64748b` | `#f8fafc` | `#e2e8f0` |
+| `medium` | `#d97706` | `#fffbeb` | `#fde68a` |
+| `high` | `#dc2626` | `#fef2f2` | `#fecaca` |
+
+### Generation Schedule
+
+```typescript
+const COPILOT_INTERVAL_MS = 30_000; // at most one whisper generated per 30s
+```
+
+**Quiet period guards** (server-side in `/api/sage/virtualspace/copilot`):
+```typescript
+if (tutorLastActiveMs < 30_000) return 204;  // tutor actively teaching
+if (dismissedCount >= 3)        return 204;  // recalibrate after 3 dismissals
+if (stuckSignal === 'none')     return 204;  // student actively working
+```
+
+### Overlay Display (`CopilotWhisperOverlay.tsx`)
+
+- Position: `bottom: 80px, right: 12px` (above `SessionControlsPanel`)
+- Dimensions: `width: 300px`
+- Max visible: 2 whispers
+- Auto-dismiss: 60 seconds
+- `z-index: 9997`
+
 ### Tutor Actions
 
-The tutor sees a subtle whisper overlay at the bottom of their screen (outside the main canvas area). For each whisper:
+- **Accept** → calls `useCopilotWhispers.acceptWhisper(id)` → `POST /api/sage/virtualspace/copilot/accept` → shape returned → stamped with `meta._tutorAttributed: true` (no Sage branding on canvas)
+- **Dismiss** → calls `dismissWhisper(id)` → increments `dismissedCountRef` → shape not stamped
 
-- **Accept** (one tap) → Sage stamps the suggested shape, attributed to the tutor on the canvas
-- **Dismiss** (swipe away) → Sage notes the dismissal and adjusts future suggestion frequency
-- **Ask Sage** (text field in the whisper overlay) → tutor can ask Sage a direct question privately
+### Disconnect Recovery
 
-### Whisper Persistence — Disconnect Recovery
-
-Whispers sent to the private Ably channel are **also written to `sage_canvas_events`** (event_type: `copilot_suggestion`) at the moment of dispatch. This is a write-ahead pattern: if the tutor's Ably client disconnects mid-session (mobile network drop, tab refresh), whispers are not lost.
-
-On reconnect, the tutor's client:
-1. Fetches unactioned whispers from `GET /api/sage/virtualspace/copilot/pending?sessionId=...`
-2. The route returns all `copilot_suggestion` events for this session that have no corresponding `copilot_accepted` or `copilot_dismissed` event in the last 5 minutes
-3. The UI replays them in the whisper overlay
-
-Whispers older than 5 minutes are silently discarded on replay — they are no longer contextually relevant to the live session.
+Whispers are also logged to `sage_canvas_events` (event_type: `copilot_suggestion`) and the private Ably channel persists recent messages. On reconnect, `GET /api/sage/virtualspace/copilot/pending` fetches any missed whispers from the last 5 minutes.
 
 ### When Sage Goes Quiet
 
 Sage suppresses co-pilot whispers when:
-- The tutor has been actively typing in chat in the last 30 seconds (mid-explanation)
-- The tutor has been actively stamping shapes in the last 30 seconds (mid-demonstration)
+- The tutor has been actively drawing in the last 30 seconds (mid-demonstration)
 - The tutor has dismissed the last 3 suggestions (Sage recalibrates its suggestion threshold)
+- The student has no stuck signal (student actively working, no intervention needed)
 
 ---
 
@@ -642,34 +758,22 @@ Sage suppresses co-pilot whispers when:
 
 ### 13.1 Session Header — Sage Button
 
-A single `Brain` icon button added to the VirtualSpace header, matching the style of the existing secondary buttons.
+A single `Brain` icon button in the VirtualSpace header.
 
-| State | Appearance |
-|-------|-----------|
-| Off | Grey, inactive |
-| Activating | Pulsing blue ring (Sage is reading context, ~2s) |
-| Active — Tutor | Solid teal (`#006c67`) |
-| Active — Co-pilot | Solid purple (`#7c3aed`) |
-| Active — Wingman | Solid amber (`#d97706`) |
-| Active — Observer | Solid grey (`#64748b`) |
-| Quota exhausted | Teal with lock icon |
+| State | Background | Border | Text/icon |
+|-------|-----------|--------|-----------|
+| Inactive | white | `#d1d5db` | `#374151` "Sage" |
+| Activating | white | `#d1d5db` | opacity 0.7 "Starting..." |
+| Active — Tutor | `#006c67` | `#006c67` | white "Sage" |
+| Active — Co-pilot | `#7c3aed` | `#7c3aed` | white "Sage" |
+| Active — Wingman | `#d97706` | `#d97706` | white "Sage" |
+| Active — Observer | `#64748b` | `#64748b` | white "Sage" |
 
-The button label changes with state: "Sage" → "Sage (Tutor)" etc. on wider viewports.
+Button dimensions: `height: 36px, padding: 0 14px, font-size: 0.8125rem, font-weight: 600, border-radius: 6px`
 
 ### 13.2 Sage Panel
 
-Slides in from the right when activated. Width: 320px. **The canvas does not resize — the Sage panel overlays.**
-
-On a 13" laptop, 320px of canvas real estate is covered while Sage is active. Students who need the right side of the canvas (common for maths working) can **collapse the panel to a narrow strip** without deactivating Sage:
-
-| State | Width | What shows |
-|-------|-------|-----------|
-| Expanded | 320px | Full chat + input |
-| Collapsed | 44px | Brain icon + unread badge only |
-
-The collapse toggle is a `‹` chevron in the panel header. Collapsed state persists across messages — new Sage messages trigger a subtle pulse on the strip, but the panel does not auto-expand. The student expands when ready.
-
-Sage **remains active** in both states — the awareness loop, stuck detection, and canvas write continue regardless of panel width. The strip is a view preference, not a behavioural state change.
+Slides in from the right when activated. No tabs — single scrolling message stream.
 
 ```
 ┌──────────────────────────────┐
@@ -687,80 +791,76 @@ Sage **remains active** in both states — the awareness loop, stuck detection, 
 └──────────────────────────────┘
 ```
 
-**No tabs.** Sage shows the most relevant content at any moment:
-- During session drive: current lesson phase and progress
-- During explanation: streaming response with embedded shape previews
-- After observation: feedback on student's working
-- During co-pilot: [hidden from student]
+**Dimensions:**
+- `width: 320px`
+- `position: fixed; top: 56px; right: 0; bottom: 0`
+- `z-index: 9998`
+- `box-shadow: -4px 0 20px rgba(0,0,0,0.15)`
 
-### 13.3 Canvas Attribution
-
-Sage-stamped shapes are visually distinct:
-- Dashed border (2px dashed `#006c67`)
-- Small "Sage" label in the top-left corner of the shape
-- Lower opacity than student shapes (0.85) until student interacts with them
-
-When in co-pilot mode and the tutor accepts a Sage suggestion, the resulting shape uses the tutor's attribution style — no Sage branding. The student sees the tutor's content, not Sage's.
-
-### 13.4 Quota Display
-
-Remaining free interactions shown subtly in the Sage panel footer when below 5:
-
+**Quota warning footer** (when `quotaRemaining < 5`):
 ```
-│  3 free sessions remaining — Upgrade to Pro  │
+│  {n} free sessions remaining — Upgrade to Pro  │
 ```
 
-Not shown when student has Pro or is in a tutor's Sage-enabled session.
+**Paywall card** (when `quotaExhausted = true`):
+```
+│  You've used your free Sage sessions.          │
+│  [Upgrade to Sage Pro — £10/mo]                │
+```
+
+**Recap card** (after deactivation):
+- Renders `SessionRecap` fields: topics covered, strong moments, suggested next steps
+- Dismiss button to clear the card
+
+### 13.3 Co-pilot Whisper Overlay
+
+```
+Position: fixed, bottom: 80px, right: 12px
+Width: 300px
+Max 2 whispers visible simultaneously
+Gap: 8px between whispers
+z-index: 9997
+Auto-dismiss after 60s
+```
+
+### 13.4 Lesson Plan Drawer
+
+```
+Position: fixed, top: 0, right: 0, bottom: 0
+Width: 380px
+z-index: 9991
+box-shadow: -4px 0 24px rgba(0,0,0,0.15)
+```
+
+Contains: plan library list, active plan phase tracker, advance/pause controls.
+
+### 13.5 Canvas Attribution
+
+Sage-stamped shapes:
+- **Main shape:** `opacity: 0.85`, `meta.sageAttributed: true`
+- **Dashed frame:** geo, `dash: 'dashed'`, `color: 'green'`, `fill: 'none'`, `opacity: 0.6`, `meta.sageFrame: true`
+- **Label:** text "↗ Sage", `color: 'green'`, `size: 'xs'`, `opacity: 0.7`, `meta.sageLabel: true`
+
+In co-pilot mode when tutor accepts: no frame or label. Shape has `meta._tutorAttributed: true` only.
+
+### 13.6 Quota Display
+
+Remaining free interactions shown subtly in the Sage panel footer when below 5. Not shown when student has Pro or is in a tutor's Sage-enabled session.
 
 ---
 
 ## 14. API Specification
 
-### Client Hook — `useSageVirtualSpace`
+All routes require authentication. All routes guard against cross-user access (`sage_sessions.user_id` must match the authenticated user, or admin override).
 
-`useSageVirtualSpace` is the primary client-side bridge between `VirtualSpaceClient`, the API routes, and the UI components. It lives at `apps/web/src/components/feature/virtualspace/hooks/useSageVirtualSpace.ts`.
-
-```typescript
-interface UseSageVirtualSpaceOptions {
-  sessionId: string;        // VirtualSpace session UUID
-  currentUserId: string;    // Supabase auth user ID
-}
-
-interface UseSageVirtualSpaceReturn {
-  // State
-  isActive: boolean;                       // Sage is activated and ready
-  isActivating: boolean;                   // Activation in-flight
-  profile: SageVirtualSpaceProfile | null; // 'tutor'|'copilot'|'wingman'|'observer'
-  quotaRemaining: number | null;           // null = unlimited (Pro)
-  quotaExhausted: boolean;
-  messages: SageMessage[];                 // Full conversation thread
-  isStreaming: boolean;                    // AI response currently streaming
-  sageSessionId: string | null;            // sage_sessions.id for this surface session
-  error: string | null;
-
-  // Actions
-  activate: () => Promise<void>;           // POST /activate, sets sageSessionId
-  deactivate: () => void;                  // Clears local state, calls /deactivate
-  sendMessage: (text: string) => Promise<void>;  // POST /message, streams response
-  clearError: () => void;
-}
-```
-
-`SagePanel` receives the full `UseSageVirtualSpaceReturn` object as a single `sage` prop. `VirtualSpaceClient` instantiates the hook and owns the lifecycle. `SageCanvasWriter` receives `pendingShapes` via the shared `SageVirtualSpaceContext` (not via the hook directly).
-
----
-
-### New Routes
+### Activation & Deactivation
 
 #### `POST /api/sage/virtualspace/activate`
-Activates Sage for a VirtualSpace session. Checks quota, infers subject/topic, selects behaviour profile, creates or resumes Sage session record.
+Activates Sage for a VirtualSpace session. Checks quota, infers subject/topic, selects behaviour profile, creates Sage session record.
 
 **Request:**
 ```json
-{
-  "sessionId": "uuid",
-  "userId": "uuid"
-}
+{ "sessionId": "uuid" }
 ```
 **Response:**
 ```json
@@ -774,56 +874,145 @@ Activates Sage for a VirtualSpace session. Checks quota, infers subject/topic, s
   "chargedTo": "student" | "tutor"
 }
 ```
+**Status codes:** `200` | `401` | `404` | `429` (quota exhausted)
+
+**Known gap:** Profile inference currently always returns `'tutor'`. Context-aware initial profile selection (checking booking context, participant count) is planned.
+
+#### `POST /api/sage/virtualspace/deactivate`
+Deactivates Sage for the session. Generates recap, writes mastery updates, closes session record.
+
+**Request:**
+```json
+{ "sageSessionId": "uuid", "sessionId": "uuid", "timeSpentMinutes": 42 }
+```
+**Response:**
+```json
+{ "success": true, "recap": { ...SessionRecap } }
+```
+**Status codes:** `200` | `401` | `403` | `404`
+
+Recap generation has a 5-second timeout. If it fails, deactivation still succeeds (recap is `null`).
+
+### Messaging & Observation
 
 #### `POST /api/sage/virtualspace/message`
-Send a message to Sage in a VirtualSpace session. Streams response with optional canvas blocks.
+Send a message to Sage in a VirtualSpace session. Streams response.
 
 **Request:**
 ```json
 {
   "sageSessionId": "uuid",
   "message": "I don't understand step 2",
-  "canvasSnapshot": "base64-png-string (optional — PNG exported via editor.toImage({ format: 'png', maxWidth: 1280 }))"
+  "conversationHistory": [...]
 }
 ```
 **Response:** Server-sent event stream
 ```
-data: {"type":"text","content":"Let's look at step 2 together..."}
-data: {"type":"canvas","shape":{"type":"math-equation","latex":"..."}}
-data: {"type":"text","content":"Notice that when we expand the brackets..."}
-data: {"type":"done","masteryDelta":0.1}
+event: chunk
+data: {"content":"Let's look at step 2 together..."}
+
+event: chunk
+data: {"canvas":{"type":"math-equation","props":{...}}}
+
+event: done
+data: {}
 ```
+**Status codes:** `200` (stream) | `400` | `401` | `403` | `404` | `410` (session expired)
 
 #### `POST /api/sage/virtualspace/observe`
-Submit a canvas snapshot for Sage to observe and give feedback. Used by manual observe trigger and session drive loop.
+Submit a canvas snapshot for Sage to observe and give feedback.
 
 **Request:**
 ```json
 {
   "sageSessionId": "uuid",
-  "canvasSnapshot": "base64-png-string",
-  "trigger": "manual" | "stuck" | "session-drive"
+  "canvasSnapshot": "base64-png-string (optional)",
+  "trigger": "manual" | "stuck"
 }
 ```
-**Response:** Streaming observation response (same format as `/message`)
+**Response:** SSE stream (same format as `/message`)
+**Status codes:** `200` (stream) | `400` | `401` | `403` | `404` | `413` (snapshot too large)
+
+### Canvas Event Logging
+
+#### `POST /api/sage/virtualspace/canvas-event`
+Logs a canvas intelligence event. Fire-and-forget — always returns `200` unless auth fails.
+
+**Request:**
+```json
+{
+  "sageSessionId": "uuid",
+  "virtualspaceSessionId": "uuid",
+  "eventType": "stamp" | "observe" | "annotation" | "copilot_suggestion" | "copilot_accepted" | "copilot_dismissed" | "profile_transition",
+  "shapeType": "math-equation",
+  "shapeData": { ... },
+  "observationTrigger": "manual" | "stuck",
+  "observationFeedback": "...",
+  "fromProfile": "tutor",
+  "toProfile": "copilot"
+}
+```
+
+### Co-pilot Whispers
 
 #### `POST /api/sage/virtualspace/copilot`
-Send a whisper to the tutor's co-pilot channel. Called by Sage's awareness loop, not by the client directly.
+Generate a co-pilot whisper for the tutor. Returns `204` during quiet periods.
+
+**Request:**
+```json
+{
+  "sageSessionId": "uuid",
+  "sessionId": "uuid",
+  "stuckSignal": "none" | "low" | "medium" | "high",
+  "conversationHistory": [...],
+  "tutorLastActiveMs": 45000,
+  "dismissedCount": 1
+}
+```
+**Response:** `{ "whisper": CopilotWhisper }` or `null`
+**Status codes:** `200` | `204` (quiet period) | `400` | `401` | `403` | `410` | `500`
+
+#### `GET /api/sage/virtualspace/copilot/pending?sessionId=...&sageSessionId=...`
+Fetch pending whispers (used for disconnect recovery).
+
+**Response:** `{ "whispers": CopilotWhisper[] }`
 
 #### `POST /api/sage/virtualspace/copilot/accept`
-Tutor accepts a Sage suggestion. Returns the shape spec to stamp.
+Tutor accepts a co-pilot whisper. Returns the shape to stamp.
 
-#### `POST /api/sage/virtualspace/deactivate`
-Deactivate Sage for the session. Writes final mastery updates, closes Sage session record.
+**Request:**
+```json
+{
+  "sageSessionId": "uuid",
+  "sessionId": "uuid",
+  "whisperId": "uuid",
+  "shape": { "type": "unit-circle", "props": {} }
+}
+```
+**Response:** `{ "ok": true, "shape": { ... } }`
+
+### Lesson Plans
+
+#### `GET /api/sage/lesson-plans`
+List lesson plans for the current user.
+
+**Response:** `{ "plans": LessonPlan[] }`
+
+#### `POST /api/sage/lesson-plans`
+Save a lesson plan.
+
+**Request:** `{ "plan": LessonPlan, "createdFor"?: "uuid" }`
+**Response:** `{ "id": "uuid" }`
+**Status:** `201`
 
 #### `POST /api/sage/lesson-plans/generate`
-Generate a lesson plan from a natural language request. Returns the structured plan for review before saving.
+Generate a lesson plan from a natural language prompt.
 
 **Request:**
 ```json
 {
   "prompt": "45-minute GCSE maths lesson on quadratic equations for a grade 5 student",
-  "studentId": "uuid (optional — loads student model for personalisation)",
+  "studentId": "uuid (optional)",
   "subject": "maths (optional — inferred if absent)",
   "level": "GCSE (optional — inferred if absent)"
 }
@@ -832,51 +1021,41 @@ Generate a lesson plan from a natural language request. Returns the structured p
 ```json
 {
   "plan": { ...LessonPlan },
-  "summary": "Plain language description of the plan",
+  "summary": "Plain language description",
   "estimatedMasteryDelta": 0.18
 }
 ```
 
-#### `POST /api/sage/lesson-plans`
-Save a generated or manually created lesson plan.
+#### `POST /api/sage/lesson-plans/[id]/load`
+Load a lesson plan into a VirtualSpace session.
 
-#### `GET /api/sage/lesson-plans`
-List lesson plans for the current user (created_by or created_for).
+**Request:** `{ "virtualspaceSessionId": "uuid", "sageSessionId": "uuid", "studentId"?: "uuid" }`
+**Response:** `{ "executionId": "uuid", "phases": LessonPhase[] }`
 
-#### `PATCH /api/sage/lesson-plans/:id`
-Update a lesson plan (title, phases, tags, status).
-
-#### `POST /api/sage/lesson-plans/:id/load`
-Load a lesson plan into a VirtualSpace session. Creates a `sage_lesson_plan_executions` record and activates Sage in Session Drive mode with the plan's phase sequence.
-
-#### `PATCH /api/sage/lesson-plans/:id/executions/:executionId`
-Update execution state. Supports mid-drive editing — tutor can pause execution, edit remaining phases, and resume.
+#### `PATCH /api/sage/lesson-plans/[id]/executions/[executionId]`
+Update execution state.
 
 **Request:**
 ```json
 {
   "current_phase_index": 2,
-  "status": "in_progress",
-  "remaining_phases": [ ...updated LessonPhase[] from this index onward ]
+  "status": "in_progress" | "completed" | "abandoned",
+  "mastery_delta": 0.12,
+  "phases_completed": 3,
+  "phases_struggled": 1
 }
 ```
-
-When `remaining_phases` is provided, the server replaces phases from `current_phase_index` onward in the execution's `phases` column (the original plan is not mutated). Sage's drive loop reads the execution record, not the source plan, so the change takes effect on the next phase transition without restarting the session.
-
-This is the mechanism for:
-- Tutor pausing the drive mid-session ("hold on this phase")
-- Tutor editing a later phase mid-execution ("make the next worked example harder")
-- Sage adapting the plan in real time based on student performance (Sage calls this endpoint autonomously)
+**Response:** `{ "ok": true }`
 
 ---
 
 ## 15. Database Schema
 
-### New Column — `virtualspace_sessions`
+### Column Additions (migration 418)
 
+#### `virtualspace_sessions`
 ```sql
-ALTER TABLE virtualspace_sessions
-  ADD COLUMN sage_config JSONB DEFAULT NULL;
+ADD COLUMN sage_config JSONB DEFAULT NULL;
 
 -- sage_config shape:
 -- {
@@ -892,55 +1071,78 @@ ALTER TABLE virtualspace_sessions
 -- }
 ```
 
-### New Column — `sage_sessions`
-
+#### `sage_sessions`
 ```sql
-ALTER TABLE sage_sessions
-  ADD COLUMN surface TEXT DEFAULT 'chat'
-    CHECK (surface IN ('chat', 'virtualspace', 'growth', 'ai_agent')),
-  ADD COLUMN virtualspace_session_id UUID REFERENCES virtualspace_sessions(id);
+ADD COLUMN surface TEXT DEFAULT 'chat'
+  CHECK (surface IN ('chat', 'virtualspace', 'growth', 'ai_agent')),
+ADD COLUMN virtualspace_session_id UUID REFERENCES virtualspace_sessions(id),
+ADD COLUMN recap_json JSONB DEFAULT NULL;
 ```
 
-> **Note:** The constraint includes `'growth'` and `'ai_agent'` now to avoid a future `ALTER TABLE` when the Growth Agent and AI Agent Studio surfaces are logged. The `virtualspace_session_id` FK is only populated when `surface = 'virtualspace'`; it is null for all other surfaces.
+**Note:** The `surface` check constraint includes `'growth'` and `'ai_agent'` proactively to avoid future `ALTER TABLE` migrations.
 
-These schema changes also require a TypeScript update to `apps/web/src/lib/virtualspace/index.ts` (or wherever `VirtualSpaceSession` is typed). The `virtualspace_sessions` row type needs `sage_config: SageConfig | null` added. Phase 1 implementation steps must include this type update — the migration alone is not sufficient.
+### New Table — `sage_canvas_events` (migration 420)
 
-All existing Sage tables (`sage_sessions`, `sage_student_profiles`, `sage_usage`) work as-is. The whiteboard is just another surface feeding the same records.
+```sql
+CREATE TABLE sage_canvas_events (
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sage_session_id         UUID NOT NULL REFERENCES sage_sessions(id),
+  virtualspace_session_id UUID NOT NULL REFERENCES virtualspace_sessions(id),
+  event_type              TEXT NOT NULL CHECK (event_type IN (
+                            'stamp', 'observe', 'annotation',
+                            'copilot_suggestion', 'copilot_accepted', 'copilot_dismissed',
+                            'profile_transition'
+                          )),
+  shape_type              TEXT,
+  shape_data              JSONB,
+  observation_trigger     TEXT,
+  observation_feedback    TEXT,
+  from_profile            TEXT,
+  to_profile              TEXT,
+  created_at              TIMESTAMPTZ DEFAULT NOW()
+);
 
-### New Table — `sage_lesson_plans`
+-- RLS (migration 421 audit fix): session owner OR admin
+CREATE POLICY "sage_canvas_events_owner" ON sage_canvas_events
+  FOR ALL USING (
+    sage_session_id IN (
+      SELECT id FROM sage_sessions WHERE user_id = auth.uid()
+    ) OR (SELECT is_admin FROM profiles WHERE id = auth.uid())
+  );
+```
+
+### New Table — `sage_lesson_plans` (migration 420)
 
 ```sql
 CREATE TABLE sage_lesson_plans (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title             TEXT NOT NULL,
-  subject           TEXT NOT NULL,
-  level             TEXT NOT NULL,
-  topic             TEXT NOT NULL,
-  exam_board        TEXT,
-  target_duration   INTEGER NOT NULL,             -- minutes
-  difficulty        TEXT NOT NULL,
-  created_by        UUID NOT NULL REFERENCES profiles(id),
-  created_for       UUID REFERENCES profiles(id), -- specific student (nullable = template)
-  phases            JSONB NOT NULL DEFAULT '[]',
-  tags              TEXT[] DEFAULT '{}',
-  is_template       BOOLEAN DEFAULT FALSE,
-  organisation_id   UUID REFERENCES connection_groups(id), -- for org-level sharing
-  status            TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'ready', 'archived')),
-  created_at        TIMESTAMPTZ DEFAULT NOW(),
-  updated_at        TIMESTAMPTZ DEFAULT NOW()
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title            TEXT NOT NULL,
+  subject          TEXT NOT NULL,
+  level            TEXT NOT NULL,
+  topic            TEXT NOT NULL,
+  exam_board       TEXT,
+  target_duration  INTEGER NOT NULL,  -- minutes
+  difficulty       TEXT NOT NULL,
+  created_by       UUID NOT NULL REFERENCES profiles(id),
+  created_for      UUID REFERENCES profiles(id),
+  phases           JSONB NOT NULL DEFAULT '[]',
+  tags             TEXT[] DEFAULT '{}',
+  is_template      BOOLEAN DEFAULT FALSE,
+  organisation_id  UUID REFERENCES connection_groups(id),
+  status           TEXT DEFAULT 'draft'
+                   CHECK (status IN ('draft', 'active', 'ready', 'archived')),
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for tutor's plan library
-CREATE INDEX idx_sage_lesson_plans_created_by ON sage_lesson_plans(created_by);
--- Index for student's assigned plans
+CREATE INDEX idx_sage_lesson_plans_created_by  ON sage_lesson_plans(created_by);
 CREATE INDEX idx_sage_lesson_plans_created_for ON sage_lesson_plans(created_for);
--- Index for template discovery
-CREATE INDEX idx_sage_lesson_plans_template ON sage_lesson_plans(is_template) WHERE is_template = TRUE;
+CREATE INDEX idx_sage_lesson_plans_template    ON sage_lesson_plans(is_template) WHERE is_template = TRUE;
+
+-- RLS: creator OR assignee OR admin
 ```
 
-### New Table — `sage_lesson_plan_executions`
-
-Links a lesson plan to its execution in a VirtualSpace session.
+### New Table — `sage_lesson_plan_executions` (migration 420 + 421)
 
 ```sql
 CREATE TABLE sage_lesson_plan_executions (
@@ -950,124 +1152,102 @@ CREATE TABLE sage_lesson_plan_executions (
   virtualspace_session_id   UUID NOT NULL REFERENCES virtualspace_sessions(id),
   student_id                UUID NOT NULL REFERENCES profiles(id),
   current_phase_index       INTEGER DEFAULT 0,
-  status                    TEXT DEFAULT 'in_progress' CHECK (status IN (
-                              'in_progress', 'completed', 'abandoned'
-                            )),
-  mastery_delta             NUMERIC(4,3),          -- actual mastery improvement
+  phases                    JSONB,          -- snapshot of phases at load time
+  status                    TEXT DEFAULT 'in_progress'
+                            CHECK (status IN ('in_progress', 'completed', 'abandoned')),
+  mastery_delta             NUMERIC(4,3),
   phases_completed          INTEGER DEFAULT 0,
-  phases_struggled          INTEGER DEFAULT 0,     -- phases that triggered struggling branch
+  phases_struggled          INTEGER DEFAULT 0,
   started_at                TIMESTAMPTZ DEFAULT NOW(),
-  completed_at              TIMESTAMPTZ
+  completed_at              TIMESTAMPTZ,
+  updated_at                TIMESTAMPTZ DEFAULT NOW()  -- migration 421 audit fix
 );
+
+-- RLS: student OR session owner OR admin
 ```
 
-### New Table — `sage_canvas_events`
+### Migration Sequence
 
-Audit log of Sage's canvas actions. Used for analytics and session replay.
-
-```sql
-CREATE TABLE sage_canvas_events (
-  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sage_session_id       UUID NOT NULL REFERENCES sage_sessions(id),
-  virtualspace_session_id UUID NOT NULL REFERENCES virtualspace_sessions(id),
-  event_type            TEXT NOT NULL CHECK (event_type IN (
-                          'stamp', 'observe', 'annotation', 'copilot_suggestion',
-                          'copilot_accepted', 'copilot_dismissed'
-                        )),
-  shape_type            TEXT,
-  shape_data            JSONB,
-  observation_trigger   TEXT,
-  observation_feedback  TEXT,
-  created_at            TIMESTAMPTZ DEFAULT NOW()
-);
-```
+| Migration | Content |
+|-----------|---------|
+| 418 | `sage_sessions.surface`, `sage_sessions.virtualspace_session_id`, `sage_sessions.recap_json`, `virtualspace_sessions.sage_config` |
+| 420 | `sage_canvas_events`, `sage_lesson_plans`, `sage_lesson_plan_executions` + indexes + RLS |
+| 421 | Audit fixes: RLS on `sage_canvas_events` (session owner), `'active'` added to lesson plan status, `updated_at` on executions, auto-update triggers |
 
 ---
 
 ## 16. Implementation Phases
 
-### Phase 1 — Foundation (Sage Panel + Basic Chat)
+### Phase 1 — Foundation (Sage Panel + Basic Chat) ✅ COMPLETE
 - Sage button in VirtualSpace header
 - Sage panel slides in with chat interface
-- Quota check on activation
-- Sage session record created (surface: 'virtualspace')
+- Quota check on activation (`checkAIAgentRateLimit`)
+- Sage session record created (`surface: 'virtualspace'`)
 - Student model loaded on activation
 - Text-only responses (no canvas write yet)
-- Manual deactivation
+- Manual deactivation with session recap
 - DB migrations: `sage_sessions.surface`, `virtualspace_sessions.sage_config`
 
-### Phase 2 — Canvas Write
+### Phase 2 — Canvas Write ✅ COMPLETE (validation gap outstanding)
 - `SageCanvasWriter` component inside `InFrontOfTheCanvas`
-- `[CANVAS]` block parsing in streaming response
-- Spatial intelligence — bounding box query before stamp
-- Shape attribution styling (dashed teal border, "Sage" label)
-- All 10 supported shape types
+- `[CANVAS]` block parsing in streaming response (`canvasBlockParser.ts`)
+- Spatial intelligence — bounding box query before stamp, 24px clearance, cascade
+- Shape attribution styling (dashed teal border, "↗ Sage" label)
+- 13 supported shape types
 - `/api/sage/virtualspace/message` with canvas block streaming
+- **Outstanding:** Unit tests for 3 parser edge cases not yet written
 
-**[CANVAS] Parser Validation — required before full build:**
-> Prototype the `[CANVAS]` block extraction against ≥20 real streaming responses from xAI Grok and Gemini before writing the production `SageCanvasWriter`. Three confirmed failure modes to guard against:
-> 1. **Wrong field names** — LLM emits valid JSON but uses `shape_type` instead of `type`, or `text_content` instead of `text`. Parser must validate required fields and emit a warning (not throw) on unknown keys.
-> 2. **[CANVAS] inside a code fence** — LLM wraps the entire block in ` ```json ... ``` ` when explaining a concept. Parser must detect and skip `[CANVAS]` blocks that appear inside markdown code fences.
-> 3. **Multiple blocks, second dropped** — Stream split logic buffers until `[/CANVAS]` is found; if the response contains two blocks, the `pendingBlock` ref must be reset after the first block is dispatched or the second block is silently lost. Covered by a unit test.
+### Phase 3 — Canvas Observe ✅ COMPLETE
+- PNG export trigger (manual "Review my work" button)
+- `/api/sage/virtualspace/observe` with vision model (`gemini-2.0-flash`)
+- Stuck detection engine (`useSageStuckDetector` — idle timer + erase pattern signals)
+- Automatic observe on High stuck level
+- 512 KB snapshot size guard (HTTP 413)
+- Canvas event audit log (`sage_canvas_events`)
 
-### Phase 3 — Canvas Observe
-- SVG export trigger (manual "Review my work" button)
-- `/api/sage/virtualspace/observe` route with vision model
-- Stuck detection engine (idle timer + erase pattern signals)
-- Automatic observe on stuck score threshold
-- Observation feedback rendered in Sage panel
+### Phase 4 — Behaviour Profiles + Awareness Loop ✅ COMPLETE
+- Participant presence monitoring (Ably presence events on draw channel)
+- Profile selection logic: Tutor / Co-pilot / Wingman / Observer
+- 10-second awareness loop (paused when tab hidden or profile is Observer)
+- Profile transition logging to `sage_canvas_events`
+- Profile colour indicator on Sage button and panel badge
+- **Known gap:** Initial profile at activation always returns `'tutor'` — context-aware inference not yet wired
 
-### Phase 4 — Behaviour Profiles + Awareness Loop
-- Participant presence monitoring (Ably presence events)
-- Profile selection logic (Tutor / Co-pilot / Wingman / Observer)
-- Profile state indicator on Sage button
-- Awareness loop (10s tick)
-- Profile transition triggers
-- `sage_canvas_events` table and logging
+### Phase 5 — Session Drive ✅ COMPLETE
+- Auto-calibration greeting (fires 3s after activation, tutor profile only)
+- Phase sequencing: calibration → activation → loop → consolidation → wrap-up
+- Message-count based phase transitions (thresholds: 3/8/11 — marked H2 for future quality-signal replacement)
+- Session recap generation on deactivate
 
-### Phase 5 — Session Drive
-- Adaptive lesson plan runner
-- Subject/topic inference from canvas + booking + student model
-- Phase sequencing (Calibration → Activation → Loop → Consolidation → Wrap-up)
-- Mastery update on session completion
-- SM-2 scheduling integration
-
-### Phase 6 — Tutor Co-pilot
+### Phase 6 — Tutor Co-pilot ✅ COMPLETE
 - `sage:copilot:{sessionId}:{tutorId}` private Ably channel
-- Whisper overlay UI (tutor-only)
-- Accept / dismiss actions
-- Shape stamped as tutor attribution on accept
-- Sage quiet-period logic (suppress whispers mid-explanation)
+- `CopilotWhisperOverlay` UI (whisper queue, max 2 visible, 60s auto-dismiss)
+- Accept / dismiss actions with `dismissedCountRef` tracking
+- Shape stamped as tutor attribution on accept (no Sage branding)
+- Quiet-period guards (server-side): tutor active < 30s, dismissed ≥ 3, student not stuck
+- Disconnect recovery via `GET /copilot/pending`
 
-### Phase 7 — Lesson Plan Builder
-- `POST /api/sage/lesson-plans/generate` — LLM-powered plan generation from natural language
+### Phase 7 — Lesson Plan Builder ✅ COMPLETE
+- `POST /api/sage/lesson-plans/generate` — LLM plan generation
 - `sage_lesson_plans` + `sage_lesson_plan_executions` DB tables
-- Lesson plan save, edit, library management
-- "Load Plan" button in VirtualSpace session header
-- Tutor lesson plan library in account page
-- Student study plan view in account page
-- Organisation template sharing
-- Execution tracking and mastery delta writebacks
-- `PATCH /executions/:id` for mid-drive pause and phase editing
+- `LessonPlanDrawer` — load, browse, advance phases
+- `useLessonPlan` hook — `loadPlan`, `advancePhase`, execution tracking
+- Plan types: intro, worked-example, guided-practice, independent-practice, check, consolidation, extension, recap
 
-### Phase 8 — Multi-Student Intelligence *(R&D — exploratory)*
-> **Note:** Peer learning detection is experimental. Social dynamic inference from canvas authorship and message language patterns has not been validated in a live tutoring context. This phase should be treated as an R&D sprint with defined success criteria before committing to full implementation — not a standard feature sprint.
-
-- Per-student canvas attribution from tldraw store
-- Per-student stuck signals (independent timers per userId)
-- Peer learning detection (teaching language + improving error rate)
-- Individual addressing in Sage responses
-- Peer-teach correction framing (reframe, not correct)
+### Phase 8 — Multi-Student Intelligence ✅ COMPLETE (R&D / experimental)
+- `useMultiStudentIntelligence` — per-student idle tracking
+- Peer-learning detection heuristic (message length > 80 chars + other student idle > 30s)
+- Individual student addressing in Sage system prompt
+- Suppressed interventions during peer teaching
+- **Status:** Heuristics not yet validated with live tutoring data — telemetry collection needed
 
 ---
 
 ## 17. Success Metrics
 
-> **Note on Phase 1 metrics:** Activation rate and mastery delta targets are directional — the actual baselines are unknown until Phase 1 ships and produces data. The targets below should be reviewed and updated after 4 weeks of live Phase 1 data before being used as success gates for Phase 2+.
-
 | Metric | Target |
 |--------|--------|
-| Sage activation rate in VirtualSpace sessions | Baseline in Phase 1; target > 40% by Phase 3 |
+| Sage activation rate in VirtualSpace sessions | > 40% of solo sessions |
 | Student mastery improvement per VirtualSpace session | > 0.15 average delta |
 | Stuck detection precision (correct interventions) | > 70% |
 | Sage Pro conversion from VirtualSpace paywall | > 15% |
@@ -1078,7 +1258,9 @@ CREATE TABLE sage_canvas_events (
 | Lesson plans generated per tutor per month | > 4 |
 | Lesson plan execution completion rate | > 60% |
 | Mastery improvement in plan-driven vs ad-hoc sessions | > 20% higher |
-| Plan template reuse rate (tutor reuses a saved plan) | > 30% |
+| Plan template reuse rate | > 30% |
+| Peer teaching detection false positive rate | < 20% (to validate in Phase 8) |
+| Co-pilot quiet-period false positive rate | < 15% (tutor wrongly silenced) |
 
 ---
 
@@ -1087,75 +1269,38 @@ CREATE TABLE sage_canvas_events (
 - [`sage-solution-design.md`](./sage-solution-design.md) — Core Sage architecture, student model, SM-2, subscription model
 - [`sage-roadmap.md`](./sage-roadmap.md) — Sage feature roadmap
 - VirtualSpace implementation: `apps/web/src/components/feature/virtualspace/`
-- Sage implementation: `apps/web/src/lib/sage/` (pending Phase 1 Sage Curriculum Expansion)
-- Conductor integration: `conductor/conductor-solution-design.md` — PlatformUserContext feeds Sage session initialisation
+- Sage VirtualSpace API routes: `apps/web/src/app/api/sage/virtualspace/`
+- Lesson plan API routes: `apps/web/src/app/api/sage/lesson-plans/`
+- DB migrations: `tools/database/migrations/418`, `420`, `421`
 
 ---
 
-## 19. Guest Access — No-Login Student Join
+## 19. Future Roadmap
 
-**Goal:** Remove the authentication barrier for students trying VirtualSpace for the first time. A student who receives a magic link should be able to join a session, experience Sage in VirtualSpace, and convert to a registered account — without being forced to create an account before they've seen the product.
+### Session Recording
+Strategic gap — no competitor ships this in a tutoring context. Recording the full session (canvas state + Sage interactions) for async replay and review is high-value but requires significant storage architecture. Deferred to a dedicated design document.
 
-This is a **product marketing and conversion feature**, not a free-help feature. The frame is: "try the product before you commit" — same as any modern SaaS trial flow.
+### Embedded Subject Tools (Desmos / GeoGebra)
+Live interactive tools (Desmos graphing calculator, GeoGebra geometry) draggable onto the canvas as embedded iframes. More powerful than static rendered shapes for GCSE/A-level maths. Requires iframe sandboxing and snapshot capture strategy.
 
-### How It Works
+### Guest / Magic Link Access
+For `free_help` mode sessions: a magic link that drops the student directly into the whiteboard with no Tutorwise account required. Reduces the 30–60 second signup friction at the moment of highest student intent.
 
-1. **Tutor generates a magic link** from the VirtualSpace session header — a time-limited, session-scoped join token (e.g. `tutorwise.com/join/vs/{token}`).
-2. **Student clicks the link** — lands on a branded join page with session context (subject, tutor name, session title). No account required.
-3. **Guest session is created** — a temporary guest identity (`guest_{uuid}`) is scoped to the session. Ably receives the guest as a named participant. tldraw shapes are attributed to the guest name (e.g. "Alex (guest)").
-4. **Sage is available** — Sage joins with Wingman profile (student-only session). The guest student experiences the full Sage chat and canvas write. Quota is drawn from the tutor's allowance, not the guest's (guest has no account).
-5. **Convert prompt on exit** — when the session ends or the guest tries to save their work, a conversion prompt appears: "Create a free account to save your progress and continue with Sage." Pre-fills email if provided at join.
+### Gamification on Whiteboard
+XP and badge awards surfaced during VirtualSpace sessions — e.g. awarding a "First Correct Solution" badge directly in the session. Deferred; would dilute the tutoring focus in v1.
 
-### Constraints
-
-- **Token expiry:** 24 hours from generation, or on session end — whichever is first.
-- **Single use per student:** One token per invited student email address. Regenerable by the tutor.
-- **Supabase RLS:** Guest sessions use a service-role-scoped server action for writes. Guest identity cannot read other users' data.
-- **Ably auth:** Guest receives a short-lived Ably token capability scoped to the single channel. No access to co-pilot channel.
-- **No persistent student model:** Guest session creates a transient `sage_sessions` record with `guest_id` populated but no `student_id`. Mastery delta is not persisted. On conversion, tutor can manually link the session to the new student account.
-- **Conversion tracking:** `guest_conversions` event logged to `platform_events` on account creation from a guest join flow. Attribution to the originating session is preserved.
-
-### Why Not Anonymous Access
-
-Full anonymous access (no token) creates abuse vectors (quota drain, spam canvas). Magic link scopes the invite to a specific session, protects the tutor's quota, and preserves the conversion tracking chain.
-
-### Implementation Notes
-
-- New DB columns: `virtualspace_sessions.guest_join_token TEXT`, `virtualspace_sessions.guest_join_expires_at TIMESTAMPTZ`
-- New API routes: `POST /api/virtualspace/[sessionId]/invite` (generate token), `GET /api/join/vs/[token]` (validate + create guest session)
-- Sage activation route: accept `guestId` as alternative to authenticated `userId`; draw quota from session owner
-- Phase: implement in Phase 3 (alongside Canvas Observe) — by then VirtualSpace + Sage are stable enough to demo to guests
+### Quota Pooling for Teams
+Organisations pooling Sage quota across their tutors. Complex billing logic — deferred.
 
 ---
 
-## 20. Future Roadmap
+## 20. Known Gaps & Open Issues
 
-Items identified during design review and competitor research that are **not in the current phase plan** — either because they require independent R&D spikes, carry significant complexity, or are lower priority relative to the core experience.
-
-### Desmos / GeoGebra Embeds
-
-**Status:** Roadmap — spike required before scheduling.
-
-Interactive graphing (Desmos) and dynamic geometry (GeoGebra) are high-value for GCSE/A-Level maths and science. Pencil Spaces has spent years integrating these natively. The core challenge is not the embed itself — it is the two-way state sync: Sage needs to be able to write to the graph (plot a function, highlight a root) and read from it (observe what the student has drawn). This is a non-trivial iframe integration with postMessage-based graph state serialisation.
-
-**Spike criteria:** Can Sage read a Desmos graph state as JSON, modify it, and write it back within a VirtualSpace canvas frame? Spike estimate: 3–5 days. Proceed to design if spike succeeds.
-
-### Session Recording + AI Transcript
-
-**Status:** Strategic gap — not currently planned.
-
-Competitors including Bramble offer session recording with post-session AI-generated transcripts (key moments, misconceptions, revision suggestions). This is a material differentiator for parents who want to review sessions and for tutors who want to improve their teaching.
-
-The gap is strategic: TutorWise currently has no session recording infrastructure (video/audio recording, storage, transcription pipeline). The post-session recap (§8.6) addresses the text-based intelligence gap but does not cover screen + audio recording.
-
-**Path to close the gap:** Session recording is a separate infrastructure project (WebRTC recording, storage policy, transcription via Whisper or Google Speech). Sage's post-session recap can be a lightweight interim — once recording infrastructure exists, Sage can enhance its recap with transcript-grounded evidence (e.g. "At 14:32, the student said 'I don't get why you flip the sign'").
-
-### Anti-Patterns — Explicitly Not Adopted
-
-The following patterns were observed in competitors and explicitly rejected:
-
-1. **Gamification in Sage VirtualSpace** — Points, badges, streaks, and leaderboards are appropriate in a standalone practice app (Duolingo, Quizlet). They are out of place in a live tutoring session where the relationship between student, tutor, and AI co-pilot should feel professional and focused. Gamification in VirtualSpace risks trivialising the session and distracting from learning. The mastery heatmap and SM-2 scheduling provide progression feedback without the psychological manipulation mechanics of gamification.
-
-2. **Quota pooling across students** — Some platforms allow organisations to pool AI credits across students. This creates complex accounting, fairness disputes, and incentivises gaming (tutors hoarding quota, parents complaining about allocation). TutorWise's model is per-student subscription, which is simpler, fairer, and aligns incentives correctly.
-
-3. **AI explanation as primary response** — Platforms like Numerade default to a full AI-generated explanation when a student asks a question. Sage's design principle is "guide, don't tell" for student personas. Giving the answer directly undermines the tutoring relationship and reduces learning retention. Sage should always scaffold, hint, and question — not lecture.
+| Ref | Severity | Description | Resolution |
+|-----|----------|-------------|------------|
+| G1 | High | `[CANVAS]` parser has no unit tests for 3 edge cases: wrong field names, markdown code-fence wrapping, multiple blocks with second dropped | Add Jest tests in `canvasBlockParser.test.ts` before marking Phase 2 fully hardened |
+| G2 | Medium | Profile inference at activation always returns `'tutor'` regardless of booking context or participant presence | Wire context-aware `inferProfile()` logic using booking data and Ably presence snapshot at activation time |
+| G3 | Medium | `SessionRecap.misconceptionsLogged` is always empty — no extraction logic in deactivate route | Add LLM-based misconception extraction to the recap generation prompt |
+| G4 | Low | Stuck detector thresholds (25/60/120s) differ from original design (30/75/150s) — intentional calibration or unreviewed drift? | Confirm with product owner; update design or code to match |
+| G5 | Low | Multi-student peer-teaching heuristics not validated with live tutoring data | Collect telemetry (log `peerTeachingDetected` events) and validate precision/recall before Phase 8 is considered production-ready |
+| G6 | Low | Phase transition thresholds (3/8/11 assistant messages) are message-count based — planned replacement with quality signals | H2: replace with consecutive-correct-response counter and explicit topic completion signals |
