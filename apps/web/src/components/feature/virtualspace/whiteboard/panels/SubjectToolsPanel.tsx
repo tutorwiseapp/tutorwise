@@ -647,7 +647,7 @@ export function SubjectToolsPanel() {
     <div
       style={{
         position: 'absolute',
-        left: 16,
+        left: 264,
         top: '50%',
         transform: 'translateY(-50%)',
         zIndex: 500,
