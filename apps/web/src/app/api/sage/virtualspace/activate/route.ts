@@ -19,10 +19,18 @@ import { randomUUID } from 'crypto';
 type SageProfile = 'tutor' | 'copilot' | 'wingman' | 'observer';
 
 /**
- * Infer Sage behaviour profile from session context.
- * Phase 1: always 'tutor' — profile switching is Phase 4.
+ * Infer initial Sage behaviour profile from session context (§4).
+ *
+ * - Human tutor activating Sage in a booked session → 'copilot'
+ *   (Sage whispers suggestions; doesn't speak directly to the student)
+ * - Student / owner in a standalone or solo session → 'tutor'
+ *   (Sage is the primary AI tutor)
+ *
+ * Runtime profile switching (90s/3min idle thresholds) happens client-side
+ * in useSageVirtualSpace — this sets the correct starting point.
  */
-function inferProfile(): SageProfile {
+function inferProfile(options: { isTutor: boolean; hasBooking: boolean }): SageProfile {
+  if (options.isTutor && options.hasBooking) return 'copilot';
   return 'tutor';
 }
 
@@ -164,7 +172,7 @@ export async function POST(request: NextRequest) {
     };
     const subject = inferSubject(sessionWithBooking);
     const level = inferLevel(sessionWithBooking);
-    const profile = inferProfile();
+    const profile = inferProfile({ isTutor, hasBooking: !!booking });
 
     // Get user profile for persona mapping
     const { data: userProfile } = await supabase

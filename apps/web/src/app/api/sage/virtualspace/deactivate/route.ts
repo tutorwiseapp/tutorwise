@@ -148,7 +148,7 @@ Topics covered: ${topicsLabel}.
 Generate a session recap JSON:
 {
   "topicsCovered": ["topic 1"],
-  "misconceptionsLogged": [],
+  "misconceptionsLogged": ["brief description of a common misconception the student likely encountered for these topics, e.g. 'Confused negative indices with negative bases'"],
   "masteryDelta": 0.05,
   "timeSpent": ${timeSpentMinutes},
   "strongMoments": ["one strength"],
@@ -156,7 +156,9 @@ Generate a session recap JSON:
   "lessonPlanPrompt": "Create a follow-up lesson on [topic]"
 }
 
-masteryDelta between 0.02–0.15. Be specific and encouraging.`,
+Rules:
+- misconceptionsLogged: 1–3 items. Infer realistic misconceptions students commonly make on these specific topics at ${level} level. If the session was very short (<5 min) or topics are unclear, return [].
+- masteryDelta between 0.02–0.15. Be specific and encouraging.`,
           temperature: 0.3,
         });
 
