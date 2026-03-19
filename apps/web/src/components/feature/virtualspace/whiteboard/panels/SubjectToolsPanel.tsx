@@ -611,11 +611,202 @@ function insertElementTile(editor: ReturnType<typeof useEditor>, number: number,
 
 // ── Panel Component ───────────────────────────────────────────────────────
 
+// ── Per-subject config ────────────────────────────────────────────────────
+
+const SUBJECT_CONFIG = {
+  maths: {
+    label: 'Maths',
+    // Light green circle
+    dotColor: '#86efac',       // tailwind green-300
+    dotBorder: '#4ade80',      // green-400
+    panelAccent: '#16a34a',    // green-600
+    panelBg: '#f0fdf4',
+  },
+  science: {
+    label: 'Science',
+    // Light red circle
+    dotColor: '#fca5a5',       // tailwind red-300
+    dotBorder: '#f87171',      // red-400
+    panelAccent: '#dc2626',    // red-600
+    panelBg: '#fef2f2',
+  },
+  english: {
+    label: 'English',
+    // Light blue circle
+    dotColor: '#93c5fd',       // tailwind blue-300
+    dotBorder: '#60a5fa',      // blue-400
+    panelAccent: '#2563eb',    // blue-600
+    panelBg: '#eff6ff',
+  },
+} as const;
+
+// ── Panel for a single subject ────────────────────────────────────────────
+
+function SubjectPanel({
+  subject,
+  tools,
+  onClose,
+}: {
+  subject: Tab;
+  tools: ToolItem[];
+  onClose: () => void;
+}) {
+  const editor = useEditor();
+  const [search, setSearch] = useState('');
+  const cfg = SUBJECT_CONFIG[subject];
+
+  const filtered = tools.filter(
+    (t) =>
+      !search ||
+      t.label.toLowerCase().includes(search.toLowerCase()) ||
+      (t.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
+  );
+
+  return (
+    <div
+      style={{
+        background: 'white',
+        border: `1.5px solid ${cfg.dotBorder}`,
+        borderRadius: 10,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
+        width: 228,
+        maxHeight: 'calc(100vh - 180px)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div
+        style={{
+          background: cfg.panelBg,
+          borderBottom: `1px solid ${cfg.dotBorder}40`,
+          padding: '8px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              background: cfg.dotColor,
+              border: `2px solid ${cfg.dotBorder}`,
+              flexShrink: 0,
+              display: 'inline-block',
+            }}
+          />
+          <span style={{ fontSize: 12, fontWeight: 700, color: cfg.panelAccent, fontFamily: 'sans-serif' }}>
+            {cfg.label} Tools
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 14, lineHeight: 1, padding: 2 }}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Search */}
+      <div style={{ padding: '6px 8px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={`Search ${cfg.label.toLowerCase()} tools…`}
+          style={{
+            width: '100%',
+            border: '1px solid #e2e8f0',
+            borderRadius: 4,
+            padding: '4px 8px',
+            fontSize: 11,
+            outline: 'none',
+            fontFamily: 'sans-serif',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
+
+      {/* Tool list */}
+      <div style={{ overflowY: 'auto', flex: 1, padding: '4px 0' }}>
+        {filtered.length === 0 && (
+          <div style={{ padding: '12px', fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+            No tools match &ldquo;{search}&rdquo;
+          </div>
+        )}
+        {filtered.map((tool) => (
+          <button
+            key={tool.id}
+            onClick={() => tool.onClick(editor)}
+            title={tool.description}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              border: 'none',
+              background: 'none',
+              padding: '5px 10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              borderRadius: 4,
+              transition: 'background 0.1s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = cfg.panelBg)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+          >
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                background: cfg.dotColor + '60',
+                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 700,
+                color: cfg.panelAccent,
+                flexShrink: 0,
+                fontFamily: 'monospace',
+              }}
+            >
+              {tool.icon.length > 3 ? tool.icon.slice(0, 3) : tool.icon}
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', fontFamily: 'sans-serif' }}>
+                {tool.label}
+              </div>
+              {tool.description && (
+                <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {tool.description}
+                </div>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '5px 10px', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
+        <p style={{ margin: 0, fontSize: 9, color: '#cbd5e1', fontFamily: 'sans-serif' }}>
+          Click to stamp · Double-click shapes to edit
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Main panel ────────────────────────────────────────────────────────────
+
 export function SubjectToolsPanel() {
   const editor = useEditor();
-  const [tab, setTab] = useState<Tab>('maths');
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [openTab, setOpenTab] = useState<Tab | null>(null);
 
   const allTools: Record<Tab, ToolItem[]> = {
     maths: getMathsTools(),
@@ -623,25 +814,15 @@ export function SubjectToolsPanel() {
     science: getScienceTools(),
   };
 
-  const filteredTools = allTools[tab].filter(
-    (t) =>
-      !search ||
-      t.label.toLowerCase().includes(search.toLowerCase()) ||
-      (t.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
-
   const handleToolClick = useCallback(
-    (tool: ToolItem) => {
-      tool.onClick(editor);
-    },
+    (tool: ToolItem) => { tool.onClick(editor); },
     [editor]
   );
+  void handleToolClick; // used inside SubjectPanel via closure
 
-  const TAB_COLORS: Record<Tab, string> = {
-    maths: '#006c67',
-    english: '#7c3aed',
-    science: '#2563eb',
-  };
+  const toggle = useCallback((t: Tab) => {
+    setOpenTab((cur) => (cur === t ? null : t));
+  }, []);
 
   return (
     <div
@@ -652,163 +833,58 @@ export function SubjectToolsPanel() {
         transform: 'translateY(-50%)',
         zIndex: 500,
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        gap: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
         pointerEvents: 'all',
       }}
     >
-      {/* Toggle button */}
-      <button
-        onClick={() => setIsOpen((o) => !o)}
-        title={isOpen ? 'Close subject tools' : 'Open subject tools'}
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: isOpen ? '8px 8px 0 0' : '8px',
-          border: 'none',
-          background: TAB_COLORS[tab],
-          color: 'white',
-          fontSize: 16,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-          transition: 'border-radius 0.15s',
-          flexShrink: 0,
-        }}
-      >
-        {isOpen ? '✕' : '⊞'}
-      </button>
-
-      {/* Panel */}
-      {isOpen && (
-        <div
-          style={{
-            background: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '0 8px 8px 8px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
-            width: 224,
-            maxHeight: 'calc(100vh - 200px)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
-            {(['maths', 'english', 'science'] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => { setTab(t); setSearch(''); }}
-                style={{
-                  flex: 1,
-                  padding: '7px 4px',
-                  border: 'none',
-                  background: tab === t ? TAB_COLORS[t] : 'transparent',
-                  color: tab === t ? 'white' : '#64748b',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  borderBottom: tab === t ? `2px solid ${TAB_COLORS[t]}` : '2px solid transparent',
-                }}
-              >
-                {t === 'maths' ? '∑ Maths' : t === 'english' ? '✏ English' : '⚗ Science'}
-              </button>
-            ))}
-          </div>
-
-          {/* Search */}
-          <div style={{ padding: '6px 8px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tools..."
+      {/* 3 CTA buttons */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {(['maths', 'science', 'english'] as Tab[]).map((t) => {
+          const cfg = SUBJECT_CONFIG[t];
+          const active = openTab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => toggle(t)}
+              title={`${cfg.label} tools`}
               style={{
-                width: '100%',
-                border: '1px solid #e2e8f0',
-                borderRadius: 4,
-                padding: '4px 8px',
-                fontSize: 11,
-                outline: 'none',
-                fontFamily: 'sans-serif',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                border: `2.5px solid ${active ? cfg.dotBorder : cfg.dotBorder + '80'}`,
+                background: active ? cfg.dotColor : cfg.dotColor + 'aa',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: active ? `0 0 0 3px ${cfg.dotBorder}40` : '0 2px 6px rgba(0,0,0,0.12)',
+                transition: 'all 0.15s',
+                padding: 0,
+                flexShrink: 0,
               }}
-            />
-          </div>
+            >
+              <span style={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                background: cfg.dotBorder,
+                display: 'inline-block',
+                flexShrink: 0,
+              }} />
+            </button>
+          );
+        })}
+      </div>
 
-          {/* Tool list */}
-          <div style={{ overflowY: 'auto', flex: 1, padding: '4px 0' }}>
-            {filteredTools.length === 0 && (
-              <div style={{ padding: '12px 12px', fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
-                No tools match "{search}"
-              </div>
-            )}
-            {filteredTools.map((tool) => (
-              <button
-                key={tool.id}
-                onClick={() => handleToolClick(tool)}
-                title={tool.description}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'none',
-                  padding: '5px 10px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  borderRadius: 4,
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#f8fafc')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-              >
-                <span
-                  style={{
-                    width: 28,
-                    height: 28,
-                    background: TAB_COLORS[tab] + '18',
-                    borderRadius: 6,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: TAB_COLORS[tab],
-                    flexShrink: 0,
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  {tool.icon.length > 3 ? tool.icon.slice(0, 3) : tool.icon}
-                </span>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', fontFamily: 'sans-serif' }}>
-                    {tool.label}
-                  </div>
-                  {tool.description && (
-                    <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {tool.description}
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Footer */}
-          <div style={{ padding: '5px 10px', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
-            <p style={{ margin: 0, fontSize: 9, color: '#cbd5e1', fontFamily: 'sans-serif' }}>
-              Click a tool to stamp it onto the canvas. Double-click shapes to edit.
-            </p>
-          </div>
-        </div>
+      {/* Open panel (only one at a time) */}
+      {openTab && (
+        <SubjectPanel
+          subject={openTab}
+          tools={allTools[openTab]}
+          onClose={() => setOpenTab(null)}
+        />
       )}
     </div>
   );
