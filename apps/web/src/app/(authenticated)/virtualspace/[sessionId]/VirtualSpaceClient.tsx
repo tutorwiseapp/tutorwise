@@ -14,12 +14,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2 } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, Brain } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
 import type { VirtualSpaceSession } from '@/lib/virtualspace';
 import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
+import { useSageVirtualSpace } from '@/components/feature/virtualspace/hooks/useSageVirtualSpace';
+import { SagePanel } from '@/components/feature/virtualspace/SagePanel';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -29,6 +31,12 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+
+  // Sage integration
+  const sage = useSageVirtualSpace({
+    sessionId: context.sessionId,
+    currentUserId: context.currentUserId,
+  });
 
   // Initialize Ably client once (stable ref — not recreated on re-renders)
   const [ablyClient] = useState(() => new Ably.Realtime({
@@ -250,6 +258,33 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             Start Google Meet
           </button>
 
+          {/* Sage button */}
+          <button
+            onClick={sage.isActive ? sage.deactivate : sage.activate}
+            disabled={sage.isActivating}
+            title={sage.isActive ? 'Close Sage panel' : 'Activate Sage AI tutor'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '0 14px',
+              height: 36,
+              background: sage.isActive ? '#006c67' : 'white',
+              border: `1px solid ${sage.isActive ? '#006c67' : '#d1d5db'}`,
+              borderRadius: 6,
+              color: sage.isActive ? 'white' : '#374151',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              cursor: sage.isActivating ? 'wait' : 'pointer',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
+              opacity: sage.isActivating ? 0.7 : 1,
+            }}
+          >
+            <Brain size={16} />
+            {sage.isActivating ? 'Starting...' : 'Sage'}
+          </button>
+
           {/* Save Snapshot button */}
           {context.capabilities.canSaveSnapshot && (
             <button
@@ -286,6 +321,9 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           displayName={context.participants.find((p) => p.userId === context.currentUserId)?.displayName ?? context.ownerName}
         />
       </ChannelProvider>
+
+      {/* Sage panel — overlay, does not resize the canvas */}
+      <SagePanel sage={sage} />
     </AblyProvider>
   );
 }
