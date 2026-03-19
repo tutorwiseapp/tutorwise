@@ -317,6 +317,105 @@ function getMathsTools(): ToolItem[] {
         });
       },
     },
+    {
+      id: 'protractor',
+      label: 'Protractor',
+      icon: '180°',
+      description: 'Interactive protractor with adjustable angle arm',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'protractor',
+          x: x - 110,
+          y: y - 65,
+          props: { w: 220, h: 130, angle: 45, showArm: true, showLabels: true, color: '#4338ca' },
+        });
+      },
+    },
+    {
+      id: 'unit-circle',
+      label: 'Unit Circle',
+      icon: 'sinθ',
+      description: 'Unit circle with trig values (double-click to adjust angle)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'unit-circle',
+          x: x - 130,
+          y: y - 130,
+          props: { w: 260, h: 260, angleDeg: 45, showCoords: true, showSpecialAngles: true, showGrid: true, color: '#2563eb' },
+        });
+      },
+    },
+    {
+      id: 'pythagoras-triangle',
+      label: 'Pythagoras Triangle',
+      icon: '△',
+      description: 'Right-angled triangle with labelled sides and working',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'pythagoras',
+          x: x - 130,
+          y: y - 110,
+          props: { w: 260, h: 220, sideA: 3, sideB: 4, showWorking: true, showAngles: true, color: '#2563eb' },
+        });
+      },
+    },
+    {
+      id: 'pie-chart',
+      label: 'Pie Chart',
+      icon: '◔',
+      description: 'Editable pie chart (double-click to edit segments)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'pie-chart',
+          x: x - 120,
+          y: y - 120,
+          props: { w: 240, h: 240, segments: JSON.stringify([{label:'A',value:35,color:'#2563eb'},{label:'B',value:25,color:'#dc2626'},{label:'C',value:20,color:'#16a34a'},{label:'D',value:20,color:'#d97706'}]), title: '', showLabels: true, showPercentages: true },
+        });
+      },
+    },
+    {
+      id: 'bar-chart',
+      label: 'Bar Chart',
+      icon: '▇',
+      description: 'Editable bar chart (double-click to edit bars)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'bar-chart',
+          x: x - 150,
+          y: y - 110,
+          props: { w: 300, h: 220, bars: JSON.stringify([{label:'Mon',value:40,color:'#2563eb'},{label:'Tue',value:65,color:'#dc2626'},{label:'Wed',value:50,color:'#16a34a'},{label:'Thu',value:80,color:'#d97706'},{label:'Fri',value:30,color:'#7c3aed'}]), title: '', xLabel: '', yLabel: '', showValues: true, showGrid: true },
+        });
+      },
+    },
+    {
+      id: 'desmos',
+      label: 'Desmos',
+      icon: '∫',
+      description: 'Embed Desmos graphing calculator',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        const id = createShapeId();
+        create(editor, {
+          id,
+          type: 'embed',
+          x: x - 240,
+          y: y - 180,
+          props: { w: 480, h: 360, url: 'https://www.desmos.com/calculator', label: 'Desmos Graphing' },
+        });
+        editor.setSelectedShapes([id]);
+        editor.setEditingShape(id);
+      },
+    },
   ];
 }
 
@@ -409,6 +508,38 @@ function getEnglishTools(): ToolItem[] {
               props: { w: 200, h: 100, text: '', highlightColor: '', annotationType: 'highlight' as AnnotationType, label: `${label} — point ${row + 1}`, showBadge: true },
             });
           }
+        });
+      },
+    },
+    {
+      id: 'venn-diagram',
+      label: 'Venn Diagram',
+      icon: '⊙',
+      description: 'Two overlapping circles for compare/contrast (double-click to edit)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'venn-diagram',
+          x: x - 170,
+          y: y - 100,
+          props: { w: 340, h: 200, leftLabel: 'Text A', rightLabel: 'Text B', leftContent: '', centerContent: 'Both', rightContent: '', title: '', leftColor: '#2563eb', rightColor: '#dc2626' },
+        });
+      },
+    },
+    {
+      id: 'timeline',
+      label: 'Timeline',
+      icon: '—→',
+      description: 'Horizontal timeline with events (double-click to edit)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'timeline',
+          x: x - 240,
+          y: y - 80,
+          props: { w: 480, h: 160, events: JSON.stringify([{label:'Event 1',date:'1066',color:'#2563eb',above:true},{label:'Event 2',date:'1215',color:'#dc2626',above:false},{label:'Event 3',date:'1348',color:'#16a34a',above:true},{label:'Event 4',date:'1492',color:'#d97706',above:false}]), title: '', lineColor: '#475569' },
         });
       },
     },
@@ -582,6 +713,57 @@ function getScienceTools(): ToolItem[] {
           y: y - 40,
           props: { w: 240, h: 80, latex: 'F = ma', displayMode: true, color: '#1e293b', fontSize: 22 },
         });
+      },
+    },
+    {
+      id: 'bohr-atom',
+      label: 'Bohr Atom',
+      icon: '⚛',
+      description: 'Bohr model atom diagram (double-click to choose element)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'bohr-atom',
+          x: x - 120,
+          y: y - 120,
+          props: { w: 240, h: 240, symbol: 'Na', protons: 11, neutrons: 12, shells: JSON.stringify([2, 8, 1]), color: '#2563eb', showNumbers: true },
+        });
+      },
+    },
+    {
+      id: 'science-timeline',
+      label: 'Timeline',
+      icon: '—→',
+      description: 'Timeline for discoveries, history of science',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'timeline',
+          x: x - 240,
+          y: y - 80,
+          props: { w: 480, h: 160, events: JSON.stringify([{label:'Discovery 1',date:'Year',color:'#dc2626',above:true},{label:'Discovery 2',date:'Year',color:'#2563eb',above:false},{label:'Discovery 3',date:'Year',color:'#16a34a',above:true}]), title: 'History of Science', lineColor: '#475569' },
+        });
+      },
+    },
+    {
+      id: 'geogebra',
+      label: 'GeoGebra',
+      icon: '◯',
+      description: 'Embed GeoGebra geometry tool',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        const id = createShapeId();
+        create(editor, {
+          id,
+          type: 'embed',
+          x: x - 240,
+          y: y - 180,
+          props: { w: 480, h: 360, url: 'https://www.geogebra.org/graphing', label: 'GeoGebra Graphing' },
+        });
+        editor.setSelectedShapes([id]);
+        editor.setEditingShape(id);
       },
     },
   ];

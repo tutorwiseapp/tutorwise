@@ -281,7 +281,11 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
 
       {/* Whiteboard */}
       <ChannelProvider channelName={context.channelName}>
-        <EmbeddedWhiteboard channelName={context.channelName} />
+        <EmbeddedWhiteboard
+          channelName={context.channelName}
+          currentUserId={context.currentUserId}
+          displayName={context.participants.find((p) => p.userId === context.currentUserId)?.displayName ?? context.ownerName}
+        />
       </ChannelProvider>
     </AblyProvider>
   );
