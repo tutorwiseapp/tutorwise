@@ -11,6 +11,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminProfile } from '@/lib/rbac';
+import { useSidebar } from '@/app/contexts/SidebarContext';
 import styles from './AdminSidebar.module.css';
 
 interface NavItem {
@@ -26,6 +27,7 @@ export default function AdminSidebar() {
   const { profile } = useAdminProfile();
 
   // Track which sections are expanded (use Set for efficient lookups)
+  const { collapsed, setCollapsed } = useSidebar();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Admin navigation menu (NO ICONS - text only, following AppSidebar pattern)
@@ -155,8 +157,29 @@ export default function AdminSidebar() {
     return expandedSections.has(href);
   };
 
+  if (collapsed) {
+    return (
+      <aside
+        className={styles.collapsedStrip}
+        onClick={() => setCollapsed(false)}
+        title="Expand sidebar"
+      >
+        <span className={styles.collapsedChevron}>›</span>
+      </aside>
+    );
+  }
+
   return (
     <aside className={styles.adminSidebar}>
+      <button
+        className={styles.collapseBar}
+        onClick={() => setCollapsed(true)}
+        title="Collapse sidebar"
+        aria-label="Collapse sidebar"
+      >
+        <span className={styles.collapseBarLabel}>click to collapse</span>
+      </button>
+
       <nav className={styles.nav}>
         <ul className={styles.navList}>
           {navItems.map((item) => (

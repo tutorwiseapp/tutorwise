@@ -21,11 +21,22 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
+import { SidebarProvider, useSidebar } from '@/app/contexts/SidebarContext';
 import AppSidebar from '@/components/layout/AppSidebar';
 import styles from './layout.module.css';
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
+}
+
+function AuthenticatedLayoutInner({ children }: AuthenticatedLayoutProps) {
+  const { collapsed } = useSidebar();
+  return (
+    <div className={`${styles.layoutContainer} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+      <AppSidebar />
+      <div className={styles.mainContent} data-scroll-container>{children}</div>
+    </div>
+  );
 }
 
 export default function AuthenticatedLayout({
@@ -63,12 +74,8 @@ export default function AuthenticatedLayout({
   // Render authenticated layout (Header/Footer come from root Layout component)
   // Note: LexiChatModal is now rendered in the root Layout for all pages
   return (
-    <div className={styles.layoutContainer}>
-      {/* Left Column: Main Navigation */}
-      <AppSidebar />
-
-      {/* Center Column: Page Content (hub pages render their own HubSidebar) */}
-      <div className={styles.mainContent} data-scroll-container>{children}</div>
-    </div>
+    <SidebarProvider>
+      <AuthenticatedLayoutInner>{children}</AuthenticatedLayoutInner>
+    </SidebarProvider>
   );
 }

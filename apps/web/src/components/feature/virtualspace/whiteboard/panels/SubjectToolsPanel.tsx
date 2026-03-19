@@ -822,6 +822,12 @@ const SUBJECT_CONFIG = {
   },
 } as const;
 
+const SUBJECT_BUTTONS: { tab: Tab; symbol: string; nudge: number }[] = [
+  { tab: 'maths',   symbol: 'π', nudge: -1 },
+  { tab: 'science', symbol: '⚛', nudge: -1 },
+  { tab: 'english', symbol: '✏', nudge:  0 },
+];
+
 // ── Panel for a single subject ────────────────────────────────────────────
 
 function SubjectPanel({
@@ -848,9 +854,9 @@ function SubjectPanel({
     <div
       style={{
         background: 'white',
-        border: `1.5px solid ${cfg.dotBorder}`,
+        border: '1px solid rgba(0,0,0,0.08)',
         borderRadius: 10,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.14)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         width: 228,
         maxHeight: 'calc(100vh - 180px)',
         display: 'flex',
@@ -996,12 +1002,6 @@ export function SubjectToolsPanel() {
     science: getScienceTools(),
   };
 
-  const handleToolClick = useCallback(
-    (tool: ToolItem) => { tool.onClick(editor); },
-    [editor]
-  );
-  void handleToolClick; // used inside SubjectPanel via closure
-
   const toggle = useCallback((t: Tab) => {
     setOpenTab((cur) => (cur === t ? null : t));
   }, []);
@@ -1010,50 +1010,55 @@ export function SubjectToolsPanel() {
     <div
       style={{
         position: 'absolute',
-        left: 264,
-        top: '50%',
-        transform: 'translateY(-50%)',
+        top: 16,
+        right: 395,
         zIndex: 500,
         display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
+        flexDirection: 'column',
+        alignItems: 'flex-end',
         pointerEvents: 'all',
       }}
     >
       {/* 3 CTA buttons */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {(['maths', 'science', 'english'] as Tab[]).map((t) => {
-          const cfg = SUBJECT_CONFIG[t];
-          const active = openTab === t;
-
-          // science = triangle via clip-path, english = square (rounded), maths = circle
-          const extraStyle: React.CSSProperties =
-            t === 'science'
-              ? { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', borderRadius: 0, border: 'none' }
-              : t === 'english'
-              ? { borderRadius: 6 }
-              : { borderRadius: '50%' };
-
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 16,
+        padding: '5px 10px',
+        background: 'hsl(204, 16%, 94%)',
+        borderRadius: 9,
+      }}>
+        {SUBJECT_BUTTONS.map(({ tab, symbol, nudge }) => {
+          const cfg = SUBJECT_CONFIG[tab];
+          const active = openTab === tab;
           return (
             <button
-              key={t}
-              onClick={() => toggle(t)}
+              key={tab}
+              onClick={() => toggle(tab)}
               title={`${cfg.label} tools`}
               style={{
-                width: 36,
-                height: 36,
-                border: t === 'science' ? 'none' : `2.5px solid ${active ? cfg.dotBorder : cfg.dotBorder + '80'}`,
-                background: active ? cfg.dotColor : cfg.dotColor + 'aa',
+                width: 28,
+                height: 28,
+                border: `1.5px solid ${active ? cfg.dotBorder : cfg.dotBorder + '60'}`,
+                background: active ? cfg.dotColor : 'transparent',
                 cursor: 'pointer',
-                display: 'block',
-                boxShadow: active ? `0 0 0 3px ${cfg.dotBorder}40` : '0 2px 6px rgba(0,0,0,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 6,
+                boxShadow: active ? `0 0 0 3px ${cfg.dotBorder}30` : 'none',
                 transition: 'all 0.15s',
                 padding: 0,
                 flexShrink: 0,
-                ...extraStyle,
+                fontSize: 13,
+                lineHeight: '28px',
+                textAlign: 'center',
+                fontFamily: 'system-ui, sans-serif',
+                color: cfg.dotBorder,
               }}
-            />
+            >
+              <span style={{ position: 'relative', top: nudge }}>{symbol}</span>
+            </button>
           );
         })}
       </div>

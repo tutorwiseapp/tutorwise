@@ -8,6 +8,7 @@
 
 import React, { ReactNode } from 'react';
 import AdminSidebar from '../sidebar/AdminSidebar';
+import { SidebarProvider, useSidebar } from '@/app/contexts/SidebarContext';
 import styles from './AdminLayout.module.css';
 
 interface AdminLayoutProps {
@@ -28,13 +29,22 @@ interface AdminLayoutProps {
  *   </HubPageLayout>
  * </AdminLayout>
  */
-export default function AdminLayout({ children }: AdminLayoutProps) {
+function AdminLayoutInner({ children }: AdminLayoutProps) {
+  const { collapsed } = useSidebar();
   return (
-    <div className={styles.adminContainer}>
+    <div className={`${styles.adminContainer} ${collapsed ? styles.sidebarCollapsed : ''}`}>
       <AdminSidebar />
       <div className={styles.adminContent}>
         {children}
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  return (
+    <SidebarProvider>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </SidebarProvider>
   );
 }

@@ -50,9 +50,15 @@
 .mainContent {
   flex: 1;
   margin-left: 240px; /* Width of AppSidebar on desktop */
-  margin-right: 0; /* No margin - HubSidebar is in page flow, not fixed */
-  padding: 0; /* No padding - Hub components handle their own spacing */
+  margin-right: 0;
+  padding: 0;
   overflow-y: auto;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Sidebar collapsed — only the 8px strip remains */
+.sidebarCollapsed .mainContent {
+  margin-left: 8px;
 }
 
 /* Mobile: Stack layout, no sidebars visible by default */

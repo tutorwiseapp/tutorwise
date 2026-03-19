@@ -29,7 +29,6 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
 
   // Initialize Ably client once (stable ref — not recreated on re-renders)
   const [ablyClient] = useState(() => new Ably.Realtime({

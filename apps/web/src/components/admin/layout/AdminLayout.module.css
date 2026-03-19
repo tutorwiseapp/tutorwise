@@ -12,8 +12,13 @@
 
 .adminContent {
   flex: 1;
-  margin-left: 240px; /* Match AdminSidebar width */
+  margin-left: 240px;
   overflow-x: hidden;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebarCollapsed .adminContent {
+  margin-left: 8px;
 }
 
 /* Tablet: Adjust for narrower sidebar */

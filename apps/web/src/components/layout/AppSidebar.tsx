@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
 import { useIsAdmin } from '@/lib/rbac/hooks';
+import { useSidebar } from '@/app/contexts/SidebarContext';
 import styles from './AppSidebar.module.css';
 
 interface NavItem {
@@ -27,7 +28,7 @@ export default function AppSidebar() {
   const { activeRole } = useUserProfile();
   const { isAdmin: isAdminUser } = useIsAdmin();
 
-  // Track which sections are expanded (use Set for efficient lookups)
+  const { collapsed, setCollapsed } = useSidebar();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Universal navigation menu - SAME for all roles (do not reorder or rename)
@@ -223,8 +224,29 @@ export default function AppSidebar() {
     return expandedSections.has(href);
   };
 
+  if (collapsed) {
+    return (
+      <aside
+        className={styles.collapsedStrip}
+        onClick={() => setCollapsed(false)}
+        title="Expand sidebar"
+      >
+        <span className={styles.collapsedChevron}>›</span>
+      </aside>
+    );
+  }
+
   return (
     <aside className={styles.appSidebar}>
+      <button
+        className={styles.collapseBar}
+        onClick={() => setCollapsed(true)}
+        title="Collapse sidebar"
+        aria-label="Collapse sidebar"
+      >
+        <span className={styles.collapseBarLabel}>click to collapse</span>
+      </button>
+
       <nav className={styles.nav}>
         <ul className={styles.navList}>
           {navItems.map((item) => {
@@ -244,7 +266,7 @@ export default function AppSidebar() {
               <li>
                 {item.subItems ? (
                   // Parent item with submenu - link that navigates and toggles (not highlighted, only children are)
-                  <div className={styles.navItemWithSubmenu}>
+                  <div className={styles.navItemButton}>
                     <Link
                       href={item.href}
                       onClick={() => toggleSection(item.href, !!item.subItems)}

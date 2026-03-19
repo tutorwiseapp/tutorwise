@@ -8,18 +8,79 @@
 
 .adminSidebar {
   width: 240px;
-  height: calc(100vh - 64px); /* Subtract header height */
+  height: calc(100vh - 64px);
   position: fixed;
-  top: 64px; /* Start below header */
+  top: 64px;
   left: 0;
   background-color: #ffffff;
   border-right: 1px solid #e5e7eb;
-  border-top: 1px solid #e5e7eb; /* Ensure connection with header border */
+  border-top: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   z-index: 40;
   overflow-y: auto;
-  margin-top: -1px; /* Overlap with header border */
+  margin-top: -1px;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Collapse bar */
+.collapseBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.collapseBar:hover {
+  background-color: #f3f4f6;
+}
+
+.collapseBarLabel {
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 0.15s;
+}
+
+.collapseBar:hover .collapseBarLabel {
+  color: #6b7280;
+}
+
+/* Collapsed strip */
+.collapsedStrip {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 8px;
+  height: calc(100vh - 64px);
+  background-color: #e5e7eb;
+  cursor: pointer;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, width 0.15s;
+  border-right: 1px solid #d1d5db;
+}
+
+.collapsedStrip:hover {
+  background-color: #d1d5db;
+  width: 12px;
+}
+
+.collapsedChevron {
+  font-size: 10px;
+  color: #9ca3af;
+  line-height: 1;
+  user-select: none;
 }
 
 /* Navigation */

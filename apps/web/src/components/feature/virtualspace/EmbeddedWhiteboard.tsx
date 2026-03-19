@@ -11,7 +11,7 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from 'react';
-import { Tldraw, defaultShapeUtils } from 'tldraw';
+import { Tldraw, defaultShapeUtils, DefaultStylePanel } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
 import { useChannel, ChannelProvider } from 'ably/react';
 import 'tldraw/tldraw.css';
@@ -83,11 +83,6 @@ function InFrontOfTheCanvas({ displayName }: { displayName: string }) {
   );
 }
 
-// TopPanel — 6 session control CTAs in the tldraw top bar
-function TopPanel() {
-  return <SessionControlsPanel />;
-}
-
 // ── Props ──────────────────────────────────────────────────────────────────
 
 interface EmbeddedWhiteboardProps {
@@ -97,7 +92,6 @@ interface EmbeddedWhiteboardProps {
   currentUserId: string;
   /** Display name shown in chat and raise-hand */
   displayName?: string;
-  onSnapshotRequest?: () => Promise<string>;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -106,10 +100,8 @@ export function EmbeddedWhiteboard({
   channelName,
   currentUserId,
   displayName = 'You',
-  onSnapshotRequest,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
-
   // Initialize tldraw store with all custom shape utils
   if (!storeRef.current) {
     storeRef.current = createTLStore({
@@ -159,16 +151,13 @@ export function EmbeddedWhiteboard({
     };
   }, [channel]);
 
-  // Expose snapshot function to parent
+  // Expose snapshot export to VirtualSpaceClient via window bridge
   useEffect(() => {
-    if (onSnapshotRequest) {
-      (window as any).__virtualSpaceExportSnapshot = async () => {
-        if (!storeRef.current) return '';
-        const snapshot = storeRef.current.getStoreSnapshot();
-        return JSON.stringify(snapshot);
-      };
-    }
-  }, [onSnapshotRequest]);
+    (window as any).__virtualSpaceExportSnapshot = async () => {
+      if (!storeRef.current) return '';
+      return JSON.stringify(storeRef.current.getStoreSnapshot());
+    };
+  }, []);
 
   // Session channel name for chat/timer/reactions (distinct from draw channel)
   const sessionChannelName = `session:${channelName}`;
@@ -177,18 +166,29 @@ export function EmbeddedWhiteboard({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => <InFrontOfTheCanvas displayName={displayName} />,
-    TopPanel,
+    StylePanel: () => (
+      <div style={{
+        '--tl-color-panel': 'hsl(204, 16%, 94%)',
+        '--tl-shadow-1': 'none',
+        '--tl-shadow-2': 'none',
+        '--tl-shadow-3': 'none',
+        '--tl-shadow-4': 'none',
+      } as React.CSSProperties}>
+        <DefaultStylePanel />
+      </div>
+    ),
   }), [displayName]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>
       <SessionProvider channelName={sessionChannelName} currentUserId={currentUserId}>
-        <div style={{ position: 'fixed', inset: 0, top: '56px' }}>
+        <div style={{ position: 'fixed', top: '56px', right: 0, bottom: 0, left: 0 }}>
           <Tldraw
             store={storeRef.current}
             components={tldrawComponents}
             autoFocus
           />
+          <SessionControlsPanel />
         </div>
       </SessionProvider>
     </ChannelProvider>

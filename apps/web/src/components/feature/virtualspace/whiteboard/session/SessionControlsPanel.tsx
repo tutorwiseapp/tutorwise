@@ -101,8 +101,6 @@ export function SessionControlsPanel() {
 
   const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
 
-  const unreadCount = 0; // Could be tracked with a ref comparing last-read index
-
   const REACTIONS = ['👍', '❤️', '😂', '🎉', '🤔', '👏', '🔥', '💡'];
 
   const formatTime = (s: number) => {
@@ -114,17 +112,19 @@ export function SessionControlsPanel() {
   return (
     <div
       style={{
+        position: 'absolute',
+        top: 16,
+        right: 172,
         display: 'flex',
         alignItems: 'center',
         gap: 2,
-        padding: '0 4px',
-        height: '100%',
-        position: 'relative',
+        padding: '3px 6px',
+        background: 'hsl(204, 16%, 94%)',
+        borderRadius: 9,
+        pointerEvents: 'all',
+        zIndex: 400,
       }}
     >
-      {/* Divider */}
-      <div style={{ width: 1, height: 20, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
-
       {/* Chat */}
       <ControlButton
         icon={<MessageSquare size={ICON_SIZE} />}
@@ -232,13 +232,13 @@ export function SessionControlsPanel() {
         icon={<Monitor size={ICON_SIZE} />}
         label="Screen share"
         onClick={() => {
-          // Native browser screen share — no server needed
           if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getDisplayMedia) {
             navigator.mediaDevices.getDisplayMedia({ video: true }).catch(() => {});
           }
         }}
         color="#0ea5e9"
       />
+
     </div>
   );
 }

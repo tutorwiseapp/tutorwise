@@ -49,7 +49,7 @@ export function ChatPanel({ displayName }: { displayName: string }) {
     <div
       style={{
         position: 'absolute',
-        bottom: 72,
+        bottom: 100,
         right: 16,
         width: 300,
         height: 420,
@@ -61,6 +61,7 @@ export function ChatPanel({ displayName }: { displayName: string }) {
         flexDirection: 'column',
         zIndex: 500,
         overflow: 'hidden',
+        pointerEvents: 'all',
       }}
     >
       {/* Header */}
