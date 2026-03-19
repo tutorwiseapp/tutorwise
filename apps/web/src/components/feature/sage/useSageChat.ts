@@ -14,8 +14,11 @@ import { useMutation } from '@tanstack/react-query';
 
 // --- Types ---
 
-export type SageSubject = 'maths' | 'english' | 'science' | 'general';
-export type SageLevel = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
+export type SageSubject =
+  | 'maths' | 'english' | 'science' | 'computing'
+  | 'humanities' | 'languages' | 'social-sciences'
+  | 'business' | 'arts' | 'general';
+export type SageLevel = 'KS1' | 'KS2' | 'KS3' | 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
 export type SessionGoal = 'homework' | 'exam-prep' | 'concept-review' | 'practice' | 'general';
 
 export interface SageMessage {

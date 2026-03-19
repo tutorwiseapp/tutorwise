@@ -10,8 +10,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-type SageSubject = 'maths' | 'english' | 'science' | 'general';
-type SageLevel = 'primary' | 'ks3' | 'gcse' | 'a-level' | 'university' | 'adult';
+type SageSubject =
+  | 'maths' | 'english' | 'science' | 'computing'
+  | 'humanities' | 'languages' | 'social-sciences'
+  | 'business' | 'arts' | 'general';
+type SageLevel = 'KS1' | 'KS2' | 'KS3' | 'GCSE' | 'A-Level' | 'IB' | 'AP' | 'University' | 'Other';
 type SessionGoal = 'homework_help' | 'concept_review' | 'exam_prep' | 'practice' | 'general';
 
 // Available subjects
@@ -19,17 +22,26 @@ const SUBJECTS: { id: SageSubject; label: string; description: string }[] = [
   { id: 'maths', label: 'Mathematics', description: 'Algebra, geometry, calculus, statistics' },
   { id: 'english', label: 'English', description: 'Writing, reading, grammar, literature' },
   { id: 'science', label: 'Science', description: 'Physics, chemistry, biology' },
+  { id: 'computing', label: 'Computing', description: 'Computer Science, programming, algorithms' },
+  { id: 'humanities', label: 'Humanities', description: 'History, Geography, and related subjects' },
+  { id: 'languages', label: 'Languages', description: 'French, Spanish, German, and other languages' },
+  { id: 'social-sciences', label: 'Social Sciences', description: 'Psychology, Sociology, Religious Education' },
+  { id: 'business', label: 'Business & Economics', description: 'Business Studies, Economics, Accounting' },
+  { id: 'arts', label: 'Arts & Creative', description: 'Music, Art & Design, Drama, PE theory' },
   { id: 'general', label: 'General', description: 'Study skills, exam prep, any subject' },
 ];
 
 // Available levels
 const LEVELS: { id: SageLevel; label: string }[] = [
-  { id: 'primary', label: 'Primary (KS1-KS2)' },
-  { id: 'ks3', label: 'Key Stage 3' },
-  { id: 'gcse', label: 'GCSE' },
-  { id: 'a-level', label: 'A-Level' },
-  { id: 'university', label: 'University' },
-  { id: 'adult', label: 'Adult Learner' },
+  { id: 'KS1', label: 'Key Stage 1 (Years 1-2)' },
+  { id: 'KS2', label: 'Key Stage 2 (Years 3-6)' },
+  { id: 'KS3', label: 'Key Stage 3 (Years 7-9)' },
+  { id: 'GCSE', label: 'GCSE (Years 10-11)' },
+  { id: 'A-Level', label: 'A-Level (Years 12-13)' },
+  { id: 'IB', label: 'International Baccalaureate' },
+  { id: 'AP', label: 'Advanced Placement (AP)' },
+  { id: 'University', label: 'University' },
+  { id: 'Other', label: 'Other' },
 ];
 
 // Session goals
