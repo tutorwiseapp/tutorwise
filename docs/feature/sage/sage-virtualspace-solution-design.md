@@ -1,10 +1,12 @@
 # Sage × VirtualSpace Solution Design
 **AI Tutor Intelligence Layer for the Collaborative Whiteboard**
-**Version:** 1.1
+**Version:** 1.2
 **Created:** 2026-03-19
-**Updated:** 2026-03-19 — Design review: 12 issues addressed (streaming split, SVG size, viewport bounds,
-awareness loop pause, whisper persistence, quota atomicity, surface constraint, drive pause/edit,
-panel collapse, hook spec, section numbering, phase order)
+**Updated:** 2026-03-19 — v1.1: 12 design review issues addressed
+           2026-03-19 — v1.2: competitor research integrated — post-session recap (§8.6),
+           guest access / magic link (§19), PNG canvas snapshot fix (§14),
+           [CANVAS] parser validation spec (Phase 2), session recording strategic gap (§20),
+           Desmos/GeoGebra / gamification / quota pooling in Future Roadmap (§20)
 **Status:** Design — Approved for Implementation
 **Owner:** Michael Quan
 
@@ -30,6 +32,8 @@ panel collapse, hook spec, section numbering, phase order)
 16. [Implementation Phases](#16-implementation-phases)
 17. [Success Metrics](#17-success-metrics)
 18. [Related Documentation](#18-related-documentation)
+19. [Guest Access — No-Login Student Join](#19-guest-access--no-login-student-join)
+20. [Future Roadmap](#20-future-roadmap)
 
 ---
 
@@ -353,6 +357,30 @@ At each cycle, Sage recalibrates difficulty based on:
 - Number of consecutive correct/incorrect responses this session
 - Time taken per problem (fast + correct → harder; slow + correct → same level)
 - Student's explicit request ("make it harder" / "too hard")
+
+### Post-Session Recap
+
+When Sage deactivates (either by the student closing the panel or the session ending), it generates an async post-session recap. The recap is returned immediately in the deactivate response — the client does not wait for generation.
+
+**Recap contents:**
+
+```typescript
+interface SessionRecap {
+  topicsCovered: string[];
+  misconceptionsLogged: string[];       // Specific errors Sage observed
+  masteryDelta: number;                 // Net mastery change this session
+  timeSpent: number;                    // Minutes
+  strongMoments: string[];              // What the student did well (1–3 items)
+  suggestedNextSteps: string[];         // What to work on next
+  lessonPlanPrompt?: string;            // Pre-filled prompt for lesson plan upsell
+}
+```
+
+The `lessonPlanPrompt` field is the entry point for the lesson plan system. If meaningful topics were covered, Sage pre-fills a natural language prompt: *"Create a follow-up lesson on quadratic equations, building on today's work — student has mastered factorising but needs more practice on the discriminant."* The student or tutor can accept this in one tap to generate and save a lesson plan.
+
+**Delivery:** The recap appears in the Sage panel on session close. It is also saved to `sage_sessions.recap_json` (a new nullable JSONB column). Tutors can view past session recaps from the VirtualSpace session history page.
+
+**Implementation note:** Recap generation is fire-and-forget — the `POST /api/sage/virtualspace/deactivate` route returns 200 immediately, then spawns the async LLM call. The client polls `GET /api/sage/virtualspace/recap/:sageSessionId` or receives a push via the session Ably channel once the recap is ready (typically 3–8 seconds).
 
 ---
 
@@ -755,7 +783,7 @@ Send a message to Sage in a VirtualSpace session. Streams response with optional
 {
   "sageSessionId": "uuid",
   "message": "I don't understand step 2",
-  "canvasSnapshot": "base64-svg-string (optional)"
+  "canvasSnapshot": "base64-png-string (optional — PNG exported via editor.toImage({ format: 'png', maxWidth: 1280 }))"
 }
 ```
 **Response:** Server-sent event stream
@@ -773,7 +801,7 @@ Submit a canvas snapshot for Sage to observe and give feedback. Used by manual o
 ```json
 {
   "sageSessionId": "uuid",
-  "canvasSnapshot": "base64-svg-string",
+  "canvasSnapshot": "base64-png-string",
   "trigger": "manual" | "stuck" | "session-drive"
 }
 ```
@@ -976,6 +1004,12 @@ CREATE TABLE sage_canvas_events (
 - All 10 supported shape types
 - `/api/sage/virtualspace/message` with canvas block streaming
 
+**[CANVAS] Parser Validation — required before full build:**
+> Prototype the `[CANVAS]` block extraction against ≥20 real streaming responses from xAI Grok and Gemini before writing the production `SageCanvasWriter`. Three confirmed failure modes to guard against:
+> 1. **Wrong field names** — LLM emits valid JSON but uses `shape_type` instead of `type`, or `text_content` instead of `text`. Parser must validate required fields and emit a warning (not throw) on unknown keys.
+> 2. **[CANVAS] inside a code fence** — LLM wraps the entire block in ` ```json ... ``` ` when explaining a concept. Parser must detect and skip `[CANVAS]` blocks that appear inside markdown code fences.
+> 3. **Multiple blocks, second dropped** — Stream split logic buffers until `[/CANVAS]` is found; if the response contains two blocks, the `pendingBlock` ref must be reset after the first block is dispatched or the second block is silently lost. Covered by a unit test.
+
 ### Phase 3 — Canvas Observe
 - SVG export trigger (manual "Review my work" button)
 - `/api/sage/virtualspace/observe` route with vision model
@@ -1055,3 +1089,73 @@ CREATE TABLE sage_canvas_events (
 - VirtualSpace implementation: `apps/web/src/components/feature/virtualspace/`
 - Sage implementation: `apps/web/src/lib/sage/` (pending Phase 1 Sage Curriculum Expansion)
 - Conductor integration: `conductor/conductor-solution-design.md` — PlatformUserContext feeds Sage session initialisation
+
+---
+
+## 19. Guest Access — No-Login Student Join
+
+**Goal:** Remove the authentication barrier for students trying VirtualSpace for the first time. A student who receives a magic link should be able to join a session, experience Sage in VirtualSpace, and convert to a registered account — without being forced to create an account before they've seen the product.
+
+This is a **product marketing and conversion feature**, not a free-help feature. The frame is: "try the product before you commit" — same as any modern SaaS trial flow.
+
+### How It Works
+
+1. **Tutor generates a magic link** from the VirtualSpace session header — a time-limited, session-scoped join token (e.g. `tutorwise.com/join/vs/{token}`).
+2. **Student clicks the link** — lands on a branded join page with session context (subject, tutor name, session title). No account required.
+3. **Guest session is created** — a temporary guest identity (`guest_{uuid}`) is scoped to the session. Ably receives the guest as a named participant. tldraw shapes are attributed to the guest name (e.g. "Alex (guest)").
+4. **Sage is available** — Sage joins with Wingman profile (student-only session). The guest student experiences the full Sage chat and canvas write. Quota is drawn from the tutor's allowance, not the guest's (guest has no account).
+5. **Convert prompt on exit** — when the session ends or the guest tries to save their work, a conversion prompt appears: "Create a free account to save your progress and continue with Sage." Pre-fills email if provided at join.
+
+### Constraints
+
+- **Token expiry:** 24 hours from generation, or on session end — whichever is first.
+- **Single use per student:** One token per invited student email address. Regenerable by the tutor.
+- **Supabase RLS:** Guest sessions use a service-role-scoped server action for writes. Guest identity cannot read other users' data.
+- **Ably auth:** Guest receives a short-lived Ably token capability scoped to the single channel. No access to co-pilot channel.
+- **No persistent student model:** Guest session creates a transient `sage_sessions` record with `guest_id` populated but no `student_id`. Mastery delta is not persisted. On conversion, tutor can manually link the session to the new student account.
+- **Conversion tracking:** `guest_conversions` event logged to `platform_events` on account creation from a guest join flow. Attribution to the originating session is preserved.
+
+### Why Not Anonymous Access
+
+Full anonymous access (no token) creates abuse vectors (quota drain, spam canvas). Magic link scopes the invite to a specific session, protects the tutor's quota, and preserves the conversion tracking chain.
+
+### Implementation Notes
+
+- New DB columns: `virtualspace_sessions.guest_join_token TEXT`, `virtualspace_sessions.guest_join_expires_at TIMESTAMPTZ`
+- New API routes: `POST /api/virtualspace/[sessionId]/invite` (generate token), `GET /api/join/vs/[token]` (validate + create guest session)
+- Sage activation route: accept `guestId` as alternative to authenticated `userId`; draw quota from session owner
+- Phase: implement in Phase 3 (alongside Canvas Observe) — by then VirtualSpace + Sage are stable enough to demo to guests
+
+---
+
+## 20. Future Roadmap
+
+Items identified during design review and competitor research that are **not in the current phase plan** — either because they require independent R&D spikes, carry significant complexity, or are lower priority relative to the core experience.
+
+### Desmos / GeoGebra Embeds
+
+**Status:** Roadmap — spike required before scheduling.
+
+Interactive graphing (Desmos) and dynamic geometry (GeoGebra) are high-value for GCSE/A-Level maths and science. Pencil Spaces has spent years integrating these natively. The core challenge is not the embed itself — it is the two-way state sync: Sage needs to be able to write to the graph (plot a function, highlight a root) and read from it (observe what the student has drawn). This is a non-trivial iframe integration with postMessage-based graph state serialisation.
+
+**Spike criteria:** Can Sage read a Desmos graph state as JSON, modify it, and write it back within a VirtualSpace canvas frame? Spike estimate: 3–5 days. Proceed to design if spike succeeds.
+
+### Session Recording + AI Transcript
+
+**Status:** Strategic gap — not currently planned.
+
+Competitors including Bramble offer session recording with post-session AI-generated transcripts (key moments, misconceptions, revision suggestions). This is a material differentiator for parents who want to review sessions and for tutors who want to improve their teaching.
+
+The gap is strategic: TutorWise currently has no session recording infrastructure (video/audio recording, storage, transcription pipeline). The post-session recap (§8.6) addresses the text-based intelligence gap but does not cover screen + audio recording.
+
+**Path to close the gap:** Session recording is a separate infrastructure project (WebRTC recording, storage policy, transcription via Whisper or Google Speech). Sage's post-session recap can be a lightweight interim — once recording infrastructure exists, Sage can enhance its recap with transcript-grounded evidence (e.g. "At 14:32, the student said 'I don't get why you flip the sign'").
+
+### Anti-Patterns — Explicitly Not Adopted
+
+The following patterns were observed in competitors and explicitly rejected:
+
+1. **Gamification in Sage VirtualSpace** — Points, badges, streaks, and leaderboards are appropriate in a standalone practice app (Duolingo, Quizlet). They are out of place in a live tutoring session where the relationship between student, tutor, and AI co-pilot should feel professional and focused. Gamification in VirtualSpace risks trivialising the session and distracting from learning. The mastery heatmap and SM-2 scheduling provide progression feedback without the psychological manipulation mechanics of gamification.
+
+2. **Quota pooling across students** — Some platforms allow organisations to pool AI credits across students. This creates complex accounting, fairness disputes, and incentivises gaming (tutors hoarding quota, parents complaining about allocation). TutorWise's model is per-student subscription, which is simpler, fairer, and aligns incentives correctly.
+
+3. **AI explanation as primary response** — Platforms like Numerade default to a full AI-generated explanation when a student asks a question. Sage's design principle is "guide, don't tell" for student personas. Giving the answer directly undermines the tutoring relationship and reduces learning retention. Sage should always scaffold, hint, and question — not lecture.
