@@ -18,6 +18,7 @@ import type {
   LLMCompletionResponse,
   LLMStreamChunk,
 } from './types';
+import { getSENSystemPrompt } from '../sen';
 import type { SagePersona, SageSubject, SageLevel, SageDetectedIntent } from '../types';
 import type { AgentContext } from '../../cas/packages/core/src/context';
 import {
@@ -336,6 +337,14 @@ Your purpose is to supplement human tutoring by providing instant help and pract
     // Level adjustment
     if (context.level) {
       parts.push('\n' + LEVEL_ADJUSTMENTS[context.level]);
+    }
+
+    // SEN/SEND adaptations — inject behavioural guidelines (category labels never sent to LLM)
+    if (context.senCategories?.length) {
+      const senBlock = getSENSystemPrompt(context.senCategories);
+      if (senBlock) {
+        parts.push('\n' + senBlock);
+      }
     }
 
     // Persona prompt

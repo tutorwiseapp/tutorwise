@@ -56,7 +56,7 @@ export class SageXAIProvider extends BaseSageProvider {
       throw new Error('xAI API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     const systemPrompt = this.buildSystemPrompt({
       persona,
@@ -69,6 +69,7 @@ export class SageXAIProvider extends BaseSageProvider {
       learningContext: request.intent?.entities?.topic
         ? { currentTopic: request.intent.entities.topic }
         : undefined,
+      senCategories,
       ragContext,
     });
 
@@ -122,7 +123,7 @@ export class SageXAIProvider extends BaseSageProvider {
       throw new Error('xAI API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     const systemPrompt = this.buildSystemPrompt({
       persona,
@@ -132,6 +133,7 @@ export class SageXAIProvider extends BaseSageProvider {
       userName: context.user?.metadata?.displayName as string | undefined,
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona, subject),
+      senCategories,
       ragContext,
     });
 

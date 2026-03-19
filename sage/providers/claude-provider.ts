@@ -62,7 +62,7 @@ export class SageClaudeProvider extends BaseSageProvider {
       throw new Error('Claude API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     // Build system prompt with tutoring context
     const systemPrompt = this.buildSystemPrompt({
@@ -77,6 +77,7 @@ export class SageClaudeProvider extends BaseSageProvider {
         ? { currentTopic: request.intent.entities.topic }
         : undefined,
       ragContext,
+      senCategories,
     });
 
     // Convert messages to Claude format
@@ -132,7 +133,7 @@ export class SageClaudeProvider extends BaseSageProvider {
       throw new Error('Claude API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     // Build system prompt
     const systemPrompt = this.buildSystemPrompt({
@@ -144,6 +145,7 @@ export class SageClaudeProvider extends BaseSageProvider {
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona, subject),
       ragContext,
+      senCategories,
     });
 
     // Convert messages to Claude format

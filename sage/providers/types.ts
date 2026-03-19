@@ -39,6 +39,8 @@ export interface LLMCompletionRequest {
   stream?: boolean;
   /** RAG context from knowledge retrieval */
   ragContext?: string;
+  /** SEN/SEND categories for adaptive prompt injection */
+  senCategories?: import('../types').SENCategory[];
 }
 
 export interface LLMCompletionResponse {
@@ -71,6 +73,8 @@ export interface SystemPromptContext {
     priorKnowledge?: string[];
     errorPatterns?: string[];
   };
+  /** SEN/SEND categories for adaptive prompt injection */
+  senCategories?: import('../types').SENCategory[];
   /** RAG context from knowledge retrieval */
   ragContext?: string;
 }

@@ -56,7 +56,7 @@ export class SageOpenAIProvider extends BaseSageProvider {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     const systemPrompt = this.buildSystemPrompt({
       persona,
@@ -70,6 +70,7 @@ export class SageOpenAIProvider extends BaseSageProvider {
         ? { currentTopic: request.intent.entities.topic }
         : undefined,
       ragContext,
+      senCategories,
     });
 
     const openaiMessages = this.convertMessages(systemPrompt, messages);
@@ -122,7 +123,7 @@ export class SageOpenAIProvider extends BaseSageProvider {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { messages, persona, subject, level, context, topic, ragContext } = request;
+    const { messages, persona, subject, level, context, topic, ragContext, senCategories } = request;
 
     const systemPrompt = this.buildSystemPrompt({
       persona,
@@ -133,6 +134,7 @@ export class SageOpenAIProvider extends BaseSageProvider {
       organisationName: context.user?.metadata?.organisationName as string | undefined,
       capabilities: this.getCapabilities(persona, subject),
       ragContext,
+      senCategories,
     });
 
     const openaiMessages = this.convertMessages(systemPrompt, messages);

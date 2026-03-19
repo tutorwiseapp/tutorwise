@@ -382,6 +382,7 @@ export class SageOrchestrator {
       topic: intent.entities.topic,
       intent,
       ragContext: combinedContext,
+      senCategories: session.learningContext?.senCategories,
     };
 
     try {
