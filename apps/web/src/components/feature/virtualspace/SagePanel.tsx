@@ -13,7 +13,7 @@
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Brain, X, Send, Lock, ScanLine, CheckCircle2, ChevronRight, ArrowRight } from 'lucide-react';
+import { Brain, X, Send, Lock, ScanLine, CheckCircle2, ChevronRight, ArrowRight, GripVertical, RotateCcw } from 'lucide-react';
 import type { UseSageVirtualSpaceReturn, SageVirtualSpaceProfile, DrivePhase, SessionRecap } from './hooks/useSageVirtualSpace';
 import type { StuckLevel } from './hooks/useSageStuckDetector';
 
@@ -32,6 +32,12 @@ const PROFILE_BADGE: Record<SageVirtualSpaceProfile, { label: string; color: str
   wingman:  { label: 'Wingman',  color: '#d97706', bg: '#fef3c7' },
   observer: { label: 'Observer', color: '#64748b', bg: '#f1f5f9' },
 };
+
+// --- Constants ---
+
+const DEFAULT_WIDTH = 320;
+const MIN_WIDTH = 280;
+const MAX_WIDTH = 600;
 
 // --- Component ---
 
@@ -64,6 +70,8 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
   } = sage;
 
   const [inputValue, setInputValue] = useState('');
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
+  const isResizing = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -102,6 +110,30 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
     }
   }, [handleSend]);
 
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizing.current) return;
+      const delta = startX - moveEvent.clientX;
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta));
+      setPanelWidth(newWidth);
+    };
+    const onMouseUp = () => {
+      isResizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [panelWidth]);
+
   if (!isActive) return null;
 
   const badgeInfo = profile ? PROFILE_BADGE[profile] : null;
@@ -114,7 +146,7 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
         right: 0,
         top: 126,  // below the VirtualSpace header (56px) + tools strip (38px) + 16px gap
         bottom: 0,
-        width: 320,
+        width: panelWidth,
         background: 'white',
         borderLeft: '1px solid #e5e7eb',
         boxShadow: '-4px 0 20px rgba(0,0,0,0.15)',
@@ -126,6 +158,29 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
       role="complementary"
       aria-label="Sage AI tutor panel"
     >
+      {/* ── Resize handle ── */}
+      <div
+        onMouseDown={handleResizeStart}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 8,
+          cursor: 'col-resize',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1,
+          color: '#d1d5db',
+          transition: 'color 0.15s',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.color = '#006c67'; (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,108,103,0.06)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.color = '#d1d5db'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+        title="Drag to resize panel"
+      >
+        <GripVertical size={12} />
+      </div>
       <style>{`
         @keyframes sage-brain-pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
@@ -182,6 +237,31 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
           >
             {badgeInfo.label}
           </span>
+        )}
+
+        {/* Reset width button — visible only when resized */}
+        {panelWidth !== DEFAULT_WIDTH && (
+          <button
+            onClick={() => setPanelWidth(DEFAULT_WIDTH)}
+            title="Reset panel width"
+            aria-label="Reset panel width"
+            style={{
+              width: 28,
+              height: 28,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: 'transparent',
+              borderRadius: 4,
+              cursor: 'pointer',
+              color: '#6b7280',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f3f4f6'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+          >
+            <RotateCcw size={14} />
+          </button>
         )}
 
         {/* Close button */}
