@@ -147,9 +147,18 @@ export async function POST(request: NextRequest) {
     const quotaOwnerId = user.id; // Always charge the activating user in Phase 1
     const chargedTo: 'student' | 'tutor' = isTutor ? 'tutor' : 'student';
 
-    // Check rate limit for the quota owner
+    // Check rate limit for the quota owner (admins bypass for testing)
+    const { data: quotaProfile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', quotaOwnerId)
+      .single();
+
+    const isAdmin = quotaProfile?.is_admin === true;
     const subscription = await getSageSubscription(quotaOwnerId);
-    const rateLimit = await checkAIAgentRateLimit('sage', quotaOwnerId, subscription);
+    const rateLimit = isAdmin
+      ? { allowed: true, remaining: 9999, resetAt: new Date(Date.now() + 86400000), upsell: undefined }
+      : await checkAIAgentRateLimit('sage', quotaOwnerId, subscription);
 
     if (!rateLimit.allowed) {
       return NextResponse.json(

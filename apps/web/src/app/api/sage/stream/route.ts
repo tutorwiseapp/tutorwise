@@ -92,20 +92,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user profile for role
+    // Get user profile for role + admin check
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('role, display_name')
+      .select('role, display_name, is_admin')
       .eq('id', user.id)
       .single();
 
     const userRole = (profileData?.role || 'student') as UserRole;
     const persona = mapRoleToPersona(userRole);
     const userName = profileData?.display_name || undefined;
+    const isAdmin = profileData?.is_admin === true;
 
-    // Check rate limit
+    // Check rate limit (admins bypass for testing)
     const subscription = await getSageSubscription(user.id);
-    const rateLimit = await checkAIAgentRateLimit('sage', user.id, subscription);
+    const rateLimit = isAdmin
+      ? { allowed: true, remaining: 9999, resetAt: new Date(Date.now() + 86400000), tier: 'admin', limit: 9999, used: 0, error: undefined, message: undefined, upsell: undefined }
+      : await checkAIAgentRateLimit('sage', user.id, subscription);
 
     if (!rateLimit.allowed) {
       return new Response(

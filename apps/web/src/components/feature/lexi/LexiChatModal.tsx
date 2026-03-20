@@ -89,6 +89,7 @@ export default function LexiChatModal({
   const [proactiveMessage, setProactiveMessage] = useState<ProactiveMessage | null>(null);
   const [dismissedMessages, setDismissedMessages] = useState<Set<string>>(new Set());
   const pathname = usePathname();
+  const isVirtualSpace = pathname?.startsWith('/virtualspace/');
 
   // Handle client-side mounting for portal
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function LexiChatModal({
 
   // Proactive message triggers based on current path
   useEffect(() => {
-    if (!isMounted || isOpen) return;
+    if (!isMounted || isOpen || isVirtualSpace) return;
 
     const trigger = PROACTIVE_TRIGGERS.find(t => {
       if (typeof t.pathMatch === 'string') {
@@ -225,7 +226,7 @@ export default function LexiChatModal({
 
       {/* Floating action button */}
       <button
-        className={`${styles.fab} ${isOpen ? styles.fabActive : ''}`}
+        className={isVirtualSpace ? styles.fabMuted : `${styles.fab} ${isOpen ? styles.fabActive : ''}`}
         onClick={handleToggle}
         aria-label={isOpen ? 'Close Lexi chat' : 'Open Lexi chat'}
         aria-expanded={isOpen}

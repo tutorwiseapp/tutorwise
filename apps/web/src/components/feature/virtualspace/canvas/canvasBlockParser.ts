@@ -37,11 +37,16 @@ export function parseCanvasBlocks(content: string): {
         console.warn('[SageCanvas] Block missing "type":', match[1].slice(0, 80));
         continue;
       }
+      // Failure mode 4: LLM emits flat JSON (props at top level, no "props" key).
+      // Promote all non-"type" keys into props automatically.
+      let props: Record<string, unknown>;
       if (!parsed.props || typeof parsed.props !== 'object' || Array.isArray(parsed.props)) {
-        console.warn('[SageCanvas] Block missing "props":', match[1].slice(0, 80));
-        continue;
+        const { type: _type, ...rest } = parsed as Record<string, unknown>;
+        props = rest;
+      } else {
+        props = parsed.props as Record<string, unknown>;
       }
-      shapes.push({ type: parsed.type, props: parsed.props as Record<string, unknown> });
+      shapes.push({ type: parsed.type, props });
     } catch {
       console.warn('[SageCanvas] Could not parse canvas block JSON:', match[1].slice(0, 80));
     }

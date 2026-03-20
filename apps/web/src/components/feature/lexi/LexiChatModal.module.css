@@ -149,6 +149,28 @@
   pointer-events: auto; /* Re-enable pointer events for the button */
 }
 
+/* Muted FAB — used on VirtualSpace where Sage is the primary AI CTA */
+.fabMuted {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.125rem;
+  background: hsl(204, 16%, 94%);
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  pointer-events: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.fabMuted:hover {
+  background: hsl(204, 16%, 89%);
+  color: #374151;
+}
+
 .fab:hover {
   background: var(--color-primary-dark, #005550);
 }

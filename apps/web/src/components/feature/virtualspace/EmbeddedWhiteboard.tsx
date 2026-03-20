@@ -6,11 +6,15 @@
  *                       additional shapes (Protractor, UnitCircle, Pythagoras, VennDiagram,
  *                       PieChart, BarChart, BohrAtom, Timeline, Embed),
  *                       SessionProvider context for real-time session state.
+ * Updated: 2026-03-20 - Moved Sage trigger into canvas as "Ask Sage AI Tutor" CTA button;
+ *                       SagePanel starts below the tools strip (top: 126px).
  */
 
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback } from 'react';
+import type { Editor } from '@tldraw/editor';
+import { Brain } from 'lucide-react';
 import { Tldraw, defaultShapeUtils, DefaultStylePanel } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
 import { useChannel, ChannelProvider } from 'ably/react';
@@ -35,6 +39,15 @@ import { BarChartShapeUtil } from './whiteboard/shapes/BarChartShapeUtil';
 import { BohrAtomShapeUtil } from './whiteboard/shapes/BohrAtomShapeUtil';
 import { TimelineShapeUtil } from './whiteboard/shapes/TimelineShapeUtil';
 import { EmbedShapeUtil } from './whiteboard/shapes/EmbedShapeUtil';
+import { LineShapeUtil } from './whiteboard/shapes/LineShapeUtil';
+import { FunctionPlotShapeUtil } from './whiteboard/shapes/FunctionPlotShapeUtil';
+import { TrigTriangleShapeUtil } from './whiteboard/shapes/TrigTriangleShapeUtil';
+import { ProbabilityTreeShapeUtil } from './whiteboard/shapes/ProbabilityTreeShapeUtil';
+import { ChemicalEquationShapeUtil } from './whiteboard/shapes/ChemicalEquationShapeUtil';
+import { WaveDiagramShapeUtil } from './whiteboard/shapes/WaveDiagramShapeUtil';
+import { ForcesDiagramShapeUtil } from './whiteboard/shapes/ForcesDiagramShapeUtil';
+import { FlowchartShapeUtil } from './whiteboard/shapes/FlowchartShapeUtil';
+import { StoryMountainShapeUtil } from './whiteboard/shapes/StoryMountainShapeUtil';
 
 // Session context + controls
 import { SessionProvider } from './whiteboard/session/SessionContext';
@@ -46,9 +59,18 @@ import { ReactionOverlay } from './whiteboard/session/ReactionOverlay';
 // Subject tools panel
 import { SubjectToolsPanel } from './whiteboard/panels/SubjectToolsPanel';
 
-// Sage canvas writer — stamps shapes requested by Sage onto the tldraw canvas
-import { SageCanvasWriter } from './canvas/SageCanvasWriter';
+// Sage canvas writer — snapshot + erase tracking. Stamping is done via editorRef + onMount.
+import { SageCanvasWriter, stampShapesOnEditor } from './canvas/SageCanvasWriter';
 import type { SageCanvasShapeSpec } from './canvas/canvasBlockParser';
+
+// ── Sage profile colours (stable module-level constant) ────────────────────
+
+const SAGE_PROFILE_BG: Record<string, string> = {
+  tutor:    '#006c67',
+  copilot:  '#7c3aed',
+  wingman:  '#d97706',
+  observer: '#64748b',
+};
 
 // ── All custom shape utils (stable module-level array) ─────────────────────
 
@@ -70,6 +92,16 @@ const CUSTOM_SHAPE_UTILS = [
   BohrAtomShapeUtil,
   TimelineShapeUtil,
   EmbedShapeUtil,
+  LineShapeUtil,
+  // Educational shape utilities (batch 2)
+  FunctionPlotShapeUtil,
+  TrigTriangleShapeUtil,
+  ProbabilityTreeShapeUtil,
+  ChemicalEquationShapeUtil,
+  WaveDiagramShapeUtil,
+  ForcesDiagramShapeUtil,
+  FlowchartShapeUtil,
+  StoryMountainShapeUtil,
 ];
 
 // ── CollapsibleStylePanel ──────────────────────────────────────────────────
@@ -116,17 +148,25 @@ function CollapsibleStylePanel() {
 
 function InFrontOfTheCanvas({
   displayName,
-  pendingShapes,
-  onShapesStamped,
   onRegisterSnapshot,
   onErasePattern,
+  onAskSage,
+  isSageActive,
+  isSageActivating,
+  sageProfile,
 }: {
   displayName: string;
-  pendingShapes: SageCanvasShapeSpec[];
-  onShapesStamped: () => void;
   onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
   onErasePattern?: (clusterCount: number) => void;
+  onAskSage?: () => void;
+  isSageActive?: boolean;
+  isSageActivating?: boolean;
+  sageProfile?: string;
 }) {
+  const activeBg = isSageActive && sageProfile
+    ? (SAGE_PROFILE_BG[sageProfile] ?? '#006c67')
+    : '#006c67';
+
   return (
     <>
       <SubjectToolsPanel />
@@ -134,11 +174,44 @@ function InFrontOfTheCanvas({
       <TimerWidget />
       <ReactionOverlay />
       <SageCanvasWriter
-        pendingShapes={pendingShapes}
-        onShapesStamped={onShapesStamped}
         onRegisterSnapshot={onRegisterSnapshot}
         onErasePattern={onErasePattern}
       />
+
+      {/* Ask Sage AI Tutor — matches subject tools panel style */}
+      {onAskSage && (
+        <button
+          onClick={onAskSage}
+          disabled={isSageActivating}
+          aria-label={isSageActive ? 'Close Sage panel' : 'Ask Sage AI Tutor'}
+          style={{
+            position: 'absolute',
+            top: 16,
+            right: 539,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '0 10px',
+            height: 38,
+            background: isSageActive ? activeBg : 'hsl(204, 16%, 94%)',
+            color: isSageActive ? 'white' : activeBg,
+            border: 'none',
+            borderRadius: 9,
+            cursor: isSageActivating ? 'wait' : 'pointer',
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: 'system-ui, sans-serif',
+            opacity: isSageActivating ? 0.75 : 1,
+            transition: 'background 0.15s, color 0.15s, opacity 0.15s',
+            zIndex: 500,
+            whiteSpace: 'nowrap',
+            pointerEvents: 'all',
+          }}
+        >
+          <Brain size={14} />
+          {isSageActivating ? 'Starting...' : 'Ask Sage AI Tutor'}
+        </button>
+      )}
     </>
   );
 }
@@ -160,6 +233,14 @@ interface EmbeddedWhiteboardProps {
   onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
   /** Called when a repeated-erase pattern is detected in the student's work */
   onErasePattern?: (clusterCount: number) => void;
+  /** Called when the Ask Sage CTA is tapped (toggles Sage on/off) */
+  onAskSage?: () => void;
+  /** Whether Sage is currently active */
+  isSageActive?: boolean;
+  /** Whether Sage is in the process of activating */
+  isSageActivating?: boolean;
+  /** Active Sage profile — controls button colour */
+  sageProfile?: string;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -172,14 +253,32 @@ export function EmbeddedWhiteboard({
   onShapesStamped,
   onRegisterSnapshot,
   onErasePattern,
+  onAskSage,
+  isSageActive,
+  isSageActivating,
+  sageProfile,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
+  // Stable editor ref — populated via onMount so stamping doesn't go through tldraw slots
+  const editorRef = useRef<Editor | null>(null);
+  const handleEditorMount = useCallback((editor: Editor) => {
+    editorRef.current = editor;
+    return () => { editorRef.current = null; };
+  }, []);
   // Initialize tldraw store with all custom shape utils
   if (!storeRef.current) {
     storeRef.current = createTLStore({
       shapeUtils: [...defaultShapeUtils, ...CUSTOM_SHAPE_UTILS],
     });
   }
+
+  // Stamp pending shapes via editor ref — runs outside tldraw slot lifecycle
+  // so tldrawComponents stays stable and InFrontOfTheCanvas never remounts for stamping.
+  useEffect(() => {
+    if (!pendingShapes?.length || !editorRef.current) return;
+    stampShapesOnEditor(editorRef.current, pendingShapes);
+    onShapesStamped?.();
+  }, [pendingShapes, onShapesStamped]);
 
   // Ably real-time sync — draw channel (separate from session channel)
   const { channel } = useChannel(channelName, (message) => {
@@ -206,8 +305,8 @@ export function EmbeddedWhiteboard({
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const records = [
-          ...Object.values(changes.added),
-          ...Object.values(changes.updated).map(([, to]) => to),
+          ...Object.values(changes.added ?? {}),
+          ...Object.values(changes.updated ?? {}).map(([, to]) => to),
         ];
         if (records.length > 0) {
           channel.publish('draw', { records });
@@ -234,20 +333,23 @@ export function EmbeddedWhiteboard({
   // Session channel name for chat/timer/reactions (distinct from draw channel)
   const sessionChannelName = `session:${channelName}`;
 
-  // Stable component map — only recreates when displayName or pendingShapes/onShapesStamped change
+  // Stable component map — pendingShapes/onShapesStamped removed from deps.
+  // Stamping is now done via editorRef+useEffect above, not through tldraw slots.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => (
       <InFrontOfTheCanvas
         displayName={displayName}
-        pendingShapes={pendingShapes ?? []}
-        onShapesStamped={onShapesStamped ?? (() => {})}
         onRegisterSnapshot={onRegisterSnapshot}
         onErasePattern={onErasePattern}
+        onAskSage={onAskSage}
+        isSageActive={isSageActive}
+        isSageActivating={isSageActivating}
+        sageProfile={sageProfile}
       />
     ),
     StylePanel: CollapsibleStylePanel,
-  }), [displayName, pendingShapes, onShapesStamped, onRegisterSnapshot, onErasePattern]);
+  }), [displayName, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>
@@ -255,7 +357,9 @@ export function EmbeddedWhiteboard({
         <div style={{ position: 'fixed', top: '56px', right: 0, bottom: 0, left: 0 }}>
           <Tldraw
             store={storeRef.current}
+            shapeUtils={CUSTOM_SHAPE_UTILS}
             components={tldrawComponents}
+            onMount={handleEditorMount}
             autoFocus
           />
           <SessionControlsPanel />

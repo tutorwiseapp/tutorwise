@@ -112,7 +112,7 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
       style={{
         position: 'fixed',
         right: 0,
-        top: 56,   // below the VirtualSpace header
+        top: 126,  // below the VirtualSpace header (56px) + tools strip (38px) + 16px gap
         bottom: 0,
         width: 320,
         background: 'white',

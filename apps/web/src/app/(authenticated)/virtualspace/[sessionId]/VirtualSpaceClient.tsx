@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, Brain } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
@@ -29,7 +29,6 @@ import { useLessonPlan } from '@/components/feature/virtualspace/hooks/useLesson
 import { LessonPlanDrawer } from '@/components/feature/virtualspace/LessonPlanDrawer';
 import { useMultiStudentIntelligence } from '@/components/feature/virtualspace/hooks/useMultiStudentIntelligence';
 import type { SageCanvasShapeSpec } from '@/components/feature/virtualspace/canvas/canvasBlockParser';
-import { BookOpen } from 'lucide-react';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -388,50 +387,6 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             Start Google Meet
           </button>
 
-          {/* Sage button — colour reflects active profile (design §13.1) */}
-          {(() => {
-            // Profile-specific background colours
-            const PROFILE_BG: Record<string, string> = {
-              tutor:    '#006c67',
-              copilot:  '#7c3aed',
-              wingman:  '#d97706',
-              observer: '#64748b',
-            };
-            const activeBg = sage.isActive && sage.profile
-              ? (PROFILE_BG[sage.profile] ?? '#006c67')
-              : '#006c67';
-            const profileLabel = sage.isActive && sage.profile && sage.profile !== 'tutor'
-              ? ` (${sage.profile.charAt(0).toUpperCase() + sage.profile.slice(1)})`
-              : '';
-            return (
-              <button
-                onClick={sage.isActive ? sage.deactivate : sage.activate}
-                disabled={sage.isActivating}
-                title={sage.isActive ? 'Close Sage panel' : 'Activate Sage AI tutor'}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '0 14px',
-                  height: 36,
-                  background: sage.isActive ? activeBg : 'white',
-                  border: `1px solid ${sage.isActive ? activeBg : '#d1d5db'}`,
-                  borderRadius: 6,
-                  color: sage.isActive ? 'white' : '#374151',
-                  fontSize: '0.8125rem',
-                  fontWeight: 600,
-                  cursor: sage.isActivating ? 'wait' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  opacity: sage.isActivating ? 0.7 : 1,
-                }}
-              >
-                <Brain size={16} />
-                {sage.isActivating ? 'Starting...' : `Sage${profileLabel}`}
-              </button>
-            );
-          })()}
-
           {/* Phase 7: Load Plan button — tutor only */}
           {isTutor && sage.isActive && (
             <button
@@ -482,6 +437,10 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           onShapesStamped={clearPendingShapes}
           onRegisterSnapshot={registerSnapshotFn}
           onErasePattern={handleErasePattern}
+          onAskSage={sage.isActive ? sage.deactivate : sage.activate}
+          isSageActive={sage.isActive}
+          isSageActivating={sage.isActivating}
+          sageProfile={sage.profile ?? undefined}
         />
       </ChannelProvider>
 

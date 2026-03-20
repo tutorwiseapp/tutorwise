@@ -15,19 +15,20 @@
  */
 
 import { useEffect, useCallback } from 'react';
+import type { Editor } from '@tldraw/editor';
 import { useEditor } from '@tldraw/editor';
 import { createShapeId } from 'tldraw';
 import type { SageCanvasShapeSpec } from './canvasBlockParser';
 
 // ── Shape defaults registry ────────────────────────────────────────────────
 
-const SHAPE_DEFAULTS: Record<string, Record<string, unknown>> = {
+export const SHAPE_DEFAULTS: Record<string, Record<string, unknown>> = {
   // Phase 2 original set
   'math-equation':  { w: 280, h: 80,  latex: '',        displayMode: true,  color: '#1e293b', fontSize: 16 },
   'annotation':     { w: 240, h: 80,  text: '',         annotationType: 'comment', label: '', showBadge: false, highlightColor: '#fef08a' },
   'number-line':    { w: 320, h: 80,  min: 0, max: 10,  step: 1, showMinorTicks: true, markers: [], label: '', showFractions: false },
   'fraction-bar':   { w: 200, h: 60,  numerator: 1,     denominator: 2, showLabel: true, color: '#3b82f6', bgColor: '#e0f2fe', showEquivalent: false },
-  'venn-diagram':   { w: 380, h: 260, leftLabel: 'A',   rightLabel: 'B', leftContent: [], centerContent: [], rightContent: [], title: '', leftColor: '#3b82f6', rightColor: '#ef4444' },
+  'venn-diagram':   { w: 380, h: 260, leftLabel: 'A',   rightLabel: 'B', leftContent: '', centerContent: '', rightContent: '', title: '', leftColor: '#3b82f6', rightColor: '#ef4444' },
   'graph-axes':     { w: 320, h: 320, xMin: -10, xMax: 10, yMin: -10, yMax: 10, showGrid: true, showLabels: true, gridColor: '#e2e8f0', axisColor: '#1e293b', labelColor: '#475569' },
   'pie-chart':      { w: 280, h: 280, segments: '[]',   title: '', showLabels: true, showPercentages: true },
   'bar-chart':      { w: 320, h: 280, bars: '[]',       title: '', xLabel: '', yLabel: '', showValues: true, showGrid: true },
@@ -36,18 +37,40 @@ const SHAPE_DEFAULTS: Record<string, Record<string, unknown>> = {
   // P2-3: Added to align with design §7.2 supported list
   'protractor':     { w: 200, h: 120, angle: 45, showDegrees: true, color: '#3b82f6' },
   'unit-circle':    { w: 320, h: 320, showAngles: true, showCoordinates: true, highlightAngle: 0 },
-  'text-block':     { w: 260, h: 80,  text: '',         fontSize: 14, color: '#1e293b', bold: false },
+  // 'text-block' removed — no TextBlockShapeUtil; use 'annotation' for text content
+  'line-segment':   { w: 320, h: 260, x1: 0, y1: 0, x2: 4, y2: 3, label: '', color: '#3b82f6', showGrid: true, labelA: 'A', labelB: 'B' },
+  // Built-in tldraw geo shapes — style props (color, fill, dash) come from tldraw defaults
+  'geo':            { w: 120, h: 120, geo: 'rectangle' },
+  // Physics / science shapes
+  'circuit-component': { w: 80, h: 48, componentType: 'resistor', label: 'R1', color: '#1e293b', showLabel: true, value: '100Ω' },
+  'bohr-atom':      { w: 240, h: 240, symbol: 'C', protons: 6, neutrons: 6, shells: JSON.stringify([2,4]), color: '#2563eb', showNumbers: true },
+  'wave-diagram':   { w: 360, h: 200, amplitude: 40, frequency: 2, showLabels: true, color: '#3b82f6', label: '', waveType: 'transverse' },
+  'forces-diagram': { w: 280, h: 280, bodyLabel: 'Object', forces: JSON.stringify([{label:'Weight (W)',direction:180,magnitude:80,color:'#ef4444'},{label:'Normal (N)',direction:0,magnitude:80,color:'#3b82f6'}]) },
+  'chemical-equation': { w: 360, h: 140, reactants: '2H₂ + O₂', products: '2H₂O', arrow: '→', conditions: '', isReversible: false, showStateSymbols: true },
+  // Maths shapes
+  'function-plot':  { w: 320, h: 320, xMin: -5, xMax: 5, yMin: -5, yMax: 5, showGrid: true, xLabel: 'x', yLabel: 'y', functions: JSON.stringify([{type:'linear',params:[1,0],color:'#3b82f6',label:'y = x'}]) },
+  'trig-triangle':  { w: 280, h: 240, angleDeg: 30, hypotenuse: 5, showSOHCAHTOA: true, color: '#3b82f6', showWorking: true },
+  'probability-tree': { w: 380, h: 280, title: 'Probability Tree', branches: JSON.stringify([{label:'H',prob:'1/2',color:'#3b82f6',children:[{label:'H',prob:'1/2',color:'#3b82f6'},{label:'T',prob:'1/2',color:'#ef4444'}]},{label:'T',prob:'1/2',color:'#ef4444',children:[{label:'H',prob:'1/2',color:'#3b82f6'},{label:'T',prob:'1/2',color:'#ef4444'}]}]) },
+  // English / literacy shapes
+  'flowchart':      { w: 260, h: 340, steps: JSON.stringify([{type:'start',label:'Start'},{type:'process',label:'Get input'},{type:'decision',label:'Valid?'},{type:'process',label:'Process data'},{type:'end',label:'End'}]) },
+  'story-mountain': { w: 380, h: 280, title: '', stages: JSON.stringify([{label:'Exposition',description:'Characters & setting introduced'},{label:'Rising Action',description:'Conflict develops'},{label:'Climax',description:'Turning point / peak tension'},{label:'Falling Action',description:'Tension resolves'},{label:'Resolution',description:'New normal established'}]) },
 };
 
 // Fields tldraw expects as JSON strings but the LLM may provide as arrays
-const ARRAY_FIELDS: Record<string, string[]> = {
-  'pie-chart': ['segments'],
-  'bar-chart': ['bars'],
-  'timeline':  ['events'],
-  'venn-diagram': ['leftContent', 'centerContent', 'rightContent'],
+export const ARRAY_FIELDS: Record<string, string[]> = {
+  'pie-chart':        ['segments'],
+  'bar-chart':        ['bars'],
+  'timeline':         ['events'],
+  'function-plot':    ['functions'],
+  'probability-tree': ['branches'],
+  'flowchart':        ['steps'],
+  'story-mountain':   ['stages'],
+  'forces-diagram':   ['forces'],
+  'bohr-atom':        ['shells'],
+  // venn-diagram: leftContent/centerContent/rightContent are plain strings (textarea), not JSON arrays
 };
 
-function coerceArrayField(value: unknown): string {
+export function coerceArrayField(value: unknown): string {
   if (typeof value === 'string') return value;
   if (Array.isArray(value)) return JSON.stringify(value);
   return '[]';
@@ -63,8 +86,8 @@ function coerceArrayField(value: unknown): string {
  *   2. Otherwise → place to the right of the rightmost student shape, vertically centred.
  *   3. If that falls outside the viewport right edge → place below all content, horizontally centred.
  */
-function findStampPosition(
-  editor: ReturnType<typeof useEditor>,
+export function findStampPosition(
+  editor: Editor,
   shapeW: number,
   shapeH: number,
   index: number,
@@ -116,57 +139,21 @@ function findStampPosition(
 // Design §13.3: dashed teal border + "Sage" label + opacity 0.85.
 // Implemented as a companion geo frame + text shape alongside the main shape.
 
-function buildAttributionShapes(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+// tldraw v4: built-in shape types (geo, text) use richText instead of text string.
+// Attribution shapes are omitted entirely to avoid v4 schema validation failures
+// that would kill the entire createShapes batch. Main shape uses opacity 0.85 + sageAttributed meta.
+export function buildAttributionShapes(
+  _x: number,
+  _y: number,
+  _w: number,
+  _h: number,
 ): Array<Record<string, unknown>> {
-  const PAD = 4;
-  return [
-    // Dashed teal frame
-    {
-      id: createShapeId(),
-      type: 'geo',
-      x: x - PAD,
-      y: y - PAD,
-      opacity: 0.6,
-      props: {
-        geo: 'rectangle',
-        w: w + PAD * 2,
-        h: h + PAD * 2,
-        color: 'green', // closest tldraw named colour to Sage teal (#006c67)
-        fill: 'none',
-        dash: 'dashed',
-        size: 's',
-        text: '',
-      },
-      meta: { sageFrame: true },
-    },
-    // "↗ Sage" label — placed at top-left corner of the frame
-    {
-      id: createShapeId(),
-      type: 'text',
-      x: x - PAD,
-      y: y - PAD - 18,
-      opacity: 0.7,
-      props: {
-        text: '↗ Sage',
-        color: 'green',
-        size: 'xs',
-        font: 'sans',
-        textAlign: 'start',
-        w: 60,
-        autoSize: true,
-      },
-      meta: { sageLabel: true },
-    },
-  ];
+  return [];
 }
 
 // ── Main shape builder ─────────────────────────────────────────────────────
 
-function buildShape(
+export function buildShape(
   spec: SageCanvasShapeSpec,
   x: number,
   y: number,
@@ -207,9 +194,57 @@ const ERASE_CLUSTER_THRESHOLD = 2; // ≥2 deletions in same region → pattern 
 
 // ── Component ─────────────────────────────────────────────────────────────
 
+// ── Stamp helper (called from EmbeddedWhiteboard via editor ref) ───────────
+
+/**
+ * Stamp an array of SageCanvasShapeSpec onto the canvas.
+ * Called from EmbeddedWhiteboard's useEffect via the editor ref captured in onMount.
+ * This avoids the tldrawComponents remount issue caused by pendingShapes in useMemo deps.
+ */
+export function stampShapesOnEditor(
+  editor: Editor,
+  pendingShapes: SageCanvasShapeSpec[],
+): void {
+  if (!pendingShapes.length) return;
+
+  const shapesToCreate: Parameters<typeof editor.createShapes>[0] = [];
+
+  for (let i = 0; i < pendingShapes.length; i++) {
+    const spec = pendingShapes[i];
+    const defaults = SHAPE_DEFAULTS[spec.type] ?? {};
+    const w = (spec.props.w as number | undefined) ?? (defaults.w as number | undefined) ?? 280;
+    const h = (spec.props.h as number | undefined) ?? (defaults.h as number | undefined) ?? 80;
+
+    const { x, y } = findStampPosition(editor, w, h, i);
+
+    try {
+      const mainShape = buildShape(spec, x, y);
+      shapesToCreate.push(mainShape as any);
+    } catch (err) {
+      console.warn('[SageCanvasWriter] Failed to build shape:', spec.type, err);
+    }
+  }
+
+  if (shapesToCreate.length > 0) {
+    try {
+      editor.createShapes(shapesToCreate);
+      const stampedIds = shapesToCreate
+        .map(s => (s as { id: string }).id)
+        .filter(Boolean);
+      if (stampedIds.length > 0) {
+        editor.select(...(stampedIds as any[]));
+        editor.zoomToSelection();
+        editor.selectNone();
+      }
+    } catch (err) {
+      console.warn('[SageCanvasWriter] Failed to stamp shapes:', err);
+    }
+  }
+}
+
+// ── Component ─────────────────────────────────────────────────────────────
+
 interface SageCanvasWriterProps {
-  pendingShapes: SageCanvasShapeSpec[];
-  onShapesStamped: () => void;
   /** Called once on mount with a function that captures the viewport as a base64 PNG. */
   onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
   /** Called when a repeated-erase pattern is detected. Arg = cluster count. */
@@ -217,8 +252,6 @@ interface SageCanvasWriterProps {
 }
 
 export function SageCanvasWriter({
-  pendingShapes,
-  onShapesStamped,
   onRegisterSnapshot,
   onErasePattern,
 }: SageCanvasWriterProps) {
@@ -301,41 +334,6 @@ export function SageCanvasWriter({
 
     return () => unsubscribe();
   }, [editor, handleErasePattern, onErasePattern]);
-
-  // Stamp pending shapes with spatial intelligence + attribution
-  useEffect(() => {
-    if (!pendingShapes.length) return;
-
-    const shapesToCreate: Parameters<typeof editor.createShapes>[0] = [];
-
-    for (let i = 0; i < pendingShapes.length; i++) {
-      const spec = pendingShapes[i];
-      const defaults = SHAPE_DEFAULTS[spec.type] ?? {};
-      const w = (spec.props.w as number | undefined) ?? (defaults.w as number | undefined) ?? 280;
-      const h = (spec.props.h as number | undefined) ?? (defaults.h as number | undefined) ?? 80;
-
-      const { x, y } = findStampPosition(editor, w, h, i);
-
-      try {
-        const mainShape = buildShape(spec, x, y);
-        const attributionShapes = buildAttributionShapes(x, y, w, h);
-        shapesToCreate.push(mainShape as any, ...attributionShapes.map(s => s as any));
-      } catch (err) {
-        console.warn('[SageCanvasWriter] Failed to build shape:', spec.type, err);
-      }
-    }
-
-    if (shapesToCreate.length > 0) {
-      try {
-        editor.createShapes(shapesToCreate);
-      } catch (err) {
-        console.warn('[SageCanvasWriter] Failed to stamp shapes:', err);
-      }
-    }
-
-    onShapesStamped();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingShapes]);
 
   return null;
 }
