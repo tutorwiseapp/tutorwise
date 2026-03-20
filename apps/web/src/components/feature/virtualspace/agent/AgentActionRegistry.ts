@@ -54,6 +54,7 @@ export const AgentActionRegistry = {
       '- At most one [CANVAS] block per response.',
       '- Valid JSON only — no comments, no trailing commas.',
       '- For array fields (segments, bars, events, steps, forces, stages, branches, functions, shells): value must be a JSON array serialised as a string.',
+      '- Shape selection rule: use subject-specific shapes (math-equation, graph-axes, line-segment, etc.) ONLY when the student is working on that subject. For generic drawing requests ("draw a box", "draw a line", "draw an arrow"), use the "geo" type.',
       '',
       ...snippets,
     ].join('\n');

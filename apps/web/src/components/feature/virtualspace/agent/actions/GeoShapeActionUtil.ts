@@ -26,8 +26,10 @@ export class GeoShapeActionUtil extends BaseActionUtil<typeof geoSchema> {
   buildPromptSnippet(): string {
     return [
       '## General shapes (use "geo" type, set "geo" prop)',
+      '- Use these for generic drawing requests ("draw a line", "draw an arrow", "draw a box") — NOT subject-specific shapes.',
+      '- Arrow/line (generic "draw a line from A to B"): {"type":"geo","props":{"geo":"arrow-right","w":200,"h":60}}',
       '- Circle/oval: {"type":"geo","props":{"geo":"ellipse","w":120,"h":120}}',
-      '- Rectangle: {"type":"geo","props":{"geo":"rectangle","w":150,"h":100}}',
+      '- Rectangle/box: {"type":"geo","props":{"geo":"rectangle","w":150,"h":100}}',
       '- Triangle: {"type":"geo","props":{"geo":"triangle","w":120,"h":120}}',
       '- Diamond: {"type":"geo","props":{"geo":"diamond","w":120,"h":100}}',
       '- Star: {"type":"geo","props":{"geo":"star","w":120,"h":120}}',

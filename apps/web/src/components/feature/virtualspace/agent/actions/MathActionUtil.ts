@@ -218,7 +218,7 @@ export class MathActionUtil extends BaseActionUtil<z.ZodDefault<z.ZodRecord<z.Zo
 
   buildPromptSnippet(): string {
     return [
-      '## Maths diagrams',
+      '## Maths diagrams (use ONLY for maths/science problems — NOT for generic drawing requests)',
       '- "math-equation": {"latex":"x^2+y^2=r^2","displayMode":true}',
       '- "number-line": {"min":0,"max":10,"step":1,"label":""}',
       '- "fraction-bar": {"numerator":3,"denominator":4,"showLabel":true}',
@@ -226,7 +226,7 @@ export class MathActionUtil extends BaseActionUtil<z.ZodDefault<z.ZodRecord<z.Zo
       '- "pythagoras": {"sideA":3,"sideB":4,"showWorking":true}',
       '- "protractor": {"angle":45,"showLabels":true}',
       '- "unit-circle": {"angleDeg":45,"showCoords":true,"showSpecialAngles":true}',
-      '- "line-segment": {"x1":0,"y1":0,"x2":4,"y2":3,"labelA":"A","labelB":"B","showGrid":true,"color":"#3b82f6"}',
+      '- "line-segment" (coordinate geometry only — distance/midpoint problems, NOT generic drawing): {"x1":0,"y1":0,"x2":4,"y2":3,"labelA":"A","labelB":"B","showGrid":true,"color":"#3b82f6"}',
       '- "function-plot": {"xMin":-5,"xMax":5,"yMin":-5,"yMax":5,"functions":"[{\\"type\\":\\"linear\\",\\"params\\":[1,0],\\"color\\":\\"#3b82f6\\",\\"label\\":\\"y = x\\"}]"}',
       '- "trig-triangle": {"angleDeg":30,"hypotenuse":5,"showSOHCAHTOA":true,"showWorking":true}',
     ].join('\n');
