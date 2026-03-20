@@ -455,22 +455,6 @@ function getMathsTools(): ToolItem[] {
       },
     },
     {
-      id: 'sci-calculator',
-      label: 'Calculator',
-      icon: '⌨',
-      description: 'Built-in scientific calculator',
-      onClick: (editor) => {
-        const { x, y } = getViewportCenter(editor);
-        stampShape(editor, {
-          id: createShapeId(),
-          type: 'sci-calculator',
-          x: x - 130,
-          y: y - 190,
-          props: { w: 260, h: 380 },
-        });
-      },
-    },
-    {
       id: 'fraction-calculator',
       label: 'Fractions',
       icon: '½',
