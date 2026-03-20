@@ -570,7 +570,7 @@ function BuildAgentChat({ agent }: { agent: { id: string; name: string; role: st
     <div className={styles.chatPanel} style={{ width: panelWidth }}>
       {/* Resize handle — left edge */}
       <div className={styles.chatResizeHandle} onMouseDown={handleResizeStart} title="Drag to resize">
-        <GripVertical size={12} />
+        <GripVertical size={20} style={{ transform: 'scaleY(2)', transformOrigin: 'center' }} />
       </div>
       <div className={styles.chatPanelHeader}>
         <Brain size={14} style={{ color: 'var(--color-primary, #006C67)', flexShrink: 0 }} />

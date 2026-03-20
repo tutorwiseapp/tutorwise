@@ -192,7 +192,7 @@ export function ChatPanel({ nodes, edges, onApplyMutation }: ChatPanelProps) {
         onMouseDown={handleResizeStart}
         title="Drag to resize"
       >
-        <GripVertical size={12} />
+        <GripVertical size={20} style={{ transform: 'scaleY(2)', transformOrigin: 'center' }} />
       </div>
       <div className={styles.header}>
         <div className={styles.headerTitle}>
