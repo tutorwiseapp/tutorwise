@@ -29,7 +29,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Bot, Building2, Users, ChevronRight, ChevronDown, ChevronUp, RefreshCw, Save, Maximize2, Minimize2, FilePlus, FileDown, FileUp, Undo2, Redo2, Trash2, Copy, Settings2, MessageSquare, Play, Brain, Send } from 'lucide-react';
+import { Bot, Building2, Users, ChevronRight, ChevronDown, ChevronUp, RefreshCw, Save, Maximize2, Minimize2, FilePlus, FileDown, FileUp, Undo2, Redo2, Trash2, Copy, Settings2, MessageSquare, Play, Brain, Send, GripVertical, RotateCcw } from 'lucide-react';
 import dagre from '@dagrejs/dagre';
 import { FIT_VIEW_OPTIONS, BACKGROUND_CONFIG, CanvasContextMenu } from '@/components/feature/canvas';
 import type { ContextMenuItem } from '@/components/feature/canvas';
@@ -463,6 +463,10 @@ interface AgentRunRecord {
   duration_ms: number | null;
 }
 
+const CHAT_DEFAULT_WIDTH = 300;
+const CHAT_MIN_WIDTH = 260;
+const CHAT_MAX_WIDTH = 600;
+
 function BuildAgentChat({ agent }: { agent: { id: string; name: string; role: string; description: string | null } }) {
   const qc = useQueryClient();
   const [messages, setMessages] = useState<BuildChatMessage[]>([]);
@@ -470,6 +474,8 @@ function BuildAgentChat({ agent }: { agent: { id: string; name: string; role: st
   const [streaming, setStreaming] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [expandedRun, setExpandedRun] = useState<string | null>(null);
+  const [panelWidth, setPanelWidth] = useState(CHAT_DEFAULT_WIDTH);
+  const isResizing = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -536,12 +542,50 @@ function BuildAgentChat({ agent }: { agent: { id: string; name: string; role: st
     }
   }, [agent.id, input, streaming, qc]);
 
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizing.current) return;
+      const delta = startX - moveEvent.clientX;
+      const newWidth = Math.min(CHAT_MAX_WIDTH, Math.max(CHAT_MIN_WIDTH, startWidth + delta));
+      setPanelWidth(newWidth);
+    };
+    const onMouseUp = () => {
+      isResizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [panelWidth]);
+
   return (
-    <div className={styles.chatPanel}>
+    <div className={styles.chatPanel} style={{ width: panelWidth }}>
+      {/* Resize handle — left edge */}
+      <div className={styles.chatResizeHandle} onMouseDown={handleResizeStart} title="Drag to resize">
+        <GripVertical size={12} />
+      </div>
       <div className={styles.chatPanelHeader}>
         <Brain size={14} style={{ color: 'var(--color-primary, #006C67)', flexShrink: 0 }} />
         <span className={styles.chatPanelTitle}>{agent.name}</span>
         <span className={styles.chatPanelRole}>{agent.role}</span>
+        {panelWidth !== CHAT_DEFAULT_WIDTH && (
+          <button
+            className={styles.chatResetBtn}
+            onClick={() => setPanelWidth(CHAT_DEFAULT_WIDTH)}
+            title="Reset panel width"
+            aria-label="Reset panel width"
+          >
+            <RotateCcw size={12} />
+          </button>
+        )}
       </div>
       <div className={styles.chatPanelMessages}>
         {messages.length === 0 && (

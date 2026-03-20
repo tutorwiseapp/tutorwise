@@ -643,10 +643,10 @@
 .liveError    { background: #ef4444; }
 .liveOnline   { background: #10b981; }
 
-/* ── Chat panel — right rail, 300px (matches properties drawer) ──────────────── */
+/* ── Chat panel — right rail, resizable (default 300px) ──────────────────────── */
 
 .chatPanel {
-  width: 300px;
+  width: 300px; /* overridden by inline style when resized */
   height: 100%;
   background: var(--color-white, #fff);
   border-left: 1px solid var(--color-border, #e5e7eb);
@@ -654,6 +654,47 @@
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
+}
+
+.chatResizeHandle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  color: #d1d5db;
+  transition: color 0.15s, background 0.15s;
+}
+
+.chatResizeHandle:hover {
+  color: var(--color-primary, #006c67);
+  background: rgba(0, 108, 103, 0.06);
+}
+
+.chatResetBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text-tertiary, #9ca3af);
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.chatResetBtn:hover {
+  background: var(--color-surface-hover, #f3f4f6);
+  color: var(--color-text-primary, #111827);
 }
 
 .chatPanelHeader {
