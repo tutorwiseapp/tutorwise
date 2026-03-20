@@ -7,6 +7,11 @@
  *   2. [CANVAS] block inside a markdown code fence (treated as literal text)
  *   3. Multiple blocks where the second could be lost if not handled (all extracted in order)
  *
+ * The raw SageCanvasShapeSpec output feeds into stampShapesOnEditor →
+ * AgentActionRegistry, which validates and fills prop defaults via typed
+ * Zod schemas (one ActionUtil per subject group). The flat-JSON promotion
+ * fallback below handles the case where the LLM omits the "props" wrapper.
+ *
  * @module components/feature/virtualspace/canvas/canvasBlockParser
  */
 

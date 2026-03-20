@@ -212,7 +212,7 @@ function FractionBarComponent({ shape }: { shape: FractionBarShape }) {
   );
 }
 
-export class FractionBarShapeUtil extends ShapeUtil<any> {
+export class FractionBarShapeUtil extends ShapeUtil<FractionBarShape> {
   static override type = 'fraction-bar' as const;
 
   static override props = {

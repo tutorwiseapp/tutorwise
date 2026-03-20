@@ -136,7 +136,7 @@ function VennComponent({ shape }: { shape: VennDiagramShape }) {
   );
 }
 
-export class VennDiagramShapeUtil extends ShapeUtil<any> {
+export class VennDiagramShapeUtil extends ShapeUtil<VennDiagramShape> {
   static override type = 'venn-diagram' as const;
 
   static override props = {

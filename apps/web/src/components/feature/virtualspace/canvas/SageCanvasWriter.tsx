@@ -200,6 +200,10 @@ const ERASE_CLUSTER_THRESHOLD = 2; // ≥2 deletions in same region → pattern 
  * Stamp an array of SageCanvasShapeSpec onto the canvas.
  * Called from EmbeddedWhiteboard's useEffect via the editor ref captured in onMount.
  * This avoids the tldrawComponents remount issue caused by pendingShapes in useMemo deps.
+ *
+ * Phase 2 refactor: delegates to AgentActionRegistry so each shape type is
+ * validated by its own typed ActionUtil (Zod schema + defaults).
+ * The registry is lazy-loaded to avoid circular import issues.
  */
 export function stampShapesOnEditor(
   editor: Editor,
@@ -207,39 +211,18 @@ export function stampShapesOnEditor(
 ): void {
   if (!pendingShapes.length) return;
 
-  const shapesToCreate: Parameters<typeof editor.createShapes>[0] = [];
-
-  for (let i = 0; i < pendingShapes.length; i++) {
-    const spec = pendingShapes[i];
-    const defaults = SHAPE_DEFAULTS[spec.type] ?? {};
-    const w = (spec.props.w as number | undefined) ?? (defaults.w as number | undefined) ?? 280;
-    const h = (spec.props.h as number | undefined) ?? (defaults.h as number | undefined) ?? 80;
-
-    const { x, y } = findStampPosition(editor, w, h, i);
-
-    try {
-      const mainShape = buildShape(spec, x, y);
-      shapesToCreate.push(mainShape as any);
-    } catch (err) {
-      console.warn('[SageCanvasWriter] Failed to build shape:', spec.type, err);
-    }
-  }
-
-  if (shapesToCreate.length > 0) {
-    try {
-      editor.createShapes(shapesToCreate);
-      const stampedIds = shapesToCreate
-        .map(s => (s as { id: string }).id)
-        .filter(Boolean);
-      if (stampedIds.length > 0) {
-        editor.select(...(stampedIds as any[]));
-        editor.zoomToSelection();
-        editor.selectNone();
-      }
-    } catch (err) {
-      console.warn('[SageCanvasWriter] Failed to stamp shapes:', err);
-    }
-  }
+  // Delegate to AgentActionRegistry — async import avoids circular deps between
+  // canvas/ and agent/ directories. Fire-and-forget is intentional here; the
+  // editor createShapes calls are idempotent and the caller doesn't need to await.
+  import('../agent/AgentActionRegistry').then(({ AgentActionRegistry }) => {
+    pendingShapes.forEach((spec, i) => {
+      AgentActionRegistry.applySpec(editor, spec, i).catch(err => {
+        console.warn('[SageCanvasWriter] Failed to apply spec:', spec.type, err);
+      });
+    });
+  }).catch(err => {
+    console.warn('[SageCanvasWriter] Failed to load AgentActionRegistry:', err);
+  });
 }
 
 // ── Component ─────────────────────────────────────────────────────────────

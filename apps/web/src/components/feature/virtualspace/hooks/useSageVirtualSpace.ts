@@ -92,12 +92,57 @@ export interface UseSageVirtualSpaceReturn {
   deactivate: () => void;
   sendMessage: (text: string) => Promise<void>;
   observe: (trigger?: 'manual' | 'stuck') => Promise<void>;
+  cancel: () => void;
   clearError: () => void;
   clearRecap: () => void;
 }
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ── Shared SSE parser ───────────────────────────────────────────────────────
+// Mirrors the useTldrawAgent pattern: handles raw SSE frame buffering so each
+// caller only needs to implement event-level handlers.
+
+interface SSEHandlers {
+  onChunk: (content: string) => void;
+  onDone: (data: Record<string, unknown>) => void;
+  onError: (data: Record<string, unknown>) => void;
+}
+
+async function readSSEStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  handlers: SSEHandlers,
+): Promise<void> {
+  const decoder = new TextDecoder();
+  let sseBuffer = '';
+  let eventType = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    sseBuffer += decoder.decode(value, { stream: true });
+    const lines = sseBuffer.split('\n');
+    sseBuffer = lines.pop() ?? '';
+
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        eventType = line.slice(7).trim();
+      } else if (line.startsWith('data: ')) {
+        let data: Record<string, unknown>;
+        try {
+          data = JSON.parse(line.slice(6)) as Record<string, unknown>;
+        } catch {
+          continue;
+        }
+        if (eventType === 'chunk')      handlers.onChunk((data.content as string) ?? '');
+        else if (eventType === 'done')  handlers.onDone(data);
+        else if (eventType === 'error') handlers.onError(data);
+      }
+    }
+  }
 }
 
 // Thresholds for profile computation (design §4)
@@ -133,6 +178,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
   const dispatchShapeRef   = useRef(dispatchShape);
   const profileRef         = useRef<SageVirtualSpaceProfile | null>(null);
   const activatedAtRef     = useRef<number | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Phase 4: presence/activity tracking
   const tutorLastActiveRef    = useRef<number | null>(null); // timestamp of tutor's last draw msg
@@ -511,9 +557,14 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
         .slice(-10)
         .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const response = await fetch('/api/sage/virtualspace/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           sageSessionId: currentSageSessionId,
           message: trimmedText,
@@ -529,90 +580,59 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response body');
 
-      const decoder = new TextDecoder();
-      let sseBuffer = '';
-      let eventType = '';
       let rawBuffer = '';
       let dispatchedCount = 0;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        sseBuffer += decoder.decode(value, { stream: true });
-        const lines = sseBuffer.split('\n');
-        sseBuffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            eventType = line.slice(7).trim();
-          } else if (line.startsWith('data: ')) {
-            let data: Record<string, unknown>;
-            try {
-              data = JSON.parse(line.slice(6)) as Record<string, unknown>;
-            } catch {
-              continue;
-            }
-
-            switch (eventType) {
-              case 'chunk': {
-                rawBuffer += (data.content as string) ?? '';
-                const { displayText, shapes } = parseStreamingBuffer(rawBuffer);
-                for (let i = dispatchedCount; i < shapes.length; i++) {
-                  dispatchShapeRef.current?.(shapes[i]);
-                  logCanvasEvent('stamp', { shapeType: shapes[i].type });
-                }
-                dispatchedCount = shapes.length;
-                updateMessages(prev =>
-                  prev.map(m =>
-                    m.id === streamingMsgId
-                      ? { ...m, content: displayText, isLoading: true }
-                      : m
-                  )
-                );
-                break;
-              }
-
-              case 'done': {
-                const { displayText: finalDisplay, shapes: finalShapes } =
-                  parseStreamingBuffer(rawBuffer);
-                for (let i = dispatchedCount; i < finalShapes.length; i++) {
-                  dispatchShapeRef.current?.(finalShapes[i]);
-                  logCanvasEvent('stamp', { shapeType: finalShapes[i].type });
-                }
-
-                const rl = data.rateLimit as { remaining?: number } | undefined;
-                if (rl?.remaining !== undefined) {
-                  setQuotaRemaining(rl.remaining);
-                  if (rl.remaining <= 0) setQuotaExhausted(true);
-                }
-
-                updateMessages(prev =>
-                  prev.map(m =>
-                    m.id === streamingMsgId
-                      ? {
-                          ...m,
-                          id: (data.id as string) ?? streamingMsgId,
-                          content: finalDisplay,
-                          timestamp: new Date((data.timestamp as string) ?? Date.now()),
-                          isLoading: false,
-                        }
-                      : m
-                  )
-                );
-                break;
-              }
-
-              case 'error':
-                if (!(data.recoverable as boolean)) {
-                  throw new Error((data.error as string) ?? 'Stream error');
-                }
-                break;
-            }
-          }
+      const dispatchNew = (shapes: SageCanvasShapeSpec[]) => {
+        for (let i = dispatchedCount; i < shapes.length; i++) {
+          dispatchShapeRef.current?.(shapes[i]);
+          logCanvasEvent('stamp', { shapeType: shapes[i].type });
         }
-      }
+        dispatchedCount = shapes.length;
+      };
+
+      await readSSEStream(reader, {
+        onChunk: (content) => {
+          rawBuffer += content;
+          const { displayText, shapes } = parseStreamingBuffer(rawBuffer);
+          dispatchNew(shapes);
+          updateMessages(prev =>
+            prev.map(m => m.id === streamingMsgId ? { ...m, content: displayText, isLoading: true } : m)
+          );
+        },
+        onDone: (data) => {
+          const { displayText: finalDisplay, shapes: finalShapes } = parseStreamingBuffer(rawBuffer);
+          dispatchNew(finalShapes);
+          const rl = data.rateLimit as { remaining?: number } | undefined;
+          if (rl?.remaining !== undefined) {
+            setQuotaRemaining(rl.remaining);
+            if (rl.remaining <= 0) setQuotaExhausted(true);
+          }
+          updateMessages(prev =>
+            prev.map(m =>
+              m.id === streamingMsgId
+                ? {
+                    ...m,
+                    id: (data.id as string) ?? streamingMsgId,
+                    content: finalDisplay,
+                    timestamp: new Date((data.timestamp as string) ?? Date.now()),
+                    isLoading: false,
+                  }
+                : m
+            )
+          );
+        },
+        onError: (data) => {
+          if (!(data.recoverable as boolean)) {
+            throw new Error((data.error as string) ?? 'Stream error');
+          }
+        },
+      });
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        updateMessages(prev => prev.filter(m => m.id !== streamingMsgId));
+        return;
+      }
       const msg = err instanceof Error ? err.message : 'Failed to send message';
       setError(msg);
       updateMessages(prev => prev.filter(m => m.id !== streamingMsgId));
@@ -651,9 +671,14 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     logCanvasEvent('observe', { observationTrigger: trigger });
 
     try {
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const response = await fetch('/api/sage/virtualspace/observe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           sageSessionId: currentSageSessionId,
           canvasSnapshot,
@@ -669,74 +694,52 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response body');
 
-      const decoder = new TextDecoder();
-      let sseBuffer = '';
-      let eventType = '';
       let rawBuffer = '';
       let dispatchedCount = 0;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        sseBuffer += decoder.decode(value, { stream: true });
-        const lines = sseBuffer.split('\n');
-        sseBuffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            eventType = line.slice(7).trim();
-          } else if (line.startsWith('data: ')) {
-            let data: Record<string, unknown>;
-            try {
-              data = JSON.parse(line.slice(6)) as Record<string, unknown>;
-            } catch {
-              continue;
-            }
-
-            if (eventType === 'chunk') {
-              rawBuffer += (data.content as string) ?? '';
-              const { displayText, shapes } = parseStreamingBuffer(rawBuffer);
-              for (let i = dispatchedCount; i < shapes.length; i++) {
-                dispatchShapeRef.current?.(shapes[i]);
-                logCanvasEvent('stamp', { shapeType: shapes[i].type });
-              }
-              dispatchedCount = shapes.length;
-              updateMessages(prev =>
-                prev.map(m =>
-                  m.id === observingMsgId
-                    ? { ...m, content: displayText, isLoading: true }
-                    : m
-                )
-              );
-            } else if (eventType === 'done') {
-              const { displayText: finalDisplay, shapes: finalShapes } =
-                parseStreamingBuffer(rawBuffer);
-              for (let i = dispatchedCount; i < finalShapes.length; i++) {
-                dispatchShapeRef.current?.(finalShapes[i]);
-                logCanvasEvent('stamp', { shapeType: finalShapes[i].type });
-              }
-
-              updateMessages(prev =>
-                prev.map(m =>
-                  m.id === observingMsgId
-                    ? {
-                        ...m,
-                        id: (data.id as string) ?? observingMsgId,
-                        content: finalDisplay,
-                        timestamp: new Date((data.timestamp as string) ?? Date.now()),
-                        isLoading: false,
-                      }
-                    : m
-                )
-              );
-            } else if (eventType === 'error') {
-              throw new Error((data.error as string) ?? 'Observation stream error');
-            }
-          }
+      const dispatchNew = (shapes: SageCanvasShapeSpec[]) => {
+        for (let i = dispatchedCount; i < shapes.length; i++) {
+          dispatchShapeRef.current?.(shapes[i]);
+          logCanvasEvent('stamp', { shapeType: shapes[i].type });
         }
-      }
+        dispatchedCount = shapes.length;
+      };
+
+      await readSSEStream(reader, {
+        onChunk: (content) => {
+          rawBuffer += content;
+          const { displayText, shapes } = parseStreamingBuffer(rawBuffer);
+          dispatchNew(shapes);
+          updateMessages(prev =>
+            prev.map(m => m.id === observingMsgId ? { ...m, content: displayText, isLoading: true } : m)
+          );
+        },
+        onDone: (data) => {
+          const { displayText: finalDisplay, shapes: finalShapes } = parseStreamingBuffer(rawBuffer);
+          dispatchNew(finalShapes);
+          updateMessages(prev =>
+            prev.map(m =>
+              m.id === observingMsgId
+                ? {
+                    ...m,
+                    id: (data.id as string) ?? observingMsgId,
+                    content: finalDisplay,
+                    timestamp: new Date((data.timestamp as string) ?? Date.now()),
+                    isLoading: false,
+                  }
+                : m
+            )
+          );
+        },
+        onError: (data) => {
+          throw new Error((data.error as string) ?? 'Observation stream error');
+        },
+      });
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        updateMessages(prev => prev.filter(m => m.id !== observingMsgId));
+        return;
+      }
       const msg = err instanceof Error ? err.message : 'Canvas observation failed';
       setError(msg);
       updateMessages(prev => prev.filter(m => m.id !== observingMsgId));
@@ -744,6 +747,11 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       setIsObserving(false);
     }
   }, [isStreaming, isObserving, quotaExhausted, snapshotFnRef, updateMessages, logCanvasEvent]);
+
+  const cancel = useCallback((): void => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+  }, []);
 
   const clearError  = useCallback((): void => { setError(null); }, []);
   const clearRecap  = useCallback((): void => { setSessionRecap(null); }, []);
@@ -765,6 +773,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
     deactivate,
     sendMessage,
     observe,
+    cancel,
     clearError,
     clearRecap,
   };

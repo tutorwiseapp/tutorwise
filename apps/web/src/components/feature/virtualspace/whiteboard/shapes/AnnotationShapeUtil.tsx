@@ -177,7 +177,7 @@ function AnnotationComponent({ shape }: { shape: AnnotationShape }) {
   );
 }
 
-export class AnnotationShapeUtil extends ShapeUtil<any> {
+export class AnnotationShapeUtil extends ShapeUtil<AnnotationShape> {
   static override type = 'annotation' as const;
 
   static override props = {

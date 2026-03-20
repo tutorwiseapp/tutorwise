@@ -84,7 +84,7 @@ function LongitudinalWave({ w, h, frequency, color, showLabels, label }: {
   );
 }
 
-export class WaveDiagramShapeUtil extends ShapeUtil<any> {
+export class WaveDiagramShapeUtil extends ShapeUtil<WaveDiagramShape> {
   static override type = 'wave-diagram' as const;
   static override props = {
     w: T.number, h: T.number, amplitude: T.number, frequency: T.number,

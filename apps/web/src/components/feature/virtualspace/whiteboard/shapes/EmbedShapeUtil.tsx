@@ -125,7 +125,7 @@ function EmbedComponent({ shape }: { shape: EmbedShape }) {
   );
 }
 
-export class EmbedShapeUtil extends ShapeUtil<any> {
+export class EmbedShapeUtil extends ShapeUtil<EmbedShape> {
   static override type = 'tool-embed' as const;
 
   static override props = {

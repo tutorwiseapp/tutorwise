@@ -64,7 +64,7 @@ function ForcesDiagramSvg({ shape }: { shape: ForcesDiagramShape }) {
   );
 }
 
-export class ForcesDiagramShapeUtil extends ShapeUtil<any> {
+export class ForcesDiagramShapeUtil extends ShapeUtil<ForcesDiagramShape> {
   static override type = 'forces-diagram' as const;
   static override props = { w: T.number, h: T.number, bodyLabel: T.string, forces: T.string };
   override isAspectRatioLocked = () => false;

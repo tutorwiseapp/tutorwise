@@ -65,7 +65,7 @@ function ProbabilityTreeSvg({ shape }: { shape: ProbabilityTreeShape }) {
   );
 }
 
-export class ProbabilityTreeShapeUtil extends ShapeUtil<any> {
+export class ProbabilityTreeShapeUtil extends ShapeUtil<ProbabilityTreeShape> {
   static override type = 'probability-tree' as const;
   static override props = { w: T.number, h: T.number, title: T.string, branches: T.string };
   override isAspectRatioLocked = () => false;

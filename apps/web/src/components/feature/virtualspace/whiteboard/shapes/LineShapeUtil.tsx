@@ -127,7 +127,7 @@ function LineSegmentSvg({ shape }: { shape: LineShape }) {
   );
 }
 
-export class LineShapeUtil extends ShapeUtil<any> {
+export class LineShapeUtil extends ShapeUtil<LineShape> {
   static override type = 'line-segment' as const;
 
   static override props = {

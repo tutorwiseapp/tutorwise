@@ -84,7 +84,7 @@ function FunctionPlotSvg({ shape }: { shape: FunctionPlotShape }) {
   );
 }
 
-export class FunctionPlotShapeUtil extends ShapeUtil<any> {
+export class FunctionPlotShapeUtil extends ShapeUtil<FunctionPlotShape> {
   static override type = 'function-plot' as const;
   static override props = {
     w: T.number, h: T.number, xMin: T.number, xMax: T.number,
