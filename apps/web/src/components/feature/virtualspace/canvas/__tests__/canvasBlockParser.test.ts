@@ -39,22 +39,37 @@ describe('parseCanvasBlocks', () => {
       expect(shapes).toHaveLength(0);
     });
 
-    it('drops block with no "props" field', () => {
+    it('auto-promotes top-level keys into props when "props" key is absent', () => {
+      // LLM sometimes emits flat JSON: {"type":"graph-axes","xMin":-1,"xMax":5}
+      // Parser promotes the non-type keys into props rather than dropping the block.
+      const content = '[CANVAS]{"type":"graph-axes","xMin":-1,"xMax":5}[/CANVAS]';
+      const { shapes } = parseCanvasBlocks(content);
+      expect(shapes).toHaveLength(1);
+      expect(shapes[0].type).toBe('graph-axes');
+      expect(shapes[0].props).toMatchObject({ xMin: -1, xMax: 5 });
+    });
+
+    it('auto-promotes when "props" key is present but uses wrong name (e.g. "data")', () => {
+      // Treats the non-type keys as props rather than discarding the block.
       const content = '[CANVAS]{"type":"arrow","data":{"color":"red"}}[/CANVAS]';
       const { shapes } = parseCanvasBlocks(content);
-      expect(shapes).toHaveLength(0);
+      expect(shapes).toHaveLength(1);
+      expect(shapes[0].type).toBe('arrow');
     });
 
-    it('drops block where "props" is an array instead of object', () => {
+    it('auto-promotes when "props" is an array instead of object', () => {
       const content = '[CANVAS]{"type":"arrow","props":["color","red"]}[/CANVAS]';
       const { shapes } = parseCanvasBlocks(content);
-      expect(shapes).toHaveLength(0);
+      expect(shapes).toHaveLength(1);
+      expect(shapes[0].type).toBe('arrow');
     });
 
-    it('drops block where "props" is a primitive', () => {
+    it('auto-promotes when "props" is a primitive (e.g. true)', () => {
+      // Parser treats the non-type keys as props rather than discarding.
       const content = '[CANVAS]{"type":"arrow","props":true}[/CANVAS]';
       const { shapes } = parseCanvasBlocks(content);
-      expect(shapes).toHaveLength(0);
+      expect(shapes).toHaveLength(1);
+      expect(shapes[0].type).toBe('arrow');
     });
 
     it('drops block with invalid JSON', () => {
