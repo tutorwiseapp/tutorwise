@@ -6,7 +6,7 @@
 
 'use client';
 
-import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer } from '@tldraw/editor';
+import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
 import { useState, useCallback } from 'react';
 
 export type ScientificCalculatorShape = TLBaseShape<
@@ -80,6 +80,8 @@ function CalcButton({
 }
 
 function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorShape }) {
+  const editor = useEditor();
+  const isEditing = editor.getEditingShapeId() === shape.id;
   const { w, h } = shape.props;
   const [expr, setExpr] = useState('');
   const [result, setResult] = useState('');
@@ -106,10 +108,16 @@ function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorS
   return (
     <HTMLContainer>
       <div
-        style={{ width: w, height: h, background: '#0f172a', borderRadius: 10, overflow: 'hidden', userSelect: 'none', display: 'flex', flexDirection: 'column' }}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
+        style={{ width: w, height: h, background: '#0f172a', borderRadius: 10, overflow: 'hidden', userSelect: 'none', display: 'flex', flexDirection: 'column', position: 'relative' }}
+        onPointerDown={(e) => { if (isEditing) e.stopPropagation(); }}
+        onClick={(e) => { if (isEditing) e.stopPropagation(); }}
       >
+        {/* Activation overlay — shown when not editing */}
+        {!isEditing && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.5)', borderRadius: 10, cursor: 'pointer' }}>
+            <span style={{ color: 'white', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
+          </div>
+        )}
         {/* Header */}
         <div style={{ background: '#1e293b', padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600, fontFamily: 'system-ui' }}>SCIENTIFIC CALCULATOR</span>
@@ -198,7 +206,7 @@ export class ScientificCalculatorShapeUtil extends ShapeUtil<any> {
 
   override isAspectRatioLocked = () => false;
   override canResize = () => true;
-  override canEdit = () => false;
+  override canEdit = () => true;
 
   getDefaultProps(): ScientificCalculatorShape['props'] {
     return { w: 260, h: 380 };

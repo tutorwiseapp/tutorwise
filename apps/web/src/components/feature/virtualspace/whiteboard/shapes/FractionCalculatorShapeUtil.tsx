@@ -6,7 +6,7 @@
 
 'use client';
 
-import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer } from '@tldraw/editor';
+import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
 import { useState, useCallback } from 'react';
 
 export type FractionCalculatorShape = TLBaseShape<
@@ -88,6 +88,8 @@ function FractionInput({ num, den, onNum, onDen }: {
 }
 
 function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape }) {
+  const editor = useEditor();
+  const isEditing = editor.getEditingShapeId() === shape.id;
   const { w, h } = shape.props;
   const [n1, setN1] = useState('1');
   const [d1, setD1] = useState('2');
@@ -109,10 +111,15 @@ function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape
   return (
     <HTMLContainer>
       <div
-        style={{ width: w, height: h, background: 'white', border: '2px solid #7c3aed', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', userSelect: 'none', fontFamily: 'system-ui' }}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
+        style={{ width: w, height: h, background: 'white', border: '2px solid #7c3aed', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', userSelect: 'none', fontFamily: 'system-ui', position: 'relative' }}
+        onPointerDown={(e) => { if (isEditing) e.stopPropagation(); }}
+        onClick={(e) => { if (isEditing) e.stopPropagation(); }}
       >
+        {!isEditing && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(124,58,237,0.15)', borderRadius: 8, cursor: 'pointer' }}>
+            <span style={{ color: '#7c3aed', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
+          </div>
+        )}
         {/* Header */}
         <div style={{ background: '#7c3aed', padding: '6px 12px' }}>
           <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>Fraction Calculator</span>
@@ -194,7 +201,7 @@ export class FractionCalculatorShapeUtil extends ShapeUtil<any> {
 
   override isAspectRatioLocked = () => false;
   override canResize = () => true;
-  override canEdit = () => false;
+  override canEdit = () => true;
 
   getDefaultProps(): FractionCalculatorShape['props'] {
     return { w: 280, h: 320 };

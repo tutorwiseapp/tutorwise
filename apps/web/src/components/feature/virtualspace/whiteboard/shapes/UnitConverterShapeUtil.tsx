@@ -5,7 +5,7 @@
 
 'use client';
 
-import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer } from '@tldraw/editor';
+import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
 import { useState, useCallback } from 'react';
 
 export type UnitConverterShape = TLBaseShape<
@@ -99,6 +99,8 @@ function convert(fromKey: string, toKey: string, cat: Category, value: number): 
 }
 
 function UnitConverterComponent({ shape }: { shape: UnitConverterShape }) {
+  const editor = useEditor();
+  const isEditing = editor.getEditingShapeId() === shape.id;
   const { w, h } = shape.props;
   const [cat, setCat] = useState<Category>('length');
   const units = CATEGORIES[cat].units;
@@ -169,10 +171,15 @@ function UnitConverterComponent({ shape }: { shape: UnitConverterShape }) {
   return (
     <HTMLContainer>
       <div
-        style={{ width: w, height: h, background: 'white', border: '2px solid #2563eb', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none', fontFamily: 'system-ui' }}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
+        style={{ width: w, height: h, background: 'white', border: '2px solid #2563eb', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none', fontFamily: 'system-ui', position: 'relative' }}
+        onPointerDown={(e) => { if (isEditing) e.stopPropagation(); }}
+        onClick={(e) => { if (isEditing) e.stopPropagation(); }}
       >
+        {!isEditing && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(37,99,235,0.12)', borderRadius: 8, cursor: 'pointer' }}>
+            <span style={{ color: '#2563eb', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
+          </div>
+        )}
         {/* Header */}
         <div style={{ background: '#2563eb', padding: '6px 12px' }}>
           <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>Unit Converter</span>
@@ -274,7 +281,7 @@ export class UnitConverterShapeUtil extends ShapeUtil<any> {
 
   override isAspectRatioLocked = () => false;
   override canResize = () => true;
-  override canEdit = () => false;
+  override canEdit = () => true;
 
   getDefaultProps(): UnitConverterShape['props'] {
     return { w: 280, h: 300 };
