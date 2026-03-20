@@ -179,7 +179,7 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.color = '#6b7280'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
         title="Drag to resize panel"
       >
-        <GripVertical size={20} />
+        <GripVertical size={20} style={{ transform: 'scaleY(2)', transformOrigin: 'center' }} />
       </div>
       <style>{`
         @keyframes sage-brain-pulse {
