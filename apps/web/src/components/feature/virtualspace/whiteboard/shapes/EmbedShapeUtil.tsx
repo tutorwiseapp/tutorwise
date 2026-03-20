@@ -22,8 +22,11 @@ export type EmbedShape = TLBaseShape<
 
 const PRESETS = [
   { label: 'Desmos Graphing', url: 'https://www.desmos.com/calculator' },
+  { label: 'Desmos Scientific', url: 'https://www.desmos.com/scientific' },
   { label: 'Desmos Geometry', url: 'https://www.desmos.com/geometry' },
   { label: 'GeoGebra Graphing', url: 'https://www.geogebra.org/graphing' },
+  { label: 'GeoGebra Algebra', url: 'https://www.geogebra.org/calculator' },
+  { label: 'GeoGebra CAS', url: 'https://www.geogebra.org/cas' },
   { label: 'GeoGebra Geometry', url: 'https://www.geogebra.org/geometry' },
   { label: 'GeoGebra 3D', url: 'https://www.geogebra.org/3d' },
 ];

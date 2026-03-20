@@ -416,6 +416,140 @@ function getMathsTools(): ToolItem[] {
         editor.setEditingShape(id);
       },
     },
+    {
+      id: 'desmos-scientific',
+      label: 'Scientific Calc',
+      icon: '🔬',
+      description: 'Desmos scientific calculator',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        const id = createShapeId();
+        create(editor, {
+          id,
+          type: 'tool-embed',
+          x: x - 200,
+          y: y - 150,
+          props: { w: 400, h: 320, url: 'https://www.desmos.com/scientific', label: 'Desmos Scientific' },
+        });
+        editor.setSelectedShapes([id]);
+        editor.setEditingShape(id);
+      },
+    },
+    {
+      id: 'geogebra-cas',
+      label: 'GeoGebra CAS',
+      icon: 'Σ',
+      description: 'GeoGebra computer algebra system',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        const id = createShapeId();
+        create(editor, {
+          id,
+          type: 'tool-embed',
+          x: x - 240,
+          y: y - 180,
+          props: { w: 480, h: 360, url: 'https://www.geogebra.org/cas', label: 'GeoGebra CAS' },
+        });
+        editor.setSelectedShapes([id]);
+        editor.setEditingShape(id);
+      },
+    },
+    {
+      id: 'sci-calculator',
+      label: 'Calculator',
+      icon: '⌨',
+      description: 'Built-in scientific calculator',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'sci-calculator',
+          x: x - 130,
+          y: y - 190,
+          props: { w: 260, h: 380 },
+        });
+      },
+    },
+    {
+      id: 'fraction-calculator',
+      label: 'Fractions',
+      icon: '½',
+      description: 'Fraction calculator with simplification',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'fraction-calculator',
+          x: x - 140,
+          y: y - 160,
+          props: { w: 280, h: 320 },
+        });
+      },
+    },
+    {
+      id: 'unit-converter',
+      label: 'Units',
+      icon: '⇄',
+      description: 'Unit converter (length, mass, temperature…)',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'unit-converter',
+          x: x - 140,
+          y: y - 150,
+          props: { w: 280, h: 300 },
+        });
+      },
+    },
+    {
+      id: 'ruler',
+      label: 'Ruler',
+      icon: '📏',
+      description: 'Ruler with cm/in markings',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'ruler',
+          x: x - 170,
+          y: y - 22,
+          props: { w: 340, h: 44, color: '#1e293b', unit: 'cm' },
+        });
+      },
+    },
+    {
+      id: 'compass',
+      label: 'Compass',
+      icon: '⊙',
+      description: 'Drawing compass with adjustable radius',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'compass',
+          x: x - 120,
+          y: y - 120,
+          props: { w: 240, h: 240, radius: 100, color: '#0369a1', showRadius: true },
+        });
+      },
+    },
+    {
+      id: 'angle-measurer',
+      label: 'Angle',
+      icon: '∠',
+      description: 'Interactive angle measurer',
+      onClick: (editor) => {
+        const { x, y } = getViewportCenter(editor);
+        stampShape(editor, {
+          id: createShapeId(),
+          type: 'angle-measurer',
+          x: x - 120,
+          y: y - 120,
+          props: { w: 240, h: 240, angle1: 30, angle2: 100, color: '#7c3aed', armLength: 100 },
+        });
+      },
+    },
   ];
 }
 

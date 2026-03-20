@@ -48,6 +48,12 @@ import { WaveDiagramShapeUtil } from './whiteboard/shapes/WaveDiagramShapeUtil';
 import { ForcesDiagramShapeUtil } from './whiteboard/shapes/ForcesDiagramShapeUtil';
 import { FlowchartShapeUtil } from './whiteboard/shapes/FlowchartShapeUtil';
 import { StoryMountainShapeUtil } from './whiteboard/shapes/StoryMountainShapeUtil';
+import { ScientificCalculatorShapeUtil } from './whiteboard/shapes/ScientificCalculatorShapeUtil';
+import { FractionCalculatorShapeUtil } from './whiteboard/shapes/FractionCalculatorShapeUtil';
+import { UnitConverterShapeUtil } from './whiteboard/shapes/UnitConverterShapeUtil';
+import { RulerShapeUtil } from './whiteboard/shapes/RulerShapeUtil';
+import { CompassShapeUtil } from './whiteboard/shapes/CompassShapeUtil';
+import { AngleMeasurerShapeUtil } from './whiteboard/shapes/AngleMeasurerShapeUtil';
 
 // Session context + controls
 import { SessionProvider } from './whiteboard/session/SessionContext';
@@ -102,6 +108,13 @@ const CUSTOM_SHAPE_UTILS = [
   ForcesDiagramShapeUtil,
   FlowchartShapeUtil,
   StoryMountainShapeUtil,
+  // Maths tools
+  ScientificCalculatorShapeUtil,
+  FractionCalculatorShapeUtil,
+  UnitConverterShapeUtil,
+  RulerShapeUtil,
+  CompassShapeUtil,
+  AngleMeasurerShapeUtil,
 ];
 
 // ── CollapsibleStylePanel ──────────────────────────────────────────────────
