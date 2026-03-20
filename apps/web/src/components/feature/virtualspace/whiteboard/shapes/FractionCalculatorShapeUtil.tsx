@@ -80,7 +80,7 @@ function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape
     setResult({ num: r[0], den: r[1], dec: r[0] / r[1] });
   };
 
-  const sp = (e: React.PointerEvent) => e.stopPropagation();
+  const sp = (e: React.SyntheticEvent) => e.stopPropagation();
   const INPUT: React.CSSProperties = {
     width: 52, textAlign: 'center', border: '1px solid #e2e8f0', borderRadius: 4,
     fontSize: 18, padding: '2px 4px', fontFamily: 'monospace', background: '#fff', outline: 'none',
