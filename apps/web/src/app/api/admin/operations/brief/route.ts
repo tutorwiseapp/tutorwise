@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       supabase.from('retention_platform_metrics_daily').select('*').eq('metric_date', metricDate).maybeSingle(),
       supabase.from('caas_platform_metrics_daily').select('*').eq('snapshot_date', metricDate).maybeSingle(),
       supabase.from('marketplace_platform_metrics_daily').select('*').eq('metric_date', metricDate).maybeSingle(),
-      supabase.from('seo_platform_metrics_daily').select('*').eq('metric_date', metricDate).maybeSingle(),
+      supabase.from('seo_platform_metrics_daily').select('*').eq('snapshot_date', metricDate).maybeSingle(),
       supabase.from('ai_adoption_platform_metrics_daily').select('*').eq('metric_date', metricDate).maybeSingle(),
     ]);
 
