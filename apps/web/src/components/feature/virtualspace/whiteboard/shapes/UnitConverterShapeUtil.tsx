@@ -114,13 +114,13 @@ function UnitConverterComponent({ shape }: { shape: UnitConverterShape }) {
     const el = containerRef.current;
     if (!el || !isEditing) return;
     const stop = (e: PointerEvent) => e.stopPropagation();
-    el.addEventListener('pointerdown', stop, true);
-    el.addEventListener('pointermove', stop, true);
-    el.addEventListener('pointerup', stop, true);
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
     return () => {
-      el.removeEventListener('pointerdown', stop, true);
-      el.removeEventListener('pointermove', stop, true);
-      el.removeEventListener('pointerup', stop, true);
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
     };
   }, [isEditing]);
   const [cat, setCat] = useState<Category>('length');
