@@ -74,6 +74,6 @@ export const AgentActionRegistry = {
       console.warn('[AgentActionRegistry] No util registered for type:', spec.type);
       return;
     }
-    util.applyToEditor(editor, spec, index);
+    await util.applyToEditor(editor, spec, index);
   },
 };

@@ -13,8 +13,6 @@ import { z } from 'zod';
 import type { Editor } from '@tldraw/editor';
 import { BaseActionUtil } from '../BaseActionUtil';
 import type { SageCanvasShapeSpec } from '../../canvas/canvasBlockParser';
-import { findStampPosition } from '../../canvas/SageCanvasWriter';
-import { createShapeId } from 'tldraw';
 
 const DEFAULT_STEPS = JSON.stringify([
   { type: 'start',    label: 'Start' },
@@ -49,7 +47,7 @@ export class ComputingActionUtil extends BaseActionUtil<typeof flowchartSchema> 
     }
   }
 
-  override applyToEditor(editor: Editor, spec: SageCanvasShapeSpec, index: number): void {
+  override async applyToEditor(editor: Editor, spec: SageCanvasShapeSpec, index: number): Promise<void> {
     let props: Record<string, unknown>;
     try {
       props = this.validateProps(spec.props, spec.type) as Record<string, unknown>;
@@ -59,11 +57,17 @@ export class ComputingActionUtil extends BaseActionUtil<typeof flowchartSchema> 
 
     const w = (props.w as number | undefined) ?? 260;
     const h = (props.h as number | undefined) ?? 340;
+
+    const [{ createShapeId }, { findStampPosition }] = await Promise.all([
+      import('tldraw'),
+      import('../../canvas/SageCanvasWriter'),
+    ]);
+
     const { x, y } = findStampPosition(editor, w, h, index);
 
     editor.createShapes([{
       id: createShapeId(),
-      type: spec.type as any, // custom shape types not in tldraw's built-in union
+      type: spec.type as any,
       x,
       y,
       opacity: 0.85,
