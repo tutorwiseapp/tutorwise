@@ -169,7 +169,7 @@ function PieChartComponent({ shape }: { shape: PieChartShape }) {
   );
 }
 
-export class PieChartShapeUtil extends ShapeUtil<PieChartShape> {
+export class PieChartShapeUtil extends ShapeUtil<any> {
   static override type = 'pie-chart' as const;
 
   static override props = {

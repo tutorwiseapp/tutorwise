@@ -246,7 +246,7 @@ function CircuitComponent({ shape }: { shape: CircuitShape }) {
   );
 }
 
-export class CircuitShapeUtil extends ShapeUtil<CircuitShape> {
+export class CircuitShapeUtil extends ShapeUtil<any> {
   static override type = 'circuit-component' as const;
 
   static override props = {

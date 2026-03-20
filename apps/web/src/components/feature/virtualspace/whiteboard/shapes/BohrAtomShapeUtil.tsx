@@ -177,7 +177,7 @@ function BohrAtomComponent({ shape }: { shape: BohrAtomShape }) {
   );
 }
 
-export class BohrAtomShapeUtil extends ShapeUtil<BohrAtomShape> {
+export class BohrAtomShapeUtil extends ShapeUtil<any> {
   static override type = 'bohr-atom' as const;
 
   static override props = {

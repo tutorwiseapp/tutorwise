@@ -271,7 +271,7 @@ function GraphAxesComponent({ shape }: { shape: GraphAxesShape }) {
   );
 }
 
-export class GraphAxesShapeUtil extends ShapeUtil<GraphAxesShape> {
+export class GraphAxesShapeUtil extends ShapeUtil<any> {
   static override type = 'graph-axes' as const;
 
   static override props = {

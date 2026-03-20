@@ -62,7 +62,7 @@ function TrigTriangleSvg({ shape }: { shape: TrigTriangleShape }) {
   );
 }
 
-export class TrigTriangleShapeUtil extends ShapeUtil<TrigTriangleShape> {
+export class TrigTriangleShapeUtil extends ShapeUtil<any> {
   static override type = 'trig-triangle' as const;
   static override props = {
     w: T.number, h: T.number, angleDeg: T.number, hypotenuse: T.number,

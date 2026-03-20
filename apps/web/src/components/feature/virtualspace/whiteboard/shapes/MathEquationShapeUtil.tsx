@@ -171,7 +171,7 @@ function MathEquationComponent({ shape, isEditing }: { shape: MathEquationShape;
   );
 }
 
-export class MathEquationShapeUtil extends ShapeUtil<MathEquationShape> {
+export class MathEquationShapeUtil extends ShapeUtil<any> {
   static override type = 'math-equation' as const;
 
   static override props = {

@@ -218,7 +218,7 @@ function NumberLineComponent({ shape }: { shape: NumberLineShape }) {
   );
 }
 
-export class NumberLineShapeUtil extends ShapeUtil<NumberLineShape> {
+export class NumberLineShapeUtil extends ShapeUtil<any> {
   static override type = 'number-line' as const;
 
   static override props = {

@@ -187,7 +187,7 @@ function ProtractorComponent({ shape }: { shape: ProtractorShape }) {
   );
 }
 
-export class ProtractorShapeUtil extends ShapeUtil<ProtractorShape> {
+export class ProtractorShapeUtil extends ShapeUtil<any> {
   static override type = 'protractor' as const;
 
   static override props = {

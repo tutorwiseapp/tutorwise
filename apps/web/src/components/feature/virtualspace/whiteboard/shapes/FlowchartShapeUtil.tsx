@@ -80,7 +80,7 @@ function FlowchartSvg({ shape }: { shape: FlowchartShape }) {
   );
 }
 
-export class FlowchartShapeUtil extends ShapeUtil<FlowchartShape> {
+export class FlowchartShapeUtil extends ShapeUtil<any> {
   static override type = 'flowchart' as const;
   static override props = { w: T.number, h: T.number, steps: T.string };
   override isAspectRatioLocked = () => false;

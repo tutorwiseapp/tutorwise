@@ -239,7 +239,7 @@ function UnitCircleComponent({ shape }: { shape: UnitCircleShape }) {
   );
 }
 
-export class UnitCircleShapeUtil extends ShapeUtil<UnitCircleShape> {
+export class UnitCircleShapeUtil extends ShapeUtil<any> {
   static override type = 'unit-circle' as const;
 
   static override props = {

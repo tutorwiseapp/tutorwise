@@ -178,7 +178,7 @@ function BarChartComponent({ shape }: { shape: BarChartShape }) {
   );
 }
 
-export class BarChartShapeUtil extends ShapeUtil<BarChartShape> {
+export class BarChartShapeUtil extends ShapeUtil<any> {
   static override type = 'bar-chart' as const;
 
   static override props = {

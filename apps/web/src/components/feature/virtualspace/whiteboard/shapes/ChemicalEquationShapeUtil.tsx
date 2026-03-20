@@ -42,7 +42,7 @@ function ChemicalEquationContent({ shape }: { shape: ChemicalEquationShape }) {
   );
 }
 
-export class ChemicalEquationShapeUtil extends ShapeUtil<ChemicalEquationShape> {
+export class ChemicalEquationShapeUtil extends ShapeUtil<any> {
   static override type = 'chemical-equation' as const;
   static override props = {
     w: T.number, h: T.number, reactants: T.string, products: T.string,

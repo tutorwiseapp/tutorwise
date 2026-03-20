@@ -69,7 +69,7 @@ function StoryMountainSvg({ shape }: { shape: StoryMountainShape }) {
   );
 }
 
-export class StoryMountainShapeUtil extends ShapeUtil<StoryMountainShape> {
+export class StoryMountainShapeUtil extends ShapeUtil<any> {
   static override type = 'story-mountain' as const;
   static override props = { w: T.number, h: T.number, title: T.string, stages: T.string };
   override isAspectRatioLocked = () => false;

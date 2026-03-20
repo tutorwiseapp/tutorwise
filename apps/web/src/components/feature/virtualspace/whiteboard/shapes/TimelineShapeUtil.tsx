@@ -137,7 +137,7 @@ function TimelineComponent({ shape }: { shape: TimelineShape }) {
   );
 }
 
-export class TimelineShapeUtil extends ShapeUtil<TimelineShape> {
+export class TimelineShapeUtil extends ShapeUtil<any> {
   static override type = 'timeline' as const;
 
   static override props = {

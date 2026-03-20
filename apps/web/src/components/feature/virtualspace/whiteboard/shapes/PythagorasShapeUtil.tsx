@@ -185,7 +185,7 @@ function PythagorasComponent({ shape }: { shape: PythagorasShape }) {
   );
 }
 
-export class PythagorasShapeUtil extends ShapeUtil<PythagorasShape> {
+export class PythagorasShapeUtil extends ShapeUtil<any> {
   static override type = 'pythagoras' as const;
 
   static override props = {
