@@ -6,7 +6,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export type UnitConverterShape = TLBaseShape<
   'unit-converter',
@@ -100,8 +100,29 @@ function convert(fromKey: string, toKey: string, cat: Category, value: number): 
 
 function UnitConverterComponent({ shape }: { shape: UnitConverterShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
   const { w, h } = shape.props;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => {
+      setIsEditing(editor.getEditingShapeId() === shape.id);
+    });
+  }, [editor, shape.id]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, true);
+    el.addEventListener('pointermove', stop, true);
+    el.addEventListener('pointerup', stop, true);
+    return () => {
+      el.removeEventListener('pointerdown', stop, true);
+      el.removeEventListener('pointermove', stop, true);
+      el.removeEventListener('pointerup', stop, true);
+    };
+  }, [isEditing]);
   const [cat, setCat] = useState<Category>('length');
   const units = CATEGORIES[cat].units;
   const unitKeys = Object.keys(units);
@@ -171,12 +192,14 @@ function UnitConverterComponent({ shape }: { shape: UnitConverterShape }) {
   return (
     <HTMLContainer>
       <div
+        ref={containerRef}
         style={{ width: w, height: h, background: 'white', border: '2px solid #2563eb', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none', fontFamily: 'system-ui', position: 'relative' }}
-        onPointerDown={(e) => { if (isEditing) e.stopPropagation(); }}
-        onClick={(e) => { if (isEditing) e.stopPropagation(); }}
       >
         {!isEditing && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(37,99,235,0.12)', borderRadius: 8, cursor: 'pointer' }}>
+          <div
+            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(37,99,235,0.12)', borderRadius: 8, cursor: 'pointer' }}
+            onDoubleClick={(e) => { e.stopPropagation(); editor.setEditingShape(shape.id); }}
+          >
             <span style={{ color: '#2563eb', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
           </div>
         )}

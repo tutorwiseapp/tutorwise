@@ -7,7 +7,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export type ScientificCalculatorShape = TLBaseShape<
   'sci-calculator',
@@ -81,8 +81,32 @@ function CalcButton({
 
 function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
   const { w, h } = shape.props;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Reactive edit state via store subscription (getEditingShapeId is not reactive in plain React)
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => {
+      setIsEditing(editor.getEditingShapeId() === shape.id);
+    });
+  }, [editor, shape.id]);
+
+  // When editing, add capture-phase listeners to block tldraw's overlay from intercepting events
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, true);
+    el.addEventListener('pointermove', stop, true);
+    el.addEventListener('pointerup', stop, true);
+    return () => {
+      el.removeEventListener('pointerdown', stop, true);
+      el.removeEventListener('pointermove', stop, true);
+      el.removeEventListener('pointerup', stop, true);
+    };
+  }, [isEditing]);
+
   const [expr, setExpr] = useState('');
   const [result, setResult] = useState('');
   const [useDeg, setUseDeg] = useState(true);
@@ -108,13 +132,15 @@ function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorS
   return (
     <HTMLContainer>
       <div
+        ref={containerRef}
         style={{ width: w, height: h, background: '#0f172a', borderRadius: 10, overflow: 'hidden', userSelect: 'none', display: 'flex', flexDirection: 'column', position: 'relative' }}
-        onPointerDown={(e) => { if (isEditing) e.stopPropagation(); }}
-        onClick={(e) => { if (isEditing) e.stopPropagation(); }}
       >
-        {/* Activation overlay — shown when not editing */}
+        {/* Activation overlay — shown when not editing; double-click explicitly enters edit mode */}
         {!isEditing && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.5)', borderRadius: 10, cursor: 'pointer' }}>
+          <div
+            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.5)', borderRadius: 10, cursor: 'pointer' }}
+            onDoubleClick={(e) => { e.stopPropagation(); editor.setEditingShape(shape.id); }}
+          >
             <span style={{ color: 'white', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
           </div>
         )}
