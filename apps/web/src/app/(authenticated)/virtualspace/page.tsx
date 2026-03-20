@@ -16,7 +16,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { Plus, Video, ExternalLink, Copy } from 'lucide-react';
+import { Plus, Video } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { VirtualSpaceSessionListItem } from '@/lib/virtualspace';
 import HubSidebar from '@/components/hub/sidebar/HubSidebar';
@@ -408,7 +408,6 @@ export default function VirtualSpaceListPage() {
                   size="sm"
                   onClick={() => router.push(`/virtualspace/${session.id}`)}
                 >
-                  <ExternalLink size={14} />
                   Join Session
                 </Button>
                 {session.mode === 'standalone' && session.isOwner && (
@@ -417,7 +416,6 @@ export default function VirtualSpaceListPage() {
                     size="sm"
                     onClick={(e: React.MouseEvent) => handleCopyInviteLink(session.id, e)}
                   >
-                    <Copy size={14} />
                     Copy Link
                   </Button>
                 )}

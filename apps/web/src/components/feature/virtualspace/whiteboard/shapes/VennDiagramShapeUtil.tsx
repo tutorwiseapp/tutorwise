@@ -27,7 +27,24 @@ export type VennDiagramShape = TLBaseShape<
 
 function VennComponent({ shape }: { shape: VennDiagramShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   const [vals, setVals] = useState({
     leftLabel: shape.props.leftLabel,
     rightLabel: shape.props.rightLabel,
@@ -75,7 +92,7 @@ function VennComponent({ shape }: { shape: VennDiagramShape }) {
 
   return (
     <HTMLContainer>
-      <div style={{ position: 'relative', width: w, height: h, userSelect: isEditing ? 'text' : 'none', pointerEvents: isEditing ? 'all' : undefined }}>
+      <div ref={containerRef} style={{ position: 'relative', width: w, height: h, userSelect: isEditing ? 'text' : 'none', pointerEvents: isEditing ? 'all' : undefined }}>
         {/* Title */}
         {isEditing ? (
           <input

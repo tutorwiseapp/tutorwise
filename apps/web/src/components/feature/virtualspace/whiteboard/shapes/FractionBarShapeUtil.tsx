@@ -8,7 +8,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type FractionBarShape = TLBaseShape<
   'fraction-bar',
@@ -132,6 +132,21 @@ function FractionEditor({ shape, onClose }: { shape: FractionBarShape; onClose: 
     eqNumerator: shape.props.eqNumerator,
     eqDenominator: shape.props.eqDenominator,
   });
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = popupRef.current;
+    if (!el) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, []);
 
   const apply = useCallback(() => {
     (editor as any).updateShape({
@@ -156,6 +171,7 @@ function FractionEditor({ shape, onClose }: { shape: FractionBarShape; onClose: 
 
   return (
     <div
+      ref={popupRef}
       style={{ position: 'absolute', top: 0, left: '100%', marginLeft: 8, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, width: 200, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all' }}
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -201,10 +217,27 @@ function FractionEditor({ shape, onClose }: { shape: FractionBarShape; onClose: 
 
 function FractionBarComponent({ shape }: { shape: FractionBarShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   return (
     <HTMLContainer>
-      <div style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
         <FractionBarSvg shape={shape} />
         {isEditing && <FractionEditor shape={shape} onClose={() => editor.setEditingShape(null)} />}
       </div>

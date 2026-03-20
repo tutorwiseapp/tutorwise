@@ -1,103 +1,43 @@
 /**
  * ScientificCalculatorShapeUtil
- * Interactive scientific calculator with expression display.
- * Evaluates expressions safely using Function constructor with Math context.
+ * React-based scientific calculator — uses the same edit-mode + bubble-phase
+ * event-blocking pattern as UnitConverterShapeUtil so tldraw's overlay does not
+ * intercept button clicks.  Double-click to activate.
  */
 
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-export type ScientificCalculatorShape = TLBaseShape<
-  'sci-calculator',
-  { w: number; h: number }
->;
+export type ScientificCalculatorShape = TLBaseShape<'sci-calculator', { w: number; h: number }>;
 
-// Safe expression evaluator — replaces user-facing symbols with JS equivalents
-function evalExpr(expr: string): string {
-  try {
-    const sanitized = expr
-      .replace(/×/g, '*')
-      .replace(/÷/g, '/')
-      .replace(/π/g, 'Math.PI')
-      .replace(/e(?![0-9a-zA-Z_])/g, 'Math.E')
-      .replace(/sin\(/g, 'Math.sin(')
-      .replace(/cos\(/g, 'Math.cos(')
-      .replace(/tan\(/g, 'Math.tan(')
-      .replace(/log\(/g, 'Math.log10(')
-      .replace(/ln\(/g, 'Math.log(')
-      .replace(/√\(/g, 'Math.sqrt(')
-      .replace(/\^/g, '**');
-    // Basic guard — only allow safe characters
-    if (/[a-zA-Z]/.test(sanitized.replace(/Math\.(PI|E|sin|cos|tan|log10?|log|sqrt)/g, ''))) {
-      return 'Error';
-    }
-    // eslint-disable-next-line no-new-func
-    const result = new Function('Math', `"use strict"; return (${sanitized})`)(Math);
-    if (typeof result !== 'number') return 'Error';
-    if (!isFinite(result)) return result > 0 ? '∞' : result < 0 ? '-∞' : 'NaN';
-    // Round to avoid floating point noise
-    const rounded = parseFloat(result.toPrecision(12));
-    return String(rounded);
-  } catch {
-    return 'Error';
-  }
-}
-
-function toRad(deg: number) { return (deg * Math.PI) / 180; }
-
-const BTN = {
-  base: {
-    width: 44,
-    height: 36,
-    border: 'none',
-    borderRadius: 4,
-    fontSize: 13,
-    cursor: 'pointer',
-    fontFamily: 'system-ui, sans-serif',
-    fontWeight: 500,
-  } as React.CSSProperties,
-  num: { background: '#f1f5f9', color: '#0f172a' } as React.CSSProperties,
-  op: { background: '#dbeafe', color: '#1d4ed8' } as React.CSSProperties,
-  fn: { background: '#ede9fe', color: '#7c3aed' } as React.CSSProperties,
-  eq: { background: '#7c3aed', color: 'white', width: 92 } as React.CSSProperties,
-  clr: { background: '#fee2e2', color: '#dc2626' } as React.CSSProperties,
+const BTN_BASE: React.CSSProperties = {
+  flex: 1, border: 'none', borderRadius: 4, fontSize: 11,
+  cursor: 'pointer', fontFamily: 'system-ui', fontWeight: 500,
 };
-
-function CalcButton({
-  label, style, onClick,
-}: { label: string; style: React.CSSProperties; onClick: () => void }) {
-  return (
-    <button
-      style={{ ...BTN.base, ...style }}
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
-      onPointerDown={(e) => e.stopPropagation()}
-    >
-      {label}
-    </button>
-  );
-}
+const N: React.CSSProperties = { ...BTN_BASE, background: '#f1f5f9', color: '#0f172a' };
+const O: React.CSSProperties = { ...BTN_BASE, background: '#dbeafe', color: '#1d4ed8' };
+const F: React.CSSProperties = { ...BTN_BASE, background: '#ede9fe', color: '#7c3aed' };
+const C: React.CSSProperties = { ...BTN_BASE, background: '#fee2e2', color: '#dc2626' };
+const BK: React.CSSProperties = { ...BTN_BASE, background: '#fef3c7', color: '#92400e' };
+const EQ: React.CSSProperties = { ...BTN_BASE, background: '#7c3aed', color: '#fff' };
 
 function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorShape }) {
   const editor = useEditor();
   const { w, h } = shape.props;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reactive edit state via store subscription (getEditingShapeId is not reactive in plain React)
+  // ── Edit-mode tracking ───────────────────────────────────────────────────
   const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
   useEffect(() => {
-    return editor.store.listen(() => {
-      setIsEditing(editor.getEditingShapeId() === shape.id);
-    });
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
   }, [editor, shape.id]);
 
-  // When editing, add capture-phase listeners to block tldraw's overlay from intercepting events
+  // ── Bubble-phase event blocking (lets clicks reach buttons) ──────────────
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !isEditing) return;
-    // Bubble phase (false) — event reaches button first, then we stop it
-    // before it bubbles up to tldraw's canvas listener.
     const stop = (e: PointerEvent) => e.stopPropagation();
     el.addEventListener('pointerdown', stop, false);
     el.addEventListener('pointermove', stop, false);
@@ -109,114 +49,115 @@ function ScientificCalculatorComponent({ shape }: { shape: ScientificCalculatorS
     };
   }, [isEditing]);
 
+  // ── Calculator state ─────────────────────────────────────────────────────
   const [expr, setExpr] = useState('');
-  const [result, setResult] = useState('');
-  const [useDeg, setUseDeg] = useState(true);
+  const [result, setResult] = useState('\u00a0');
+  const [isErr, setIsErr] = useState(false);
+  const [isDeg, setIsDeg] = useState(true);
 
-  const press = useCallback((val: string) => {
-    setExpr((e) => e + val);
-    setResult('');
-  }, []);
+  const push = (v: string) => setExpr(p => p + v);
+  const clr = () => { setExpr(''); setResult('\u00a0'); setIsErr(false); };
+  const bk = () => setExpr(p => p.slice(0, -1));
 
-  const calculate = useCallback(() => {
-    const adjusted = useDeg
-      ? expr
-          .replace(/sin\(([^)]+)\)/g, (_, a) => `sin(${toRad(parseFloat(a))}`)
-          .replace(/cos\(([^)]+)\)/g, (_, a) => `cos(${toRad(parseFloat(a))}`)
-          .replace(/tan\(([^)]+)\)/g, (_, a) => `tan(${toRad(parseFloat(a))}`)
-      : expr;
-    setResult(evalExpr(adjusted));
-  }, [expr, useDeg]);
+  const calc = useCallback(() => {
+    try {
+      const SF = (v: number) => isDeg ? Math.sin(v * Math.PI / 180) : Math.sin(v);
+      const CF = (v: number) => isDeg ? Math.cos(v * Math.PI / 180) : Math.cos(v);
+      const TF = (v: number) => isDeg ? Math.tan(v * Math.PI / 180) : Math.tan(v);
+      const LG = Math.log10, LN = Math.log, sq = Math.sqrt;
+      const PI = Math.PI, E = Math.E;
+      const s = expr
+        .replace(/\^/g, '**')
+        .replace(/sin\(/g, 'SF(').replace(/cos\(/g, 'CF(').replace(/tan\(/g, 'TF(')
+        .replace(/log\(/g, 'LG(').replace(/ln\(/g, 'LN(');
+      // eslint-disable-next-line no-new-func
+      const val = Function('SF', 'CF', 'TF', 'LG', 'LN', 'sq', 'PI', 'E', 'return ' + s)(SF, CF, TF, LG, LN, sq, PI, E);
+      if (typeof val !== 'number') throw 0;
+      setIsErr(false);
+      setResult(isFinite(val) ? String(parseFloat(val.toPrecision(12))) : val > 0 ? 'Inf' : '-Inf');
+    } catch { setIsErr(true); setResult('Error'); }
+  }, [expr, isDeg]);
 
-  const clear = useCallback(() => { setExpr(''); setResult(''); }, []);
-  const backspace = useCallback(() => { setExpr((e) => e.slice(0, -1)); }, []);
+  const sp = (e: React.PointerEvent) => e.stopPropagation();
+  const ROW: React.CSSProperties = { display: 'flex', gap: 3, flex: 1 };
 
   return (
     <HTMLContainer>
       <div
         ref={containerRef}
-        style={{ width: w, height: h, background: '#0f172a', borderRadius: 10, overflow: 'hidden', userSelect: 'none', display: 'flex', flexDirection: 'column', position: 'relative' }}
+        style={{ width: w, height: h, background: '#0f172a', border: '2px solid #1e293b', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden', fontFamily: 'system-ui', position: 'relative' }}
       >
-        {/* Activation overlay — shown when not editing; double-click explicitly enters edit mode */}
+        {/* Double-click overlay */}
         {!isEditing && (
           <div
-            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.5)', borderRadius: 10, cursor: 'pointer' }}
+            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.7)', borderRadius: 8, cursor: 'pointer' }}
             onDoubleClick={(e) => { e.stopPropagation(); editor.setEditingShape(shape.id); }}
           >
-            <span style={{ color: 'white', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
+            <span style={{ color: '#f8fafc', fontSize: 12, background: '#334155', padding: '6px 14px', borderRadius: 6, fontWeight: 600, border: '1px solid #475569' }}>Double-click to use</span>
           </div>
         )}
+
         {/* Header */}
-        <div style={{ background: '#1e293b', padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600, fontFamily: 'system-ui' }}>SCIENTIFIC CALCULATOR</span>
+        <div style={{ background: '#1e293b', padding: '4px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+          <span style={{ color: '#94a3b8', fontSize: 10, fontWeight: 700, letterSpacing: '.5px' }}>SCIENTIFIC CALCULATOR</span>
           <button
-            style={{ background: useDeg ? '#3b82f6' : '#475569', color: 'white', border: 'none', borderRadius: 3, fontSize: 10, padding: '2px 6px', cursor: 'pointer', fontFamily: 'system-ui' }}
-            onClick={() => setUseDeg((d) => !d)}
-            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setIsDeg(d => !d)}
+            onPointerDown={sp}
+            style={{ background: isDeg ? '#3b82f6' : '#475569', color: '#fff', border: 'none', borderRadius: 3, fontSize: 9, padding: '2px 6px', cursor: 'pointer', fontFamily: 'system-ui' }}
           >
-            {useDeg ? 'DEG' : 'RAD'}
+            {isDeg ? 'DEG' : 'RAD'}
           </button>
         </div>
 
         {/* Display */}
-        <div style={{ background: '#1e293b', padding: '8px 12px', borderBottom: '1px solid #334155' }}>
-          <div style={{ color: '#94a3b8', fontSize: 11, fontFamily: 'monospace', minHeight: 16, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {expr || '0'}
-          </div>
-          <div style={{ color: result === 'Error' ? '#ef4444' : '#f8fafc', fontSize: 20, fontFamily: 'monospace', textAlign: 'right', minHeight: 28, fontWeight: 600 }}>
-            {result || '\u00A0'}
-          </div>
+        <div style={{ background: '#1e293b', padding: '6px 10px', borderBottom: '1px solid #334155', flexShrink: 0 }}>
+          <div style={{ color: '#94a3b8', fontSize: 10, fontFamily: 'monospace', textAlign: 'right', height: 14, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{expr || '0'}</div>
+          <div style={{ color: isErr ? '#ef4444' : '#f8fafc', fontSize: 18, fontFamily: 'monospace', textAlign: 'right', fontWeight: 700, minHeight: 22 }}>{result}</div>
         </div>
 
-        {/* Buttons */}
-        <div style={{ flex: 1, padding: 8, display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
-          {/* Row 1: scientific functions */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="sin(" style={BTN.fn} onClick={() => press('sin(')} />
-            <CalcButton label="cos(" style={BTN.fn} onClick={() => press('cos(')} />
-            <CalcButton label="tan(" style={BTN.fn} onClick={() => press('tan(')} />
-            <CalcButton label="log(" style={BTN.fn} onClick={() => press('log(')} />
-            <CalcButton label="ln(" style={BTN.fn} onClick={() => press('ln(')} />
+        {/* Button pad — inline buttons only, no inner component (avoids React remount-on-render bug) */}
+        <div style={{ flex: 1, padding: '5px 5px 12px 5px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div style={ROW}>
+            <button style={F} onClick={() => push('sin(')} onPointerDown={sp}>sin(</button>
+            <button style={F} onClick={() => push('cos(')} onPointerDown={sp}>cos(</button>
+            <button style={F} onClick={() => push('tan(')} onPointerDown={sp}>tan(</button>
+            <button style={F} onClick={() => push('log(')} onPointerDown={sp}>log(</button>
+            <button style={F} onClick={() => push('ln(')} onPointerDown={sp}>ln(</button>
           </div>
-          {/* Row 2: power + constants */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="√(" style={BTN.fn} onClick={() => press('√(')} />
-            <CalcButton label="x²" style={BTN.fn} onClick={() => press('^2')} />
-            <CalcButton label="xʸ" style={BTN.fn} onClick={() => press('^')} />
-            <CalcButton label="π" style={BTN.fn} onClick={() => press('π')} />
-            <CalcButton label="e" style={BTN.fn} onClick={() => press('e')} />
+          <div style={ROW}>
+            <button style={F} onClick={() => push('sq(')} onPointerDown={sp}>√(</button>
+            <button style={F} onClick={() => push('^2')} onPointerDown={sp}>x²</button>
+            <button style={F} onClick={() => push('^')} onPointerDown={sp}>xʸ</button>
+            <button style={F} onClick={() => push('PI')} onPointerDown={sp}>π</button>
+            <button style={F} onClick={() => push('E')} onPointerDown={sp}>e</button>
           </div>
-          {/* Row 3: 7 8 9 ÷ ( ) */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="(" style={BTN.op} onClick={() => press('(')} />
-            <CalcButton label=")" style={BTN.op} onClick={() => press(')')} />
-            <CalcButton label="7" style={BTN.num} onClick={() => press('7')} />
-            <CalcButton label="8" style={BTN.num} onClick={() => press('8')} />
-            <CalcButton label="9" style={BTN.num} onClick={() => press('9')} />
+          <div style={ROW}>
+            <button style={O} onClick={() => push('(')} onPointerDown={sp}>(</button>
+            <button style={O} onClick={() => push(')')} onPointerDown={sp}>)</button>
+            <button style={N} onClick={() => push('7')} onPointerDown={sp}>7</button>
+            <button style={N} onClick={() => push('8')} onPointerDown={sp}>8</button>
+            <button style={N} onClick={() => push('9')} onPointerDown={sp}>9</button>
           </div>
-          {/* Row 4 */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="÷" style={BTN.op} onClick={() => press('÷')} />
-            <CalcButton label="×" style={BTN.op} onClick={() => press('×')} />
-            <CalcButton label="4" style={BTN.num} onClick={() => press('4')} />
-            <CalcButton label="5" style={BTN.num} onClick={() => press('5')} />
-            <CalcButton label="6" style={BTN.num} onClick={() => press('6')} />
+          <div style={ROW}>
+            <button style={O} onClick={() => push('/')} onPointerDown={sp}>÷</button>
+            <button style={O} onClick={() => push('*')} onPointerDown={sp}>×</button>
+            <button style={N} onClick={() => push('4')} onPointerDown={sp}>4</button>
+            <button style={N} onClick={() => push('5')} onPointerDown={sp}>5</button>
+            <button style={N} onClick={() => push('6')} onPointerDown={sp}>6</button>
           </div>
-          {/* Row 5 */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="−" style={BTN.op} onClick={() => press('-')} />
-            <CalcButton label="+" style={BTN.op} onClick={() => press('+')} />
-            <CalcButton label="1" style={BTN.num} onClick={() => press('1')} />
-            <CalcButton label="2" style={BTN.num} onClick={() => press('2')} />
-            <CalcButton label="3" style={BTN.num} onClick={() => press('3')} />
+          <div style={ROW}>
+            <button style={O} onClick={() => push('-')} onPointerDown={sp}>−</button>
+            <button style={O} onClick={() => push('+')} onPointerDown={sp}>+</button>
+            <button style={N} onClick={() => push('1')} onPointerDown={sp}>1</button>
+            <button style={N} onClick={() => push('2')} onPointerDown={sp}>2</button>
+            <button style={N} onClick={() => push('3')} onPointerDown={sp}>3</button>
           </div>
-          {/* Row 6 */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            <CalcButton label="AC" style={BTN.clr} onClick={clear} />
-            <CalcButton label="⌫" style={{ ...BTN.op, background: '#fef3c7', color: '#92400e' }} onClick={backspace} />
-            <CalcButton label="0" style={BTN.num} onClick={() => press('0')} />
-            <CalcButton label="." style={BTN.num} onClick={() => press('.')} />
-            <CalcButton label="=" style={{ ...BTN.base, ...BTN.eq, width: 44 }} onClick={calculate} />
+          <div style={ROW}>
+            <button style={C} onClick={clr} onPointerDown={sp}>AC</button>
+            <button style={BK} onClick={bk} onPointerDown={sp}>⌫</button>
+            <button style={N} onClick={() => push('0')} onPointerDown={sp}>0</button>
+            <button style={N} onClick={() => push('.')} onPointerDown={sp}>.</button>
+            <button style={EQ} onClick={calc} onPointerDown={sp}>=</button>
           </div>
         </div>
       </div>

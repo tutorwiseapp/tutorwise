@@ -8,7 +8,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type BohrAtomShape = TLBaseShape<
   'bohr-atom',
@@ -99,6 +99,21 @@ function BohrEditor({ shape, onClose }: { shape: BohrAtomShape; onClose: () => v
   const [neutrons, setNeutrons] = useState(shape.props.neutrons);
   const [showNumbers, setShowNumbers] = useState(shape.props.showNumbers);
   const [shells, setShells] = useState<number[]>(() => { try { return JSON.parse(shape.props.shells); } catch { return [2, 8, 1]; } });
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = popupRef.current;
+    if (!el) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, []);
 
   const apply = useCallback(() => {
     (editor as any).updateShape({
@@ -117,7 +132,7 @@ function BohrEditor({ shape, onClose }: { shape: BohrAtomShape; onClose: () => v
   };
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: '100%', marginLeft: 8, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, width: 220, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all', maxHeight: 440, overflowY: 'auto' }}
+    <div ref={popupRef} style={{ position: 'absolute', top: 0, left: '100%', marginLeft: 8, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, width: 220, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all', maxHeight: 440, overflowY: 'auto' }}
       onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
       <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8, color: '#dc2626' }}>Bohr Model</div>
 
@@ -166,10 +181,27 @@ function BohrEditor({ shape, onClose }: { shape: BohrAtomShape; onClose: () => v
 
 function BohrAtomComponent({ shape }: { shape: BohrAtomShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   return (
     <HTMLContainer>
-      <div style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
         <BohrAtomSvg shape={shape} />
         {isEditing && <BohrEditor shape={shape} onClose={() => editor.setEditingShape(null)} />}
       </div>

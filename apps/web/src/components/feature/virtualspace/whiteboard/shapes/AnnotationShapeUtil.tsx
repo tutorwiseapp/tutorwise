@@ -35,7 +35,24 @@ const ANNOTATION_TYPE_CONFIG: Record<AnnotationType, { label: string; color: str
 
 function AnnotationComponent({ shape }: { shape: AnnotationShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   const [text, setText] = useState(shape.props.text);
   const [label, setLabel] = useState(shape.props.label);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -88,6 +105,7 @@ function AnnotationComponent({ shape }: { shape: AnnotationShape }) {
   return (
     <HTMLContainer>
       <div
+        ref={containerRef}
         style={{
           width: shape.props.w,
           height: shape.props.h,

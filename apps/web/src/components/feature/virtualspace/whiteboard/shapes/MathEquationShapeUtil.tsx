@@ -27,6 +27,21 @@ function MathEquationComponent({ shape, isEditing }: { shape: MathEquationShape;
   const editor = useEditor();
   const [inputValue, setInputValue] = useState(shape.props.latex);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
 
   useEffect(() => {
     setInputValue(shape.props.latex);
@@ -91,6 +106,7 @@ function MathEquationComponent({ shape, isEditing }: { shape: MathEquationShape;
     return (
       <HTMLContainer>
         <div
+          ref={containerRef}
           style={{
             width: shape.props.w,
             minHeight: shape.props.h,
@@ -218,6 +234,9 @@ export class MathEquationShapeUtil extends ShapeUtil<any> {
 
 function MathEquationComponentWrapper({ shape }: { shape: MathEquationShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
   return <MathEquationComponent shape={shape} isEditing={isEditing} />;
 }

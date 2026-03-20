@@ -7,7 +7,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type PythagorasShape = TLBaseShape<
   'pythagoras',
@@ -124,6 +124,21 @@ function WorkingPanel({ shape }: { shape: PythagorasShape }) {
 function PythagorasEditor({ shape, onClose }: { shape: PythagorasShape; onClose: () => void }) {
   const editor = useEditor();
   const [vals, setVals] = useState({ sideA: shape.props.sideA, sideB: shape.props.sideB, showWorking: shape.props.showWorking, showAngles: shape.props.showAngles });
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = popupRef.current;
+    if (!el) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, []);
 
   const apply = useCallback(() => {
     (editor as any).updateShape({
@@ -137,7 +152,7 @@ function PythagorasEditor({ shape, onClose }: { shape: PythagorasShape; onClose:
   const hyp = Math.sqrt(vals.sideA ** 2 + vals.sideB ** 2);
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: '100%', marginLeft: 8, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, width: 190, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all' }}
+    <div ref={popupRef} style={{ position: 'absolute', top: 0, left: '100%', marginLeft: 8, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, width: 190, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all' }}
       onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
       <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8, color: '#2563eb' }}>Pythagoras</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 }}>
@@ -171,10 +186,27 @@ function PythagorasEditor({ shape, onClose }: { shape: PythagorasShape; onClose:
 
 function PythagorasComponent({ shape }: { shape: PythagorasShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   return (
     <HTMLContainer>
-      <div style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
         <div style={{ flex: 1 }}>
           <PythagorasSvg shape={shape} />
         </div>

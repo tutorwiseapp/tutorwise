@@ -137,6 +137,12 @@ function CollapsibleStylePanel() {
         max-height: 400px !important;
         transition: max-height 0.2s ease 0ms !important;
       }
+      .tlui-navigation-panel {
+        transform: translateX(270px) !important;
+        bottom: 8px !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
     `;
     document.head.appendChild(style);
     return () => { document.getElementById('vs-panel-collapsible')?.remove(); };

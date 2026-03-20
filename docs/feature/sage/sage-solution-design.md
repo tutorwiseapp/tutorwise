@@ -1,8 +1,8 @@
 # Sage Solution Design
 **AI Tutor Agent — UK Primary to University, IB, AP — 15+ Subjects with SEN/SEND Support**
-**Version:** 3.0
+**Version:** 3.1
 **Created:** 2026-02-14
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-03-20
 **Status:** Approved for Implementation | Subscription Model: Free + Pro (£10/month)
 **Owner:** Michael Quan
 
@@ -25,6 +25,7 @@
 11. [Platform Integration](#11-platform-integration)
 12. [Future-Proofing Components](#12-future-proofing-components)
 13. [Progress Tracking](#13-progress-tracking)
+13A. [Virtual Space & AI Canvas Whiteboard](#13a-virtual-space--ai-canvas-whiteboard)
 14. [API Specification](#14-api-specification)
 15. [AI Provider Chain](#15-ai-provider-chain)
 16. [Competitive Positioning](#16-competitive-positioning)
@@ -1814,6 +1815,278 @@ interface StudentProgress {
 
 ---
 
+## 13A. Virtual Space & AI Canvas Whiteboard
+
+The Virtual Space is Sage's live collaborative whiteboard, shared between tutor and student(s) during a session. The AI canvas subsystem allows Sage to autonomously draw subject-specific diagrams directly onto the whiteboard in response to student questions.
+
+### 13A.1 Technology Stack
+
+| Component | Technology | Version | Notes |
+|-----------|-----------|---------|-------|
+| Whiteboard engine | [tldraw](https://tldraw.dev) | **4.5.3** | Upgraded from 4.3.0 in Phase 8 |
+| AI canvas pattern | TLDraw Agent Starter Kit | — | Adopted pattern: `BaseActionUtil`, `AgentActionRegistry`, `PromptPartUtil` |
+| Custom shapes | 24 `ShapeUtil` classes | — | Subject-specific: maths, science, data viz, English/humanities, computing, plus tldraw built-in `geo` |
+| Zod validation | Zod v3 | — | Per-type schema dispatch with `z.preprocess` for LLM array coercion |
+| Streaming protocol | Server-Sent Events (SSE) | — | `readSSEStream()` shared helper; `AbortController` for cancel |
+
+### 13A.2 Architecture Overview
+
+```
+VirtualSpaceClient.tsx
+        │
+        │  extraContextFn()  ← multi-student signals + lesson plan phase
+        ▼
+useSageVirtualSpace.ts  ─────────────── AbortController cancel()
+        │
+        │  SSE streaming  /api/sage/virtualspace/message
+        │                 /api/sage/virtualspace/observe
+        │                 /api/sage/virtualspace/session
+        │                 /api/sage/virtualspace/deactivate
+        ▼
+  API Route (server)
+        │
+        │  getCanvasSystemPrompt()  ─────────── CanvasSystemPromptPart.ts
+        │                                            │
+        │                                            ▼
+        │                                   AgentActionRegistry
+        │                                            │  lazy-loads on first call
+        │                                            ▼
+        │                               ┌─────────────────────────┐
+        │                               │     ActionUtils (6)      │
+        │                               │  MathActionUtil          │
+        │                               │  ScienceActionUtil       │
+        │                               │  DataVizActionUtil       │
+        │                               │  ComputingActionUtil     │
+        │                               │  EnglishHumanitiesUtil   │
+        │                               │  GeoShapeActionUtil      │
+        │                               └─────────────────────────┘
+        │
+        │  LLM response (SSE stream)
+        ▼
+  parseStreamingBuffer()  ──── canvasBlockParser.ts
+        │
+        ├── displayText  →  chat UI (markdown + LaTeX)
+        └── shapes[]     →  stampShapesOnEditor()
+                                    │
+                                    ▼
+                            applyAgentActions()
+                                    │
+                                    ▼
+                        AgentActionRegistry.applySpec()
+                                    │
+                                    ▼
+                         ActionUtil.applyToEditor()  (async, dynamic imports)
+                                    │
+                         ┌──────────┴──────────┐
+                         │ Attribution frame    │  dashed teal geo rectangle
+                         │ (meta: sageFrame)    │  4px outside main shape
+                         └──────────────────────┘
+                                    │
+                         ┌──────────┴──────────┐
+                         │ Main custom shape    │  opacity: 0.85
+                         │ (meta: sageAttributed│  validated props via Zod
+                         └──────────────────────┘
+```
+
+### 13A.3 Agent Starter Kit Adaptation
+
+Sage adopts the architectural patterns from the [TLDraw Agent Starter Kit](https://tldraw.dev/docs/ai) with modifications for server-side safety and multi-subject dispatch:
+
+| Starter Kit Concept | Sage Implementation | Location |
+|--------------------|--------------------|--------------------|
+| `AgentActionUtil` | `BaseActionUtil<TSchema>` | `agent/BaseActionUtil.ts` |
+| `AgentModeDefinitions` | `AgentActionRegistry` (lazy singleton) | `agent/AgentActionRegistry.ts` |
+| `PromptPartUtil` | `CanvasSystemPromptPart` / `getCanvasSystemPrompt()` | `agent/prompt-parts/CanvasSystemPromptPart.ts` |
+| Tool-use loop | `[CANVAS]{JSON}[/CANVAS]` in-stream protocol | `canvas/canvasBlockParser.ts` |
+| Per-action schema | Per-type Zod schema map (`MATH_SCHEMAS`, etc.) | Each ActionUtil file |
+
+**Server-safety rule:** ActionUtil files must not import `tldraw` or `SageCanvasWriter` at the top level. API routes evaluate these modules server-side, where `React.createContext()` is unavailable. All tldraw imports are deferred with `await Promise.all([import('tldraw'), import('...')])` inside `applyToEditor()`.
+
+### 13A.4 [CANVAS] Block Protocol
+
+The LLM emits canvas instructions inline with its streamed response:
+
+```
+[CANVAS]
+{"type":"graph-axes","props":{"xMin":-5,"xMax":5,"yMin":-5,"yMax":5,"showGrid":true}}
+[/CANVAS]
+```
+
+**Rules enforced in system prompt:**
+- JSON must have exactly `"type"` and `"props"` — never flatten props to top level
+- At most one `[CANVAS]` block per response
+- Block must not appear inside a markdown code fence
+- For array fields (`segments`, `bars`, `events`, `stages`, `branches`, `functions`, `shells`, `forces`): value must be a JSON-serialised string
+- Use subject-specific shapes **only** for subject-specific problems; use `geo` for generic drawing requests ("draw a box", "draw a line")
+
+**Parsing failure modes handled:**
+
+| Failure | Handling |
+|---------|----------|
+| Missing `"type"` key | Warn + skip block |
+| Flat JSON (props at top level, no `"props"` key) | Auto-promote all non-`type` keys into `props` |
+| Block inside code fence | Skip (treated as literal text) |
+| Invalid JSON | Warn + skip |
+| LLM sends array literal for array field | `z.preprocess` coerces to JSON string |
+| Incomplete block during streaming | Hidden from display; accumulated in `remainingBuffer` until `[/CANVAS]` arrives |
+
+**Display replacement:** Each `[CANVAS]...[/CANVAS]` block is replaced in chat with `*↗ Added to canvas*`.
+
+### 13A.5 Custom Shape Types (24 Shapes)
+
+All custom shapes extend `ShapeUtil<any>` (tldraw v4.5.x constraint — `TLBaseShape` types do not satisfy `extends TLShape` without full module augmentation).
+
+#### Maths (MathActionUtil — 10 types)
+
+| Shape Type | Key Props | Use Case |
+|------------|-----------|----------|
+| `math-equation` | `latex`, `displayMode`, `color`, `fontSize` | Any algebraic expression, formula |
+| `number-line` | `min`, `max`, `step`, `markers[]`, `showFractions` | Number sense, ordering, fractions |
+| `fraction-bar` | `numerator`, `denominator`, `showEquivalent` | Fraction visualisation |
+| `graph-axes` | `xMin`, `xMax`, `yMin`, `yMax`, `showGrid`, `title` | Blank coordinate grid |
+| `pythagoras` | `sideA`, `sideB`, `showWorking`, `showAngles` | Right-triangle diagram |
+| `protractor` | `angle`, `showArm`, `showLabels` | Angle measurement |
+| `unit-circle` | `angleDeg`, `showCoords`, `showSpecialAngles` | Trigonometry reference |
+| `line-segment` | `x1`, `y1`, `x2`, `y2`, `labelA`, `labelB`, `showGrid` | Coordinate geometry only |
+| `function-plot` | `xMin/Max`, `yMin/Max`, `functions` (JSON string) | Plot linear, quadratic, trig curves |
+| `trig-triangle` | `angleDeg`, `hypotenuse`, `showSOHCAHTOA` | SOH-CAH-TOA working |
+
+#### Science (ScienceActionUtil — 5 types)
+
+| Shape Type | Key Props | Use Case |
+|------------|-----------|----------|
+| `chemical-equation` | `reactants`, `products`, `arrow`, `conditions`, `isReversible`, `showStateSymbols` | Balanced equations |
+| `wave-diagram` | `amplitude`, `frequency`, `waveType` (transverse/longitudinal), `showLabels` | Wave properties |
+| `forces-diagram` | `bodyLabel`, `forces` (JSON string: label/direction/magnitude/color) | Free-body diagrams |
+| `bohr-atom` | `symbol`, `protons`, `neutrons`, `shells` (JSON string), `showNumbers` | Atomic structure |
+| `circuit-component` | `componentType`, `label`, `value`, `showLabel` | Circuit diagram component |
+
+#### Data Visualisation (DataVizActionUtil — 4 types)
+
+| Shape Type | Key Props | Use Case |
+|------------|-----------|----------|
+| `pie-chart` | `segments` (JSON string: label/value/color), `title`, `showPercentages` | Data proportions |
+| `bar-chart` | `bars` (JSON string), `xLabel`, `yLabel`, `showValues`, `showGrid` | Categorical data |
+| `venn-diagram` | `leftLabel`, `rightLabel`, `leftContent`, `centerContent`, `rightContent` | Set relationships |
+| `probability-tree` | `branches` (JSON string: label/prob/color/children) | Probability calculations |
+
+#### English & Humanities (EnglishHumanitiesActionUtil — 3 types)
+
+| Shape Type | Key Props | Use Case |
+|------------|-----------|----------|
+| `story-mountain` | `title`, `stages` (JSON string: label/description) | Plot structure analysis |
+| `annotation` | `text`, `highlightColor`, `annotationType`, `showBadge` | Text markup, glossary |
+| `timeline` | `events` (JSON string: label/date/color), `title`, `lineColor` | Historical chronology |
+
+#### Computing (ComputingActionUtil — 1 type)
+
+| Shape Type | Key Props | Use Case |
+|------------|-----------|----------|
+| `flowchart` | `steps` (JSON string), `title` | Algorithm / pseudocode flow |
+
+#### Built-in tldraw Shapes (GeoShapeActionUtil — `geo` type)
+
+Used for all **generic** drawing requests. LLM selects via `props.geo`:
+
+`rectangle` · `ellipse` · `triangle` · `diamond` · `star` · `pentagon` · `hexagon` · `octagon` · `arrow-right` · `arrow-left` · `arrow-up` · `arrow-down` · `cloud` · `trapezoid` · `heart`
+
+**Routing rule:** LLM is instructed to use `geo` for any generic request ("draw a box", "draw a line from A to B") and reserve subject-specific types for subject problems only. `line-segment` is explicitly annotated as "coordinate geometry only — NOT generic drawing".
+
+### 13A.6 ActionUtil Pattern
+
+Each ActionUtil extends `BaseActionUtil<TSchema>` and provides:
+
+```typescript
+abstract class BaseActionUtil<TSchema extends z.ZodTypeAny> {
+  abstract readonly types: string[];        // shape type(s) handled
+  abstract readonly schema: TSchema;         // fallback Zod schema
+  abstract buildPromptSnippet(): string;     // contributes to LLM system prompt
+
+  validateProps(rawProps, type?): output;    // dispatches to per-type schema
+  applyToEditor(editor, spec, index): Promise<void>;  // stamps shape on canvas
+}
+```
+
+**Per-type schema dispatch** (used by `MathActionUtil`, `ScienceActionUtil`, `DataVizActionUtil`, `EnglishHumanitiesActionUtil`, `ComputingActionUtil`):
+
+```typescript
+const MATH_SCHEMAS: Record<string, z.ZodTypeAny> = {
+  'math-equation': mathEquationSchema,
+  'number-line':   numberLineSchema,
+  // ...
+};
+
+override validateProps(rawProps, type?) {
+  const schema = type ? MATH_SCHEMAS[type] : undefined;
+  if (schema) {
+    try { return schema.parse(rawProps ?? {}); }
+    catch { return schema.parse({}); }  // fallback to defaults
+  }
+  return rawProps ?? {};
+}
+```
+
+**Attribution frame** (`BaseActionUtil.applyToEditor`): Every Sage-stamped shape receives a dashed teal `geo` rectangle 4px outside its bounds, marked `meta: { sageFrame: true }`. The main shape is marked `meta: { sageAttributed: true }` with `opacity: 0.85`.
+
+### 13A.7 System Prompt Generation
+
+`CanvasSystemPromptPart` / `getCanvasSystemPrompt()` generates the full canvas instruction block by concatenating each ActionUtil's `buildPromptSnippet()`. The result is module-level cached (safe in Next.js — hot-reload resets it in dev; it lives for the process lifetime in production, which is acceptable since the prompt only changes with code deployments).
+
+`AgentActionRegistry.buildSystemPrompt()` also injects top-level rules before the per-util snippets:
+- JSON structure rule (`"type"` + `"props"` required)
+- One block per response
+- Array field serialisation rule
+- Shape selection routing rule
+
+### 13A.8 Hook Architecture (useSageVirtualSpace)
+
+```typescript
+useSageVirtualSpace(options: {
+  sageSessionId?: string;
+  extraContextFn?: () => string;   // injected on every sendMessage — multi-student signals + lesson plan phase
+}) → {
+  messages, isLoading, isObserving,
+  sendMessage(text): void,
+  observe(): void,
+  cancel(): void,           // AbortController-based cancel of in-flight SSE
+  deactivate(): void,
+}
+```
+
+**`extraContextFn` pattern:** `VirtualSpaceClient.tsx` passes a stable ref callback that returns a runtime string containing multi-student intelligence signals and the current lesson plan phase. This is appended to the API body as `extraContext` on every `sendMessage`, injected after `CANVAS_INSTRUCTIONS` in the system prompt — decoupling the hook from the multi-student and lesson plan modules.
+
+**SSE streaming:** Both `sendMessage` and `observe` use a shared `readSSEStream(reader, { onChunk, onDone, onError })` helper. Each request creates a fresh `AbortController`; the previous controller is aborted before starting a new request. `AbortError` is caught silently.
+
+### 13A.9 Virtualspace API Routes
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/sage/virtualspace/session` | GET/POST | Create or retrieve a virtualspace Sage session |
+| `/api/sage/virtualspace/message` | POST | Send student message — SSE stream with [CANVAS] blocks |
+| `/api/sage/virtualspace/observe` | POST | Tutor-initiated canvas observation mode — SSE stream |
+| `/api/sage/virtualspace/deactivate` | POST | End session, generate recap with misconceptions from `recentMessages` |
+
+**`message` body:**
+```json
+{
+  "sageSessionId": "sage_vs_abc123",
+  "message": "Can you draw the graph of y = x²?",
+  "conversationHistory": [...],
+  "extraContext": "Multi-student context: 3 students active. Lesson plan: Quadratic functions (Phase 2/4)."
+}
+```
+
+**`observe` system prompt:** Built via `buildObserveSystemPrompt()` which calls `await getCanvasSystemPrompt()` — the tutor observe mode gets the same canvas capability as student chat mode.
+
+### 13A.10 tldraw v4.5.3 Upgrade Notes
+
+- Upgraded from `^4.3.0` to `^4.5.3` in `apps/web/package.json`
+- `ShapeUtil<T>` in v4.5.x constrains `T extends TLShape`. Custom shapes defined via `TLBaseShape<type, props>` are not in the `TLShape` union without full module augmentation. All 24 custom `ShapeUtil` files use `ShapeUtil<any>` at the class level — specific types are preserved in method signatures only.
+- tldraw built-in `geo` shape: `props.label` replaces `props.text` (v4 breaking change); no `richText` needed for attribution frames
+- `createShapeId()` imported dynamically inside `applyToEditor()` (not at module level)
+
+---
+
 ## 14. API Specification
 
 | Endpoint | Method | Description |
@@ -1837,6 +2110,10 @@ interface StudentProgress {
 | `/api/sage/subscription` | GET | Sage Pro subscription status |
 | `/api/sage/usage` | GET | Usage statistics (questions remaining, storage) |
 | `/api/sage/admin-metrics` | GET | Admin analytics dashboard data |
+| `/api/sage/virtualspace/session` | GET/POST | Create or retrieve a Virtual Space Sage session |
+| `/api/sage/virtualspace/message` | POST | Student message in Virtual Space — SSE stream, supports [CANVAS] blocks and `extraContext` |
+| `/api/sage/virtualspace/observe` | POST | Tutor observe mode — SSE stream with canvas capability |
+| `/api/sage/virtualspace/deactivate` | POST | End Virtual Space session, generate recap with observed misconceptions |
 
 ### POST /api/sage/session
 
@@ -1958,6 +2235,72 @@ apps/web/src/components/feature/sage/
 | **Agent** | "Ask Sage" button | Agent dashboard |
 | **Client** | "Help my child learn" | Client profile, child's page |
 | **Student** | "Learn with Sage" | Student dashboard, mobile app |
+| **Tutor + Student** | Virtual Space | `/virtualspace/[sessionId]` — live collaborative whiteboard |
+
+### Virtual Space Component Tree
+
+```
+apps/web/src/components/feature/virtualspace/
+├── EmbeddedWhiteboard.tsx         # tldraw 4.5.3 wrapper — registers all custom shapes
+├── VirtualSpaceLayout.tsx         # Session layout + sidebar
+│
+├── agent/                         # AI Canvas — TLDraw Agent Starter Kit pattern
+│   ├── BaseActionUtil.ts          # Abstract base: validateProps, applyToEditor (async, server-safe)
+│   ├── AgentActionRegistry.ts     # Lazy singleton: getUtil, buildSystemPrompt, applySpec
+│   ├── applyAgentActions.ts       # Thin wrapper: sequential spec application
+│   ├── prompt-parts/
+│   │   └── CanvasSystemPromptPart.ts  # getCanvasSystemPrompt() — module-cached
+│   └── actions/
+│       ├── index.ts               # registerActionUtils() — import order = prompt order
+│       ├── MathActionUtil.ts      # 10 types: math-equation, number-line, fraction-bar…
+│       ├── ScienceActionUtil.ts   # 5 types: chemical-equation, wave-diagram…
+│       ├── DataVizActionUtil.ts   # 4 types: pie-chart, bar-chart, venn-diagram, probability-tree
+│       ├── ComputingActionUtil.ts # 1 type: flowchart
+│       ├── EnglishHumanitiesActionUtil.ts  # 3 types: story-mountain, annotation, timeline
+│       └── GeoShapeActionUtil.ts  # tldraw built-in geo (generic shapes)
+│
+├── canvas/
+│   ├── canvasBlockParser.ts       # [CANVAS]…[/CANVAS] parser (streaming + complete)
+│   ├── SageCanvasWriter.tsx       # stampShapesOnEditor → AgentActionRegistry, findStampPosition
+│   └── __tests__/
+│       └── canvasBlockParser.test.ts
+│
+├── hooks/
+│   ├── useSageVirtualSpace.ts     # Core hook: sendMessage, observe, cancel, extraContextFn
+│   ├── useLessonPlan.ts           # Lesson plan phase tracking
+│   ├── useMultiStudentIntelligence.ts  # Multi-student signals (feeds extraContextFn)
+│   ├── useSageStuckDetector.ts    # Detect when student is stuck
+│   └── useCopilotWhispers.ts      # Tutor copilot whispers
+│
+└── whiteboard/
+    ├── panels/
+    │   └── SubjectToolsPanel.tsx  # Manual shape insertion panel
+    └── shapes/                    # 24 custom ShapeUtil files (all extends ShapeUtil<any>)
+        ├── MathEquationShapeUtil.tsx
+        ├── NumberLineShapeUtil.tsx
+        ├── FractionBarShapeUtil.tsx
+        ├── GraphAxesShapeUtil.tsx
+        ├── PythagorasShapeUtil.tsx
+        ├── ProtractorShapeUtil.tsx
+        ├── UnitCircleShapeUtil.tsx
+        ├── LineShapeUtil.tsx
+        ├── FunctionPlotShapeUtil.tsx
+        ├── TrigTriangleShapeUtil.tsx
+        ├── ChemicalEquationShapeUtil.tsx
+        ├── WaveDiagramShapeUtil.tsx
+        ├── ForcesDiagramShapeUtil.tsx
+        ├── BohrAtomShapeUtil.tsx
+        ├── CircuitShapeUtil.tsx
+        ├── PieChartShapeUtil.tsx
+        ├── BarChartShapeUtil.tsx
+        ├── VennDiagramShapeUtil.tsx
+        ├── ProbabilityTreeShapeUtil.tsx
+        ├── FlowchartShapeUtil.tsx
+        ├── StoryMountainShapeUtil.tsx
+        ├── AnnotationShapeUtil.tsx
+        ├── TimelineShapeUtil.tsx
+        └── EmbedShapeUtil.tsx
+```
 
 ---
 

@@ -1,90 +1,30 @@
 /**
  * FractionCalculatorShapeUtil
- * Interactive fraction calculator: two fraction inputs, operation selector,
- * result as simplified fraction + decimal.
+ * React-based fraction calculator — uses the same edit-mode + bubble-phase
+ * event-blocking pattern as UnitConverterShapeUtil so tldraw's overlay does not
+ * intercept button clicks.  Double-click to activate.
  */
 
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-export type FractionCalculatorShape = TLBaseShape<
-  'fraction-calculator',
-  { w: number; h: number }
->;
+export type FractionCalculatorShape = TLBaseShape<'fraction-calculator', { w: number; h: number }>;
+
+type Op = '+' | '−' | '×' | '÷';
 
 function gcd(a: number, b: number): number {
   a = Math.abs(a); b = Math.abs(b);
-  while (b) { [a, b] = [b, a % b]; }
+  while (b) { const t = b; b = a % b; a = t; }
   return a;
 }
 
-function simplify(num: number, den: number): [number, number] {
-  if (den === 0) return [num, den];
-  const g = gcd(Math.abs(num), Math.abs(den));
-  const sign = den < 0 ? -1 : 1;
-  return [sign * num / g, sign * den / g];
-}
-
-function compute(n1: number, d1: number, op: string, n2: number, d2: number): [number, number] | null {
-  if (d1 === 0 || d2 === 0) return null;
-  switch (op) {
-    case '+': return simplify(n1 * d2 + n2 * d1, d1 * d2);
-    case '−': return simplify(n1 * d2 - n2 * d1, d1 * d2);
-    case '×': return simplify(n1 * n2, d1 * d2);
-    case '÷': return d2 === 0 ? null : simplify(n1 * d2, d1 * n2);
-    default: return null;
-  }
-}
-
-const INPUT_STYLE: React.CSSProperties = {
-  width: 52,
-  textAlign: 'center',
-  border: '1px solid #e2e8f0',
-  borderRadius: 4,
-  fontSize: 18,
-  padding: '2px 4px',
-  fontFamily: 'monospace',
-  background: 'white',
-  outline: 'none',
-};
-
-const HDR: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  color: '#7c3aed',
-  letterSpacing: 0.5,
-  textTransform: 'uppercase' as const,
-  marginBottom: 4,
-  fontFamily: 'system-ui',
-};
-
-function FractionInput({ num, den, onNum, onDen }: {
-  num: string; den: string;
-  onNum: (v: string) => void; onDen: (v: string) => void;
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-      <input
-        type="number"
-        value={num}
-        onChange={(e) => onNum(e.target.value)}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        style={INPUT_STYLE}
-      />
-      <div style={{ width: 52, height: 2, background: '#0f172a' }} />
-      <input
-        type="number"
-        value={den}
-        onChange={(e) => onDen(e.target.value)}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        style={INPUT_STYLE}
-      />
-    </div>
-  );
+function simplify(n: number, d: number): [number, number] | null {
+  if (d === 0) return null;
+  const g = gcd(Math.abs(n), Math.abs(d));
+  const s = d < 0 ? -1 : 1;
+  return [s * n / g, s * d / g];
 }
 
 function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape }) {
@@ -92,13 +32,13 @@ function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape
   const { w, h } = shape.props;
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // ── Edit-mode tracking ───────────────────────────────────────────────────
   const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
   useEffect(() => {
-    return editor.store.listen(() => {
-      setIsEditing(editor.getEditingShapeId() === shape.id);
-    });
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
   }, [editor, shape.id]);
 
+  // ── Bubble-phase event blocking (lets clicks reach buttons) ──────────────
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !isEditing) return;
@@ -112,100 +52,115 @@ function FractionCalculatorComponent({ shape }: { shape: FractionCalculatorShape
       el.removeEventListener('pointerup', stop, false);
     };
   }, [isEditing]);
+
+  // ── Calculator state ─────────────────────────────────────────────────────
   const [n1, setN1] = useState('1');
   const [d1, setD1] = useState('2');
-  const [op, setOp] = useState('+');
   const [n2, setN2] = useState('1');
   const [d2, setD2] = useState('3');
-  const [result, setResult] = useState<[number, number] | null | 'error'>(null);
+  const [op, setOp] = useState<Op>('+');
+  const [result, setResult] = useState<{ num: number; den: number; dec: number } | null>(null);
+  const [error, setError] = useState('');
 
-  const calculate = useCallback(() => {
-    const pn1 = parseInt(n1); const pd1 = parseInt(d1);
-    const pn2 = parseInt(n2); const pd2 = parseInt(d2);
-    if ([pn1, pd1, pn2, pd2].some(isNaN)) { setResult('error'); return; }
-    const r = compute(pn1, pd1, op, pn2, pd2);
-    setResult(r ?? 'error');
-  }, [n1, d1, op, n2, d2]);
+  const calculate = () => {
+    const pn1 = parseInt(n1), pd1 = parseInt(d1), pn2 = parseInt(n2), pd2 = parseInt(d2);
+    if ([pn1, pd1, pn2, pd2].some(isNaN) || pd1 === 0 || pd2 === 0) {
+      setResult(null); setError('Invalid input'); return;
+    }
+    let r: [number, number] | null;
+    if (op === '+') r = simplify(pn1 * pd2 + pn2 * pd1, pd1 * pd2);
+    else if (op === '−') r = simplify(pn1 * pd2 - pn2 * pd1, pd1 * pd2);
+    else if (op === '×') r = simplify(pn1 * pn2, pd1 * pd2);
+    else {
+      if (pn2 === 0) { setResult(null); setError('Division by zero'); return; }
+      r = simplify(pn1 * pd2, pd1 * pn2);
+    }
+    if (!r) { setResult(null); setError('Error'); return; }
+    setError('');
+    setResult({ num: r[0], den: r[1], dec: r[0] / r[1] });
+  };
 
-  const reset = useCallback(() => setResult(null), []);
+  const sp = (e: React.PointerEvent) => e.stopPropagation();
+  const INPUT: React.CSSProperties = {
+    width: 52, textAlign: 'center', border: '1px solid #e2e8f0', borderRadius: 4,
+    fontSize: 18, padding: '2px 4px', fontFamily: 'monospace', background: '#fff', outline: 'none',
+  };
 
   return (
     <HTMLContainer>
       <div
         ref={containerRef}
-        style={{ width: w, height: h, background: 'white', border: '2px solid #7c3aed', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', userSelect: 'none', fontFamily: 'system-ui', position: 'relative' }}
+        style={{ width: w, height: h, background: '#fff', border: '2px solid #7c3aed', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden', fontFamily: 'system-ui', position: 'relative' }}
       >
+        {/* Double-click overlay */}
         {!isEditing && (
           <div
-            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(124,58,237,0.15)', borderRadius: 8, cursor: 'pointer' }}
+            style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(124,58,237,0.12)', borderRadius: 8, cursor: 'pointer' }}
             onDoubleClick={(e) => { e.stopPropagation(); editor.setEditingShape(shape.id); }}
           >
-            <span style={{ color: '#7c3aed', fontSize: 12, fontFamily: 'system-ui', background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
+            <span style={{ color: '#7c3aed', fontSize: 12, background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: 6, fontWeight: 600 }}>Double-click to use</span>
           </div>
         )}
+
         {/* Header */}
-        <div style={{ background: '#7c3aed', padding: '6px 12px' }}>
-          <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>Fraction Calculator</span>
+        <div style={{ background: '#7c3aed', padding: '6px 12px', flexShrink: 0 }}>
+          <span style={{ color: '#fff', fontSize: 12, fontWeight: 700 }}>FRACTION CALCULATOR</span>
         </div>
 
-        {/* Input area */}
+        {/* Body */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 12 }}>
-          <div style={HDR}>Enter fractions</div>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#7c3aed', letterSpacing: '.5px', textTransform: 'uppercase' }}>Enter fractions</span>
 
-          {/* Fraction inputs row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <FractionInput num={n1} den={d1} onNum={setN1} onDen={setD1} />
+            {/* Fraction 1 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <input type="number" value={n1} onChange={e => setN1(e.target.value)} onPointerDown={sp} onClick={sp} style={INPUT} />
+              <div style={{ width: 52, height: 2, background: '#0f172a' }} />
+              <input type="number" value={d1} onChange={e => setD1(e.target.value)} onPointerDown={sp} onClick={sp} style={INPUT} />
+            </div>
 
-            {/* Operation selector */}
+            {/* Operator selector */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {['+', '−', '×', '÷'].map((o) => (
+              {(['+', '−', '×', '÷'] as Op[]).map(o => (
                 <button
                   key={o}
-                  onClick={() => { setOp(o); reset(); }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  style={{
-                    width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 4,
-                    background: op === o ? '#7c3aed' : '#f8fafc',
-                    color: op === o ? 'white' : '#0f172a',
-                    fontSize: 14, cursor: 'pointer', fontWeight: 600,
-                  }}
+                  onClick={() => setOp(o)}
+                  onPointerDown={sp}
+                  style={{ width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 4, background: op === o ? '#7c3aed' : '#f8fafc', color: op === o ? '#fff' : '#0f172a', fontSize: 14, cursor: 'pointer', fontWeight: 600, fontFamily: 'system-ui' }}
                 >
                   {o}
                 </button>
               ))}
             </div>
 
-            <FractionInput num={n2} den={d2} onNum={setN2} onDen={setD2} />
+            {/* Fraction 2 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <input type="number" value={n2} onChange={e => setN2(e.target.value)} onPointerDown={sp} onClick={sp} style={INPUT} />
+              <div style={{ width: 52, height: 2, background: '#0f172a' }} />
+              <input type="number" value={d2} onChange={e => setD2(e.target.value)} onPointerDown={sp} onClick={sp} style={INPUT} />
+            </div>
           </div>
 
-          {/* Calculate button */}
           <button
             onClick={calculate}
-            onPointerDown={(e) => e.stopPropagation()}
-            style={{ background: '#7c3aed', color: 'white', border: 'none', borderRadius: 6, padding: '6px 24px', fontSize: 13, fontWeight: 600, cursor: 'pointer', width: '100%' }}
+            onPointerDown={sp}
+            style={{ background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 24px', fontSize: 13, fontWeight: 600, cursor: 'pointer', width: '100%', fontFamily: 'system-ui' }}
           >
             Calculate
           </button>
 
-          {/* Result */}
-          {result !== null && (
-            <div style={{ background: result === 'error' ? '#fee2e2' : '#f0fdf4', border: `1px solid ${result === 'error' ? '#fca5a5' : '#86efac'}`, borderRadius: 6, padding: '8px 16px', textAlign: 'center', width: '100%' }}>
-              {result === 'error' ? (
-                <span style={{ color: '#dc2626', fontSize: 13 }}>Invalid input</span>
-              ) : (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 4 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <span style={{ fontSize: 18, fontFamily: 'monospace', fontWeight: 700, color: '#166534' }}>{result[0]}</span>
-                      <div style={{ width: 32, height: 2, background: '#166534' }} />
-                      <span style={{ fontSize: 18, fontFamily: 'monospace', fontWeight: 700, color: '#166534' }}>{result[1]}</span>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>
-                    = {(result[0] / result[1]).toPrecision(6).replace(/\.?0+$/, '')}
-                  </div>
-                </>
-              )}
+          {(result || error) && (
+            <div style={{ borderRadius: 6, padding: '8px 16px', textAlign: 'center', width: '100%', background: error ? '#fee2e2' : '#f0fdf4', border: `1px solid ${error ? '#fca5a5' : '#86efac'}` }}>
+              {error ? (
+                <span style={{ color: '#dc2626', fontSize: 13 }}>{error}</span>
+              ) : result ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <span style={{ fontSize: 18, fontFamily: 'monospace', fontWeight: 700, color: '#166534' }}>{result.num}</span>
+                  <div style={{ width: 32, height: 2, background: '#166534', margin: '2px 0' }} />
+                  <span style={{ fontSize: 18, fontFamily: 'monospace', fontWeight: 700, color: '#166534' }}>{result.den}</span>
+                  <span style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>= {parseFloat(result.dec.toPrecision(6)).toString()}</span>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

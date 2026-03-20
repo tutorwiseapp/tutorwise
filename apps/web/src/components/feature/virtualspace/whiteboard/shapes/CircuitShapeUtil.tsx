@@ -8,7 +8,7 @@
 'use client';
 
 import { ShapeUtil, TLBaseShape, T, Rectangle2d, HTMLContainer, useEditor } from '@tldraw/editor';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export type CircuitComponentType =
   | 'resistor'
@@ -202,6 +202,21 @@ function CircuitEditor({ shape, onClose }: { shape: CircuitShape; onClose: () =>
   const editor = useEditor();
   const [label, setLabel] = useState(shape.props.label);
   const [value, setValue] = useState(shape.props.value);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = popupRef.current;
+    if (!el) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, []);
 
   const apply = useCallback(() => {
     (editor as any).updateShape({
@@ -214,6 +229,7 @@ function CircuitEditor({ shape, onClose }: { shape: CircuitShape; onClose: () =>
 
   return (
     <div
+      ref={popupRef}
       style={{ position: 'absolute', top: -80, left: 0, zIndex: 100, background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: 10, width: 180, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', pointerEvents: 'all' }}
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
@@ -235,10 +251,27 @@ function CircuitEditor({ shape, onClose }: { shape: CircuitShape; onClose: () =>
 
 function CircuitComponent({ shape }: { shape: CircuitShape }) {
   const editor = useEditor();
-  const isEditing = editor.getEditingShapeId() === shape.id;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(() => editor.getEditingShapeId() === shape.id);
+  useEffect(() => {
+    return editor.store.listen(() => setIsEditing(editor.getEditingShapeId() === shape.id));
+  }, [editor, shape.id]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !isEditing) return;
+    const stop = (e: PointerEvent) => e.stopPropagation();
+    el.addEventListener('pointerdown', stop, false);
+    el.addEventListener('pointermove', stop, false);
+    el.addEventListener('pointerup', stop, false);
+    return () => {
+      el.removeEventListener('pointerdown', stop, false);
+      el.removeEventListener('pointermove', stop, false);
+      el.removeEventListener('pointerup', stop, false);
+    };
+  }, [isEditing]);
   return (
     <HTMLContainer>
-      <div style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: shape.props.w, height: shape.props.h, userSelect: 'none' }}>
         <CircuitComponentSvg shape={shape} />
         {isEditing && <CircuitEditor shape={shape} onClose={() => editor.setEditingShape(null)} />}
       </div>
