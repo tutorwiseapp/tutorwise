@@ -172,14 +172,14 @@ export function SagePanel({ sage, stuckLevel = 'none' }: SagePanelProps) {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1,
-          color: '#d1d5db',
+          color: '#6b7280',
           transition: 'color 0.15s',
         }}
         onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.color = '#006c67'; (e.currentTarget as HTMLDivElement).style.background = 'rgba(0,108,103,0.06)'; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.color = '#d1d5db'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.color = '#6b7280'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
         title="Drag to resize panel"
       >
-        <GripVertical size={12} />
+        <GripVertical size={20} />
       </div>
       <style>{`
         @keyframes sage-brain-pulse {
