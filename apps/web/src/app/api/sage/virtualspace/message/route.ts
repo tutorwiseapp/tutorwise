@@ -27,10 +27,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { sageSessionId, message, conversationHistory } = body as {
+    const { sageSessionId, message, conversationHistory, extraContext } = body as {
       sageSessionId?: string;
       message?: string;
       conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+      /** Additional context injected by the client (multi-student signals, lesson plan phase). */
+      extraContext?: string;
     };
 
     if (!sageSessionId || !message) {
@@ -72,6 +74,13 @@ export async function POST(request: NextRequest) {
     // type lists and examples always stay in sync with registered ActionUtils.
     const CANVAS_INSTRUCTIONS = await getCanvasSystemPrompt();
 
+    // Combine canvas instructions with any extra context from the client
+    // (multi-student signals injected by useMultiStudentIntelligence — G3,
+    // and lesson plan phase context injected by useLessonPlan — G4).
+    const combinedSystemContext = extraContext
+      ? `${CANVAS_INSTRUCTIONS}\n\n${extraContext}`
+      : CANVAS_INSTRUCTIONS;
+
     // Forward to the existing /api/sage/stream endpoint.
     // We reconstruct the request with the correct sessionId, subject, level
     // so all the existing safety, RAG, curriculum, and streaming logic runs as-is.
@@ -81,7 +90,7 @@ export async function POST(request: NextRequest) {
       subject: sageSession.subject,
       level: sageSession.level,
       conversationHistory: conversationHistory ?? [],
-      extraSystemContext: CANVAS_INSTRUCTIONS,
+      extraSystemContext: combinedSystemContext,
     };
 
     // Build a new Request object targeting the stream route

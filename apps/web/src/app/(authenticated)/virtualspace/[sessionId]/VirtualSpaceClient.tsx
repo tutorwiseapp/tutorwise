@@ -71,6 +71,11 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     return () => { ablyClient.close(); };
   }, [ablyClient]);
 
+  // G3/G4: stable ref for extra context — updated below after lessonPlan + multiStudent are ready.
+  // A ref-backed stable function is used so useSageVirtualSpace doesn't need to be re-initialized.
+  const extraContextFnRef = useRef<() => string>(() => '');
+  const stableExtraContextFn = useCallback(() => extraContextFnRef.current(), []);
+
   // Sage integration — Phase 4: pass Ably client + tutor context for presence monitoring
   const sage = useSageVirtualSpace({
     sessionId: context.sessionId,
@@ -80,6 +85,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     ablyClient,
     channelName: context.channelName,
     tutorId: context.booking?.tutorId,
+    extraContextFn: stableExtraContextFn,
   });
 
   // Stuck detector — only active when Sage panel is open
@@ -177,6 +183,40 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     ch.subscribe('draw', handler);
     return () => { ch.unsubscribe('draw', handler); };
   }, [ablyClient, sage.isActive, context.channelName, context.participants, context.booking?.tutorId, multiStudent]);
+
+  // G3 + G4: keep extraContextFnRef up-to-date with latest multi-student + lesson plan context.
+  // Called on every relevant state change so sendMessage always gets the freshest context.
+  useEffect(() => {
+    extraContextFnRef.current = () => {
+      const parts: string[] = [];
+
+      // G3: multi-student signals (only meaningful with ≥2 students)
+      if (studentParticipants.length >= 2) {
+        const msBlock = multiStudent.buildContextBlock();
+        if (msBlock) parts.push(msBlock);
+      }
+
+      // G4: current lesson plan phase
+      if (lessonPlan.executionId && lessonPlan.activePhases) {
+        const phase = lessonPlan.activePhases[lessonPlan.activePhaseIndex];
+        if (phase) {
+          const total = lessonPlan.activePhases.length;
+          const phaseNum = lessonPlan.activePhaseIndex + 1;
+          parts.push(
+            `## Active Lesson Plan — Phase ${phaseNum}/${total}: ${phase.name}\n` +
+            `Type: ${phase.type} | Duration: ${phase.duration} min\n` +
+            `Instruction: ${phase.instruction}\n` +
+            `Success criteria: ${phase.successCriteria}` +
+            (phase.adaptations
+              ? `\nIf student struggles: ${phase.adaptations.ifStruggling}\nIf correct: ${phase.adaptations.ifCorrect}`
+              : '')
+          );
+        }
+      }
+
+      return parts.join('\n\n');
+    };
+  }, [multiStudent, lessonPlan, studentParticipants.length]);
 
   // Build session title
   const getSessionTitle = () => {

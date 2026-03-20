@@ -78,10 +78,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { sageSessionId, sessionId, timeSpentMinutes = 0 } = body as {
+    const { sageSessionId, sessionId, timeSpentMinutes = 0, recentMessages = [] } = body as {
       sageSessionId?: string;
       sessionId?: string;
       timeSpentMinutes?: number;
+      /** Last N conversation messages — used to detect actual misconceptions in the recap */
+      recentMessages?: Array<{ role: 'user' | 'assistant'; content: string }>;
     };
 
     if (!sageSessionId) {
@@ -138,17 +140,23 @@ export async function POST(request: NextRequest) {
           ? topicsCovered.join(', ')
           : subject;
 
+        // Build conversation excerpt for misconception detection (last 10 exchanges max)
+        const conversationExcerpt = recentMessages.slice(-10)
+          .map(m => `${m.role === 'user' ? 'Student' : 'Sage'}: ${m.content.slice(0, 400)}`)
+          .join('\n');
+        const hasConversation = conversationExcerpt.length > 0;
+
         // H3 fix: race against a 5s timeout so deactivation never blocks >5s.
         // If the LLM is slow, we return null recap immediately and persist in the background.
         const generateRecap = ai.generateJSON<SessionRecap>({
           systemPrompt: 'You generate concise, encouraging tutoring session recaps as valid JSON. Return only the JSON object — no markdown fences, no extra text.',
           userPrompt:   `Session: ${timeSpentMinutes} min, subject: ${subject}, level: ${level}.
 Topics covered: ${topicsLabel}.
-
+${hasConversation ? `\nConversation excerpt:\n${conversationExcerpt}\n` : ''}
 Generate a session recap JSON:
 {
   "topicsCovered": ["topic 1"],
-  "misconceptionsLogged": ["brief description of a common misconception the student likely encountered for these topics, e.g. 'Confused negative indices with negative bases'"],
+  "misconceptionsLogged": ["brief description of a misconception observed or likely encountered"],
   "masteryDelta": 0.05,
   "timeSpent": ${timeSpentMinutes},
   "strongMoments": ["one strength"],
@@ -157,7 +165,7 @@ Generate a session recap JSON:
 }
 
 Rules:
-- misconceptionsLogged: 1–3 items. Infer realistic misconceptions students commonly make on these specific topics at ${level} level. If the session was very short (<5 min) or topics are unclear, return [].
+- misconceptionsLogged: 1–3 items.${hasConversation ? ' Identify misconceptions DIRECTLY OBSERVED in the conversation above (student errors, corrections Sage made, confusion signals). Only include genuinely observed ones.' : ` Infer realistic misconceptions students commonly make on these specific topics at ${level} level.`} If the session was very short (<5 min) or topics are unclear, return [].
 - masteryDelta between 0.02–0.15. Be specific and encouraging.`,
           temperature: 0.3,
         });

@@ -64,6 +64,27 @@ export abstract class BaseActionUtil<TSchema extends z.ZodTypeAny> {
 
     const { x, y } = findStampPosition(editor, w, h, index);
 
+    const PAD = 4;
+    // Attribution frame: dashed teal geo rectangle (tldraw v4 compatible — no richText needed).
+    // Must be created BEFORE the main shape so it renders behind it in the z-order.
+    editor.createShapes([{
+      id: createShapeId(),
+      type: 'geo' as any,
+      x: x - PAD,
+      y: y - PAD,
+      props: {
+        w: w + PAD * 2,
+        h: h + PAD * 2,
+        geo: 'rectangle',
+        color: 'teal',
+        fill: 'none',
+        dash: 'dashed',
+        size: 's',
+        label: '',
+      },
+      meta: { sageFrame: true },
+    }]);
+
     editor.createShapes([{
       id: createShapeId(),
       type: spec.type as any, // custom shape types not in tldraw's built-in union

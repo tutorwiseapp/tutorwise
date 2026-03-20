@@ -70,6 +70,12 @@ export interface UseSageVirtualSpaceOptions {
   subject?: string;
   /** Level inferred from booking context. */
   level?: string;
+  /**
+   * Optional function returning extra context to append to the system prompt
+   * on each message send. Used to inject multi-student signals (G3) and
+   * lesson plan phase context (G4) without coupling this hook to those modules.
+   */
+  extraContextFn?: () => string;
 }
 
 export interface UseSageVirtualSpaceReturn {
@@ -154,8 +160,12 @@ const TUTOR_WINGMAN_THRESHOLD_MS = 3 * 60 * 1000; // 90s–3min → wingman; > 3
 export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSageVirtualSpaceReturn {
   const {
     sessionId, currentUserId, dispatchShape, snapshotFnRef,
-    ablyClient, channelName, tutorId,
+    ablyClient, channelName, tutorId, extraContextFn,
   } = options;
+
+  // Stable ref so sendMessage closure always reads the latest version
+  const extraContextFnRef = useRef(extraContextFn);
+  useEffect(() => { extraContextFnRef.current = extraContextFn; }, [extraContextFn]);
 
   // ── Core state ─────────────────────────────────────────────────────────
   const [isActive, setIsActive]           = useState(false);
@@ -490,6 +500,12 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
         ? Math.round((Date.now() - activatedAtRef.current) / 60000)
         : 0;
 
+      // Pass last 10 messages so the recap LLM can identify real misconceptions
+      const recentMessages = messagesRef.current
+        .filter(m => !m.isLoading)
+        .slice(-10)
+        .map(m => ({ role: m.role, content: m.content }));
+
       fetch('/api/sage/virtualspace/deactivate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -497,6 +513,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
           sageSessionId: currentSageSessionId,
           sessionId,
           timeSpentMinutes,
+          recentMessages,
         }),
       })
         .then(async res => {
@@ -561,6 +578,9 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
+      // G3/G4: build extra context (multi-student signals + lesson plan phase)
+      const extraContext = extraContextFnRef.current?.() ?? '';
+
       const response = await fetch('/api/sage/virtualspace/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -569,6 +589,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
           sageSessionId: currentSageSessionId,
           message: trimmedText,
           conversationHistory,
+          extraContext: extraContext || undefined,
         }),
       });
 

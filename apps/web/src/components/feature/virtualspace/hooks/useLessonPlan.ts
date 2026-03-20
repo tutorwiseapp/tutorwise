@@ -60,6 +60,8 @@ export interface UseLessonPlanReturn {
   loadPlan: (planId: string) => Promise<void>;
   executionId: string | null;
   activePhaseIndex: number;
+  /** Phases of the currently loaded plan — null when no plan is active */
+  activePhases: LessonPhase[] | null;
   advancePhase: () => Promise<void>;
 }
 
@@ -74,6 +76,7 @@ export function useLessonPlan({
   const [planId, setPlanId] = useState<string | null>(null);       // C3/L2 fix: store planId
   const [executionId, setExecutionId] = useState<string | null>(null);
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
+  const [activePhases, setActivePhases] = useState<LessonPhase[] | null>(null);
 
   // Fetch plans when drawer opens
   const fetchPlans = useCallback(async () => {
@@ -108,10 +111,11 @@ export function useLessonPlan({
         body: JSON.stringify({ virtualspaceSessionId: sessionId, sageSessionId }),
       });
       if (!res.ok) return;
-      const { executionId: newExecId } = (await res.json()) as { executionId: string };
+      const { executionId: newExecId, phases } = (await res.json()) as { executionId: string; phases?: LessonPhase[] };
       setPlanId(planId);          // C3/L2 fix: persist plan ID for advancePhase URL
       setExecutionId(newExecId);
       setActivePhaseIndex(0);
+      setActivePhases(phases ?? null);
       setIsDrawerOpen(false);
     } catch {
       // non-fatal
@@ -135,6 +139,7 @@ export function useLessonPlan({
       setPlanId(null);
       setExecutionId(null);
       setActivePhaseIndex(0);
+      setActivePhases(null);
       setIsDrawerOpen(false);
     }
   }, [isActive]);
@@ -148,6 +153,7 @@ export function useLessonPlan({
     loadPlan,
     executionId,
     activePhaseIndex,
+    activePhases,
     advancePhase,
   };
 }
