@@ -115,8 +115,7 @@ export function SessionControlsPanel({ isTutor, onHomework }: SessionControlsPan
   // Sync laser state when tool changes externally
   useEffect(() => {
     return editor.store.listen(() => {
-      const currentTool = editor.getCurrentToolId?.() ?? (editor as any).currentToolId;
-      setIsLaser(currentTool === 'laser');
+      setIsLaser(editor.getCurrentToolId() === 'laser');
     }, { scope: 'session' });
   }, [editor]);
 
@@ -269,7 +268,7 @@ export function SessionControlsPanel({ isTutor, onHomework }: SessionControlsPan
         onClick={() => {
           const next = !gridMode;
           setGridMode(next);
-          (editor as any).updateDocumentSettings?.({ isGridMode: next });
+          editor.updateInstanceState({ isGridMode: next });
         }}
         color="#64748b"
       />

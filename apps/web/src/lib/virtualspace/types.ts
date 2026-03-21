@@ -158,6 +158,9 @@ export interface VirtualSpaceSession {
   /** Session timestamps */
   createdAt: string;
   lastActivityAt: string;
+
+  /** URL of the latest whiteboard snapshot (for restoring canvas on rejoin) */
+  snapshotUrl?: string;
 }
 
 // ============================================================================

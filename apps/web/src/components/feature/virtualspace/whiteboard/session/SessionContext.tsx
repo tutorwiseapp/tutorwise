@@ -11,6 +11,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useChannel } from 'ably/react';
 import type { RealtimeChannel } from 'ably';
+import toast from 'react-hot-toast';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -194,6 +195,15 @@ export function SessionProvider({ channelName, currentUserId, children }: Sessio
       case 'session:draw-lock': {
         const { locked } = message.data as { locked: boolean };
         setDrawLocked(locked);
+        break;
+      }
+      case 'session:homework': {
+        const { text, dueDate, tutorName } = message.data as { text: string; dueDate?: string; tutorName?: string };
+        const due = dueDate ? ` (due ${new Date(dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })})` : '';
+        toast(`📋 Homework from ${tutorName ?? 'your tutor'}${due}:\n${text}`, {
+          duration: 10000,
+          style: { maxWidth: 380, whiteSpace: 'pre-wrap' },
+        });
         break;
       }
       case 'session:cursor': {

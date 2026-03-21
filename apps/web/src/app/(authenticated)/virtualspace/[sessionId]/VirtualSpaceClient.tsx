@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, Tv2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
@@ -37,10 +37,19 @@ interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
 }
 
+function formatTimeAgo(date: Date): string {
+  const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (secs < 60) return 'just now';
+  const mins = Math.floor(secs / 60);
+  return `${mins}m ago`;
+}
+
 export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
 
   // Pending shapes from AI assistant — bridged into the tldraw canvas
   const [pendingShapes, setPendingShapes] = useState<SageCanvasShapeSpec[]>([]);
@@ -350,6 +359,31 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     }
   }, [router]);
 
+  // Silent auto-save — runs every 90s if tutor (or owner)
+  const handleAutoSave = useCallback(async () => {
+    if (!context.capabilities.canSaveSnapshot) return;
+    const snapshotData = await (window as any).__virtualSpaceExportSnapshot?.();
+    if (!snapshotData) return;
+    setIsAutoSaving(true);
+    try {
+      const res = await fetch(`/api/virtualspace/${context.sessionId}/snapshot`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ snapshotData }),
+      });
+      if (res.ok) setLastSavedAt(new Date());
+    } catch {
+      // auto-save failure is non-critical, stay silent
+    } finally {
+      setIsAutoSaving(false);
+    }
+  }, [context.sessionId, context.capabilities.canSaveSnapshot]);
+
+  useEffect(() => {
+    const interval = setInterval(handleAutoSave, 90_000);
+    return () => clearInterval(interval);
+  }, [handleAutoSave]);
+
   const handleSendHomework = useCallback((text: string, dueDate: string) => {
     // Broadcast homework to all participants via session channel
     const sessionChannelName = `session:${context.channelName}`;
@@ -476,6 +510,13 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             </button>
           )}
 
+          {/* Auto-save status */}
+          {context.capabilities.canSaveSnapshot && lastSavedAt && (
+            <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+              {isAutoSaving ? 'Saving…' : `Saved ${formatTimeAgo(lastSavedAt)}`}
+            </span>
+          )}
+
           {/* Save Snapshot button */}
           {context.capabilities.canSaveSnapshot && (
             <button
@@ -485,7 +526,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
               title="Save whiteboard snapshot"
             >
               <Save size={20} />
-              {isSaving ? 'Saving...' : 'Save Snapshot'}
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
           )}
 
@@ -520,6 +561,8 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           sageProfile={sage.profile ?? undefined}
           isTutor={isTutor}
           onHomework={() => setHomeworkDialogOpen(true)}
+          initialSnapshotUrl={context.snapshotUrl}
+          onAutoSaved={() => setLastSavedAt(new Date())}
         />
       </ChannelProvider>
 

@@ -111,6 +111,7 @@ export class VirtualSpaceContextResolver {
       inviteExpiresAt: session.invite_expires_at || undefined,
       createdAt: session.created_at,
       lastActivityAt: session.last_activity_at,
+      snapshotUrl: (session.artifacts as any)?.whiteboard_snapshot_url || undefined,
     };
   }
 

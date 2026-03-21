@@ -14,7 +14,7 @@
 
 import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import type { Editor } from '@tldraw/editor';
-import { useEditor } from '@tldraw/editor';
+import { useEditor, loadSnapshot } from '@tldraw/editor';
 import { Brain } from 'lucide-react';
 import { Tldraw, defaultShapeUtils, DefaultStylePanel } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
@@ -194,7 +194,7 @@ function InFrontOfTheCanvas({
   onHomework?: () => void;
 }) {
   const editor = useEditor();
-  const { drawLocked, remoteCursors, publishCursor, currentUserId } = useSession();
+  const { drawLocked, remoteCursors, publishCursor } = useSession();
   const activeBg = isSageActive && sageProfile
     ? (SAGE_PROFILE_BG[sageProfile] ?? '#006c67')
     : '#006c67';
@@ -202,7 +202,7 @@ function InFrontOfTheCanvas({
   // Enforce draw lock for non-tutors
   useEffect(() => {
     if (!isTutor) {
-      (editor as any).updateInstanceState?.({ isReadonly: drawLocked });
+      editor.updateInstanceState({ isReadonly: drawLocked });
     }
   }, [editor, drawLocked, isTutor]);
 
@@ -343,6 +343,10 @@ interface EmbeddedWhiteboardProps {
   isTutor?: boolean;
   /** Called when the tutor clicks "Set homework" */
   onHomework?: () => void;
+  /** URL of the previous snapshot to restore canvas state on rejoin */
+  initialSnapshotUrl?: string;
+  /** Called after a successful auto-save so parent can show "Last saved" time */
+  onAutoSaved?: () => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -361,14 +365,31 @@ export function EmbeddedWhiteboard({
   sageProfile,
   isTutor,
   onHomework,
+  initialSnapshotUrl,
+  onAutoSaved,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
   // Stable editor ref — populated via onMount so stamping doesn't go through tldraw slots
   const editorRef = useRef<Editor | null>(null);
   const handleEditorMount = useCallback((editor: Editor) => {
     editorRef.current = editor;
+
+    // Restore previous canvas state on rejoin (non-blocking, fails silently)
+    if (initialSnapshotUrl) {
+      fetch(initialSnapshotUrl)
+        .then((r) => r.json())
+        .then((data) => {
+          // Only restore if canvas is currently empty (no shapes yet from Ably sync)
+          const hasShapes = (editor.store.allRecords() as any[]).some((r) => r.typeName === 'shape');
+          if (!hasShapes) {
+            loadSnapshot(editor.store, data);
+          }
+        })
+        .catch(() => {}); // snapshot load failure is non-critical
+    }
+
     return () => { editorRef.current = null; };
-  }, []);
+  }, [initialSnapshotUrl]);
   // Initialize tldraw store with all custom shape utils
   if (!storeRef.current) {
     storeRef.current = createTLStore({
@@ -426,20 +447,20 @@ export function EmbeddedWhiteboard({
     };
   }, [channel]);
 
-  // Expose snapshot export to VirtualSpaceClient via window bridge
+  // Expose snapshot export to VirtualSpaceClient via window bridge (uses editor for richer state)
   useEffect(() => {
     (window as any).__virtualSpaceExportSnapshot = async () => {
-      if (!storeRef.current) return '';
-      return JSON.stringify(storeRef.current.getStoreSnapshot());
+      if (!editorRef.current) return '';
+      return JSON.stringify(editorRef.current.store.getStoreSnapshot());
     };
-  }, []);
+    (window as any).__virtualSpaceAutoSaveCallback = onAutoSaved;
+  }, [onAutoSaved]);
 
   // Session channel name for chat/timer/reactions (distinct from draw channel)
   const sessionChannelName = `session:${channelName}`;
 
   // Stable component map — pendingShapes/onShapesStamped removed from deps.
   // Stamping is now done via editorRef+useEffect above, not through tldraw slots.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => (
       <InFrontOfTheCanvas
