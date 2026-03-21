@@ -6,9 +6,10 @@
 
 'use client';
 
-import { MessageSquare, Hand, Timer, Smile, Eye, Monitor } from 'lucide-react';
+import { MessageSquare, Hand, Timer, Smile, Eye, Monitor, Grid3X3, Zap, Lock, Unlock, ClipboardList } from 'lucide-react';
 import { useSession } from './SessionContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useEditor } from '@tldraw/editor';
 
 const BTN_SIZE = 32;
 const ICON_SIZE = 16;
@@ -83,7 +84,12 @@ function ControlButton({ icon, label, active, onClick, badge, color }: ControlBu
   );
 }
 
-export function SessionControlsPanel() {
+interface SessionControlsPanelProps {
+  isTutor?: boolean;
+  onHomework?: () => void;
+}
+
+export function SessionControlsPanel({ isTutor, onHomework }: SessionControlsPanelProps) {
   const {
     chatOpen,
     setChatOpen,
@@ -97,9 +103,22 @@ export function SessionControlsPanel() {
     sendReaction,
     followMode,
     toggleFollowMode,
+    drawLocked,
+    lockDraw,
   } = useSession();
 
+  const editor = useEditor();
   const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
+  const [gridMode, setGridMode] = useState(false);
+  const [isLaser, setIsLaser] = useState(false);
+
+  // Sync laser state when tool changes externally
+  useEffect(() => {
+    return editor.store.listen(() => {
+      const currentTool = editor.getCurrentToolId?.() ?? (editor as any).currentToolId;
+      setIsLaser(currentTool === 'laser');
+    }, { scope: 'session' });
+  }, [editor]);
 
   const REACTIONS = ['👍', '❤️', '😂', '🎉', '🤔', '👏', '🔥', '💡'];
 
@@ -238,6 +257,60 @@ export function SessionControlsPanel() {
         }}
         color="#0ea5e9"
       />
+
+      {/* Divider */}
+      <div style={{ width: 1, height: 20, background: 'rgba(0,0,0,0.12)', margin: '0 2px' }} />
+
+      {/* Grid toggle */}
+      <ControlButton
+        icon={<Grid3X3 size={ICON_SIZE} />}
+        label={gridMode ? 'Hide grid' : 'Show grid'}
+        active={gridMode}
+        onClick={() => {
+          const next = !gridMode;
+          setGridMode(next);
+          (editor as any).updateDocumentSettings?.({ isGridMode: next });
+        }}
+        color="#64748b"
+      />
+
+      {/* Laser pointer */}
+      <ControlButton
+        icon={<Zap size={ICON_SIZE} />}
+        label={isLaser ? 'Exit laser pointer' : 'Laser pointer'}
+        active={isLaser}
+        onClick={() => {
+          if (isLaser) {
+            editor.setCurrentTool('select');
+            setIsLaser(false);
+          } else {
+            editor.setCurrentTool('laser');
+            setIsLaser(true);
+          }
+        }}
+        color="#ef4444"
+      />
+
+      {/* Draw lock — tutor only */}
+      {isTutor && (
+        <ControlButton
+          icon={drawLocked ? <Lock size={ICON_SIZE} /> : <Unlock size={ICON_SIZE} />}
+          label={drawLocked ? 'Unlock student drawing' : 'Lock student drawing'}
+          active={drawLocked}
+          onClick={() => lockDraw(!drawLocked)}
+          color="#f59e0b"
+        />
+      )}
+
+      {/* Set homework — tutor only */}
+      {isTutor && onHomework && (
+        <ControlButton
+          icon={<ClipboardList size={ICON_SIZE} />}
+          label="Set homework"
+          onClick={onHomework}
+          color="#7c3aed"
+        />
+      )}
 
     </div>
   );

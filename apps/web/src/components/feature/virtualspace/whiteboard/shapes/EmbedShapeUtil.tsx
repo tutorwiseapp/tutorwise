@@ -29,10 +29,16 @@ const PRESETS = [
   { label: 'GeoGebra CAS', url: 'https://www.geogebra.org/cas' },
   { label: 'GeoGebra Geometry', url: 'https://www.geogebra.org/geometry' },
   { label: 'GeoGebra 3D', url: 'https://www.geogebra.org/3d' },
+  { label: 'YouTube Video', url: '' }, // paste any YouTube URL — auto-normalised
 ];
 
-// Allowlist for safety — only known education embed domains
-const ALLOWED_ORIGINS = ['desmos.com', 'geogebra.org', 'www.desmos.com', 'www.geogebra.org'];
+// Allowlist for safety — known education embed domains
+const ALLOWED_ORIGINS = [
+  'desmos.com', 'www.desmos.com',
+  'geogebra.org', 'www.geogebra.org',
+  'youtube.com', 'www.youtube.com',
+  'youtube-nocookie.com', 'www.youtube-nocookie.com',
+];
 
 function isSafeUrl(url: string): boolean {
   try {
@@ -41,6 +47,31 @@ function isSafeUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** Normalize YouTube watch/share URLs into embed format. Returns url unchanged for non-YouTube. */
+function normalizeYouTubeUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'youtu.be') {
+      const videoId = u.pathname.slice(1).split('?')[0];
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+    }
+    if (u.hostname === 'youtube.com' || u.hostname === 'www.youtube.com') {
+      if (u.pathname === '/watch') {
+        const videoId = u.searchParams.get('v');
+        if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+      }
+      if (u.pathname.startsWith('/embed/')) return url; // already embed
+      if (u.pathname.startsWith('/shorts/')) {
+        const videoId = u.pathname.split('/')[2];
+        if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+      }
+    }
+  } catch {
+    // not a valid URL
+  }
+  return url;
 }
 
 function EmbedEditor({ shape, onClose }: { shape: EmbedShape; onClose: () => void }) {
@@ -64,14 +95,15 @@ function EmbedEditor({ shape, onClose }: { shape: EmbedShape; onClose: () => voi
   }, []);
 
   const apply = useCallback(() => {
-    if (!isSafeUrl(url)) {
-      alert('Only Desmos and GeoGebra embeds are supported.');
+    const normalized = normalizeYouTubeUrl(url);
+    if (!isSafeUrl(normalized)) {
+      alert('Only Desmos, GeoGebra, and YouTube embeds are supported.');
       return;
     }
     (editor as any).updateShape({
       id: shape.id,
       type: 'tool-embed',
-      props: { url, label },
+      props: { url: normalized, label },
     });
     onClose();
   }, [editor, shape.id, url, label, onClose]);
@@ -92,7 +124,7 @@ function EmbedEditor({ shape, onClose }: { shape: EmbedShape; onClose: () => voi
       <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.desmos.com/calculator" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 4, padding: '4px 8px', fontSize: 12, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }} />
       <div style={{ fontSize: 11, fontWeight: 500, marginBottom: 4 }}>Label</div>
       <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Desmos Calculator" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 4, padding: '4px 8px', fontSize: 12, marginBottom: 10, boxSizing: 'border-box', outline: 'none' }} />
-      <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 10 }}>Supported: Desmos, GeoGebra</div>
+      <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 10 }}>Supported: Desmos · GeoGebra · YouTube (paste any YouTube URL)</div>
       <div style={{ display: 'flex', gap: 6 }}>
         <button onClick={apply} style={{ flex: 1, background: '#7c3aed', color: 'white', border: 'none', borderRadius: 4, padding: '6px 0', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>Load</button>
         <button onClick={onClose} style={{ flex: 1, background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: 4, padding: '6px 0', fontSize: 12, cursor: 'pointer' }}>Cancel</button>

@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, BookOpen } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, Users, Tv2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
@@ -29,6 +29,9 @@ import { useLessonPlan } from '@/components/feature/virtualspace/hooks/useLesson
 import { LessonPlanDrawer } from '@/components/feature/virtualspace/LessonPlanDrawer';
 import { useMultiStudentIntelligence } from '@/components/feature/virtualspace/hooks/useMultiStudentIntelligence';
 import type { SageCanvasShapeSpec } from '@/components/feature/virtualspace/canvas/canvasBlockParser';
+import { TutorNotesPanel } from '@/components/feature/virtualspace/whiteboard/panels/TutorNotesPanel';
+import { ParticipantListPanel } from '@/components/feature/virtualspace/whiteboard/panels/ParticipantListPanel';
+import { HomeworkDialog } from '@/components/feature/virtualspace/whiteboard/panels/HomeworkDialog';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -154,6 +157,11 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
 
   // Phase 7: lesson plan
   const isTutor = context.currentUserId === context.booking?.tutorId;
+
+  // Panel visibility state
+  const [tutorNotesOpen, setTutorNotesOpen] = useState(false);
+  const [participantListOpen, setParticipantListOpen] = useState(false);
+  const [homeworkDialogOpen, setHomeworkDialogOpen] = useState(false);
   const lessonPlan = useLessonPlan({
     sessionId: context.sessionId,
     sageSessionId: sage.sageSessionId,
@@ -342,6 +350,14 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     }
   }, [router]);
 
+  const handleSendHomework = useCallback((text: string, dueDate: string) => {
+    // Broadcast homework to all participants via session channel
+    const sessionChannelName = `session:${context.channelName}`;
+    const ch = ablyClient.channels.get(sessionChannelName);
+    ch.publish('session:homework', { text, dueDate, tutorName: context.ownerName });
+    toast.success('Homework sent to student');
+  }, [ablyClient, context.channelName, context.ownerName]);
+
   return (
     <AblyProvider client={ablyClient}>
       {/* Header */}
@@ -381,19 +397,40 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
         </div>
 
         <div className={styles.rightSection}>
-          {/* Participant count */}
-          <span
+          {/* Participant count — click to toggle list */}
+          <button
+            onClick={() => setParticipantListOpen((v) => !v)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               fontSize: '0.875rem',
-              color: '#64748b',
+              color: participantListOpen ? '#006c67' : '#64748b',
+              background: participantListOpen ? '#dcfce7' : 'transparent',
+              border: 'none',
+              borderRadius: 6,
+              padding: '4px 8px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
             }}
+            title="View participants"
           >
-            <Users size={16} />
+            <UserCheck size={16} />
             {context.participants.length}
-          </span>
+          </button>
+
+          {/* Tutor notes (tutor only) */}
+          {isTutor && (
+            <button
+              onClick={() => setTutorNotesOpen((v) => !v)}
+              className={styles.secondaryButton}
+              title="Private tutor notes"
+              style={{ background: tutorNotesOpen ? '#fef3c7' : undefined, color: tutorNotesOpen ? '#92400e' : undefined }}
+            >
+              <StickyNote size={16} />
+              Notes
+            </button>
+          )}
 
           {/* Invite button (standalone only) */}
           {context.capabilities.canInvite && context.inviteUrl && (
@@ -481,6 +518,8 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           isSageActive={sage.isActive}
           isSageActivating={sage.isActivating}
           sageProfile={sage.profile ?? undefined}
+          isTutor={isTutor}
+          onHomework={() => setHomeworkDialogOpen(true)}
         />
       </ChannelProvider>
 
@@ -498,6 +537,32 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
 
       {/* Phase 7: Lesson plan drawer — slide-in from right */}
       <LessonPlanDrawer lessonPlan={lessonPlan} />
+
+      {/* Tutor private notes */}
+      {isTutor && tutorNotesOpen && (
+        <TutorNotesPanel
+          sessionId={context.sessionId}
+          onClose={() => setTutorNotesOpen(false)}
+        />
+      )}
+
+      {/* Participant list */}
+      {participantListOpen && (
+        <ParticipantListPanel
+          participants={context.participants}
+          currentUserId={context.currentUserId}
+          tutorId={context.booking?.tutorId}
+          onClose={() => setParticipantListOpen(false)}
+        />
+      )}
+
+      {/* Homework dialog */}
+      {homeworkDialogOpen && (
+        <HomeworkDialog
+          onClose={() => setHomeworkDialogOpen(false)}
+          onSend={handleSendHomework}
+        />
+      )}
     </AblyProvider>
   );
 }

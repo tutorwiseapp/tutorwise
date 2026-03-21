@@ -12,8 +12,9 @@
 
 'use client';
 
-import { useEffect, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import type { Editor } from '@tldraw/editor';
+import { useEditor } from '@tldraw/editor';
 import { Brain } from 'lucide-react';
 import { Tldraw, defaultShapeUtils, DefaultStylePanel } from 'tldraw';
 import { createTLStore, type TLRecord } from '@tldraw/editor';
@@ -55,7 +56,7 @@ import { CompassShapeUtil } from './whiteboard/shapes/CompassShapeUtil';
 import { AngleMeasurerShapeUtil } from './whiteboard/shapes/AngleMeasurerShapeUtil';
 
 // Session context + controls
-import { SessionProvider } from './whiteboard/session/SessionContext';
+import { SessionProvider, useSession } from './whiteboard/session/SessionContext';
 import { SessionControlsPanel } from './whiteboard/session/SessionControlsPanel';
 import { ChatPanel } from './whiteboard/session/ChatPanel';
 import { TimerWidget } from './whiteboard/session/TimerWidget';
@@ -163,29 +164,69 @@ function CollapsibleStylePanel() {
 // All floating UI layers rendered on top of the tldraw canvas.
 // Must access SessionContext, which lives above <Tldraw>.
 
+// Stable cursor colour palette keyed by userId hash
+const CURSOR_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#8b5cf6','#ec4899','#14b8a6'];
+function cursorColor(userId: string) {
+  let h = 0;
+  for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) >>> 0;
+  return CURSOR_COLORS[h % CURSOR_COLORS.length];
+}
+
 function InFrontOfTheCanvas({
   displayName,
+  isTutor,
   onRegisterSnapshot,
   onErasePattern,
   onAskSage,
   isSageActive,
   isSageActivating,
   sageProfile,
+  onHomework,
 }: {
   displayName: string;
+  isTutor?: boolean;
   onRegisterSnapshot?: (fn: () => Promise<string | null>) => void;
   onErasePattern?: (clusterCount: number) => void;
   onAskSage?: () => void;
   isSageActive?: boolean;
   isSageActivating?: boolean;
   sageProfile?: string;
+  onHomework?: () => void;
 }) {
+  const editor = useEditor();
+  const { drawLocked, remoteCursors, publishCursor, currentUserId } = useSession();
   const activeBg = isSageActive && sageProfile
     ? (SAGE_PROFILE_BG[sageProfile] ?? '#006c67')
     : '#006c67';
 
+  // Enforce draw lock for non-tutors
+  useEffect(() => {
+    if (!isTutor) {
+      (editor as any).updateInstanceState?.({ isReadonly: drawLocked });
+    }
+  }, [editor, drawLocked, isTutor]);
+
+  // Broadcast cursor position (throttled inside publishCursor)
+  useEffect(() => {
+    const container = editor.getContainer();
+    if (!container) return;
+    const handleMove = (e: PointerEvent) => {
+      const point = editor.screenToPage({ x: e.clientX, y: e.clientY });
+      publishCursor(point.x, point.y, displayName);
+    };
+    container.addEventListener('pointermove', handleMove, { passive: true });
+    return () => container.removeEventListener('pointermove', handleMove);
+  }, [editor, publishCursor, displayName]);
+
+  // Re-render remote cursors when camera changes
+  const [, setCameraVersion] = useState(0);
+  useEffect(() => {
+    return editor.store.listen(() => setCameraVersion((v) => v + 1), { scope: 'session' });
+  }, [editor]);
+
   return (
     <>
+      <SessionControlsPanel isTutor={isTutor} onHomework={onHomework} />
       <SubjectToolsPanel />
       <ChatPanel displayName={displayName} />
       <TimerWidget />
@@ -194,6 +235,46 @@ function InFrontOfTheCanvas({
         onRegisterSnapshot={onRegisterSnapshot}
         onErasePattern={onErasePattern}
       />
+
+      {/* Remote cursor overlays */}
+      {remoteCursors.map((cursor) => {
+        const screen = editor.pageToScreen({ x: cursor.x, y: cursor.y });
+        const color = cursorColor(cursor.userId);
+        return (
+          <div
+            key={cursor.userId}
+            style={{
+              position: 'absolute',
+              left: screen.x,
+              top: screen.y,
+              pointerEvents: 'none',
+              zIndex: 900,
+              transform: 'translate(-2px, -2px)',
+            }}
+          >
+            {/* Cursor arrow */}
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+              <path d="M0 0 L0 16 L4 12 L7 19 L9 18 L6 11 L12 11 Z" fill={color} stroke="white" strokeWidth="1" />
+            </svg>
+            <div style={{
+              marginTop: 2,
+              background: color,
+              color: 'white',
+              fontSize: 10,
+              fontWeight: 600,
+              fontFamily: 'system-ui, sans-serif',
+              padding: '1px 5px',
+              borderRadius: 4,
+              whiteSpace: 'nowrap',
+              maxWidth: 120,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {cursor.displayName}
+            </div>
+          </div>
+        );
+      })}
 
       {/* Ask Sage AI Tutor — matches subject tools panel style */}
       {onAskSage && (
@@ -258,6 +339,10 @@ interface EmbeddedWhiteboardProps {
   isSageActivating?: boolean;
   /** Active Sage profile — controls button colour */
   sageProfile?: string;
+  /** Whether the current user is the tutor (unlocks draw-lock + homework controls) */
+  isTutor?: boolean;
+  /** Called when the tutor clicks "Set homework" */
+  onHomework?: () => void;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -274,6 +359,8 @@ export function EmbeddedWhiteboard({
   isSageActive,
   isSageActivating,
   sageProfile,
+  isTutor,
+  onHomework,
 }: EmbeddedWhiteboardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore>>(undefined);
   // Stable editor ref — populated via onMount so stamping doesn't go through tldraw slots
@@ -357,16 +444,18 @@ export function EmbeddedWhiteboard({
     InFrontOfTheCanvas: () => (
       <InFrontOfTheCanvas
         displayName={displayName}
+        isTutor={isTutor}
         onRegisterSnapshot={onRegisterSnapshot}
         onErasePattern={onErasePattern}
         onAskSage={onAskSage}
         isSageActive={isSageActive}
         isSageActivating={isSageActivating}
         sageProfile={sageProfile}
+        onHomework={onHomework}
       />
     ),
     StylePanel: CollapsibleStylePanel,
-  }), [displayName, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile]);
+  }), [displayName, isTutor, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile, onHomework]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>
@@ -379,7 +468,6 @@ export function EmbeddedWhiteboard({
             onMount={handleEditorMount}
             autoFocus
           />
-          <SessionControlsPanel />
         </div>
       </SessionProvider>
     </ChannelProvider>

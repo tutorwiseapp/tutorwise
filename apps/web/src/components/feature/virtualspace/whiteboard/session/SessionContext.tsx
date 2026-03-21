@@ -29,6 +29,13 @@ export interface FloatingReaction {
   y: number;
 }
 
+export interface RemoteCursor {
+  userId: string;
+  displayName: string;
+  x: number; // page coordinates
+  y: number;
+}
+
 export interface SessionContextValue {
   // Channel
   sessionChannel: RealtimeChannel | null;
@@ -62,6 +69,14 @@ export interface SessionContextValue {
   followMode: boolean;
   isLeader: boolean;
   toggleFollowMode: () => void;
+
+  // Draw lock (tutor can lock student drawing)
+  drawLocked: boolean;
+  lockDraw: (locked: boolean) => void;
+
+  // Remote cursors
+  remoteCursors: RemoteCursor[];
+  publishCursor: (x: number, y: number, displayName: string) => void;
 }
 
 // ── Context ────────────────────────────────────────────────────────────────
@@ -88,6 +103,10 @@ const SessionContext = createContext<SessionContextValue>({
   followMode: false,
   isLeader: false,
   toggleFollowMode: () => {},
+  drawLocked: false,
+  lockDraw: () => {},
+  remoteCursors: [],
+  publishCursor: () => {},
 });
 
 export const useSession = () => useContext(SessionContext);
@@ -121,6 +140,13 @@ export function SessionProvider({ channelName, currentUserId, children }: Sessio
   // ── Follow mode ─────────────────────────────────────────────────────────
   const [followMode, setFollowMode] = useState(false);
   const [isLeader, setIsLeader] = useState(false);
+
+  // ── Draw lock ────────────────────────────────────────────────────────────
+  const [drawLocked, setDrawLocked] = useState(false);
+
+  // ── Remote cursors ───────────────────────────────────────────────────────
+  const [remoteCursors, setRemoteCursors] = useState<RemoteCursor[]>([]);
+  const cursorExpiryRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   // ── Ably channel ────────────────────────────────────────────────────────
   const { channel } = useChannel(channelName, (message) => {
@@ -163,6 +189,26 @@ export function SessionProvider({ channelName, currentUserId, children }: Sessio
         setTimeout(() => {
           setReactions((prev) => prev.filter((r) => r.id !== id));
         }, 2500);
+        break;
+      }
+      case 'session:draw-lock': {
+        const { locked } = message.data as { locked: boolean };
+        setDrawLocked(locked);
+        break;
+      }
+      case 'session:cursor': {
+        const { userId, displayName, x, y } = message.data as RemoteCursor;
+        if (userId === currentUserId) break; // ignore own cursor
+        setRemoteCursors((prev) => {
+          const filtered = prev.filter((c) => c.userId !== userId);
+          return [...filtered, { userId, displayName, x, y }];
+        });
+        // Auto-expire cursor after 3s of inactivity
+        if (cursorExpiryRef.current[userId]) clearTimeout(cursorExpiryRef.current[userId]);
+        cursorExpiryRef.current[userId] = setTimeout(() => {
+          setRemoteCursors((prev) => prev.filter((c) => c.userId !== userId));
+          delete cursorExpiryRef.current[userId];
+        }, 3000);
         break;
       }
     }
@@ -239,6 +285,19 @@ export function SessionProvider({ channelName, currentUserId, children }: Sessio
     setIsLeader((v) => !v);
   }, []);
 
+  const lockDraw = useCallback((locked: boolean) => {
+    channel.publish('session:draw-lock', { locked });
+    setDrawLocked(locked);
+  }, [channel]);
+
+  const cursorThrottleRef = useRef<number>(0);
+  const publishCursor = useCallback((x: number, y: number, displayName: string) => {
+    const now = Date.now();
+    if (now - cursorThrottleRef.current < 50) return; // ~20fps
+    cursorThrottleRef.current = now;
+    channel.publish('session:cursor', { userId: currentUserId, displayName, x, y });
+  }, [channel, currentUserId]);
+
   const value: SessionContextValue = {
     sessionChannel: channel,
     currentUserId,
@@ -261,6 +320,10 @@ export function SessionProvider({ channelName, currentUserId, children }: Sessio
     followMode,
     isLeader,
     toggleFollowMode,
+    drawLocked,
+    lockDraw,
+    remoteCursors,
+    publishCursor,
   };
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
