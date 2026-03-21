@@ -9,7 +9,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { GripVertical, Video, VideoOff, Mic, MicOff, Monitor, X, Minimize2, Maximize2, ExternalLink } from 'lucide-react';
+import { GripVertical, Video, X, Minimize2, Maximize2, ExternalLink } from 'lucide-react';
 import {
   LiveKitRoom,
   GridLayout,
