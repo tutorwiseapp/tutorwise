@@ -539,7 +539,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
               title="Save whiteboard snapshot"
             >
               <Save size={20} />
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? 'Saving...' : 'Save Snapshot'}
             </button>
           )}
 
