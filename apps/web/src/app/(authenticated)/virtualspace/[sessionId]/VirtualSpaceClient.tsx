@@ -14,8 +14,9 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, BookOpen, StickyNote, UserCheck, Tv2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
 import type { VirtualSpaceSession } from '@/lib/virtualspace';
 import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
@@ -262,6 +263,28 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   };
 
 
+  const handleStartGoogleMeet = useCallback(() => {
+    try {
+      openGoogleMeetWindow(context.sessionId, context.title);
+      trackMeetSession(context.sessionId);
+      toast.success('Google Meet opened in new window');
+    } catch (error) {
+      toast.error('Failed to start Google Meet');
+      console.error(error);
+    }
+  }, [context.sessionId, context.title]);
+
+  const handleJoinVideoRoom = useCallback(() => {
+    const roomName = `tutorwise-${context.sessionId.slice(0, 8)}`;
+    const jitsiUrl = `https://meet.jit.si/${roomName}`;
+    const width = 1280;
+    const height = 720;
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    window.open(jitsiUrl, 'JitsiMeet', `width=${width},height=${height},left=${left},top=${top},resizable=yes`);
+    toast.success('Video room opened — share with your student to join the same room');
+  }, [context.sessionId]);
+
   const handleSaveSnapshot = useCallback(async () => {
     setIsSaving(true);
     try {
@@ -458,11 +481,31 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             </button>
           )}
 
-          {/* In-app LiveKit video call */}
+          {/* Jitsi — free fallback, opens in a new window */}
+          <button
+            onClick={handleJoinVideoRoom}
+            className={styles.secondaryButton}
+            title="Join shared Jitsi video room (opens in new window)"
+          >
+            <Tv2 size={16} />
+            Jitsi
+          </button>
+
+          {/* Google Meet — manual link sharing */}
+          <button
+            onClick={handleStartGoogleMeet}
+            className={styles.secondaryButton}
+            title="Start Google Meet in new window"
+          >
+            <Video size={16} />
+            Google Meet
+          </button>
+
+          {/* LiveKit — in-app video call (primary) */}
           <button
             onClick={() => setVideoOpen((v) => !v)}
             className={videoOpen ? styles.primaryButton : styles.secondaryButton}
-            title="Start in-app video call"
+            title="Start in-app video call (LiveKit)"
           >
             <Video size={16} />
             {videoOpen ? 'Video On' : 'Video Call'}
