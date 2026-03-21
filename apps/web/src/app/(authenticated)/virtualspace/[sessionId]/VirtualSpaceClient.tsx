@@ -14,9 +14,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, Tv2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, BookOpen, StickyNote, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
 import type { VirtualSpaceSession } from '@/lib/virtualspace';
 import styles from '@/components/feature/virtualspace/VirtualSpaceHeader.module.css';
@@ -32,6 +31,7 @@ import type { SageCanvasShapeSpec } from '@/components/feature/virtualspace/canv
 import { TutorNotesPanel } from '@/components/feature/virtualspace/whiteboard/panels/TutorNotesPanel';
 import { ParticipantListPanel } from '@/components/feature/virtualspace/whiteboard/panels/ParticipantListPanel';
 import { HomeworkDialog } from '@/components/feature/virtualspace/whiteboard/panels/HomeworkDialog';
+import { VideoPanel } from '@/components/feature/virtualspace/whiteboard/panels/VideoPanel';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -171,6 +171,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const [tutorNotesOpen, setTutorNotesOpen] = useState(false);
   const [participantListOpen, setParticipantListOpen] = useState(false);
   const [homeworkDialogOpen, setHomeworkDialogOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const lessonPlan = useLessonPlan({
     sessionId: context.sessionId,
     sageSessionId: sage.sageSessionId,
@@ -260,27 +261,6 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     }
   };
 
-  const handleStartGoogleMeet = useCallback(() => {
-    try {
-      openGoogleMeetWindow(context.sessionId, context.title);
-      trackMeetSession(context.sessionId);
-      toast.success('Google Meet opened in new window');
-    } catch (error) {
-      toast.error('Failed to start Google Meet');
-      console.error(error);
-    }
-  }, [context.sessionId, context.title]);
-
-  const handleJoinVideoRoom = useCallback(() => {
-    const roomName = `tutorwise-${context.sessionId.slice(0, 8)}`;
-    const jitsiUrl = `https://meet.jit.si/${roomName}`;
-    const width = 1280;
-    const height = 720;
-    const left = (screen.width - width) / 2;
-    const top = (screen.height - height) / 2;
-    window.open(jitsiUrl, 'JitsiMeet', `width=${width},height=${height},left=${left},top=${top},resizable=yes`);
-    toast.success('Video room opened — share with your student to join the same room');
-  }, [context.sessionId]);
 
   const handleSaveSnapshot = useCallback(async () => {
     setIsSaving(true);
@@ -478,24 +458,14 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             </button>
           )}
 
-          {/* Jitsi Video Room — deterministic room, both users join the same room */}
+          {/* In-app LiveKit video call */}
           <button
-            onClick={handleJoinVideoRoom}
-            className={styles.secondaryButton}
-            title="Join shared video room — same link for tutor and student"
-          >
-            <Tv2 size={16} />
-            Join Video Room
-          </button>
-
-          {/* Google Meet — manual link sharing */}
-          <button
-            onClick={handleStartGoogleMeet}
-            className={styles.primaryButton}
-            title="Start Google Meet in new window"
+            onClick={() => setVideoOpen((v) => !v)}
+            className={videoOpen ? styles.primaryButton : styles.secondaryButton}
+            title="Start in-app video call"
           >
             <Video size={16} />
-            Start Google Meet
+            {videoOpen ? 'Video On' : 'Video Call'}
           </button>
 
           {/* Phase 7: Load Plan button — tutor only */}
@@ -604,6 +574,14 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
         <HomeworkDialog
           onClose={() => setHomeworkDialogOpen(false)}
           onSend={handleSendHomework}
+        />
+      )}
+
+      {/* In-app video call panel */}
+      {videoOpen && (
+        <VideoPanel
+          sessionId={context.sessionId}
+          onClose={() => setVideoOpen(false)}
         />
       )}
     </AblyProvider>
