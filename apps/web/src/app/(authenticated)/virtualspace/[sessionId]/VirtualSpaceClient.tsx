@@ -481,24 +481,24 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             </button>
           )}
 
-          {/* Jitsi — free fallback, opens in a new window */}
+          {/* Jitsi Video Room — deterministic room, both users join the same room */}
           <button
             onClick={handleJoinVideoRoom}
             className={styles.secondaryButton}
-            title="Join shared Jitsi video room (opens in new window)"
+            title="Join shared video room — same link for tutor and student"
           >
             <Tv2 size={16} />
-            Jitsi
+            Join Video Room
           </button>
 
           {/* Google Meet — manual link sharing */}
           <button
             onClick={handleStartGoogleMeet}
-            className={styles.secondaryButton}
+            className={styles.primaryButton}
             title="Start Google Meet in new window"
           >
             <Video size={16} />
-            Google Meet
+            Start Google Meet
           </button>
 
           {/* LiveKit — in-app video call (primary) */}
