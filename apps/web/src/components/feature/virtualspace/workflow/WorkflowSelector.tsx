@@ -1,275 +1,206 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { SessionWorkflow } from './types';
-import { WorkflowCard } from './WorkflowCard';
-import { WorkflowPreviewModal } from './WorkflowPreviewModal';
+import {
+  BookOpen, X, Loader2, Search, Clock, Brain, Accessibility,
+  Calculator, FlaskConical, BookMarked, Globe, GraduationCap, ChevronRight,
+  type LucideIcon,
+} from 'lucide-react';
+import { SessionWorkflow, AI_INVOLVEMENT_LABELS, AI_INVOLVEMENT_COLOURS, LEVEL_LABELS } from './types';
+import styles from './WorkflowSelector.module.css';
+
+const SUBJECT_ICONS: Record<string, LucideIcon> = {
+  maths: Calculator,
+  science: FlaskConical,
+  english: BookMarked,
+  any: Globe,
+};
+
+function WorkflowIcon({ workflow, size = 20 }: { workflow: SessionWorkflow; size?: number }) {
+  const Icon = SUBJECT_ICONS[workflow.subject] ?? GraduationCap;
+  return <Icon size={size} color={workflow.theme.colour} />;
+}
+
+type ActiveTab = 'builtin' | 'mine';
 
 interface WorkflowSelectorProps {
   onSelect: (workflow: SessionWorkflow) => void;
   onSkip: () => void;
 }
 
-const SUBJECTS = [
-  { value: '', label: 'All Subjects' },
-  { value: 'maths', label: 'Maths' },
-  { value: 'science', label: 'Science' },
-  { value: 'english', label: 'English' },
-  { value: 'any', label: 'Any' },
-];
-
-const LEVELS = [
-  { value: '', label: 'All Levels' },
-  { value: 'primary', label: 'Primary' },
-  { value: '11+', label: '11+' },
-  { value: 'foundation', label: 'Foundation' },
-  { value: 'higher', label: 'Higher' },
-  { value: 'a-level', label: 'A-Level' },
-  { value: 'SEN', label: 'SEN' },
-  { value: 'any', label: 'Any' },
-];
-
-const AI_LEVELS = [
-  { value: '', label: 'Any AI Level' },
-  { value: 'full', label: 'Sage Leads' },
-  { value: 'hints', label: 'Sage Hints' },
-  { value: 'co-teach', label: 'Co-Teach' },
-  { value: 'silent', label: 'Sage Silent' },
-];
-
-const DURATIONS = [
-  { value: '', label: 'Any Duration' },
-  { value: '30', label: 'Up to 30 min' },
-  { value: '45', label: 'Up to 45 min' },
-  { value: '60', label: 'Up to 60 min' },
-];
-
 export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('builtin');
   const [workflows, setWorkflows] = useState<SessionWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [previewWorkflow, setPreviewWorkflow] = useState<SessionWorkflow | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Filter state
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [subject, setSubject] = useState('');
-  const [level, setLevel] = useState('');
-  const [aiLevel, setAiLevel] = useState('');
-  const [durationMax, setDurationMax] = useState('');
-  const [senOnly, setSenOnly] = useState(false);
 
-  const fetchWorkflows = useCallback(async () => {
+  const fetchWorkflows = useCallback(async (q: string, tab: ActiveTab) => {
     setLoading(true);
+    setError(null);
     const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (subject) params.set('subject', subject);
-    if (level) params.set('level', level);
-    if (aiLevel) params.set('aiInvolvement', aiLevel);
-    if (durationMax) params.set('durationMax', durationMax);
-    if (senOnly) params.set('senFocus', 'true');
-
+    if (q) params.set('search', q);
+    if (tab === 'builtin') params.set('builtIn', 'true');
     try {
       const res = await fetch(`/api/virtualspace/workflows?${params}`);
       const data = await res.json();
       setWorkflows(data.workflows || []);
     } catch {
+      setError('Failed to load workflows');
       setWorkflows([]);
     } finally {
       setLoading(false);
     }
-  }, [search, subject, level, aiLevel, durationMax, senOnly]);
+  }, []);
 
   useEffect(() => {
-    const t = setTimeout(fetchWorkflows, search ? 300 : 0);
+    const t = setTimeout(() => fetchWorkflows(search, activeTab), search ? 300 : 0);
     return () => clearTimeout(t);
-  }, [fetchWorkflows, search]);
-
-  const hasActiveFilters = subject || level || aiLevel || durationMax || senOnly;
-
-  const clearFilters = () => {
-    setSubject('');
-    setLevel('');
-    setAiLevel('');
-    setDurationMax('');
-    setSenOnly(false);
-  };
+  }, [search, activeTab, fetchWorkflows]);
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9000,
-      background: '#f8fafc',
-      display: 'flex', flexDirection: 'column',
-      overflowY: 'auto',
-    }}>
-      {/* Header */}
-      <div style={{
-        background: '#fff',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '20px 24px 16px',
-        position: 'sticky', top: 0, zIndex: 10,
-      }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#1e293b' }}>
-                🧭 How do you want to learn today?
-              </h1>
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#64748b' }}>
-                Choose a guided session workflow — or skip to open canvas
-              </p>
-            </div>
-            <button
-              onClick={onSkip}
-              style={{
-                background: 'none', border: '1px solid #e2e8f0',
-                borderRadius: 8, padding: '8px 16px',
-                fontSize: 13, color: '#64748b', cursor: 'pointer',
-                fontWeight: 500, whiteSpace: 'nowrap',
-              }}
-            >
+    <div className={styles.overlay} onClick={onSkip}>
+      <div
+        className={styles.modal}
+        onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-label="Choose a workflow"
+      >
+        {/* Header */}
+        <div className={styles.modalHeader}>
+          <div className={styles.modalTitle}>
+            <BookOpen size={18} />
+            <span>How do you want to learn today?</span>
+          </div>
+          <div className={styles.headerActions}>
+            <button className={styles.skipButton} onClick={onSkip}>
               Skip — Open Canvas
             </button>
-          </div>
-
-          {/* Search + filter row */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input
-                type="text"
-                placeholder="Search workflows..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  padding: '9px 10px 9px 32px',
-                  border: '1px solid #e2e8f0', borderRadius: 8,
-                  fontSize: 13, color: '#1e293b',
-                  outline: 'none',
-                }}
-              />
-            </div>
-            <button
-              onClick={() => setShowFilters(f => !f)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: showFilters ? '#006c6710' : 'none',
-                border: `1px solid ${showFilters ? '#006c67' : '#e2e8f0'}`,
-                borderRadius: 8, padding: '9px 14px',
-                fontSize: 13, color: showFilters ? '#006c67' : '#475569',
-                cursor: 'pointer', fontWeight: 500,
-              }}
-            >
-              <SlidersHorizontal size={14} />
-              Filters
-              {hasActiveFilters && (
-                <span style={{
-                  background: '#006c67', color: '#fff',
-                  borderRadius: '50%', width: 16, height: 16,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 700,
-                }}>
-                  !
-                </span>
-              )}
+            <button className={styles.closeButton} onClick={onSkip} aria-label="Close">
+              <X size={18} />
             </button>
           </div>
+        </div>
 
-          {/* Filter panel */}
-          {showFilters && (
-            <div style={{
-              marginTop: 12, padding: '12px 14px',
-              background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0',
-              display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center',
-            }}>
-              <Select value={subject} onChange={setSubject} options={SUBJECTS} />
-              <Select value={level} onChange={setLevel} options={LEVELS} />
-              <Select value={aiLevel} onChange={setAiLevel} options={AI_LEVELS} />
-              <Select value={durationMax} onChange={setDurationMax} options={DURATIONS} />
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#475569', cursor: 'pointer' }}>
-                <input type="checkbox" checked={senOnly} onChange={e => setSenOnly(e.target.checked)} />
-                SEN Focus
-              </label>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 4,
-                    background: 'none', border: 'none',
-                    fontSize: 12, color: '#ef4444', cursor: 'pointer',
-                  }}
-                >
-                  <X size={12} /> Clear filters
-                </button>
-              )}
+        <p className={styles.modalSubtitle}>
+          Choose a guided session workflow or skip to the open canvas.
+        </p>
+
+        {/* Search */}
+        <div className={styles.searchWrapper}>
+          <Search size={14} className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search workflows..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+
+        {/* Tabs */}
+        <div className={styles.tabBar}>
+          <button
+            className={`${styles.tab} ${activeTab === 'builtin' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('builtin')}
+          >
+            Built-in
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'mine' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('mine')}
+          >
+            My Workflows
+          </button>
+        </div>
+
+        {/* List */}
+        <div className={styles.workflowList}>
+          {loading && (
+            <div className={styles.loadingState}>
+              <Loader2 size={24} className={styles.spinner} />
+              <span>Loading workflows...</span>
             </div>
           )}
+
+          {error && !loading && (
+            <div className={styles.errorState}>
+              <span>{error}</span>
+              <button className={styles.retryButton} onClick={() => fetchWorkflows(search, activeTab)}>
+                Try again
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && workflows.length === 0 && (
+            <div className={styles.emptyState}>
+              {activeTab === 'mine'
+                ? 'No custom workflows yet.'
+                : 'No workflows match your search.'}
+            </div>
+          )}
+
+          {!loading && !error && workflows.map(workflow => {
+            const aiColour = AI_INVOLVEMENT_COLOURS[workflow.ai_involvement] || '#64748b';
+            return (
+              <button
+                key={workflow.id}
+                className={styles.workflowCard}
+                style={{ '--theme-colour': workflow.theme.colour } as React.CSSProperties}
+                onClick={() => onSelect(workflow)}
+              >
+                <div className={styles.cardHeader}>
+                  <div className={styles.cardIcon}>
+                    <WorkflowIcon workflow={workflow} size={20} />
+                  </div>
+                  <div className={styles.cardMeta}>
+                    <span className={styles.cardName}>{workflow.name}</span>
+                    {workflow.short_description && (
+                      <p className={styles.cardDescription}>{workflow.short_description}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Badges */}
+                <div className={styles.badges}>
+                  <span className={styles.badge}>
+                    <Clock size={10} />
+                    {workflow.duration_mins} min
+                  </span>
+                  <span className={styles.badge}>
+                    {LEVEL_LABELS[workflow.level] || workflow.level}
+                  </span>
+                  <span className={styles.badge} style={{ background: `${aiColour}15`, color: aiColour }}>
+                    <Brain size={10} />
+                    {AI_INVOLVEMENT_LABELS[workflow.ai_involvement] || workflow.ai_involvement}
+                  </span>
+                  {workflow.sen_focus && (
+                    <span className={styles.badge} style={{ background: '#10b98115', color: '#10b981' }}>
+                      <Accessibility size={10} />
+                      SEN
+                    </span>
+                  )}
+                </div>
+
+                {/* Phase arc */}
+                <div className={styles.phaseArc}>
+                  {workflow.phases.slice(0, 4).map((phase, i) => (
+                    <div key={phase.id} className={styles.phaseArcItem}>
+                      <span style={{ fontSize: 11, color: '#475569' }}>{phase.name}</span>
+                      {i < Math.min(workflow.phases.length - 1, 3) && (
+                        <ChevronRight size={10} className={styles.phaseArcArrow} />
+                      )}
+                    </div>
+                  ))}
+                  {workflow.phases.length > 4 && (
+                    <span style={{ fontSize: 11, color: '#94a3b8' }}>+{workflow.phases.length - 4} more</span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
-
-      {/* Grid */}
-      <div style={{ flex: 1, padding: '24px', maxWidth: 900, margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-        {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, color: '#94a3b8', fontSize: 14 }}>
-            Loading workflows...
-          </div>
-        ) : workflows.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 8 }}>
-            <span style={{ fontSize: 32 }}>🔍</span>
-            <div style={{ fontSize: 14, color: '#64748b' }}>No workflows match your filters</div>
-            <button onClick={clearFilters} style={{ fontSize: 13, color: '#006c67', background: 'none', border: 'none', cursor: 'pointer' }}>
-              Clear filters
-            </button>
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: 16,
-          }}>
-            {workflows.map(workflow => (
-              <WorkflowCard
-                key={workflow.id}
-                workflow={workflow}
-                onPreview={setPreviewWorkflow}
-                onSelect={onSelect}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Preview modal */}
-      {previewWorkflow && (
-        <WorkflowPreviewModal
-          workflow={previewWorkflow}
-          onClose={() => setPreviewWorkflow(null)}
-          onSelect={w => { setPreviewWorkflow(null); onSelect(w); }}
-        />
-      )}
     </div>
-  );
-}
-
-function Select({ value, onChange, options }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      style={{
-        padding: '6px 10px', border: '1px solid #e2e8f0',
-        borderRadius: 6, fontSize: 12, color: '#475569',
-        background: '#fff', cursor: 'pointer',
-      }}
-    >
-      {options.map(o => (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      ))}
-    </select>
   );
 }

@@ -11,6 +11,7 @@
 import { useEditor } from '@tldraw/editor';
 import { useState, useCallback } from 'react';
 import { createShapeId } from 'tldraw';
+import { Crosshair, X, Star, Eye, RefreshCw, MapPin, Target, CheckCircle2, type LucideIcon } from 'lucide-react';
 import type { CircuitComponentType } from '../shapes/CircuitShapeUtil';
 import type { AnnotationType } from '../shapes/AnnotationShapeUtil';
 
@@ -1108,11 +1109,110 @@ function SubjectPanel({
   );
 }
 
+// ── Focus / Feedback Stamps panel ─────────────────────────────────────────
+
+interface FocusStamp {
+  id: string;
+  label: string;
+  Icon: LucideIcon;
+  colour: string;
+}
+
+const FOCUS_STAMPS: FocusStamp[] = [
+  { id: 'great-work',  label: 'Great Work!',  Icon: Star,         colour: '#f59e0b' },
+  { id: 'check-this',  label: 'Check This',   Icon: Eye,          colour: '#6366f1' },
+  { id: 'try-again',   label: 'Try Again',    Icon: RefreshCw,    colour: '#ef4444' },
+  { id: 'almost',      label: 'Almost!',      Icon: MapPin,       colour: '#f97316' },
+  { id: 'focus-here',  label: 'Focus Here',   Icon: Target,       colour: '#006c67' },
+  { id: 'well-done',   label: 'Well Done',    Icon: CheckCircle2, colour: '#22c55e' },
+];
+
+function FocusPanel({ onClose }: { onClose: () => void }) {
+  const editor = useEditor();
+
+  const stamp = useCallback((item: FocusStamp) => {
+    const vp = editor.getViewportPageBounds();
+    const x = vp.x + vp.w / 2 - 60;
+    const y = vp.y + vp.h / 2 - 30;
+    const id = createShapeId();
+    editor.createShape({
+      id,
+      type: 'text',
+      x,
+      y,
+      props: {
+        text: item.label,
+        size: 'l',
+        color: 'black',
+        font: 'sans',
+        align: 'middle',
+        autoSize: true,
+      },
+    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    editor.setSelectedShapes([id]);
+  }, [editor]);
+
+  return (
+    <div style={{
+      marginTop: 6,
+      background: '#fff',
+      border: '1px solid #e2e8f0',
+      borderRadius: 10,
+      boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+      minWidth: 180,
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 10px 6px',
+        borderBottom: '1px solid #f1f5f9',
+      }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b', fontFamily: 'sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Feedback Stamps
+        </span>
+        <button
+          onClick={onClose}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 2, display: 'flex' }}
+        >
+          <X size={14} />
+        </button>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 1, padding: '4px 6px 6px' }}>
+        {FOCUS_STAMPS.map(item => (
+          <button
+            key={item.id}
+            onClick={() => stamp(item)}
+            title={`Stamp "${item.label}" on canvas`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '6px 8px',
+              background: 'none',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer',
+              textAlign: 'left',
+              width: '100%',
+              fontFamily: 'sans-serif',
+              transition: 'background 0.1s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+          >
+            <item.Icon size={14} color={item.colour} style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main panel ────────────────────────────────────────────────────────────
 
-export function SubjectToolsPanel() {
+export function SubjectToolsPanel({ isTutor }: { isTutor?: boolean }) {
   const editor = useEditor();
   const [openTab, setOpenTab] = useState<Tab | null>(null);
+  const [focusOpen, setFocusOpen] = useState(false);
 
   const allTools: Record<Tab, ToolItem[]> = {
     maths: getMathsTools(),
@@ -1122,6 +1222,12 @@ export function SubjectToolsPanel() {
 
   const toggle = useCallback((t: Tab) => {
     setOpenTab((cur) => (cur === t ? null : t));
+    setFocusOpen(false);
+  }, []);
+
+  const toggleFocus = useCallback(() => {
+    setFocusOpen(f => !f);
+    setOpenTab(null);
   }, []);
 
   return (
@@ -1129,7 +1235,7 @@ export function SubjectToolsPanel() {
       style={{
         position: 'absolute',
         top: 16,
-        right: 395,
+        right: isTutor ? 535 : 467,
         zIndex: 500,
         display: 'flex',
         flexDirection: 'column',
@@ -1137,15 +1243,17 @@ export function SubjectToolsPanel() {
         pointerEvents: 'all',
       }}
     >
-      {/* 3 CTA buttons */}
+      {/* Toolbar pill */}
       <div style={{
         display: 'flex',
         flexDirection: 'row',
-        gap: 16,
+        alignItems: 'center',
+        gap: 6,
         padding: '5px 10px',
         background: 'hsl(204, 16%, 94%)',
         borderRadius: 9,
       }}>
+        {/* Subject buttons */}
         {SUBJECT_BUTTONS.map(({ tab, symbol, nudge }) => {
           const cfg = SUBJECT_CONFIG[tab];
           const active = openTab === tab;
@@ -1179,15 +1287,48 @@ export function SubjectToolsPanel() {
             </button>
           );
         })}
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, background: '#cbd5e1', flexShrink: 0, margin: '0 2px' }} />
+
+        {/* Focus / Feedback Stamps button */}
+        <button
+          onClick={toggleFocus}
+          title="Feedback Stamps"
+          style={{
+            width: 28,
+            height: 28,
+            border: `1.5px solid ${focusOpen ? '#006c67' : '#006c6760'}`,
+            background: focusOpen ? '#ccf0ee' : 'transparent',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 6,
+            boxShadow: focusOpen ? '0 0 0 3px #006c6730' : 'none',
+            transition: 'all 0.15s',
+            padding: 0,
+            flexShrink: 0,
+            color: '#006c67',
+          }}
+        >
+          <Crosshair size={14} />
+        </button>
+
       </div>
 
-      {/* Open panel (only one at a time) */}
+      {/* Open subject panel */}
       {openTab && (
         <SubjectPanel
           subject={openTab}
           tools={allTools[openTab]}
           onClose={() => setOpenTab(null)}
         />
+      )}
+
+      {/* Focus / Feedback stamps panel */}
+      {focusOpen && (
+        <FocusPanel onClose={() => setFocusOpen(false)} />
       )}
     </div>
   );

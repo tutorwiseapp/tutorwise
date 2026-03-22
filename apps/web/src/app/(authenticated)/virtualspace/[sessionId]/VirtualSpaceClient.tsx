@@ -499,21 +499,17 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     toast.success('Homework sent to student');
   }, [ablyClient, context.channelName, context.ownerName, context.sessionId]);
 
-  // Workflow selector — shown on first load, dismissed on select or skip
-  if (showWorkflowSelector) {
-    return (
-      <WorkflowSelector
-        onSelect={(workflow) => {
-          setSelectedWorkflow(workflow);
-          setShowWorkflowSelector(false);
-        }}
-        onSkip={() => setShowWorkflowSelector(false)}
-      />
-    );
-  }
-
   return (
     <AblyProvider client={ablyClient}>
+      {showWorkflowSelector && (
+        <WorkflowSelector
+          onSelect={(workflow) => {
+            setSelectedWorkflow(workflow);
+            setShowWorkflowSelector(false);
+          }}
+          onSkip={() => setShowWorkflowSelector(false)}
+        />
+      )}
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.leftSection}>
@@ -538,7 +534,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
               }}
               onClick={() => setShowWorkflowSelector(true)}
             >
-              {selectedWorkflow.theme.icon} {selectedWorkflow.name}
+              <BookOpen size={12} /> {selectedWorkflow.name}
             </span>
           )}
           <span

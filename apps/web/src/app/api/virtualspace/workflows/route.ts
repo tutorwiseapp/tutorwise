@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   const durationMax = searchParams.get('durationMax');
   const search = searchParams.get('search');
   const tags = searchParams.get('tags'); // comma-separated
+  const builtIn = searchParams.get('builtIn');
 
   let query = supabase
     .from('session_workflows')
@@ -33,6 +34,8 @@ export async function GET(request: NextRequest) {
   if (subject && subject !== 'any') query = query.eq('subject', subject);
   if (level && level !== 'any') query = query.eq('level', level);
   if (aiInvolvement) query = query.eq('ai_involvement', aiInvolvement);
+  if (builtIn === 'true') query = query.eq('built_in', true);
+  else if (builtIn === 'false') query = query.eq('built_in', false);
   if (senFocus === 'true') query = query.eq('sen_focus', true);
   if (examBoard && examBoard !== 'any') query = query.eq('exam_board', examBoard);
   if (durationMax) query = query.lte('duration_mins', parseInt(durationMax));

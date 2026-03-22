@@ -230,7 +230,7 @@ function InFrontOfTheCanvas({
   return (
     <>
       <SessionControlsPanel isTutor={isTutor} onHomework={onHomework} />
-      <SubjectToolsPanel />
+      <SubjectToolsPanel isTutor={isTutor} />
       <ChatPanel displayName={displayName} />
       <TimerWidget />
       <ReactionOverlay />
@@ -288,7 +288,7 @@ function InFrontOfTheCanvas({
           style={{
             position: 'absolute',
             top: 16,
-            right: 539,
+            right: isTutor ? 704 : 636,
             display: 'flex',
             alignItems: 'center',
             gap: 6,
