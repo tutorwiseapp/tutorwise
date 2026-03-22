@@ -66,6 +66,10 @@ import { ReactionOverlay } from './whiteboard/session/ReactionOverlay';
 // Subject tools panel
 import { SubjectToolsPanel } from './whiteboard/panels/SubjectToolsPanel';
 
+// Workflow phase bar
+import { SessionPhaseBar } from './workflow/SessionPhaseBar';
+import type { SessionWorkflow } from './workflow/types';
+
 // Sage canvas writer — snapshot + erase tracking. Stamping is done via editorRef + onMount.
 import { SageCanvasWriter, stampShapesOnEditor } from './canvas/SageCanvasWriter';
 import type { SageCanvasShapeSpec } from './canvas/canvasBlockParser';
@@ -186,6 +190,9 @@ function InFrontOfTheCanvas({
   sageProfile,
   onHomework,
   onOpenWorkflowSelector,
+  sessionId,
+  sessionChannelName,
+  activeWorkflow,
 }: {
   displayName: string;
   isTutor?: boolean;
@@ -197,6 +204,10 @@ function InFrontOfTheCanvas({
   sageProfile?: string;
   onHomework?: () => void;
   onOpenWorkflowSelector?: () => void;
+  sessionId?: string;
+  sessionChannelName?: string;
+  activeWorkflow?: SessionWorkflow | null;
+  editorRef?: React.MutableRefObject<import('@tldraw/editor').Editor | null>;
 }) {
   const editor = useEditor();
   const { drawLocked, remoteCursors, publishCursor } = useSession();
@@ -233,6 +244,15 @@ function InFrontOfTheCanvas({
     <>
       <SessionControlsPanel isTutor={isTutor} onHomework={onHomework} />
       <SubjectToolsPanel isTutor={isTutor} onOpenWorkflowSelector={onOpenWorkflowSelector} />
+      {sessionId && sessionChannelName && activeWorkflow && (
+        <SessionPhaseBar
+          sessionId={sessionId}
+          channelName={sessionChannelName}
+          workflow={activeWorkflow}
+          isTutor={isTutor}
+          editorRef={editorRef}
+        />
+      )}
       <ChatPanel displayName={displayName} />
       <TimerWidget />
       <ReactionOverlay />
@@ -350,6 +370,12 @@ interface EmbeddedWhiteboardProps {
   onHomework?: () => void;
   /** Called when the Learn Your Way toolbar button is clicked */
   onOpenWorkflowSelector?: () => void;
+  /** VirtualSpace session ID — passed to SessionPhaseBar for API calls */
+  sessionId?: string;
+  /** Active workflow — renders SessionPhaseBar when set */
+  activeWorkflow?: SessionWorkflow | null;
+  /** tldraw editor ref — forwarded to SessionPhaseBar for canvas action execution */
+  editorRef?: React.MutableRefObject<import('@tldraw/editor').Editor | null>;
   /** URL of the previous snapshot to restore canvas state on rejoin */
   initialSnapshotUrl?: string;
   /** Called after a successful auto-save so parent can show "Last saved" time */
@@ -373,6 +399,9 @@ export function EmbeddedWhiteboard({
   isTutor,
   onHomework,
   onOpenWorkflowSelector,
+  sessionId,
+  activeWorkflow,
+  editorRef: externalEditorRef,
   initialSnapshotUrl,
   onAutoSaved,
 }: EmbeddedWhiteboardProps) {
@@ -381,6 +410,7 @@ export function EmbeddedWhiteboard({
   const editorRef = useRef<Editor | null>(null);
   const handleEditorMount = useCallback((editor: Editor) => {
     editorRef.current = editor;
+    if (externalEditorRef) externalEditorRef.current = editor;
 
     // Restore previous canvas state on rejoin (non-blocking, fails silently)
     if (initialSnapshotUrl) {
@@ -465,10 +495,7 @@ export function EmbeddedWhiteboard({
   }, [onAutoSaved]);
 
   // Session channel name for chat/timer/reactions (distinct from draw channel)
-  const sessionChannelName = `session:${channelName}`;
 
-  // Stable component map — pendingShapes/onShapesStamped removed from deps.
-  // Stamping is now done via editorRef+useEffect above, not through tldraw slots.
   const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => (
       <InFrontOfTheCanvas
@@ -482,10 +509,15 @@ export function EmbeddedWhiteboard({
         sageProfile={sageProfile}
         onHomework={onHomework}
         onOpenWorkflowSelector={onOpenWorkflowSelector}
+        sessionId={sessionId}
+        sessionChannelName={sessionChannelName}
+        activeWorkflow={activeWorkflow}
+        editorRef={editorRef}
       />
     ),
     StylePanel: CollapsibleStylePanel,
-  }), [displayName, isTutor, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile, onHomework, onOpenWorkflowSelector]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [displayName, isTutor, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile, onHomework, onOpenWorkflowSelector, sessionId, sessionChannelName, activeWorkflow]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>

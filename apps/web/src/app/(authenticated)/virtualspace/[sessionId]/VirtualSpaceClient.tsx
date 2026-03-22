@@ -503,9 +503,19 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     <AblyProvider client={ablyClient}>
       {showWorkflowSelector && (
         <WorkflowSelector
-          onSelect={(workflow) => {
+          onSelect={async (workflow) => {
             setSelectedWorkflow(workflow);
             setShowWorkflowSelector(false);
+            // Start the workflow runtime — sets workflow_id + workflow_state, broadcasts workflow:started
+            try {
+              await fetch(`/api/virtualspace/${context.sessionId}/workflow/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workflowId: workflow.id }),
+              });
+            } catch {
+              // Non-fatal — phase bar won't show but session continues normally
+            }
           }}
           onSkip={() => setShowWorkflowSelector(false)}
         />
@@ -774,6 +784,8 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           isTutor={isTutor}
           onHomework={() => setHomeworkDialogOpen(true)}
           onOpenWorkflowSelector={() => setShowWorkflowSelector(true)}
+          sessionId={context.sessionId}
+          activeWorkflow={selectedWorkflow}
           initialSnapshotUrl={context.snapshotUrl}
           onAutoSaved={() => setLastSavedAt(new Date())}
         />

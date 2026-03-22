@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen, X, Loader2, Search, Clock, Brain, Accessibility,
-  Calculator, FlaskConical, BookMarked, Globe, GraduationCap, ChevronRight,
+  Calculator, FlaskConical, BookMarked, Globe, GraduationCap, ChevronRight, Plus,
 } from 'lucide-react';
 import { SessionWorkflow, AI_INVOLVEMENT_LABELS, AI_INVOLVEMENT_COLOURS, LEVEL_LABELS } from './types';
 import styles from './WorkflowSelector.module.css';
+import { WorkflowBuilder } from './WorkflowBuilder';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SUBJECT_ICONS: Record<string, any> = {
@@ -31,6 +32,7 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [showBuilder, setShowBuilder] = useState(false);
 
   const fetchWorkflows = useCallback(async (q: string) => {
     setLoading(true);
@@ -54,6 +56,16 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
     return () => clearTimeout(t);
   }, [search, fetchWorkflows]);
 
+  // Show builder in place of the selector
+  if (showBuilder) {
+    return (
+      <WorkflowBuilder
+        onSave={(workflow) => { onSelect(workflow); setShowBuilder(false); }}
+        onCancel={() => setShowBuilder(false)}
+      />
+    );
+  }
+
   return (
     <div className={styles.overlay} onClick={onSkip}>
       <div
@@ -69,6 +81,9 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
             <span>How do you want to learn today?</span>
           </div>
           <div className={styles.headerActions}>
+            <button className={styles.skipButton} style={{ display: 'flex', alignItems: 'center', gap: 5 }} onClick={() => setShowBuilder(true)}>
+              <Plus size={13} /> Create
+            </button>
             <button className={styles.skipButton} onClick={onSkip}>
               Skip — Open Canvas
             </button>

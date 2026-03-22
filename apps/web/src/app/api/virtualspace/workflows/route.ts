@@ -55,3 +55,53 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ workflows: workflows || [] });
 }
+
+/**
+ * POST /api/virtualspace/workflows
+ * Create a custom workflow owned by the current user.
+ */
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json().catch(() => ({}));
+  const { name, description, short_description, subject, level, duration_mins, ai_involvement, sen_focus, exam_board, tags, theme, phases, learn_your_way } = body as Record<string, unknown>;
+
+  if (!name || !subject || !level) {
+    return NextResponse.json({ error: 'name, subject and level are required' }, { status: 400 });
+  }
+
+  const slug = `custom-${user.id.slice(0, 8)}-${Date.now()}`;
+
+  const { data, error } = await supabase
+    .from('session_workflows')
+    .insert({
+      slug,
+      name,
+      description: description ?? null,
+      short_description: short_description ?? null,
+      subject,
+      level,
+      duration_mins: duration_mins ?? 60,
+      ai_involvement: ai_involvement ?? 'hints',
+      sen_focus: sen_focus ?? false,
+      exam_board: exam_board ?? 'any',
+      tags: tags ?? [],
+      theme: theme ?? { colour: '#6366f1', backgroundStyle: 'default', narrative: '', icon: '📚' },
+      phases: phases ?? [],
+      learn_your_way: learn_your_way ?? { freedoms: [], agencyPoints: [], bestFor: '' },
+      built_in: false,
+      published: false,
+      created_by: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[workflows POST]', error);
+    return NextResponse.json({ error: 'Create failed' }, { status: 500 });
+  }
+
+  return NextResponse.json({ workflow: data }, { status: 201 });
+}
