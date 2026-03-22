@@ -587,6 +587,7 @@ export function useSageVirtualSpace(options: UseSageVirtualSpaceOptions): UseSag
         signal: controller.signal,
         body: JSON.stringify({
           sageSessionId: currentSageSessionId,
+          virtualspaceSessionId: sessionId,
           message: trimmedText,
           conversationHistory,
           extraContext: extraContext || undefined,
