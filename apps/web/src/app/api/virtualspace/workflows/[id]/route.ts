@@ -1,10 +1,37 @@
 /**
- * PATCH /api/virtualspace/workflows/[id]  — update a custom workflow
- * DELETE /api/virtualspace/workflows/[id] — delete a custom workflow (owner only)
+ * GET    /api/virtualspace/workflows/[id]   — fetch by UUID or slug
+ * PATCH  /api/virtualspace/workflows/[id]   — update a custom workflow (owner only)
+ * DELETE /api/virtualspace/workflows/[id]   — delete a custom workflow (owner only)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const isUuid = UUID_RE.test(id);
+  const { data: workflow, error } = await supabase
+    .from('session_workflows')
+    .select('*')
+    .eq(isUuid ? 'id' : 'slug', id)
+    .or(`published.eq.true,created_by.eq.${user.id}`)
+    .single();
+
+  if (error || !workflow) {
+    return NextResponse.json({ error: 'Workflow not found' }, { status: 404 });
+  }
+
+  return NextResponse.json({ workflow });
+}
 
 export async function PATCH(
   request: NextRequest,
