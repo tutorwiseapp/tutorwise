@@ -504,18 +504,25 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
       {showWorkflowSelector && (
         <WorkflowSelector
           onSelect={async (workflow) => {
-            setSelectedWorkflow(workflow);
-            setShowWorkflowSelector(false);
-            // Start the workflow runtime — sets workflow_id + workflow_state, broadcasts workflow:started
+            // Start the workflow runtime first — if it fails, keep the selector open
             try {
-              await fetch(`/api/virtualspace/${context.sessionId}/workflow/start`, {
+              const res = await fetch(`/api/virtualspace/${context.sessionId}/workflow/start`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ workflowId: workflow.id }),
               });
-            } catch {
-              // Non-fatal — phase bar won't show but session continues normally
+              if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                console.error('[VirtualSpace] Workflow start failed:', err);
+                // Keep selector open — don't apply broken state
+                return;
+              }
+            } catch (err) {
+              console.error('[VirtualSpace] Workflow start error:', err);
+              return;
             }
+            setSelectedWorkflow(workflow);
+            setShowWorkflowSelector(false);
           }}
           onSkip={() => setShowWorkflowSelector(false)}
         />

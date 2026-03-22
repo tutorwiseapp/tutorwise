@@ -24,10 +24,11 @@ export async function GET(request: NextRequest) {
   const tags = searchParams.get('tags'); // comma-separated
   const builtIn = searchParams.get('builtIn');
 
+  // Return published workflows + the user's own unpublished custom workflows
   let query = supabase
     .from('session_workflows')
-    .select('id, slug, name, description, short_description, theme, tags, exam_board, subject, level, duration_mins, ai_involvement, sen_focus, phases, learn_your_way, built_in')
-    .eq('published', true)
+    .select('id, slug, name, description, short_description, theme, tags, exam_board, subject, level, duration_mins, ai_involvement, sen_focus, phases, learn_your_way, built_in, published')
+    .or(`published.eq.true,created_by.eq.${user.id}`)
     .order('built_in', { ascending: false })
     .order('name');
 
@@ -65,11 +66,24 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  const VALID_AI_INVOLVEMENT = ['full', 'hints', 'silent', 'co-teach'];
+  const VALID_LEVELS = ['primary', 'foundation', 'higher', 'SEN', '11+', 'a-level', 'any'];
+  const VALID_SUBJECTS = ['maths', 'science', 'english', 'any'];
+
   const body = await request.json().catch(() => ({}));
   const { name, description, short_description, subject, level, duration_mins, ai_involvement, sen_focus, exam_board, tags, theme, phases, learn_your_way } = body as Record<string, unknown>;
 
   if (!name || !subject || !level) {
     return NextResponse.json({ error: 'name, subject and level are required' }, { status: 400 });
+  }
+  if (ai_involvement && !VALID_AI_INVOLVEMENT.includes(ai_involvement as string)) {
+    return NextResponse.json({ error: `ai_involvement must be one of: ${VALID_AI_INVOLVEMENT.join(', ')}` }, { status: 400 });
+  }
+  if (!VALID_LEVELS.includes(level as string)) {
+    return NextResponse.json({ error: `level must be one of: ${VALID_LEVELS.join(', ')}` }, { status: 400 });
+  }
+  if (!VALID_SUBJECTS.includes(subject as string)) {
+    return NextResponse.json({ error: `subject must be one of: ${VALID_SUBJECTS.join(', ')}` }, { status: 400 });
   }
 
   const slug = `custom-${user.id.slice(0, 8)}-${Date.now()}`;

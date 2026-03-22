@@ -106,6 +106,12 @@ export async function POST(request: NextRequest) {
               { senFocus: (workflow as SessionWorkflow).sen_focus }
             );
             phaseBlock = phaseCtx.sageSystemBlock;
+          } else if (vsSession?.workflow_id) {
+            // workflow_id set but workflow row missing — data inconsistency, log for monitoring
+            console.warn('[Sage VirtualSpace] Orphaned workflow_id on session:', {
+              virtualspaceSessionId,
+              workflowId: vsSession.workflow_id,
+            });
           }
         }
       } catch {

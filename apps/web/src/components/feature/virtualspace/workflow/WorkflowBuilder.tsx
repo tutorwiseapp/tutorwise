@@ -91,6 +91,7 @@ export function WorkflowBuilder({ initial, onSave, onCancel }: WorkflowBuilderPr
 
   const handleSave = useCallback(async () => {
     if (!name.trim()) { setError('Workflow name is required'); setStep(1); return; }
+    if (phases.length === 0) { setError('At least one phase is required'); setStep(2); return; }
     if (phases.some(p => !p.name.trim())) { setError('All phases must have a name'); setStep(2); return; }
 
     setSaving(true);
@@ -271,6 +272,9 @@ export function WorkflowBuilder({ initial, onSave, onCancel }: WorkflowBuilderPr
             </Field>
             <Field label="Sage prompt template">
               <textarea value={phases[editingPhaseIdx].sagePromptTemplate} onChange={e => updatePhase(editingPhaseIdx, { sagePromptTemplate: e.target.value })} placeholder="Instructions for Sage during this phase..." rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
+              {!phases[editingPhaseIdx].sagePromptTemplate.trim() && (
+                <span style={{ fontSize: 11, color: '#f59e0b' }}>⚠ No prompt template — Sage will use generic behaviour for this phase.</span>
+              )}
             </Field>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => setStep(2)} style={secondaryBtn}>← Phases</button>

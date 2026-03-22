@@ -31,13 +31,26 @@ export async function POST(
     return NextResponse.json({ error: 'workflowId is required' }, { status: 400 });
   }
 
+  // Validate the workflow exists and is accessible to this user
+  const supabaseCheck = await createClient();
+  const { data: workflow } = await supabaseCheck
+    .from('session_workflows')
+    .select('id')
+    .eq('id', workflowId)
+    .or(`published.eq.true,created_by.eq.${user.id}`)
+    .single();
+
+  if (!workflow) {
+    return NextResponse.json({ error: 'Workflow not found or not accessible' }, { status: 404 });
+  }
+
   try {
     const runtime = await VirtualSpaceWorkflowRuntime.forSession(sessionId, user.id);
     const state = await runtime.start(workflowId);
     return NextResponse.json({ state });
   } catch (err) {
     if (err instanceof WorkflowRuntimeError) {
-      const status = err.code === 'NOT_FOUND' ? 404 : 400;
+      const status = err.code === 'NOT_FOUND' ? 404 : err.code === 'FORBIDDEN' ? 403 : 400;
       return NextResponse.json({ error: err.message, code: err.code }, { status });
     }
     console.error('[workflow/start]', err);

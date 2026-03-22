@@ -36,7 +36,7 @@ export async function POST(
     return NextResponse.json({ state });
   } catch (err) {
     if (err instanceof WorkflowRuntimeError) {
-      const status = err.code === 'NOT_FOUND' ? 404 : 400;
+      const status = err.code === 'NOT_FOUND' ? 404 : err.code === 'FORBIDDEN' ? 403 : err.code === 'CONFLICT' ? 409 : 400;
       return NextResponse.json({ error: err.message, code: err.code }, { status });
     }
     console.error('[workflow/advance]', err);

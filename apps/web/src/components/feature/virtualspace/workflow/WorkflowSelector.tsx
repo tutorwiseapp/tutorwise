@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen, X, Loader2, Search, Clock, Brain, Accessibility,
   Calculator, FlaskConical, BookMarked, Globe, GraduationCap, ChevronRight, Plus,
@@ -9,8 +9,7 @@ import { SessionWorkflow, AI_INVOLVEMENT_LABELS, AI_INVOLVEMENT_COLOURS, LEVEL_L
 import styles from './WorkflowSelector.module.css';
 import { WorkflowBuilder } from './WorkflowBuilder';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SUBJECT_ICONS: Record<string, any> = {
+const SUBJECT_ICONS: Record<string, React.ElementType> = {
   maths: Calculator,
   science: FlaskConical,
   english: BookMarked,
@@ -139,6 +138,7 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
                 className={styles.workflowCard}
                 style={{ '--theme-colour': workflow.theme.colour } as React.CSSProperties}
                 onClick={() => onSelect(workflow)}
+                aria-label={`Select workflow: ${workflow.name}`}
               >
                 <div className={styles.cardHeader}>
                   <div className={styles.cardIcon}>

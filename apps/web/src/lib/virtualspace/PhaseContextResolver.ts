@@ -89,6 +89,12 @@ export function resolvePhaseContext(
   const phase = workflow.phases[phaseIndex];
 
   if (!phase) {
+    console.error('[PhaseContextResolver] Phase index out of bounds', {
+      phaseIndex,
+      totalPhases: workflow.phases.length,
+      workflowId: workflow.id,
+      workflowSlug: workflow.slug,
+    });
     throw new Error(
       `Phase index ${phaseIndex} out of bounds for workflow "${workflow.slug}" (${workflow.phases.length} phases)`
     );
@@ -146,6 +152,7 @@ function defaultPersonaForMode(mode: WorkflowPhase['sageMode'], role: SessionRol
     case 'co-teach': return 'Sage';
     case 'hints':    return 'Hint Guide';
     case 'silent':   return 'Silent Sage';
+    default:         return 'Sage';
   }
 }
 

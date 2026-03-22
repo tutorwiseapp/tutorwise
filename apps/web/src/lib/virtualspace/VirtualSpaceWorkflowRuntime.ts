@@ -75,6 +75,9 @@ export class VirtualSpaceWorkflowRuntime {
     if (session.status !== 'active') {
       throw new WorkflowRuntimeError('Session is not active', 'SESSION_INACTIVE');
     }
+    if (session.owner_id !== userId) {
+      throw new WorkflowRuntimeError('Only the session owner can control the workflow', 'FORBIDDEN');
+    }
 
     const channelName = `session:virtualspace:${sessionId}`;
     return new VirtualSpaceWorkflowRuntime(supabase, sessionId, userId, channelName);
@@ -149,10 +152,16 @@ export class VirtualSpaceWorkflowRuntime {
       transitions: [...state.transitions, transition],
     };
 
-    await this.supabase
+    // Optimistic lock: only update if currentPhaseIndex hasn't changed since we read it
+    const { error: updateError } = await this.supabase
       .from('virtualspace_sessions')
       .update({ workflow_state: nextState })
-      .eq('id', this.sessionId);
+      .eq('id', this.sessionId)
+      .filter('workflow_state->>currentPhaseIndex', 'eq', String(state.currentPhaseIndex));
+
+    if (updateError) {
+      throw new WorkflowRuntimeError('Phase advance failed — concurrent modification detected', 'CONFLICT');
+    }
 
     const event: WorkflowPhaseChangedEvent = {
       name: 'workflow:phase-changed',
@@ -167,7 +176,10 @@ export class VirtualSpaceWorkflowRuntime {
         changedAt: now,
       },
     };
-    await this.publish(event);
+    const published = await this.publish(event);
+    if (!published) {
+      console.warn('[WorkflowRuntime] advance: Ably publish failed — participants may not see phase change');
+    }
 
     return nextState;
   }
@@ -201,10 +213,16 @@ export class VirtualSpaceWorkflowRuntime {
       transitions: [...state.transitions, transition],
     };
 
-    await this.supabase
+    // Optimistic lock: only update if currentPhaseIndex hasn't changed since we read it
+    const { error: updateError } = await this.supabase
       .from('virtualspace_sessions')
       .update({ workflow_state: prevState })
-      .eq('id', this.sessionId);
+      .eq('id', this.sessionId)
+      .filter('workflow_state->>currentPhaseIndex', 'eq', String(state.currentPhaseIndex));
+
+    if (updateError) {
+      throw new WorkflowRuntimeError('Phase back failed — concurrent modification detected', 'CONFLICT');
+    }
 
     const event: WorkflowPhaseChangedEvent = {
       name: 'workflow:phase-changed',
@@ -219,7 +237,10 @@ export class VirtualSpaceWorkflowRuntime {
         changedAt: now,
       },
     };
-    await this.publish(event);
+    const published = await this.publish(event);
+    if (!published) {
+      console.warn('[WorkflowRuntime] back: Ably publish failed — participants may not see phase change');
+    }
 
     return prevState;
   }
@@ -285,14 +306,16 @@ export class VirtualSpaceWorkflowRuntime {
     return state.transitions[state.transitions.length - 1].exitedAt;
   }
 
-  private async publish(event: { name: string; data: unknown }): Promise<void> {
+  private async publish(event: { name: string; data: unknown }): Promise<boolean> {
     try {
       const ably = new Ably.Rest(process.env.ABLY_API_KEY!);
       const channel = ably.channels.get(this.ablyChannelName);
       await channel.publish(event.name, event.data);
+      return true;
     } catch (err) {
-      // Non-fatal — DB state is already written
+      // Non-fatal — DB state is already written, but callers should warn users
       console.error('[WorkflowRuntime] Ably publish failed:', err);
+      return false;
     }
   }
 }

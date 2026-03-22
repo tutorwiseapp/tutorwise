@@ -11,3 +11,6 @@ export * from './types';
 export * from './context-resolver';
 export * from './events';
 export * from './PhaseContextResolver';
+export { VirtualSpaceWorkflowRuntime, WorkflowRuntimeError } from './VirtualSpaceWorkflowRuntime';
+export type { WorkflowState, WorkflowTransition, PhaseExitTrigger } from './VirtualSpaceWorkflowRuntime';
+export { executeCanvasActions } from './CanvasActionExecutor';

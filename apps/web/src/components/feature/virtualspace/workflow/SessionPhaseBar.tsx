@@ -77,6 +77,9 @@ function ElapsedTimer({ startedAt }: { startedAt: string }) {
   );
 }
 
+// zIndex constants — keep in sync with toolbar pills (z:500)
+const Z_PHASE_BAR = 450;
+
 // ── Component ──────────────────────────────────────────────────────────────
 
 export function SessionPhaseBar({
@@ -92,25 +95,43 @@ export function SessionPhaseBar({
   const [loading, setLoading] = useState<'advance' | 'back' | 'stop' | null>(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
 
+  // ── Execute canvas actions on initial mount (e.g. after page refresh) ────
+  useEffect(() => {
+    if (!initialPhaseState || !workflow || !editorRef?.current) return;
+    const phase = workflow.phases[initialPhaseState.currentPhaseIndex];
+    if (phase?.canvasActions?.length) {
+      try {
+        executeCanvasActions(editorRef.current, phase.canvasActions);
+      } catch (err) {
+        console.warn('[SessionPhaseBar] Initial canvas action failed:', err);
+      }
+    }
+  // Only run on mount — intentionally omitting deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Sprint C: Ably real-time sync ────────────────────────────────────────
 
   useChannel(channelName, (msg) => {
+    // Validate event shape before consuming — malformed Ably events must not crash
     if (isSessionEvent<import('@/lib/virtualspace/events').WorkflowStartedEvent>(msg as any, 'workflow:started')) {
       const d = msg.data as import('@/lib/virtualspace/events').WorkflowStartedEvent['data'];
+      if (typeof d?.currentPhaseIndex !== 'number' || !d?.workflowId) return;
       setPhaseState({
         workflowId: d.workflowId,
         workflowName: d.workflowName,
         currentPhaseIndex: d.currentPhaseIndex,
         totalPhases: d.totalPhases,
         currentPhaseName: d.currentPhaseName,
-        currentPhaseIcon: '',
-        currentSageMode: workflow?.ai_involvement ?? 'full',
+        currentPhaseIcon: workflow?.phases[0]?.icon ?? '',
+        currentSageMode: workflow?.phases[0]?.sageMode ?? workflow?.ai_involvement ?? 'full',
         startedAt: d.startedAt,
       });
     }
 
     if (isSessionEvent<import('@/lib/virtualspace/events').WorkflowPhaseChangedEvent>(msg as any, 'workflow:phase-changed')) {
       const d = msg.data as import('@/lib/virtualspace/events').WorkflowPhaseChangedEvent['data'];
+      if (typeof d?.currentPhaseIndex !== 'number') return;
       setPhaseState(prev => prev ? {
         ...prev,
         currentPhaseIndex: d.currentPhaseIndex,
@@ -122,7 +143,11 @@ export function SessionPhaseBar({
       // Execute canvas actions for the new phase (Sprint D)
       const newPhase = workflow?.phases[d.currentPhaseIndex];
       if (newPhase?.canvasActions?.length && editorRef?.current) {
-        executeCanvasActions(editorRef.current, newPhase.canvasActions);
+        try {
+          executeCanvasActions(editorRef.current, newPhase.canvasActions);
+        } catch (err) {
+          console.warn('[SessionPhaseBar] Canvas action on phase change failed:', err);
+        }
       }
     }
 
@@ -191,7 +216,7 @@ export function SessionPhaseBar({
         padding: '6px 10px',
         background: 'hsl(204, 16%, 94%)',
         borderRadius: 10,
-        zIndex: 450,
+        zIndex: Z_PHASE_BAR,
         pointerEvents: 'all',
         whiteSpace: 'nowrap',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
