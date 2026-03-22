@@ -1235,7 +1235,7 @@ export function SubjectToolsPanel({ isTutor, onOpenWorkflowSelector }: { isTutor
       style={{
         position: 'absolute',
         top: 16,
-        right: isTutor ? 569 : 501,
+        right: isTutor ? 535 : 467,
         zIndex: 500,
         display: 'flex',
         flexDirection: 'column',
