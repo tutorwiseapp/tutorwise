@@ -226,6 +226,8 @@ export interface VirtualSpaceSessionListItem {
   createdAt: string;
   lastActivityAt: string;
   isOwner: boolean;
+  recordingUrl?: string | null;
+  hasReport?: boolean;
 }
 
 // ============================================================================

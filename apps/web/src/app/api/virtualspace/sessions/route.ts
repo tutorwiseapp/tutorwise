@@ -48,7 +48,9 @@ export async function GET(request: NextRequest) {
         status,
         owner_id,
         created_at,
-        last_activity_at
+        last_activity_at,
+        recording_url,
+        session_report
       `
       )
       .or(`owner_id.eq.${user.id}${participantSessionIds.length > 0 ? `,id.in.(${participantSessionIds.join(',')})` : ''}`)
@@ -97,6 +99,8 @@ export async function GET(request: NextRequest) {
         createdAt: session.created_at,
         lastActivityAt: session.last_activity_at,
         isOwner: session.owner_id === user.id,
+        recordingUrl: (session as any).recording_url || null,
+        hasReport: !!(session as any).session_report,
       })) || [];
 
     return NextResponse.json({

@@ -1,15 +1,15 @@
 /**
- * VideoPanel — In-app LiveKit video conferencing panel (v1.0)
+ * VideoPanel — In-app LiveKit video conferencing panel (v2.0)
  *
- * Floating draggable panel providing camera, microphone, and screen share
- * via LiveKit. Gracefully shows a setup guide if LIVEKIT_* env vars are
- * not configured on the server.
+ * Floating draggable panel providing camera, microphone, screen share,
+ * and session recording via LiveKit Egress. Gracefully shows a setup guide
+ * if LIVEKIT_* env vars are not configured on the server.
  */
 
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { GripVertical, Video, X, Minimize2, Maximize2, ExternalLink } from 'lucide-react';
+import { GripVertical, Video, X, Minimize2, Maximize2, ExternalLink, Circle, StopCircle } from 'lucide-react';
 import {
   LiveKitRoom,
   GridLayout,
@@ -113,16 +113,19 @@ NEXT_PUBLIC_LIVEKIT_URL=wss://your-project.livekit.cloud`}
 interface VideoPanelProps {
   sessionId: string;
   onClose: () => void;
+  canRecord?: boolean; // tutor/owner only
 }
 
 type PanelState = 'loading' | 'unconfigured' | 'ready' | 'error';
 
-export function VideoPanel({ sessionId, onClose }: VideoPanelProps) {
+export function VideoPanel({ sessionId, onClose, canRecord = false }: VideoPanelProps) {
   const [panelState, setPanelState] = useState<PanelState>('loading');
   const [token, setToken] = useState<string | null>(null);
   const [roomName, setRoomName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [minimized, setMinimized] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingError, setRecordingError] = useState('');
 
   // Drag-to-reposition
   const panelRef = useRef<HTMLDivElement>(null);
@@ -147,6 +150,31 @@ export function VideoPanel({ sessionId, onClose }: VideoPanelProps) {
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   }, [pos.x, pos.y]);
+
+  // Recording controls
+  const handleStartRecording = useCallback(async () => {
+    setRecordingError('');
+    try {
+      const res = await fetch(`/api/virtualspace/${sessionId}/recording`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setRecordingError(data.error || 'Failed to start recording');
+        return;
+      }
+      setIsRecording(true);
+    } catch {
+      setRecordingError('Failed to start recording');
+    }
+  }, [sessionId]);
+
+  const handleStopRecording = useCallback(async () => {
+    try {
+      await fetch(`/api/virtualspace/${sessionId}/recording`, { method: 'DELETE' });
+      setIsRecording(false);
+    } catch {
+      setRecordingError('Failed to stop recording');
+    }
+  }, [sessionId]);
 
   // Fetch token on mount
   useEffect(() => {
@@ -227,6 +255,23 @@ export function VideoPanel({ sessionId, onClose }: VideoPanelProps) {
             </span>
           )}
         </span>
+        {/* Recording button — tutor/owner only, only when ready */}
+        {canRecord && panelState === 'ready' && (
+          <button
+            onClick={isRecording ? handleStopRecording : handleStartRecording}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: isRecording ? '#ef4444' : '#64748b',
+              display: 'flex',
+              padding: 2,
+            }}
+            title={isRecording ? 'Stop recording' : 'Start recording'}
+          >
+            {isRecording ? <StopCircle size={13} /> : <Circle size={13} />}
+          </button>
+        )}
         <button
           onClick={() => setMinimized((v) => !v)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', padding: 2 }}
@@ -272,6 +317,26 @@ export function VideoPanel({ sessionId, onClose }: VideoPanelProps) {
               >
                 Close
               </button>
+            </div>
+          )}
+
+          {recordingError && (
+            <div style={{ padding: '4px 10px', background: '#fef2f2', fontSize: 11, color: '#dc2626' }}>
+              {recordingError}
+            </div>
+          )}
+          {isRecording && (
+            <div style={{
+              padding: '4px 10px',
+              background: '#fef2f2',
+              fontSize: 11,
+              color: '#dc2626',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}>
+              <Circle size={8} fill="#dc2626" />
+              Recording in progress
             </div>
           )}
 

@@ -2,25 +2,52 @@
  * HomeworkDialog
  * Tutor sets homework text, published via Ably session channel
  * so the student receives it as a notification.
+ * Enhanced: optional Google Classroom posting.
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ClipboardList, X, Send } from 'lucide-react';
+
+interface GoogleCourse {
+  id: string;
+  name: string;
+  section?: string;
+}
 
 interface HomeworkDialogProps {
   onClose: () => void;
-  onSend: (text: string, dueDate: string) => void;
+  onSend: (text: string, dueDate: string, postToClassroom?: { courseId: string } | null) => void;
 }
 
 export function HomeworkDialog({ onClose, onSend }: HomeworkDialogProps) {
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [postToClassroom, setPostToClassroom] = useState(false);
+  const [classroomConnected, setClassroomConnected] = useState(false);
+  const [courses, setCourses] = useState<GoogleCourse[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+
+  // Check if Google Classroom is connected
+  useEffect(() => {
+    fetch('/api/integrations/google-classroom/assignments')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.connected) {
+          setClassroomConnected(true);
+          setCourses(data.courses || []);
+        }
+      })
+      .catch(() => { /* non-critical */ });
+  }, []);
 
   const handleSend = () => {
     if (!text.trim()) return;
-    onSend(text.trim(), dueDate);
+    const classroomOption = postToClassroom && selectedCourseId
+      ? { courseId: selectedCourseId }
+      : null;
+    onSend(text.trim(), dueDate, classroomOption);
     onClose();
   };
 
@@ -110,6 +137,44 @@ export function HomeworkDialog({ onClose, onSend }: HomeworkDialogProps) {
             }}
           />
         </div>
+
+        {/* Google Classroom (only shown when connected) */}
+        {classroomConnected && (
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={postToClassroom}
+                onChange={(e) => setPostToClassroom(e.target.checked)}
+              />
+              Also post to Google Classroom
+            </label>
+            {postToClassroom && courses.length > 0 && (
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                style={{
+                  marginTop: 6,
+                  width: '100%',
+                  border: '1px solid #d1d5db',
+                  borderRadius: 8,
+                  padding: '7px 10px',
+                  fontSize: 13,
+                  fontFamily: 'system-ui, sans-serif',
+                  color: '#1e293b',
+                  outline: 'none',
+                }}
+              >
+                <option value="">— Select a course —</option>
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}{c.section ? ` (${c.section})` : ''}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AblyProvider, ChannelProvider } from 'ably/react';
 import * as Ably from 'ably';
-import { ArrowLeft, Video, Save, CheckCircle, Share2, BookOpen, StickyNote, UserCheck, Tv2 } from 'lucide-react';
+import { ArrowLeft, Video, Save, CheckCircle, Share2, BookOpen, StickyNote, UserCheck, Tv2, FileText, BarChart2, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { openGoogleMeetWindow, trackMeetSession } from '@/lib/google-meet';
 import { EmbeddedWhiteboard } from '@/components/feature/virtualspace/EmbeddedWhiteboard';
@@ -33,6 +33,7 @@ import { TutorNotesPanel } from '@/components/feature/virtualspace/whiteboard/pa
 import { ParticipantListPanel } from '@/components/feature/virtualspace/whiteboard/panels/ParticipantListPanel';
 import { HomeworkDialog } from '@/components/feature/virtualspace/whiteboard/panels/HomeworkDialog';
 import { VideoPanel } from '@/components/feature/virtualspace/whiteboard/panels/VideoPanel';
+import { BreakoutRoomPanel } from '@/components/feature/virtualspace/whiteboard/panels/BreakoutRoomPanel';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -173,6 +174,10 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const [participantListOpen, setParticipantListOpen] = useState(false);
   const [homeworkDialogOpen, setHomeworkDialogOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
+  const [isPdfUploading, setIsPdfUploading] = useState(false);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [isGeneratingWorksheet, setIsGeneratingWorksheet] = useState(false);
+  const [breakoutOpen, setBreakoutOpen] = useState(false);
   const lessonPlan = useLessonPlan({
     sessionId: context.sessionId,
     sageSessionId: sage.sageSessionId,
@@ -332,6 +337,11 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
       }
 
       toast.success('Session marked as complete!');
+
+      // Fire-and-forget: generate AI report
+      fetch(`/api/virtualspace/${context.sessionId}/report`, { method: 'POST' })
+        .catch(() => { /* non-critical */ });
+
       // Give user time to see the success message before closing
       setTimeout(() => {
         window.close();
@@ -387,13 +397,103 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     return () => clearInterval(interval);
   }, [handleAutoSave]);
 
-  const handleSendHomework = useCallback((text: string, dueDate: string) => {
-    // Broadcast homework to all participants via session channel
+  // Generate worksheet — tutor generates a PDF practice sheet
+  const handleGenerateWorksheet = useCallback(async () => {
+    setIsGeneratingWorksheet(true);
+    try {
+      const res = await fetch(`/api/virtualspace/${context.sessionId}/worksheet`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate worksheet');
+      if (data.url) {
+        window.open(data.url, '_blank');
+        toast.success(`Worksheet generated (${data.questions} questions, ${data.totalMarks} marks)`);
+      } else if (data.rawQuestions) {
+        toast.success(`${data.questions} questions generated — check console for details`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to generate worksheet');
+    } finally {
+      setIsGeneratingWorksheet(false);
+    }
+  }, [context.sessionId]);
+
+  // PDF upload — tutor stamps a PDF viewer shape on the canvas
+  const handlePdfUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsPdfUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`/api/virtualspace/${context.sessionId}/pdf-upload`, {
+        method: 'POST',
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      // Stamp pdf-viewer shape onto canvas via dispatchShape
+      dispatchShape({
+        type: 'pdf-viewer',
+        props: {
+          w: 520,
+          h: 680,
+          pdfUrl: data.url,
+          page: 1,
+          totalPages: data.estimatedPages || 1,
+          label: file.name,
+        },
+      });
+      toast.success(`PDF "${file.name}" added to canvas`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to upload PDF');
+    } finally {
+      setIsPdfUploading(false);
+      // Reset input so same file can be re-selected
+      if (pdfInputRef.current) pdfInputRef.current.value = '';
+    }
+  }, [context.sessionId, dispatchShape]);
+
+  const handleSendHomework = useCallback(async (
+    text: string,
+    dueDate: string,
+    classroomOption?: { courseId: string } | null
+  ) => {
+    // 1. Broadcast via Ably (existing behaviour — preserved)
     const sessionChannelName = `session:${context.channelName}`;
     const ch = ablyClient.channels.get(sessionChannelName);
     ch.publish('session:homework', { text, dueDate, tutorName: context.ownerName });
+
+    // 2. Persist to DB (new)
+    let homeworkId: string | null = null;
+    try {
+      const res = await fetch(`/api/virtualspace/${context.sessionId}/homework`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, dueDate: dueDate || null }),
+      });
+      const data = await res.json();
+      if (data.id) homeworkId = data.id;
+    } catch {
+      // non-critical — Ably broadcast still worked
+    }
+
+    // 3. Post to Google Classroom if requested
+    if (classroomOption && homeworkId) {
+      try {
+        await fetch('/api/integrations/google-classroom/post-homework', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ homeworkId, courseId: classroomOption.courseId }),
+        });
+        toast.success('Homework sent and posted to Google Classroom');
+        return;
+      } catch {
+        // non-critical
+      }
+    }
+
     toast.success('Homework sent to student');
-  }, [ablyClient, context.channelName, context.ownerName]);
+  }, [ablyClient, context.channelName, context.ownerName, context.sessionId]);
 
   return (
     <AblyProvider client={ablyClient}>
@@ -478,6 +578,77 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             >
               <Share2 size={20} />
               Copy Invite Link
+            </button>
+          )}
+
+          {/* Generate Worksheet — tutor only */}
+          {isTutor && (
+            <button
+              onClick={handleGenerateWorksheet}
+              className={styles.secondaryButton}
+              disabled={isGeneratingWorksheet}
+              title="Generate a PDF practice worksheet from this session's topics"
+            >
+              <FileText size={16} />
+              {isGeneratingWorksheet ? 'Generating...' : 'Worksheet'}
+            </button>
+          )}
+
+          {/* PDF Upload — tutor only, stamps a PDF viewer shape on canvas */}
+          {isTutor && (
+            <>
+              <input
+                ref={pdfInputRef}
+                type="file"
+                accept="application/pdf"
+                style={{ display: 'none' }}
+                onChange={handlePdfUpload}
+              />
+              <button
+                onClick={() => pdfInputRef.current?.click()}
+                className={styles.secondaryButton}
+                disabled={isPdfUploading}
+                title="Upload a PDF to the canvas"
+              >
+                <FileText size={16} />
+                {isPdfUploading ? 'Uploading...' : 'Upload PDF'}
+              </button>
+            </>
+          )}
+
+          {/* Analytics link — tutor only */}
+          {isTutor && (
+            <button
+              onClick={() => window.open('/virtualspace/analytics', '_blank')}
+              className={styles.secondaryButton}
+              title="View session analytics"
+            >
+              <BarChart2 size={16} />
+              Analytics
+            </button>
+          )}
+
+          {/* Breakout Rooms — tutor only */}
+          {isTutor && (
+            <button
+              onClick={() => setBreakoutOpen((v) => !v)}
+              className={breakoutOpen ? styles.primaryButton : styles.secondaryButton}
+              title="Manage breakout rooms"
+            >
+              <Users size={16} />
+              Breakout Rooms
+            </button>
+          )}
+
+          {/* Homework tracker — student */}
+          {!isTutor && (
+            <button
+              onClick={() => window.open('/virtualspace/homework', '_blank')}
+              className={styles.secondaryButton}
+              title="View your homework"
+            >
+              <FileText size={16} />
+              Homework
             </button>
           )}
 
@@ -625,6 +796,15 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
         <VideoPanel
           sessionId={context.sessionId}
           onClose={() => setVideoOpen(false)}
+          canRecord={isTutor || context.mode === 'standalone'}
+        />
+      )}
+
+      {/* Breakout rooms panel — tutor only */}
+      {isTutor && breakoutOpen && (
+        <BreakoutRoomPanel
+          sessionId={context.sessionId}
+          onClose={() => setBreakoutOpen(false)}
         />
       )}
     </AblyProvider>

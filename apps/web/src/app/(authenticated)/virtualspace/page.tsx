@@ -16,7 +16,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useUserProfile } from '@/app/contexts/UserProfileContext';
-import { Plus, Video } from 'lucide-react';
+import { Plus, Video, Circle, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { VirtualSpaceSessionListItem } from '@/lib/virtualspace';
 import HubSidebar from '@/components/hub/sidebar/HubSidebar';
@@ -417,6 +417,32 @@ export default function VirtualSpaceListPage() {
                     onClick={(e: React.MouseEvent) => handleCopyInviteLink(session.id, e)}
                   >
                     Copy Link
+                  </Button>
+                )}
+                {session.recordingUrl && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      window.open(session.recordingUrl!, '_blank');
+                    }}
+                  >
+                    <Circle size={10} fill="#dc2626" style={{ color: '#dc2626' }} />
+                    Recording
+                  </Button>
+                )}
+                {session.hasReport && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      router.push(`/virtualspace/${session.id}/report`);
+                    }}
+                  >
+                    <FileText size={12} />
+                    Report
                   </Button>
                 )}
               </>

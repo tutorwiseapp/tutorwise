@@ -54,6 +54,7 @@ import { UnitConverterShapeUtil } from './whiteboard/shapes/UnitConverterShapeUt
 import { RulerShapeUtil } from './whiteboard/shapes/RulerShapeUtil';
 import { CompassShapeUtil } from './whiteboard/shapes/CompassShapeUtil';
 import { AngleMeasurerShapeUtil } from './whiteboard/shapes/AngleMeasurerShapeUtil';
+import { PdfViewerShapeUtil } from './whiteboard/shapes/PdfViewerShapeUtil';
 
 // Session context + controls
 import { SessionProvider, useSession } from './whiteboard/session/SessionContext';
@@ -114,6 +115,8 @@ const CUSTOM_SHAPE_UTILS = [
   RulerShapeUtil,
   CompassShapeUtil,
   AngleMeasurerShapeUtil,
+  // Document viewer
+  PdfViewerShapeUtil,
 ];
 
 // ── CollapsibleStylePanel ──────────────────────────────────────────────────
