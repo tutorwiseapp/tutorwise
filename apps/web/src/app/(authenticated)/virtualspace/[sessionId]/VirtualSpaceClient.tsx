@@ -34,6 +34,8 @@ import { ParticipantListPanel } from '@/components/feature/virtualspace/whiteboa
 import { HomeworkDialog } from '@/components/feature/virtualspace/whiteboard/panels/HomeworkDialog';
 import { VideoPanel } from '@/components/feature/virtualspace/whiteboard/panels/VideoPanel';
 import { BreakoutRoomPanel } from '@/components/feature/virtualspace/whiteboard/panels/BreakoutRoomPanel';
+import { WorkflowSelector } from '@/components/feature/virtualspace/workflow/WorkflowSelector';
+import type { SessionWorkflow } from '@/components/feature/virtualspace/workflow/types';
 
 interface VirtualSpaceClientProps {
   context: VirtualSpaceSession;
@@ -178,6 +180,8 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const [isGeneratingWorksheet, setIsGeneratingWorksheet] = useState(false);
   const [breakoutOpen, setBreakoutOpen] = useState(false);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<SessionWorkflow | null>(null);
+  const [showWorkflowSelector, setShowWorkflowSelector] = useState(true);
   const lessonPlan = useLessonPlan({
     sessionId: context.sessionId,
     sageSessionId: sage.sageSessionId,
@@ -495,6 +499,19 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
     toast.success('Homework sent to student');
   }, [ablyClient, context.channelName, context.ownerName, context.sessionId]);
 
+  // Workflow selector — shown on first load, dismissed on select or skip
+  if (showWorkflowSelector) {
+    return (
+      <WorkflowSelector
+        onSelect={(workflow) => {
+          setSelectedWorkflow(workflow);
+          setShowWorkflowSelector(false);
+        }}
+        onSkip={() => setShowWorkflowSelector(false)}
+      />
+    );
+  }
+
   return (
     <AblyProvider client={ablyClient}>
       {/* Header */}
@@ -509,6 +526,21 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
             <span>Leave</span>
           </button>
           <h1 className={styles.title}>{getSessionTitle()}</h1>
+          {selectedWorkflow && (
+            <span
+              title={`Workflow: ${selectedWorkflow.name}`}
+              style={{
+                fontSize: 12, color: '#fff',
+                background: selectedWorkflow.theme.colour,
+                borderRadius: 5, padding: '2px 8px',
+                display: 'flex', alignItems: 'center', gap: 4,
+                cursor: 'pointer', flexShrink: 0,
+              }}
+              onClick={() => setShowWorkflowSelector(true)}
+            >
+              {selectedWorkflow.theme.icon} {selectedWorkflow.name}
+            </span>
+          )}
           <span
             className={styles.badge}
             style={{
