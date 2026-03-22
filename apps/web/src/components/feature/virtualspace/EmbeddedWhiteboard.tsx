@@ -185,6 +185,7 @@ function InFrontOfTheCanvas({
   isSageActivating,
   sageProfile,
   onHomework,
+  onOpenWorkflowSelector,
 }: {
   displayName: string;
   isTutor?: boolean;
@@ -195,6 +196,7 @@ function InFrontOfTheCanvas({
   isSageActivating?: boolean;
   sageProfile?: string;
   onHomework?: () => void;
+  onOpenWorkflowSelector?: () => void;
 }) {
   const editor = useEditor();
   const { drawLocked, remoteCursors, publishCursor } = useSession();
@@ -230,7 +232,7 @@ function InFrontOfTheCanvas({
   return (
     <>
       <SessionControlsPanel isTutor={isTutor} onHomework={onHomework} />
-      <SubjectToolsPanel isTutor={isTutor} />
+      <SubjectToolsPanel isTutor={isTutor} onOpenWorkflowSelector={onOpenWorkflowSelector} />
       <ChatPanel displayName={displayName} />
       <TimerWidget />
       <ReactionOverlay />
@@ -288,7 +290,7 @@ function InFrontOfTheCanvas({
           style={{
             position: 'absolute',
             top: 16,
-            right: isTutor ? 704 : 636,
+            right: isTutor ? 738 : 670,
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -346,6 +348,8 @@ interface EmbeddedWhiteboardProps {
   isTutor?: boolean;
   /** Called when the tutor clicks "Set homework" */
   onHomework?: () => void;
+  /** Called when the Learn Your Way toolbar button is clicked */
+  onOpenWorkflowSelector?: () => void;
   /** URL of the previous snapshot to restore canvas state on rejoin */
   initialSnapshotUrl?: string;
   /** Called after a successful auto-save so parent can show "Last saved" time */
@@ -368,6 +372,7 @@ export function EmbeddedWhiteboard({
   sageProfile,
   isTutor,
   onHomework,
+  onOpenWorkflowSelector,
   initialSnapshotUrl,
   onAutoSaved,
 }: EmbeddedWhiteboardProps) {
@@ -476,10 +481,11 @@ export function EmbeddedWhiteboard({
         isSageActivating={isSageActivating}
         sageProfile={sageProfile}
         onHomework={onHomework}
+        onOpenWorkflowSelector={onOpenWorkflowSelector}
       />
     ),
     StylePanel: CollapsibleStylePanel,
-  }), [displayName, isTutor, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile, onHomework]);
+  }), [displayName, isTutor, onRegisterSnapshot, onErasePattern, onAskSage, isSageActive, isSageActivating, sageProfile, onHomework, onOpenWorkflowSelector]);
 
   return (
     <ChannelProvider channelName={sessionChannelName}>

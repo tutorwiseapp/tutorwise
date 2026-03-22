@@ -773,6 +773,7 @@ export function VirtualSpaceClient({ context }: VirtualSpaceClientProps) {
           sageProfile={sage.profile ?? undefined}
           isTutor={isTutor}
           onHomework={() => setHomeworkDialogOpen(true)}
+          onOpenWorkflowSelector={() => setShowWorkflowSelector(true)}
           initialSnapshotUrl={context.snapshotUrl}
           onAutoSaved={() => setLastSavedAt(new Date())}
         />

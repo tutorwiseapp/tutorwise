@@ -11,7 +11,7 @@
 import { useEditor } from '@tldraw/editor';
 import { useState, useCallback } from 'react';
 import { createShapeId } from 'tldraw';
-import { Crosshair, X, Star, Eye, RefreshCw, MapPin, Target, CheckCircle2, type LucideIcon } from 'lucide-react';
+import { Crosshair, X, Star, Eye, RefreshCw, MapPin, Target, CheckCircle2, BookOpen, type LucideIcon } from 'lucide-react';
 import type { CircuitComponentType } from '../shapes/CircuitShapeUtil';
 import type { AnnotationType } from '../shapes/AnnotationShapeUtil';
 
@@ -1209,7 +1209,7 @@ function FocusPanel({ onClose }: { onClose: () => void }) {
 
 // ── Main panel ────────────────────────────────────────────────────────────
 
-export function SubjectToolsPanel({ isTutor }: { isTutor?: boolean }) {
+export function SubjectToolsPanel({ isTutor, onOpenWorkflowSelector }: { isTutor?: boolean; onOpenWorkflowSelector?: () => void }) {
   const editor = useEditor();
   const [openTab, setOpenTab] = useState<Tab | null>(null);
   const [focusOpen, setFocusOpen] = useState(false);
@@ -1235,7 +1235,7 @@ export function SubjectToolsPanel({ isTutor }: { isTutor?: boolean }) {
       style={{
         position: 'absolute',
         top: 16,
-        right: isTutor ? 535 : 467,
+        right: isTutor ? 569 : 501,
         zIndex: 500,
         display: 'flex',
         flexDirection: 'column',
@@ -1290,6 +1290,39 @@ export function SubjectToolsPanel({ isTutor }: { isTutor?: boolean }) {
 
         {/* Divider */}
         <div style={{ width: 1, height: 20, background: '#cbd5e1', flexShrink: 0, margin: '0 2px' }} />
+
+        {/* Learn Your Way — workflow selector */}
+        {onOpenWorkflowSelector && (
+          <button
+            onClick={onOpenWorkflowSelector}
+            title="Choose a learning workflow"
+            style={{
+              width: 28,
+              height: 28,
+              border: '1.5px solid #006c6760',
+              background: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 6,
+              transition: 'all 0.15s',
+              padding: 0,
+              flexShrink: 0,
+              color: '#006c67',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#ccf0ee';
+              e.currentTarget.style.borderColor = '#006c67';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = '#006c6760';
+            }}
+          >
+            <BookOpen size={14} />
+          </button>
+        )}
 
         {/* Focus / Feedback Stamps button */}
         <button
