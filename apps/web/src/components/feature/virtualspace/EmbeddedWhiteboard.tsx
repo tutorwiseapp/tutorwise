@@ -193,6 +193,7 @@ function InFrontOfTheCanvas({
   sessionId,
   sessionChannelName,
   activeWorkflow,
+  editorRef,
 }: {
   displayName: string;
   isTutor?: boolean;
@@ -495,6 +496,8 @@ export function EmbeddedWhiteboard({
   }, [onAutoSaved]);
 
   // Session channel name for chat/timer/reactions (distinct from draw channel)
+  const sessionChannelName = `session:${channelName}`;
+
 
   const tldrawComponents = useMemo(() => ({
     InFrontOfTheCanvas: () => (
