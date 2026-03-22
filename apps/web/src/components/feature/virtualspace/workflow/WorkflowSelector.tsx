@@ -4,12 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   BookOpen, X, Loader2, Search, Clock, Brain, Accessibility,
   Calculator, FlaskConical, BookMarked, Globe, GraduationCap, ChevronRight,
-  type LucideIcon,
 } from 'lucide-react';
 import { SessionWorkflow, AI_INVOLVEMENT_LABELS, AI_INVOLVEMENT_COLOURS, LEVEL_LABELS } from './types';
 import styles from './WorkflowSelector.module.css';
 
-const SUBJECT_ICONS: Record<string, LucideIcon> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SUBJECT_ICONS: Record<string, any> = {
   maths: Calculator,
   science: FlaskConical,
   english: BookMarked,
@@ -21,26 +21,22 @@ function WorkflowIcon({ workflow, size = 20 }: { workflow: SessionWorkflow; size
   return <Icon size={size} color={workflow.theme.colour} />;
 }
 
-type ActiveTab = 'builtin' | 'mine';
-
 interface WorkflowSelectorProps {
   onSelect: (workflow: SessionWorkflow) => void;
   onSkip: () => void;
 }
 
 export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('builtin');
   const [workflows, setWorkflows] = useState<SessionWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const fetchWorkflows = useCallback(async (q: string, tab: ActiveTab) => {
+  const fetchWorkflows = useCallback(async (q: string) => {
     setLoading(true);
     setError(null);
     const params = new URLSearchParams();
     if (q) params.set('search', q);
-    if (tab === 'builtin') params.set('builtIn', 'true');
     try {
       const res = await fetch(`/api/virtualspace/workflows?${params}`);
       const data = await res.json();
@@ -54,9 +50,9 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => fetchWorkflows(search, activeTab), search ? 300 : 0);
+    const t = setTimeout(() => fetchWorkflows(search), search ? 300 : 0);
     return () => clearTimeout(t);
-  }, [search, activeTab, fetchWorkflows]);
+  }, [search, fetchWorkflows]);
 
   return (
     <div className={styles.overlay} onClick={onSkip}>
@@ -98,22 +94,6 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
           />
         </div>
 
-        {/* Tabs */}
-        <div className={styles.tabBar}>
-          <button
-            className={`${styles.tab} ${activeTab === 'builtin' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('builtin')}
-          >
-            Built-in
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'mine' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('mine')}
-          >
-            My Workflows
-          </button>
-        </div>
-
         {/* List */}
         <div className={styles.workflowList}>
           {loading && (
@@ -126,18 +106,14 @@ export function WorkflowSelector({ onSelect, onSkip }: WorkflowSelectorProps) {
           {error && !loading && (
             <div className={styles.errorState}>
               <span>{error}</span>
-              <button className={styles.retryButton} onClick={() => fetchWorkflows(search, activeTab)}>
+              <button className={styles.retryButton} onClick={() => fetchWorkflows(search)}>
                 Try again
               </button>
             </div>
           )}
 
           {!loading && !error && workflows.length === 0 && (
-            <div className={styles.emptyState}>
-              {activeTab === 'mine'
-                ? 'No custom workflows yet.'
-                : 'No workflows match your search.'}
-            </div>
+            <div className={styles.emptyState}>No workflows match your search.</div>
           )}
 
           {!loading && !error && workflows.map(workflow => {
